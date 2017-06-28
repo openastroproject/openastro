@@ -1,0 +1,114 @@
+#
+# 70-altair-cameras.rules -- Udev rules for Altair cameras
+#
+# Copyright 2016 James Fidell (james@openastroproject.org)
+#
+# License:
+#
+# This file is part of the Open Astro Project.
+#
+# The Open Astro Project is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# The Open Astro Project is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with the Open Astro Project.  If not, see
+# <http://www.gnu.org/licenses/>.
+#
+
+ACTION!="add", GOTO="altair_end"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", GOTO="altair_test"
+SUBSYSTEM!="usb_device", GOTO="altair_end"
+
+LABEL="altair_test"
+
+# AAIMX185C
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3723", GROUP="users", MODE="0660"
+
+# AAIMX178C
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4000", GROUP="users", MODE="0660"
+
+# AAIMX178C (USB2)
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4001", GROUP="users", MODE="0660"
+
+# AAIMX302C
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4006", GROUP="users", MODE="0660"
+
+# AAIMX302C (USB2)
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4007", GROUP="users", MODE="0660"
+
+# AAIMX185C (USB2)
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4723", GROUP="users", MODE="0660"
+
+# AAICX618M
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8031", GROUP="users", MODE="0660"
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8306", GROUP="users", MODE="0660"
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8307", GROUP="users", MODE="0660"
+
+# AAICX429C
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8044", GROUP="users", MODE="0660"
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="804b", GROUP="users", MODE="0660"
+
+# AAICX429M
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8045", GROUP="users", MODE="0660"
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="804d", GROUP="users", MODE="0660"
+
+# AAICX829C
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8046", GROUP="users", MODE="0660"
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="804a", GROUP="users", MODE="0660"
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="804c", GROUP="users", MODE="0660"
+
+# AAICX829M
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8047", GROUP="users", MODE="0660"
+
+# GPCAMMT9M034M
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b121", GROUP="users", MODE="0660"
+
+# GPCAMAR0130C
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b122", GROUP="users", MODE="0660"
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b123", GROUP="users", MODE="0660"
+
+# GPCAMAR0130M
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b124", GROUP="users", MODE="0660"
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b134", GROUP="users", MODE="0660"
+
+# GPCAMAR0330C
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b310", GROUP="users", MODE="0660"
+
+# AAGFIMX185C (USB2)
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e217", GROUP="users", MODE="0660"
+
+# AAGFIMX185C
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e317", GROUP="users", MODE="0660"
+
+# 16d0 appears to belong to Systemax, so I've no idea why these cameras use
+# that vendor ID
+
+# GPCAMMT9M034M
+ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b2a", GROUP="users", MODE="0660"
+
+# GPCAMAR0130C
+ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b2b", GROUP="users", MODE="0660"
+
+# ALTAIRGP130C
+ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b4f", GROUP="users", MODE="0660"
+
+# ALTAIRGP130M
+ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b8b", GROUP="users", MODE="0660"
+
+# ALTAIRGP224C
+ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b8c", GROUP="users", MODE="0660"
+
+# AAGFIMX185C
+ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b2c", GROUP="users", MODE="0660"
+
+# AAGFIMX185C (USB2)
+ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b2d", GROUP="users", MODE="0660"
+
+LABEL="altair_end"

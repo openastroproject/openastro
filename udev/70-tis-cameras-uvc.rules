@@ -1,0 +1,70 @@
+#
+# 70-tis-cameras-uvc.rules -- Udev rules for true UVC TIS cameras
+#
+# Copyright 2013,2014 James Fidell (james@openastroproject.org)
+#
+# License:
+#
+# This file is part of the Open Astro Project.
+#
+# The Open Astro Project is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# The Open Astro Project is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with the Open Astro Project.  If not, see
+# <http://www.gnu.org/licenses/>.
+#
+
+ACTION!="add", GOTO="tis_uvc_end"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", GOTO="tis_uvc_test"
+SUBSYSTEM!="usb_device", GOTO="tis_uvc_end"
+
+LABEL="tis_uvc_test"
+
+# These don't need a driver, but may need the USB interface to be readable
+# and writeable by a user so we can use it from our own driver because
+# they're UVC colour cameras with raw colour output
+
+# DFK 51
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8102", \
+  GROUP="users", MODE="0660"
+
+# DFK 22 USB3
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8302", \
+  GROUP="users", MODE="0660"
+
+# DFK 42 USB3
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8308", \
+  GROUP="users", MODE="0660"
+
+# DFK 72 USB3
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8307", \
+  GROUP="users", MODE="0660"
+
+# DFK 23U618
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8411", \
+  GROUP="users", MODE="0660"
+
+# DFK 23U445
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8412", \
+  GROUP="users", MODE="0660"
+
+# DFK 23U274
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8413", \
+  GROUP="users", MODE="0660"
+
+LABEL="tis_uvc_end"

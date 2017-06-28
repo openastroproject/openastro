@@ -1,0 +1,38 @@
+#
+# 70-tis-cameras.rules -- Udev rules for TIS CCD cameras
+#
+# Copyright 2013,2014 James Fidell (james@openastroproject.org)
+#
+# License:
+#
+# This file is part of the Open Astro Project.
+#
+# The Open Astro Project is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# The Open Astro Project is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with the Open Astro Project.  If not, see
+# <http://www.gnu.org/licenses/>.
+#
+
+# These are the UVC cameras that just don't say they are
+# This will load the UVC kernel driver if it isn't there already
+
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8101", \
+  GROUP="users", MODE="0660", \
+  RUN+="/sbin/modprobe -b uvcvideo"
+
+# This sets up the TIS UVC camera ids in the driver when it is loaded
+
+ACTION=="add", \
+SUBSYSTEM=="drivers", \
+ENV{DEVPATH}=="/bus/usb/drivers/uvcvideo", \
+  RUN+="/bin/sh -c 'echo 199e 8101 > /sys/bus/usb/drivers/uvcvideo/new_id'"

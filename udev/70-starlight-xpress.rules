@@ -1,0 +1,42 @@
+#
+# 70-starlight-xpress.rules -- Udev rules for Starlight Express devices
+#
+# Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+#
+# License:
+#
+# This file is part of the Open Astro Project.
+#
+# The Open Astro Project is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# The Open Astro Project is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with the Open Astro Project.  If not, see
+# <http://www.gnu.org/licenses/>.
+#
+
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0100" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0105" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0107" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0109" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0119" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0126" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0128" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0135" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0136" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0305" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0307" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0308" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0319" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0325" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0326" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0507" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0517" GROUP="users", MODE="0660"
+ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0920" GROUP="users", MODE="0660"

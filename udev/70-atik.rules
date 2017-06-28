@@ -1,0 +1,58 @@
+#
+# 70-atik.rules -- Udev rules for Atik CCD cameras
+#
+# Copyright 2014 James Fidell (james@openastroproject.org)
+#
+# License:
+#
+# This file is part of the Open Astro Project.
+#
+# The Open Astro Project is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# The Open Astro Project is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with the Open Astro Project.  If not, see
+# <http://www.gnu.org/licenses/>.
+#
+
+# The kernel FTDI serial driver already appears to know that most of the
+# serial Atik cameras exist.  It's just missing these
+
+ACTION!="add", GOTO="atik_rules_end"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", GOTO="atik_pid_test"
+SUBSYSTEM!="usb_device", GOTO="atik_add_id"
+
+LABEL="atik_pid_test"
+
+ATTR{idVendor}=="0403", ATTR{idProduct}=="df2c", OWNER="root", GROUP="video", MODE="0666", RUN+="/sbin/modprobe -b ftdi_sio"
+ATTR{idVendor}=="0403", ATTR{idProduct}=="df2d", OWNER="root", GROUP="video", MODE="0666", RUN+="/sbin/modprobe -b ftdi_sio"
+ATTR{idVendor}=="0403", ATTR{idProduct}=="df34", OWNER="root", GROUP="video", MODE="0666", RUN+="/sbin/modprobe -b ftdi_sio"
+ATTR{idVendor}=="0403", ATTR{idProduct}=="df36", OWNER="root", GROUP="video", MODE="0666", SYMLINK+="atik_16ic_c", RUN+="/sbin/modprobe -b ftdi_sio"
+
+LABEL="atik_add_id"
+SUBSYSTEM!="drivers", GOTO="atik_rules_end"
+
+SUBSYSTEM=="drivers", \
+ENV{DEVPATH}=="/bus/usb-serial/drivers/ftdi_sio", \
+  ATTR{new_id}="0403 df2c"
+
+SUBSYSTEM=="drivers", \
+ENV{DEVPATH}=="/bus/usb-serial/drivers/ftdi_sio", \
+  ATTR{new_id}="0403 df2d"
+
+SUBSYSTEM=="drivers", \
+ENV{DEVPATH}=="/bus/usb-serial/drivers/ftdi_sio", \
+  ATTR{new_id}="0403 df34"
+
+SUBSYSTEM=="drivers", \
+ENV{DEVPATH}=="/bus/usb-serial/drivers/ftdi_sio", \
+  ATTR{new_id}="0403 df36"
+
+LABEL="atik_rules_end"

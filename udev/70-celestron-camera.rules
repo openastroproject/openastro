@@ -1,0 +1,86 @@
+#
+# 70-celestron-camera.rules -- Udev rules for TIS CCD cameras
+#
+# Copyright 2014,2015 James Fidell (james@openastroproject.org)
+#
+# License:
+#
+# This file is part of the Open Astro Project.
+#
+# The Open Astro Project is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# The Open Astro Project is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with the Open Astro Project.  If not, see
+# <http://www.gnu.org/licenses/>.
+#
+
+ACTION!="add", GOTO="celestron_end"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", GOTO="celestron_test"
+SUBSYSTEM!="usb_device", GOTO="celestron_end"
+
+LABEL="celestron_test"
+
+# Neximage 5 ?
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8207", \
+  GROUP="users", MODE="0660"
+
+# Neximage 5 ?
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8307", \
+  GROUP="users", MODE="0660"
+
+# Neximage Burst M and Neximage Burst C
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8208", \
+  GROUP="users", MODE="0660"
+
+# Skyris ???
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8441", \
+  GROUP="users", MODE="0660"
+
+# Skyris ???
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8442", \
+  GROUP="users", MODE="0660"
+
+# Skyris 274M
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8443", \
+  GROUP="users", MODE="0660"
+
+# Skyris ???
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8448", \
+  GROUP="users", MODE="0660"
+
+# Skyris ???
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8451", \
+  GROUP="users", MODE="0660"
+
+# Skyris ???
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8452", \
+  GROUP="users", MODE="0660"
+
+# Skyris ???
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8453", \
+  GROUP="users", MODE="0660"
+
+# Skyris 132C
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8458", \
+  GROUP="users", MODE="0660"
+
+LABEL="celestron_end"
