@@ -1,0 +1,67 @@
+# http://www.gnu.org/software/automake
+
+Makefile.in
+/ar-lib
+/mdate-sh
+/py-compile
+/test-driver
+/ylwrap
+
+# http://www.gnu.org/software/autoconf
+
+/autom4te.cache
+/autoscan.log
+/autoscan-*.log
+/aclocal.m4
+/compile
+/config.guess
+/config.h.in
+/config.sub
+/configure
+/configure.scan
+/depcomp
+/install-sh
+/missing
+/stamp-h1
+
+# https://www.gnu.org/software/libtool/
+
+/ltmain.sh
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+
+*.slo
+*.lo
+*.o
+
+# Compiled Static libraries
+
+*.lai
+*.la
+
+# Executables
+
+*.out
+*.app
+
+# Cmake stuff
+
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+
+# Qt temporary files
+*.moc
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
