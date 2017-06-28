@@ -1,0 +1,17 @@
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource>
+    <file>icons/barchart.png</file>
+    <file>icons/BGGR.png</file>
+    <file>icons/cog.png</file>
+    <file>icons/filter-wheel.png</file>
+    <file>icons/GBRG.png</file>
+    <file>icons/GRBG.png</file>
+    <file>icons/mosaic.png</file>
+    <file>icons/object-flip-horizontal.png</file>
+    <file>icons/object-flip-vertical.png</file>
+    <file>icons/reticle.png</file>
+    <file>icons/RGGB.png</file>
+    <file>icons/folder-new-7.png</file>
+    <file>icons/folder-open-4.png</file>
+  </qresource>
+</RCC>
