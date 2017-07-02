@@ -1,0 +1,23 @@
+Source: oacapture
+Section: unknown
+Priority: optional
+Maintainer: James Fidell <james@openastroproject.org>
+Build-Depends: debhelper (>=9), libusb-1.0-0-dev, pkg-config, libasicamera-dev, libudev-dev, libcfitsio-dev, libpng12-dev, libtiff-dev, libv4l-dev, libqt4-dev, libavcodec-dev, libavformat-dev, libavutil-dev, libswscale-dev, libhidapi-dev, libftdi1-dev, liblzma-dev
+Standards-Version: 3.9.7
+Homepage: http://www.openastroproject.org/
+
+Package: oacapture
+Architecture: any
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libasicamera, libv4l-0, libqtgui4, libqtcore4, libftdi1
+Description: planetary capture application
+ An application and associated tools for controlling cameras for planetary
+ capture and related astronomy imaging
+
+# Package: oacapture-dev
+# Section: libdevel
+# Architecture: any
+# Depends: libuvc (= ${binary:Version}), ${misc:Depends}
+# Description: oacapture libraries and header files
+#  Libraries and header files from oacapture for use in third party
+#  applications

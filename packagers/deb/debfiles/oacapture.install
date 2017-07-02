@@ -1,0 +1,3 @@
+usr/bin/*
+lib/udev/rules.d/*
+lib/firmware/qhy/*

@@ -1,0 +1,6 @@
+
+override_dh_auto_install:
+	dh_auto_install
+	rm -fr $(CURDIR)/debian/oacapture/usr/include
+	rm -fr $(CURDIR)/debian/oacapture/usr/lib
+	rm -f $(CURDIR)/debian/oacapture/usr/bin/oalive
