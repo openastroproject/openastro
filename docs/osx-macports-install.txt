@@ -1,0 +1,9 @@
+#!/bin/bash
+
+port install qt4-mac cfitsio tiff pkgconfig libdc1394 libftdi1 yasm autoconf automake libtool subversion
+
+# Dbus stuff:
+
+sudo launchctl load -w /Library/LaunchDaemons/org.freedesktop.dbus-system.plist
+launchctl load -w /Library/LaunchAgents/org.freedesktop.dbus-session.plist
+
