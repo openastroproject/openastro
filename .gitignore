@@ -62,6 +62,8 @@ CTestTestfile.cmake
 # Qt temporary files
 *.moc
 moc_*.cpp
+moc_*.cc
 moc_*.h
 qrc_*.cpp
+qrc_*.cc
 ui_*.h
