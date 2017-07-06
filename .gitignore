@@ -9,20 +9,35 @@ Makefile.in
 
 # http://www.gnu.org/software/autoconf
 
-/autom4te.cache
-/autoscan.log
-/autoscan-*.log
-/aclocal.m4
-/compile
-/config.guess
-/config.h.in
-/config.sub
-/configure
-/configure.scan
-/depcomp
-/install-sh
-/missing
-/stamp-h1
+autom4te.cache
+autoscan.log
+autoscan-*.log
+aclocal.m4
+compile
+config.guess
+config.h.in
+config.h.in~
+config.sub
+config.log
+config.status
+configure
+configure.scan
+depcomp
+install-sh
+missing
+stamp-h1
+libtool
+/config.h
+/ext/libASICamera/libASICamera.a
+/ext/libASICamera/libASICamera2.a
+/ext/libaltaircam/libaltaircam.so
+/ext/libdc1394/config.h
+/ext/libdc1394/libdc1394-2.pc
+/ext/libdc1394/m4
+/ext/libhidapi/m4
+/ext/libusb/m4
+/m4
+/ext/libusb/config.h
 
 # https://www.gnu.org/software/libtool/
 
@@ -67,3 +82,21 @@ moc_*.h
 qrc_*.cpp
 qrc_*.cc
 ui_*.h
+
+# Other stuff
+.deps
+.libs
+/ext/libtoupcam/libtoupcam.so
+/ext/libusb/doc/doxygen.cfg
+/ext/libusb/examples/dpfp
+/ext/libusb/examples/dpfp_threaded
+/ext/libusb/examples/fxload
+/ext/libusb/examples/hotplugtest
+/ext/libusb/examples/listdevs
+/ext/libusb/examples/sam3u_benchmark
+/ext/libusb/examples/testlibusb
+/ext/libusb/examples/xusb
+/ext/libusb/libusb-1.0.pc
+/ext/libusb/libusb/os/.dirstamp
+/oacapture/oacapture
+/oalive/oalive
