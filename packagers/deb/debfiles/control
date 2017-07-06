@@ -9,7 +9,7 @@ Homepage: http://www.openastroproject.org/
 Package: oacapture
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
-Depends: ${shlibs:Depends}, ${misc:Depends}, libasicamera, libv4l-0, libqtgui4, libqtcore4, libftdi1
+Depends: ${shlibs:Depends}, ${misc:Depends}, libasicamera
 Description: planetary capture application
  An application and associated tools for controlling cameras for planetary
  capture and related astronomy imaging
