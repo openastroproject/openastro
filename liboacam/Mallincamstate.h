@@ -44,7 +44,6 @@ typedef struct Mallincam_STATE {
   int			videoRGB24;
   int			videoGrey;
   int			videoGrey16;
-  int			videoGrey12;
   int			videoRaw;
   int			bytesPerPixel;
   int			currentBytesPerPixel;
@@ -75,7 +74,6 @@ typedef struct Mallincam_STATE {
   // image settings
   FRAMESIZES		frameSizes[ OA_MAX_BINNING+1 ];
   // control values
-//  int32_t		currentColourBalance[3];
   // thread management
   pthread_t		controllerThread;
   pthread_mutex_t	commandQueueMutex;
@@ -94,41 +92,7 @@ typedef struct Mallincam_STATE {
   // streaming
   int			isStreaming;
   CALLBACK		streamingCallback;
-/*
-  // pointers to shared library functions so we can use them if they are
-  // present
 
-  void*                 p_fc2Connect;
-  void*                 p_fc2CreateGigEContext;
-  void*                 p_fc2DestroyContext;
-  void*                 p_fc2DiscoverGigECameras;
-  void*                 p_fc2GetCameraFromIndex;
-  void*                 p_fc2GetCameraInfo;
-  void*                 p_fc2GetGigEImageBinningSettings;
-  void*                 p_fc2GetGigEImageSettings;
-  void*                 p_fc2GetGigEImageSettingsInfo;
-  void*                 p_fc2GetInterfaceTypeFromGuid;
-  void*                 p_fc2GetNumOfCameras;
-  void*                 p_fc2GetProperty;
-  void*                 p_fc2GetPropertyInfo;
-  void*                 p_fc2GetStrobe;
-  void*                 p_fc2GetStrobeInfo;
-  void*                 p_fc2GetTriggerDelay;
-  void*                 p_fc2GetTriggerDelayInfo;
-  void*                 p_fc2GetTriggerMode;
-  void*                 p_fc2GetTriggerModeInfo;
-  void*                 p_fc2QueryGigEImagingMode;
-  void*                 p_fc2ReadRegister;
-  void*                 p_fc2SetGigEImageBinningSettings;
-  void*                 p_fc2SetGigEImageSettings;
-  void*                 p_fc2SetGigEImagingMode;
-  void*                 p_fc2SetProperty;
-  void*                 p_fc2SetStrobe;
-  void*                 p_fc2SetTriggerDelay;
-  void*                 p_fc2SetTriggerMode;
-  void*                 p_fc2StartCaptureCallback;
-  void*                 p_fc2StopCapture;
-*/
 } MALLINCAM_STATE;
 
 #endif	/* OA_MALLINCAM_STATE_H */

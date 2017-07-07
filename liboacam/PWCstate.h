@@ -28,8 +28,6 @@
 #define OA_PWC_STATE_H
 
 typedef struct PWC_STATE {
-  int           initialised;
-  int           fd;
 } PWC_STATE;
 
 #endif	/* OA_PWC_STATE_H */

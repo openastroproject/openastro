@@ -63,7 +63,6 @@ typedef struct EUVC_STATE {
   // buffering for image transfers
   struct EUVCbuffer*	buffers;
   int                   configuredBuffers;
-  unsigned char*        xferBuffer;
   unsigned int          imageBufferLength;
   int			nextBuffer;
   int			buffersFree;
@@ -94,14 +93,12 @@ typedef struct EUVC_STATE {
   uint32_t		currentFrameRate;
   // control values
   uint8_t		autoExposure;
-  uint8_t		autoGain;
   uint8_t		autoWhiteBalance;
   unsigned int		currentGain;
   unsigned int		currentBrightness;
   unsigned int		currentExposure;
   unsigned int		currentBlueBalance;
   unsigned int		currentRedBalance;
-  uint32_t		bitDepth;
   // thread management
   pthread_mutex_t       usbMutex;
   pthread_t		controllerThread;
@@ -116,7 +113,6 @@ typedef struct EUVC_STATE {
   pthread_cond_t	callbackQueued;
   CALLBACK		frameCallbacks[ OA_CAM_BUFFERS ];
   int			stopCallbackThread;
-  pthread_t		videoCallbackThread;
   pthread_mutex_t	videoCallbackMutex;
   // queues for controls and callbacks
   DL_LIST		commandQueue;

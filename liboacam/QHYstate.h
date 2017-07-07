@@ -48,7 +48,6 @@ typedef struct QHY_STATE {
   unsigned int		transferPadding;
   // video mode settings
   int                   videoRGB24;
-  int                   videoYUYV;
   int                   videoGrey;
   int                   videoGrey16;
   unsigned int          videoCurrent;
