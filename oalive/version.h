@@ -2,7 +2,7 @@
  *
  * version.h -- version strings
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -35,7 +35,7 @@
 #define	MINOR_VERSION			"0"
 #define	REVISION			"1 alpha"
 
-#define	COPYRIGHT_YEARS			"2015"
+#define	COPYRIGHT_YEARS			"2015,2017"
 #define	AUTHOR_NAME			"James Fidell"
 
 #define	VERSION_STR		MAJOR_VERSION "." MINOR_VERSION "." REVISION
