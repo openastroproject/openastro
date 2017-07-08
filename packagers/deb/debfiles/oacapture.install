@@ -1,3 +1,10 @@
 usr/bin/*
 lib/udev/rules.d/*
 lib/firmware/qhy/*
+usr/share/pixmaps/oacapture.xpm
+usr/share/applications/oacapture.desktop
+usr/share/icons/hicolor/16x16/apps/oacapture.png
+usr/share/icons/hicolor/48x48/apps/oacapture.png
+usr/share/icons/hicolor/24x24/apps/oacapture.png
+usr/share/icons/hicolor/256x256/apps/oacapture.png
+usr/share/icons/hicolor/32x32/apps/oacapture.png

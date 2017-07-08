@@ -1,0 +1,15 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Oacapture
+Name[en_GB]=Oacapture
+GenericName=Planetary Imager
+GenericName[en_GB]=Planetary Imager
+Exec=oacapture
+Icon=oacapture
+StartupNotify=false
+Terminal=false
+Categories=Astronomy;Education;Science;
+Comment=Planetary Imaging Application
+Comment[en_GB]=Planetary Imaging Application
+Keywords=astronomy;

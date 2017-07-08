@@ -1057,5 +1057,5 @@ AM_CONDITIONAL([LIBUSB_COND], [test "x$use_system_libusb" == "xno"])
 AM_CONDITIONAL([LIBHIDAPI_COND], [test "x$use_system_libhidapi" == "xno"])
 AM_CONDITIONAL([INT_LIBUVC_COND], [test "x$internal_uvc" == "xyes"])
 
-AC_CONFIG_FILES([Makefile liboautil/Makefile liboacam/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboaimgproc/Makefile liboaPTR/Makefile oacapture/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile])
+AC_CONFIG_FILES([Makefile liboautil/Makefile liboacam/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboaimgproc/Makefile liboaPTR/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile])
 AC_OUTPUT

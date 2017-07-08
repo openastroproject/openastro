@@ -16,10 +16,8 @@ dh_make -y -s -f ../oacapture-$version.tar.bz2
 cp ../debfiles/control $debdir
 cp ../debfiles/copyright $debdir
 cp ../debfiles/changelog $debdir
+cp ../debfiles/oacapture.menu $debdir
 echo 9 >> $debdir/compat
-sed -e 's/needs="[^"]*"/needs="X11"/' \
-    -e 's/see-menu-manual/Science/' < $debdir/menu.ex > $debdir/menu
-chmod +x $debdir/menu
 sed -e '/purge\|remove/a\
       service udev restart' < $debdir/postinst.ex > $debdir/postinst
 chmod +x $debdir/postinst
