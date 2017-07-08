@@ -2,7 +2,7 @@
  *
  * QHYstate.h -- QHY camera state header
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
