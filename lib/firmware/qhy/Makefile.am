@@ -1,5 +1,5 @@
 #
-# Makefile.am -- udev rules Makefile template
+# Makefile.am -- QHY firmware Makefile template
 #
 # Copyright 2017 James Fidell (james@openastroproject.org)
 #
