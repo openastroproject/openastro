@@ -809,7 +809,7 @@ _processPayload ( oaCamera* camera, unsigned char* buffer, unsigned int len )
 
   headerLength = buffer[0];
   if ( headerLength > len ) {
-    fprintf ( stderr, "Wierd packet: actual len: %d, header len: %zd\n",
+    fprintf ( stderr, "Weird packet: actual len: %d, header len: %zd\n",
         len, headerLength );
     return;
   }
