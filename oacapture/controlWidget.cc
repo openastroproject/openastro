@@ -78,7 +78,7 @@ ControlWidget::ControlWidget ( QWidget* parent ) : QGroupBox ( parent )
   selectableControlIndexes[0][ config.selectableControl[0]] = 0;
   selectableControlIndexes[1][ config.selectableControl[1]] = 1;
 
-  baseVal = OA_CAM_CTRL_MODE_BASE( config.selectableControl[0]);
+  int baseVal = OA_CAM_CTRL_MODE_BASE( config.selectableControl[0]);
   if ( baseVal > 0 && baseVal <OA_CAM_CTRL_LAST_P1 ) {
     selectableControlMenu[0]->addItem (
         tr ( oaCameraControlLabel[ baseVal ]));
