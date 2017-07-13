@@ -96,6 +96,9 @@ typedef struct UVC_STATE {
   // streaming
   int			isStreaming;
   CALLBACK		streamingCallback;
+  // discrete auto exposure menu item ids
+  unsigned int		numAutoExposureItems;
+  int64_t		autoExposureMenuItems[8];
 } UVC_STATE;
 
 #endif	/* OA_UVC_STATE_H */

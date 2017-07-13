@@ -346,14 +346,28 @@ oaUVCInitCamera ( oaCameraDevice* device )
 
         case UVC_CT_AE_MODE_CONTROL:
         {
-          uint8_t uvcdef, def;
-
           // UVC auto exposure mode is messy -- a bitfield of:
           // 1 = manual, 2 = auto, 4 = shutter priority, 8 = aperture priority
           // fortunately the exponents of the bit values correspond to the
           // menu values we're using
+
+          uint8_t uvcdef, def, modes;
+
+          if ( uvc_get_ae_mode ( uvcHandle, &modes, UVC_GET_RES ) !=
+              UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get modes for autoexp setting\n" );
+          }
+
+          cameraInfo->numAutoExposureItems = 0;
+          for ( int i = 0, mask = 1; i < 4; i++, mask <<= 1 ) {
+            if ( modes & mask ) {
+              cameraInfo->autoExposureMenuItems[
+                  cameraInfo->numAutoExposureItems++ ] = mask;
+            }
+          }
+
           camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
-              OA_CTRL_TYPE_MENU;
+              OA_CTRL_TYPE_DISC_MENU;
           commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               OA_EXPOSURE_AUTO;
           commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
@@ -378,7 +392,9 @@ oaUVCInitCamera ( oaCameraDevice* device )
                def = OA_EXPOSURE_APERTURE_PRIORITY;
                break;
              default:
-               def = OA_EXPOSURE_MANUAL; // FIX ME -- why?
+               fprintf ( stderr, "Unexpected default auto exposure value %d\n",
+                   uvcdef );
+               def = OA_EXPOSURE_MANUAL; // just for the sake of it
                break;
           }
           commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
@@ -810,6 +826,7 @@ _UVCInitFunctionPointers ( oaCamera* camera )
   camera->funcs.readControl = oaUVCCameraReadControl;
   camera->funcs.testControl = oaUVCCameraTestControl;
   camera->funcs.getControlRange = oaUVCCameraGetControlRange;
+  camera->funcs.getControlDiscreteSet = oaUVCCameraGetControlDiscreteSet;
 
   camera->funcs.startStreaming = oaUVCCameraStartStreaming;
   camera->funcs.stopStreaming = oaUVCCameraStopStreaming;

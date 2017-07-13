@@ -325,16 +325,16 @@ oaUVCCameraGetMenuString ( oaCamera* camera, int control, int index )
   }
 
   switch ( index ) {
-    case 0:
+    case 1:
       return "Manual";
       break;
-    case 1:
+    case 2:
       return "Auto";
       break;
-    case 2:
+    case 4:
       return "Shutter Priority";
       break;
-    case 3:
+    case 8:
       return "Aperture Priority";
       break;
   }

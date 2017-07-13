@@ -162,4 +162,20 @@ oaUVCCameraGetFramePixelFormat ( oaCamera* camera, int depth )
 }
 
 
+int
+oaUVCCameraGetControlDiscreteSet ( oaCamera* camera, int control,
+    int32_t* count, int64_t** values )
+{
+  UVC_STATE*    cameraInfo = camera->_private;
+
+  if ( control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) &&
+      control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED )) {
+    return -OA_ERR_INVALID_CONTROL;
+  }
+
+  *count = cameraInfo->numAutoExposureItems;
+  *values = cameraInfo->autoExposureMenuItems;
+  return OA_ERR_NONE;
+}
+
 #endif /* HAVE_LIBUVC */

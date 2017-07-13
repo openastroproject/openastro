@@ -41,6 +41,8 @@ extern int		oaUVCCameraReadControl ( oaCamera*, int,
 				oaControlValue* );
 extern int		oaUVCCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
+extern int		oaUVCCameraGetControlDiscreteSet ( oaCamera*, int,
+				int32_t*, int64_t** );
 
 extern int		oaUVCCameraStartStreaming ( oaCamera*,
 				void* (*)(void*, void*, int), void* );
@@ -64,6 +66,5 @@ extern int		getUVCControl ( uvc_device_handle_t*, uint8_t, uint8_t,
 extern int		setUVCControl ( uvc_device_handle_t*, uint8_t, uint8_t,
 			    int, int );
 extern void		frameCallback ( uvc_frame_t*, void* );
-
 
 #endif	/* OA_UVC_OACAM_H */

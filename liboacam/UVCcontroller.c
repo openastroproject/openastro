@@ -232,28 +232,13 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
     {
-      uint8_t data = 0;
+      // FIX ME -- more error checking might be good?
+      uint8_t data = valp->menu & 0xff;
 
-      val_s32 = valp->menu;
-      switch ( val_s32 ) {
-        case OA_EXPOSURE_AUTO:
-          data = 2; break;
-        case OA_EXPOSURE_MANUAL:
-          data = 1; break;
-        case OA_EXPOSURE_SHUTTER_PRIORITY:
-          data = 4; break;
-        case OA_EXPOSURE_APERTURE_PRIORITY:
-          data = 8; break;
-      }
-      if ( val_s32 < OA_EXPOSURE_TYPE_LAST_P1 ) {
-        if ( uvc_set_ae_mode ( cameraInfo->uvcHandle, data )
-            != UVC_SUCCESS ) {
-          fprintf ( stderr, "uvc_set_ae_mode( %d ) failed in %s\n", val_s32,
-              __FUNCTION__ );
-        }
-      } else {
-        fprintf ( stderr, "uvc_set_ae_mode() value %d invalid in %s\n",
-            val_s32, __FUNCTION__ );
+      if (( err = uvc_set_ae_mode ( cameraInfo->uvcHandle, data ))
+          != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_set_ae_mode( %d ) failed in %s, err %d\n",
+            data, __FUNCTION__, err );
       }
       break;
     }
