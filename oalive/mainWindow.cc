@@ -2,7 +2,7 @@
  *
  * mainWindow.cc -- the main controlling window class
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -176,7 +176,7 @@ MainWindow::readConfig ( void )
     config.imageSizeY = 0;
 
     config.controlValues [ OA_CAM_CTRL_GAIN ] = 50;
-    config.controlValues [ OA_CAM_CTRL_EXPOSURE ] = 10;
+    config.controlValues [ OA_CAM_CTRL_EXPOSURE_UNSCALED ] = 10;
     config.controlValues [ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 100;
     config.controlValues [ OA_CAM_CTRL_GAMMA ] = -1;
     config.controlValues [ OA_CAM_CTRL_BRIGHTNESS ] = -1;
@@ -379,7 +379,7 @@ MainWindow::readConfig ( void )
           p.filterProfiles.append ( fp );
         }
       }
-      for ( int j = 0; j < OA_CAM_CTRL_LAST_P1; j++ ) {
+      for ( int j = 1; j < OA_CAM_CTRL_LAST_P1; j++ ) {
         if ( config.numFilters ) {
                   for ( int k = 0; k < config.numFilters; k++ ) {
             p.filterProfiles[ k ].controls[ j ] = config.controlValues[ j ];
@@ -578,8 +578,8 @@ MainWindow::writeConfig ( void )
         for ( int j = 0; j < config.numFilters; j++ ) {
           settings.setArrayIndex ( j );
           settings.beginWriteArray ( "controls" );
-          for ( int k = 0; k < OA_CAM_CTRL_LAST_P1; k++ ) {
-            settings.setArrayIndex ( k );
+          for ( int k = 1; k < OA_CAM_CTRL_LAST_P1; k++ ) {
+            settings.setArrayIndex ( k-1 );
             settings.setValue ( "controlValue",
                 config.profiles[ i ].filterProfiles[ j ].controls[ k ]);
           }

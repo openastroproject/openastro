@@ -2,7 +2,7 @@
  *
  * IIDCconnect.c -- Initialise IEEE1394/IIDC cameras
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -47,17 +47,21 @@ static int  _processNonFormat7Modes ( oaCamera*, dc1394camera_t*,
 
 struct iidcCtrl dc1394Controls[] = {
   { DC1394_FEATURE_BRIGHTNESS, OA_CAM_CTRL_BRIGHTNESS,
-      OA_CAM_CTRL_AUTO_BRIGHTNESS },
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS )},
   // The IIDC spec says this one is like contrast.  Who am I to argue?
-  { DC1394_FEATURE_EXPOSURE, OA_CAM_CTRL_CONTRAST, OA_CAM_CTRL_AUTO_CONTRAST },
+  { DC1394_FEATURE_EXPOSURE, OA_CAM_CTRL_CONTRAST,
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTRAST )},
   { DC1394_FEATURE_SHARPNESS, OA_CAM_CTRL_SHARPNESS, 0 },
   { DC1394_FEATURE_WHITE_BALANCE, OA_CAM_CTRL_WHITE_BALANCE,
-      OA_CAM_CTRL_AUTO_WHITE_BALANCE },
-  { DC1394_FEATURE_HUE, OA_CAM_CTRL_HUE, OA_CAM_CTRL_HUE_AUTO },
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE )},
+  { DC1394_FEATURE_HUE, OA_CAM_CTRL_HUE,
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE )},
   { DC1394_FEATURE_SATURATION, OA_CAM_CTRL_SATURATION, 0 },
-  { DC1394_FEATURE_GAMMA, OA_CAM_CTRL_GAMMA, OA_CAM_CTRL_AUTO_GAMMA },
+  { DC1394_FEATURE_GAMMA, OA_CAM_CTRL_GAMMA,
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA )},
   { DC1394_FEATURE_SHUTTER, -1, -1 },
-  { DC1394_FEATURE_GAIN, OA_CAM_CTRL_GAIN, OA_CAM_CTRL_AUTO_GAIN },
+  { DC1394_FEATURE_GAIN, OA_CAM_CTRL_GAIN,
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN )},
   { DC1394_FEATURE_IRIS, 0, 0 },
   { DC1394_FEATURE_FOCUS, 0, 0 },
   { DC1394_FEATURE_TEMPERATURE, 0, 0 }, // FIX ME -- actually we have this one
@@ -126,7 +130,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
   }
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
-  OA_CLEAR ( camera->controls );
+  OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
   camera->_private = cameraInfo;
   camera->_common = commonInfo;
@@ -209,6 +213,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
   usleep ( 60000 );
 
 
+  // FIX ME
   // There's a lot of work still to be done here.  For most stuff I'm
   // ignoring absolute_capable because it uses completely different
   // ranges and units and everything becomes a nightmare :(
@@ -239,20 +244,24 @@ oaIIDCInitCamera ( oaCameraDevice* device )
             switch ( features.feature[i].modes.modes[j] ) {
 
               case DC1394_FEATURE_MODE_MANUAL:
-                camera->controls[ oaControl ] = OA_CTRL_TYPE_INT64;
-                commonInfo->min[ oaControl ] = features.feature[i].min;
-                commonInfo->max[ oaControl ] = features.feature[i].max;
-                commonInfo->step[ oaControl ] = 1; // arbitrary
-                commonInfo->def[ oaControl ] = features.feature[i].value;
+                camera->OA_CAM_CTRL_TYPE( oaControl ) = OA_CTRL_TYPE_INT64;
+                commonInfo->OA_CAM_CTRL_MIN( oaControl ) =
+                    features.feature[i].min;
+                commonInfo->OA_CAM_CTRL_MAX( oaControl ) =
+                    features.feature[i].max;
+                commonInfo->OA_CAM_CTRL_STEP( oaControl ) = 1; // arbitrary
+                commonInfo->OA_CAM_CTRL_DEF( oaControl ) =
+                    features.feature[i].value;
                 break;
 
               case DC1394_FEATURE_MODE_AUTO:
                 if ( oaAutoControl ) {
-                  camera->controls[ oaAutoControl ] = OA_CTRL_TYPE_BOOLEAN;
-                  commonInfo->min[ oaAutoControl ] = 0;
-                  commonInfo->max[ oaAutoControl ] = 1;
-                  commonInfo->step[ oaAutoControl ] = 1;
-                  commonInfo->def[ oaAutoControl ] = (
+                  camera->OA_CAM_CTRL_TYPE( oaAutoControl ) =
+                      OA_CTRL_TYPE_BOOLEAN;
+                  commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = 0;
+                  commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = 1;
+                  commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
+                  commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) = (
                       DC1394_FEATURE_MODE_AUTO ==
                       features.feature[i].current_mode ) ? 1 : 0;
                 } else {
@@ -274,10 +283,12 @@ oaIIDCInitCamera ( oaCameraDevice* device )
         {
           unsigned int min, max, step, def;
           int err;
-          // shutter is actually exposure time.  exposure is something
-          // else
-          oaAutoControl = OA_CAM_CTRL_AUTO_EXPOSURE;
+          // shutter is actually exposure time.  The "exposure" control is
+          // apparently something else
+
           if ( features.feature[ i ].absolute_capable ) {
+            oaAutoControl =
+                OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
             // have to set the control to use the absolute settings...
             if (( err = dc1394_feature_set_absolute_control ( iidcCam,
                 DC1394_FEATURE_SHUTTER, DC1394_ON ) != DC1394_SUCCESS )) {
@@ -316,17 +327,19 @@ oaIIDCInitCamera ( oaCameraDevice* device )
             step = 1000; // arbitrary
             def = features.feature[ i ].abs_value * 1000000.0;
           } else {
-            oaControl = OA_CAM_CTRL_EXPOSURE;
+            oaAutoControl =
+                OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED );
+            oaControl = OA_CAM_CTRL_EXPOSURE_UNSCALED;
             min = features.feature[i].min;
             max = features.feature[i].max;
             step = 1; // arbitrary
             def = features.feature[ i ].value;
           }
-          camera->controls[ oaControl ] = OA_CTRL_TYPE_INT64;
-          commonInfo->min[ oaControl ] = min;
-          commonInfo->max[ oaControl ] = max;
-          commonInfo->step[ oaControl ] = step;
-          commonInfo->def[ oaControl ] = def;
+          camera->OA_CAM_CTRL_TYPE( oaControl ) = OA_CTRL_TYPE_INT64;
+          commonInfo->OA_CAM_CTRL_MIN( oaControl ) = min;
+          commonInfo->OA_CAM_CTRL_MAX( oaControl ) = max;
+          commonInfo->OA_CAM_CTRL_STEP( oaControl ) = step;
+          commonInfo->OA_CAM_CTRL_DEF( oaControl ) = def;
           break;
         }
         case DC1394_FEATURE_WHITE_BALANCE:
@@ -344,19 +357,20 @@ oaIIDCInitCamera ( oaCameraDevice* device )
             switch ( features.feature[i].modes.modes[j] ) {
 
               case DC1394_FEATURE_MODE_MANUAL:
-                camera->controls[ OA_CAM_CTRL_BLUE_BALANCE ] =
-                    camera->controls[ OA_CAM_CTRL_RED_BALANCE ] =
+                camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) =
+                    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RED_BALANCE ) =
                     OA_CTRL_TYPE_INT32;
-                commonInfo->min[ OA_CAM_CTRL_BLUE_BALANCE ] =
-                    commonInfo->min[ OA_CAM_CTRL_RED_BALANCE ] =
+                commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) =
+                    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) =
                     features.feature[i].min;
-                commonInfo->max[ OA_CAM_CTRL_BLUE_BALANCE ] =
-                    commonInfo->max[ OA_CAM_CTRL_RED_BALANCE ] =
+                commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) =
+                    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE ) =
                     features.feature[i].max;
-                commonInfo->step[ OA_CAM_CTRL_BLUE_BALANCE ] =
-                    commonInfo->step[ OA_CAM_CTRL_RED_BALANCE ] = 1;//arbitrary
-                commonInfo->def[ OA_CAM_CTRL_BLUE_BALANCE ] =
-                    commonInfo->def[ OA_CAM_CTRL_RED_BALANCE ] =
+                commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLUE_BALANCE ) =
+                    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RED_BALANCE ) =
+                    1;//arbitrary
+                commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) =
+                    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) =
                     cameraInfo->currentRedBalance =
                     cameraInfo->currentBlueBalance =
                     features.feature[i].value;
@@ -364,11 +378,12 @@ oaIIDCInitCamera ( oaCameraDevice* device )
 
               case DC1394_FEATURE_MODE_AUTO:
                 if ( oaAutoControl ) {
-                  camera->controls[ oaAutoControl ] = OA_CTRL_TYPE_BOOLEAN;
-                  commonInfo->min[ oaAutoControl ] = 0;
-                  commonInfo->max[ oaAutoControl ] = 1;
-                  commonInfo->step[ oaAutoControl ] = 1;
-                  commonInfo->def[ oaAutoControl ] = (
+                  camera->OA_CAM_CTRL_TYPE( oaAutoControl ) =
+                      OA_CTRL_TYPE_BOOLEAN;
+                  commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = 0;
+                  commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = 1;
+                  commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
+                  commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) = (
                       DC1394_FEATURE_MODE_AUTO ==
                       features.feature[i].current_mode ) ? 1 : 0;
                 } else {

@@ -2,7 +2,7 @@
  *
  * ZWASI2control.c -- control functions for ZW ASI cameras, APIv2
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -133,42 +133,41 @@ oaZWASI2CameraReadControl ( oaCamera* camera, int control,
       break;
     }
 
-    case OA_CAM_CTRL_AUTO_GAIN:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
       val->boolean = cameraInfo->autoGain;
       break;
 
-    case OA_CAM_CTRL_AUTO_GAMMA:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA ):
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
       val->boolean = cameraInfo->autoGamma;
       break;
 
-    case OA_CAM_CTRL_AUTO_BRIGHTNESS:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS ):
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
       val->boolean = cameraInfo->autoBrightness;
       break;
 
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
       val->boolean = cameraInfo->autoExposure;
       break;
 
-    case OA_CAM_CTRL_AUTO_RED_BALANCE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_RED_BALANCE ):
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
       val->boolean = cameraInfo->autoRedBalance;
       break;
 
-    case OA_CAM_CTRL_AUTO_BLUE_BALANCE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLUE_BALANCE ):
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
       val->boolean = cameraInfo->autoBlueBalance;
       break;
 
-    case OA_CAM_CTRL_AUTO_USBTRAFFIC:
-      val->valueType = OA_CTRL_TYPE_BOOLEAN;
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_USBTRAFFIC ):
       val->boolean = cameraInfo->autoUSBTraffic;
       break;
 
-    case OA_CAM_CTRL_AUTO_OVERCLOCK:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_OVERCLOCK ):
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
       val->boolean = cameraInfo->autoOverclock;
       break;

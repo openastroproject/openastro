@@ -327,23 +327,23 @@ _processSetControl ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
       cameraInfo->currentCoolerPower = val->int32;
       break;
 
-    case OA_CAM_CTRL_AUTO_GAIN:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
       setValue ( CONTROL_GAIN, cameraInfo->currentGain, val->boolean );
       cameraInfo->autoGain = val->boolean;
       break;
 
-    case OA_CAM_CTRL_AUTO_GAMMA:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA ):
       setValue ( CONTROL_GAMMA, cameraInfo->currentGamma, val->boolean );
       cameraInfo->autoGamma = val->boolean;
       break;
 
-    case OA_CAM_CTRL_AUTO_BRIGHTNESS:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS ):
       setValue ( CONTROL_BRIGHTNESS, cameraInfo->currentBrightness,
           val->boolean );
       cameraInfo->autoBrightness = val->boolean;
       break;
 
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
     {
       int v = ( OA_EXPOSURE_AUTO == val->boolean ? 1 : 0 );
       setValue ( CONTROL_EXPOSURE, cameraInfo->currentAbsoluteExposure, v );
@@ -351,23 +351,23 @@ _processSetControl ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
       break;
     }
 
-    case OA_CAM_CTRL_AUTO_RED_BALANCE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_RED_BALANCE ):
       setValue ( CONTROL_WB_R, cameraInfo->currentRedBalance, val->boolean );
       cameraInfo->autoRedBalance = val->boolean;
       break;
 
-    case OA_CAM_CTRL_AUTO_BLUE_BALANCE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLUE_BALANCE ):
       setValue ( CONTROL_WB_B, cameraInfo->currentBlueBalance, val->boolean );
       cameraInfo->autoBlueBalance = val->boolean;
       break;
 
-    case OA_CAM_CTRL_AUTO_USBTRAFFIC:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_USBTRAFFIC ):
       setValue ( CONTROL_BANDWIDTHOVERLOAD, cameraInfo->currentUSBTraffic,
           val->boolean );
       cameraInfo->autoUSBTraffic = val->boolean;
       break;
 
-    case OA_CAM_CTRL_AUTO_OVERCLOCK:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_OVERCLOCK ):
       setValue ( CONTROL_OVERCLOCK, cameraInfo->currentOverclock,
           val->boolean );
       cameraInfo->autoOverclock = val->boolean;

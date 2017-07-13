@@ -36,11 +36,11 @@ extern "C" {
 #include <openastro/userConfig.h>
 }
 
-#define	CONFIG_VERSION	6
+#define	CONFIG_VERSION	7
 
 typedef struct {
   QString	filterName;
-  int		controls[ OA_CAM_CTRL_LAST_P1 ];
+  int		controls[OA_CAM_CTRL_MODIFIERS_P1][ OA_CAM_CTRL_LAST_P1 ];
   int		intervalMenuOption;
 } FILTER_PROFILE;
 
@@ -122,7 +122,7 @@ typedef struct
   int			zoomValue;
 
   // control config
-  int64_t		controlValues[ OA_CAM_CTRL_LAST_P1 ];
+  int64_t		controlValues[OA_CAM_CTRL_MODIFIERS_P1][ OA_CAM_CTRL_LAST_P1 ];
   int			exposureMenuOption;
   int			frameRateNumerator;
   int			frameRateDenominator;
@@ -199,5 +199,8 @@ typedef struct
 
 extern CONFIG		config;
 
-#define	SET_PROFILE_CONTROL(c,v) if ( config.profileOption >= 0 ) config.profiles[ config.profileOption ].filterProfiles[ config.filterOption ].controls[ c ] = v
+#define CONTROL_VALUE(c)	controlValues[OA_CAM_CTRL_MODIFIER(c)][OA_CAM_CTRL_MODE_BASE(c)]
+
+#define	SET_PROFILE_CONTROL(c,v) if ( config.profileOption >= 0 ) config.profiles[ config.profileOption ].filterProfiles[ config.filterOption ].controls[OA_CAM_CTRL_MODIFIER(c)][OA_CAM_CTRL_MODE_BASE(c)] = v
+
 #define	SET_PROFILE_INTERVAL(v) if ( config.profileOption >= 0 ) config.profiles[ config.profileOption ].filterProfiles[ config.filterOption ].intervalMenuOption = v

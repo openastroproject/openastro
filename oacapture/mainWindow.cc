@@ -2,7 +2,7 @@
  *
  * mainWindow.cc -- the main controlling window class
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -297,11 +297,11 @@ MainWindow::readConfig ( void )
     config.zoomButton3Option = 5;
     config.zoomValue = 100;
 
-    config.controlValues [ OA_CAM_CTRL_GAIN ] = 50;
-    config.controlValues [ OA_CAM_CTRL_EXPOSURE ] = 10;
-    config.controlValues [ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 100;
-    config.controlValues [ OA_CAM_CTRL_GAMMA ] = -1;
-    config.controlValues [ OA_CAM_CTRL_BRIGHTNESS ] = -1;
+    config.CONTROL_VALUE( OA_CAM_CTRL_GAIN ) = 50;
+    config.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) = 10;
+    config.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 100;
+    config.CONTROL_VALUE( OA_CAM_CTRL_GAMMA ) = -1;
+    config.CONTROL_VALUE( OA_CAM_CTRL_BRIGHTNESS ) = -1;
     config.exposureMenuOption = 3;
     config.frameRateNumerator = 0;
     config.frameRateDenominator = 1;
@@ -408,15 +408,15 @@ MainWindow::readConfig ( void )
     config.zoomValue = settings.value ( "image/zoomValue", 100 ).toInt();
 
     if ( version < 3 ) {
-      config.controlValues[ OA_CAM_CTRL_GAIN ] = settings.value (
+      config.CONTROL_VALUE( OA_CAM_CTRL_GAIN ) = settings.value (
           "control/gainValue", 50 ).toInt();
-      config.controlValues[ OA_CAM_CTRL_EXPOSURE ] = settings.value (
+      config.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) = settings.value (
           "control/exposureValue", 10 ).toInt();
-      config.controlValues[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = settings.value (
+      config.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = settings.value (
           "control/exposureAbsoluteValue", 10 ).toInt();
-      config.controlValues[ OA_CAM_CTRL_GAMMA ] = settings.value (
+      config.CONTROL_VALUE( OA_CAM_CTRL_GAMMA ) = settings.value (
           "control/gammaValue", -1 ).toInt();
-      config.controlValues[ OA_CAM_CTRL_BRIGHTNESS ] = settings.value (
+      config.CONTROL_VALUE( OA_CAM_CTRL_BRIGHTNESS ) = settings.value (
           "control/brightnessValue", -1 ).toInt();
     }
 
@@ -477,13 +477,22 @@ MainWindow::readConfig ( void )
     config.reticleStyle = settings.value ( "reticle/style",
         RETICLE_CIRCLE ).toInt();
 
-    if ( version > 2 ) {
+    // Give up on earlier versions of this data.  It's too complicated to
+    // sort out
+    if ( version >= 7 ) {
       int numControls = settings.beginReadArray ( "controls" );
       if ( numControls ) {
-        for ( int i = 1; i <= numControls; i++ ) {
-          settings.setArrayIndex ( i-1 );
-          config.controlValues[ i ] = settings.value ( "controlValue",
-              0 ).toInt();
+        for ( int j = 1; j <= numControls; j++ ) {
+          settings.setArrayIndex ( j-1 );
+          int numModifiers = settings.beginReadArray ( "modifiers" );
+          if ( numModifiers )  {
+            for ( int i = 0; i < numModifiers; i++ ) {
+              settings.setArrayIndex ( i );
+              config.controlValues[i][j] = settings.value ( "controlValue",
+                0 ).toInt();
+            }
+          }
+          settings.endArray();
         }
       }
       settings.endArray();
@@ -554,6 +563,7 @@ MainWindow::readConfig ( void )
         config.filters.append ( fn );
         totalFilters++;
       }
+      settings.endArray();
       config.numFilters = totalFilters;
       if ( config.filterOption >= renumberFrom && config.filterOption <=
           renumberTo ) {
@@ -587,7 +597,7 @@ MainWindow::readConfig ( void )
            *
           p.controls[ OA_CAM_CTRL_GAIN ] = settings.value (
               "gainValue", 50 ).toInt();
-          p.controls[ OA_CAM_CTRL_EXPOSURE ] = settings.value (
+          p.controls[ OA_CAM_CTRL_EXPOSURE_UNSCALED ] = settings.value (
               "exposureValue", 10 ).toInt();
           p.controls[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = settings.value (
               "exposureAbsoluteValue", 10 ).toInt();
@@ -597,7 +607,7 @@ MainWindow::readConfig ( void )
               "brightnessValue", -1 ).toInt();
            */
         } else {
-
+          // FIX ME -- this "if" is redundant
           if ( version > 3 ) {
             int numFilters = settings.beginReadArray ( "filters" );
             if ( numFilters ) {
@@ -608,15 +618,26 @@ MainWindow::readConfig ( void )
                   fp.filterName = config.filters[k].filterName;
                   p.filterProfiles.append ( fp );
                 }
-                int numControls = settings.beginReadArray ( "controls" );
-                for ( int j = 0; j < numControls; j++ ) {
-                  settings.setArrayIndex ( j );
-                  if ( numFilters <= config.numFilters ) {
-                    p.filterProfiles[ k ].controls[ j ] = settings.value (
-                        "controlValue", 0 ).toInt();
+                // Give up on anything before version 7.  It's just too
+                // messy
+                if ( version >= 7 ) {
+                  int numControls = settings.beginReadArray ( "controls" );
+                  for ( int j = 1; j <= numControls; j++ ) {
+                    settings.setArrayIndex ( j-1 );
+                    int numModifiers = settings.beginReadArray ( "modifiers" );
+                    if ( numModifiers )  { 
+                      for ( int i = 0; i < numModifiers; i++ ) {
+                        settings.setArrayIndex ( i );
+                        if ( numFilters <= config.numFilters ) {
+                          p.filterProfiles[ k ].controls[ i ][ j ] =
+                              settings.value ( "controlValue", 0 ).toInt();
+                        }
+                      }
+                    }
+                    settings.endArray();
                   }
+                  settings.endArray();
                 }
-                settings.endArray();
                 p.filterProfiles[ k ].intervalMenuOption = settings.value (
                     "intervalMenuOption", 1 ).toInt(); // default = msec
               }
@@ -624,6 +645,9 @@ MainWindow::readConfig ( void )
             settings.endArray();
 
           } else {
+            /*
+             * Give up on this as of version 7
+             *
             int numControls = settings.beginReadArray ( "controls" );
             if ( config.numFilters ) {
               for ( int k = 0; k < config.numFilters; k++ ) {
@@ -642,6 +666,7 @@ MainWindow::readConfig ( void )
               }
             }
             settings.endArray();
+             */
             if ( config.numFilters ) {
               for ( int k = 0; k < config.numFilters; k++ ) {
                 p.filterProfiles[ k ].intervalMenuOption = 1; // msec
@@ -689,10 +714,13 @@ MainWindow::readConfig ( void )
           p.filterProfiles.append ( fp );
         }
       }
-      for ( int j = 0; j < OA_CAM_CTRL_LAST_P1; j++ ) {
+      for ( int j = 1; j < OA_CAM_CTRL_LAST_P1; j++ ) {
         if ( config.numFilters ) {
 	  for ( int k = 0; k < config.numFilters; k++ ) {
-            p.filterProfiles[ k ].controls[ j ] = config.controlValues[ j ];
+            for ( int i = 0; i < OA_CAM_CTRL_MODIFIERS_P1; i++ ) {
+              p.filterProfiles[ k ].controls[ i ][ j ] =
+                  config.controlValues[ i ][ j ];
+            }
           }
         }
       }
@@ -967,17 +995,23 @@ MainWindow::writeConfig ( void )
       settings.setValue ( "imageSizeX", config.profiles[i].imageSizeX );
       settings.setValue ( "imageSizeY", config.profiles[i].imageSizeY );
 
-      if ( config.numFilters ) {
+      if ( config.numFilters &&
+          !config.profiles[ i ].filterProfiles.isEmpty()) {
         settings.beginWriteArray ( "filters" );
         for ( int j = 0; j < config.numFilters; j++ ) {
           settings.setArrayIndex ( j );
           settings.setValue ( "intervalMenuOption",
               config.profiles[ i ].filterProfiles[ j ].intervalMenuOption );
           settings.beginWriteArray ( "controls" );
-          for ( int k = 0; k < OA_CAM_CTRL_LAST_P1; k++ ) {
+          for ( int k = 1; k < OA_CAM_CTRL_LAST_P1; k++ ) {
             settings.setArrayIndex ( k );
-            settings.setValue ( "controlValue",
-                config.profiles[ i ].filterProfiles[ j ].controls[ k ]);
+            settings.beginWriteArray ( "modifiers" );
+            for ( int l = 0; l < OA_CAM_CTRL_MODIFIERS_P1; l++ ) {
+              settings.setArrayIndex ( l );
+              settings.setValue ( "controlValue",
+                  config.profiles[ i ].filterProfiles[ j ].controls[ l ][ k ]);
+            }
+            settings.endArray();
           }
           settings.endArray();
         }
@@ -999,8 +1033,8 @@ MainWindow::writeConfig ( void )
       settings.setValue ( "limitType", config.profiles[i].limitType );
       settings.setValue ( "target", config.profiles[i].target );
     }
-    settings.endArray();
   }
+  settings.endArray();
 
   settings.beginWriteArray ( "filterSlots" );
   for ( int i = 0; i < MAX_FILTER_SLOTS; i++ ) {
@@ -1424,8 +1458,11 @@ MainWindow::connectCamera ( int deviceIndex )
       config.numProfiles && config.filterOption >= 0 && config.filterOption <
       config.numFilters ) {
     for ( uint8_t c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-      config.controlValues[ c ] = config.profiles[ config.profileOption ].
-          filterProfiles[ config.filterOption ].controls[ c ];
+      for ( uint8_t m = 1; m < OA_CAM_CTRL_MODIFIERS_P1; m++ ) {
+        config.controlValues[ m ][ c ] =
+          config.profiles[ config.profileOption ].filterProfiles[
+              config.filterOption ].controls[ m ][ c ];
+      }
     }
     config.intervalMenuOption = config.profiles[ config.profileOption ].
         filterProfiles[ config.filterOption ].intervalMenuOption;
@@ -1888,7 +1925,7 @@ MainWindow::enableFlipX ( void )
   if ( state.camera->isInitialised() &&
       state.camera->hasControl ( OA_CAM_CTRL_HFLIP )) {
     state.camera->setControl ( OA_CAM_CTRL_HFLIP, flipState );
-    config.controlValues [ OA_CAM_CTRL_HFLIP ] = flipState;
+    config.CONTROL_VALUE( OA_CAM_CTRL_HFLIP ) = flipState;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_HFLIP, flipState );
     if ( state.settingsWidget ) {
       state.settingsWidget->enableFlipX ( flipState );
@@ -1911,7 +1948,7 @@ MainWindow::enableFlipY ( void )
   if ( state.camera->isInitialised() &&
       state.camera->hasControl ( OA_CAM_CTRL_VFLIP )) {
     state.camera->setControl ( OA_CAM_CTRL_VFLIP, flipState );
-    config.controlValues [ OA_CAM_CTRL_VFLIP ] = flipState;
+    config.CONTROL_VALUE( OA_CAM_CTRL_VFLIP ) = flipState;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_VFLIP, flipState );
     if ( state.settingsWidget ) {
       state.settingsWidget->enableFlipY ( flipState );

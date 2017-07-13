@@ -183,8 +183,10 @@ FilterSettings::storeSettings ( void )
         for ( int i = 0; i < config.numProfiles; i++ ) {
           FILTER_PROFILE fp;
           fp.filterName = f.filterName;
-          for ( int j = 0; j <  OA_CAM_CTRL_LAST_P1; j++ ) {
-            fp.controls[j] = config.controlValues[j];
+          for ( int j = 1; j <  OA_CAM_CTRL_LAST_P1; j++ ) {
+            for ( int k = 0; k <  OA_CAM_CTRL_MODIFIERS_P1; k++ ) {
+              fp.controls[k][j] = config.controlValues[k][j];
+            }
           }
           config.profiles[i].filterProfiles.append ( fp );
         }

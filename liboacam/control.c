@@ -2,7 +2,7 @@
  *
  * control.c -- interface for camera control functions
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -41,97 +41,87 @@ const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
   "Contrast",
   "Saturation",
   "Hue",
-  "Auto White Balance",
   "White Balance",
   "Blue Balance",
   "Red Balance",
   "Gamma",
-  "Exposure",			// 10
-  "Auto Gain",
-  "Gain",
+  "Relative Exposure",
+  "Gain",			// 10
   "Horizontal Flip",
   "Vertical Flip",
   "Power Line Freq.",
-  "Auto Hue",
   "White Balance Temp.",
   "Sharpness",
   "Backlight Compensation",
-  "Chroma Auto Gain Control",	// 20
+  "Chroma AGC",
   "Colour Killer",
   "Colour FX",
-  "Auto Brightness",
-  "Band Stop Filter",
+  "Band Stop Filter",		// 20
   "Rotate",
   "Background Colour",
   "Chroma Gain",
   "Min Buffers for Capture",
   "Alpha Component",
-  "Colour FX CBCR",		// 30
-  "Auto Exposure",
+  "Colour FX CBCR",
   "Absolute Exposure",
   "Pan Relative",
   "Tilt Relative",
-  "Pan Reset",
+  "Pan Reset",			// 30
   "Tilt Reset",
   "Pan Absolute",
   "Tilt Absolute",
   "Zoom Absolute",
-  "Backlight",			// 40
+  "Backlight",
   "Black Level",
   "2x Gain",
   "Gain Boost",
   "HDR",
-  "HPC",
+  "HPC",			// 40
   "High Speed",
   "Low Noise",
   "Pixel Clock",
   "Colour Mode",
-  "Rolling Shutter",		// 50
+  "Rolling Shutter",
   "Shutter",
   "Signal Boost",
   "Subs Voltage",
   "Temperature Setpoint",
-  "USB Traffic",
+  "USB Traffic",		// 50
   "Bit Depth",
-  "Auto Gamma",
-  "Auto Red Balance",
-  "Auto Blue Balance",
-  "Binning",			// 60
-  "Auto USB Traffic",
+  "Binning",
   "Temperature",
   "Green Balance",
-  "Auto Green Balance",
   "Contour",
-  "Auto Contour",
   "Noise Reduction",
   "Save User Settings",
   "Restore User Settings",
-  "Restore Factory Settings",	// 70
-  "Auto White Balance Speed",
-  "Auto White Balance Delay",
-  "Dropped Frames",
+  "Restore Factory Settings",
+  "Dropped Frames",		// 60
   "Reset Dropped Frames",
-  "Auto White Balance Temp",
-  "Auto Contrast",
   "Overclock",
-  "Auto Overclock",
   "Cooler",
-  "Cooler Power",		// 80
+  "Cooler Power",
   "Enable Trigger Input",
   "Trigger Mode",
   "Trigger Source",
   "Trigger Polarity",
   "Enable Trigger Delay",
-  "Trigger Delay",
+  "Trigger Delay",		// 70
   "Enable Strobe Output",
   "Strobe Polarity",
   "Strobe Source",
-  "Strobe Delay",		// 90
+  "Strobe Delay",
   "Strobe Duration",
   "Speed",
   "Fan",
+  "Pattern Adjust",
   "Mono Bin Colour",
-  "Pattern Adjust"
+  "Dew Heater",			// 80
+  "Auto White Balance Speed",
+  "Auto White Balance Delay",
+  "Auto White Balance Temp",
+  "Max Auto Exposure",
+  "Max Auto Gain"
 };
 
 const char* oaCameraPresetAWBLabel[ OA_AWB_PRESET_LAST_P1 ] = {
@@ -157,66 +147,30 @@ const char* oaCameraAutoExposureLabel[ OA_EXPOSURE_TYPE_LAST_P1 ] = {
 int
 oaGetAutoForControl ( int control )
 {
+  // There's probably no reason not to return OA_CAM_CTRL_MODE_AUTO(control)
+  // here, but in the name of finding out about potential issues I wasn't
+  // aware of, I'll do this the long way round.
+
   switch ( control ) {
 
     case OA_CAM_CTRL_WHITE_BALANCE:
-      return OA_CAM_CTRL_AUTO_WHITE_BALANCE;
-      break;
-    
     case OA_CAM_CTRL_GAIN:
-      return OA_CAM_CTRL_AUTO_GAIN;
-      break;
-
     case OA_CAM_CTRL_HUE:
-      return OA_CAM_CTRL_HUE_AUTO;
-      break;
-
     case OA_CAM_CTRL_BRIGHTNESS:
-      return OA_CAM_CTRL_AUTO_BRIGHTNESS;
-      break;
-
-    case OA_CAM_CTRL_EXPOSURE:
+    case OA_CAM_CTRL_EXPOSURE_UNSCALED:
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
-      return OA_CAM_CTRL_AUTO_EXPOSURE;
-      break;
-
     case OA_CAM_CTRL_GAMMA:
-      return OA_CAM_CTRL_AUTO_GAMMA;
-      break;
-
     case OA_CAM_CTRL_BLUE_BALANCE:
-      return OA_CAM_CTRL_AUTO_BLUE_BALANCE;
-      break;
-
     case OA_CAM_CTRL_RED_BALANCE:
-      return OA_CAM_CTRL_AUTO_RED_BALANCE;
-      break;
-
     case OA_CAM_CTRL_USBTRAFFIC:
-      return OA_CAM_CTRL_AUTO_USBTRAFFIC;
-      break;
-
     case OA_CAM_CTRL_GREEN_BALANCE:
-      return OA_CAM_CTRL_AUTO_GREEN_BALANCE;
-      break;
-
     case OA_CAM_CTRL_CONTOUR:
-      return OA_CAM_CTRL_AUTO_CONTOUR;
-      break;
-
     case OA_CAM_CTRL_WHITE_BALANCE_TEMP:
-      return OA_CAM_CTRL_AUTO_WHITE_BALANCE_TEMP;
-      break;
-
     case OA_CAM_CTRL_CONTRAST:
-      return OA_CAM_CTRL_AUTO_CONTRAST;
-      break;
-
     case OA_CAM_CTRL_OVERCLOCK:
-      return OA_CAM_CTRL_AUTO_OVERCLOCK;
+      return OA_CAM_CTRL_MODE_AUTO(control);
       break;
   }
-
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -224,67 +178,31 @@ oaGetAutoForControl ( int control )
 int
 oaGetControlForAuto ( int control )
 {
+  int nonAutoControl;
+
+  // Same comment applies as for oaGetAutoForControl()
+
+  nonAutoControl = OA_CAM_CTRL_MODE_NONAUTO ( control );
+
   switch ( control ) {
-
-    case OA_CAM_CTRL_AUTO_WHITE_BALANCE:
-      return OA_CAM_CTRL_WHITE_BALANCE;
-      break;
-    
-    case OA_CAM_CTRL_AUTO_GAIN:
-      return OA_CAM_CTRL_GAIN;
-      break;
-
-    case OA_CAM_CTRL_HUE_AUTO:
-      return OA_CAM_CTRL_HUE;
-      break;
-
-    case OA_CAM_CTRL_AUTO_BRIGHTNESS:
-      return OA_CAM_CTRL_BRIGHTNESS;
-      break;
-
-    // FIX ME -- this could be either
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
-      return OA_CAM_CTRL_EXPOSURE;
-      // return OA_CAM_CTRL_EXPOSURE_ABSOLUTE;
-      break;
-
-    case OA_CAM_CTRL_AUTO_GAMMA:
-      return OA_CAM_CTRL_GAMMA;
-      break;
-
-    case OA_CAM_CTRL_AUTO_BLUE_BALANCE:
-      return OA_CAM_CTRL_BLUE_BALANCE;
-      break;
-
-    case OA_CAM_CTRL_AUTO_RED_BALANCE:
-      return OA_CAM_CTRL_RED_BALANCE;
-      break;
-
-    case OA_CAM_CTRL_AUTO_USBTRAFFIC:
-      return OA_CAM_CTRL_USBTRAFFIC;
-      break;
-
-    case OA_CAM_CTRL_AUTO_GREEN_BALANCE:
-      return OA_CAM_CTRL_GREEN_BALANCE;
-      break;
-
-    case OA_CAM_CTRL_AUTO_CONTOUR:
-      return OA_CAM_CTRL_CONTOUR;
-      break;
-
-    case OA_CAM_CTRL_AUTO_WHITE_BALANCE_TEMP:
-      return OA_CAM_CTRL_WHITE_BALANCE_TEMP;
-      break;
-
-    case OA_CAM_CTRL_AUTO_CONTRAST:
-      return OA_CAM_CTRL_CONTRAST;
-      break;
-
-    case OA_CAM_CTRL_AUTO_OVERCLOCK:
-      return OA_CAM_CTRL_OVERCLOCK;
+    case OA_CAM_CTRL_WHITE_BALANCE:
+    case OA_CAM_CTRL_GAIN:
+    case OA_CAM_CTRL_HUE:
+    case OA_CAM_CTRL_BRIGHTNESS:
+    case OA_CAM_CTRL_EXPOSURE_UNSCALED:
+    case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
+    case OA_CAM_CTRL_GAMMA:
+    case OA_CAM_CTRL_BLUE_BALANCE:
+    case OA_CAM_CTRL_RED_BALANCE:
+    case OA_CAM_CTRL_USBTRAFFIC:
+    case OA_CAM_CTRL_GREEN_BALANCE:
+    case OA_CAM_CTRL_CONTOUR:
+    case OA_CAM_CTRL_WHITE_BALANCE_TEMP:
+    case OA_CAM_CTRL_CONTRAST:
+    case OA_CAM_CTRL_OVERCLOCK:
+      return nonAutoControl;
       break;
   }
-
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -292,79 +210,29 @@ oaGetControlForAuto ( int control )
 int
 oacamHasAuto ( oaCamera* camera, int control )
 {
+  // And yet again, the same comment applies as for oaGetAutoForControl()
+
   switch ( control ) {
 
     case OA_CAM_CTRL_WHITE_BALANCE:
-      return camera->controls[ OA_CAM_CTRL_AUTO_WHITE_BALANCE ] ?
-          OA_CAM_CTRL_AUTO_WHITE_BALANCE : 0;
-      break;
-    
     case OA_CAM_CTRL_GAIN:
-      return camera->controls[ OA_CAM_CTRL_AUTO_GAIN ] ?
-          OA_CAM_CTRL_AUTO_GAIN : 0;
-      break;
-
     case OA_CAM_CTRL_HUE:
-      return camera->controls[ OA_CAM_CTRL_HUE_AUTO ] ?
-          OA_CAM_CTRL_HUE_AUTO : 0;
-      break;
-
     case OA_CAM_CTRL_BRIGHTNESS:
-      return camera->controls[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] ?
-          OA_CAM_CTRL_AUTO_BRIGHTNESS : 0;
-      break;
-
-    case OA_CAM_CTRL_EXPOSURE:
+    case OA_CAM_CTRL_EXPOSURE_UNSCALED:
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
-      return camera->controls[ OA_CAM_CTRL_AUTO_EXPOSURE ] ?
-          OA_CAM_CTRL_AUTO_EXPOSURE : 0;
-      break;
-
     case OA_CAM_CTRL_GAMMA:
-      return camera->controls[ OA_CAM_CTRL_AUTO_GAMMA ] ?
-          OA_CAM_CTRL_AUTO_GAMMA : 0;
-      break;
-
     case OA_CAM_CTRL_BLUE_BALANCE:
-      return camera->controls[ OA_CAM_CTRL_AUTO_BLUE_BALANCE ] ?
-          OA_CAM_CTRL_AUTO_BLUE_BALANCE : 0;
-      break;
-
     case OA_CAM_CTRL_RED_BALANCE:
-      return camera->controls[ OA_CAM_CTRL_AUTO_RED_BALANCE ] ?
-          OA_CAM_CTRL_AUTO_RED_BALANCE : 0;
-      break;
-
     case OA_CAM_CTRL_USBTRAFFIC:
-      return camera->controls[ OA_CAM_CTRL_AUTO_USBTRAFFIC ] ?
-          OA_CAM_CTRL_AUTO_USBTRAFFIC : 0;
-      break;
-
     case OA_CAM_CTRL_GREEN_BALANCE:
-      return camera->controls[ OA_CAM_CTRL_AUTO_GREEN_BALANCE ] ?
-          OA_CAM_CTRL_AUTO_GREEN_BALANCE : 0;
-      break;
-
     case OA_CAM_CTRL_CONTOUR:
-      return camera->controls[ OA_CAM_CTRL_AUTO_CONTOUR ] ?
-          OA_CAM_CTRL_AUTO_CONTOUR : 0;
-      break;
-
     case OA_CAM_CTRL_WHITE_BALANCE_TEMP:
-      return camera->controls[ OA_CAM_CTRL_AUTO_WHITE_BALANCE_TEMP ] ?
-          OA_CAM_CTRL_AUTO_WHITE_BALANCE_TEMP : 0;
-
     case OA_CAM_CTRL_CONTRAST:
-      return camera->controls[ OA_CAM_CTRL_AUTO_CONTRAST ] ?
-          OA_CAM_CTRL_AUTO_CONTRAST : 0;
-      break;
-
     case OA_CAM_CTRL_OVERCLOCK:
-      return camera->controls[ OA_CAM_CTRL_AUTO_OVERCLOCK ] ?
-          OA_CAM_CTRL_AUTO_OVERCLOCK : 0;
+      return camera->OA_CAM_CTRL_AUTO_TYPE( control ) ?
+          OA_CAM_CTRL_MODE_AUTO(control) : 0;
       break;
   }
-
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -372,27 +240,8 @@ oacamHasAuto ( oaCamera* camera, int control )
 int
 oaIsAuto ( int control )
 {
-  switch ( control ) {
-    case OA_CAM_CTRL_AUTO_WHITE_BALANCE:
-    case OA_CAM_CTRL_AUTO_GAIN:
-    case OA_CAM_CTRL_HUE_AUTO:
-    case OA_CAM_CTRL_AUTO_BRIGHTNESS:
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
-    case OA_CAM_CTRL_AUTO_GAMMA:
-    case OA_CAM_CTRL_AUTO_RED_BALANCE:
-    case OA_CAM_CTRL_AUTO_BLUE_BALANCE:
-    case OA_CAM_CTRL_AUTO_USBTRAFFIC:
-    case OA_CAM_CTRL_AUTO_GREEN_BALANCE:
-    case OA_CAM_CTRL_AUTO_CONTOUR:
-    case OA_CAM_CTRL_AUTO_WB_SPEED:
-    case OA_CAM_CTRL_AUTO_WB_DELAY:
-    case OA_CAM_CTRL_AUTO_WHITE_BALANCE_TEMP:
-    case OA_CAM_CTRL_AUTO_CONTRAST:
-    case OA_CAM_CTRL_AUTO_OVERCLOCK:
-      return 1;
-      break;
-  }
-  return 0;
+  // FIX ME -- change for control being out of range?
+  return OA_CAM_CTRL_IS_AUTO(control) ? 1 : 0;
 }
 
 

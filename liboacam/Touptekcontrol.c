@@ -104,11 +104,11 @@ oaTouptekCameraTestControl ( oaCamera* camera, int control,
   int32_t		val_s32;
   TOUPTEK_STATE*	cameraInfo = camera->_private;
 
-  if ( !camera->controls [ control ] ) {
+  if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;
   }
 
-  if ( camera->controls [ control ] != valp->valueType ) {
+  if ( camera->OA_CAM_CTRL_TYPE( control ) != valp->valueType ) {
     return -OA_ERR_INVALID_CONTROL_TYPE;
   }
 
@@ -147,7 +147,7 @@ oaTouptekCameraTestControl ( oaCamera* camera, int control,
       return OA_ERR_NONE;
       break;
 
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
+    case OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
       val_s32 = valp->boolean;
       if ( val_s32 == OA_EXPOSURE_MANUAL || val_s32 == OA_EXPOSURE_AUTO ) {
         return OA_ERR_NONE;

@@ -2,7 +2,7 @@
  *
  * cameraControls.cc -- class for the camera tab in the settings dialog
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -183,7 +183,8 @@ CameraControls::configure ( void )
             numCheckboxes++;
             controlCheckbox[ c ] = new QCheckBox ( QString ( tr (
                 oaCameraControlLabel[c] )), this );
-            if ( c == OA_CAM_CTRL_AUTO_EXPOSURE ) {
+            if ( OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == c ||
+                OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == c ) {
               controlCheckbox[ c ]->setChecked (
                   ( config.controlValues [ c ] == OA_EXPOSURE_MANUAL ) ? 0 : 1 );
             } else {
@@ -474,60 +475,79 @@ void
 CameraControls::disableAutoControls ( void )
 {
   // These ones we just want off all the time
-  if ( state.camera->hasControl ( OA_CAM_CTRL_AUTO_GAIN )) {
-    state.camera->setControl ( OA_CAM_CTRL_AUTO_GAIN, 0 );
-    config.controlValues[ OA_CAM_CTRL_AUTO_GAIN ] = 0;
-    SET_PROFILE_CONTROL( OA_CAM_CTRL_AUTO_GAIN, 0 );
+  if ( state.camera->hasControl ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ))) {
+    state.camera->setControl ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ), 0 );
+    config.controlValues[ OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN )] = 0;
+    SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ), 0 );
   }
-  if ( state.camera->hasControl ( OA_CAM_CTRL_HUE_AUTO )) {
-    state.camera->setControl ( OA_CAM_CTRL_HUE_AUTO, 0 );
-    config.controlValues[ OA_CAM_CTRL_HUE_AUTO ] = 0;
-    SET_PROFILE_CONTROL( OA_CAM_CTRL_HUE_AUTO, 0 );
+  if ( state.camera->hasControl ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ))) {
+    state.camera->setControl ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ), 0 );
+    config.controlValues[ OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE )] = 0;
+    SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ), 0 );
   }
-  if ( state.camera->hasControl ( OA_CAM_CTRL_AUTO_BRIGHTNESS )) {
-    state.camera->setControl ( OA_CAM_CTRL_AUTO_BRIGHTNESS, 0 );
-    config.controlValues[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] = 0;
-    SET_PROFILE_CONTROL( OA_CAM_CTRL_AUTO_BRIGHTNESS, 0 );
+  if ( state.camera->hasControl (
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS ))) {
+    state.camera->setControl (
+        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS ), 0 );
+    config.controlValues[ OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS )] = 0;
+    SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS ), 0 );
   }
-  if ( state.camera->hasControl ( OA_CAM_CTRL_AUTO_EXPOSURE )) {
-    state.camera->setControl ( OA_CAM_CTRL_AUTO_EXPOSURE, OA_EXPOSURE_MANUAL );
-    config.controlValues[ OA_CAM_CTRL_AUTO_EXPOSURE ] = OA_EXPOSURE_MANUAL;
-    SET_PROFILE_CONTROL( OA_CAM_CTRL_AUTO_EXPOSURE, OA_EXPOSURE_MANUAL );
+  if ( state.camera->hasControl (
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ))) {
+    state.camera->setControl ( OA_CAM_CTRL_MODE_AUTO(
+        OA_CAM_CTRL_EXPOSURE_UNSCALED ), OA_EXPOSURE_MANUAL );
+    config.controlValues[ OA_CAM_CTRL_MODE_AUTO(
+        OA_CAM_CTRL_EXPOSURE_UNSCALED )] = OA_EXPOSURE_MANUAL;
+    SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO(
+        OA_CAM_CTRL_EXPOSURE_UNSCALED ), OA_EXPOSURE_MANUAL );
   }
-  if ( state.camera->hasControl ( OA_CAM_CTRL_AUTO_GAMMA )) {
-    state.camera->setControl ( OA_CAM_CTRL_AUTO_GAMMA, 0 );
-    config.controlValues[ OA_CAM_CTRL_AUTO_GAMMA ] = 0;
-    SET_PROFILE_CONTROL( OA_CAM_CTRL_AUTO_GAMMA, 0 );
+  if ( state.camera->hasControl ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA ))) {
+    state.camera->setControl ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA ), 0 );
+    config.controlValues[ OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA )] = 0;
+    SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA ), 0 );
   }
-  int AWBtype = state.camera->hasControl ( OA_CAM_CTRL_AUTO_WHITE_BALANCE );
+  int AWBtype = state.camera->hasControl (
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ));
   if ( AWBtype ) {
     int AWBManual = 0;
     if ( OA_CTRL_TYPE_MENU == AWBtype ) {
       AWBManual = state.camera->getAWBManualSetting();
     }
-    state.camera->setControl ( OA_CAM_CTRL_AUTO_WHITE_BALANCE, AWBManual );
-    config.controlValues[ OA_CAM_CTRL_AUTO_WHITE_BALANCE ] = AWBManual;
-    SET_PROFILE_CONTROL( OA_CAM_CTRL_AUTO_WHITE_BALANCE, AWBManual );
+    state.camera->setControl (
+        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ), AWBManual );
+    config.controlValues[
+        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE )] = AWBManual;
+    SET_PROFILE_CONTROL(
+        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ), AWBManual );
   }
-  if ( state.camera->hasControl ( OA_CAM_CTRL_AUTO_RED_BALANCE )) {
-    state.camera->setControl ( OA_CAM_CTRL_AUTO_RED_BALANCE, 0 );
-    config.controlValues[ OA_CAM_CTRL_AUTO_RED_BALANCE ] = 0;
-    SET_PROFILE_CONTROL( OA_CAM_CTRL_AUTO_RED_BALANCE, 0 );
+  if ( state.camera->hasControl (
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_RED_BALANCE ))) {
+    state.camera->setControl (
+        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_RED_BALANCE ), 0 );
+    config.controlValues[ OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_RED_BALANCE )] = 0;
+    SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_RED_BALANCE ), 0 );
   }
-  if ( state.camera->hasControl ( OA_CAM_CTRL_AUTO_BLUE_BALANCE )) {
-    state.camera->setControl ( OA_CAM_CTRL_AUTO_BLUE_BALANCE, 0 );
-    config.controlValues[ OA_CAM_CTRL_AUTO_BLUE_BALANCE ] = 0;
-    SET_PROFILE_CONTROL( OA_CAM_CTRL_AUTO_BLUE_BALANCE, 0 );
+  if ( state.camera->hasControl (
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLUE_BALANCE ))) {
+    state.camera->setControl (
+        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLUE_BALANCE ), 0 );
+    config.controlValues[
+        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLUE_BALANCE )] = 0;
+    SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLUE_BALANCE ), 0 );
   }
-  if ( state.camera->hasControl ( OA_CAM_CTRL_AUTO_USBTRAFFIC )) {
-    state.camera->setControl ( OA_CAM_CTRL_AUTO_USBTRAFFIC, 0 );
-    config.controlValues[ OA_CAM_CTRL_AUTO_USBTRAFFIC ] = 0;
-    SET_PROFILE_CONTROL( OA_CAM_CTRL_AUTO_USBTRAFFIC, 0 );
+  if ( state.camera->hasControl (
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_USBTRAFFIC ))) {
+    state.camera->setControl (
+        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_USBTRAFFIC ), 0 );
+    config.controlValues[ OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_USBTRAFFIC )] = 0;
+    SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_USBTRAFFIC ), 0 );
   }
-  if ( state.camera->hasControl ( OA_CAM_CTRL_AUTO_CONTRAST )) {
-    state.camera->setControl ( OA_CAM_CTRL_AUTO_CONTRAST, 0 );
-    config.controlValues[ OA_CAM_CTRL_AUTO_CONTRAST ] = 0;
-    SET_PROFILE_CONTROL( OA_CAM_CTRL_AUTO_CONTRAST, 0 );
+  if ( state.camera->hasControl (
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTRAST ))) {
+    state.camera->setControl (
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTRAST ), 0 );
+    config.controlValues[ OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTRAST )] = 0;
+    SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTRAST ), 0 );
   }
 }
 
@@ -548,7 +568,8 @@ CameraControls::updateCheckboxControl ( int control )
   int value = ( controlCheckbox[ control ]->isChecked()) ? 1 : 0;
   int baseControl, controlType;
 
-  if ( OA_CAM_CTRL_AUTO_EXPOSURE == control &&
+  if (( OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
+    OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) &&
        state.camera->hasControl ( control ) == OA_CTRL_TYPE_BOOLEAN ) {
     value = value ? OA_EXPOSURE_AUTO : OA_EXPOSURE_MANUAL;
   }
@@ -842,8 +863,8 @@ CameraControls::getCurrentExposure ( void )
   if ( state.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
     return config.controlValues[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ];
   } else {
-    if ( state.camera->hasControl ( OA_CAM_CTRL_EXPOSURE )) {
-      return config.controlValues[ OA_CAM_CTRL_EXPOSURE ];
+    if ( state.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_UNSCALED )) {
+      return config.controlValues[ OA_CAM_CTRL_EXPOSURE_UNSCALED ];
     }
   }
   return 0;

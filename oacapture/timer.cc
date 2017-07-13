@@ -251,7 +251,7 @@ Timer::hasControl ( int control )
     return 0;
   }
 
-  if ( control >= 0 && control < OA_CAM_CTRL_LAST_P1 ) {
+  if ( control > 0 && control < OA_TIMER_CTRL_LAST_P1 ) {
     return timerControls[ control ];
   }
   qWarning() << __FUNCTION__ << " unrecognised control" << control;

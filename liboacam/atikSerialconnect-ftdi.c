@@ -2,7 +2,7 @@
  *
  * atikSerialconnect-ftdi.c -- Initialise Atik serial cameras using libftdi1
  *
- * Copyright 2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -93,7 +93,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
   }
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
-  OA_CLEAR ( camera->controls );
+  OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
   camera->_private = cameraInfo;
   camera->_common = commonInfo;
@@ -404,14 +404,17 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
   pthread_cond_init ( &cameraInfo->commandComplete, 0 );
   cameraInfo->isStreaming = 0;
 
-  camera->controls[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = OA_CTRL_TYPE_INT64;
-  commonInfo->min[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 1000;
-  commonInfo->max[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 1800000000; // made this up
-  commonInfo->step[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 1000;
-  commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = DEFAULT_EXPOSURE * 1000;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+      OA_CTRL_TYPE_INT64;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1000;
+  // made this up
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1800000000;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1000;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+      DEFAULT_EXPOSURE * 1000;
 
-  camera->controls[ OA_CAM_CTRL_DROPPED ] = OA_CTRL_TYPE_READONLY;
-  camera->controls[ OA_CAM_CTRL_DROPPED_RESET ] = OA_CTRL_TYPE_BUTTON;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED ) = OA_CTRL_TYPE_READONLY;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED_RESET ) = OA_CTRL_TYPE_BUTTON;
 
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {

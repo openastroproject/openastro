@@ -2,7 +2,7 @@
  *
  * EUVCconnect.c -- Initialise EUVC cameras
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -142,7 +142,7 @@ struct puCtrl EUVCControlData[] = {
     .size               = 1
   }, {
     .euvcControl        = EUVC_PU_HUE_AUTO_CONTROL,
-    .oaControl          = OA_CAM_CTRL_HUE_AUTO,
+    .oaControl          = OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ),
     .oaControlType      = OA_CTRL_TYPE_BOOLEAN,
     .size               = 1
   }, {
@@ -152,7 +152,7 @@ struct puCtrl EUVCControlData[] = {
     .size               = 1
   }, {
     .euvcControl        = EUVC_PU_WHITE_BALANCE_COMPONENT_AUTO_CONTROL,
-    .oaControl          = OA_CAM_CTRL_AUTO_WHITE_BALANCE,
+    .oaControl          = OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ),
     .oaControlType      = OA_CTRL_TYPE_BOOLEAN,
     .size               = 1
   }, {
@@ -177,7 +177,7 @@ struct puCtrl EUVCControlData[] = {
     .size               = 1
   }, {
     .euvcControl        = EUVC_PU_CONTRAST_AUTO_CONTROL,
-    .oaControl          = OA_CAM_CTRL_AUTO_CONTRAST,
+    .oaControl          = OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTRAST ),
     .oaControlType      = OA_CTRL_TYPE_BOOLEAN,
     .size               = 1
   }
@@ -236,7 +236,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
-  OA_CLEAR ( camera->controls );
+  OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
   camera->_private = cameraInfo;
   camera->_common = commonInfo;
@@ -490,17 +490,18 @@ oaEUVCInitCamera ( oaCameraDevice* device )
         {
           uint8_t euvcdef, def = 1;
 
-          // FIX ME
           // EUVC auto exposure mode is messy -- a bitfield of:
           // 1 = manual, 2 = auto, 4 = shutter priority, 8 = aperture priority
           // fortunately the exponents of the bit values correspond to the
           // menu values we're using
-          camera->controls[ OA_CAM_CTRL_AUTO_EXPOSURE ] =
+          camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               OA_CTRL_TYPE_MENU;
-          commonInfo->min[ OA_CAM_CTRL_AUTO_EXPOSURE ] = OA_EXPOSURE_AUTO;
-          commonInfo->max[ OA_CAM_CTRL_AUTO_EXPOSURE ] =
+          commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+              OA_EXPOSURE_AUTO;
+          commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               OA_EXPOSURE_APERTURE_PRIORITY;
-          commonInfo->step[ OA_CAM_CTRL_AUTO_EXPOSURE ] = 1;
+          commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+              1;
 
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_AE_MODE_CONTROL,
               &euvcdef, 1, EUVC_GET_DEF )) {
@@ -523,19 +524,20 @@ oaEUVCInitCamera ( oaCameraDevice* device )
                def = OA_EXPOSURE_MANUAL; // FIX ME -- why?
                break;
           }
-          commonInfo->def[ OA_CAM_CTRL_AUTO_EXPOSURE ] = def;
+          commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+              def;
           break;
         }
         case EUVC_CT_EXPOSURE_TIME_ABSOLUTE_CONTROL:
         {
-          camera->controls[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               OA_CTRL_TYPE_INT64;
           if ( getEUVCTermControl ( cameraInfo,
               EUVC_CT_EXPOSURE_TIME_ABSOLUTE_CONTROL, buff, 4,
               EUVC_GET_MIN )) {
             fprintf ( stderr, "failed to get min value for AE setting\n" );
           }
-          commonInfo->min[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               buff[0] + ( buff[1] << 8 ) + ( buff[2] << 16 ) +
               ( buff[3] << 24 );
           if ( getEUVCTermControl ( cameraInfo,
@@ -543,7 +545,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
               EUVC_GET_MAX )) {
             fprintf ( stderr, "failed to get max value for AE setting\n" );
           }
-          commonInfo->max[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               buff[0] + ( buff[1] << 8 ) + ( buff[2] << 16 ) +
               ( buff[3] << 24 );
           if ( getEUVCTermControl ( cameraInfo,
@@ -551,7 +553,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
               EUVC_GET_RES )) {
             fprintf ( stderr, "failed to get resolution for AE setting\n" );
           }
-          commonInfo->step[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               buff[0] + ( buff[1] << 8 ) + ( buff[2] << 16 ) +
               ( buff[3] << 24 );
           if ( getEUVCTermControl ( cameraInfo,
@@ -559,20 +561,20 @@ oaEUVCInitCamera ( oaCameraDevice* device )
               EUVC_GET_DEF )) {
             fprintf ( stderr, "failed to get default for AE setting\n" );
           }
-          commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               buff[0] + ( buff[1] << 8 ) + ( buff[2] << 16 ) +
               ( buff[3] << 24 );
 
           // now convert the values from 100usec to usec.
-          commonInfo->min[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] *= 100;
-          commonInfo->max[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] *= 100;
-          commonInfo->step[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] *= 100;
-          commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] *= 100;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) *= 100;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) *= 100;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) *= 100;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) *= 100;
           break;
         }
 
         case EUVC_CT_ZOOM_ABSOLUTE_CONTROL:
-        case EUVC_CT_EXPOSURE_TIME_RELATIVE_CONTROL:
+        case EUVC_CT_EXPOSURE_TIME_RELATIVE_CONTROL: // relative to current val
         case EUVC_CT_AE_PRIORITY_CONTROL:
         case EUVC_CT_FOCUS_ABSOLUTE_CONTROL:
         case EUVC_CT_FOCUS_RELATIVE_CONTROL:
@@ -647,7 +649,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   cameraInfo->bytesPerPixel = 1;
   cameraInfo->binMode = OA_BIN_MODE_NONE;
   if ( termCaps & EUVC_CT_CAPABILITY_BINNING ) {
-    camera->controls[ OA_CAM_CTRL_BINNING ] = OA_CTRL_TYPE_DISCRETE;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;
   }
 
   // Deal with the controls from the processing unit
@@ -1015,72 +1017,72 @@ _getEUVCControlValues ( oaCamera* camera, int index )
         EUVC_PU_WHITE_BALANCE_COMPONENT_CONTROL, len, EUVC_GET_MIN )) < 0 ) {
       return;
     }
-    commonInfo->min[ OA_CAM_CTRL_BLUE_BALANCE ] = val & 0xffff;
-    commonInfo->min[ OA_CAM_CTRL_RED_BALANCE ] = val >> 16;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) = val & 0xffff;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) = val >> 16;
 
     if (( val = getEUVCControl ( cameraInfo,
         EUVC_PU_WHITE_BALANCE_COMPONENT_CONTROL, len, EUVC_GET_MAX )) < 0 ) {
       return;
     }
-    commonInfo->max[ OA_CAM_CTRL_BLUE_BALANCE ] = val & 0xffff;
-    commonInfo->max[ OA_CAM_CTRL_RED_BALANCE ] = val >> 16;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) = val & 0xffff;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE ) = val >> 16;
 
     if (( val = getEUVCControl ( cameraInfo,
         EUVC_PU_WHITE_BALANCE_COMPONENT_CONTROL, len, EUVC_GET_RES )) < 0 ) {
       return;
     }
-    commonInfo->step[ OA_CAM_CTRL_BLUE_BALANCE ] = val & 0xffff;
-    commonInfo->step[ OA_CAM_CTRL_RED_BALANCE ] = val >> 16;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLUE_BALANCE ) = val & 0xffff;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RED_BALANCE ) = val >> 16;
 
     if (( val = getEUVCControl ( cameraInfo,
         EUVC_PU_WHITE_BALANCE_COMPONENT_CONTROL, len, EUVC_GET_DEF )) < 0 ) {
       return;
     }
-    commonInfo->def[ OA_CAM_CTRL_BLUE_BALANCE ] = val & 0xffff;
-    commonInfo->def[ OA_CAM_CTRL_RED_BALANCE ] = val >> 16;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) = val & 0xffff;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) = val >> 16;
 
-    camera->controls[ OA_CAM_CTRL_BLUE_BALANCE ] = OA_CTRL_TYPE_INT32;
-    camera->controls[ OA_CAM_CTRL_RED_BALANCE ] = OA_CTRL_TYPE_INT32;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) = OA_CTRL_TYPE_INT32;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RED_BALANCE ) = OA_CTRL_TYPE_INT32;
 
   } else {
 
     int val;
 
-    camera->controls[ oaControl ] = EUVCControlData[ index ].oaControlType;
+    camera->OA_CAM_CTRL_TYPE( oaControl ) = EUVCControlData[ index ].oaControlType;
 
-    switch ( camera->controls[ oaControl ] ) {
+    switch ( camera->OA_CAM_CTRL_TYPE( oaControl ) ) {
       case OA_CTRL_TYPE_INT32:
       case OA_CTRL_TYPE_MENU:
         if (( val = getEUVCControl ( cameraInfo, euvcControl, len,
             EUVC_GET_MIN )) < 0 ) {
           return;
         }
-        commonInfo->min[ oaControl ] = val;
+        commonInfo->OA_CAM_CTRL_MIN( oaControl ) = val;
         if (( val = getEUVCControl ( cameraInfo, euvcControl, len,
             EUVC_GET_MAX )) < 0 ) {
           return;
         }
-        commonInfo->max[ oaControl ] = val;
+        commonInfo->OA_CAM_CTRL_MAX( oaControl ) = val;
         if (( val = getEUVCControl ( cameraInfo, euvcControl, len,
             EUVC_GET_RES )) < 0 ) {
           return;
         }
-        commonInfo->step[ oaControl ] = val;
-        if (( commonInfo->def[ oaControl ] = getEUVCControl (
+        commonInfo->OA_CAM_CTRL_STEP( oaControl ) = val;
+        if (( commonInfo->OA_CAM_CTRL_DEF( oaControl ) = getEUVCControl (
             cameraInfo, euvcControl, len, EUVC_GET_DEF )) < 0 ) {
           return;
         }
         break;
 
       case OA_CTRL_TYPE_BOOLEAN:
-        commonInfo->min[ oaControl ] = 0;
-        commonInfo->max[ oaControl ] = 1;
-        commonInfo->step[ oaControl ] = 1;
+        commonInfo->OA_CAM_CTRL_MIN( oaControl ) = 0;
+        commonInfo->OA_CAM_CTRL_MAX( oaControl ) = 1;
+        commonInfo->OA_CAM_CTRL_STEP( oaControl ) = 1;
         if (( val = getEUVCControl ( cameraInfo, euvcControl, len,
             EUVC_GET_DEF )) < 0 ) {
           return;
         }
-        commonInfo->def[ oaControl ] = val;
+        commonInfo->OA_CAM_CTRL_DEF( oaControl ) = val;
         break;
 
       case OA_CTRL_TYPE_READONLY:
@@ -1088,7 +1090,7 @@ _getEUVCControlValues ( oaCamera* camera, int index )
 
       default:
         fprintf ( stderr, "unhandled control type %d in %s\n",
-            camera->controls[ oaControl ], __FUNCTION__ );
+            camera->OA_CAM_CTRL_TYPE( oaControl ), __FUNCTION__ );
         break;
     }
   }
@@ -1176,7 +1178,7 @@ _scanEUVCStream ( oaCamera* camera,
               // ones.  If it is and binning is enabled, throw an error if
               // this size is not half the previous one (we're assuming
               // that 2x binning is enabled if 4x binning is).
-              if ( camera->controls[ OA_CAM_CTRL_BINNING ] ) {
+              if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) ) {
                 if ( !cameraInfo->frameSizes[2].numSizes ) {
                   if ( xSize * 2 != cameraInfo->frameSizes[1].sizes[0].x ||
                       ySize * 2 != cameraInfo->frameSizes[1].sizes[0].y ) {

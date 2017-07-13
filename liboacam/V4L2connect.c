@@ -2,7 +2,7 @@
  *
  * V4L2connect.c -- Initialise V4L2 cameras
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -184,7 +184,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   // FIX ME -- use tables for these to avoid having so many cases in the
   // switch
 
-  OA_CLEAR ( camera->controls );
+  OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
   _oaInitCameraFunctionPointers ( camera );
   _V4L2InitFunctionPointers ( camera );
@@ -222,11 +222,13 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_BRIGHTNESS:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_BRIGHTNESS ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_BRIGHTNESS ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_BRIGHTNESS ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_BRIGHTNESS ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_BRIGHTNESS ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BRIGHTNESS ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BRIGHTNESS ) = ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BRIGHTNESS ) = ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BRIGHTNESS ) = ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "brightness is not INTEGER (%d)\n", ctrl.type );
@@ -236,11 +238,11 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_CONTRAST:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_CONTRAST ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_CONTRAST ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_CONTRAST ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_CONTRAST ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_CONTRAST ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_CONTRAST ) = OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_CONTRAST ) = ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_CONTRAST ) = ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_CONTRAST ) = ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_CONTRAST ) = ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "contrast is not INTEGER (%d)\n", ctrl.type );
@@ -250,11 +252,12 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_SATURATION:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_SATURATION ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_SATURATION ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_SATURATION ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_SATURATION ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_SATURATION ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SATURATION ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SATURATION ) = ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SATURATION ) = ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SATURATION ) = ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SATURATION ) = ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "saturation is not INTEGER (%d)\n", ctrl.type );
@@ -264,11 +267,11 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_HUE:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_HUE ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_HUE ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_HUE ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_HUE ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_HUE ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HUE ) = OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HUE ) = ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HUE ) = ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HUE ) = ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HUE ) = ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "hue is not INTEGER (%d)\n", ctrl.type );
@@ -289,12 +292,12 @@ oaV4L2InitCamera ( oaCameraDevice* device )
         cameraInfo->haveWhiteBalanceManual = 0;
         cameraInfo->autoWhiteBalanceOff = 0;
         if ( V4L2_CTRL_TYPE_BOOLEAN == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_AUTO_WHITE_BALANCE ] =
+          camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_WHITE_BALANCE ) =
               OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->min[ OA_CAM_CTRL_AUTO_WHITE_BALANCE ] = 0;
-          commonInfo->max[ OA_CAM_CTRL_AUTO_WHITE_BALANCE ] = 1;
-          commonInfo->step[ OA_CAM_CTRL_AUTO_WHITE_BALANCE ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_AUTO_WHITE_BALANCE ] =
+          commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_WHITE_BALANCE ) = 0;
+          commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_WHITE_BALANCE ) = 1;
+          commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_WHITE_BALANCE ) = 1;
+          commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_WHITE_BALANCE ) =
               ctrl.default_value;
           cameraInfo->haveWhiteBalanceManual = 1;
         } else {
@@ -334,12 +337,15 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             }
           }
           if ( 1 == foundManual ) {
-            camera->controls[ OA_CAM_CTRL_AUTO_WHITE_BALANCE ] =
+            camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_WHITE_BALANCE ) =
                 OA_CTRL_TYPE_MENU;
-            commonInfo->min[ OA_CAM_CTRL_AUTO_WHITE_BALANCE ] = ctrl.minimum;
-            commonInfo->max[ OA_CAM_CTRL_AUTO_WHITE_BALANCE ] = ctrl.maximum;
-            commonInfo->step[ OA_CAM_CTRL_AUTO_WHITE_BALANCE ] = ctrl.step;
-            commonInfo->def[ OA_CAM_CTRL_AUTO_WHITE_BALANCE ] =
+            commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_WHITE_BALANCE ) =
+                ctrl.minimum;
+            commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_WHITE_BALANCE ) =
+                ctrl.maximum;
+            commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_WHITE_BALANCE ) =
+                ctrl.step;
+            commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_WHITE_BALANCE ) =
                 ctrl.default_value;
             cameraInfo->autoWhiteBalanceOff = manualValue;
             cameraInfo->haveWhiteBalanceManual = 1;
@@ -352,12 +358,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_DO_WHITE_BALANCE:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_WHITE_BALANCE ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_WHITE_BALANCE ) =
               OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_WHITE_BALANCE ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_WHITE_BALANCE ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_WHITE_BALANCE ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_WHITE_BALANCE ] = ctrl.default_value;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_WHITE_BALANCE ) =
+              ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_WHITE_BALANCE ) =
+              ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_WHITE_BALANCE ) =
+              ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_WHITE_BALANCE ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "white balance is not INTEGER (%d)\n",
@@ -368,11 +378,13 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_RED_BALANCE:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_RED_BALANCE ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_RED_BALANCE ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_RED_BALANCE ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_RED_BALANCE ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_RED_BALANCE ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RED_BALANCE ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) = ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE ) = ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RED_BALANCE ) = ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "red balance is not INTEGER (%d)\n", ctrl.type );
@@ -382,11 +394,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_BLUE_BALANCE:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_BLUE_BALANCE ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_BLUE_BALANCE ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_BLUE_BALANCE ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_BLUE_BALANCE ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_BLUE_BALANCE ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) =
+              ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) =
+              ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLUE_BALANCE ) =
+              ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "blue balance is not INTEGER (%d)\n", ctrl.type );
@@ -396,11 +413,11 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_GAMMA:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_GAMMA ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_GAMMA ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_GAMMA ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_GAMMA ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_GAMMA ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAMMA ) = OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA ) = ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA ) = ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAMMA ) = ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) = ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "gamma is not INTEGER (%d)\n", ctrl.type );
@@ -410,11 +427,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_EXPOSURE:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_EXPOSURE ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_EXPOSURE ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_EXPOSURE ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_EXPOSURE ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_EXPOSURE ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+              ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+              ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+              ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "exposure is not INTEGER (%d)\n", ctrl.type );
@@ -424,11 +446,13 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_AUTOGAIN:
         if ( V4L2_CTRL_TYPE_BOOLEAN == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_AUTO_GAIN ] = OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->min[ OA_CAM_CTRL_AUTO_GAIN ] = 0;
-          commonInfo->max[ OA_CAM_CTRL_AUTO_GAIN ] = 1;
-          commonInfo->step[ OA_CAM_CTRL_AUTO_GAIN ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_AUTO_GAIN ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_GAIN ) =
+              OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_GAIN ) = 0;
+          commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_GAIN ) = 1;
+          commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_GAIN ) = 1;
+          commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_GAIN ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "Auto Gain is not BOOLEAN (%d)\n", ctrl.type );
@@ -438,11 +462,11 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_GAIN:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_GAIN ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_GAIN ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_GAIN ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_GAIN ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_GAIN ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "exposure is not INTEGER (%d)\n", ctrl.type );
@@ -452,11 +476,11 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_HFLIP:
         if ( V4L2_CTRL_TYPE_BOOLEAN == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_HFLIP ] = OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->min[ OA_CAM_CTRL_HFLIP ] = 0;
-          commonInfo->max[ OA_CAM_CTRL_HFLIP ] = 1;
-          commonInfo->step[ OA_CAM_CTRL_HFLIP ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_HFLIP ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HFLIP ) = OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HFLIP ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HFLIP ) = 1;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HFLIP ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HFLIP ) = ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "HFLIP is not BOOLEAN (%d)\n", ctrl.type );
@@ -466,11 +490,11 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_VFLIP:
         if ( V4L2_CTRL_TYPE_BOOLEAN == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_VFLIP ] = OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->min[ OA_CAM_CTRL_VFLIP ] = 0;
-          commonInfo->max[ OA_CAM_CTRL_VFLIP ] = 1;
-          commonInfo->step[ OA_CAM_CTRL_VFLIP ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_VFLIP ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_VFLIP ) = OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_VFLIP ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_VFLIP ) = 1;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_VFLIP ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_VFLIP ) = ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "VFLIP is not BOOLEAN (%d)\n", ctrl.type );
@@ -489,11 +513,13 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_HUE_AUTO:
         if ( V4L2_CTRL_TYPE_BOOLEAN == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_HUE_AUTO ] = OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->min[ OA_CAM_CTRL_HUE_AUTO ] = 0;
-          commonInfo->max[ OA_CAM_CTRL_HUE_AUTO ] = 1;
-          commonInfo->step[ OA_CAM_CTRL_HUE_AUTO ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_HUE_AUTO ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_HUE ) =
+              OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_HUE ) = 0;
+          commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_HUE ) = 1;
+          commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_HUE ) = 1;
+          commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_HUE ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "HUE_AUTO is not BOOLEAN (%d)\n", ctrl.type );
@@ -503,12 +529,15 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_WHITE_BALANCE_TEMPERATURE:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_WHITE_BALANCE_TEMP ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_WHITE_BALANCE_TEMP ) =
               OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_WHITE_BALANCE_TEMP ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_WHITE_BALANCE_TEMP ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_WHITE_BALANCE_TEMP ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_WHITE_BALANCE_TEMP ] =
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_WHITE_BALANCE_TEMP ) =
+              ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_WHITE_BALANCE_TEMP ) =
+              ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_WHITE_BALANCE_TEMP ) =
+              ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_WHITE_BALANCE_TEMP ) =
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
@@ -520,11 +549,13 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_SHARPNESS:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_SHARPNESS ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_SHARPNESS ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_SHARPNESS ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_SHARPNESS ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_SHARPNESS ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SHARPNESS ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SHARPNESS ) = ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SHARPNESS ) = ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SHARPNESS ) = ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SHARPNESS ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "sharpness is not INTEGER (%d)\n", ctrl.type );
@@ -540,12 +571,13 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_AUTOBRIGHTNESS:
         if ( V4L2_CTRL_TYPE_BOOLEAN == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] =
+          camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_BRIGHTNESS ) =
               OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->min[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] = 0;
-          commonInfo->max[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] = 1;
-          commonInfo->step[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] = ctrl.default_value;
+          commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_BRIGHTNESS ) = 0;
+          commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_BRIGHTNESS ) = 1;
+          commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_BRIGHTNESS ) = 1;
+          commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_BRIGHTNESS ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "HUE_AUTO is not BOOLEAN (%d)\n", ctrl.type );
@@ -573,6 +605,10 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     }
   }
 
+  // These are so we can get the auto exposure stuff right later.
+  int	autoExposureType = 0;
+  int64_t autoMax, autoMin, autoDef, autoStep;
+
   for ( id = V4L2_CID_CAMERA_CLASS_BASE; id < V4L2_CAMERA_CLASS_LASTP1;
       id++ ) {
     OA_CLEAR ( ctrl );
@@ -598,29 +634,31 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     switch ( id ) {
 
       case V4L2_CID_EXPOSURE_AUTO:
+
+        // Because we might have either an unscaled exposure control or an
+        // absolute exposure control (or both) and not know exactly which at
+        // this point, save these details for fixing up later
+
         if ( V4L2_CTRL_TYPE_MENU == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_AUTO_EXPOSURE ] = OA_CTRL_TYPE_MENU;
-          commonInfo->min[ OA_CAM_CTRL_AUTO_EXPOSURE ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_AUTO_EXPOSURE ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_AUTO_EXPOSURE ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_AUTO_EXPOSURE ] = ctrl.default_value;
+          autoExposureType = OA_CTRL_TYPE_MENU;
         } else {
           if ( V4L2_CTRL_TYPE_BOOLEAN == ctrl.type ) {
             if ( ctrl.minimum != 0 ) {
               fprintf ( stderr, "AUTO_EXPOSURE control type is BOOLEAN, but "
                   "minimum value is %d\n", ctrl.minimum );
             } else {
-              camera->controls[ OA_CAM_CTRL_AUTO_EXPOSURE ] =
-                  OA_CTRL_TYPE_BOOLEAN;
-              commonInfo->min[ OA_CAM_CTRL_AUTO_EXPOSURE ] = ctrl.minimum;
-              commonInfo->max[ OA_CAM_CTRL_AUTO_EXPOSURE ] = ctrl.maximum;
-              commonInfo->step[ OA_CAM_CTRL_AUTO_EXPOSURE ] = ctrl.step;
-              commonInfo->def[ OA_CAM_CTRL_AUTO_EXPOSURE ] = ctrl.default_value;
+              autoExposureType = OA_CTRL_TYPE_BOOLEAN;
             }
           } else {
             fprintf ( stderr, "AUTO_EXPOSURE control type is not MENU (%d)\n",
                 ctrl.type );
           }
+        }
+        if ( autoExposureType ) {
+          autoMin = ctrl.minimum;
+          autoMax = ctrl.maximum;
+          autoStep = ctrl.step;
+          autoDef = ctrl.default_value;
         }
         break;
 
@@ -630,16 +668,20 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           // FIX ME -- This leaves us with a problem where the maximum
           // exposure > INT_MAX usec.  Use a temporary hack to work
           // around it
-          camera->controls[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = ctrl.minimum * 100;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+              ctrl.minimum * 100;
           long max = INT_MAX / 100;
           if ( ctrl.maximum > max ) {
             ctrl.maximum = max;
           }
-          commonInfo->max[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = ctrl.maximum * 100;
-          commonInfo->step[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = ctrl.step * 100;
-          commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = ctrl.default_value
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+              ctrl.maximum * 100;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+              ctrl.step * 100;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+              ctrl.default_value
               * 100;
         } else {
           if ( ctrl.type ) {
@@ -651,11 +693,15 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_PAN_RELATIVE:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_PAN_RELATIVE ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_PAN_RELATIVE ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_PAN_RELATIVE ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_PAN_RELATIVE ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_PAN_RELATIVE ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_PAN_RELATIVE ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_PAN_RELATIVE ) =
+              ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_PAN_RELATIVE ) =
+              ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_PAN_RELATIVE ) = ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_PAN_RELATIVE ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "pan relative is not INTEGER (%d)\n",
@@ -666,12 +712,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_TILT_RELATIVE:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_TILT_RELATIVE ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TILT_RELATIVE ) =
               OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_TILT_RELATIVE ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_TILT_RELATIVE ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_TILT_RELATIVE ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_TILT_RELATIVE ] = ctrl.default_value;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TILT_RELATIVE ) =
+              ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TILT_RELATIVE ) =
+              ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TILT_RELATIVE ) =
+              ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TILT_RELATIVE ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "tilt relative is not INTEGER (%d)\n",
@@ -682,11 +732,13 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_PAN_RESET:
         if ( V4L2_CTRL_TYPE_BOOLEAN == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_PAN_RESET ] = OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->min[ OA_CAM_CTRL_PAN_RESET ] = 0;
-          commonInfo->max[ OA_CAM_CTRL_PAN_RESET ] = 1;
-          commonInfo->step[ OA_CAM_CTRL_PAN_RESET ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_PAN_RESET ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_PAN_RESET ) =
+              OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_PAN_RESET ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_PAN_RESET ) = 1;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_PAN_RESET ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_PAN_RESET ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "pan reset is not BOOLEAN (%d)\n",
@@ -697,11 +749,13 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_TILT_RESET:
         if ( V4L2_CTRL_TYPE_BOOLEAN == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_TILT_RESET ] = OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->min[ OA_CAM_CTRL_TILT_RESET ] = 0;
-          commonInfo->max[ OA_CAM_CTRL_TILT_RESET ] = 1;
-          commonInfo->step[ OA_CAM_CTRL_TILT_RESET ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_TILT_RESET ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TILT_RESET ) =
+              OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TILT_RESET ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TILT_RESET ) = 1;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TILT_RESET ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TILT_RESET ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "tilt reset is not BOOLEAN (%d)\n",
@@ -712,11 +766,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_PAN_ABSOLUTE:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_PAN_ABSOLUTE ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_PAN_ABSOLUTE ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_PAN_ABSOLUTE ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_PAN_ABSOLUTE ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_PAN_ABSOLUTE ] = ctrl.default_value;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_PAN_ABSOLUTE ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_PAN_ABSOLUTE ) =
+              ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_PAN_ABSOLUTE ) =
+              ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_PAN_ABSOLUTE ) =
+              ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_PAN_ABSOLUTE ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "pan absolute is not INTEGER (%d)\n",
@@ -727,12 +786,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_TILT_ABSOLUTE:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_TILT_ABSOLUTE ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TILT_ABSOLUTE ) =
               OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_TILT_ABSOLUTE ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_TILT_ABSOLUTE ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_TILT_ABSOLUTE ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_TILT_ABSOLUTE ] = ctrl.default_value;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TILT_ABSOLUTE ) =
+              ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TILT_ABSOLUTE ) =
+              ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TILT_ABSOLUTE ) =
+              ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TILT_ABSOLUTE ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "tilt absolute is not INTEGER (%d)\n",
@@ -748,12 +811,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
       case V4L2_CID_ZOOM_ABSOLUTE:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-          camera->controls[ OA_CAM_CTRL_ZOOM_ABSOLUTE ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_ZOOM_ABSOLUTE ) =
               OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_ZOOM_ABSOLUTE ] = ctrl.minimum;
-          commonInfo->max[ OA_CAM_CTRL_ZOOM_ABSOLUTE ] = ctrl.maximum;
-          commonInfo->step[ OA_CAM_CTRL_ZOOM_ABSOLUTE ] = ctrl.step;
-          commonInfo->def[ OA_CAM_CTRL_ZOOM_ABSOLUTE ] = ctrl.default_value;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_ZOOM_ABSOLUTE ) =
+              ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_ZOOM_ABSOLUTE ) =
+              ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_ZOOM_ABSOLUTE ) =
+              ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_ZOOM_ABSOLUTE ) =
+              ctrl.default_value;
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "zoom absolute is not INTEGER (%d)\n",
@@ -810,6 +877,33 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     }
   }
 
+  if ( autoExposureType ) {
+    if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_UNSCALED )) {
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+          autoExposureType;
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+          autoMin;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+          autoMax;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+          autoStep;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+          autoDef;
+    }
+    if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+          autoExposureType;
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+          autoMin;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+          autoMax;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+          autoStep;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+          autoDef;
+    }
+  }
+
   for ( id = V4L2_CID_PRIVATE_BASE; errno != EINVAL; id++ ) {
     OA_CLEAR ( ctrl );
     ctrl.id = id;
@@ -860,12 +954,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
         case PWC_CID_CUSTOM(autocontour):
           if ( V4L2_CTRL_TYPE_BOOLEAN == ctrl.type ) {
-            camera->controls[ OA_CAM_CTRL_AUTO_CONTOUR ] =
+            camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_CONTOUR ) =
                 OA_CTRL_TYPE_BOOLEAN;
-            commonInfo->min[ OA_CAM_CTRL_AUTO_CONTOUR ] = ctrl.minimum;
-            commonInfo->max[ OA_CAM_CTRL_AUTO_CONTOUR ] = ctrl.maximum;
-            commonInfo->step[ OA_CAM_CTRL_AUTO_CONTOUR ] = ctrl.step;
-            commonInfo->def[ OA_CAM_CTRL_AUTO_CONTOUR ] = ctrl.default_value;
+            commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_CONTOUR ) =
+                ctrl.minimum;
+            commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_CONTOUR ) =
+                ctrl.maximum;
+            commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_CONTOUR ) =
+                ctrl.step;
+            commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_CONTOUR ) =
+                ctrl.default_value;
           } else {
             if ( ctrl.type ) {
               fprintf ( stderr, "autocontour is not boolean (%d)\n",
@@ -876,11 +974,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
         case PWC_CID_CUSTOM(contour):
           if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-            camera->controls[ OA_CAM_CTRL_CONTOUR ] = OA_CTRL_TYPE_INT32;
-            commonInfo->min[ OA_CAM_CTRL_CONTOUR ] = ctrl.minimum;
-            commonInfo->max[ OA_CAM_CTRL_CONTOUR ] = ctrl.maximum;
-            commonInfo->step[ OA_CAM_CTRL_CONTOUR ] = ctrl.step;
-            commonInfo->def[ OA_CAM_CTRL_CONTOUR ] = ctrl.default_value;
+            camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_CONTOUR ) =
+              OA_CTRL_TYPE_INT32;
+            commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_CONTOUR ) =
+              ctrl.minimum;
+            commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_CONTOUR ) =
+              ctrl.maximum;
+            commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_CONTOUR ) =
+              ctrl.step;
+            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_CONTOUR ) =
+              ctrl.default_value;
           } else {
             if ( ctrl.type ) {
               fprintf ( stderr, "contour is not INTEGER (%d)\n", ctrl.type );
@@ -890,12 +993,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
         case PWC_CID_CUSTOM(noise_reduction):
           if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-            camera->controls[ OA_CAM_CTRL_NOISE_REDUCTION ] =
+            camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_NOISE_REDUCTION ) =
                 OA_CTRL_TYPE_INT32;
-            commonInfo->min[ OA_CAM_CTRL_NOISE_REDUCTION ] = ctrl.minimum;
-            commonInfo->max[ OA_CAM_CTRL_NOISE_REDUCTION ] = ctrl.maximum;
-            commonInfo->step[ OA_CAM_CTRL_NOISE_REDUCTION ] = ctrl.step;
-            commonInfo->def[ OA_CAM_CTRL_NOISE_REDUCTION ] = ctrl.default_value;
+            commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_NOISE_REDUCTION ) =
+              ctrl.minimum;
+            commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_NOISE_REDUCTION ) =
+              ctrl.maximum;
+            commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_NOISE_REDUCTION ) =
+              ctrl.step;
+            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_NOISE_REDUCTION ) =
+              ctrl.default_value;
           } else {
             if ( ctrl.type ) {
               fprintf ( stderr, "noise reduction is not INTEGER (%d)\n",
@@ -906,12 +1013,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
         case PWC_CID_CUSTOM(awb_speed):
           if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-            camera->controls[ OA_CAM_CTRL_AUTO_WB_SPEED ] =
-                OA_CTRL_TYPE_INT32;
-            commonInfo->min[ OA_CAM_CTRL_AUTO_WB_SPEED ] = ctrl.minimum;
-            commonInfo->max[ OA_CAM_CTRL_AUTO_WB_SPEED ] = ctrl.maximum;
-            commonInfo->step[ OA_CAM_CTRL_AUTO_WB_SPEED ] = ctrl.step;
-            commonInfo->def[ OA_CAM_CTRL_AUTO_WB_SPEED ] = ctrl.default_value;
+            camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_AUTO_WHITE_BALANCE_SPEED )
+                = OA_CTRL_TYPE_INT32;
+            commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_AUTO_WHITE_BALANCE_SPEED )
+                = ctrl.minimum;
+            commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_AUTO_WHITE_BALANCE_SPEED )
+                = ctrl.maximum;
+            commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_AUTO_WHITE_BALANCE_SPEED )
+                = ctrl.step;
+            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_AUTO_WHITE_BALANCE_SPEED )
+                = ctrl.default_value;
           } else {
             if ( ctrl.type ) {
               fprintf ( stderr, "awb speed is not INTEGER (%d)\n", ctrl.type );
@@ -921,12 +1032,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
         case PWC_CID_CUSTOM(awb_delay):
           if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
-            camera->controls[ OA_CAM_CTRL_AUTO_WB_DELAY ] =
-                OA_CTRL_TYPE_INT32;
-            commonInfo->min[ OA_CAM_CTRL_AUTO_WB_DELAY ] = ctrl.minimum;
-            commonInfo->max[ OA_CAM_CTRL_AUTO_WB_DELAY ] = ctrl.maximum;
-            commonInfo->step[ OA_CAM_CTRL_AUTO_WB_DELAY ] = ctrl.step;
-            commonInfo->def[ OA_CAM_CTRL_AUTO_WB_DELAY ] = ctrl.default_value;
+            camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_AUTO_WHITE_BALANCE_DELAY )
+                = OA_CTRL_TYPE_INT32;
+            commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_AUTO_WHITE_BALANCE_DELAY )
+                = ctrl.minimum;
+            commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_AUTO_WHITE_BALANCE_DELAY )
+                = ctrl.maximum;
+            commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_AUTO_WHITE_BALANCE_DELAY )
+                = ctrl.step;
+            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_AUTO_WHITE_BALANCE_DELAY )
+                = ctrl.default_value;
           } else {
             if ( ctrl.type ) {
               fprintf ( stderr, "awb delay is not INTEGER (%d)\n", ctrl.type );
@@ -936,11 +1051,12 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
         case PWC_CID_CUSTOM(save_user):
           if ( V4L2_CTRL_TYPE_BUTTON == ctrl.type ) {
-            camera->controls[ OA_CAM_CTRL_SAVE_USER ] = OA_CTRL_TYPE_BUTTON;
-            commonInfo->min[ OA_CAM_CTRL_SAVE_USER ] = 1;
-            commonInfo->max[ OA_CAM_CTRL_SAVE_USER ] = 1;
-            commonInfo->step[ OA_CAM_CTRL_SAVE_USER ] = 1;
-            commonInfo->def[ OA_CAM_CTRL_SAVE_USER ] = 1;
+            camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SAVE_USER ) =
+              OA_CTRL_TYPE_BUTTON;
+            commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SAVE_USER ) = 1;
+            commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SAVE_USER ) = 1;
+            commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SAVE_USER ) = 1;
+            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SAVE_USER ) = 1;
           } else {
             if ( ctrl.type ) {
               fprintf ( stderr, "save user is not button (%d)\n",
@@ -951,12 +1067,12 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
         case PWC_CID_CUSTOM(restore_user):
           if ( V4L2_CTRL_TYPE_BUTTON == ctrl.type ) {
-            camera->controls[ OA_CAM_CTRL_RESTORE_USER ] =
+            camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RESTORE_USER ) =
                 OA_CTRL_TYPE_BUTTON;
-            commonInfo->min[ OA_CAM_CTRL_RESTORE_USER ] = 1;
-            commonInfo->max[ OA_CAM_CTRL_RESTORE_USER ] = 1;
-            commonInfo->step[ OA_CAM_CTRL_RESTORE_USER ] = 1;
-            commonInfo->def[ OA_CAM_CTRL_RESTORE_USER ] = 1;
+            commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RESTORE_USER ) = 1;
+            commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RESTORE_USER ) = 1;
+            commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RESTORE_USER ) = 1;
+            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RESTORE_USER ) = 1;
           } else {
             if ( ctrl.type ) {
               fprintf ( stderr, "restore user is not button (%d)\n",
@@ -967,12 +1083,12 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
         case PWC_CID_CUSTOM(restore_factory):
           if ( V4L2_CTRL_TYPE_BUTTON == ctrl.type ) {
-            camera->controls[ OA_CAM_CTRL_RESTORE_FACTORY ] =
+            camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RESTORE_FACTORY ) =
                 OA_CTRL_TYPE_BUTTON;
-            commonInfo->min[ OA_CAM_CTRL_RESTORE_FACTORY ] = 1;
-            commonInfo->max[ OA_CAM_CTRL_RESTORE_FACTORY ] = 1;
-            commonInfo->step[ OA_CAM_CTRL_RESTORE_FACTORY ] = 1;
-            commonInfo->def[ OA_CAM_CTRL_RESTORE_FACTORY ] = 1;
+            commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RESTORE_FACTORY ) = 1;
+            commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RESTORE_FACTORY ) = 1;
+            commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RESTORE_FACTORY ) = 1;
+            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RESTORE_FACTORY ) = 1;
           } else {
             if ( ctrl.type ) {
               fprintf ( stderr, "restore factory is not button (%d)\n",

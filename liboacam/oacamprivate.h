@@ -2,7 +2,7 @@
  *
  * oacamprivate.h -- shared declarations not exposed to the cruel world
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -39,10 +39,10 @@ typedef struct {
 } CAMERA_LIST;
 
 typedef struct {
-  int64_t               min[ OA_CAM_CTRL_LAST_P1 ];
-  int64_t               max[ OA_CAM_CTRL_LAST_P1 ];
-  int64_t               step[ OA_CAM_CTRL_LAST_P1 ];
-  int64_t               def[ OA_CAM_CTRL_LAST_P1 ];
+  int64_t               minVal[3][ OA_CAM_CTRL_LAST_P1 ];
+  int64_t               maxVal[3][ OA_CAM_CTRL_LAST_P1 ];
+  int64_t               stepVal[3][ OA_CAM_CTRL_LAST_P1 ];
+  int64_t               defVal[3][ OA_CAM_CTRL_LAST_P1 ];
 } COMMON_INFO;
 
 extern int		oacamHasAuto ( oaCamera*, int );
@@ -56,5 +56,15 @@ extern int		_oaCheckCameraArraySize ( CAMERA_LIST* );
 extern void		_oaFreeCameraDeviceList ( CAMERA_LIST* );
 
 extern char*		installPathRoot;
+
+#define OA_CAM_CTRL_MIN(x)      minVal[OA_CAM_CTRL_MODIFIER(x)][OA_CAM_CTRL_MODE_BASE(x)]
+#define OA_CAM_CTRL_MAX(x)      maxVal[OA_CAM_CTRL_MODIFIER(x)][OA_CAM_CTRL_MODE_BASE(x)]
+#define OA_CAM_CTRL_DEF(x)      defVal[OA_CAM_CTRL_MODIFIER(x)][OA_CAM_CTRL_MODE_BASE(x)]
+#define OA_CAM_CTRL_STEP(x)     stepVal[OA_CAM_CTRL_MODIFIER(x)][OA_CAM_CTRL_MODE_BASE(x)]
+
+#define OA_CAM_CTRL_AUTO_MIN(x)         minVal[OA_CAM_CTRL_MODIFIER_AUTO][OA_CAM_CTRL_MODE_BASE(x)]
+#define OA_CAM_CTRL_AUTO_MAX(x)         maxVal[OA_CAM_CTRL_MODIFIER_AUTO][OA_CAM_CTRL_MODE_BASE(x)]
+#define OA_CAM_CTRL_AUTO_DEF(x)         defVal[OA_CAM_CTRL_MODIFIER_AUTO][OA_CAM_CTRL_MODE_BASE(x)]
+#define OA_CAM_CTRL_AUTO_STEP(x)        stepVal[OA_CAM_CTRL_MODIFIER_AUTO][OA_CAM_CTRL_MODE_BASE(x)]
 
 #endif /* OA_CAM_PRIVATE_H */

@@ -107,11 +107,11 @@ oaUVCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
   int64_t	val_s64;
   COMMON_INFO*	commonInfo = camera->_common;
 
-  if ( !camera->controls [ control ] ) {
+  if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;
   }
 
-  if ( camera->controls [ control ] != val->valueType ) {
+  if ( camera->OA_CAM_CTRL_TYPE( control ) != val->valueType ) {
     return -OA_ERR_INVALID_CONTROL_TYPE;
   }
 
@@ -131,10 +131,10 @@ oaUVCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
         return -OA_ERR_OUT_OF_RANGE;
       }
       val_u32 = val_s64 & 0xffffffff;
-      if ( val_u32 >= commonInfo->min[ control ] &&
-          val_u32 <= commonInfo->max[ control ] &&
-          ( 0 == ( val_u32 - commonInfo->min[ control ] ) %
-          commonInfo->step[ control ] )) {
+      if ( val_u32 >= commonInfo->OA_CAM_CTRL_MIN( control ) &&
+          val_u32 <= commonInfo->OA_CAM_CTRL_MAX( control ) &&
+          ( 0 == ( val_u32 - commonInfo->OA_CAM_CTRL_MIN( control )) %
+          commonInfo->OA_CAM_CTRL_STEP( control ))) {
         return OA_ERR_NONE;
       }
       break;
@@ -146,14 +146,14 @@ oaUVCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
       }
       return OA_ERR_NONE;
 
-    case OA_CAM_CTRL_AUTO_WHITE_BALANCE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ):
     case OA_CAM_CTRL_AUTO_WHITE_BALANCE_TEMP:
-    case OA_CAM_CTRL_HUE_AUTO:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ):
       // These just need to be boolean and we've already checked that
       return OA_ERR_NONE;
       break;
 
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
       if ( val->int32 != OA_EXPOSURE_AUTO && val->int32 !=
           OA_EXPOSURE_MANUAL ) {
         return -OA_ERR_OUT_OF_RANGE;
@@ -165,7 +165,7 @@ oaUVCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
       val_s32 = val->discrete;
       // This may be a bit of an ugly assumption, but I think it
       // should hold for the time being
-      if ( camera->controls[ OA_CAM_CTRL_BIT_DEPTH ] ) {
+      if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH )) {
         if ( 16 == val_s32 || 12 == val_s32 || 8 == val_s32 ) {
           return OA_ERR_NONE;
         }
@@ -319,7 +319,7 @@ oaUVCCameraStopStreaming ( oaCamera* camera )
 const char*
 oaUVCCameraGetMenuString ( oaCamera* camera, int control, int index )
 {
-  if ( control != OA_CAM_CTRL_AUTO_EXPOSURE ) {
+  if ( control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
     fprintf ( stderr, "%s: control not implemented\n", __FUNCTION__ );
     return "";
   }

@@ -48,10 +48,10 @@ oaQHYCameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
   // Could do more validation here, but it's a bit messy to do here
   // and in the controller too.
 
-  if ( camera->controls[ control ] == OA_CTRL_TYPE_INT32 &&
+  if ( camera->OA_CAM_CTRL_TYPE( control ) == OA_CTRL_TYPE_INT32 &&
       val->valueType == OA_CTRL_TYPE_INT32 && (
-      val->int32 < commonInfo->min[ control ] ||
-      val->int32 > commonInfo->max[ control ] )) {
+      val->int32 < commonInfo->OA_CAM_CTRL_MIN( control ) ||
+      val->int32 > commonInfo->OA_CAM_CTRL_MAX( control ))) {
     return -OA_ERR_OUT_OF_RANGE;
   }
 
@@ -87,7 +87,7 @@ oaQHYCameraReadControl ( oaCamera* camera, int control, oaControlValue* val )
   // Could do more validation here, but it's a bit messy to do here
   // and in the controller too.
 
-  if ( !camera->controls[ control ] ) {
+  if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     fprintf ( stderr, "Unimplemented control %d in %s\n", control,
         __FUNCTION__ );
     return -OA_ERR_INVALID_CONTROL;

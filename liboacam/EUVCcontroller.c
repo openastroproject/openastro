@@ -2,7 +2,7 @@
  *
  * EUVCcontroller.c -- Main camera controller thread
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -258,7 +258,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       cameraInfo->binMode = val->discrete;
       break;
 
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
       cameraInfo->autoExposure = val->boolean << 1;
       if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
           USB_RECIP_INTERFACE, REQ_SET_CUR, EUVC_CT_AE_MODE_CONTROL << 8,
@@ -270,7 +270,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       }
       break;
 
-    case OA_CAM_CTRL_AUTO_WHITE_BALANCE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ):
       cameraInfo->autoWhiteBalance = val->boolean;
       if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
           USB_RECIP_INTERFACE, REQ_SET_CUR,
@@ -284,7 +284,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       }
       break;
 
-    case OA_CAM_CTRL_AUTO_GAIN:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
       fprintf ( stderr, "auto gain not yet implemented\n" );
       break;
 
@@ -394,7 +394,7 @@ _processSetResolution ( oaCamera* camera, OA_COMMAND* command )
   usleep ( 100000 );
 
   // First step of setting resolution is to disable binning
-  if ( camera->controls[ OA_CAM_CTRL_BINNING ] ) {
+  if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING )) {
     binMode = 1;
     if ( setEUVCTermControl ( cameraInfo, EUVC_CT_BINNING,
         &binMode, 1, EUVC_SET_CUR )) {
@@ -468,7 +468,7 @@ _processSetResolution ( oaCamera* camera, OA_COMMAND* command )
   }
 
   // And finally the binning mode
-  if ( camera->controls[ OA_CAM_CTRL_BINNING ] ) {
+  if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING )) {
     binMode = cameraInfo->binMode;
     if ( setEUVCTermControl ( cameraInfo, EUVC_CT_BINNING,
         &binMode, 1, EUVC_SET_CUR )) {

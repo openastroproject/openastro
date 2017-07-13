@@ -181,7 +181,7 @@ qWarning() << "handle reloading filters";
         for ( int i = 0; i < config.numProfiles; i++ ) {
           FILTER_PROFILE fp;
           fp.filterName = f.filterName;
-          for ( int j = 0; j <  OA_CAM_CTRL_LAST_P1; j++ ) {
+          for ( int j = 1; j <  OA_CAM_CTRL_LAST_P1; j++ ) {
             fp.controls[j] = config.controlValues[j];
           }
           config.profiles[i].filterProfiles.append ( fp );

@@ -2,7 +2,7 @@
  *
  * IIDCcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -199,14 +199,17 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     }
   }
 
-  if ( OA_CAM_CTRL_EXPOSURE == control || OA_CAM_CTRL_EXPOSURE_ABSOLUTE ==
-      control || OA_CAM_CTRL_AUTO_EXPOSURE == control ) {
+  if ( OA_CAM_CTRL_EXPOSURE_UNSCALED == control ||
+      OA_CAM_CTRL_EXPOSURE_ABSOLUTE == control ||
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
     iidcControl = DC1394_FEATURE_SHUTTER;
   }
 
   if ( oaIsAuto ( control )) {
     uint32_t val_u32;
-    if ( OA_CAM_CTRL_AUTO_EXPOSURE == control ) {
+    if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
+        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
       // FIX ME -- actually perhaps this should be DISCRETE
       // This should be INT32, though actually non-negative
       if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
@@ -268,7 +271,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     return OA_ERR_NONE;
   }
 
-  if ( found >= 0 || OA_CAM_CTRL_EXPOSURE == control ) {
+  if ( found >= 0 || OA_CAM_CTRL_EXPOSURE_UNSCALED == control ) {
     uint32_t val_u32;
     int64_t val_s64;
     // The value for dc1394_feature_set_value() is uint32_t, which we have
@@ -360,8 +363,9 @@ _processGetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
   }
 
   if ( found ) {
-    if ( iidcControl != DC1394_FEATURE_SHUTTER || OA_CAM_CTRL_EXPOSURE ==
-        control || OA_CAM_CTRL_AUTO_EXPOSURE == control ) {
+    if ( iidcControl != DC1394_FEATURE_SHUTTER ||
+        OA_CAM_CTRL_EXPOSURE_UNSCALED == control ||
+        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ) {
       if ( !oaIsAuto ( control )) {
         uint32_t val_u32;
         val->valueType = OA_CTRL_TYPE_INT64;
@@ -381,7 +385,8 @@ _processGetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
               __FUNCTION__, iidcControl );
           return -OA_ERR_CAMERA_IO;
         } else {
-          if ( OA_CAM_CTRL_AUTO_EXPOSURE == control ) {
+          if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) ==
+              control ) {
             // FIX ME -- should this be DISCRETE?
             val->valueType = OA_CTRL_TYPE_INT32;
             val->int32 = ( mode == DC1394_FEATURE_MODE_AUTO ) ?

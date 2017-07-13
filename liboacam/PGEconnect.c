@@ -2,7 +2,7 @@
  *
  * PGEconnect.c -- Initialise Point Grey Gig-E cameras
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -41,21 +41,22 @@
 static void _PGEInitFunctionPointers ( oaCamera* );
 
 struct pgeCtrl pgeControls[] = {
-  { FC2_BRIGHTNESS, OA_CAM_CTRL_BRIGHTNESS, OA_CAM_CTRL_AUTO_BRIGHTNESS },
+  { FC2_BRIGHTNESS, OA_CAM_CTRL_BRIGHTNESS,
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS )},
   { FC2_AUTO_EXPOSURE, 0, 0 },
   { FC2_SHARPNESS, OA_CAM_CTRL_SHARPNESS, 0 },
   { FC2_WHITE_BALANCE, OA_CAM_CTRL_WHITE_BALANCE,
-      OA_CAM_CTRL_AUTO_WHITE_BALANCE },
-  { FC2_HUE, OA_CAM_CTRL_HUE, OA_CAM_CTRL_HUE_AUTO },
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE )},
+  { FC2_HUE, OA_CAM_CTRL_HUE, OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE )},
   { FC2_SATURATION, OA_CAM_CTRL_SATURATION, 0 },
-  { FC2_GAMMA, OA_CAM_CTRL_GAMMA, OA_CAM_CTRL_AUTO_GAMMA },
+  { FC2_GAMMA, OA_CAM_CTRL_GAMMA, OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA )},
   { FC2_IRIS, 0, 0 },
   { FC2_FOCUS, 0, 0 },
   { FC2_ZOOM, 0, 0 },
   { FC2_PAN, 0, 0 },
   { FC2_TILT, 0, 0 },
   { FC2_SHUTTER, -1, -1 },
-  { FC2_GAIN, OA_CAM_CTRL_GAIN, OA_CAM_CTRL_AUTO_GAIN },
+  { FC2_GAIN, OA_CAM_CTRL_GAIN, OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN )},
   { FC2_TRIGGER_MODE, OA_CAM_CTRL_TRIGGER_MODE, 0 },
   { FC2_TRIGGER_DELAY, OA_CAM_CTRL_TRIGGER_DELAY, 0 },
   { FC2_FRAME_RATE, -1, -1 },
@@ -129,7 +130,7 @@ oaPGEInitCamera ( oaCameraDevice* device )
   }
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
-  OA_CLEAR ( camera->controls );
+  OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
   camera->_private = cameraInfo;
   camera->_common = commonInfo;
@@ -312,19 +313,19 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         case FC2_GAMMA:
         case FC2_GAIN:
           if ( propertyInfo.manualSupported ) {
-            camera->controls[ oaControl ] = OA_CTRL_TYPE_INT32;
-            commonInfo->min[ oaControl ] = propertyInfo.min;
-            commonInfo->max[ oaControl ] = propertyInfo.max;
-            commonInfo->step[ oaControl ] = 1; // arbitrary
-            commonInfo->def[ oaControl ] = property.valueA;
+            camera->OA_CAM_CTRL_TYPE( oaControl ) = OA_CTRL_TYPE_INT32;
+            commonInfo->OA_CAM_CTRL_MIN( oaControl ) = propertyInfo.min;
+            commonInfo->OA_CAM_CTRL_MAX( oaControl ) = propertyInfo.max;
+            commonInfo->OA_CAM_CTRL_STEP( oaControl ) = 1; // arbitrary
+            commonInfo->OA_CAM_CTRL_DEF( oaControl ) = property.valueA;
           }
           if ( propertyInfo.autoSupported ) {
             if ( oaAutoControl ) {
-              camera->controls[ oaAutoControl ] = OA_CTRL_TYPE_BOOLEAN;
-              commonInfo->min[ oaAutoControl ] = 0;
-              commonInfo->max[ oaAutoControl ] = 1;
-              commonInfo->step[ oaAutoControl ] = 1;
-              commonInfo->def[ oaAutoControl ] =
+              camera->OA_CAM_CTRL_TYPE( oaAutoControl ) = OA_CTRL_TYPE_BOOLEAN;
+              commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = 0;
+              commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = 1;
+              commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
+              commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) =
                   ( property.autoManualMode ) ? 1 : 0;
             } else {
               fprintf ( stderr, "%s: have auto for control %d, but "
@@ -336,12 +337,13 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         case FC2_SHUTTER:
         {
           unsigned int min, max, step, def;
+          // FIX ME -- should really handle both absolute and unscaled
+          // exposure times here
           // shutter is actually exposure time.  exposure is something
           // else
-          oaAutoControl = OA_CAM_CTRL_AUTO_EXPOSURE;
           if ( propertyInfo.absValSupported ) {
             oaControl = OA_CAM_CTRL_EXPOSURE_ABSOLUTE;
-            camera->controls[ oaControl ] = OA_CTRL_TYPE_INT64;
+            camera->OA_CAM_CTRL_TYPE( oaControl ) = OA_CTRL_TYPE_INT64;
             // On the Blackfly at least, these values appear to be in seconds
             // rather than as the units string suggests
             min = propertyInfo.absMin * 1000.0;
@@ -349,23 +351,24 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
             step = 1000; // arbitrary
             def = property.absValue * 1000.0;
           } else {
-            oaControl = OA_CAM_CTRL_EXPOSURE;
-            camera->controls[ oaControl ] = OA_CTRL_TYPE_INT32;
+            oaControl = OA_CAM_CTRL_EXPOSURE_UNSCALED;
+            camera->OA_CAM_CTRL_TYPE( oaControl ) = OA_CTRL_TYPE_INT32;
             min = propertyInfo.min;
             max = propertyInfo.max;
             step = 1; // arbitrary
             def = property.valueA;
           }
-          commonInfo->min[ oaControl ] = min;
-          commonInfo->max[ oaControl ] = max;
-          commonInfo->step[ oaControl ] = step;
-          commonInfo->def[ oaControl ] = def;
+          commonInfo->OA_CAM_CTRL_MIN( oaControl ) = min;
+          commonInfo->OA_CAM_CTRL_MAX( oaControl ) = max;
+          commonInfo->OA_CAM_CTRL_STEP( oaControl ) = step;
+          commonInfo->OA_CAM_CTRL_DEF( oaControl ) = def;
           if ( propertyInfo.autoSupported ) {
-            camera->controls[ oaAutoControl ] = OA_CTRL_TYPE_BOOLEAN;
-            commonInfo->min[ oaAutoControl ] = OA_EXPOSURE_AUTO;
-            commonInfo->max[ oaAutoControl ] = OA_EXPOSURE_MANUAL;
-            commonInfo->step[ oaAutoControl ] = 1;
-            commonInfo->def[ oaAutoControl ] = ( property.autoManualMode ) ?
+            oaAutoControl = OA_CAM_CTRL_MODE_AUTO( oaControl );
+            camera->OA_CAM_CTRL_TYPE( oaAutoControl ) = OA_CTRL_TYPE_BOOLEAN;
+            commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = OA_EXPOSURE_AUTO;
+            commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = OA_EXPOSURE_MANUAL;
+            commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
+            commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) = ( property.autoManualMode ) ?
                 OA_EXPOSURE_AUTO : OA_EXPOSURE_MANUAL;
           }
           break;
@@ -380,29 +383,29 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
           // white balance control
 
           if ( propertyInfo.manualSupported ) {
-            camera->controls[ OA_CAM_CTRL_BLUE_BALANCE ] =
-                camera->controls[ OA_CAM_CTRL_RED_BALANCE ] =
+            camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) =
+                camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RED_BALANCE ) =
                 OA_CTRL_TYPE_INT32;
-            commonInfo->min[ OA_CAM_CTRL_BLUE_BALANCE ] =
-                commonInfo->min[ OA_CAM_CTRL_RED_BALANCE ] =
+            commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) =
+                commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) =
                 propertyInfo.min;
-            commonInfo->max[ OA_CAM_CTRL_BLUE_BALANCE ] =
-                commonInfo->max[ OA_CAM_CTRL_RED_BALANCE ] =
+            commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) =
+                commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE ) =
                 propertyInfo.max;
-            commonInfo->step[ OA_CAM_CTRL_BLUE_BALANCE ] =
-                commonInfo->step[ OA_CAM_CTRL_RED_BALANCE ] = 1;//arbitrary
-            commonInfo->def[ OA_CAM_CTRL_RED_BALANCE ] =
+            commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLUE_BALANCE ) =
+                commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RED_BALANCE ) = 1;//arbitrary
+            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) =
                 cameraInfo->currentRedBalance = property.valueA;
-            commonInfo->def[ OA_CAM_CTRL_BLUE_BALANCE ] =
+            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) =
                 cameraInfo->currentBlueBalance = property.valueB;
           }
           if ( propertyInfo.autoSupported ) {
             if ( oaAutoControl ) {
-              camera->controls[ oaAutoControl ] = OA_CTRL_TYPE_BOOLEAN;
-              commonInfo->min[ oaAutoControl ] = 0;
-              commonInfo->max[ oaAutoControl ] = 1;
-              commonInfo->step[ oaAutoControl ] = 1;
-              commonInfo->def[ oaAutoControl ] =
+              camera->OA_CAM_CTRL_TYPE( oaAutoControl ) = OA_CTRL_TYPE_BOOLEAN;
+              commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = 0;
+              commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = 1;
+              commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
+              commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) =
                   ( property.autoManualMode ) ? 1 : 0;
             } else {
               fprintf ( stderr, "%s: have auto for control %d, but "
@@ -416,7 +419,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
           break;
 
         case FC2_TEMPERATURE:
-          camera->controls[ OA_CAM_CTRL_TEMPERATURE ] = OA_CTRL_TYPE_READONLY;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
           break;
 
         case FC2_TRIGGER_MODE:
@@ -484,22 +487,22 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       if ( !triggerInfo.valueReadable ) {
         fprintf ( stderr, "Trigger info is not readable. This will break\n" );
       }
-      camera->controls[ OA_CAM_CTRL_TRIGGER_ENABLE ] = OA_CTRL_TYPE_BOOLEAN;
-      commonInfo->min[ OA_CAM_CTRL_TRIGGER_ENABLE ] = 0;
-      commonInfo->max[ OA_CAM_CTRL_TRIGGER_ENABLE ] = 1;
-      commonInfo->step[ OA_CAM_CTRL_TRIGGER_ENABLE ] = 1;
+      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_ENABLE ) = OA_CTRL_TYPE_BOOLEAN;
+      commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_ENABLE ) = 0;
+      commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_ENABLE ) = 1;
+      commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_ENABLE ) = 1;
       // off appears to be the case for the Blackfly.  I'll assume for all
-      commonInfo->def[ OA_CAM_CTRL_TRIGGER_ENABLE ] = 0;
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_ENABLE ) = 0;
     }
 
     if ( triggerInfo.polaritySupported ) {
-      camera->controls[ OA_CAM_CTRL_TRIGGER_POLARITY ] = OA_CTRL_TYPE_MENU;
-      commonInfo->min[ OA_CAM_CTRL_TRIGGER_POLARITY ] = 0;
-      commonInfo->max[ OA_CAM_CTRL_TRIGGER_POLARITY ] = 1;
-      commonInfo->step[ OA_CAM_CTRL_TRIGGER_POLARITY ] = 1;
+      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_POLARITY ) = OA_CTRL_TYPE_MENU;
+      commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_POLARITY ) = 0;
+      commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_POLARITY ) = 1;
+      commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_POLARITY ) = 1;
       // trailing edge appears to be the case for the Blackfly.  I'll
       // assume for all
-      commonInfo->def[ OA_CAM_CTRL_TRIGGER_POLARITY ] = 0;
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_POLARITY ) = 0;
     }
 
     // We're going to asssume that the list of sources will be contiguous
@@ -529,12 +532,12 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       }
 
       if ( numberOfSources > 1 ) {
-        camera->controls[ OA_CAM_CTRL_TRIGGER_SOURCE ] = OA_CTRL_TYPE_MENU;
-        commonInfo->min[ OA_CAM_CTRL_TRIGGER_SOURCE ] = 0;
-        commonInfo->max[ OA_CAM_CTRL_TRIGGER_SOURCE ] = numberOfSources;
-        commonInfo->step[ OA_CAM_CTRL_TRIGGER_SOURCE ] = 1;
+        camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_SOURCE ) = OA_CTRL_TYPE_MENU;
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_SOURCE ) = 0;
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_SOURCE ) = numberOfSources;
+        commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_SOURCE ) = 1;
         fprintf ( stderr, "Need to set default trigger source value\n" );
-        commonInfo->def[ OA_CAM_CTRL_TRIGGER_SOURCE ] = 0;
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_SOURCE ) = 0;
       }
     }
 
@@ -549,12 +552,12 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       }
 
       if ( numberOfModes > 1 ) {
-        camera->controls[ OA_CAM_CTRL_TRIGGER_MODE ] = OA_CTRL_TYPE_DISC_MENU;
-        commonInfo->min[ OA_CAM_CTRL_TRIGGER_MODE ] = 0;
-        commonInfo->max[ OA_CAM_CTRL_TRIGGER_MODE ] = numberOfModes;
-        commonInfo->step[ OA_CAM_CTRL_TRIGGER_MODE ] = 1;
+        camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_MODE ) = OA_CTRL_TYPE_DISC_MENU;
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_MODE ) = 0;
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_MODE ) = numberOfModes;
+        commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_MODE ) = 1;
         // 0 appears to be the case for the Blackfly.  I'll assume for all
-        commonInfo->def[ OA_CAM_CTRL_TRIGGER_MODE ] = 0;
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_MODE ) = 0;
 
         // Now we know how many values there are, cycle through them again to
         // create the discrete values list
@@ -657,19 +660,19 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
         cameraInfo->triggerDelayEnable = delayInfo.onOffSupported ? 1 : 0;
         if ( delayInfo.onOffSupported ) {
-          camera->controls[ OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) =
               OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->min[ OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ] = 0;
-          commonInfo->max[ OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ] = 1;
-          commonInfo->step[ OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ] = 0;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) = 1;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) = 0;
         }
 
-        camera->controls[ OA_CAM_CTRL_TRIGGER_DELAY ] = OA_CTRL_TYPE_INT64;
-        commonInfo->min[ OA_CAM_CTRL_TRIGGER_DELAY ] = delayInfo.min * 1000000;
-        commonInfo->max[ OA_CAM_CTRL_TRIGGER_DELAY ] = delayInfo.max * 1000000;
-        commonInfo->step[ OA_CAM_CTRL_TRIGGER_DELAY ] = 1;
-        commonInfo->def[ OA_CAM_CTRL_TRIGGER_DELAY ] = 0;
+        camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_DELAY ) = OA_CTRL_TYPE_INT64;
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_DELAY ) = delayInfo.min * 1000000;
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_DELAY ) = delayInfo.max * 1000000;
+        commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_DELAY ) = 1;
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_DELAY ) = 0;
       }
     }
   }
@@ -722,39 +725,39 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
       cameraInfo->strobeEnable = strobeInfo.onOffSupported ? 1 : 0;
       if ( strobeInfo.onOffSupported ) {
-        camera->controls[ OA_CAM_CTRL_STROBE_ENABLE ] = OA_CTRL_TYPE_BOOLEAN;
-        commonInfo->min[ OA_CAM_CTRL_STROBE_ENABLE ] = 0;
-        commonInfo->max[ OA_CAM_CTRL_STROBE_ENABLE ] = 1;
-        commonInfo->step[ OA_CAM_CTRL_STROBE_ENABLE ] = 1;
+        camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_STROBE_ENABLE ) = OA_CTRL_TYPE_BOOLEAN;
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_STROBE_ENABLE ) = 0;
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_STROBE_ENABLE ) = 1;
+        commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_STROBE_ENABLE ) = 1;
         // on appears to be the case for the Blackfly.  I'll assume for all
-        commonInfo->def[ OA_CAM_CTRL_STROBE_ENABLE ] = 1;
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_STROBE_ENABLE ) = 1;
       }
 
       if ( strobeInfo.polaritySupported ) {
-        camera->controls[ OA_CAM_CTRL_STROBE_POLARITY ] = OA_CTRL_TYPE_MENU;
-        commonInfo->min[ OA_CAM_CTRL_STROBE_POLARITY ] = 0;
-        commonInfo->max[ OA_CAM_CTRL_STROBE_POLARITY ] = 1;
-        commonInfo->step[ OA_CAM_CTRL_STROBE_POLARITY ] = 1;
+        camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_STROBE_POLARITY ) = OA_CTRL_TYPE_MENU;
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_STROBE_POLARITY ) = 0;
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_STROBE_POLARITY ) = 1;
+        commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_STROBE_POLARITY ) = 1;
         // trailing edge appears to be the case for the Blackfly.  I'll
         // assume for all
-        commonInfo->def[ OA_CAM_CTRL_STROBE_POLARITY ] = 0;
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_STROBE_POLARITY ) = 0;
       }
 
-      camera->controls[ OA_CAM_CTRL_STROBE_DELAY ] = OA_CTRL_TYPE_INT64;
-      commonInfo->min[ OA_CAM_CTRL_STROBE_DELAY ] =
+      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_STROBE_DELAY ) = OA_CTRL_TYPE_INT64;
+      commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_STROBE_DELAY ) =
           strobeInfo.minValue * 1000000;
-      commonInfo->max[ OA_CAM_CTRL_STROBE_DELAY ] =
+      commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_STROBE_DELAY ) =
           strobeInfo.maxValue * 1000000;
-      commonInfo->step[ OA_CAM_CTRL_STROBE_DELAY ] = 1;
-      commonInfo->def[ OA_CAM_CTRL_STROBE_DELAY ] = 0;
+      commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_STROBE_DELAY ) = 1;
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_STROBE_DELAY ) = 0;
 
-      camera->controls[ OA_CAM_CTRL_STROBE_DURATION ] = OA_CTRL_TYPE_INT64;
-      commonInfo->min[ OA_CAM_CTRL_STROBE_DURATION ] =
+      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_STROBE_DURATION ) = OA_CTRL_TYPE_INT64;
+      commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_STROBE_DURATION ) =
           strobeInfo.minValue * 1000000;
-      commonInfo->max[ OA_CAM_CTRL_STROBE_DURATION ] =
+      commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_STROBE_DURATION ) =
           strobeInfo.maxValue * 1000000;
-      commonInfo->step[ OA_CAM_CTRL_STROBE_DURATION ] = 1;
-      commonInfo->def[ OA_CAM_CTRL_STROBE_DURATION ] = 0;
+      commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_STROBE_DURATION ) = 1;
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_STROBE_DURATION ) = 0;
     }
   }
 
@@ -1037,7 +1040,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     // depthMask is only relevant here, where we're checking the data format
     // because we have multiple options for bytes per pixel
     if ( depthMask == 3 ) {
-      camera->controls[ OA_CAM_CTRL_BIT_DEPTH ] = OA_CTRL_TYPE_DISCRETE;
+      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) = OA_CTRL_TYPE_DISCRETE;
     }
   }
 

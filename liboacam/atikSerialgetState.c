@@ -2,7 +2,7 @@
  *
  * atikSerialgetState.c -- state querying for Atik serial cameras
  *
- * Copyright 2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -41,14 +41,14 @@ oaAtikSerialCameraGetControlRange ( oaCamera* camera, int control,
 {
   COMMON_INFO*	commonInfo = camera->_common;
 
-  if ( !camera->controls[ control ] ) {
+  if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;
   }
 
-  *min = commonInfo->min[ control ];
-  *max = commonInfo->max[ control ];
-  *step = commonInfo->step[ control ];
-  *def = commonInfo->def[ control ];
+  *min = commonInfo->OA_CAM_CTRL_MIN( control );
+  *max = commonInfo->OA_CAM_CTRL_MAX( control );
+  *step = commonInfo->OA_CAM_CTRL_STEP( control );
+  *def = commonInfo->OA_CAM_CTRL_DEF( control );
   return OA_ERR_NONE;
 }
 

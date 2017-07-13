@@ -2,7 +2,7 @@
  *
  * QHY5.c -- QHY5 camera interface
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -55,25 +55,27 @@ _QHY5InitCamera ( oaCamera* camera )
   QHY_STATE*	cameraInfo = camera->_private;
   COMMON_INFO*	commonInfo = camera->_common;
 
-  OA_CLEAR ( camera->controls );
+  OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
   _QHY5InitFunctionPointers ( camera );
 
-  camera->controls[ OA_CAM_CTRL_GAIN ] = OA_CTRL_TYPE_INT32;
-  commonInfo->min[ OA_CAM_CTRL_GAIN ] = 1;
-  commonInfo->max[ OA_CAM_CTRL_GAIN ] = 74;
-  commonInfo->step[ OA_CAM_CTRL_GAIN ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_GAIN ] = 10; // completely arbitrary
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = 1;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = 74;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = 10; // completely arbitrary
 
-  camera->controls[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = OA_CTRL_TYPE_INT32;
-  commonInfo->min[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 1000;
-  commonInfo->max[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 100000000; // I made it up
-  commonInfo->step[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 1000;
-  commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+      OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1000;
+  // I made it up
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 100000000;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1000;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
       QHY5_DEFAULT_EXPOSURE * 1000;
 
-  camera->controls[ OA_CAM_CTRL_DROPPED ] = OA_CTRL_TYPE_READONLY;
-  camera->controls[ OA_CAM_CTRL_DROPPED_RESET ] = OA_CTRL_TYPE_BUTTON;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED ) = OA_CTRL_TYPE_READONLY;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED_RESET ) = OA_CTRL_TYPE_BUTTON;
 
   cameraInfo->maxResolutionX = QHY5_IMAGE_WIDTH;
   cameraInfo->maxResolutionY = QHY5_IMAGE_HEIGHT;
@@ -113,7 +115,7 @@ _QHY5InitCamera ( oaCamera* camera )
     return -OA_ERR_MEM_ALLOC;
   }
 
-  cameraInfo->currentGain = commonInfo->def[ OA_CAM_CTRL_GAIN ];
+  cameraInfo->currentGain = commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN );
   cameraInfo->currentExposure = QHY5_DEFAULT_EXPOSURE;
 
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
@@ -193,11 +195,11 @@ oaQHY5CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 {
   COMMON_INFO*	commonInfo = camera->_common;
 
-  if ( !camera->controls [ control ] ) {
+  if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;
   }
 
-  if ( camera->controls [ control ] != val->valueType ) {
+  if ( camera->OA_CAM_CTRL_TYPE( control ) != val->valueType ) {
     return -OA_ERR_INVALID_CONTROL_TYPE;
   }
 
@@ -205,10 +207,10 @@ oaQHY5CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 
     case OA_CAM_CTRL_GAIN:
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
-      if ( val->int32 >= commonInfo->min[ control ] &&
-          val->int32 <= commonInfo->max[ control ] &&
-          ( 0 == ( val->int32 - commonInfo->min[ control ]) %
-          commonInfo->step[ control ])) {
+      if ( val->int32 >= commonInfo->OA_CAM_CTRL_MIN( control ) &&
+          val->int32 <= commonInfo->OA_CAM_CTRL_MAX( control ) &&
+          ( 0 == ( val->int32 - commonInfo->OA_CAM_CTRL_MIN( control )) %
+          commonInfo->OA_CAM_CTRL_STEP( control ))) {
         return OA_ERR_NONE;
       }
       break;

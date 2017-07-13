@@ -2,7 +2,7 @@
  *
  * SXconnect.c -- Initialise Starlight Xpress cameras
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -91,7 +91,7 @@ oaSXInitCamera ( oaCameraDevice* device )
 
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
-  OA_CLEAR ( camera->controls );
+  OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
   camera->_private = cameraInfo;
   camera->_common = commonInfo;
@@ -250,26 +250,26 @@ oaSXInitCamera ( oaCameraDevice* device )
   cameraModel = buff[0] | ( buff[1] << 8 );
   cameraInfo->isInterlaced = ( cameraModel & SX_MODEL_MASK_INTERLACE ) ? 1 : 0;
 
-  camera->controls[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = OA_CTRL_TYPE_INT64;
-  commonInfo->min[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 1000;
-  commonInfo->max[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 0xffffffff * 1000;
-  commonInfo->step[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 1000;
-  commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = SX_DEFAULT_EXPOSURE * 1000;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = OA_CTRL_TYPE_INT64;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1000;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 0xffffffff * 1000;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1000;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = SX_DEFAULT_EXPOSURE * 1000;
 
-  camera->controls[ OA_CAM_CTRL_DROPPED ] = OA_CTRL_TYPE_READONLY;
-  camera->controls[ OA_CAM_CTRL_DROPPED_RESET ] = OA_CTRL_TYPE_BUTTON;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED ) = OA_CTRL_TYPE_READONLY;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED_RESET ) = OA_CTRL_TYPE_BUTTON;
 
-  // camera->controls[ OA_CAM_CTRL_BINNING ] = OA_CTRL_TYPE_DISCRETE;
+  // camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;
 
   if ( extraCaps & SXUSB_CAPS_COOLER ) {
     // These are just made up as I have no documentation
-    camera->controls[ OA_CAM_CTRL_TEMP_SETPOINT ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_TEMP_SETPOINT ] = -320;
-    commonInfo->max[ OA_CAM_CTRL_TEMP_SETPOINT ] = 10000;
-    commonInfo->step[ OA_CAM_CTRL_TEMP_SETPOINT ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_TEMP_SETPOINT ] = 0;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMP_SETPOINT ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TEMP_SETPOINT ) = -320;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TEMP_SETPOINT ) = 10000;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TEMP_SETPOINT ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) = 0;
 
-    camera->controls[ OA_CAM_CTRL_TEMPERATURE ] = OA_CTRL_TYPE_READONLY;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
   }
 
   camera->interface = device->interface;

@@ -2,7 +2,7 @@
  *
  * PGEcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -188,8 +188,10 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
     }
   }
 
-  if ( OA_CAM_CTRL_EXPOSURE == control || OA_CAM_CTRL_EXPOSURE_ABSOLUTE ==
-      control || OA_CAM_CTRL_AUTO_EXPOSURE == control ) {
+  if ( OA_CAM_CTRL_EXPOSURE_UNSCALED == control ||
+      OA_CAM_CTRL_EXPOSURE_ABSOLUTE == control ||
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
     pgeControl = FC2_SHUTTER;
   }
 
@@ -217,7 +219,8 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
 
   if ( oaIsAuto ( control )) {
     uint32_t val_u32;
-    if ( OA_CAM_CTRL_AUTO_EXPOSURE == control ) {
+    if ( OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
+        OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
       if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
             __FUNCTION__, val->valueType );
@@ -282,7 +285,7 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
     return OA_ERR_NONE;
   }
 
-  if ( found >= 0 || OA_CAM_CTRL_EXPOSURE == control ) {
+  if ( found >= 0 || OA_CAM_CTRL_EXPOSURE_UNSCALED == control ) {
     uint32_t val_u32;
     if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where int32 expected "
@@ -407,9 +410,10 @@ _processGetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
   }
 
   if ( found ) {
-
-    if ( pgeControl != FC2_SHUTTER || OA_CAM_CTRL_EXPOSURE ==
-        control || OA_CAM_CTRL_AUTO_EXPOSURE == control ) {
+    if ( pgeControl != FC2_SHUTTER ||
+        OA_CAM_CTRL_EXPOSURE_UNSCALED == control ||
+        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
+        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
       property.type = pgeControl;
       if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
           FC2_ERROR_OK ) {
@@ -425,7 +429,9 @@ _processGetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
           val->int32 = property.valueA / 10;
         }
       } else {
-        if ( OA_CAM_CTRL_AUTO_EXPOSURE == control ) {
+        if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) ==
+            control || OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED )
+            == control ) {
           // FIX ME -- should this be DISCRETE?
           val->valueType = OA_CTRL_TYPE_INT32;
           val->int32 = ( property.autoManualMode ) ?  OA_EXPOSURE_AUTO :

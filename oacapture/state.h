@@ -87,6 +87,8 @@ typedef struct
   unsigned long		firstFrameTime;
   unsigned long		lastFrameTime;
 
+  int			preferredExposureControl;
+
 } STATE;
 
 extern STATE		state;

@@ -168,8 +168,10 @@ ProfileSettings::addEntry ( void )
   for ( int j = 0; j < config.numFilters; j++ ) {
     FILTER_PROFILE fp;
     fp.filterName = config.filters[j].filterName;
-    for ( int i = 0; i < OA_CAM_CTRL_LAST_P1; i++ ) {
-      fp.controls[i] = config.controlValues[i];
+    for ( int i = 1; i < OA_CAM_CTRL_LAST_P1; i++ ) {
+      for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_P1; j++ ) {
+        fp.controls[j][i] = config.controlValues[j][i];
+      }
     }
     p.filterProfiles.append ( fp );
   }

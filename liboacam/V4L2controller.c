@@ -2,7 +2,7 @@
  *
  * V4L2controller.c -- Main camera controller thread
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -168,7 +168,7 @@ oacamV4L2controller ( void* param )
             cameraInfo->frameRateDenominator;
       } else {
         // FIX ME -- need to handle non-manual exposure modes here?
-        if ( camera->controls[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] ) {
+        if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
           frameWait = cameraInfo->currentAbsoluteExposure;
           pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
@@ -259,10 +259,10 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
   oaControlValue	*valp = command->commandData;
   int32_t		val_s32;
 
-  if ( !camera->controls [ command->controlId ] ) {
+  if ( !camera->OA_CAM_CTRL_TYPE( command->controlId )) {
     return -OA_ERR_INVALID_CONTROL;
   }
-  if ( camera->controls [ command->controlId ] != valp->valueType ) {
+  if ( camera->OA_CAM_CTRL_TYPE( command->controlId ) != valp->valueType ) {
     return -OA_ERR_INVALID_CONTROL_TYPE;
   }
 
@@ -291,9 +291,9 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       return _setUserControl ( cameraInfo->fd, V4L2_CID_HUE, val_s32 );
       break;
 
-    case OA_CAM_CTRL_AUTO_WHITE_BALANCE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ):
       // These are the only two we currently allow in init()
-      if ( camera->controls[ OA_CAM_CTRL_AUTO_WHITE_BALANCE ] ==
+      if ( camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_WHITE_BALANCE ) ==
           OA_CTRL_TYPE_MENU ) {
         val_s32 = valp->menu;
       } else {
@@ -324,12 +324,12 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       return _setUserControl ( cameraInfo->fd, V4L2_CID_GAMMA, val_s32 );
       break;
 
-    case OA_CAM_CTRL_EXPOSURE:
+    case OA_CAM_CTRL_EXPOSURE_UNSCALED:
       val_s32 = valp->int32;
       return _setUserControl ( cameraInfo->fd, V4L2_CID_EXPOSURE, val_s32 );
       break;
 
-    case OA_CAM_CTRL_AUTO_GAIN:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
       val_s32 = valp->int32;
       return _setUserControl ( cameraInfo->fd, V4L2_CID_AUTOGAIN, val_s32 );
       break;
@@ -355,7 +355,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
           val_s32 );
       break;
 
-    case OA_CAM_CTRL_HUE_AUTO:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ):
       val_s32 = valp->int32;
       return _setUserControl ( cameraInfo->fd, V4L2_CID_HUE_AUTO, val_s32 );
       break;
@@ -392,7 +392,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       return _setUserControl ( cameraInfo->fd, V4L2_CID_COLORFX, val_s32 );
       break;
 
-    case OA_CAM_CTRL_AUTO_BRIGHTNESS:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS ):
       val_s32 = valp->int32;
       return _setUserControl ( cameraInfo->fd, V4L2_CID_BRIGHTNESS, val_s32 );
       break;
@@ -441,7 +441,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
     // end of the standard V4L2 controls.  Now the extended ones
 
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
       return _setExtendedControl ( cameraInfo->fd, V4L2_CID_EXPOSURE_AUTO,
           valp );
       break;     
@@ -497,7 +498,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         valp );
       break;
 
-    case OA_CAM_CTRL_AUTO_CONTOUR:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTOUR ):
       val_s32 = valp->boolean;
       return _setUserControl ( cameraInfo->fd, PWC_CID_CUSTOM(autocontour),
           val_s32 );
@@ -515,13 +516,13 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
           val_s32 );
       break;
 
-    case OA_CAM_CTRL_AUTO_WB_SPEED:
+    case OA_CAM_CTRL_AUTO_WHITE_BALANCE_SPEED:
       val_s32 = valp->int32;
       return _setUserControl ( cameraInfo->fd, PWC_CID_CUSTOM(awb_speed),
           val_s32 );
       break;
 
-    case OA_CAM_CTRL_AUTO_WB_DELAY:
+    case OA_CAM_CTRL_AUTO_WHITE_BALANCE_DELAY:
       val_s32 = valp->int32;
       return _setUserControl ( cameraInfo->fd, PWC_CID_CUSTOM(awb_delay),
           val_s32 );
@@ -579,7 +580,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       valp->int32 = _getUserControl ( cameraInfo->fd, V4L2_CID_HUE );
       break;
 
-    case OA_CAM_CTRL_AUTO_WHITE_BALANCE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ):
       valp->valueType = OA_CTRL_TYPE_INT32;
       valp->int32 = _getUserControl ( cameraInfo->fd,
           V4L2_CID_AUTO_WHITE_BALANCE );
@@ -606,12 +607,12 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       valp->int32 = _getUserControl ( cameraInfo->fd, V4L2_CID_GAMMA );
       break;
 
-    case OA_CAM_CTRL_EXPOSURE:
+    case OA_CAM_CTRL_EXPOSURE_UNSCALED:
       valp->valueType = OA_CTRL_TYPE_INT32;
       valp->int32 = _getUserControl ( cameraInfo->fd, V4L2_CID_EXPOSURE );
       break;
 
-    case OA_CAM_CTRL_AUTO_GAIN:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
       valp->valueType = OA_CTRL_TYPE_INT32;
       valp->int32 = _getUserControl ( cameraInfo->fd, V4L2_CID_AUTOGAIN );
       break;
@@ -637,7 +638,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
           V4L2_CID_POWER_LINE_FREQUENCY );
       break;
 
-    case OA_CAM_CTRL_HUE_AUTO:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ):
       valp->valueType = OA_CTRL_TYPE_INT32;
       valp->int32 = _getUserControl ( cameraInfo->fd, V4L2_CID_HUE_AUTO );
       break;
@@ -674,7 +675,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       valp->int32 = _getUserControl ( cameraInfo->fd, V4L2_CID_COLORFX );
       break;
 
-    case OA_CAM_CTRL_AUTO_BRIGHTNESS:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS ):
       valp->valueType = OA_CTRL_TYPE_INT32;
       valp->int32 = _getUserControl ( cameraInfo->fd, V4L2_CID_BRIGHTNESS );
       break;
@@ -723,13 +724,15 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 
     // end of the standard V4L2 controls.  Now the extended ones
 
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
-      valp->valueType = camera->controls[ OA_CAM_CTRL_AUTO_EXPOSURE ];
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
+      valp->valueType = camera->OA_CAM_CTRL_AUTO_TYPE( command->controlId );
       _getExtendedControl ( cameraInfo->fd, V4L2_CID_EXPOSURE_AUTO, valp );
       break;
 
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
-      valp->valueType = camera->controls[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ];
+      valp->valueType =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
       _getExtendedControl ( cameraInfo->fd, V4L2_CID_EXPOSURE_ABSOLUTE, valp );
       // convert 100 usec interval to 1 usec
       if ( valp->valueType == OA_CTRL_TYPE_INT32 ) {
@@ -740,27 +743,27 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       break;
 
     case OA_CAM_CTRL_PAN_RELATIVE:
-      valp->valueType = camera->controls[ OA_CAM_CTRL_PAN_RELATIVE ];
+      valp->valueType = camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_PAN_RELATIVE );
       _getExtendedControl ( cameraInfo->fd, V4L2_CID_PAN_RELATIVE, valp );
       break;
 
     case OA_CAM_CTRL_TILT_RELATIVE:
-      valp->valueType = camera->controls[ OA_CAM_CTRL_TILT_RELATIVE ];
+      valp->valueType = camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TILT_RELATIVE );
       _getExtendedControl ( cameraInfo->fd, V4L2_CID_TILT_RELATIVE, valp );
       break;
 
     case OA_CAM_CTRL_PAN_ABSOLUTE:
-      valp->valueType = camera->controls[ OA_CAM_CTRL_PAN_ABSOLUTE ];
+      valp->valueType = camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_PAN_ABSOLUTE );
       _getExtendedControl ( cameraInfo->fd, V4L2_CID_PAN_ABSOLUTE, valp );
       break;
 
     case OA_CAM_CTRL_TILT_ABSOLUTE:
-      valp->valueType = camera->controls[ OA_CAM_CTRL_TILT_ABSOLUTE ];
+      valp->valueType = camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TILT_ABSOLUTE );
       _getExtendedControl ( cameraInfo->fd, V4L2_CID_TILT_ABSOLUTE, valp );
       break;
 
     case OA_CAM_CTRL_ZOOM_ABSOLUTE:
-      valp->valueType = camera->controls[ OA_CAM_CTRL_ZOOM_ABSOLUTE ];
+      valp->valueType = camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_ZOOM_ABSOLUTE );
       _getExtendedControl ( cameraInfo->fd, V4L2_CID_ZOOM_ABSOLUTE, valp );
       break;
 
@@ -769,7 +772,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       valp->int32 = _getUserControl ( cameraInfo->fd, PWC_CID_CUSTOM(contour));
       break;
 
-    case OA_CAM_CTRL_AUTO_CONTOUR:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTOUR ):
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
       valp->boolean = _getUserControl ( cameraInfo->fd,
           PWC_CID_CUSTOM(autocontour));
@@ -781,13 +784,13 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
           PWC_CID_CUSTOM(noise_reduction));
       break;
 
-    case OA_CAM_CTRL_AUTO_WB_SPEED:
+    case OA_CAM_CTRL_AUTO_WHITE_BALANCE_SPEED:
       valp->valueType = OA_CTRL_TYPE_INT32;
       valp->int32 = _getUserControl ( cameraInfo->fd,
           PWC_CID_CUSTOM(awb_speed));
       break;
 
-    case OA_CAM_CTRL_AUTO_WB_DELAY:
+    case OA_CAM_CTRL_AUTO_WHITE_BALANCE_DELAY:
       valp->valueType = OA_CTRL_TYPE_INT32;
       valp->int32 = _getUserControl ( cameraInfo->fd,
           PWC_CID_CUSTOM(awb_delay));
@@ -1206,16 +1209,18 @@ _processGetMenuItem ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
   OA_CLEAR ( buff );
 
   // FIX ME -- need map of OA_CTRL to V4L2_CID values for this really
-  if ( control != OA_CAM_CTRL_AUTO_WHITE_BALANCE &&
-      control != OA_CAM_CTRL_AUTO_EXPOSURE ) {
+  if ( control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ) &&
+      control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) &&
+      control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
     fprintf ( stderr, "%s: control not implemented\n", __FUNCTION__ );
     *buff = 0;
   } else {
     OA_CLEAR( menuItem );
-    if ( OA_CAM_CTRL_AUTO_EXPOSURE == control ) {
+    if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
+        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
       menuItem.id = V4L2_CID_EXPOSURE_AUTO;
     }
-    if ( OA_CAM_CTRL_AUTO_WHITE_BALANCE == control ) {
+    if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ) == control ) {
       menuItem.id = V4L2_CID_AUTO_WHITE_BALANCE;
     }
     menuItem.index = index;
@@ -1224,7 +1229,7 @@ _processGetMenuItem ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
       fprintf ( stderr, "%s: control: %s, index %d\n", __FUNCTION__,
           menuItem.id == V4L2_CID_EXPOSURE_AUTO ? "auto-exposure" : "auto-wb",
           index );
-      if ( OA_CAM_CTRL_AUTO_EXPOSURE == control ) {
+      if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ) {
         retStr = oaCameraAutoExposureLabel[ index ];
       }
     } else {

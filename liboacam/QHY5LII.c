@@ -2,7 +2,7 @@
  *
  * QHY5LII.c -- QHY5LII camera interface
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -59,7 +59,7 @@ _QHY5LIIInitCamera ( oaCamera* camera )
 
   oacamDebugMsg ( DEBUG_CAM_INIT, "QHY5L-II: init: %s ()\n", __FUNCTION__ );
 
-  OA_CLEAR ( camera->controls );
+  OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
   _QHY5LIIInitFunctionPointers ( camera );
 
@@ -104,70 +104,70 @@ _QHY5LIIInitCamera ( oaCamera* camera )
   _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xc1, 0, 0, buf, 4,
       USB2_TIMEOUT );
 
-  camera->controls[ OA_CAM_CTRL_GAIN ] = OA_CTRL_TYPE_INT32;
-  commonInfo->min[ OA_CAM_CTRL_GAIN ] = 1;
-  commonInfo->max[ OA_CAM_CTRL_GAIN ] = 1000;
-  commonInfo->step[ OA_CAM_CTRL_GAIN ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_GAIN ] = 500; // completely arbitrary
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = 1;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = 1000;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = 500; // completely arbitrary
   cameraInfo->currentGain = 500;
 
-  camera->controls[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = OA_CTRL_TYPE_INT64;
-  commonInfo->min[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 0;
-  commonInfo->max[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 100000000; // made up
-  commonInfo->step[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 1;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = OA_CTRL_TYPE_INT64;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 100000000; // made up
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
   // convert msec to usec
-  commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
       QHY5LII_DEFAULT_EXPOSURE * 1000;
   cameraInfo->currentExposure = QHY5LII_DEFAULT_EXPOSURE;
 
-  camera->controls[ OA_CAM_CTRL_HIGHSPEED ] = OA_CTRL_TYPE_BOOLEAN;
-  commonInfo->min[ OA_CAM_CTRL_HIGHSPEED ] = 0;
-  commonInfo->max[ OA_CAM_CTRL_HIGHSPEED ] = 1;
-  commonInfo->step[ OA_CAM_CTRL_HIGHSPEED ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_HIGHSPEED ] = QHY5LII_DEFAULT_SPEED;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HIGHSPEED ) = OA_CTRL_TYPE_BOOLEAN;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HIGHSPEED ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HIGHSPEED ) = 1;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HIGHSPEED ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HIGHSPEED ) = QHY5LII_DEFAULT_SPEED;
   cameraInfo->currentHighSpeed = QHY5LII_DEFAULT_SPEED;
 
-  camera->controls[ OA_CAM_CTRL_USBTRAFFIC ] = OA_CTRL_TYPE_INT32;
-  commonInfo->min[ OA_CAM_CTRL_USBTRAFFIC ] = 0;
-  commonInfo->max[ OA_CAM_CTRL_USBTRAFFIC ] = 255;
-  commonInfo->step[ OA_CAM_CTRL_USBTRAFFIC ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_USBTRAFFIC ] = QHY5LII_DEFAULT_USBTRAFFIC;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_USBTRAFFIC ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_USBTRAFFIC ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_USBTRAFFIC ) = 255;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_USBTRAFFIC ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_USBTRAFFIC ) = QHY5LII_DEFAULT_USBTRAFFIC;
   cameraInfo->currentUSBTraffic = QHY5LII_DEFAULT_USBTRAFFIC;
 
-  camera->controls[ OA_CAM_CTRL_HDR ] = OA_CTRL_TYPE_BOOLEAN;
-  commonInfo->min[ OA_CAM_CTRL_HDR ] = 0;
-  commonInfo->max[ OA_CAM_CTRL_HDR ] = 1;
-  commonInfo->step[ OA_CAM_CTRL_HDR ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_HDR ] = 0;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HDR ) = OA_CTRL_TYPE_BOOLEAN;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HDR ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HDR ) = 1;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HDR ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HDR ) = 0;
   cameraInfo->currentHDR = 0;
 
   if ( cameraInfo->isColour ) {
-    camera->controls[ OA_CAM_CTRL_RED_BALANCE ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_RED_BALANCE ] = 0;
-    commonInfo->max[ OA_CAM_CTRL_RED_BALANCE ] = 200;
-    commonInfo->step[ OA_CAM_CTRL_RED_BALANCE ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_RED_BALANCE ] = 100; // guess
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RED_BALANCE ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) = 0;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE ) = 200;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RED_BALANCE ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) = 100; // guess
     cameraInfo->currentRedBalance = 100;
 
-    camera->controls[ OA_CAM_CTRL_BLUE_BALANCE ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_BLUE_BALANCE ] = 0;
-    commonInfo->max[ OA_CAM_CTRL_BLUE_BALANCE ] = 200;
-    commonInfo->step[ OA_CAM_CTRL_BLUE_BALANCE ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_BLUE_BALANCE ] = 100; // guess
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) = 0;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) = 200;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLUE_BALANCE ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) = 100; // guess
     cameraInfo->currentBlueBalance = 100;
 
-    camera->controls[ OA_CAM_CTRL_GREEN_BALANCE ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_GREEN_BALANCE ] = 0;
-    commonInfo->max[ OA_CAM_CTRL_GREEN_BALANCE ] = 200;
-    commonInfo->step[ OA_CAM_CTRL_GREEN_BALANCE ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_GREEN_BALANCE ] = 100; // guess
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GREEN_BALANCE ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GREEN_BALANCE ) = 0;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GREEN_BALANCE ) = 200;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GREEN_BALANCE ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GREEN_BALANCE ) = 100; // guess
     cameraInfo->currentGreenBalance = 100;
   }
 
-  camera->controls[ OA_CAM_CTRL_BIT_DEPTH ] = OA_CTRL_TYPE_DISCRETE;
-  camera->controls[ OA_CAM_CTRL_TEMPERATURE ] = OA_CTRL_TYPE_READONLY;
-  camera->controls[ OA_CAM_CTRL_DROPPED ] = OA_CTRL_TYPE_READONLY;
-  camera->controls[ OA_CAM_CTRL_DROPPED_RESET ] = OA_CTRL_TYPE_BUTTON;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) = OA_CTRL_TYPE_DISCRETE;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED ) = OA_CTRL_TYPE_READONLY;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED_RESET ) = OA_CTRL_TYPE_BUTTON;
 
   cameraInfo->buffers = 0;
   cameraInfo->configuredBuffers = 0;
@@ -356,11 +356,11 @@ oaQHY5LIICameraTestControl ( oaCamera* camera, int control,
   oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5L-II: control: %s ( %d, ? )\n",
       __FUNCTION__, control );
 
-  if ( !camera->controls [ control ] ) {
+  if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;
   }
 
-  if ( camera->controls [ control ] != valp->valueType ) {
+  if ( camera->OA_CAM_CTRL_TYPE( control ) != valp->valueType ) {
     return -OA_ERR_INVALID_CONTROL_TYPE;
   }
 
@@ -372,20 +372,20 @@ oaQHY5LIICameraTestControl ( oaCamera* camera, int control,
     case OA_CAM_CTRL_BLUE_BALANCE:
     case OA_CAM_CTRL_GREEN_BALANCE:
       val_s32 = valp->int32;
-      if ( val_s32 >= commonInfo->min[ control ] &&
-          val_s32 <= commonInfo->max[ control ] &&
-          ( 0 == ( val_s32 - commonInfo->min[ control ]) %
-          commonInfo->step[ control ])) {
+      if ( val_s32 >= commonInfo->OA_CAM_CTRL_MIN( control ) &&
+          val_s32 <= commonInfo->OA_CAM_CTRL_MAX( control ) &&
+          ( 0 == ( val_s32 - commonInfo->OA_CAM_CTRL_MIN( control )) %
+          commonInfo->OA_CAM_CTRL_STEP( control ))) {
         return OA_ERR_NONE;
       }
       break;
 
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
       val_s64 = valp->int64;
-      if ( val_s64 >= commonInfo->min[ control ] &&
-          val_s64 <= commonInfo->max[ control ] &&
-          ( 0 == ( val_s64 - commonInfo->min[ control ]) %
-          commonInfo->step[ control ])) {
+      if ( val_s64 >= commonInfo->OA_CAM_CTRL_MIN( control ) &&
+          val_s64 <= commonInfo->OA_CAM_CTRL_MAX( control ) &&
+          ( 0 == ( val_s64 - commonInfo->OA_CAM_CTRL_MIN( control )) %
+          commonInfo->OA_CAM_CTRL_STEP( control ))) {
         return OA_ERR_NONE;
       }
       break;

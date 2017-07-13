@@ -2,7 +2,7 @@
  *
  * Mallincamcontroller.c -- Main camera controller thread
  *
- * Copyright 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -281,7 +281,7 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
       return OA_ERR_NONE;
       break;
 
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
       if ( OA_CTRL_TYPE_BOOLEAN != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where boolean expected "
             "for control %d\n", __FUNCTION__, valp->valueType, control );
@@ -552,7 +552,7 @@ _processGetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
       return OA_ERR_NONE;
       break;
 
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
       if (( *p_Mallincam_get_AutoExpoEnable )( cameraInfo->handle, &val_s32 )) {
         fprintf ( stderr, "Mallincam_get_AutoExpoEnable failed\n" );

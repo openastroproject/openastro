@@ -33,9 +33,9 @@
 
 #define	DEFAULT_FRAME_TIME	100
 
-#define cameraFuncs	cameraContext->funcs
-#define cameraControls	cameraContext->controls
-#define cameraFeatures	cameraContext->features
+#define cameraFuncs		cameraContext->funcs
+#define cameraControls(c)	cameraContext->OA_CAM_CTRL_TYPE(c)
+#define cameraFeatures		cameraContext->features
 
 Camera::Camera()
 {
@@ -56,8 +56,8 @@ Camera::~Camera()
 void
 Camera::populateControlValue ( oaControlValue* cp, uint32_t c, int64_t v )
 {
-  cp->valueType = cameraControls[ c ];
-  switch ( cameraControls[ c ] ) {
+  cp->valueType = cameraControls( c );
+  switch ( cameraControls( c ) ) {
     case OA_CTRL_TYPE_INT32:
       cp->int32 = v & 0xffffffff;
       break;
@@ -77,7 +77,7 @@ Camera::populateControlValue ( oaControlValue* cp, uint32_t c, int64_t v )
       break;
     default:
       qWarning() << __FUNCTION__ << " called with invalid control type " <<
-        cameraControls[ c ] << " for control " << c;
+        cameraControls( c ) << " for control " << c;
   }
 }
 
@@ -111,7 +111,7 @@ Camera::unpackControlValue ( oaControlValue *cp )
       break;
     default:
       qWarning() << __FUNCTION__ << " called with invalid control type " <<
-        cameraControls[ cp->valueType ];
+        cameraControls( cp->valueType );
       res = -1;
   }
 
@@ -131,7 +131,7 @@ Camera::has16Bit ( void )
   // FIX ME -- this assumes that we don't have a 16-bit mode if the bit
   // depth can't be changed which may not be true at all.
 
-  if ( !cameraControls[ OA_CAM_CTRL_BIT_DEPTH ] ) {
+  if ( !cameraControls( OA_CAM_CTRL_BIT_DEPTH )) {
     return 0;
   }
   populateControlValue ( &v, OA_CAM_CTRL_BIT_DEPTH, 16 );
@@ -149,7 +149,7 @@ Camera::hasBinning ( int64_t factor )
     qWarning() << __FUNCTION__ << " called with camera uninitialised";
     return 0;
   }
-  if ( !cameraControls[ OA_CAM_CTRL_BINNING ] ) {
+  if ( !cameraControls( OA_CAM_CTRL_BINNING )) {
     return 0;
   }
   populateControlValue ( &v, OA_CAM_CTRL_BINNING, factor );
@@ -213,11 +213,7 @@ Camera::hasControl ( int control )
     return 0;
   }
 
-  if ( control >= 0 && control < OA_CAM_CTRL_LAST_P1 ) {
-    return cameraControls[ control ];
-  }
-  qWarning() << __FUNCTION__ << " unrecognised control" << control;
-  return 0;
+  return cameraControls(  control );
 }
 
 
@@ -229,11 +225,7 @@ Camera::hasAuto ( int control )
     return 0;
   }
 
-  if ( control >= 0 && control < OA_CAM_CTRL_LAST_P1 ) {
-    return cameraFuncs.hasAuto ( cameraContext, control );
-  }
-  qWarning() << __FUNCTION__ << " unrecognised control";
-  return 0;
+  return ( cameraFuncs.hasAuto ( cameraContext, control ) > 0 ) ? 1 : 0;
 }
 
 
@@ -243,13 +235,9 @@ Camera::isAuto ( int control )
   if ( !initialised ) {
     qWarning() << __FUNCTION__ << " called with camera uninitialised";
     return 0;
-  } 
-
-  if ( control >= 0 && control < OA_CAM_CTRL_LAST_P1 ) {
-    return cameraFuncs.isAuto ( cameraContext, control );
   }
-  qWarning() << __FUNCTION__ << " unrecognised control";
-  return 0;
+
+  return cameraFuncs.isAuto ( cameraContext, control );
 }
 
 
@@ -273,7 +261,7 @@ Camera::getTemperature ( void )
     qWarning() << __FUNCTION__ << " called with camera uninitialised";
     return 0;
   }
-  if ( !cameraControls[ OA_CAM_CTRL_TEMPERATURE ]) {
+  if ( !cameraControls( OA_CAM_CTRL_TEMPERATURE )) {
     return -273.15;
   }
   cameraFuncs.readControl ( cameraContext, OA_CAM_CTRL_TEMPERATURE, &v );

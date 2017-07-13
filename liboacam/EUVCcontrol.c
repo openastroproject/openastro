@@ -105,11 +105,11 @@ oaEUVCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
   int64_t	val_s64;
   COMMON_INFO*	commonInfo = camera->_common;
 
-  if ( !camera->controls [ control ] ) {
+  if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;
   }
 
-  if ( camera->controls [ control ] != val->valueType ) {
+  if ( camera->OA_CAM_CTRL_TYPE( control ) != val->valueType ) {
     return -OA_ERR_INVALID_CONTROL_TYPE;
   }
 
@@ -129,10 +129,10 @@ oaEUVCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
         return -OA_ERR_OUT_OF_RANGE;
       }
       val_u32 = val_s64 & 0xffffffff;
-      if ( val_u32 >= commonInfo->min[ control ] &&
-          val_u32 <= commonInfo->max[ control ] &&
-          ( 0 == ( val_u32 - commonInfo->min[ control ] ) %
-          commonInfo->step[ control ] )) {
+      if ( val_u32 >= commonInfo->OA_CAM_CTRL_MIN( control ) &&
+          val_u32 <= commonInfo->OA_CAM_CTRL_MAX( control ) &&
+          ( 0 == ( val_u32 - commonInfo->OA_CAM_CTRL_MIN( control )) %
+          commonInfo->OA_CAM_CTRL_STEP( control ))) {
         return OA_ERR_NONE;
       }
       break;
@@ -144,14 +144,14 @@ oaEUVCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
       }
       return OA_ERR_NONE;
 
-    case OA_CAM_CTRL_AUTO_WHITE_BALANCE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ):
     case OA_CAM_CTRL_AUTO_WHITE_BALANCE_TEMP:
-    case OA_CAM_CTRL_HUE_AUTO:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ):
       // These just need to be boolean and we've already checked that
       return OA_ERR_NONE;
       break;
 
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
       if ( val->int32 != OA_EXPOSURE_AUTO && val->int32 !=
           OA_EXPOSURE_MANUAL ) {
         return -OA_ERR_OUT_OF_RANGE;

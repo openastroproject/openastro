@@ -2,7 +2,8 @@
  *
  * captureWidget.cc -- class for the capture widget in the UI
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017
+ * James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -1170,10 +1171,12 @@ CaptureWidget::updateSettingsFromProfile ( void )
   config.secondsLimitValue =
       config.profiles[ config.profileOption ].secondsLimitValue;
 
-  for ( int i = 0; i < OA_CAM_CTRL_LAST_P1; i++ ) {
-    config.controlValues [ i ] =
+  for ( int i = 1; i < OA_CAM_CTRL_LAST_P1; i++ ) {
+    for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_P1; j++ ) {
+      config.controlValues[j][i] =
         config.profiles[ config.profileOption ].filterProfiles[
-        config.filterOption ].controls[i];
+        config.filterOption ].controls[j][i];
+    }
   }
 
   state.controlWidget->updateFromConfig();
@@ -1239,111 +1242,126 @@ CaptureWidget::writeSettings ( OutputHandler* out )
     settings << tr ( "Target: " ).toStdString().c_str() <<
         getCurrentTargetName().toStdString().c_str() << std::endl;
     
-    for ( int c = 0; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-      int type;
-      if (( type = state.camera->hasControl ( c ))) {
-        int v = config.controlValues[ c ];
-        switch ( c ) {
-          case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
-          {
-            QString interval = state.controlWidget->exposureIntervalString();
-            QString expTextStr = "Exposure (" + interval + "): ";
-            settings << tr (
-                expTextStr.toStdString().c_str()).toStdString().c_str();
-            break;
+    for ( int baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
+      for ( int mod = 0; mod <= OA_CAM_CTRL_MODIFIER_AUTO; mod++ ) {
+        int c = baseVal | ( mod ? OA_CAM_CTRL_MODIFIER_AUTO_MASK : 0 );
+        int type;
+        if (( type = state.camera->hasControl ( c ))) {
+          int v = config.CONTROL_VALUE( c );
+          switch ( c ) {
+            case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
+            {
+              QString interval = state.controlWidget->exposureIntervalString();
+              QString expTextStr = "Exposure (" + interval + "): ";
+              settings << tr (
+                  expTextStr.toStdString().c_str()).toStdString().c_str();
+              break;
+            }
+            case OA_CAM_CTRL_TEMPERATURE:
+              if ( config.tempsInC ) {
+                settings << tr ( "Temp (C): " ).toStdString().c_str();
+              } else {
+                settings << tr ( "Temp (F): " ).toStdString().c_str();
+              }
+              break;
+            default:
+              if ( type != OA_CTRL_TYPE_BUTTON ) {
+                if ( mod == OA_CAM_CTRL_MODIFIER_AUTO ) {
+                  settings << tr ( "Auto" ).toStdString().c_str() << " ";
+                }
+                settings << tr ( oaCameraControlLabel[c] ).toStdString().c_str()
+                    << ": ";
+              }
+              break;
           }
-          case OA_CAM_CTRL_TEMPERATURE:
-            if ( config.tempsInC ) {
-              settings << tr ( "Temp (C): " ).toStdString().c_str();
-            } else {
-              settings << tr ( "Temp (F): " ).toStdString().c_str();
-            }
-            break;
-          default:
-            if ( type != OA_CTRL_TYPE_BUTTON ) {
-              settings << tr ( oaCameraControlLabel[c] ).toStdString().c_str()
-                  << ": ";
-            }
-            break;
-        }
 
-        switch ( type ) {
-
-          case OA_CTRL_TYPE_INT32:
-          case OA_CTRL_TYPE_INT64:
-            settings << v << std::endl;
-            break;
-
-          case OA_CTRL_TYPE_BOOLEAN:
-            if ( OA_CAM_CTRL_AUTO_EXPOSURE == c ) {
-              settings << tr ( OA_EXPOSURE_AUTO == v ? "on" :
-                  "off" ).toStdString().c_str() << std::endl;
-            } else {
-              settings << tr ( v ? "on" : "off" ).toStdString().c_str() <<
-                  std::endl;
-            }
-            break;
-
-          case OA_CTRL_TYPE_READONLY:
-            switch ( c ) {
-
-              case OA_CAM_CTRL_TEMPERATURE:
-              {
-                QString stringVal;
-                float temp = state.camera->getTemperature();
-                if ( !config.tempsInC ) {
-                  temp = temp * 9 / 5 + 32;
-                }
-                stringVal.setNum ( temp, 'g', 3 );
-                settings << stringVal.toStdString().c_str() << std::endl;
-                break;
-              }
-
-              case OA_CAM_CTRL_DROPPED:
-                settings << state.camera->readControl ( OA_CAM_CTRL_DROPPED )
-                  << std::endl;
-                break;
-
-              default:
-                settings << tr ( "not recorded" ).toStdString().c_str() <<
-                    std::endl;
-                break;
-            }
-            break;
-
-          case OA_CTRL_TYPE_BUTTON:
-            break;
-
-          case OA_CTRL_TYPE_DISCRETE:
-            switch ( c ) {
-
-              case OA_CAM_CTRL_BINNING:
-                if ( config.binning2x2 ) {
-                  settings << "2x2" << std::endl;
-                } else {
-                  settings << "1x1" << std::endl;
-                }
-                break;
-
-              case OA_CAM_CTRL_BIT_DEPTH:
-              {
-                int fmt = state.camera->videoFramePixelFormat();
-                int Bpp = OA_BYTES_PER_PIXEL( fmt );
-                int bpp = Bpp * 8;
-                settings << bpp << std::endl;
-                break;
-              }
-              default:
-                settings << tr ( "not recorded" ).toStdString().c_str() <<
-                    std::endl;
-                break;
-            }
-            break;
-
-          default:
-            settings << tr ( "not recorded" ).toStdString().c_str() <<
+          if ( state.camera->hasControl ( OA_CAM_CTRL_MODE_STATE (baseVal))) {
+            v = config.CONTROL_VALUE ( OA_CAM_CTRL_MODE_STATE ( baseVal ));
+            settings << tr ( v ? "on" : "off" ).toStdString().c_str() <<
                 std::endl;
-            break;
+          } else {
+
+            switch ( type ) {
+
+              case OA_CTRL_TYPE_INT32:
+              case OA_CTRL_TYPE_INT64:
+                settings << v << std::endl;
+                break;
+
+              case OA_CTRL_TYPE_BOOLEAN:
+                if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED )
+                    == c || OA_CAM_CTRL_MODE_AUTO(
+                    OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == c ) {
+                  settings << tr ( OA_EXPOSURE_AUTO == v ? "on" :
+                      "off" ).toStdString().c_str() << std::endl;
+                } else {
+                  settings << tr ( v ? "on" : "off" ).toStdString().c_str() <<
+                      std::endl;
+                }
+                break;
+
+              case OA_CTRL_TYPE_READONLY:
+                switch ( c ) {
+
+                  case OA_CAM_CTRL_TEMPERATURE:
+                  {
+                    QString stringVal;
+                    float temp = state.camera->getTemperature();
+                    if ( !config.tempsInC ) {
+                      temp = temp * 9 / 5 + 32;
+                    }
+                    stringVal.setNum ( temp, 'g', 3 );
+                    settings << stringVal.toStdString().c_str() << std::endl;
+                    break;
+                  }
+
+                  case OA_CAM_CTRL_DROPPED:
+                    settings << state.camera->readControl( OA_CAM_CTRL_DROPPED )
+                      << std::endl;
+                    break;
+
+                  default:
+                    settings << tr ( "not recorded" ).toStdString().c_str() <<
+                        std::endl;
+                    break;
+                }
+                break;
+
+              case OA_CTRL_TYPE_BUTTON:
+                break;
+
+              case OA_CTRL_TYPE_DISCRETE:
+                switch ( c ) {
+
+                  case OA_CAM_CTRL_BINNING:
+                    if ( config.binning2x2 ) {
+                      settings << "2x2" << std::endl;
+                    } else {
+                      settings << "1x1" << std::endl;
+                    }
+                    break;
+
+                  case OA_CAM_CTRL_BIT_DEPTH:
+                  {
+                    int fmt = state.camera->videoFramePixelFormat();
+                    int Bpp = OA_BYTES_PER_PIXEL( fmt );
+                    int bpp = Bpp * 8;
+                    settings << bpp << std::endl;
+                    break;
+                  }
+                  default:
+                    settings << tr ( "not recorded" ).toStdString().c_str() <<
+                        std::endl;
+                    break;
+                }
+                break;
+
+              default:
+                settings << tr ( "not recorded" ).toStdString().c_str() <<
+                    std::endl;
+                break;
+            }
+          }
         }
       }
     }

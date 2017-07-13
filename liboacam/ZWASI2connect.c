@@ -2,7 +2,7 @@
  *
  * ZWASI2connect.c -- Initialise ZW ASI cameras APIv2
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -93,7 +93,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   ASIGetCameraProperty ( &camInfo, cameraInfo->index );
   cameraInfo->cameraId = camInfo.CameraID;
 
-  OA_CLEAR ( camera->controls );
+  OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
   
   if ( ASIOpenCamera ( cameraInfo->cameraId )) {
@@ -129,186 +129,219 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       switch ( controlCaps.ControlType ) {
 
         case ASI_GAIN:
-          camera->controls[ OA_CAM_CTRL_GAIN ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_GAIN ] = controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_GAIN ] = controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_GAIN ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_GAIN ] = controlCaps.DefaultValue;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) =
+              controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) =
+              controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) =
+              controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentGain = currentValue;
           if ( controlCaps.IsAutoSupported ) {
-            camera->controls[ OA_CAM_CTRL_AUTO_GAIN ] = OA_CTRL_TYPE_BOOLEAN;
-            commonInfo->min[ OA_CAM_CTRL_AUTO_GAIN ] = 0;
-            commonInfo->max[ OA_CAM_CTRL_AUTO_GAIN ] = 1;
-            commonInfo->step[ OA_CAM_CTRL_AUTO_GAIN ] = 1;
-            commonInfo->def[ OA_CAM_CTRL_AUTO_GAIN ] = cameraInfo->autoGain =
-                autoSetting;
+            camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_GAIN ) =
+                OA_CTRL_TYPE_BOOLEAN;
+            commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_GAIN ) = 0;
+            commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_GAIN ) = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_GAIN ) = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_GAIN ) =
+                cameraInfo->autoGain = autoSetting;
           }
           break;
 
         case ASI_EXPOSURE:
-          camera->controls[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentAbsoluteExposure = currentValue;
           if ( controlCaps.IsAutoSupported ) {
-            camera->controls[ OA_CAM_CTRL_AUTO_EXPOSURE ] =
-                OA_CTRL_TYPE_BOOLEAN;
-            commonInfo->min[ OA_CAM_CTRL_AUTO_EXPOSURE ] = 0;
-            commonInfo->max[ OA_CAM_CTRL_AUTO_EXPOSURE ] = 1;
-            commonInfo->step[ OA_CAM_CTRL_AUTO_EXPOSURE ] = 1;
-            commonInfo->def[ OA_CAM_CTRL_AUTO_EXPOSURE ] =
-                cameraInfo->autoExposure = autoSetting;
+            camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )
+                = OA_CTRL_TYPE_BOOLEAN;
+            commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )
+                = 0;
+            commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )
+                = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )
+                = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )
+                = cameraInfo->autoExposure = autoSetting;
           }
           break;
 
         case ASI_GAMMA:
-          camera->controls[ OA_CAM_CTRL_GAMMA ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_GAMMA ] = controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_GAMMA ] = controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_GAMMA ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_GAMMA ] = controlCaps.DefaultValue;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAMMA ) = OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA ) =
+              controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA ) =
+              controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAMMA ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) =
+              controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentGamma = currentValue;
           if ( controlCaps.IsAutoSupported ) {
-            camera->controls[ OA_CAM_CTRL_AUTO_GAMMA ] = OA_CTRL_TYPE_BOOLEAN;
-            commonInfo->min[ OA_CAM_CTRL_AUTO_GAMMA ] = 0;
-            commonInfo->max[ OA_CAM_CTRL_AUTO_GAMMA ] = 1;
-            commonInfo->step[ OA_CAM_CTRL_AUTO_GAMMA ] = 1;
-            commonInfo->def[ OA_CAM_CTRL_AUTO_GAMMA ] = cameraInfo->autoGamma =
-                autoSetting;
+            camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_GAMMA ) =
+                OA_CTRL_TYPE_BOOLEAN;
+            commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_GAMMA ) = 0;
+            commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_GAMMA ) = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_GAMMA ) = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_GAMMA ) =
+                cameraInfo->autoGamma = autoSetting;
           }
           break;
 
         case ASI_WB_R:
-          camera->controls[ OA_CAM_CTRL_RED_BALANCE ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_RED_BALANCE ] = controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_RED_BALANCE ] = controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_RED_BALANCE ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_RED_BALANCE ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RED_BALANCE ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) =
+              controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE ) =
+              controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RED_BALANCE ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) =
               controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentRedBalance = currentValue;
           if ( controlCaps.IsAutoSupported ) {
-            camera->controls[ OA_CAM_CTRL_AUTO_RED_BALANCE ] =
+            camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_RED_BALANCE ) =
                 OA_CTRL_TYPE_BOOLEAN;
-            commonInfo->min[ OA_CAM_CTRL_AUTO_RED_BALANCE ] = 0;
-            commonInfo->max[ OA_CAM_CTRL_AUTO_RED_BALANCE ] = 1;
-            commonInfo->step[ OA_CAM_CTRL_AUTO_RED_BALANCE ] = 1;
-            commonInfo->def[ OA_CAM_CTRL_AUTO_RED_BALANCE ] =
+            commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_RED_BALANCE ) = 0;
+            commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_RED_BALANCE ) = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_RED_BALANCE ) = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_RED_BALANCE ) =
                 cameraInfo->autoRedBalance = autoSetting;
           }
           break;
 
         case ASI_WB_B:
-          camera->controls[ OA_CAM_CTRL_BLUE_BALANCE ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_BLUE_BALANCE ] = controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_BLUE_BALANCE ] = controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_BLUE_BALANCE ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_BLUE_BALANCE ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) =
+              controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) =
+              controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLUE_BALANCE ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) =
               controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentBlueBalance = currentValue;
           if ( controlCaps.IsAutoSupported ) {
-            camera->controls[ OA_CAM_CTRL_AUTO_BLUE_BALANCE ] =
+            camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) =
                 OA_CTRL_TYPE_BOOLEAN;
-            commonInfo->min[ OA_CAM_CTRL_AUTO_BLUE_BALANCE ] = 0;
-            commonInfo->max[ OA_CAM_CTRL_AUTO_BLUE_BALANCE ] = 1;
-            commonInfo->step[ OA_CAM_CTRL_AUTO_BLUE_BALANCE ] = 1;
-            commonInfo->def[ OA_CAM_CTRL_AUTO_BLUE_BALANCE ] =
+            commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_BLUE_BALANCE ) = 0;
+            commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_BLUE_BALANCE ) = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_BLUE_BALANCE ) = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_BLUE_BALANCE ) =
                 cameraInfo->autoBlueBalance = autoSetting;
           }
           break;
 
         case ASI_BRIGHTNESS:
-          camera->controls[ OA_CAM_CTRL_BRIGHTNESS ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_BRIGHTNESS ] = controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_BRIGHTNESS ] = controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_BRIGHTNESS ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_BRIGHTNESS ] = controlCaps.DefaultValue;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BRIGHTNESS ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BRIGHTNESS ) =
+              controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BRIGHTNESS ) =
+              controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BRIGHTNESS ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) =
+              controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentBrightness = currentValue;
           if ( controlCaps.IsAutoSupported ) {
-            camera->controls[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] =
+            camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_BRIGHTNESS ) =
                 OA_CTRL_TYPE_BOOLEAN;
-            commonInfo->min[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] = 0;
-            commonInfo->max[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] = 1;
-            commonInfo->step[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] = 1;
-            commonInfo->def[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] =
+            commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_BRIGHTNESS ) = 0;
+            commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_BRIGHTNESS ) = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_BRIGHTNESS ) = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_BRIGHTNESS ) =
                 cameraInfo->autoBrightness = autoSetting;
           }
           break;
 
         case ASI_BANDWIDTHOVERLOAD:
-          camera->controls[ OA_CAM_CTRL_USBTRAFFIC ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_USBTRAFFIC ] = controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_USBTRAFFIC ] = controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_USBTRAFFIC ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_USBTRAFFIC ] = controlCaps.DefaultValue;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_USBTRAFFIC ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_USBTRAFFIC ) =
+              controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_USBTRAFFIC ) =
+              controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_USBTRAFFIC ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_USBTRAFFIC ) =
+              controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentUSBTraffic = currentValue;
           if ( controlCaps.IsAutoSupported ) {
-            camera->controls[ OA_CAM_CTRL_AUTO_USBTRAFFIC ] =
+            camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_USBTRAFFIC ) =
                 OA_CTRL_TYPE_BOOLEAN;
-            commonInfo->min[ OA_CAM_CTRL_AUTO_USBTRAFFIC ] = 0;
-            commonInfo->max[ OA_CAM_CTRL_AUTO_USBTRAFFIC ] = 1;
-            commonInfo->step[ OA_CAM_CTRL_AUTO_USBTRAFFIC ] = 1;
-            commonInfo->def[ OA_CAM_CTRL_AUTO_USBTRAFFIC ] =
+            commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_USBTRAFFIC ) = 0;
+            commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_USBTRAFFIC ) = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_USBTRAFFIC ) = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_USBTRAFFIC ) =
                 cameraInfo->autoUSBTraffic = autoSetting;
           }
           break;
 
         case ASI_OVERCLOCK:
-          camera->controls[ OA_CAM_CTRL_OVERCLOCK ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_OVERCLOCK ] = controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_OVERCLOCK ] = controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_OVERCLOCK ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_OVERCLOCK ] = controlCaps.DefaultValue;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_OVERCLOCK ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_OVERCLOCK ) =
+              controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_OVERCLOCK ) =
+              controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_OVERCLOCK ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_OVERCLOCK ) =
+              controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentOverclock = currentValue;
           if ( controlCaps.IsAutoSupported ) {
-            camera->controls[ OA_CAM_CTRL_AUTO_OVERCLOCK ] =
+            camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_OVERCLOCK ) =
                 OA_CTRL_TYPE_BOOLEAN;
-            commonInfo->min[ OA_CAM_CTRL_AUTO_OVERCLOCK ] = 0;
-            commonInfo->max[ OA_CAM_CTRL_AUTO_OVERCLOCK ] = 1;
-            commonInfo->step[ OA_CAM_CTRL_AUTO_OVERCLOCK ] = 1;
-            commonInfo->def[ OA_CAM_CTRL_AUTO_OVERCLOCK ] =
+            commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_OVERCLOCK ) = 0;
+            commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_OVERCLOCK ) = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_OVERCLOCK ) = 1;
+            commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_OVERCLOCK ) =
                 cameraInfo->autoOverclock = autoSetting;
           }
           break;
 
         case ASI_HIGH_SPEED_MODE:
-          camera->controls[ OA_CAM_CTRL_HIGHSPEED ] = OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->min[ OA_CAM_CTRL_HIGHSPEED ] = controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_HIGHSPEED ] = controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_HIGHSPEED ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_HIGHSPEED ] = controlCaps.DefaultValue;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HIGHSPEED ) =
+              OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HIGHSPEED ) =
+              controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HIGHSPEED ) =
+              controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HIGHSPEED ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HIGHSPEED ) =
+              controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentHighSpeed = currentValue;
           /*
           if ( controlCaps.IsAutoSupported ) {
-            camera->controls[ OA_CAM_CTRL_AUTO_HIGHSPEED ] =
+            camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_AUTO_HIGHSPEED ) =
                 OA_CTRL_TYPE_BOOLEAN;
-            commonInfo->min[ OA_CAM_CTRL_AUTO_HIGHSPEED ] = 0;
-            commonInfo->max[ OA_CAM_CTRL_AUTO_HIGHSPEED ] = 1;
-            commonInfo->step[ OA_CAM_CTRL_AUTO_HIGHSPEED ] = 1;
-            commonInfo->def[ OA_CAM_CTRL_AUTO_HIGHSPEED ] =
+            commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_AUTO_HIGHSPEED ) = 0;
+            commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_AUTO_HIGHSPEED ) = 1;
+            commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_AUTO_HIGHSPEED ) = 1;
+            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_AUTO_HIGHSPEED ) =
                 cameraInfo->autoHighSpeed = autoSetting;
           }
           */
@@ -317,39 +350,49 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
         case ASI_FLIP:
           if ( controlCaps.MaxValue >= ASI_FLIP_HORIZ ) {
-            camera->controls[ OA_CAM_CTRL_HFLIP ] = OA_CTRL_TYPE_BOOLEAN;
-            commonInfo->min[ OA_CAM_CTRL_HFLIP ] = 0;
-            commonInfo->max[ OA_CAM_CTRL_HFLIP ] = 1;
-            commonInfo->step[ OA_CAM_CTRL_HFLIP ] = 1;
-            commonInfo->def[ OA_CAM_CTRL_HFLIP ] = cameraInfo->currentHFlip = 0;
+            camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HFLIP ) =
+                OA_CTRL_TYPE_BOOLEAN;
+            commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HFLIP ) = 0;
+            commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HFLIP ) = 1;
+            commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HFLIP ) = 1;
+            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HFLIP ) =
+                cameraInfo->currentHFlip = 0;
           }
           if ( controlCaps.MaxValue >= ASI_FLIP_VERT ) {
-            camera->controls[ OA_CAM_CTRL_VFLIP ] = OA_CTRL_TYPE_BOOLEAN;
-            commonInfo->min[ OA_CAM_CTRL_VFLIP ] = 0;
-            commonInfo->max[ OA_CAM_CTRL_VFLIP ] = 1;
-            commonInfo->step[ OA_CAM_CTRL_VFLIP ] = 1;
-            commonInfo->def[ OA_CAM_CTRL_VFLIP ] = cameraInfo->currentVFlip = 0;
+            camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_VFLIP ) =
+                OA_CTRL_TYPE_BOOLEAN;
+            commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_VFLIP ) = 0;
+            commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_VFLIP ) = 1;
+            commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_VFLIP ) = 1;
+            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_VFLIP ) =
+                cameraInfo->currentVFlip = 0;
           }
           break;
 
         case ASI_COOLER_ON:
-          camera->controls[ OA_CAM_CTRL_COOLER ] = OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->min[ OA_CAM_CTRL_COOLER ] = controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_COOLER ] = controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_COOLER ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_COOLER ] = controlCaps.DefaultValue;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COOLER ) =
+                OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_COOLER ) =
+                controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_COOLER ) =
+                controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_COOLER ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER ) =
+                controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->coolerEnabled = currentValue;
           break;
 
         case ASI_MONO_BIN:
-          camera->controls[ OA_CAM_CTRL_MONO_BIN_COLOUR ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_MONO_BIN_COLOUR ) =
               OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->min[ OA_CAM_CTRL_MONO_BIN_COLOUR ] = controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_MONO_BIN_COLOUR ] = controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_MONO_BIN_COLOUR ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_MONO_BIN_COLOUR ] =
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_MONO_BIN_COLOUR ) =
+                controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_MONO_BIN_COLOUR ) =
+                controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_MONO_BIN_COLOUR ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_MONO_BIN_COLOUR ) =
               controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
@@ -357,22 +400,27 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           break;
 
         case ASI_FAN_ON:
-          camera->controls[ OA_CAM_CTRL_FAN ] = OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->min[ OA_CAM_CTRL_FAN ] = controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_FAN ] = controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_FAN ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_FAN ] = controlCaps.DefaultValue;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FAN ) =
+                OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_FAN ) = controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_FAN ) = controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_FAN ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FAN ) =
+                controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->fanEnabled = currentValue;
           break;
 
         case ASI_PATTERN_ADJUST:
-          camera->controls[ OA_CAM_CTRL_PATTERN_ADJUST ] = OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->min[ OA_CAM_CTRL_PATTERN_ADJUST ] = controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_PATTERN_ADJUST ] = controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_PATTERN_ADJUST ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_PATTERN_ADJUST ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_PATTERN_ADJUST ) =
+                OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_PATTERN_ADJUST ) =
+                controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_PATTERN_ADJUST ) =
+                controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_PATTERN_ADJUST ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_PATTERN_ADJUST ) =
               controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
@@ -380,11 +428,14 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           break;
 
         case ASI_ANTI_DEW_HEATER:
-          camera->controls[ OA_CAM_CTRL_DEW_HEATER ] = OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->min[ OA_CAM_CTRL_DEW_HEATER ] = controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_DEW_HEATER ] = controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_DEW_HEATER ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_DEW_HEATER ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DEW_HEATER ) =
+                OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_DEW_HEATER ) =
+                controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_DEW_HEATER ) =
+                controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_DEW_HEATER ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_DEW_HEATER ) =
               controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
@@ -392,14 +443,14 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           break;
 
         case ASI_AUTO_MAX_EXP_MS:
-          camera->controls[ OA_CAM_CTRL_AUTO_MAX_EXPOSURE ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_MAX_AUTO_EXPOSURE ) =
               OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_AUTO_MAX_EXPOSURE ] =
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_MAX_AUTO_EXPOSURE ) =
               controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_AUTO_MAX_EXPOSURE ] =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_MAX_AUTO_EXPOSURE ) =
               controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_AUTO_MAX_EXPOSURE ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_AUTO_MAX_EXPOSURE ] =
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_MAX_AUTO_EXPOSURE ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_MAX_AUTO_EXPOSURE ) =
               controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
@@ -407,11 +458,14 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           break;
 
         case ASI_TARGET_TEMP:
-          camera->controls[ OA_CAM_CTRL_TEMP_SETPOINT ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_TEMP_SETPOINT ] = controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_TEMP_SETPOINT ] = controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_TEMP_SETPOINT ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_TEMP_SETPOINT ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMP_SETPOINT ) =
+                OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TEMP_SETPOINT ) =
+                controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TEMP_SETPOINT ) =
+                controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TEMP_SETPOINT ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) =
               controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
@@ -421,11 +475,14 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
         case ASI_COOLER_POWER_PERC:
           // Ignore this one -- it's read-only anyhow
 /*
-          camera->controls[ OA_CAM_CTRL_COOLER_POWER ] = OA_CTRL_TYPE_INT32;
-          commonInfo->min[ OA_CAM_CTRL_COOLER_POWER ] = controlCaps.MinValue;
-          commonInfo->max[ OA_CAM_CTRL_COOLER_POWER ] = controlCaps.MaxValue;
-          commonInfo->step[ OA_CAM_CTRL_COOLER_POWER ] = 1;
-          commonInfo->def[ OA_CAM_CTRL_COOLER_POWER ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COOLER_POWER ) =
+                OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_COOLER_POWER ) =
+                controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_COOLER_POWER ) =
+                controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_COOLER_POWER ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER_POWER ) =
               controlCaps.DefaultValue;
           ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
@@ -458,13 +515,13 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   i = 0;
   while (( bin = camInfo.SupportedBins[i] )) {
     if ( 2 == bin || 3 ==bin || 4 == bin ) {
-      camera->controls[ OA_CAM_CTRL_BINNING ] = OA_CTRL_TYPE_DISCRETE;
+      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;
     }
     i++;
   }
-  camera->controls[ OA_CAM_CTRL_DROPPED ] = OA_CTRL_TYPE_READONLY;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED ) = OA_CTRL_TYPE_READONLY;
 
-  camera->controls[ OA_CAM_CTRL_TEMPERATURE ] = OA_CTRL_TYPE_READONLY;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
 
   // All cameras support ROI according to Sam@ZWO
   camera->features.ROI = 1;
@@ -481,7 +538,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   // cameras
   if ( camInfo.IsColorCam ) {
     int have16Bit = 0;
-    camera->controls[ OA_CAM_CTRL_COLOUR_MODE ] = OA_CTRL_TYPE_DISCRETE;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COLOUR_MODE ) = OA_CTRL_TYPE_DISCRETE;
     cameraInfo->colour = 1;
     i = 0;
     while (( f = camInfo.SupportedVideoFormat[ i ]) != ASI_IMG_END ) {
@@ -499,7 +556,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       i++;
     }
     if (( cameraInfo->videoRGB24 || camera->features.rawMode ) && have16Bit ) {
-      camera->controls[ OA_CAM_CTRL_BIT_DEPTH ] = OA_CTRL_TYPE_DISCRETE;
+      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) = OA_CTRL_TYPE_DISCRETE;
     }
   } else {
     cameraInfo->colour = 0;
@@ -524,7 +581,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       i++;
     }
     if ( cameraInfo->videoGrey16 && cameraInfo->videoGrey ) {
-      camera->controls[ OA_CAM_CTRL_BIT_DEPTH ] = OA_CTRL_TYPE_DISCRETE;
+      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) = OA_CTRL_TYPE_DISCRETE;
     }
   }
 
@@ -1039,7 +1096,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       cameraInfo->frameSizes[1].sizes[0].y = cameraInfo->maxResolutionY;
       cameraInfo->frameSizes[1].numSizes = 1;
       // Fake up some resolutions for 2x binning
-      if ( camera->controls[ OA_CAM_CTRL_BINNING ]) {
+      if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING )) {
         if (!( cameraInfo->frameSizes[2].sizes =
             ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
           fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -1070,7 +1127,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   // RAW is one for 8-bit, 2 for 16-bit.  We assume that if the BIT_DEPTH
   // control is supported them 16-bit is supported.
   multiplier = ( ASI_IMG_RGB24 == cameraInfo->videoCurrent ) ? 3 :
-      ( camera->controls[ OA_CAM_CTRL_BIT_DEPTH ] ? 2 : 1 );
+      ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) ? 2 : 1 );
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY * multiplier;
   cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct ZWASIbuffer ));

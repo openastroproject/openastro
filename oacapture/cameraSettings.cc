@@ -2,7 +2,7 @@
  *
  * cameraSettings.cc -- class for the camera tab in the settings dialog
  *
- * Copyright 2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -36,6 +36,7 @@
 #define MENUS_PER_ROW		4
 #define UNHANDLED_PER_ROW	6
 
+
 CameraSettings::CameraSettings ( QWidget* parent ) : QWidget ( parent )
 {
   layout = 0;
@@ -50,8 +51,8 @@ CameraSettings::CameraSettings ( QWidget* parent ) : QWidget ( parent )
 void
 CameraSettings::configure ( void )
 {
-  uint8_t c;
-  int added[ OA_CAM_CTRL_LAST_P1 ];
+  unsigned int c, baseVal, mod;
+  int added[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
   int numSliders = 0, numCheckboxes = 0, numMenus = 0, numButtons = 0;
   int numSliderCheckboxes = 0, numUnhandled = 0;
 
@@ -71,141 +72,161 @@ CameraSettings::configure ( void )
   buttonSignalMapper = new QSignalMapper ( this );
   menuSignalMapper = new QSignalMapper ( this );
 
-  for ( c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-    controlLabel[c] = 0;
-    controlSlider[c] = 0;
-    controlSpinbox[c] = 0;
-    controlCheckbox[c] = 0;
-    controlButton[c] = 0;
-    controlMenu[c] = 0;
-    added[c] = 0;
+  for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
+    for ( mod = 0; mod <= OA_CAM_CTRL_MODIFIER_AUTO; mod++ ) {
+      c = baseVal | ( mod ? OA_CAM_CTRL_MODIFIER_AUTO_MASK : 0 );
+      controlLabel[mod][baseVal] = 0;
+      controlSlider[mod][baseVal] = 0;
+      controlSpinbox[mod][baseVal] = 0;
+      controlCheckbox[mod][baseVal] = 0;
+      controlButton[mod][baseVal] = 0;
+      controlMenu[mod][baseVal] = 0;
+      added[mod][baseVal] = 0;
 
-    if ( state.camera->Camera::isInitialised()) {
-      controlType[c] = state.camera->hasControl ( c );
+      if ( state.camera->Camera::isInitialised()) {
+        controlType[mod][baseVal] = state.camera->hasControl ( c );
 
-      if ( controlType[c] ) {
+        if ( controlType[mod][baseVal] ) {
 
-        switch ( controlType[c] ) {
+          switch ( controlType[mod][baseVal] ) {
 
-          case OA_CTRL_TYPE_INT32:
-          case OA_CTRL_TYPE_INT64:
-          {
-            numSliders++;
-            controlLabel[c] = new QLabel ( tr ( oaCameraControlLabel[c] ));
-            controlSlider[ c ] = new QSlider ( Qt::Horizontal, this );
-            controlSlider[ c ]->setFocusPolicy ( Qt::TabFocus );
-            controlSpinbox[ c ] = new QSpinBox ( this );
-            connect ( controlSlider[ c ], SIGNAL( sliderMoved ( int )),
-                controlSpinbox[ c ], SLOT( setValue( int )));
-            connect ( controlSlider[ c ], SIGNAL( valueChanged ( int )),
-                controlSpinbox[ c ], SLOT( setValue( int )));
-            connect ( controlSpinbox[ c ], SIGNAL( valueChanged ( int )),
-                controlSlider[ c ], SLOT( setValue( int )));
+            case OA_CTRL_TYPE_INT32:
+            case OA_CTRL_TYPE_INT64:
+            {
+              numSliders++;
+              controlLabel[mod][baseVal] = new QLabel ( tr (
+                  oaCameraControlLabel[baseVal] ));
+              controlSlider[mod][baseVal] = new QSlider ( Qt::Horizontal,
+                  this );
+              controlSlider[mod][baseVal]->setFocusPolicy ( Qt::TabFocus );
+              controlSpinbox[mod][baseVal] = new QSpinBox ( this );
+              connect ( controlSlider[mod][baseVal], SIGNAL(
+                  sliderMoved ( int )), controlSpinbox[mod][baseVal],
+                  SLOT( setValue( int )));
+              connect ( controlSlider[mod][baseVal], SIGNAL(
+                  valueChanged ( int )), controlSpinbox[mod][baseVal],
+                  SLOT( setValue( int )));
+              connect ( controlSpinbox[mod][baseVal], SIGNAL(
+                  valueChanged ( int )), controlSlider[mod][baseVal],
+                  SLOT( setValue( int )));
 
-            int min = state.controlWidget-> getSpinboxMinimum ( c );
-            controlSlider[ c ]->setMinimum ( min );
-            controlSpinbox[ c ]->setMinimum ( min );
+              int min = state.controlWidget->getSpinboxMinimum ( c );
+              controlSlider[mod][baseVal]->setMinimum ( min );
+              controlSpinbox[mod][baseVal]->setMinimum ( min );
 
-            int max = state.controlWidget-> getSpinboxMaximum ( c );
-            controlSlider[ c ]->setMaximum ( max );
-            controlSpinbox[ c ]->setMaximum ( max );
+              int max = state.controlWidget-> getSpinboxMaximum ( c );
+              controlSlider[mod][baseVal]->setMaximum ( max );
+              controlSpinbox[mod][baseVal]->setMaximum ( max );
 
-            int step = state.controlWidget-> getSpinboxStep ( c );
-            controlSlider[ c ]->setSingleStep ( step );
-            controlSpinbox[ c ]->setSingleStep ( step );
+              int step = state.controlWidget-> getSpinboxStep ( c );
+              controlSlider[mod][baseVal]->setSingleStep ( step );
+              controlSpinbox[mod][baseVal]->setSingleStep ( step );
 
-            int val = state.controlWidget-> getSpinboxValue ( c );
-            controlSlider[ c ]->setValue ( val );
-            controlSpinbox[ c ]->setValue ( val );
+              int val = state.controlWidget-> getSpinboxValue ( c );
+              controlSlider[mod][baseVal]->setValue ( val );
+              controlSpinbox[mod][baseVal]->setValue ( val );
 
-            sliderSignalMapper->setMapping ( controlSpinbox[c], c );
-            connect ( controlSpinbox[ c ], SIGNAL( valueChanged ( int )),
-                sliderSignalMapper, SLOT( map()));
-            break;
-          }
-
-          case OA_CTRL_TYPE_BOOLEAN:
-            numCheckboxes++;
-            controlCheckbox[ c ] = new QCheckBox ( QString ( tr (
-                oaCameraControlLabel[c] )), this );
-            if ( c == OA_CAM_CTRL_AUTO_EXPOSURE ) {
-              controlCheckbox[ c ]->setChecked (
-                  ( config.controlValues [ c ] == OA_EXPOSURE_MANUAL ) ? 0 : 1 );
-            } else {
-              controlCheckbox[ c ]->setChecked ( config.controlValues [ c ] );
-            }
-            checkboxSignalMapper->setMapping ( controlCheckbox[c], c );
-            connect ( controlCheckbox[ c ], SIGNAL ( stateChanged ( int )),
-                checkboxSignalMapper, SLOT ( map()));
-            break;
-
-          case OA_CTRL_TYPE_BUTTON:
-            numButtons++;
-            controlButton[ c ] = new QPushButton ( QString ( tr (
-                oaCameraControlLabel[c] )), this );
-            buttonSignalMapper->setMapping ( controlButton[c], c );
-            connect ( controlButton[ c ], SIGNAL ( clicked ()),
-                buttonSignalMapper, SLOT ( map()));
-            break;
-
-          case OA_CTRL_TYPE_MENU:
-          {
-            int64_t min, max, step, def;
-            controlLabel[c] = new QLabel ( tr ( oaCameraControlLabel[c] ));
-            state.camera->controlRange ( c, &min, &max, &step, &def );
-            if ( 1 == step && 0 == min ) {
-              numMenus++;
-              controlMenu[ c ] = new QComboBox ( this );
-              for ( int i = min; i <= max; i += step ) {
-                controlMenu[ c ]->addItem ( tr (
-                    state.camera->getMenuString ( c, i )));
-              }
-              controlMenu[ c ]->setCurrentIndex ( config.controlValues [ c ] );
-              menuSignalMapper->setMapping ( controlMenu[c], c );
-              connect ( controlMenu[ c ], SIGNAL( currentIndexChanged ( int )),
-                  menuSignalMapper, SLOT ( map()));
-            } else {
-              numUnhandled++;
-              qWarning() << "Can't handle menu with min = " << min <<
-                  " and step = " << step;
-            }
-            break;
-          }
-
-          case OA_CTRL_TYPE_DISC_MENU:
-          {
-            int32_t count;
-            int64_t *values;
-            controlLabel[c] = new QLabel ( tr ( oaCameraControlLabel[c] ));
-            state.camera->controlDiscreteSet ( c, &count, &values );
-            numMenus++;
-            controlMenu[ c ] = new QComboBox ( this );
-            for ( int i = 0; i < count; i++ ) {
-              controlMenu[ c ]->addItem ( tr (
-                  state.camera->getMenuString ( c, values[i] )));
-              controlMenu[ c ]->setCurrentIndex ( config.controlValues [ c ] );
-              menuSignalMapper->setMapping ( controlMenu[c], values[i] );
-              connect ( controlMenu[ c ], SIGNAL( currentIndexChanged ( int )),
-                  menuSignalMapper, SLOT ( map()));
-            }
-            break;
-          }
-
-          case OA_CTRL_TYPE_READONLY:
-            added[c] = 1; // prevents this from showing up
-            break;
-
-          case OA_CTRL_TYPE_DISCRETE:
-            // don't show these up as unhandled
-            if ( OA_CAM_CTRL_BIT_DEPTH == c || OA_CAM_CTRL_BINNING == c ) {
-              added[c] = 1;
+              sliderSignalMapper->setMapping ( controlSpinbox[mod][baseVal], c );
+              connect ( controlSpinbox[mod][baseVal], SIGNAL(
+                  valueChanged ( int )), sliderSignalMapper, SLOT( map()));
               break;
             }
 
-          default:
-            controlLabel[c] = new QLabel ( tr ( oaCameraControlLabel[c] ));
-            numUnhandled++;
-            break;
+            case OA_CTRL_TYPE_BOOLEAN:
+              numCheckboxes++;
+              controlCheckbox[mod][baseVal] = new QCheckBox ( QString ( tr (
+                  oaCameraControlLabel[baseVal] )), this );
+              if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == c ||
+                  OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == c ) {
+                controlCheckbox[mod][baseVal]->setChecked (
+                    ( config.CONTROL_VALUE(c) == OA_EXPOSURE_MANUAL ) ? 0 : 1 );
+              } else {
+                controlCheckbox[mod][baseVal]->setChecked (
+                    config.CONTROL_VALUE(c));
+              }
+              checkboxSignalMapper->setMapping (
+                  controlCheckbox[mod][baseVal], c );
+              connect ( controlCheckbox[mod][baseVal], SIGNAL (
+                  stateChanged ( int )), checkboxSignalMapper, SLOT ( map()));
+              break;
+
+            case OA_CTRL_TYPE_BUTTON:
+              numButtons++;
+              controlButton[mod][baseVal] = new QPushButton ( QString ( tr (
+                  oaCameraControlLabel[baseVal] )), this );
+              buttonSignalMapper->setMapping ( controlButton[mod][baseVal], c );
+              connect ( controlButton[mod][baseVal], SIGNAL ( clicked ()),
+                  buttonSignalMapper, SLOT ( map()));
+              break;
+
+            case OA_CTRL_TYPE_MENU:
+            {
+              int64_t min, max, step, def;
+              controlLabel[mod][baseVal] = new QLabel ( tr (
+                  oaCameraControlLabel[baseVal] ));
+              state.camera->controlRange ( c, &min, &max, &step, &def );
+              if ( 1 == step && 0 == min ) {
+                numMenus++;
+                controlMenu[mod][baseVal] = new QComboBox ( this );
+                for ( int i = min; i <= max; i += step ) {
+                  controlMenu[mod][baseVal]->addItem ( tr (
+                      state.camera->getMenuString ( c, i )));
+                }
+                controlMenu[mod][baseVal]->setCurrentIndex (
+                    config.CONTROL_VALUE(c));
+                menuSignalMapper->setMapping ( controlMenu[mod][baseVal], c );
+                connect ( controlMenu[mod][baseVal], SIGNAL(
+                    currentIndexChanged ( int )), menuSignalMapper,
+                    SLOT( map()));
+              } else {
+                numUnhandled++;
+                qWarning() << "Can't handle menu with min = " << min <<
+                    " and step = " << step;
+              }
+              break;
+            }
+
+            case OA_CTRL_TYPE_DISC_MENU:
+            {
+              int32_t count;
+              int64_t *values;
+              controlLabel[mod][baseVal] = new QLabel ( tr (
+                  oaCameraControlLabel[baseVal] ));
+              state.camera->controlDiscreteSet ( c, &count, &values );
+              numMenus++;
+              controlMenu[mod][baseVal] = new QComboBox ( this );
+              for ( int i = 0; i < count; i++ ) {
+                controlMenu[mod][baseVal]->addItem ( tr (
+                    state.camera->getMenuString ( c, values[i] )));
+                controlMenu[mod][baseVal]->setCurrentIndex (
+                    config.CONTROL_VALUE(c));
+                menuSignalMapper->setMapping ( controlMenu[mod][baseVal],
+                    values[i] );
+                connect ( controlMenu[mod][baseVal], SIGNAL(
+                    currentIndexChanged ( int )), menuSignalMapper,
+                    SLOT( map()));
+              }
+              break;
+            }
+
+            case OA_CTRL_TYPE_READONLY:
+              added[mod][baseVal] = 1; // prevents this from showing up
+              break;
+
+            case OA_CTRL_TYPE_DISCRETE:
+              // FIX ME -- these really ought to show
+              // don't show these up as unhandled
+              if ( OA_CAM_CTRL_BIT_DEPTH == c || OA_CAM_CTRL_BINNING == c ) {
+                added[mod][baseVal] = 1;
+                break;
+              }
+
+            default:
+              controlLabel[mod][baseVal] = new QLabel ( tr (
+                  oaCameraControlLabel[baseVal] ));
+              numUnhandled++;
+              break;
+          }
         }
       }
     }
@@ -262,26 +283,28 @@ CameraSettings::configure ( void )
   sliderGrid->addWidget ( autoLabel2, 0, 5 );
 
   int autoControl;
-  for ( c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-    if ( OA_CTRL_TYPE_INT32 == controlType[ c ] ||
-        OA_CTRL_TYPE_INT64 == controlType[ c ] ) {
-      sliderGrid->addWidget ( controlLabel[c], row, col++ );
-      added[ c ] = 1;
-      if (( autoControl = state.camera->hasAuto ( c ))) {
-        if ( OA_CTRL_TYPE_BOOLEAN == controlType[ autoControl ] ) {
-          controlCheckbox[ autoControl ]->setText ( "" );
-          sliderGrid->addWidget ( controlCheckbox[ autoControl ], row, col );
-          added[ autoControl ] = 1;
+  for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
+    for ( mod = 0; mod <= OA_CAM_CTRL_MODIFIER_AUTO; mod++ ) {
+      if ( OA_CTRL_TYPE_INT32 == controlType[mod][baseVal] ||
+          OA_CTRL_TYPE_INT64 == controlType[mod][baseVal] ) {
+        sliderGrid->addWidget ( controlLabel[mod][baseVal], row, col++ );
+        added[mod][baseVal] = 1;
+        if ( !mod && controlType[OA_CAM_CTRL_MODIFIER_AUTO][baseVal] ==
+            OA_CTRL_TYPE_BOOLEAN ) {
+          controlCheckbox[OA_CAM_CTRL_MODIFIER_AUTO][baseVal]->setText ( "" );
+          sliderGrid->addWidget (
+              controlCheckbox[OA_CAM_CTRL_MODIFIER_AUTO][baseVal], row, col );
+          added[OA_CAM_CTRL_MODIFIER_AUTO][baseVal] = 1;
           numSliderCheckboxes++;
         }
+        col++;
+        sliderGrid->addWidget ( controlSlider[mod][baseVal], row, col++ );
+        sliderGrid->addWidget ( controlSpinbox[mod][baseVal], row, col++ );
       }
-      col++;
-      sliderGrid->addWidget ( controlSlider[c], row, col++ );
-      sliderGrid->addWidget ( controlSpinbox[c], row, col++ );
-    }
-    if (( 4 * SLIDERS_PER_ROW ) == col ) {
-      col = 0;
-      row++;
+      if (( 4 * SLIDERS_PER_ROW ) == col ) {
+        col = 0;
+        row++;
+      }
     }
   }
 
@@ -299,15 +322,18 @@ CameraSettings::configure ( void )
   row = 0;
   col = 0;
   int addedBoxes = 0;
-  for ( c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-    if ( OA_CTRL_TYPE_BOOLEAN == controlType[ c ] && !added[ c ]) {
-      checkboxGrid->addWidget ( controlCheckbox[c], row, col++ );
-      added[ c ] = 1;
-      addedBoxes++;
-    }
-    if ( CHECKBOXES_PER_ROW == col ) {
-      col = 0;
-      row++;
+  for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
+    for ( mod = 0; mod <= OA_CAM_CTRL_MODIFIER_AUTO; mod++ ) {
+      if ( OA_CTRL_TYPE_BOOLEAN == controlType[mod][baseVal] &&
+          !added[mod][baseVal]) {
+        checkboxGrid->addWidget ( controlCheckbox[mod][baseVal], row, col++ );
+        added[mod][baseVal] = 1;
+        addedBoxes++;
+      }
+      if ( CHECKBOXES_PER_ROW == col ) {
+        col = 0;
+        row++;
+      }
     }
   }
   if ( addedBoxes && addedBoxes < CHECKBOXES_PER_ROW ) {
@@ -321,15 +347,18 @@ CameraSettings::configure ( void )
   row = 0;
   col = 0;
   int addedButtons = 0;
-  for ( c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-    if ( OA_CTRL_TYPE_BUTTON == controlType[ c ] && !added[ c ]) {
-      buttonGrid->addWidget ( controlButton[c], row, col++ );
-      added[ c ] = 1;
-      addedButtons++;
-    }
-    if ( BUTTONS_PER_ROW == col ) {
-      col = 0;
-      row++;
+  for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
+    for ( mod = 0; mod <= OA_CAM_CTRL_MODIFIER_AUTO; mod++ ) {
+      if ( OA_CTRL_TYPE_BUTTON == controlType[mod][baseVal] &&
+          !added[mod][baseVal]) {
+        buttonGrid->addWidget ( controlButton[mod][baseVal], row, col++ );
+        added[mod][baseVal] = 1;
+        addedButtons++;
+      }
+      if ( BUTTONS_PER_ROW == col ) {
+        col = 0;
+        row++;
+      }
     }
   }
   buttonGrid->addWidget ( defaultButton, row, col++ );
@@ -345,30 +374,33 @@ CameraSettings::configure ( void )
   row = 0;
   col = 0;
   int addedMenus = 0;
-  for ( c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-    if ( OA_CTRL_TYPE_MENU == controlType[ c ] ) {
-      int64_t min, max, step, def;
-      state.camera->controlRange ( c, &min, &max, &step, &def );
-      if ( 1 == step && 0 == min ) {
-        menuGrid->addWidget ( controlLabel[c], row, col++ );
-        menuGrid->addWidget ( controlMenu[c], row, col++ );
-        added[ c ] = 1;
+  for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
+    for ( mod = 0; mod <= OA_CAM_CTRL_MODIFIER_AUTO; mod++ ) {
+      c = baseVal | ( mod ? OA_CAM_CTRL_MODIFIER_AUTO_MASK : 0 );
+      if ( OA_CTRL_TYPE_MENU == controlType[mod][baseVal] ) {
+        int64_t min, max, step, def;
+        state.camera->controlRange ( c, &min, &max, &step, &def );
+        if ( 1 == step && 0 == min ) {
+          menuGrid->addWidget ( controlLabel[mod][baseVal], row, col++ );
+          menuGrid->addWidget ( controlMenu[mod][baseVal], row, col++ );
+          added[mod][baseVal] = 1;
+          addedMenus++;
+        }
+      }
+      if ( OA_CTRL_TYPE_DISC_MENU == controlType[mod][baseVal] ) {
+        menuGrid->addWidget ( controlLabel[mod][baseVal], row, col++ );
+        menuGrid->addWidget ( controlMenu[mod][baseVal], row, col++ );
+        added[mod][baseVal] = 1;
         addedMenus++;
       }
+      if ( MENUS_PER_ROW == col ) {
+        col = 0;
+        row++;
+      }
     }
-    if ( OA_CTRL_TYPE_DISC_MENU == controlType[ c ] ) {
-      menuGrid->addWidget ( controlLabel[c], row, col++ );
-      menuGrid->addWidget ( controlMenu[c], row, col++ );
-      added[ c ] = 1;
-      addedMenus++;
+    if ( addedMenus && addedMenus < MENUS_PER_ROW ) {
+      menuGrid->setColumnStretch ( addedMenus * 2, 1 );
     }
-    if ( MENUS_PER_ROW == col ) {
-      col = 0;
-      row++;
-    }
-  }
-  if ( addedMenus && addedMenus < MENUS_PER_ROW ) {
-    menuGrid->setColumnStretch ( addedMenus * 2, 1 );
   }
 
   // For the sake of completeness, show the controls we're not handling
@@ -380,18 +412,21 @@ CameraSettings::configure ( void )
     unhandledGrid->addWidget ( unhandled, 0, 0 );
     row = 1;
     col = 0;
-    for ( c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-      if ( controlType[c] && !added[ c ] ) {
-        unhandledGrid->addWidget ( controlLabel[c], row, col++ );
-        added[ c ] = 1;
-        addedTodo++;
-      }
-      if ( UNHANDLED_PER_ROW == col ) {
-        col = 0;
-        row++;
+    for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
+      for ( mod = 0; mod <= OA_CAM_CTRL_MODIFIER_AUTO; mod++ ) {
+        if ( controlType[mod][baseVal] && !added[mod][baseVal] ) {
+          unhandledGrid->addWidget ( controlLabel[mod][baseVal], row, col++ );
+          added[mod][baseVal] = 1;
+          addedTodo++;
+        }
+        if ( UNHANDLED_PER_ROW == col ) {
+          col = 0;
+          row++;
+        }
       }
     }
   }
+
   if ( addedTodo && addedTodo < UNHANDLED_PER_ROW ) {
     unhandledGrid->setColumnStretch ( addedTodo, 1 );
   }
@@ -429,15 +464,16 @@ CameraSettings::~CameraSettings()
 void
 CameraSettings::updateSliderControl ( int control )
 {
-  state.controlWidget->updateSpinbox ( control,
-      controlSpinbox[ control ]->value());
+  state.controlWidget->updateSpinbox ( control, controlSpinbox[
+      OA_CAM_CTRL_MODIFIER(control)][OA_CAM_CTRL_MODE_BASE(control)]->value());
 }
 
 
 void
 CameraSettings::updateCheckboxControl ( int control )
 {
-  int value = controlCheckbox[ control ]->isChecked() ? 1 : 0;
+  int value = controlCheckbox[OA_CAM_CTRL_MODIFIER(
+      control)][OA_CAM_CTRL_MODE_BASE(control)]->isChecked() ? 1 : 0;
 
   switch ( control ) {
     case OA_CAM_CTRL_HFLIP:
@@ -469,9 +505,11 @@ CameraSettings::updateCheckboxControl ( int control )
 
   if ( oaIsAuto ( control )) {
     int baseControl = oaGetControlForAuto ( control );
-    if ( controlSlider[ baseControl ] ) {
-      controlSlider[ baseControl ]->setEnabled ( !value );
-      controlSpinbox[ baseControl ]->setEnabled ( !value );
+    if ( controlSlider[OA_CAM_CTRL_MODIFIER_STD][ baseControl ] ) {
+      controlSlider[OA_CAM_CTRL_MODIFIER_STD][ baseControl ]->
+          setEnabled ( !value );
+      controlSpinbox[OA_CAM_CTRL_MODIFIER_STD][ baseControl ]->
+          setEnabled ( !value );
     }
   }
 }
@@ -480,47 +518,50 @@ CameraSettings::updateCheckboxControl ( int control )
 void
 CameraSettings::buttonPushed ( int control )
 {
-  int c, v;
+  int c, v, baseVal, mod;
 
   if ( control > 0 ) {
     state.camera->setControl ( control, 1 );
     if ( control == OA_CAM_CTRL_RESTORE_USER ||
         control == OA_CAM_CTRL_RESTORE_FACTORY ) {
 
-      for ( c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-        switch ( controlType [ c ] ) {
+      for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
+        for ( mod = 0; mod <= OA_CAM_CTRL_MODIFIER_AUTO; mod++ ) {
+          c = baseVal | ( mod ? OA_CAM_CTRL_MODIFIER_AUTO_MASK : 0 );
+          switch ( controlType[mod][baseVal] ) {
 
-          case OA_CTRL_TYPE_BOOLEAN:
-            v = state.camera->readControl ( c );
-            config.controlValues [ c ] = v;
-            SET_PROFILE_CONTROL( c, v );
-            controlCheckbox[ c ]->setChecked ( v );
-            break;
+            case OA_CTRL_TYPE_BOOLEAN:
+              v = state.camera->readControl ( c );
+              config.CONTROL_VALUE(c) = v;
+              SET_PROFILE_CONTROL( c, v );
+              controlCheckbox[mod][baseVal]->setChecked ( v );
+              break;
 
-          case OA_CTRL_TYPE_INT32:
-          case OA_CTRL_TYPE_INT64:
-            v = state.camera->readControl ( c );
-            config.controlValues [ c ] = v;
-            SET_PROFILE_CONTROL( c, v );
-            controlSpinbox[ c ]->setValue ( v );
-            break;
+            case OA_CTRL_TYPE_INT32:
+            case OA_CTRL_TYPE_INT64:
+              v = state.camera->readControl ( c );
+              config.CONTROL_VALUE(c) = v;
+              SET_PROFILE_CONTROL( c, v );
+              controlSpinbox[mod][baseVal]->setValue ( v );
+              break;
 
-          case OA_CTRL_TYPE_MENU:
-            v = state.camera->readControl ( c );
-            config.controlValues [ c ] = v;
-            SET_PROFILE_CONTROL( c, v );
-            controlMenu[ c ]->setCurrentIndex ( v );
-            break;
+            case OA_CTRL_TYPE_MENU:
+              v = state.camera->readControl ( c );
+              config.CONTROL_VALUE(c) = v;
+              SET_PROFILE_CONTROL( c, v );
+              controlMenu[mod][baseVal]->setCurrentIndex ( v );
+              break;
 
-          case OA_CTRL_TYPE_UNAVAILABLE:
-          case OA_CTRL_TYPE_BUTTON:
-          case OA_CTRL_TYPE_READONLY:
-            break;
+            case OA_CTRL_TYPE_UNAVAILABLE:
+            case OA_CTRL_TYPE_BUTTON:
+            case OA_CTRL_TYPE_READONLY:
+              break;
 
-          default:
-            fprintf ( stderr, "control type %d not handled in %s\n",
-                controlType[ c ], __FUNCTION__ );
-            break;
+            default:
+              fprintf ( stderr, "control type %d not handled in %s\n",
+                  controlType[mod][baseVal], __FUNCTION__ );
+              break;
+          }
         }
       }
 
@@ -532,40 +573,43 @@ CameraSettings::buttonPushed ( int control )
   } else {
     int64_t min, max, step, def;
 
-    for ( c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-      switch ( controlType [ c ] ) {
+    for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
+      for ( mod = 0; mod <= OA_CAM_CTRL_MODIFIER_AUTO; mod++ ) {
+        c = baseVal | ( mod ? OA_CAM_CTRL_MODIFIER_AUTO_MASK : 0 );
+        switch ( controlType[mod][baseVal] ) {
 
-        case OA_CTRL_TYPE_BOOLEAN:
-          state.camera->controlRange ( c, &min, &max, &step, &def );
-          controlCheckbox[ c ]->setChecked ( def );
-          config.controlValues [ c ] = def;
-          SET_PROFILE_CONTROL( c, def );
-          break;
+          case OA_CTRL_TYPE_BOOLEAN:
+            state.camera->controlRange ( c, &min, &max, &step, &def );
+            controlCheckbox[mod][baseVal]->setChecked ( def );
+            config.CONTROL_VALUE(c) = def;
+            SET_PROFILE_CONTROL( c, def );
+            break;
 
-        case OA_CTRL_TYPE_INT32:
-        case OA_CTRL_TYPE_INT64:
-          state.camera->controlRange ( c, &min, &max, &step, &def );
-          controlSpinbox[ c ]->setValue ( def );
-          config.controlValues [ c ] = def;
-          SET_PROFILE_CONTROL( c, def );
-          break;
+          case OA_CTRL_TYPE_INT32:
+          case OA_CTRL_TYPE_INT64:
+            state.camera->controlRange ( c, &min, &max, &step, &def );
+            controlSpinbox[mod][baseVal]->setValue ( def );
+            config.CONTROL_VALUE(c) = def;
+            SET_PROFILE_CONTROL( c, def );
+            break;
 
-        case OA_CTRL_TYPE_MENU:
-          state.camera->controlRange ( c, &min, &max, &step, &def );
-          controlMenu[ c ]->setCurrentIndex ( def );
-          config.controlValues [ c ] = def;
-          SET_PROFILE_CONTROL( c, def );
-          break;
+          case OA_CTRL_TYPE_MENU:
+            state.camera->controlRange ( c, &min, &max, &step, &def );
+            controlMenu[mod][baseVal]->setCurrentIndex ( def );
+            config.CONTROL_VALUE(c) = def;
+            SET_PROFILE_CONTROL( c, def );
+            break;
 
-        case OA_CTRL_TYPE_UNAVAILABLE:
-        case OA_CTRL_TYPE_BUTTON:
-        case OA_CTRL_TYPE_READONLY:
-          break;
+          case OA_CTRL_TYPE_UNAVAILABLE:
+          case OA_CTRL_TYPE_BUTTON:
+          case OA_CTRL_TYPE_READONLY:
+            break;
 
-        default:
-          fprintf ( stderr, "control type %d not handled in %s\n",
-              controlType[ c ], __FUNCTION__ );
-          break;
+          default:
+            fprintf ( stderr, "control type %d not handled in %s\n",
+                controlType[mod][baseVal], __FUNCTION__ );
+            break;
+        }
       }
     }
   }
@@ -581,8 +625,10 @@ CameraSettings::storeSettings ( void )
 void
 CameraSettings::enableFlipX ( int state )
 {
-  if ( controlType [ OA_CAM_CTRL_HFLIP ] == OA_CTRL_TYPE_BOOLEAN ) {
-    controlCheckbox [ OA_CAM_CTRL_HFLIP ]->setChecked ( state );
+  if ( controlType[ OA_CAM_CTRL_MODIFIER_STD ][ OA_CAM_CTRL_HFLIP ] ==
+      OA_CTRL_TYPE_BOOLEAN ) {
+    controlCheckbox [ OA_CAM_CTRL_MODIFIER_STD ][ OA_CAM_CTRL_HFLIP ]->
+        setChecked ( state );
   } else {
     qWarning() << "CameraSettings::enableFlipX not implemented for type";
   }
@@ -592,8 +638,10 @@ CameraSettings::enableFlipX ( int state )
 void
 CameraSettings::enableFlipY ( int state )
 {
-  if ( controlType [ OA_CAM_CTRL_VFLIP ] == OA_CTRL_TYPE_BOOLEAN ) {
-    controlCheckbox [ OA_CAM_CTRL_VFLIP ]->setChecked ( state );
+  if ( controlType[ OA_CAM_CTRL_MODIFIER_STD ][ OA_CAM_CTRL_VFLIP ] ==
+      OA_CTRL_TYPE_BOOLEAN ) {
+    controlCheckbox [ OA_CAM_CTRL_MODIFIER_STD ][ OA_CAM_CTRL_VFLIP ]->
+        setChecked ( state );
   } else {
     qWarning() << "CameraSettings::enableFlipY not implemented for type";
   }
@@ -603,14 +651,20 @@ CameraSettings::enableFlipY ( int state )
 void
 CameraSettings::updateControl ( int control, int value )
 {
-  if ( OA_CTRL_TYPE_INT32 == controlType [ control ] ||
-      OA_CTRL_TYPE_INT64 == controlType [ control ] ) {
-    controlSlider [ control ]->setValue ( value );
-  } else if ( controlType [ control ] == OA_CTRL_TYPE_BOOLEAN ) {
-    controlCheckbox [ control ]->setChecked ( value );
+  if ( OA_CTRL_TYPE_INT32 == controlType[ OA_CAM_CTRL_MODIFIER( control )][
+      OA_CAM_CTRL_MODE_BASE( control )] || OA_CTRL_TYPE_INT64 ==
+      controlType[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
+      control )]) {
+    controlSlider[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
+        control )]->setValue ( value );
+  } else if ( controlType[ OA_CAM_CTRL_MODIFIER( control )][
+      OA_CAM_CTRL_MODE_BASE( control )] == OA_CTRL_TYPE_BOOLEAN ) {
+    controlCheckbox[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
+        control )]->setChecked ( value );
   } else {
     qWarning() << "CameraSettings::update not implemented for control"
-        << control << "type" << controlType [ control ];
+        << control << "type" << controlType[ OA_CAM_CTRL_MODIFIER( control )][
+        OA_CAM_CTRL_MODE_BASE( control )];
   }
 }
 
@@ -618,7 +672,8 @@ CameraSettings::updateControl ( int control, int value )
 void
 CameraSettings::menuChanged ( int control )
 {
-  int value = controlMenu [ control ]->currentIndex();
+  int value = controlMenu[ OA_CAM_CTRL_MODIFIER( control )][
+      OA_CAM_CTRL_MODE_BASE( control )]->currentIndex();
   state.camera->setControl ( control, value );
 }
 
@@ -640,19 +695,27 @@ CameraSettings::frameRateChanged ( void )
 void
 CameraSettings::reconfigureControl ( int control )
 {
-  int min = state.controlWidget-> getSpinboxMinimum ( control );
-  controlSlider[ control ]->setMinimum ( min );
-  controlSpinbox[ control ]->setMinimum ( min );
+  int min = state.controlWidget->getSpinboxMinimum ( control );
+  controlSlider[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
+      control )]->setMinimum ( min );
+  controlSpinbox[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
+      control )]->setMinimum ( min );
 
-  int max = state.controlWidget-> getSpinboxMaximum ( control );
-  controlSlider[ control ]->setMaximum ( max );
-  controlSpinbox[ control ]->setMaximum ( max );
+  int max = state.controlWidget->getSpinboxMaximum ( control );
+  controlSlider[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
+      control )]->setMaximum ( max );
+  controlSpinbox[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
+      control )]->setMaximum ( max );
 
-  int step = state.controlWidget-> getSpinboxStep ( control );
-  controlSlider[ control ]->setSingleStep ( step );
-  controlSpinbox[ control ]->setSingleStep ( step );
+  int step = state.controlWidget->getSpinboxStep ( control );
+  controlSlider[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
+      control )]->setSingleStep ( step );
+  controlSpinbox[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
+      control )]->setSingleStep ( step );
 
-  int val = state.controlWidget-> getSpinboxValue ( control );
-  controlSlider[ control ]->setValue ( val );
-  controlSpinbox[ control ]->setValue ( val );
+  int val = state.controlWidget->getSpinboxValue ( control );
+  controlSlider[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
+      control )]->setValue ( val );
+  controlSpinbox[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
+      control )]->setValue ( val );
 }

@@ -56,10 +56,10 @@ oaV4L2CameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
   V4L2_STATE*	cameraInfo = camera->_private;
   int		retval = OA_ERR_NONE;
 
-  if ( !camera->controls [ control ] ) {
+  if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;
   }
-  if ( camera->controls [ control ] != val->valueType ) {
+  if ( camera->OA_CAM_CTRL_TYPE( control ) != val->valueType ) {
     return -OA_ERR_INVALID_CONTROL_TYPE;
   }
 
@@ -122,11 +122,11 @@ oaV4L2CameraTestControl ( oaCamera* camera, int control, oaControlValue* valp )
   int64_t	val_s64;
   COMMON_INFO*	commonInfo = camera->_common;
 
-  if ( !camera->controls [ control ] ) {
+  if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;
   }
 
-  if ( camera->controls [ control ] != valp->valueType ) {
+  if ( camera->OA_CAM_CTRL_TYPE( control ) != valp->valueType ) {
     return -OA_ERR_INVALID_CONTROL_TYPE;
   }
 
@@ -137,30 +137,30 @@ oaV4L2CameraTestControl ( oaCamera* camera, int control, oaControlValue* valp )
 
     case OA_CTRL_TYPE_INT32:
       val_s32 = valp->int32;
-      if ( val_s32 >= commonInfo->min[ control ] &&
-          val_s32 <= commonInfo->max[ control ] &&
-          ( 0 == ( val_s32 - commonInfo->min[ control ] ) %
-          commonInfo->step[ control ] )) {
+      if ( val_s32 >= commonInfo->OA_CAM_CTRL_MIN( control ) &&
+          val_s32 <= commonInfo->OA_CAM_CTRL_MAX( control ) &&
+          ( 0 == ( val_s32 - commonInfo->OA_CAM_CTRL_MIN( control )) %
+          commonInfo->OA_CAM_CTRL_STEP( control ))) {
         return OA_ERR_NONE;
       }
       break;
 
     case OA_CTRL_TYPE_DISCRETE:
       val_s32 = valp->discrete;
-      if ( val_s32 >= commonInfo->min[ control ] &&
-          val_s32 <= commonInfo->max[ control ] &&
-          ( 0 == ( val_s32 - commonInfo->min[ control ] ) %
-          commonInfo->step[ control ] )) {
+      if ( val_s32 >= commonInfo->OA_CAM_CTRL_MIN( control ) &&
+          val_s32 <= commonInfo->OA_CAM_CTRL_MAX( control ) &&
+          ( 0 == ( val_s32 - commonInfo->OA_CAM_CTRL_MIN( control )) %
+          commonInfo->OA_CAM_CTRL_STEP( control ))) {
         return OA_ERR_NONE;
       }
       break;
 
     case OA_CTRL_TYPE_MENU:
       val_s32 = valp->menu;
-      if ( val_s32 >= commonInfo->min[ control ] &&
-          val_s32 <= commonInfo->max[ control ] &&
-          ( 0 == ( val_s32 - commonInfo->min[ control ] ) %
-          commonInfo->step[ control ] )) {
+      if ( val_s32 >= commonInfo->OA_CAM_CTRL_MIN( control ) &&
+          val_s32 <= commonInfo->OA_CAM_CTRL_MAX( control ) &&
+          ( 0 == ( val_s32 - commonInfo->OA_CAM_CTRL_MIN( control )) %
+          commonInfo->OA_CAM_CTRL_STEP( control ))) {
         return OA_ERR_NONE;
       }
       break;
@@ -171,10 +171,10 @@ oaV4L2CameraTestControl ( oaCamera* camera, int control, oaControlValue* valp )
 
     case OA_CTRL_TYPE_INT64:
       val_s64 = valp->int64;
-      if ( val_s64 >= commonInfo->min[ control ] &&
-          val_s64 <= commonInfo->max[ control ] &&
-          ( 0 == ( val_s64 - commonInfo->min[ control ] ) %
-          commonInfo->step[ control ] )) {
+      if ( val_s64 >= commonInfo->OA_CAM_CTRL_MIN( control ) &&
+          val_s64 <= commonInfo->OA_CAM_CTRL_MAX( control ) &&
+          ( 0 == ( val_s64 - commonInfo->OA_CAM_CTRL_MIN( control )) %
+          commonInfo->OA_CAM_CTRL_STEP( control ))) {
         return OA_ERR_NONE;
       }
       break;

@@ -2,7 +2,7 @@
  *
  * Mallincamconnect.c -- Initialise Mallincam cameras
  *
- * Copyright 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -90,7 +90,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
   }
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
-  OA_CLEAR ( camera->controls );
+  OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
   camera->_private = cameraInfo;
   camera->_common = commonInfo;
@@ -143,35 +143,36 @@ oaMallincamInitCamera ( oaCameraDevice* device )
   // Mallincam_put_LevelRange
   // Mallincam_put_TempTint
 
-  camera->controls[ OA_CAM_CTRL_CONTRAST ] = OA_CTRL_TYPE_INT32;
-  commonInfo->min[ OA_CAM_CTRL_CONTRAST ] = TOUPCAM_CONTRAST_MIN;
-  commonInfo->max[ OA_CAM_CTRL_CONTRAST ] = TOUPCAM_CONTRAST_MAX;
-  commonInfo->step[ OA_CAM_CTRL_CONTRAST ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_CONTRAST ] = TOUPCAM_CONTRAST_DEF;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_CONTRAST ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_CONTRAST ) = TOUPCAM_CONTRAST_MIN;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_CONTRAST ) = TOUPCAM_CONTRAST_MAX;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_CONTRAST ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_CONTRAST ) = TOUPCAM_CONTRAST_DEF;
 
-  camera->controls[ OA_CAM_CTRL_GAMMA ] = OA_CTRL_TYPE_INT32;
-  commonInfo->min[ OA_CAM_CTRL_GAMMA ] = TOUPCAM_GAMMA_MIN;
-  commonInfo->max[ OA_CAM_CTRL_GAMMA ] = TOUPCAM_GAMMA_MAX;
-  commonInfo->step[ OA_CAM_CTRL_GAMMA ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_GAMMA ] = TOUPCAM_GAMMA_DEF;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAMMA ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA ) = TOUPCAM_GAMMA_MIN;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA ) = TOUPCAM_GAMMA_MAX;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAMMA ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) = TOUPCAM_GAMMA_DEF;
 
-  camera->controls[ OA_CAM_CTRL_HFLIP ] = OA_CTRL_TYPE_BOOLEAN;
-  commonInfo->min[ OA_CAM_CTRL_HFLIP ] = 0;
-  commonInfo->max[ OA_CAM_CTRL_HFLIP ] = 1;
-  commonInfo->step[ OA_CAM_CTRL_HFLIP ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_HFLIP ] = 0;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HFLIP ) = OA_CTRL_TYPE_BOOLEAN;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HFLIP ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HFLIP ) = 1;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HFLIP ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HFLIP ) = 0;
 
-  camera->controls[ OA_CAM_CTRL_VFLIP ] = OA_CTRL_TYPE_BOOLEAN;
-  commonInfo->min[ OA_CAM_CTRL_VFLIP ] = 0;
-  commonInfo->max[ OA_CAM_CTRL_VFLIP ] = 1;
-  commonInfo->step[ OA_CAM_CTRL_VFLIP ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_VFLIP ] = 0;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_VFLIP ) = OA_CTRL_TYPE_BOOLEAN;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_VFLIP ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_VFLIP ) = 1;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_VFLIP ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_VFLIP ) = 0;
 
-  camera->controls[ OA_CAM_CTRL_AUTO_EXPOSURE ] = OA_CTRL_TYPE_BOOLEAN;
-  commonInfo->min[ OA_CAM_CTRL_AUTO_EXPOSURE ] = 0;
-  commonInfo->max[ OA_CAM_CTRL_AUTO_EXPOSURE ] = 1;
-  commonInfo->step[ OA_CAM_CTRL_AUTO_EXPOSURE ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_AUTO_EXPOSURE ] = 0;
+  camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+      OA_CTRL_TYPE_BOOLEAN;
+  commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 0;
+  commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+  commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+  commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 0;
 
   if (( *p_Mallincam_get_ExpTimeRange )( handle, &min, &max, &def ) < 0 ) {
     ( *p_Mallincam_Close )( handle );
@@ -181,11 +182,12 @@ oaMallincamInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  camera->controls[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = OA_CTRL_TYPE_INT32;
-  commonInfo->min[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = min;
-  commonInfo->max[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = max;
-  commonInfo->step[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = def;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+    OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = min;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = max;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = def;
   // make these easy to find in the controller loop
   cameraInfo->exposureMin = min;
   cameraInfo->exposureMax = max;
@@ -199,97 +201,97 @@ oaMallincamInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  camera->controls[ OA_CAM_CTRL_GAIN ] = OA_CTRL_TYPE_INT32;
-  commonInfo->min[ OA_CAM_CTRL_GAIN ] = smin;
-  commonInfo->max[ OA_CAM_CTRL_GAIN ] = smax;
-  commonInfo->step[ OA_CAM_CTRL_GAIN ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_GAIN ] = sdef;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = smin;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = smax;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = sdef;
   // make these easy to find in the controller loop
   cameraInfo->gainMin = smin;
   cameraInfo->gainMax = smax;
 
   // make this easy to find in the controller loop
   cameraInfo->speedMax = devList[ devInfo->devIndex ].model->maxspeed;
-  camera->controls[ OA_CAM_CTRL_SPEED ] = OA_CTRL_TYPE_INT32;
-  commonInfo->min[ OA_CAM_CTRL_SPEED ] = 0;
-  commonInfo->max[ OA_CAM_CTRL_SPEED ] = cameraInfo->speedMax;
-  commonInfo->step[ OA_CAM_CTRL_SPEED ] = 1;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SPEED ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SPEED ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SPEED ) = cameraInfo->speedMax;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SPEED ) = 1;
   // this is a wild guess
-  commonInfo->def[ OA_CAM_CTRL_SPEED ] = cameraInfo->speedMax;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SPEED ) = cameraInfo->speedMax;
 
   if ( devList[ devInfo->devIndex ].model->flag &
       TOUPCAM_FLAG_PUTTEMPERATURE ) {
     fprintf ( stderr, "Mallincam supports setting temperature, but we "
         "don't know how to get the range\n" );
     /*
-    camera->controls[ OA_CAM_CTRL_TEMP_SETPOINT ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_TEMP_SETPOINT ] = min;
-    commonInfo->max[ OA_CAM_CTRL_TEMP_SETPOINT ] = max;
-    commonInfo->step[ OA_CAM_CTRL_TEMP_SETPOINT ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_TEMP_SETPOINT ] = def;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMP_SETPOINT ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TEMP_SETPOINT ) = min;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TEMP_SETPOINT ) = max;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TEMP_SETPOINT ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) = def;
      */
   }
 
   if ( devList[ devInfo->devIndex ].model->flag &
       TOUPCAM_FLAG_GETTEMPERATURE ) {
-    camera->controls[ OA_CAM_CTRL_TEMPERATURE ] = OA_CTRL_TYPE_READONLY;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
   }
 
   if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_COOLERONOFF ) {
-    camera->controls[ OA_CAM_CTRL_COOLER ] = OA_CTRL_TYPE_BOOLEAN;
-    commonInfo->min[ OA_CAM_CTRL_COOLER ] = 0;
-    commonInfo->max[ OA_CAM_CTRL_COOLER ] = 1;
-    commonInfo->step[ OA_CAM_CTRL_COOLER ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_COOLER ] = 0;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COOLER ) = OA_CTRL_TYPE_BOOLEAN;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_COOLER ) = 0;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_COOLER ) = 1;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_COOLER ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER ) = 0;
   }
 
   if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_FAN ) {
-    camera->controls[ OA_CAM_CTRL_FAN ] = OA_CTRL_TYPE_BOOLEAN;
-    commonInfo->min[ OA_CAM_CTRL_FAN ] = 0;
-    commonInfo->max[ OA_CAM_CTRL_FAN ] = 1;
-    commonInfo->step[ OA_CAM_CTRL_FAN ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_FAN ] = 0;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FAN ) = OA_CTRL_TYPE_BOOLEAN;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_FAN ) = 0;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_FAN ) = 1;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_FAN ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FAN ) = 0;
   }
 
   if ( cameraInfo->colour ) {
-    camera->controls[ OA_CAM_CTRL_HUE ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_HUE ] = TOUPCAM_HUE_MIN;
-    commonInfo->max[ OA_CAM_CTRL_HUE ] = TOUPCAM_HUE_MAX;
-    commonInfo->step[ OA_CAM_CTRL_HUE ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_HUE ] = TOUPCAM_HUE_DEF;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HUE ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HUE ) = TOUPCAM_HUE_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HUE ) = TOUPCAM_HUE_MAX;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HUE ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HUE ) = TOUPCAM_HUE_DEF;
 
-    camera->controls[ OA_CAM_CTRL_SATURATION ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_SATURATION ] = TOUPCAM_SATURATION_MIN;
-    commonInfo->max[ OA_CAM_CTRL_SATURATION ] = TOUPCAM_SATURATION_MAX;
-    commonInfo->step[ OA_CAM_CTRL_SATURATION ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_SATURATION ] = TOUPCAM_SATURATION_DEF;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SATURATION ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SATURATION ) = TOUPCAM_SATURATION_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SATURATION ) = TOUPCAM_SATURATION_MAX;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SATURATION ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SATURATION ) = TOUPCAM_SATURATION_DEF;
 
-    camera->controls[ OA_CAM_CTRL_RED_BALANCE ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_RED_BALANCE ] = TOUPCAM_WBGAIN_MIN;
-    commonInfo->max[ OA_CAM_CTRL_RED_BALANCE ] = TOUPCAM_WBGAIN_MAX;
-    commonInfo->step[ OA_CAM_CTRL_RED_BALANCE ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_RED_BALANCE ] = TOUPCAM_WBGAIN_DEF;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RED_BALANCE ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) = TOUPCAM_WBGAIN_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE ) = TOUPCAM_WBGAIN_MAX;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RED_BALANCE ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) = TOUPCAM_WBGAIN_DEF;
 
-    camera->controls[ OA_CAM_CTRL_GREEN_BALANCE ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_GREEN_BALANCE ] = TOUPCAM_WBGAIN_MIN;
-    commonInfo->max[ OA_CAM_CTRL_GREEN_BALANCE ] = TOUPCAM_WBGAIN_MAX;
-    commonInfo->step[ OA_CAM_CTRL_GREEN_BALANCE ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_GREEN_BALANCE ] = TOUPCAM_WBGAIN_DEF;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GREEN_BALANCE ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GREEN_BALANCE ) = TOUPCAM_WBGAIN_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GREEN_BALANCE ) = TOUPCAM_WBGAIN_MAX;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GREEN_BALANCE ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GREEN_BALANCE ) = TOUPCAM_WBGAIN_DEF;
 
-    camera->controls[ OA_CAM_CTRL_BLUE_BALANCE ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_BLUE_BALANCE ] = TOUPCAM_WBGAIN_MIN;
-    commonInfo->max[ OA_CAM_CTRL_BLUE_BALANCE ] = TOUPCAM_WBGAIN_MAX;
-    commonInfo->step[ OA_CAM_CTRL_BLUE_BALANCE ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_BLUE_BALANCE ] = TOUPCAM_WBGAIN_DEF;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) = TOUPCAM_WBGAIN_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) = TOUPCAM_WBGAIN_MAX;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLUE_BALANCE ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) = TOUPCAM_WBGAIN_DEF;
 
     // I don't see why this should be colour only, but it does appear to be
-    camera->controls[ OA_CAM_CTRL_BRIGHTNESS ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_BRIGHTNESS ] = TOUPCAM_BRIGHTNESS_MIN;
-    commonInfo->max[ OA_CAM_CTRL_BRIGHTNESS ] = TOUPCAM_BRIGHTNESS_MAX;
-    commonInfo->step[ OA_CAM_CTRL_BRIGHTNESS ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_BRIGHTNESS ] = TOUPCAM_BRIGHTNESS_DEF;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BRIGHTNESS ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BRIGHTNESS ) = TOUPCAM_BRIGHTNESS_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BRIGHTNESS ) = TOUPCAM_BRIGHTNESS_MAX;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BRIGHTNESS ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) = TOUPCAM_BRIGHTNESS_DEF;
 
-    camera->controls[ OA_CAM_CTRL_COLOUR_MODE ] = OA_CTRL_TYPE_DISCRETE;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COLOUR_MODE ) = OA_CTRL_TYPE_DISCRETE;
 
     // force the camera out of raw mode
     if ((( *p_Mallincam_put_Option )( handle, TOUPCAM_OPTION_RAW, 0 ))) {
@@ -370,7 +372,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
       cameraInfo->bytesPerPixel = 2;
       cameraInfo->videoGrey16 = 1;
     }
-    camera->controls[ OA_CAM_CTRL_BIT_DEPTH ] = OA_CTRL_TYPE_DISCRETE;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) = OA_CTRL_TYPE_DISCRETE;
   }
 
   if ( cameraInfo->colour ) {
@@ -484,7 +486,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
   cameraInfo->binMode = 1;
 
   if ( numResolutions > 1 ) {
-    camera->controls[ OA_CAM_CTRL_BINNING ] = OA_CTRL_TYPE_DISCRETE;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;
   }
 
   // The largest buffer size we should need

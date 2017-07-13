@@ -2,7 +2,7 @@
  *
  * UVCcontroller.c -- Main camera controller thread
  *
- * Copyright 2015, 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -197,10 +197,10 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       case OA_CAM_CTRL_HUE:
       case OA_CAM_CTRL_GAMMA:
       case OA_CAM_CTRL_GAIN:
-      case OA_CAM_CTRL_HUE_AUTO:
+      case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ):
       case OA_CAM_CTRL_WHITE_BALANCE_TEMP:
       case OA_CAM_CTRL_SHARPNESS:
-      case OA_CAM_CTRL_AUTO_WHITE_BALANCE:
+      case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ):
       case OA_CAM_CTRL_AUTO_WHITE_BALANCE_TEMP:
         return _doSetUVCControl ( cameraInfo->uvcHandle, cameraInfo->unitId,
             uvcControl, len, val_s32 );
@@ -230,7 +230,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       cameraInfo->currentAbsoluteExposure = val_s32;
       break;
 
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
     {
       uint8_t data = 0;
 
@@ -349,8 +349,8 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
         valp->int32 = getUVCControl ( cameraInfo->uvcHandle,
             cameraInfo->unitId, uvcControl, len, UVC_GET_CUR );
         break;
-      case OA_CAM_CTRL_HUE_AUTO:
-      case OA_CAM_CTRL_AUTO_WHITE_BALANCE:
+      case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ):
+      case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ):
       case OA_CAM_CTRL_AUTO_WHITE_BALANCE_TEMP:
         valp->valueType = OA_CTRL_TYPE_BOOLEAN;
         valp->boolean = getUVCControl ( cameraInfo->uvcHandle,
@@ -386,7 +386,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       valp->int64 = data64;
       break;
     }
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
     {
       uint8_t data;
 

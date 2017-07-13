@@ -2,7 +2,7 @@
  *
  * UVCconnect.c -- Initialise UVC cameras
  *
- * Copyright 2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -103,7 +103,7 @@ struct puCtrl controlData[] = {
     .size		= 1
   }, {
     .uvcControl		= UVC_PU_HUE_AUTO_CONTROL,
-    .oaControl		= OA_CAM_CTRL_HUE_AUTO,
+    .oaControl		= OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ),
     .oaControlType	= OA_CTRL_TYPE_BOOLEAN,
     .size		= 1
   }, {
@@ -113,7 +113,7 @@ struct puCtrl controlData[] = {
     .size		= 1
   }, {
     .uvcControl		= UVC_PU_WHITE_BALANCE_COMPONENT_AUTO_CONTROL,
-    .oaControl		= OA_CAM_CTRL_AUTO_WHITE_BALANCE,
+    .oaControl		= OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ),
     .oaControlType	= OA_CTRL_TYPE_BOOLEAN,
     .size		= 1
   }, {
@@ -138,7 +138,7 @@ struct puCtrl controlData[] = {
     .size		= 1
   }, {
     .uvcControl		= UVC_PU_CONTRAST_AUTO_CONTROL,
-    .oaControl		= OA_CAM_CTRL_AUTO_CONTRAST,
+    .oaControl		= OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTRAST ),
     .oaControlType	= OA_CTRL_TYPE_BOOLEAN,
     .size		= 1
   }
@@ -201,7 +201,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
   }
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
-  OA_CLEAR ( camera->controls );
+  OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
   camera->_private = cameraInfo;
   camera->_common = commonInfo;
@@ -348,17 +348,18 @@ oaUVCInitCamera ( oaCameraDevice* device )
         {
           uint8_t uvcdef, def;
 
-          // FIX ME
           // UVC auto exposure mode is messy -- a bitfield of:
           // 1 = manual, 2 = auto, 4 = shutter priority, 8 = aperture priority
           // fortunately the exponents of the bit values correspond to the
           // menu values we're using
-          camera->controls[ OA_CAM_CTRL_AUTO_EXPOSURE ] =
+          camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               OA_CTRL_TYPE_MENU;
-          commonInfo->min[ OA_CAM_CTRL_AUTO_EXPOSURE ] = OA_EXPOSURE_AUTO;
-          commonInfo->max[ OA_CAM_CTRL_AUTO_EXPOSURE ] =
+          commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+              OA_EXPOSURE_AUTO;
+          commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               OA_EXPOSURE_APERTURE_PRIORITY;
-          commonInfo->step[ OA_CAM_CTRL_AUTO_EXPOSURE ] = 1;
+          commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+              1;
           if ( uvc_get_ae_mode ( uvcHandle, &uvcdef, UVC_GET_DEF ) !=
               UVC_SUCCESS ) {
             fprintf ( stderr, "failed to get default for autoexp setting\n" );
@@ -380,41 +381,45 @@ oaUVCInitCamera ( oaCameraDevice* device )
                def = OA_EXPOSURE_MANUAL; // FIX ME -- why?
                break;
           }
-          commonInfo->def[ OA_CAM_CTRL_AUTO_EXPOSURE ] = def;
+          commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+              def;
           break;
         }
         case UVC_CT_EXPOSURE_TIME_ABSOLUTE_CONTROL:
         {
           uint32_t val_u32;
-          camera->controls[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               OA_CTRL_TYPE_INT64;
           if ( uvc_get_exposure_abs ( uvcHandle, &val_u32, UVC_GET_MIN ) !=
               UVC_SUCCESS ) {
             fprintf ( stderr, "failed to get min value for AE setting\n" );
           }
-          commonInfo->min[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = val_u32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = val_u32;
           if ( uvc_get_exposure_abs ( uvcHandle, &val_u32, UVC_GET_MAX ) !=
               UVC_SUCCESS ) {
             fprintf ( stderr, "failed to get max value for AE setting\n" );
           }
-          commonInfo->max[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = val_u32;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+              val_u32;
           if ( uvc_get_exposure_abs ( uvcHandle, &val_u32, UVC_GET_RES ) !=
               UVC_SUCCESS ) {
             fprintf ( stderr, "failed to get resolution for AE setting\n" );
           }
-          commonInfo->step[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = val_u32;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+              val_u32;
           if ( uvc_get_exposure_abs ( uvcHandle, &val_u32, UVC_GET_DEF ) !=
               UVC_SUCCESS ) {
             fprintf ( stderr, "failed to get default for AE setting\n" );
           }
-          commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = val_u32;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+              val_u32;
 
           // now convert the values from 100usec to usec.
 
-          commonInfo->min[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] *= 100;
-          commonInfo->max[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] *= 100;
-          commonInfo->step[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] *= 100;
-          commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] *= 100;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) *= 100;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) *= 100;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) *= 100;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) *= 100;
 
           break;
         }
@@ -660,7 +665,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
   }
 
   if ( cameraInfo->videoGrey && cameraInfo->videoGrey16 ) {
-    camera->controls[ OA_CAM_CTRL_BIT_DEPTH ] = OA_CTRL_TYPE_DISCRETE;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) = OA_CTRL_TYPE_DISCRETE;
   }
 
   cameraInfo->frameSizes[1].numSizes = 0;
@@ -846,72 +851,73 @@ _getUVCControlValues ( oaCamera* camera, uvc_device_handle_t* uvcHandle,
         UVC_PU_WHITE_BALANCE_COMPONENT_CONTROL, len, UVC_GET_MIN )) < 0 ) {
       return;
     }
-    commonInfo->min[ OA_CAM_CTRL_BLUE_BALANCE ] = val & 0xffff;
-    commonInfo->min[ OA_CAM_CTRL_RED_BALANCE ] = val >> 16;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) = val & 0xffff;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) = val >> 16;
 
     if (( val = getUVCControl ( uvcHandle, unitId,
         UVC_PU_WHITE_BALANCE_COMPONENT_CONTROL, len, UVC_GET_MAX )) < 0 ) {
       return;
     }
-    commonInfo->max[ OA_CAM_CTRL_BLUE_BALANCE ] = val & 0xffff;
-    commonInfo->max[ OA_CAM_CTRL_RED_BALANCE ] = val >> 16;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) = val & 0xffff;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE ) = val >> 16;
 
     if (( val = getUVCControl ( uvcHandle, unitId,
         UVC_PU_WHITE_BALANCE_COMPONENT_CONTROL, len, UVC_GET_RES )) < 0 ) {
       return;
     }
-    commonInfo->step[ OA_CAM_CTRL_BLUE_BALANCE ] = val & 0xffff;
-    commonInfo->step[ OA_CAM_CTRL_RED_BALANCE ] = val >> 16;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLUE_BALANCE ) = val & 0xffff;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RED_BALANCE ) = val >> 16;
 
     if (( val = getUVCControl ( uvcHandle, unitId,
         UVC_PU_WHITE_BALANCE_COMPONENT_CONTROL, len, UVC_GET_DEF )) < 0 ) {
       return;
     }
-    commonInfo->def[ OA_CAM_CTRL_BLUE_BALANCE ] = val & 0xffff;
-    commonInfo->def[ OA_CAM_CTRL_RED_BALANCE ] = val >> 16;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) = val & 0xffff;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) = val >> 16;
 
-    camera->controls[ OA_CAM_CTRL_BLUE_BALANCE ] = OA_CTRL_TYPE_INT32;
-    camera->controls[ OA_CAM_CTRL_RED_BALANCE ] = OA_CTRL_TYPE_INT32;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) = OA_CTRL_TYPE_INT32;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RED_BALANCE ) = OA_CTRL_TYPE_INT32;
 
   } else {
 
     int val;
 
-    camera->controls[ oaControl ] = controlData[ index ].oaControlType;
+    camera->OA_CAM_CTRL_TYPE( oaControl ) = controlData[ index ].oaControlType;
 
-    switch ( camera->controls[ oaControl ] ) {
+    switch ( camera->OA_CAM_CTRL_TYPE( oaControl )) {
       case OA_CTRL_TYPE_INT32:
       case OA_CTRL_TYPE_MENU:
         if (( val = getUVCControl ( uvcHandle, unitId, uvcControl, len,
             UVC_GET_MIN )) < 0 ) {
           return;
         }
-        commonInfo->min[ oaControl ] = val;
+        commonInfo->OA_CAM_CTRL_MIN( oaControl ) = val;
         if (( val = getUVCControl ( uvcHandle, unitId, uvcControl, len,
             UVC_GET_MAX )) < 0 ) {
           return;
         }
-        commonInfo->max[ oaControl ] = val;
+        commonInfo->OA_CAM_CTRL_MAX( oaControl ) = val;
         if (( val = getUVCControl ( uvcHandle, unitId, uvcControl, len,
             UVC_GET_RES )) < 0 ) {
           return;
         }
-        commonInfo->step[ oaControl ] = val;
-        if (( commonInfo->def[ oaControl ] = getUVCControl ( uvcHandle, unitId,
+        commonInfo->OA_CAM_CTRL_STEP( oaControl ) = val;
+        if (( commonInfo->OA_CAM_CTRL_DEF( oaControl ) =
+            getUVCControl ( uvcHandle, unitId,
             uvcControl, len, UVC_GET_DEF )) < 0 ) {
           return;
         }
         break;
 
       case OA_CTRL_TYPE_BOOLEAN:
-        commonInfo->min[ oaControl ] = 0;
-        commonInfo->max[ oaControl ] = 1;
-        commonInfo->step[ oaControl ] = 1;
+        commonInfo->OA_CAM_CTRL_MIN( oaControl ) = 0;
+        commonInfo->OA_CAM_CTRL_MAX( oaControl ) = 1;
+        commonInfo->OA_CAM_CTRL_STEP( oaControl ) = 1;
         if (( val = getUVCControl ( uvcHandle, unitId, uvcControl, len,
             UVC_GET_DEF )) < 0 ) {
           return;
         }
-        commonInfo->def[ oaControl ] = val;
+        commonInfo->OA_CAM_CTRL_DEF( oaControl ) = val;
         break;
 
       case OA_CTRL_TYPE_READONLY:
@@ -919,7 +925,7 @@ _getUVCControlValues ( oaCamera* camera, uvc_device_handle_t* uvcHandle,
 
       default:
         fprintf ( stderr, "unhandled control type %d in %s\n",
-            camera->controls[ oaControl ], __FUNCTION__ );
+            camera->OA_CAM_CTRL_TYPE( oaControl ), __FUNCTION__ );
         break;
     }
   }

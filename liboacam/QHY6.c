@@ -2,7 +2,7 @@
  *
  * QHY6.c -- QHY6 camera interface
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -54,34 +54,34 @@ _QHY6InitCamera ( oaCamera* camera )
   QHY_STATE*	cameraInfo = camera->_private;
   COMMON_INFO*	commonInfo = camera->_common;
 
-  OA_CLEAR ( camera->controls );
+  OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
   _QHY6InitFunctionPointers ( camera );
 
-  camera->controls[ OA_CAM_CTRL_GAIN ] = OA_CTRL_TYPE_INT32;
-  commonInfo->min[ OA_CAM_CTRL_GAIN ] = 0;
-  commonInfo->max[ OA_CAM_CTRL_GAIN ] = 63;
-  commonInfo->step[ OA_CAM_CTRL_GAIN ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_GAIN ] = QHY6_DEFAULT_GAIN;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = 63;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = QHY6_DEFAULT_GAIN;
 
-  camera->controls[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = OA_CTRL_TYPE_INT64;
-  commonInfo->min[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 0;
-  commonInfo->max[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 0xffffffff;
-  commonInfo->step[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = OA_CTRL_TYPE_INT64;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 0xffffffff;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
       QHY6_DEFAULT_EXPOSURE * 1000;
 
-  camera->controls[ OA_CAM_CTRL_HIGHSPEED ] = OA_CTRL_TYPE_BOOLEAN;
-  commonInfo->min[ OA_CAM_CTRL_HIGHSPEED ] = 0;
-  commonInfo->max[ OA_CAM_CTRL_HIGHSPEED ] = 1;
-  commonInfo->step[ OA_CAM_CTRL_HIGHSPEED ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_HIGHSPEED ] = QHY6_DEFAULT_SPEED;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HIGHSPEED ) = OA_CTRL_TYPE_BOOLEAN;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HIGHSPEED ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HIGHSPEED ) = 1;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HIGHSPEED ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HIGHSPEED ) = QHY6_DEFAULT_SPEED;
   cameraInfo->currentHighSpeed = QHY6_DEFAULT_SPEED;
 
-  camera->controls[ OA_CAM_CTRL_BINNING ] = OA_CTRL_TYPE_DISCRETE;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;
 
-  camera->controls[ OA_CAM_CTRL_DROPPED ] = OA_CTRL_TYPE_READONLY;
-  camera->controls[ OA_CAM_CTRL_DROPPED_RESET ] = OA_CTRL_TYPE_BUTTON;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED ) = OA_CTRL_TYPE_READONLY;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED_RESET ) = OA_CTRL_TYPE_BUTTON;
 
   cameraInfo->maxResolutionX = QHY6_SENSOR_WIDTH;
   cameraInfo->maxResolutionY = QHY6_SENSOR_HEIGHT;
@@ -126,7 +126,7 @@ _QHY6InitCamera ( oaCamera* camera )
 
   cameraInfo->topOffset = cameraInfo->bottomOffset = 0;
 
-  cameraInfo->currentGain = commonInfo->def[ OA_CAM_CTRL_GAIN ];
+  cameraInfo->currentGain = commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN );
   cameraInfo->currentExposure = QHY6_DEFAULT_EXPOSURE;
   cameraInfo->correctedExposureTime = QHY6_DEFAULT_EXPOSURE -
       QHY6_DEFAULT_EXPOSURE / 10;
@@ -229,30 +229,30 @@ oaQHY6CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 {
   COMMON_INFO*	commonInfo = camera->_common;
 
-  if ( !camera->controls [ control ] ) {
+  if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;
   }
 
-  if ( camera->controls [ control ] != val->valueType ) {
+  if ( camera->OA_CAM_CTRL_TYPE( control ) != val->valueType ) {
     return -OA_ERR_INVALID_CONTROL_TYPE;
   }
 
   switch ( control ) {
 
     case OA_CAM_CTRL_GAIN:
-      if ( val->int32 >= commonInfo->min[ control ] &&
-          val->int32 <= commonInfo->max[ control ] &&
-          ( 0 == ( val->int32 - commonInfo->min[ control ]) %
-          commonInfo->step[ control ])) {
+      if ( val->int32 >= commonInfo->OA_CAM_CTRL_MIN( control ) &&
+          val->int32 <= commonInfo->OA_CAM_CTRL_MAX( control ) &&
+          ( 0 == ( val->int32 - commonInfo->OA_CAM_CTRL_MIN( control )) %
+          commonInfo->OA_CAM_CTRL_STEP( control ))) {
         return OA_ERR_NONE;
       }
       break;
 
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
-      if ( val->int64 >= commonInfo->min[ control ] &&
-          val->int64 <= commonInfo->max[ control ] &&
-          ( 0 == ( val->int64 - commonInfo->min[ control ]) %
-          commonInfo->step[ control ])) {
+      if ( val->int64 >= commonInfo->OA_CAM_CTRL_MIN( control ) &&
+          val->int64 <= commonInfo->OA_CAM_CTRL_MAX( control ) &&
+          ( 0 == ( val->int64 - commonInfo->OA_CAM_CTRL_MIN( control )) %
+          commonInfo->OA_CAM_CTRL_STEP( control ))) {
         return OA_ERR_NONE;
       }
       break;

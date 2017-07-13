@@ -223,7 +223,7 @@ oaZWASICameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
       }
       break;
 
-    case OA_CAM_CTRL_AUTO_MAX_EXPOSURE:
+    case OA_CAM_CTRL_MAX_AUTO_EXPOSURE:
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
             __FUNCTION__, val->valueType );
@@ -231,7 +231,15 @@ oaZWASICameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
       }
       break;
 
-    case OA_CAM_CTRL_AUTO_GAIN:
+    case OA_CAM_CTRL_MAX_AUTO_GAIN:
+      if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
+        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+            __FUNCTION__, val->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      break;
+
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
             __FUNCTION__, val->valueType );
@@ -239,7 +247,7 @@ oaZWASICameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
       }
       break;
 
-    case OA_CAM_CTRL_AUTO_GAMMA:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA ):
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
             __FUNCTION__, val->valueType );
@@ -247,7 +255,7 @@ oaZWASICameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
       }
       break;
 
-    case OA_CAM_CTRL_AUTO_BRIGHTNESS:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS ):
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
             __FUNCTION__, val->valueType );
@@ -255,7 +263,7 @@ oaZWASICameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
       }
       break;
 
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
     {
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
@@ -265,7 +273,7 @@ oaZWASICameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
       break;
     }
 
-    case OA_CAM_CTRL_AUTO_RED_BALANCE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_RED_BALANCE ):
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
             __FUNCTION__, val->valueType );
@@ -273,7 +281,7 @@ oaZWASICameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
       }
       break;
 
-    case OA_CAM_CTRL_AUTO_BLUE_BALANCE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLUE_BALANCE ):
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
             __FUNCTION__, val->valueType );
@@ -281,7 +289,7 @@ oaZWASICameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
       }
       break;
 
-    case OA_CAM_CTRL_AUTO_USBTRAFFIC:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_USBTRAFFIC ):
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
             __FUNCTION__, val->valueType );
@@ -289,7 +297,7 @@ oaZWASICameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
       }
       break;
 
-    case OA_CAM_CTRL_AUTO_OVERCLOCK:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_OVERCLOCK ):
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
             __FUNCTION__, val->valueType );
@@ -420,42 +428,41 @@ oaZWASICameraReadControl ( oaCamera* camera, int control,
       break;
     }
 
-    case OA_CAM_CTRL_AUTO_GAIN:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
       val->boolean = cameraInfo->autoGain;
       break;
 
-    case OA_CAM_CTRL_AUTO_GAMMA:
-      val->valueType = OA_CTRL_TYPE_BOOLEAN;
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA ):
       val->boolean = cameraInfo->autoGamma;
       break;
 
-    case OA_CAM_CTRL_AUTO_BRIGHTNESS:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS ):
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
       val->boolean = cameraInfo->autoBrightness;
       break;
 
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
       val->boolean = cameraInfo->autoExposure;
       break;
 
-    case OA_CAM_CTRL_AUTO_RED_BALANCE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_RED_BALANCE ):
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
       val->boolean = cameraInfo->autoRedBalance;
       break;
 
-    case OA_CAM_CTRL_AUTO_BLUE_BALANCE:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLUE_BALANCE ):
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
       val->boolean = cameraInfo->autoBlueBalance;
       break;
 
-    case OA_CAM_CTRL_AUTO_USBTRAFFIC:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_USBTRAFFIC ):
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
       val->boolean = cameraInfo->autoUSBTraffic;
       break;
 
-    case OA_CAM_CTRL_AUTO_OVERCLOCK:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_OVERCLOCK ):
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
       val->boolean = cameraInfo->autoOverclock;
       break;
@@ -484,11 +491,11 @@ oaZWASICameraTestControl ( oaCamera* camera, int control,
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "%s: ( %d, ? )\n", __FUNCTION__, control );
 
-  if ( !camera->controls [ control ] ) {
+  if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;
   }
 
-  if ( camera->controls [ control ] != val->valueType ) {
+  if ( camera->OA_CAM_CTRL_TYPE( control ) != val->valueType ) {
     return -OA_ERR_INVALID_CONTROL_TYPE;
   }
 
@@ -502,10 +509,10 @@ oaZWASICameraTestControl ( oaCamera* camera, int control,
     case OA_CAM_CTRL_USBTRAFFIC:
     case OA_CAM_CTRL_OVERCLOCK:
       val_s32 = val->int32;
-      if ( val_s32 >= commonInfo->min[ control ] &&
-          val_s32 <= commonInfo->max[ control ] &&
-          ( 0 == ( val_s32 - commonInfo->min[ control ]) %
-          commonInfo->step[ control ])) {
+      if ( val_s32 >= commonInfo->OA_CAM_CTRL_MIN( control ) &&
+          val_s32 <= commonInfo->OA_CAM_CTRL_MAX( control ) &&
+          ( 0 == ( val_s32 - commonInfo->OA_CAM_CTRL_MIN( control )) %
+          commonInfo->OA_CAM_CTRL_STEP( control ))) {
         return OA_ERR_NONE;
       }
       break;
@@ -521,7 +528,7 @@ oaZWASICameraTestControl ( oaCamera* camera, int control,
       val_s32 = val->discrete;
       // This may be a bit of an ugly assumption, but I think it
       // should hold for the time being
-      if ( camera->controls[ OA_CAM_CTRL_BIT_DEPTH ] ) {
+      if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH )) {
         if ( 16 == val_s32 || 12 == val_s32 || 8 == val_s32 ) {
           return OA_ERR_NONE;
         }
@@ -544,14 +551,14 @@ oaZWASICameraTestControl ( oaCamera* camera, int control,
     case OA_CAM_CTRL_HIGHSPEED:
     case OA_CAM_CTRL_HFLIP:
     case OA_CAM_CTRL_VFLIP:
-    case OA_CAM_CTRL_AUTO_GAIN:
-    case OA_CAM_CTRL_AUTO_GAMMA:
-    case OA_CAM_CTRL_AUTO_BRIGHTNESS:
-    case OA_CAM_CTRL_AUTO_EXPOSURE:
-    case OA_CAM_CTRL_AUTO_RED_BALANCE:
-    case OA_CAM_CTRL_AUTO_BLUE_BALANCE:
-    case OA_CAM_CTRL_AUTO_USBTRAFFIC:
-    case OA_CAM_CTRL_AUTO_OVERCLOCK:
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_RED_BALANCE ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLUE_BALANCE ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_USBTRAFFIC ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_OVERCLOCK ):
       return OA_ERR_NONE;
       break;
 

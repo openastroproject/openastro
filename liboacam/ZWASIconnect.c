@@ -2,7 +2,7 @@
  *
  * ZWASIconnect.c -- Initialise ZW ASI cameras
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -93,7 +93,7 @@ oaZWASIInitCamera ( oaCameraDevice* device )
   cameraInfo->index = devInfo->devIndex;
   cameraInfo->cameraType = devInfo->devType;
 
-  OA_CLEAR ( camera->controls );
+  OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
   _oaInitCameraFunctionPointers ( camera );
   _ZWASIInitFunctionPointers ( camera );
@@ -112,278 +112,292 @@ oaZWASIInitCamera ( oaCameraDevice* device )
   // bool here comes from the ASI header file
   if ( isAvailable ( CONTROL_GAIN )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_GAIN ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_GAIN ] = getMin ( CONTROL_GAIN );
-    commonInfo->max[ OA_CAM_CTRL_GAIN ] = getMax ( CONTROL_GAIN );
-    commonInfo->step[ OA_CAM_CTRL_GAIN ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_GAIN ] = getValue ( CONTROL_GAIN,
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = getMin ( CONTROL_GAIN );
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = getMax ( CONTROL_GAIN );
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = getValue ( CONTROL_GAIN,
         &autoEnabled );
-    if ( commonInfo->def[ OA_CAM_CTRL_GAIN ] <
-        commonInfo->min[ OA_CAM_CTRL_GAIN ] ) {
-      commonInfo->def[ OA_CAM_CTRL_GAIN ] =
-          commonInfo->min[ OA_CAM_CTRL_GAIN ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) =
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN );
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_GAIN ] >
-        commonInfo->max[ OA_CAM_CTRL_GAIN ] ) {
-      commonInfo->def[ OA_CAM_CTRL_GAIN ] =
-          commonInfo->max[ OA_CAM_CTRL_GAIN ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN );
     }
-    cameraInfo->currentGain = commonInfo->def[ OA_CAM_CTRL_GAIN ];
+    cameraInfo->currentGain = commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN );
     if ( isAutoSupported ( CONTROL_GAIN )) {
-      camera->controls[ OA_CAM_CTRL_AUTO_GAIN ] = OA_CTRL_TYPE_BOOLEAN;
-      commonInfo->min[ OA_CAM_CTRL_AUTO_GAIN ] = 0;
-      commonInfo->max[ OA_CAM_CTRL_AUTO_GAIN ] = 1;
-      commonInfo->step[ OA_CAM_CTRL_AUTO_GAIN ] = 1;
-      commonInfo->def[ OA_CAM_CTRL_AUTO_GAIN ] = cameraInfo->autoGain =
-          autoEnabled;
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_BOOLEAN;
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_GAIN ) = 0;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_GAIN ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_GAIN ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_GAIN ) =
+          cameraInfo->autoGain = autoEnabled;
     }
   }
 
   if ( isAvailable ( CONTROL_EXPOSURE )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+        OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
         getMin ( CONTROL_EXPOSURE );
-    commonInfo->max[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
         getMax ( CONTROL_EXPOSURE );
-    commonInfo->step[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
         getValue ( CONTROL_EXPOSURE, &autoEnabled );
-    if ( commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] <
-        commonInfo->min[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] ) {
-      commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
-          commonInfo->min[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] >
-        commonInfo->max[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] ) {
-      commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ] =
-          commonInfo->max[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
     }
     cameraInfo->currentAbsoluteExposure =
-        commonInfo->def[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ];
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
     if ( isAutoSupported ( CONTROL_EXPOSURE )) {
-      camera->controls[ OA_CAM_CTRL_AUTO_EXPOSURE ] = OA_CTRL_TYPE_BOOLEAN;
-      commonInfo->min[ OA_CAM_CTRL_AUTO_EXPOSURE ] = 0;
-      commonInfo->max[ OA_CAM_CTRL_AUTO_EXPOSURE ] = 1;
-      commonInfo->step[ OA_CAM_CTRL_AUTO_EXPOSURE ] = 1;
-      commonInfo->def[ OA_CAM_CTRL_AUTO_EXPOSURE ] = cameraInfo->autoExposure =
-          autoEnabled;
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+          OA_CTRL_TYPE_BOOLEAN;
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 0;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+          cameraInfo->autoExposure = autoEnabled;
     }
   }
 
   if ( isAvailable ( CONTROL_GAMMA )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_GAMMA ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_GAMMA ] = getMin ( CONTROL_GAMMA );
-    commonInfo->max[ OA_CAM_CTRL_GAMMA ] = getMax ( CONTROL_GAMMA );
-    commonInfo->step[ OA_CAM_CTRL_GAMMA ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_GAMMA ] = getValue ( CONTROL_GAMMA,
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAMMA ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA ) = getMin ( CONTROL_GAMMA );
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA ) = getMax ( CONTROL_GAMMA );
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAMMA ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) = getValue ( CONTROL_GAMMA,
         &autoEnabled );
-    if ( commonInfo->def[ OA_CAM_CTRL_GAMMA ] <
-        commonInfo->min[ OA_CAM_CTRL_GAMMA ] ) {
-      commonInfo->def[ OA_CAM_CTRL_GAMMA ] =
-          commonInfo->min[ OA_CAM_CTRL_GAMMA ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) =
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA );
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_GAMMA ] >
-        commonInfo->max[ OA_CAM_CTRL_GAMMA ] ) {
-      commonInfo->def[ OA_CAM_CTRL_GAMMA ] =
-          commonInfo->max[ OA_CAM_CTRL_GAMMA ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA );
     }
-    cameraInfo->currentGamma = commonInfo->def[ OA_CAM_CTRL_GAMMA ];
+    cameraInfo->currentGamma = commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA );
     if ( isAutoSupported ( CONTROL_GAMMA )) {
-      camera->controls[ OA_CAM_CTRL_AUTO_GAMMA ] = OA_CTRL_TYPE_BOOLEAN;
-      commonInfo->min[ OA_CAM_CTRL_AUTO_GAMMA ] = 0;
-      commonInfo->max[ OA_CAM_CTRL_AUTO_GAMMA ] = 1;
-      commonInfo->step[ OA_CAM_CTRL_AUTO_GAMMA ] = 1;
-      commonInfo->def[ OA_CAM_CTRL_AUTO_GAMMA ] = cameraInfo->autoGamma =
-          autoEnabled;
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_GAMMA ) =
+          OA_CTRL_TYPE_BOOLEAN;
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_GAMMA ) = 0;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_GAMMA ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_GAMMA ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_GAMMA ) =
+          cameraInfo->autoGamma = autoEnabled;
     }
   }
 
   if ( isAvailable ( CONTROL_WB_R )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_RED_BALANCE ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_RED_BALANCE ] = getMin ( CONTROL_WB_R );
-    commonInfo->max[ OA_CAM_CTRL_RED_BALANCE ] = getMax ( CONTROL_WB_R );
-    commonInfo->step[ OA_CAM_CTRL_RED_BALANCE ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_RED_BALANCE ] = getValue ( CONTROL_WB_R,
-        &autoEnabled );
-    if ( commonInfo->def[ OA_CAM_CTRL_RED_BALANCE ] <
-        commonInfo->min[ OA_CAM_CTRL_RED_BALANCE ] ) {
-      commonInfo->def[ OA_CAM_CTRL_RED_BALANCE ] =
-          commonInfo->min[ OA_CAM_CTRL_RED_BALANCE ];
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RED_BALANCE ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) =
+        getMin ( CONTROL_WB_R );
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE ) =
+        getMax ( CONTROL_WB_R );
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RED_BALANCE ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) =
+        getValue ( CONTROL_WB_R, &autoEnabled );
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) =
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE );
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_RED_BALANCE ] >
-        commonInfo->max[ OA_CAM_CTRL_RED_BALANCE ] ) {
-      commonInfo->def[ OA_CAM_CTRL_RED_BALANCE ] =
-          commonInfo->max[ OA_CAM_CTRL_RED_BALANCE ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE );
     }
-    cameraInfo->currentRedBalance = commonInfo->def[ OA_CAM_CTRL_RED_BALANCE ];
+    cameraInfo->currentRedBalance =
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE );
     if ( isAutoSupported ( CONTROL_WB_R )) {
-      camera->controls[ OA_CAM_CTRL_AUTO_RED_BALANCE ] =
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_RED_BALANCE ) =
           OA_CTRL_TYPE_BOOLEAN;
-      commonInfo->min[ OA_CAM_CTRL_AUTO_RED_BALANCE ] = 0;
-      commonInfo->max[ OA_CAM_CTRL_AUTO_RED_BALANCE ] = 1;
-      commonInfo->step[ OA_CAM_CTRL_AUTO_RED_BALANCE ] = 1;
-      commonInfo->def[ OA_CAM_CTRL_AUTO_RED_BALANCE ] =
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_RED_BALANCE ) = 0;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_RED_BALANCE ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_RED_BALANCE ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_RED_BALANCE ) =
           cameraInfo->autoRedBalance = autoEnabled;
     }
   }
 
   if ( isAvailable ( CONTROL_WB_B )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_BLUE_BALANCE ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_BLUE_BALANCE ] = getMin ( CONTROL_WB_B );
-    commonInfo->max[ OA_CAM_CTRL_BLUE_BALANCE ] = getMax ( CONTROL_WB_B );
-    commonInfo->step[ OA_CAM_CTRL_BLUE_BALANCE ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_BLUE_BALANCE ] = getValue ( CONTROL_WB_B,
-        &autoEnabled );
-    if ( commonInfo->def[ OA_CAM_CTRL_BLUE_BALANCE ] <
-        commonInfo->min[ OA_CAM_CTRL_BLUE_BALANCE ] ) {
-      commonInfo->def[ OA_CAM_CTRL_BLUE_BALANCE ] =
-          commonInfo->min[ OA_CAM_CTRL_BLUE_BALANCE ];
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) =
+        getMin ( CONTROL_WB_B );
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) =
+        getMax ( CONTROL_WB_B );
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLUE_BALANCE ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) =
+        getValue ( CONTROL_WB_B, &autoEnabled );
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) =
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE );
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_BLUE_BALANCE ] >
-        commonInfo->max[ OA_CAM_CTRL_BLUE_BALANCE ] ) {
-      commonInfo->def[ OA_CAM_CTRL_BLUE_BALANCE ] =
-          commonInfo->max[ OA_CAM_CTRL_BLUE_BALANCE ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE );
     }
     cameraInfo->currentBlueBalance =
-        commonInfo->def[ OA_CAM_CTRL_BLUE_BALANCE ];
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE );
     if ( isAutoSupported ( CONTROL_WB_B )) {
-      camera->controls[ OA_CAM_CTRL_AUTO_BLUE_BALANCE ] =
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) =
         OA_CTRL_TYPE_BOOLEAN;
-      commonInfo->min[ OA_CAM_CTRL_AUTO_BLUE_BALANCE ] = 0;
-      commonInfo->max[ OA_CAM_CTRL_AUTO_BLUE_BALANCE ] = 1;
-      commonInfo->step[ OA_CAM_CTRL_AUTO_BLUE_BALANCE ] = 1;
-      commonInfo->def[ OA_CAM_CTRL_AUTO_BLUE_BALANCE ] =
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_BLUE_BALANCE ) = 0;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_BLUE_BALANCE ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_BLUE_BALANCE ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_BLUE_BALANCE ) =
           cameraInfo->autoBlueBalance = autoEnabled;
     }
   }
 
   if ( isAvailable ( CONTROL_BRIGHTNESS )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_BRIGHTNESS ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_BRIGHTNESS ] = getMin ( CONTROL_BRIGHTNESS );
-    commonInfo->max[ OA_CAM_CTRL_BRIGHTNESS ] = getMax ( CONTROL_BRIGHTNESS );
-    commonInfo->step[ OA_CAM_CTRL_BRIGHTNESS ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_BRIGHTNESS ] = getValue ( CONTROL_BRIGHTNESS,
-        &autoEnabled );
-    if ( commonInfo->def[ OA_CAM_CTRL_BRIGHTNESS ] <
-        commonInfo->min[ OA_CAM_CTRL_BRIGHTNESS ] ) {
-      commonInfo->def[ OA_CAM_CTRL_BRIGHTNESS ] =
-        commonInfo->min[ OA_CAM_CTRL_BRIGHTNESS ];
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BRIGHTNESS ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BRIGHTNESS ) =
+        getMin ( CONTROL_BRIGHTNESS );
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BRIGHTNESS ) =
+        getMax ( CONTROL_BRIGHTNESS );
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BRIGHTNESS ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) =
+        getValue ( CONTROL_BRIGHTNESS, &autoEnabled );
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BRIGHTNESS ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) =
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BRIGHTNESS );
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_BRIGHTNESS ] >
-        commonInfo->max[ OA_CAM_CTRL_BRIGHTNESS ] ) {
-      commonInfo->def[ OA_CAM_CTRL_BRIGHTNESS ] =
-          commonInfo->max[ OA_CAM_CTRL_BRIGHTNESS ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BRIGHTNESS ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BRIGHTNESS );
     }
-    cameraInfo->currentBrightness = commonInfo->def[ OA_CAM_CTRL_BRIGHTNESS ];
+    cameraInfo->currentBrightness =
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS );
     if ( isAutoSupported ( CONTROL_BRIGHTNESS )) {
-      camera->controls[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] =
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_BRIGHTNESS ) =
           OA_CTRL_TYPE_BOOLEAN;
-      commonInfo->min[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] = 0;
-      commonInfo->max[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] = 1;
-      commonInfo->step[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] = 1;
-      commonInfo->def[ OA_CAM_CTRL_AUTO_BRIGHTNESS ] =
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_BRIGHTNESS ) = 0;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_BRIGHTNESS ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_BRIGHTNESS ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_BRIGHTNESS ) =
           cameraInfo->autoBrightness = autoEnabled;
     }
   }
 
   if ( isAvailable ( CONTROL_BANDWIDTHOVERLOAD )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_USBTRAFFIC ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_USBTRAFFIC ] =
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_USBTRAFFIC ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_USBTRAFFIC ) =
         getMin ( CONTROL_BANDWIDTHOVERLOAD );
-    commonInfo->max[ OA_CAM_CTRL_USBTRAFFIC ] =
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_USBTRAFFIC ) =
         getMax ( CONTROL_BANDWIDTHOVERLOAD );
-    commonInfo->step[ OA_CAM_CTRL_USBTRAFFIC ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_USBTRAFFIC ] =
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_USBTRAFFIC ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_USBTRAFFIC ) =
         getValue ( CONTROL_BANDWIDTHOVERLOAD, &autoEnabled );
-    if ( commonInfo->def[ OA_CAM_CTRL_USBTRAFFIC ] <
-        commonInfo->min[ OA_CAM_CTRL_USBTRAFFIC ] ) {
-      commonInfo->def[ OA_CAM_CTRL_USBTRAFFIC ] =
-        commonInfo->min[ OA_CAM_CTRL_USBTRAFFIC ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_USBTRAFFIC ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_USBTRAFFIC ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_USBTRAFFIC ) =
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_USBTRAFFIC );
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_USBTRAFFIC ] >
-        commonInfo->max[ OA_CAM_CTRL_USBTRAFFIC ] ) {
-      commonInfo->def[ OA_CAM_CTRL_USBTRAFFIC ] =
-          commonInfo->max[ OA_CAM_CTRL_USBTRAFFIC ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_USBTRAFFIC ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_USBTRAFFIC ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_USBTRAFFIC ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_USBTRAFFIC );
     }
-    cameraInfo->currentUSBTraffic = commonInfo->def[ OA_CAM_CTRL_USBTRAFFIC ];
+    cameraInfo->currentUSBTraffic =
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_USBTRAFFIC );
     if ( isAutoSupported ( CONTROL_BANDWIDTHOVERLOAD )) {
-      camera->controls[ OA_CAM_CTRL_AUTO_USBTRAFFIC ] =
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_USBTRAFFIC ) =
           OA_CTRL_TYPE_BOOLEAN;
-      commonInfo->min[ OA_CAM_CTRL_AUTO_USBTRAFFIC ] = 0;
-      commonInfo->max[ OA_CAM_CTRL_AUTO_USBTRAFFIC ] = 1;
-      commonInfo->step[ OA_CAM_CTRL_AUTO_USBTRAFFIC ] = 1;
-      commonInfo->def[ OA_CAM_CTRL_AUTO_USBTRAFFIC ] =
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_USBTRAFFIC ) = 0;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_USBTRAFFIC ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_USBTRAFFIC ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_USBTRAFFIC ) =
           cameraInfo->autoUSBTraffic = autoEnabled;
     }
   }
 
   if ( isAvailable ( CONTROL_OVERCLOCK )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_OVERCLOCK ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_OVERCLOCK ] =
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_OVERCLOCK ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_OVERCLOCK ) =
         getMin ( CONTROL_OVERCLOCK );
-    commonInfo->max[ OA_CAM_CTRL_OVERCLOCK ] =
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_OVERCLOCK ) =
         getMax ( CONTROL_OVERCLOCK );
-    commonInfo->step[ OA_CAM_CTRL_OVERCLOCK ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_OVERCLOCK ] =
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_OVERCLOCK ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_OVERCLOCK ) =
         getValue ( CONTROL_OVERCLOCK, &autoEnabled );
-    if ( commonInfo->def[ OA_CAM_CTRL_OVERCLOCK ] <
-        commonInfo->min[ OA_CAM_CTRL_OVERCLOCK ] ) {
-      commonInfo->def[ OA_CAM_CTRL_OVERCLOCK ] =
-        commonInfo->min[ OA_CAM_CTRL_OVERCLOCK ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_OVERCLOCK ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_OVERCLOCK ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_OVERCLOCK ) =
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_OVERCLOCK );
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_OVERCLOCK ] >
-        commonInfo->max[ OA_CAM_CTRL_OVERCLOCK ] ) {
-      commonInfo->def[ OA_CAM_CTRL_OVERCLOCK ] =
-          commonInfo->max[ OA_CAM_CTRL_OVERCLOCK ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_OVERCLOCK ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_OVERCLOCK ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_OVERCLOCK ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_OVERCLOCK );
     }
-    cameraInfo->currentOverclock = commonInfo->def[ OA_CAM_CTRL_OVERCLOCK ];
+    cameraInfo->currentOverclock =
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_OVERCLOCK );
     if ( isAutoSupported ( CONTROL_OVERCLOCK )) {
-      camera->controls[ OA_CAM_CTRL_AUTO_OVERCLOCK ] =
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_OVERCLOCK ) =
           OA_CTRL_TYPE_BOOLEAN;
-      commonInfo->min[ OA_CAM_CTRL_AUTO_OVERCLOCK ] = 0;
-      commonInfo->max[ OA_CAM_CTRL_AUTO_OVERCLOCK ] = 1;
-      commonInfo->step[ OA_CAM_CTRL_AUTO_OVERCLOCK ] = 1;
-      commonInfo->def[ OA_CAM_CTRL_AUTO_OVERCLOCK ] =
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_OVERCLOCK ) = 0;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_OVERCLOCK ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_OVERCLOCK ) = 1;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_OVERCLOCK ) =
           cameraInfo->autoOverclock = autoEnabled;
     }
   }
 
   if ( isAvailable ( CONTROL_HIGHSPEED )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_HIGHSPEED ] = OA_CTRL_TYPE_BOOLEAN;
-    commonInfo->min[ OA_CAM_CTRL_HIGHSPEED ] =
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HIGHSPEED ) = OA_CTRL_TYPE_BOOLEAN;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HIGHSPEED ) =
         getMin ( CONTROL_HIGHSPEED );
-    commonInfo->max[ OA_CAM_CTRL_HIGHSPEED ] =
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HIGHSPEED ) =
         getMax ( CONTROL_HIGHSPEED );
-    commonInfo->step[ OA_CAM_CTRL_HIGHSPEED ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_HIGHSPEED ] =
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HIGHSPEED ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HIGHSPEED ) =
         getValue ( CONTROL_HIGHSPEED, &autoEnabled );
-    if ( commonInfo->def[ OA_CAM_CTRL_HIGHSPEED ] <
-        commonInfo->min[ OA_CAM_CTRL_HIGHSPEED ] ) {
-      commonInfo->def[ OA_CAM_CTRL_HIGHSPEED ] =
-        commonInfo->min[ OA_CAM_CTRL_HIGHSPEED ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HIGHSPEED ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HIGHSPEED ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HIGHSPEED ) =
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HIGHSPEED );
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_HIGHSPEED ] >
-        commonInfo->max[ OA_CAM_CTRL_HIGHSPEED ] ) {
-      commonInfo->def[ OA_CAM_CTRL_HIGHSPEED ] =
-          commonInfo->max[ OA_CAM_CTRL_HIGHSPEED ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HIGHSPEED ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HIGHSPEED ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HIGHSPEED ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HIGHSPEED );
     }
-    cameraInfo->currentHighSpeed = commonInfo->def[ OA_CAM_CTRL_HIGHSPEED ];
+    cameraInfo->currentHighSpeed =
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HIGHSPEED );
     /*
     if ( isAutoSupported ( CONTROL_HIGHSPEED )) {
-      camera->controls[ OA_CAM_CTRL_AUTO_HIGHSPEED ] =
+      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_AUTO_HIGHSPEED ) =
           OA_CTRL_TYPE_BOOLEAN;
-      commonInfo->min[ OA_CAM_CTRL_AUTO_HIGHSPEED ] = 0;
-      commonInfo->max[ OA_CAM_CTRL_AUTO_HIGHSPEED ] = 1;
-      commonInfo->step[ OA_CAM_CTRL_AUTO_HIGHSPEED ] = 1;
-      commonInfo->def[ OA_CAM_CTRL_AUTO_HIGHSPEED ] =
+      commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_AUTO_HIGHSPEED ) = 0;
+      commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_AUTO_HIGHSPEED ) = 1;
+      commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_AUTO_HIGHSPEED ) = 1;
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_AUTO_HIGHSPEED ) =
           cameraInfo->autoHighSpeed = autoEnabled;
     }
     */
@@ -392,166 +406,173 @@ oaZWASIInitCamera ( oaCameraDevice* device )
 
   if ( isAvailable ( CONTROL_COOLER_ON )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_COOLER ] = OA_CTRL_TYPE_BOOLEAN;
-    commonInfo->min[ OA_CAM_CTRL_COOLER ] =
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COOLER ) = OA_CTRL_TYPE_BOOLEAN;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_COOLER ) =
         getMin ( CONTROL_COOLER_ON );
-    commonInfo->max[ OA_CAM_CTRL_COOLER ] =
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_COOLER ) =
         getMax ( CONTROL_COOLER_ON );
-    commonInfo->step[ OA_CAM_CTRL_COOLER ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_COOLER ] =
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_COOLER ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER ) =
         getValue ( CONTROL_COOLER_ON, &autoEnabled );
-    if ( commonInfo->def[ OA_CAM_CTRL_COOLER ] <
-        commonInfo->min[ OA_CAM_CTRL_COOLER ] ) {
-      commonInfo->def[ OA_CAM_CTRL_COOLER ] =
-        commonInfo->min[ OA_CAM_CTRL_COOLER ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_COOLER ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER ) =
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_COOLER );
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_COOLER ] >
-        commonInfo->max[ OA_CAM_CTRL_COOLER ] ) {
-      commonInfo->def[ OA_CAM_CTRL_COOLER ] =
-          commonInfo->max[ OA_CAM_CTRL_COOLER ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_COOLER ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_COOLER );
     }
-    cameraInfo->coolerEnabled = commonInfo->def[ OA_CAM_CTRL_COOLER ];
+    cameraInfo->coolerEnabled =
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER );
   }
 
   if ( isAvailable ( CONTROL_MONO_BIN )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_MONO_BIN_COLOUR ] = OA_CTRL_TYPE_BOOLEAN;
-    commonInfo->min[ OA_CAM_CTRL_MONO_BIN_COLOUR ] =
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_MONO_BIN_COLOUR ) =
+        OA_CTRL_TYPE_BOOLEAN;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_MONO_BIN_COLOUR ) =
         getMin ( CONTROL_MONO_BIN );
-    commonInfo->max[ OA_CAM_CTRL_MONO_BIN_COLOUR ] =
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_MONO_BIN_COLOUR ) =
         getMax ( CONTROL_MONO_BIN );
-    commonInfo->step[ OA_CAM_CTRL_MONO_BIN_COLOUR ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_MONO_BIN_COLOUR ] =
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_MONO_BIN_COLOUR ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_MONO_BIN_COLOUR ) =
         getValue ( CONTROL_MONO_BIN, &autoEnabled );
-    if ( commonInfo->def[ OA_CAM_CTRL_MONO_BIN_COLOUR ] <
-        commonInfo->min[ OA_CAM_CTRL_MONO_BIN_COLOUR ] ) {
-      commonInfo->def[ OA_CAM_CTRL_MONO_BIN_COLOUR ] =
-        commonInfo->min[ OA_CAM_CTRL_MONO_BIN_COLOUR ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_MONO_BIN_COLOUR ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_MONO_BIN_COLOUR ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_MONO_BIN_COLOUR ) =
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_MONO_BIN_COLOUR );
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_MONO_BIN_COLOUR ] >
-        commonInfo->max[ OA_CAM_CTRL_MONO_BIN_COLOUR ] ) {
-      commonInfo->def[ OA_CAM_CTRL_MONO_BIN_COLOUR ] =
-          commonInfo->max[ OA_CAM_CTRL_MONO_BIN_COLOUR ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_MONO_BIN_COLOUR ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_MONO_BIN_COLOUR ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_MONO_BIN_COLOUR ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_MONO_BIN_COLOUR );
     }
-    cameraInfo->monoBinning = commonInfo->def[ OA_CAM_CTRL_MONO_BIN_COLOUR ];
+    cameraInfo->monoBinning =
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_MONO_BIN_COLOUR );
   }
 
   if ( isAvailable ( CONTROL_FAN_ON )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_FAN ] = OA_CTRL_TYPE_BOOLEAN;
-    commonInfo->min[ OA_CAM_CTRL_FAN ] =
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FAN ) = OA_CTRL_TYPE_BOOLEAN;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_FAN ) =
         getMin ( CONTROL_FAN_ON );
-    commonInfo->max[ OA_CAM_CTRL_FAN ] =
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_FAN ) =
         getMax ( CONTROL_FAN_ON );
-    commonInfo->step[ OA_CAM_CTRL_FAN ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_FAN ] =
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_FAN ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FAN ) =
         getValue ( CONTROL_FAN_ON, &autoEnabled );
-    if ( commonInfo->def[ OA_CAM_CTRL_FAN ] <
-        commonInfo->min[ OA_CAM_CTRL_FAN ] ) {
-      commonInfo->def[ OA_CAM_CTRL_FAN ] =
-        commonInfo->min[ OA_CAM_CTRL_FAN ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FAN ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_FAN ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FAN ) =
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_FAN );
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_FAN ] >
-        commonInfo->max[ OA_CAM_CTRL_FAN ] ) {
-      commonInfo->def[ OA_CAM_CTRL_FAN ] =
-          commonInfo->max[ OA_CAM_CTRL_FAN ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FAN ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_FAN ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FAN ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_FAN );
     }
-    cameraInfo->fanEnabled = commonInfo->def[ OA_CAM_CTRL_FAN ];
+    cameraInfo->fanEnabled = commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FAN );
   }
 
   if ( isAvailable ( CONTROL_PATTERN_ADJUST )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_PATTERN_ADJUST ] = OA_CTRL_TYPE_BOOLEAN;
-    commonInfo->min[ OA_CAM_CTRL_PATTERN_ADJUST ] =
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_PATTERN_ADJUST ) =
+        OA_CTRL_TYPE_BOOLEAN;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_PATTERN_ADJUST ) =
         getMin ( CONTROL_PATTERN_ADJUST );
-    commonInfo->max[ OA_CAM_CTRL_PATTERN_ADJUST ] =
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_PATTERN_ADJUST ) =
         getMax ( CONTROL_PATTERN_ADJUST );
-    commonInfo->step[ OA_CAM_CTRL_PATTERN_ADJUST ] = 1; 
-    commonInfo->def[ OA_CAM_CTRL_PATTERN_ADJUST ] =
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_PATTERN_ADJUST ) = 1; 
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_PATTERN_ADJUST ) =
         getValue ( CONTROL_PATTERN_ADJUST, &autoEnabled ); 
-    if ( commonInfo->def[ OA_CAM_CTRL_PATTERN_ADJUST ] <
-        commonInfo->min[ OA_CAM_CTRL_PATTERN_ADJUST ] ) {
-      commonInfo->def[ OA_CAM_CTRL_PATTERN_ADJUST ] =
-        commonInfo->min[ OA_CAM_CTRL_PATTERN_ADJUST ]; 
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_PATTERN_ADJUST ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_PATTERN_ADJUST ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_PATTERN_ADJUST ) =
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_PATTERN_ADJUST ); 
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_PATTERN_ADJUST ] >
-        commonInfo->max[ OA_CAM_CTRL_PATTERN_ADJUST ] ) {
-      commonInfo->def[ OA_CAM_CTRL_PATTERN_ADJUST ] =
-          commonInfo->max[ OA_CAM_CTRL_PATTERN_ADJUST ]; 
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_PATTERN_ADJUST ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_PATTERN_ADJUST ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_PATTERN_ADJUST ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_PATTERN_ADJUST ); 
     }
-    cameraInfo->patternAdjust = commonInfo->def[ OA_CAM_CTRL_PATTERN_ADJUST ];
+    cameraInfo->patternAdjust =
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_PATTERN_ADJUST );
   }
 
   if ( isAvailable ( CONTROL_ANTI_DEW_HEATER )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_DEW_HEATER ] = OA_CTRL_TYPE_BOOLEAN;
-    commonInfo->min[ OA_CAM_CTRL_DEW_HEATER ] =
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DEW_HEATER ) = OA_CTRL_TYPE_BOOLEAN;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_DEW_HEATER ) =
         getMin ( CONTROL_ANTI_DEW_HEATER );
-    commonInfo->max[ OA_CAM_CTRL_DEW_HEATER ] =
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_DEW_HEATER ) =
         getMax ( CONTROL_ANTI_DEW_HEATER );
-    commonInfo->step[ OA_CAM_CTRL_DEW_HEATER ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_DEW_HEATER ] =
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_DEW_HEATER ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_DEW_HEATER ) =
         getValue ( CONTROL_ANTI_DEW_HEATER, &autoEnabled );
-    if ( commonInfo->def[ OA_CAM_CTRL_DEW_HEATER ] <
-        commonInfo->min[ OA_CAM_CTRL_DEW_HEATER ] ) {
-      commonInfo->def[ OA_CAM_CTRL_DEW_HEATER ] =
-        commonInfo->min[ OA_CAM_CTRL_DEW_HEATER ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_DEW_HEATER ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_DEW_HEATER ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_DEW_HEATER ) =
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_DEW_HEATER );
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_DEW_HEATER ] >
-        commonInfo->max[ OA_CAM_CTRL_DEW_HEATER ] ) {
-      commonInfo->def[ OA_CAM_CTRL_DEW_HEATER ] =
-          commonInfo->max[ OA_CAM_CTRL_DEW_HEATER ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_DEW_HEATER ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_DEW_HEATER ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_DEW_HEATER ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_DEW_HEATER );
     }
-    cameraInfo->dewHeater = commonInfo->def[ OA_CAM_CTRL_DEW_HEATER ];
+    cameraInfo->dewHeater =
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_DEW_HEATER );
   }
 
   if ( isAvailable ( CONTROL_TARGETTEMP )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_TEMP_SETPOINT ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_TEMP_SETPOINT ] =
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMP_SETPOINT ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TEMP_SETPOINT ) =
         getMin ( CONTROL_TARGETTEMP );
-    commonInfo->max[ OA_CAM_CTRL_TEMP_SETPOINT ] =
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TEMP_SETPOINT ) =
         getMax ( CONTROL_TARGETTEMP );
-    commonInfo->step[ OA_CAM_CTRL_TEMP_SETPOINT ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_TEMP_SETPOINT ] =
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TEMP_SETPOINT ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) =
         getValue ( CONTROL_TARGETTEMP, &autoEnabled );
-    if ( commonInfo->def[ OA_CAM_CTRL_TEMP_SETPOINT ] <
-        commonInfo->min[ OA_CAM_CTRL_TEMP_SETPOINT ] ) {
-      commonInfo->def[ OA_CAM_CTRL_TEMP_SETPOINT ] =
-        commonInfo->min[ OA_CAM_CTRL_TEMP_SETPOINT ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TEMP_SETPOINT ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) =
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TEMP_SETPOINT );
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_TEMP_SETPOINT ] >
-        commonInfo->max[ OA_CAM_CTRL_TEMP_SETPOINT ] ) {
-      commonInfo->def[ OA_CAM_CTRL_TEMP_SETPOINT ] =
-          commonInfo->max[ OA_CAM_CTRL_TEMP_SETPOINT ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TEMP_SETPOINT ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TEMP_SETPOINT );
     }
-    cameraInfo->currentSetPoint = commonInfo->def[ OA_CAM_CTRL_TEMP_SETPOINT ];
+    cameraInfo->currentSetPoint =
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT );
   }
 
   // Ignore this one.  It's read-only anyway
 /*
   if ( isAvailable ( CONTROL_COOLERPOWERPERC )) {
     bool autoEnabled;
-    camera->controls[ OA_CAM_CTRL_COOLER_POWER ] = OA_CTRL_TYPE_INT32;
-    commonInfo->min[ OA_CAM_CTRL_COOLER_POWER ] =
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COOLER_POWER ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_COOLER_POWER ) =
         getMin ( CONTROL_COOLERPOWERPERC );
-    commonInfo->max[ OA_CAM_CTRL_COOLER_POWER ] =
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_COOLER_POWER ) =
         getMax ( CONTROL_COOLERPOWERPERC );
-    commonInfo->step[ OA_CAM_CTRL_COOLER_POWER ] = 1;
-    commonInfo->def[ OA_CAM_CTRL_COOLER_POWER ] =
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_COOLER_POWER ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER_POWER ) =
         getValue ( CONTROL_COOLERPOWERPERC, &autoEnabled );
-    if ( commonInfo->def[ OA_CAM_CTRL_COOLER_POWER ] <
-        commonInfo->min[ OA_CAM_CTRL_COOLER_POWER ] ) {
-      commonInfo->def[ OA_CAM_CTRL_COOLER_POWER ] =
-        commonInfo->min[ OA_CAM_CTRL_COOLER_POWER ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER_POWER ) <
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_COOLER_POWER ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER_POWER ) =
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_COOLER_POWER );
     }
-    if ( commonInfo->def[ OA_CAM_CTRL_COOLER_POWER ] >
-        commonInfo->max[ OA_CAM_CTRL_COOLER_POWER ] ) {
-      commonInfo->def[ OA_CAM_CTRL_COOLER_POWER ] =
-          commonInfo->max[ OA_CAM_CTRL_COOLER_POWER ];
+    if ( commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER_POWER ) >
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_COOLER_POWER ) ) {
+      commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER_POWER ) =
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_COOLER_POWER );
     }
     cameraInfo->currentCoolerPower =
-        commonInfo->def[ OA_CAM_CTRL_COOLER_POWER ];
+        commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER_POWER );
   }
 */
 
@@ -566,25 +587,27 @@ oaZWASIInitCamera ( oaCameraDevice* device )
   cameraInfo->maxResolutionY = getMaxHeight();
 
   if ( isBinSupported ( 2 ) || isBinSupported ( 3 ) || isBinSupported ( 4 )) {
-    camera->controls[ OA_CAM_CTRL_BINNING ] = OA_CTRL_TYPE_DISCRETE;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;
   }
-  camera->controls[ OA_CAM_CTRL_DROPPED ] = OA_CTRL_TYPE_READONLY;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED ) = OA_CTRL_TYPE_READONLY;
 
   // These appear to be supported by all cameras (I think )
 
-  camera->controls[ OA_CAM_CTRL_HFLIP ] = OA_CTRL_TYPE_BOOLEAN;
-  commonInfo->min[ OA_CAM_CTRL_HFLIP ] = 0;
-  commonInfo->max[ OA_CAM_CTRL_HFLIP ] = 1;
-  commonInfo->step[ OA_CAM_CTRL_HFLIP ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_HFLIP ] = cameraInfo->currentHFlip = 0;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HFLIP ) = OA_CTRL_TYPE_BOOLEAN;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HFLIP ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HFLIP ) = 1;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HFLIP ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HFLIP ) =
+      cameraInfo->currentHFlip = 0;
 
-  camera->controls[ OA_CAM_CTRL_VFLIP ] = OA_CTRL_TYPE_BOOLEAN;
-  commonInfo->min[ OA_CAM_CTRL_VFLIP ] = 0;
-  commonInfo->max[ OA_CAM_CTRL_VFLIP ] = 1;
-  commonInfo->step[ OA_CAM_CTRL_VFLIP ] = 1;
-  commonInfo->def[ OA_CAM_CTRL_VFLIP ] = cameraInfo->currentVFlip = 0;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_VFLIP ) = OA_CTRL_TYPE_BOOLEAN;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_VFLIP ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_VFLIP ) = 1;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_VFLIP ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_VFLIP ) =
+      cameraInfo->currentVFlip = 0;
 
-  camera->controls[ OA_CAM_CTRL_TEMPERATURE ] = OA_CTRL_TYPE_READONLY;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
 
   // All cameras support ROI according to Sam@ZWO
   camera->features.ROI = 1;
@@ -600,7 +623,7 @@ oaZWASIInitCamera ( oaCameraDevice* device )
   // to, but that's rather wasteful, so we only support this for colour
   // cameras
   if ( isColorCam()) {
-    camera->controls[ OA_CAM_CTRL_COLOUR_MODE ] = OA_CTRL_TYPE_DISCRETE;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COLOUR_MODE ) = OA_CTRL_TYPE_DISCRETE;
     cameraInfo->colour = 1;
     if ( isImgTypeSupported ( IMG_RGB24 )) {
       cameraInfo->videoCurrent = IMG_RGB24;
@@ -631,7 +654,7 @@ oaZWASIInitCamera ( oaCameraDevice* device )
   }
   if (( isImgTypeSupported ( IMG_RGB24 ) || isImgTypeSupported ( IMG_RAW8 )) &&
       isImgTypeSupported ( IMG_RAW16 )) {
-    camera->controls[ OA_CAM_CTRL_BIT_DEPTH ] = OA_CTRL_TYPE_DISCRETE;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) = OA_CTRL_TYPE_DISCRETE;
   }
 
   if ( -1 == cameraInfo->videoCurrent ) {
@@ -1145,7 +1168,7 @@ oaZWASIInitCamera ( oaCameraDevice* device )
       cameraInfo->frameSizes[1].sizes[0].y = cameraInfo->maxResolutionY;
       cameraInfo->frameSizes[1].numSizes = 1;
       // Fake up some resolutions for 2x binning
-      if ( camera->controls[ OA_CAM_CTRL_BINNING ]) {
+      if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING )) {
         if (!( cameraInfo->frameSizes[2].sizes =
             ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
           fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -1183,7 +1206,7 @@ oaZWASIInitCamera ( oaCameraDevice* device )
   // RAW is one for 8-bit, 2 for 16-bit.  We assume that if the BIT_DEPTH
   // control is supported them 16-bit is supported.
   multiplier = ( IMG_RGB24 == cameraInfo->videoCurrent ) ? 3 :
-      ( camera->controls[ OA_CAM_CTRL_BIT_DEPTH ] ? 2 : 1 );
+      ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) ? 2 : 1 );
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY * multiplier;
   cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct ZWASIbuffer ));
