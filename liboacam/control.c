@@ -45,7 +45,7 @@ const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
   "Blue Balance",
   "Red Balance",
   "Gamma",
-  "Relative Exposure",
+  "Exposure",
   "Gain",			// 10
   "Horizontal Flip",
   "Vertical Flip",
