@@ -45,6 +45,8 @@ extern int		oaV4L2CameraReadControl ( oaCamera*, int,
 				oaControlValue* );
 extern int		oaV4L2CameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
+extern int		oaV4L2CameraGetControlDiscreteSet ( oaCamera*, int,
+				int32_t*, int64_t** );
 
 extern int		oaV4L2CameraStartStreaming ( oaCamera*,
 				void* (*)(void*, void*, int), void* );

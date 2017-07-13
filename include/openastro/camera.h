@@ -80,7 +80,7 @@ typedef struct oaCameraFuncs {
   struct oaCamera* ( *initCamera )( struct oaCameraDevice* );
   int              ( *closeCamera )( struct oaCamera* );
 
-  int              ( *resetCamera )( struct oaCamera* );
+//int              ( *resetCamera )( struct oaCamera* );
 
   int              ( *readControl )( struct oaCamera*, int, oaControlValue* );
   int              ( *setControl )( struct oaCamera*, int, oaControlValue*,
@@ -96,27 +96,24 @@ typedef struct oaCameraFuncs {
   int              ( *stopStreaming )( struct oaCamera* );
   int              ( *isStreaming )( struct oaCamera* );
 
-  int              ( *hasLoadableFirmware )( struct oaCamera* );
-  int              ( *isFirmwareLoaded )( struct oaCamera* );
-  int              ( *loadFirmware )( struct oaCamera* );
+//int              ( *hasLoadableFirmware )( struct oaCamera* );
+//int              ( *isFirmwareLoaded )( struct oaCamera* );
+//int              ( *loadFirmware )( struct oaCamera* );
 
   int              ( *setResolution )( struct oaCamera*, int, int );
   int              ( *setROI )( struct oaCamera*, int, int );
-  const FRAMESIZES* ( *enumerateFrameSizes )( struct oaCamera* );
-
   int              ( *setFrameInterval )( struct oaCamera*, int, int );
 
+  const FRAMESIZES* ( *enumerateFrameSizes )( struct oaCamera* );
+  const FRAMERATES* ( *enumerateFrameRates )( struct oaCamera*, int, int );
   int              ( *getFramePixelFormat )( struct oaCamera*, int );
   int              ( *testROISize )( struct oaCamera*, unsigned int,
                        unsigned int, unsigned int*, unsigned int* );
 
   const char*      ( *getMenuString )( struct oaCamera*, int, int );
-
   int              ( *getAutoWBManualSetting )( struct oaCamera* );
   int              ( *hasAuto )( struct oaCamera*, int );
   int              ( *isAuto )( struct oaCamera*, int );
-
-  const FRAMERATES* ( *enumerateFrameRates )( struct oaCamera*, int, int );
 
 } oaCameraFuncs;
 

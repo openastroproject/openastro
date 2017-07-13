@@ -91,6 +91,9 @@ typedef struct V4L2_STATE {
   // streaming
   int			isStreaming;
   CALLBACK		streamingCallback;
+  // discrete auto exposure menu item ids
+  unsigned int		numAutoExposureItems;
+  int64_t		autoExposureMenuItems[8];
 } V4L2_STATE;
 
 #endif	/* OA_V4L2_STATE_H */

@@ -302,6 +302,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           cameraInfo->haveWhiteBalanceManual = 1;
         } else {
 
+          // FIX ME -- tidy this whole mess up
+
           // Now we're into a world of pain.  Known cameras are special-cased
           // in the setControl etc. code, but otherwise we make a best guess
           // at the auto and manual values here
@@ -634,6 +636,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     switch ( id ) {
 
       case V4L2_CID_EXPOSURE_AUTO:
+      {
+        struct v4l2_querymenu menuItem;
+        int idx, err;
 
         // Because we might have either an unscaled exposure control or an
         // absolute exposure control (or both) and not know exactly which at
@@ -641,6 +646,31 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
         if ( V4L2_CTRL_TYPE_MENU == ctrl.type ) {
           autoExposureType = OA_CTRL_TYPE_MENU;
+
+          // Oh, yes, but there's a gotcha here :(
+          // If not all the menu strings can be enumerated then we don't
+          // actually have standard menu, but one with discrete values.
+
+          // FIX ME -- what happens if we end up with no values
+          cameraInfo->numAutoExposureItems = 0;
+          for ( idx = ctrl.minimum; idx <= ctrl.maximum; idx += ctrl.step ) {
+            OA_CLEAR( menuItem );
+            menuItem.id = V4L2_CID_EXPOSURE_AUTO;
+            menuItem.index = idx;
+            if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_QUERYMENU, &menuItem )) {
+              if ( errno == EINVAL ) {
+                autoExposureType = OA_CTRL_TYPE_DISC_MENU;
+              } else {
+                perror ("VIDIOC_QUERYMENU");
+                fprintf ( stderr, "%s: auto-exposure, index %d, err = %d\n",
+                    __FUNCTION__, idx, errno );
+              }
+            } else {
+              // FIX ME -- what happens if we fill this array?
+              cameraInfo->autoExposureMenuItems[
+                  cameraInfo->numAutoExposureItems++ ] = idx;
+            }
+          }
         } else {
           if ( V4L2_CTRL_TYPE_BOOLEAN == ctrl.type ) {
             if ( ctrl.minimum != 0 ) {
@@ -661,7 +691,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           autoDef = ctrl.default_value;
         }
         break;
-
+      }
       case V4L2_CID_EXPOSURE_ABSOLUTE:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
           // convert 100 usec intervals to 1 usec
@@ -878,18 +908,6 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   }
 
   if ( autoExposureType ) {
-    if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_UNSCALED )) {
-      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
-          autoExposureType;
-      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
-          autoMin;
-      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
-          autoMax;
-      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
-          autoStep;
-      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
-          autoDef;
-    }
     if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
       camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
           autoExposureType;
@@ -900,6 +918,19 @@ oaV4L2InitCamera ( oaCameraDevice* device )
       commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
           autoStep;
       commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+          autoDef;
+    }
+    if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) ||
+        !camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+          autoExposureType;
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+          autoMin;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+          autoMax;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+          autoStep;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
           autoDef;
     }
   }
@@ -1401,6 +1432,7 @@ _V4L2InitFunctionPointers ( oaCamera* camera )
   camera->funcs.setControl = oaV4L2CameraSetControl;
   camera->funcs.testControl = oaV4L2CameraTestControl;
   camera->funcs.getControlRange = oaV4L2CameraGetControlRange;
+  camera->funcs.getControlDiscreteSet = oaV4L2CameraGetControlDiscreteSet;
 
   camera->funcs.startStreaming = oaV4L2CameraStartStreaming;
   camera->funcs.stopStreaming = oaV4L2CameraStopStreaming;

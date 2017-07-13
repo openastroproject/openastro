@@ -200,8 +200,7 @@ CameraSettings::configure ( void )
                     state.camera->getMenuString ( c, values[i] )));
                 controlMenu[mod][baseVal]->setCurrentIndex (
                     config.CONTROL_VALUE(c));
-                menuSignalMapper->setMapping ( controlMenu[mod][baseVal],
-                    values[i] );
+                menuSignalMapper->setMapping ( controlMenu[mod][baseVal], c );
                 connect ( controlMenu[mod][baseVal], SIGNAL(
                     currentIndexChanged ( int )), menuSignalMapper,
                     SLOT( map()));
@@ -672,8 +671,25 @@ CameraSettings::updateControl ( int control, int value )
 void
 CameraSettings::menuChanged ( int control )
 {
-  int value = controlMenu[ OA_CAM_CTRL_MODIFIER( control )][
-      OA_CAM_CTRL_MODE_BASE( control )]->currentIndex();
+  int mod = OA_CAM_CTRL_MODIFIER( control );
+  int baseVal = OA_CAM_CTRL_MODE_BASE( control );
+  int value;
+
+  value = controlMenu[ mod ][ baseVal ]->currentIndex();
+  // FIX ME -- there's an implicit assumption here that menus will have
+  // the same value sequence as the items in the menu. (ie. starting at 0
+  // and incrementing by 1
+  if ( controlType [ mod ][ baseVal ] == OA_CTRL_TYPE_DISC_MENU ) {
+    int32_t count;
+    int64_t *values;
+    state.camera->controlDiscreteSet ( control, &count, &values );
+    if ( value < count ) {
+      value = values[value];
+    } else {
+      qWarning() << "Invalid menu value for discrete menu";
+      return;
+    }
+  }
   state.camera->setControl ( control, value );
 }
 

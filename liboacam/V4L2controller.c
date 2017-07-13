@@ -894,6 +894,7 @@ _setExtendedControl ( int fd, int id, oaControlValue* valp )
       extControl[0].value = valp->boolean;
       break;
     case OA_CTRL_TYPE_MENU:
+    case OA_CTRL_TYPE_DISC_MENU:
       extControl[0].value = valp->menu;
       break;
     case OA_CTRL_TYPE_INT64:
@@ -1229,8 +1230,9 @@ _processGetMenuItem ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
       fprintf ( stderr, "%s: control: %s, index %d\n", __FUNCTION__,
           menuItem.id == V4L2_CID_EXPOSURE_AUTO ? "auto-exposure" : "auto-wb",
           index );
-      if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ) {
-        retStr = oaCameraAutoExposureLabel[ index ];
+      if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
+          OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
+        retStr = "";
       }
     } else {
       strncpy ( buff, ( char* ) menuItem.name, V4L2_MAX_MENU_ITEM_LENGTH );

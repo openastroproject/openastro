@@ -88,7 +88,6 @@ _isStreaming ( oaCamera* camera )
 }
 
 
-/*
 static const char*
 _getMenuString ( oaCamera* camera, int control, int index )
 {
@@ -96,12 +95,20 @@ _getMenuString ( oaCamera* camera, int control, int index )
       camera->deviceName );
   return "";
 }
-*/
 
 
 static int
 _getControlRange ( oaCamera* camera, int c, int64_t* p1, int64_t* p2,
     int64_t* p3, int64_t* p4 )
+{
+  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+      camera->deviceName );
+  return -OA_ERR_UNIMPLEMENTED;
+}
+
+
+static int
+_getControlDiscreteSet ( oaCamera* camera, int c, int32_t* p1, int64_t** p2 )
 {
   fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
       camera->deviceName );
@@ -219,7 +226,7 @@ _isAuto ( oaCamera* camera, int c )
   return -OA_ERR_UNIMPLEMENTED;
 }
 
-/*
+
 static int
 _getAutoWBManualSetting ( oaCamera* camera )
 {
@@ -228,7 +235,7 @@ _getAutoWBManualSetting ( oaCamera* camera )
   return -OA_ERR_UNIMPLEMENTED;
 }
 
-
+/*
 static int
 _cameraLoadFirmware ( oaCamera* camera )
 {
@@ -266,6 +273,7 @@ _oaInitCameraFunctionPointers ( oaCamera* camera )
   camera->funcs.setControl = _setControl;
   camera->funcs.testControl = _testControl;
   camera->funcs.getControlRange = _getControlRange;
+  camera->funcs.getControlDiscreteSet = _getControlDiscreteSet;
 
   camera->funcs.startStreaming = _startStreaming;
   camera->funcs.stopStreaming = _stopStreaming;
@@ -288,8 +296,7 @@ _oaInitCameraFunctionPointers ( oaCamera* camera )
   camera->funcs.enumerateFrameRates = _enumerateFrameRates;
   camera->funcs.getFramePixelFormat = _getFramePixelFormat;
   camera->funcs.testROISize = _testROISize;
-/*
+
   camera->funcs.getMenuString = _getMenuString;
   camera->funcs.getAutoWBManualSetting = _getAutoWBManualSetting;
-*/
 }
