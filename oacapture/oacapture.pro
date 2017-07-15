@@ -71,3 +71,5 @@ SOURCES += camera.cc \
            filterSettings.cc \
            profileSettings.cc \
            demosaicSettings.cc
+
+TRANSLATIONS += oacapture_es.ts
