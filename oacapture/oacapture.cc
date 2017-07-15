@@ -37,6 +37,12 @@ main ( int argc, char* argv[] )
   QApplication app ( argc, argv );
   app.setOrganizationName( ORGANISATION_NAME );
   app.setApplicationName( APPLICATION_NAME );
+  
+  QString locale = QLocale::system().name();
+  
+  QTranslator translator;
+  translator.load(QString("oacapture_") + locale);
+  app.installTranslator(&translator);
 
   MainWindow mainWindow;
   mainWindow.show();
