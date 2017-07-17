@@ -55,10 +55,10 @@ DemosaicSettings::DemosaicSettings ( QWidget* parent ) : QWidget ( parent )
   grbgButton->setChecked ( config.cfaPattern == OA_DEMOSAIC_GRBG ? 1 : 0 );
   gbrgButton->setChecked ( config.cfaPattern == OA_DEMOSAIC_GBRG ? 1 : 0 );
   autoButton->setChecked ( config.cfaPattern == OA_DEMOSAIC_AUTO ? 1 : 0 );
-  rggbButton->setIcon ( QIcon ( ":/icons/RGGB.png" ));
-  bggrButton->setIcon ( QIcon ( ":/icons/BGGR.png" ));
-  grbgButton->setIcon ( QIcon ( ":/icons/GRBG.png" ));
-  gbrgButton->setIcon ( QIcon ( ":/icons/GBRG.png" ));
+  rggbButton->setIcon ( QIcon ( ":/qt-icons/RGGB.png" ));
+  bggrButton->setIcon ( QIcon ( ":/qt-icons/BGGR.png" ));
+  grbgButton->setIcon ( QIcon ( ":/qt-icons/GRBG.png" ));
+  gbrgButton->setIcon ( QIcon ( ":/qt-icons/GBRG.png" ));
 
   cfaButtons->addButton ( rggbButton );
   cfaButtons->addButton ( bggrButton );

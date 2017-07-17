@@ -1221,7 +1221,7 @@ MainWindow::createMenus ( void )
 
   // Options menu
 
-  histogramOpt = new QAction ( QIcon ( ":/icons/barchart.png" ),
+  histogramOpt = new QAction ( QIcon ( ":/qt-icons/barchart.png" ),
       tr ( "Histogram" ), this );
   histogramOpt->setStatusTip ( tr ( "Open window for image histogram" ));
   histogramOpt->setCheckable ( true );
@@ -1240,7 +1240,7 @@ MainWindow::createMenus ( void )
   autoguide->setCheckable ( true );
   // FIX ME - set up slots
 
-  reticle = new QAction ( QIcon ( ":/icons/reticle.png" ),
+  reticle = new QAction ( QIcon ( ":/qt-icons/reticle.png" ),
       tr ( "Reticle" ), this );
   reticle->setStatusTip ( tr ( "Overlay a reticle on the preview image" ));
   reticle->setCheckable ( true );
@@ -1259,21 +1259,21 @@ MainWindow::createMenus ( void )
   darkframe->setCheckable ( true );
   // FIX ME - set up slots
 
-  flipX = new QAction ( QIcon ( ":/icons/object-flip-horizontal.png" ), 
+  flipX = new QAction ( QIcon ( ":/qt-icons/object-flip-horizontal.png" ), 
       tr ( "Flip X" ), this );
   flipX->setStatusTip ( tr ( "Flip image left<->right" ));
   flipX->setCheckable ( true );
   flipX->setChecked ( config.flipX );
   connect ( flipX, SIGNAL( changed()), this, SLOT( enableFlipX()));
 
-  flipY = new QAction ( QIcon ( ":/icons/object-flip-vertical.png" ),
+  flipY = new QAction ( QIcon ( ":/qt-icons/object-flip-vertical.png" ),
       tr ( "Flip Y" ), this );
   flipY->setStatusTip ( tr ( "Flip image top<->bottom" ));
   flipY->setCheckable ( true );
   flipY->setChecked ( config.flipY );
   connect ( flipY, SIGNAL( changed()), this, SLOT( enableFlipY()));
 
-  demosaicOpt = new QAction ( QIcon ( ":/icons/mosaic.png" ),
+  demosaicOpt = new QAction ( QIcon ( ":/qt-icons/mosaic.png" ),
       tr ( "Demosaic" ), this );
   demosaicOpt->setCheckable ( true );
   demosaicOpt->setChecked ( config.demosaic );
@@ -1304,58 +1304,58 @@ MainWindow::createMenus ( void )
 
   // settings menu
 
-  general = new QAction ( QIcon ( ":/icons/cog.png" ),
+  general = new QAction ( QIcon ( ":/qt-icons/cog.png" ),
       tr ( "General" ), this );
   general->setStatusTip ( tr ( "General configuration" ));
   connect ( general, SIGNAL( triggered()), this, SLOT( doGeneralSettings()));
 
-  capture = new QAction ( QIcon ( ":/icons/capture.png" ),
+  capture = new QAction ( QIcon ( ":/qt-icons/capture.png" ),
       tr ( "Capture" ), this );
   connect ( capture, SIGNAL( triggered()), this, SLOT( doCaptureSettings()));
 
-  cameraOpt = new QAction ( QIcon ( ":/icons/planetary-camera.png" ),
+  cameraOpt = new QAction ( QIcon ( ":/qt-icons/planetary-camera.png" ),
       tr ( "Camera" ), this );
   connect ( cameraOpt, SIGNAL( triggered()), this, SLOT( doCameraSettings()));
   // not enabled until we connect a camera
   cameraOpt->setEnabled ( 0 );
 
-  profiles = new QAction ( QIcon ( ":/icons/jupiter.png" ),
+  profiles = new QAction ( QIcon ( ":/qt-icons/jupiter.png" ),
       tr ( "Profiles" ), this );
   profiles->setStatusTip ( tr ( "Edit saved profiles" ));
   connect ( profiles, SIGNAL( triggered()), this, SLOT( doProfileSettings()));
 
-  filters = new QAction ( QIcon ( ":/icons/filter-wheel.png" ),
+  filters = new QAction ( QIcon ( ":/qt-icons/filter-wheel.png" ),
       tr ( "Filters" ), this );
   filters->setStatusTip ( tr ( "Configuration for filters" ));
   connect ( filters, SIGNAL( triggered()), this, SLOT( doFilterSettings()));
 
-  demosaic = new QAction ( QIcon ( ":/icons/mosaic.png" ),
+  demosaic = new QAction ( QIcon ( ":/qt-icons/mosaic.png" ),
       tr ( "Demosaic" ), this );
   demosaic->setStatusTip ( tr ( "Configuration for demosaicking" ));
   connect ( demosaic, SIGNAL( triggered()), this, SLOT( doDemosaicSettings()));
 
-  fits = new QAction ( QIcon ( ":/icons/fits.png" ),
+  fits = new QAction ( QIcon ( ":/qt-icons/fits.png" ),
       tr ( "FITS/SER Metadata" ), this );
   fits->setStatusTip ( tr ( "Configuration for FITS/SER metadata keywords" ));
   connect ( fits, SIGNAL( triggered()), this, SLOT( doFITSSettings()));
 
-  autorun = new QAction ( QIcon ( ":/icons/clicknrun.png" ),
+  autorun = new QAction ( QIcon ( ":/qt-icons/clicknrun.png" ),
       tr ( "Autorun" ), this );
   autorun->setStatusTip ( tr ( "Configuration for repeat captures" ));
   connect ( autorun, SIGNAL( triggered()), this, SLOT( doAutorunSettings()));
 
-  histogram = new QAction ( QIcon ( ":/icons/barchart.png" ),
+  histogram = new QAction ( QIcon ( ":/qt-icons/barchart.png" ),
       tr ( "Histogram" ), this );
   histogram->setStatusTip ( tr ( "Configuration for histogram" ));
   connect ( histogram, SIGNAL( triggered()), this,
       SLOT( doHistogramSettings()));
 
-  colourise = new QAction ( QIcon ( ":/icons/sun.png" ),
+  colourise = new QAction ( QIcon ( ":/qt-icons/sun.png" ),
       tr ( "False Colour" ), this );
   connect ( colourise, SIGNAL( triggered()), this,
       SLOT( doColouriseSettings()));
 
-  timer = new QAction ( QIcon ( ":/icons/timer.png" ),
+  timer = new QAction ( QIcon ( ":/qt-icons/timer.png" ),
       tr ( "Timer" ), this );
   timer->setStatusTip ( tr ( "Configuration for Timer unit" ));
   connect ( timer, SIGNAL( triggered()), this, SLOT( doTimerSettings()));

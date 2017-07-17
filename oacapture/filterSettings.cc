@@ -52,12 +52,12 @@ FilterSettings::FilterSettings ( QWidget* parent ) : QWidget ( parent )
       entry->setFlags ( entry->flags() | Qt :: ItemIsEditable );
     }
   }
-  addButton = new QPushButton ( QIcon ( ":/icons/list-add-4.png" ),
+  addButton = new QPushButton ( QIcon ( ":/qt-icons/list-add-4.png" ),
       tr ( "Add Item" ));
   addButton->setStyleSheet("Text-align:left");
   connect ( addButton, SIGNAL ( clicked()), this, SLOT ( addEntry()));
   connect ( addButton, SIGNAL ( clicked()), parent, SLOT ( dataChanged()));
-  removeButton = new QPushButton ( QIcon ( ":/icons/list-remove-4.png" ),
+  removeButton = new QPushButton ( QIcon ( ":/qt-icons/list-remove-4.png" ),
       tr ( "Remove Item" ));
   removeButton->setStyleSheet("Text-align:left");
   connect ( removeButton, SIGNAL ( clicked()), this, SLOT ( removeEntry()));

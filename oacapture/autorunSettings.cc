@@ -79,7 +79,7 @@ AutorunSettings::AutorunSettings ( QWidget* parent ) : QWidget ( parent )
 
   titleLabel = new QLabel ( tr ( "Filter Sequence" ));
 
-  addButton = new QPushButton ( QIcon ( ":/icons/list-add-4.png" ),
+  addButton = new QPushButton ( QIcon ( ":/qt-icons/list-add-4.png" ),
       tr ( "Extend Sequence" ), this );
   addButton->setStyleSheet("Text-align:left");
 
@@ -212,7 +212,7 @@ void
 AutorunSettings::addFilterWidgets ( int inCtor )
 {
   QComboBox* cb = new QComboBox ( this );
-  QPushButton* pb = new QPushButton ( QIcon ( ":/icons/list-remove-4.png" ),
+  QPushButton* pb = new QPushButton ( QIcon ( ":/qt-icons/list-remove-4.png" ),
       "", this );
   QHBoxLayout *hb = new QHBoxLayout();
 
