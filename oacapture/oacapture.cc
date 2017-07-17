@@ -41,10 +41,8 @@ main ( int argc, char* argv[] )
   QString locale = QLocale::system().name();
   
   QTranslator qtTranslator;
-  if ( !qtTranslator.load ( "qt_" + locale, QLibraryInfo::location (
+  if ( qtTranslator.load ( "qt_" + locale, QLibraryInfo::location (
       QLibraryInfo::TranslationsPath ))) {
-    qWarning() << "failed to load Qt translations";
-  } else {
     app.installTranslator ( &qtTranslator );
   }
 
