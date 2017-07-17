@@ -40,9 +40,18 @@ main ( int argc, char* argv[] )
   
   QString locale = QLocale::system().name();
   
-  QTranslator translator;
-  translator.load(QString("oacapture_") + locale);
-  app.installTranslator(&translator);
+  QTranslator qtTranslator;
+  if ( !qtTranslator.load ( "qt_" + locale, QLibraryInfo::location (
+      QLibraryInfo::TranslationsPath ))) {
+    qWarning() << "failed to load Qt translations";
+  } else {
+    app.installTranslator ( &qtTranslator );
+  }
+
+  QTranslator appTranslator;
+  if ( appTranslator.load ( TRANSLATE_DIR "oacapture_" + locale )) {
+    app.installTranslator ( &appTranslator );
+  }
 
   MainWindow mainWindow;
   mainWindow.show();

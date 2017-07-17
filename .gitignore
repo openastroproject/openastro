@@ -74,7 +74,7 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 
-# Qt temporary files
+# Qt temporary files and build targets
 *.moc
 moc_*.cpp
 moc_*.cc
@@ -82,6 +82,7 @@ moc_*.h
 qrc_*.cpp
 qrc_*.cc
 ui_*.h
+*.qm
 
 # Other stuff
 .deps
