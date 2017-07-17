@@ -1468,7 +1468,12 @@ ControlWidget::updateCheckbox ( int control, int value )
 {
   if ( oaIsAuto ( control )) {
     int baseControl = oaGetControlForAuto ( control );
-    selectableControlCheckbox[ baseControl ]->setChecked ( value );
+    if ( baseControl > 0 ) {
+      selectableControlCheckbox[ baseControl ]->setChecked ( value );
+    } else {
+      qWarning() << "oaGetControlForAuto(" << control << ") returns" <<
+          baseControl;
+    }
   } else {
     config.CONTROL_VALUE( control ) = value;
     SET_PROFILE_CONTROL( control, value );
