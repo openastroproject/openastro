@@ -28,11 +28,7 @@ missing
 stamp-h1
 libtool
 /config.h
-/ext/libASICamera/libASICamera.a
-/ext/libASICamera/libASICamera2.a
-/ext/libaltaircam/libaltaircam.so
 /ext/libdc1394/config.h
-/ext/libdc1394/libdc1394-2.pc
 /ext/libdc1394/m4
 /ext/libhidapi/m4
 /ext/libusb/m4
@@ -84,10 +80,10 @@ qrc_*.cc
 ui_*.h
 *.qm
 
-# Other stuff
+# Other files created at build time
 .deps
 .libs
-/ext/libtoupcam/libtoupcam.so
+*.pc
 /ext/libusb/doc/doxygen.cfg
 /ext/libusb/examples/dpfp
 /ext/libusb/examples/dpfp_threaded
@@ -97,7 +93,25 @@ ui_*.h
 /ext/libusb/examples/sam3u_benchmark
 /ext/libusb/examples/testlibusb
 /ext/libusb/examples/xusb
-/ext/libusb/libusb-1.0.pc
 /ext/libusb/libusb/os/.dirstamp
+/ext/libASICamera/libASICamera.a
+/ext/libASICamera/libASICamera2.a
+/ext/ffmpeg/.config
+/ext/ffmpeg/.version
+/ext/ffmpeg/config.asm
+/ext/ffmpeg/config.fate
+/ext/ffmpeg/config.h
+/ext/ffmpeg/config.mak
+/ext/ffmpeg/doc/config.texi
+/ext/ffmpeg/doc/examples/pc-uninstalled/
+/ext/ffmpeg/libavcodec/libavcodec.a
+/ext/ffmpeg/libavdevice/libavdevice.a
+/ext/ffmpeg/libavfilter/libavfilter.a
+/ext/ffmpeg/libavformat/libavformat.a
+/ext/ffmpeg/libavutil/avconfig.h
+/ext/ffmpeg/libavutil/ffversion.h
+/ext/ffmpeg/libavutil/libavutil.a
+/ext/ffmpeg/libswresample/libswresample.a
+/ext/ffmpeg/libswscale/libswscale.a
 /oacapture/oacapture
 /oalive/oalive
