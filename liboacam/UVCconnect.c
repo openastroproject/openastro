@@ -161,8 +161,8 @@ oaUVCInitCamera ( oaCameraDevice* device )
   oaCamera*				camera;
   unsigned int                          matched, haveCamera, haveUnit;
   unsigned int                          numPUControls, oaControl, i, j;
-  unsigned int				numUVCDevices;
-  int					deviceAddr, deviceBus;
+  unsigned int				numUVCDevices, mask;
+  int					k, deviceAddr, deviceBus;
   uint64_t				flags;
   uvc_device_t**                        devlist;
   uvc_device_t*                         uvcDevice;
@@ -359,7 +359,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
           }
 
           cameraInfo->numAutoExposureItems = 0;
-          for ( int i = 0, mask = 1; i < 4; i++, mask <<= 1 ) {
+          for ( k = 0, mask = 1; k < 4; k++, mask <<= 1 ) {
             if ( modes & mask ) {
               cameraInfo->autoExposureMenuItems[
                   cameraInfo->numAutoExposureItems++ ] = mask;
