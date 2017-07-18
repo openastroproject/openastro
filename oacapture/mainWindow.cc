@@ -91,14 +91,6 @@ MainWindow::MainWindow()
     this->setStyleSheet ( styleGroupBoxBorders );
   }
 
-#if USE_APP_PATH
-  QString path = QCoreApplication::applicationDirPath();
-  if ( path.endsWith ( "/MacOS" )) {
-    path.chop ( 6 );
-  }
-  oaSetRootPath ( path.toStdString().c_str());
-#endif
-
   readConfig();
   createStatusBar();
   createMenus();
