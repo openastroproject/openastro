@@ -69,7 +69,7 @@ CameraControls::CameraControls ( QWidget* parent ) : QWidget ( parent )
 void
 CameraControls::configure ( void )
 {
-  uint8_t	c;
+  int		c;
   int		added[ OA_CAM_CTRL_LAST_P1 ];
   int		numSliders = 0, numCheckboxes = 0, numMenus = 0;
   int		numSliderCheckboxes = 0, numUnhandled = 0, numButtons = 0;
