@@ -51,7 +51,7 @@ CameraSettings::CameraSettings ( QWidget* parent ) : QWidget ( parent )
 void
 CameraSettings::configure ( void )
 {
-  unsigned int c, baseVal, mod;
+  unsigned int c, baseVal, mod, frameRateIndex;
   int added[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
   int numSliders = 0, numCheckboxes = 0, numMenus = 0, numButtons = 0;
   int numSliderCheckboxes = 0, numUnhandled = 0;
@@ -256,6 +256,9 @@ CameraSettings::configure ( void )
     frameRateSlider->setRange ( 0, rateList.count());
     frameRateSlider->setSingleStep ( 1 );
     frameRateMenu->addItems ( rateList );
+    frameRateIndex = state.controlWidget->getFrameRateIndex();
+    frameRateSlider->setValue ( frameRateIndex );
+    frameRateMenu->setCurrentIndex ( frameRateIndex );
 
     connect ( frameRateSlider, SIGNAL( sliderMoved ( int )), frameRateMenu,
         SLOT( setCurrentIndex( int )));

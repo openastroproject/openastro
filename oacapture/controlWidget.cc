@@ -1505,6 +1505,13 @@ ControlWidget::updateFrameRate ( int index )
 }
 
 
+unsigned int
+ControlWidget::getFrameRateIndex ( void )
+{
+  return framerateSlider->value();
+}
+
+
 void
 ControlWidget::disableAutoControls ( void )
 {
