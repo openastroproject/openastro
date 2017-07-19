@@ -883,12 +883,6 @@ ControlWidget::updateFrameRates ( void )
       numItems++;
     }
 
-    // Handle only having one frame rate
-    if ( numItems == 1 ) {
-      _doFrameRateChange ( 0, 0 );
-      return;
-    }
-
     ignoreFrameRateChanges = 1;
     framerateMenu->clear();
     framerateMenu->addItems ( rateList );
@@ -897,6 +891,13 @@ ControlWidget::updateFrameRates ( void )
     config.frameRateNumerator = frameRateNumerator[ showItem ];
     config.frameRateDenominator = frameRateDenominator[ showItem ];
     ignoreFrameRateChanges = 0;
+
+    // Handle only having one frame rate
+    if ( numItems == 1 ) {
+      _doFrameRateChange ( 0, 0 );
+      return;
+    }
+
     framerateMenu->setCurrentIndex ( showItem );
     // unfortunately the above statement may not change the frame rate even
     // though the rate has changed, because its position in the menu might
