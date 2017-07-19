@@ -68,6 +68,10 @@ static const char* styleGroupBoxBorders =
 
 MainWindow::MainWindow()
 {
+  QString qtVer;
+  unsigned int qtMajorVersion, i;
+  bool ok;
+
   cameraSignalMapper = filterWheelSignalMapper = 0;
   timerSignalMapper = 0;
   advancedFilterWheelSignalMapper = 0;
@@ -84,9 +88,17 @@ MainWindow::MainWindow()
 
   // The gtk+ style doesn't enable group box borders by default, which makes
   // the display look confusing.
+  //
+  // Same thing with Qt5, so work out the version and add them if required
+
+  qtVer = qVersion();
+  if (( i = qtVer.indexOf ( '.' )) >= 0 ) {
+    qtVer.truncate ( i );
+  }
+  qtMajorVersion = qtVer.toInt( &ok );
 
   QString currentStyle = QApplication::style()->objectName();
-  if ( currentStyle.toLower() == "gtk+" ) {
+  if ( currentStyle.toLower() == "gtk+" || ( ok && qtMajorVersion > 4 )) {
     state.needGroupBoxBorders = 1;
     this->setStyleSheet ( styleGroupBoxBorders );
   }
