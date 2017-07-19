@@ -43,6 +43,7 @@ checkSystemLibuvc=0
 checkSystemLibhidapi=0
 checkSystemLibasicamera=0
 useisystemInclude=0
+build_libusb=no
 case $host in
   *-linux-*)
     checkQtForPIC=1
@@ -54,6 +55,7 @@ case $host in
     ;;
   *-apple-*)
     useisystemInclude=1
+    build_libusb=yes
     ;;
 esac
 
@@ -111,11 +113,8 @@ fi
 # Checks for libraries.
 
 have_v4l2=no
-have_dc1394=no
-have_cfitsio=no
 have_udev=no
 have_ftdi1=no
-have_exp10=no
 have_flycapture2=no
 have_dl=no
 have_toupcam=yes
@@ -124,8 +123,6 @@ have_altaircam=yes
 have_libavformat=no
 have_libavutil=no
 have_libavcodec=no
-have_libusb=no
-have_libuvc=no
 internal_uvc=no
 have_libhidapi=no
 
@@ -204,13 +201,11 @@ if `$PKG_CONFIG --exists cfitsio`; then
   CPPFLAGS="$flags $CPPFLAGS"
   LDFLAGS="`$PKG_CONFIG --libs-only-L cfitsio` $LDFLAGS"
   LIBS="`$PKG_CONFIG --libs-only-l cfitsio` $LIBS"
-  have_cfitsio=yes
   AC_DEFINE([HAVE_LIBCFITSIO],[1],[Have CFITSIO library])
 else
   AC_CHECK_LIB([cfitsio],[ffopen],[
     LIBS="-lcfitsio $LIBS"
     AC_DEFINE([HAVE_LIBCFITSIO],[1],[Have CFITSIO library])
-    have_cfitsio=yes
   ],[
     AC_MSG_ERROR([libcfitsio3 is required])])
 fi
@@ -360,7 +355,6 @@ then
     LIBUSB_CFLAGS="$flags"
     LIBUSB_LDFLAGS="`$PKG_CONFIG --libs-only-L libusb-1.0`"
     LIBUSB_LIBS="`$PKG_CONFIG --libs-only-l libusb-1.0`"
-    have_libusb=yes
     use_system_libusb=yes
     AC_DEFINE([HAVE_LIBUSB],[1],[Have libusb-1.0 library])
     AC_MSG_NOTICE([Using system libusb-1.0 library])
@@ -369,10 +363,10 @@ then
   #  AC_CHECK_LIB([usb],[libusb_init],[
   #    LIBS="-lusb-1.0 $LIBS"
   #    AC_DEFINE([HAVE_LIBUSB],[1],[Have libusb-1.0 library])
-  #    have_libusb=yes
   #  ],[
       AC_MSG_WARN([No suitable version of system libusb library found.  Using internal version.])
   # ])
+    build_libusb=yes
   fi
 fi
 
@@ -398,14 +392,12 @@ then
       mylibdir="`$PKG_CONFIG --variable=libdir libdc1394-2`"
       LIBDC1394_LIBS="$mylibdir/libdc1394.a $mylibdir/libraw1394.a"
     fi
-    have_dc1394=yes
     AC_DEFINE([HAVE_LIBDC1394],[1],[Have dc1394 library])
   else
   # commented out because we can't be sure of the version
   #  AC_CHECK_LIB([dc1394],[dc1394_new],[
   #    LIBS="-ldc1394 $LIBS"
   #    AC_DEFINE([HAVE_LIBDC1394],[1],[Have dc1394 library])
-  #    have_dc1394=yes
   #  ],[
       AC_MSG_WARN([No suitable version of system dc1394 library found.  Using internal version.])
   # ])
@@ -433,7 +425,6 @@ then
       mylibdir="`$PKG_CONFIG --variable=libdir libuvc`"
       LIBUVC_LIBS="$mylibdir/libuvc.a"
     fi
-    have_libuvc=yes
     use_system_libuvc=yes
     AC_DEFINE([HAVE_LIBUVC],[1],[Have libuvc library])
   else
@@ -441,7 +432,6 @@ then
   #  AC_CHECK_LIB([uvc],[uvc_init],[
   #    LIBS="-luvc $LIBS"
   #    AC_DEFINE([HAVE_LIBUVC],[1],[Have libuvc library])
-  #    have_libuvc=yes
   #  ],[
       AC_MSG_WARN([No suitable version of system libuvc library found.  Using internal version.])
       AC_DEFINE([HAVE_LIBUVC],[1],[Have libuvc library])
@@ -692,7 +682,7 @@ AC_SUBST(FFMPEG_SUBDIRS)
 
 # Same play again, but this time for libusb-1.0
 
-if test "$use_system_libusb" == "no"
+if test "$use_system_libusb" == "no" -o "$build_libusb" == "yes"
 then
 
   LIBUSB_CFLAGS="-I \$(top_srcdir)/ext/libusb/libusb"
@@ -811,7 +801,6 @@ if test "$use_system_dc1394" == "no"
 then
   LIBDC1394_CFLAGS="-I \$(top_srcdir)/ext/libdc1394"
   LIBDC1394_LIBS="\$(top_builddir)/ext/libdc1394/dc1394/libdc1394.la"
-  have_dc1394=yes
 
   if test "$use_system_libusb" == "no"; then
     export LIBUSB_CFLAGS="-I "`pwd`"/ext/libusb/libusb"
@@ -1056,6 +1045,7 @@ AM_CONDITIONAL([LIBMALLINCAM_COND], [test "x$have_mallincam" == "xyes"])
 AM_CONDITIONAL([LIBALTAIRCAM_COND], [test "x$have_altaircam" == "xyes"])
 AM_CONDITIONAL([LIBFFMPEG_COND], [test "x$use_system_ffmpeg" == "xno"])
 AM_CONDITIONAL([LIBUSB_COND], [test "x$use_system_libusb" == "xno"])
+AM_CONDITIONAL([BUILD_LIBUSB_COND], [test "x$build_libusb" == "xyes"])
 AM_CONDITIONAL([LIBHIDAPI_COND], [test "x$use_system_libhidapi" == "xno"])
 AM_CONDITIONAL([INT_LIBUVC_COND], [test "x$internal_uvc" == "xyes"])
 
