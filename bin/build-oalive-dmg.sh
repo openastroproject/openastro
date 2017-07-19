@@ -23,6 +23,8 @@
 # <http://www.gnu.org/licenses/>.
 #
 
+set -e
+
 ROOT=./app
 APPDIR=$ROOT/oalive.app
 rm -fr $ROOT
