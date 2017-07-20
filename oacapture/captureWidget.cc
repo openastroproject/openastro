@@ -86,7 +86,7 @@ CaptureWidget::CaptureWidget ( QWidget* parent ) : QGroupBox ( parent )
 
 #ifdef RELOAD_PROFILE
   restoreButton = new QPushButton (
-      QIcon ( ":/icons/arrow-redo.png" ), "", this );
+      QIcon ( ":/qt-icons/arrow-redo.png" ), "", this );
   restoreButton->setToolTip ( tr ( "Restore settings for current profile" ));
   connect ( restoreButton, SIGNAL( clicked()), this,
       SLOT( updateSettingsFromProfile()));
@@ -124,19 +124,19 @@ CaptureWidget::CaptureWidget ( QWidget* parent ) : QGroupBox ( parent )
       SLOT( updateFileNameTemplate()));
 
   newFolderButton = new QPushButton (
-      QIcon ( ":/icons/folder-new-7.png" ), "", this );
+      QIcon ( ":/qt-icons/folder-new-7.png" ), "", this );
   newFolderButton->setToolTip ( tr ( "Select a new capture directory" ));
   connect ( newFolderButton, SIGNAL( clicked()), this,
       SLOT( setNewCaptureDirectory()));
 
   deleteButton = new QPushButton (
-      QIcon ( ":/icons/user-trash.png" ), "", this );
+      QIcon ( ":/qt-icons/user-trash.png" ), "", this );
   deleteButton->setToolTip ( tr ( "Delete last captured file" ));
   connect ( deleteButton, SIGNAL( clicked()), this,
       SLOT( deleteLastRecordedFile()));
 
   openFolderButton = new QPushButton (
-      QIcon ( ":/icons/folder-open-4.png" ), "", this );
+      QIcon ( ":/qt-icons/folder-open-4.png" ), "", this );
   openFolderButton->setToolTip ( tr ( "View capture directory" ));
   connect ( openFolderButton, SIGNAL( clicked()), this,
       SLOT( openCaptureDirectory()));
@@ -253,28 +253,28 @@ CaptureWidget::CaptureWidget ( QWidget* parent ) : QGroupBox ( parent )
   type->addStretch ( 1 );
 
   startButton = new QPushButton (
-      QIcon ( ":/icons/media-playback-start-7.png" ), "", this );
+      QIcon ( ":/qt-icons/media-playback-start-7.png" ), "", this );
   startButton->setToolTip ( tr ( "Start capturing data" ));
   connect ( startButton, SIGNAL( clicked()), this, SLOT( startRecording()));
 
   pauseButton = new QPushButton (
-      QIcon ( ":/icons/media-playback-pause-7.png" ), "", this );
+      QIcon ( ":/qt-icons/media-playback-pause-7.png" ), "", this );
   pauseButton->setToolTip ( tr ( "Pause in-process recording" ));
   pauseButton->setCheckable ( 1 );
   connect ( pauseButton, SIGNAL( clicked()), this, SLOT( pauseRecording()));
 
   stopButton = new QPushButton (
-      QIcon ( ":/icons/media-playback-stop-7.png" ), "", this );
+      QIcon ( ":/qt-icons/media-playback-stop-7.png" ), "", this );
   stopButton->setToolTip ( tr ( "Stop capturing data" ));
   connect ( stopButton, SIGNAL( clicked()), this, SLOT( stopRecording()));
 
 #ifdef SESSION_BROWSER
   fileListButton = new QPushButton (
-      QIcon ( ":/icons/format-list-unordered.png" ), "", this );
+      QIcon ( ":/qt-icons/format-list-unordered.png" ), "", this );
 #endif
 
   autorunButton = new QPushButton (
-      QIcon ( ":/icons/clicknrun_grey.png" ), "", this );
+      QIcon ( ":/qt-icons/clicknrun_grey.png" ), "", this );
   autorunButton->setToolTip ( tr ( "Reset autorun settings" ));
   autorunLabel = new QLabel ( "   " );
 
@@ -918,7 +918,7 @@ void
 CaptureWidget::enableAutorun ( void )
 {
   autorunButton->setEnabled ( 1 );
-  autorunButton->setIcon ( QIcon ( ":/icons/clicknrun.png" ) );
+  autorunButton->setIcon ( QIcon ( ":/qt-icons/clicknrun.png" ) );
   autorunLabel->setText ( "0 of " + QString::number ( config.autorunCount ));
   // set this to 0 to stop autorun being started automagicallly until
   // the first one is kicked off with the start button

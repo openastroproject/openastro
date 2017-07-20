@@ -89,6 +89,8 @@ typedef struct
 
   int			preferredExposureControl;
 
+  QString		appPath;
+
 } STATE;
 
 extern STATE		state;

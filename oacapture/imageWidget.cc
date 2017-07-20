@@ -88,7 +88,7 @@ ImageWidget::ImageWidget ( QWidget* parent ) : QGroupBox ( parent )
   ySize->setText ( yStr );
 
   roiButton = new QPushButton (
-      QIcon ( ":/icons/roi.png" ), "", this );
+      QIcon ( ":/qt-icons/roi.png" ), "", this );
   roiButton->setToolTip ( tr ( "Set new ROI" ));
   connect ( roiButton, SIGNAL( clicked()), this, SLOT( changeROI()));
   roiButton->setEnabled ( 0 );

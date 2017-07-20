@@ -48,7 +48,7 @@
 SettingsWidget::SettingsWidget()
 {
   setWindowTitle( APPLICATION_NAME + tr ( " Settings" ));
-  setWindowIcon ( QIcon ( ":/icons/configure-3.png" ));
+  setWindowIcon ( QIcon ( ":/qt-icons/configure-3.png" ));
 
   general = new GeneralSettings ( this );
   capture = new CaptureSettings ( this );
@@ -69,25 +69,25 @@ SettingsWidget::SettingsWidget()
   saveButton->setEnabled ( 0 );
 
   state.generalSettingsIndex = tabSet->addTab ( general, 
-      QIcon ( ":/icons/cog.png" ), tr ( "General" ));
+      QIcon ( ":/qt-icons/cog.png" ), tr ( "General" ));
   state.captureSettingsIndex = tabSet->addTab ( capture,
-      QIcon ( ":/icons/capture.png" ), tr ( "Capture" ));
+      QIcon ( ":/qt-icons/capture.png" ), tr ( "Capture" ));
   state.cameraSettingsIndex = tabSet->addTab ( cameras,
-      QIcon ( ":/icons/planetary-camera.png" ), tr ( "Camera" ));
+      QIcon ( ":/qt-icons/planetary-camera.png" ), tr ( "Camera" ));
   state.profileSettingsIndex = tabSet->addTab ( profiles,
-      QIcon ( ":/icons/jupiter.png" ), tr ( "Profiles" ));
+      QIcon ( ":/qt-icons/jupiter.png" ), tr ( "Profiles" ));
   state.filterSettingsIndex = tabSet->addTab ( filters,
-      QIcon ( ":/icons/filter-wheel.png" ), tr ( "Filters" ));
+      QIcon ( ":/qt-icons/filter-wheel.png" ), tr ( "Filters" ));
   state.autorunSettingsIndex = tabSet->addTab ( autorun,
-      QIcon ( ":/icons/clicknrun.png" ), tr ( "Autorun" ));
+      QIcon ( ":/qt-icons/clicknrun.png" ), tr ( "Autorun" ));
   state.histogramSettingsIndex = tabSet->addTab ( histogram,
-      QIcon ( ":/icons/barchart.png" ), tr ( "Histogram" ));
+      QIcon ( ":/qt-icons/barchart.png" ), tr ( "Histogram" ));
   state.demosaicSettingsIndex = tabSet->addTab ( demosaic,
-      QIcon ( ":/icons/mosaic.png" ), tr ( "Demosaic" ));
+      QIcon ( ":/qt-icons/mosaic.png" ), tr ( "Demosaic" ));
   state.fitsSettingsIndex = tabSet->addTab ( fits,
-      QIcon ( ":/icons/fits.png" ), tr ( "FITS/SER Metadata" ));
+      QIcon ( ":/qt-icons/fits.png" ), tr ( "FITS/SER Metadata" ));
   state.timerSettingsIndex = tabSet->addTab ( timer,
-      QIcon ( ":/icons/timer.png" ), tr ( "Timer" ));
+      QIcon ( ":/qt-icons/timer.png" ), tr ( "Timer" ));
 
   tabSet->setUsesScrollButtons ( false );
 

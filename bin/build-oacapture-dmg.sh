@@ -37,6 +37,7 @@ mkdir $APPDIR/Contents/Frameworks
 
 mkdir $APPDIR/Contents/Resources/firmware
 mkdir $APPDIR/Contents/Resources/firmware/qhy
+mkdir $APPDIR/Contents/Resources/translations
 
 cp osx/oacapture.plist $APPDIR/Contents/Info.plist
 cp osx/oaCapture.icns $APPDIR/Contents/Resources
@@ -46,9 +47,10 @@ strip $APPDIR/Contents/MacOS/oaCapture
 cp ext/libusb/examples/fxload $APPDIR/Contents/MacOS
 strip $APPDIR/Contents/MacOS/fxload
 
-
 cp lib/firmware/qhy/QHY{5,5II,5LOADER,6}.HEX \
     $APPDIR/Contents/Resources/firmware/qhy
+
+cp oacapture/translations/*.qm $APPDIR/Contents/Resources/translations
 
 /opt/local/bin/macdeployqt $APPDIR
 
@@ -72,5 +74,5 @@ install_name_tool -change /System/Library/Frameworks/ImageIO.framework/Versions/
 install_name_tool -change /System/Library/Frameworks/CFNetwork.framework/Versions/A/CFNetwork /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CFNetwork.framework/CFNetwork $APPDIR/Contents/Frameworks/QtNetwork.framework/Versions/4/QtNetwork
 
 cd $ROOT
-rm -f ../oaCapture-1.1.0.dmg
-hdiutil create -format UDBZ -quiet -srcfolder oaCapture.app ../oaCapture-1.1.0.dmg
+rm -f ../oaCapture-1.2.0.dmg
+hdiutil create -format UDBZ -quiet -srcfolder oaCapture.app ../oaCapture-1.2.0.dmg

@@ -72,4 +72,4 @@ SOURCES += camera.cc \
            profileSettings.cc \
            demosaicSettings.cc
 
-TRANSLATIONS += oacapture_es.ts
+TRANSLATIONS += translations/oacapture_es.ts

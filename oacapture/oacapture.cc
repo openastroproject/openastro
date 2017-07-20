@@ -30,19 +30,43 @@
 
 #include "version.h"
 #include "mainWindow.h"
+#include "state.h"
 
 int
 main ( int argc, char* argv[] )
 {
   QApplication app ( argc, argv );
+  QString translateDir;
+
   app.setOrganizationName( ORGANISATION_NAME );
   app.setApplicationName( APPLICATION_NAME );
   
+  state.appPath = QCoreApplication::applicationDirPath();
+  if ( state.appPath.endsWith ( "/MacOS" )) {
+    state.appPath.chop ( 6 );
+  }
+#if USE_APP_PATH
+  oaSetRootPath ( state.appPath.toStdString().c_str());
+#endif
+
   QString locale = QLocale::system().name();
   
-  QTranslator translator;
-  translator.load(QString("oacapture_") + locale);
-  app.installTranslator(&translator);
+  QTranslator qtTranslator;
+  if ( qtTranslator.load ( "qt_" + locale, QLibraryInfo::location (
+      QLibraryInfo::TranslationsPath ))) {
+    app.installTranslator ( &qtTranslator );
+  }
+
+  QTranslator appTranslator;
+#if USE_APP_PATH
+  translateDir = state.appPath + "/Resources/translations/";
+#else
+  translateDir = TRANSLATE_DIR;
+#endif
+
+  if ( appTranslator.load ( translateDir + "oacapture_" + locale )) {
+    app.installTranslator ( &appTranslator );
+  }
 
   MainWindow mainWindow;
   mainWindow.show();

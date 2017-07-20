@@ -29,8 +29,10 @@ AC_PROG_LIBTOOL
 AC_CHECK_PROGS(MOC, [moc moc-qt5 moc-qt4])
 AC_CHECK_PROGS(UIC, [uic uic-qt5 uic-qt4])
 AC_CHECK_PROGS(RCC, [rcc])
-if test -z "$MOC" || test -z "$UIC" || test -z "$RCC"; then
-AC_MSG_ERROR([Qt utility programs moc, uic, and rcc are required.])
+AC_CHECK_PROGS(LCONVERT, [lconvert])
+if test -z "$MOC" || test -z "$UIC" || test -z "$RCC" || test -z "$LCONVERT"
+then
+AC_MSG_ERROR([Qt utility programs moc, uic, rcc and lconvert are required.])
 fi
 
 checkQtForPIC=0
@@ -1057,5 +1059,5 @@ AM_CONDITIONAL([LIBUSB_COND], [test "x$use_system_libusb" == "xno"])
 AM_CONDITIONAL([LIBHIDAPI_COND], [test "x$use_system_libhidapi" == "xno"])
 AM_CONDITIONAL([INT_LIBUVC_COND], [test "x$internal_uvc" == "xyes"])
 
-AC_CONFIG_FILES([Makefile liboautil/Makefile liboacam/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboaimgproc/Makefile liboaPTR/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile])
+AC_CONFIG_FILES([Makefile liboautil/Makefile liboacam/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboaimgproc/Makefile liboaPTR/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile])
 AC_OUTPUT

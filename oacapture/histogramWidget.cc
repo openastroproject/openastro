@@ -45,7 +45,7 @@ HistogramWidget::HistogramWidget()
   showingThreeGraphs = 0;
   resize ( 300, 150 );
   setWindowTitle( APPLICATION_NAME " Histogram" );
-  setWindowIcon ( QIcon ( ":/icons/barchart.png" ));
+  setWindowIcon ( QIcon ( ":/qt-icons/barchart.png" ));
   setSizePolicy ( QSizePolicy ( QSizePolicy::Fixed, QSizePolicy::Fixed ));
   grey = red;
   bzero ( red, sizeof( int ) * 256 );

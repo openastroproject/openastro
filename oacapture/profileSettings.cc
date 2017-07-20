@@ -59,14 +59,14 @@ ProfileSettings::ProfileSettings ( QWidget* parent ) : QWidget ( parent )
   targetMenu->setEnabled ( 0 );
   connect ( targetMenu, SIGNAL( currentIndexChanged ( int )), this,
       SLOT( targetChanged ( int )));
-  addButton = new QPushButton ( QIcon ( ":/icons/list-add-4.png" ),
+  addButton = new QPushButton ( QIcon ( ":/qt-icons/list-add-4.png" ),
       tr ( "Add Profile" ));
   addButton->setToolTip (
       tr ( "Create a new profile with the current settings" ));
   addButton->setStyleSheet("Text-align:left");
   connect ( addButton, SIGNAL ( clicked()), this, SLOT ( addEntry()));
   connect ( addButton, SIGNAL ( clicked()), parent, SLOT ( dataChanged()));
-  removeButton = new QPushButton ( QIcon ( ":/icons/list-remove-4.png" ),
+  removeButton = new QPushButton ( QIcon ( ":/qt-icons/list-remove-4.png" ),
       tr ( "Remove Profile" ));
   if ( 1 == config.numProfiles ) {
     removeButton->setEnabled ( 0 );

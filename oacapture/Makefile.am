@@ -27,13 +27,15 @@
 #  $(LIBUVC_CFLAGS) $(LIBHIDAPI_CFLAGS) $(LIBUSB_CFLAGS) $(LIBDC1394_CFLAGS) \
 #  $(LIBFTDI_CFLAGS)
 
-SUBDIRS = icons desktop
+SUBDIRS = icons desktop translations
 
 AM_CPPFLAGS = -I$(top_srcdir)/include $(FFMPEG_CFLAGS) $(APP_PATH_CFLAGS) \
-  $(DEFAULT_PATH_CFLAGS) $(LIBWINDIB_CFLAGS) -D__STDC_CONSTANT_MACROS
+  $(DEFAULT_PATH_CFLAGS) $(LIBWINDIB_CFLAGS) -D__STDC_CONSTANT_MACROS \
+  -DTRANSLATE_DIR=\"${datadir}/$(bin_PROGRAMS)/\"
 
 MOC_CPPFLAGS = -I$(top_srcdir)/include $(MOC_CFLAGS) $(APP_PATH_CFLAGS) \
-  $(DEFAULT_PATH_CFLAGS) -D__STDC_CONSTANT_MACROS
+  $(DEFAULT_PATH_CFLAGS) -D__STDC_CONSTANT_MACROS \
+  -DTRANSLATE_DIR=\"${datadir}/$(bin_PROGRAMS)/\"
 
 bin_PROGRAMS = oacapture
 BUILT_SOURCES = 
@@ -52,7 +54,8 @@ oacapture_SOURCES = autorunSettings.cc camera.cc cameraSettings.cc \
   moc_generalSettings.cc moc_imageWidget.cc moc_mainWindow.cc \
   moc_previewWidget.cc moc_profileSettings.cc moc_settingsWidget.cc \
   moc_zoomWidget.cc moc_advancedSettings.cc moc_focusOverlay.cc \
-  moc_fitsSettings.cc moc_timerSettings.cc qrc_oacapture.cc
+  moc_fitsSettings.cc moc_timerSettings.cc moc_demosaicSettings.cc \
+  qrc_oacapture.cc
 
 oacapture_LDADD = \
   ../liboacam/liboacam.la \

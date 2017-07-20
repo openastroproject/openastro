@@ -226,7 +226,7 @@ AdvancedSettings::AdvancedSettings ( int device, int interface )
         }
         currCol++;
       }
-      deleteButton = new QPushButton ( QIcon ( ":/icons/list-remove-4.png" ),
+      deleteButton = new QPushButton ( QIcon ( ":/qt-icons/list-remove-4.png" ),
           tr ( "Remove" ));
       grid->addWidget ( deleteButton, i+1, currCol );
       deleteMapper->setMapping ( deleteButton, i );
@@ -398,7 +398,7 @@ AdvancedSettings::addFilterToGrid ( void )
 
   editedList.append ( c );
   rowList.append ( addedRows );
-  deleteButton = new QPushButton ( QIcon ( ":/icons/list-remove-4.png" ),
+  deleteButton = new QPushButton ( QIcon ( ":/qt-icons/list-remove-4.png" ),
       tr ( "Remove " ));
   grid->addWidget ( deleteButton, addedRows, currCol );
   deleteMapper->setMapping ( deleteButton, addedRows - 1 );
