@@ -64,6 +64,7 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt ) :
   splitPlanes = 0;
   writeBuffer = 0;
   elements = 0;
+  imageFormat = fmt;
 
   switch ( fmt ) {
 
@@ -338,6 +339,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 #endif
     fits_write_key_str ( fptr, "OBSERVER", tempStr, "", &status );
   }
+
   if ( config.fitsObject != "" ) {
 #if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
     tempStr = config.fitsObject.toStdString().c_str();
@@ -347,6 +349,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 #endif
     fits_write_key_str ( fptr, "OBJECT", tempStr, "", &status );
   }
+
   if ( config.fitsTelescope != "" ) {
 #if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
     tempStr = config.fitsTelescope.toStdString().c_str();
@@ -356,6 +359,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 #endif
     fits_write_key_str ( fptr, "TELESCOP", tempStr, "", &status );
   }
+
   if ( config.fitsInstrument != "" ) {
 #if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
     tempStr = config.fitsInstrument.toStdString().c_str();
@@ -365,6 +369,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 #endif
     fits_write_key_str ( fptr, "INSTRUME", tempStr, "", &status );
   }
+
   if ( config.fitsComment != "" ) {
 #if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
     tempStr = config.fitsComment.toStdString().c_str();
@@ -376,6 +381,10 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   }
 
   fits_write_key_dbl ( fptr, "EXPTIME", expTime / 1000000.0, 10, "", &status );
+
+  if ( OA_ISBAYER ( imageFormat )) {
+    fits_write_key_str ( fptr, "BAYERPAT", "TRUE", "", &status );
+  }
 
   if ( fits_write_img ( fptr, tableType, 1, elements * ( nAxes == 3 ? 3 : 1 ),
       outputBuffer, &status )) {
