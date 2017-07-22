@@ -121,7 +121,23 @@ const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
   "Auto White Balance Delay",
   "Auto White Balance Temp",
   "Max Auto Exposure",
-  "Max Auto Gain"
+  "Max Auto Gain",
+  "Interlace Enable",
+  "Focus",
+  "Iris",
+  "Roll",
+  "Privacy Enable",		// 90
+  "Simple Focus",
+  "Relative Focus",
+  "Relative Focus Speed",
+  "Relative Iris",
+  "Relative Zoom",
+  "Relative Zoom Speed",
+  "Digital Zoom Enable",
+  "Pan Relative Speed",
+  "Tilt Relative Speed",
+  "Relative Roll",		// 100
+  "Relative Roll Speed" 
 };
 
 const char* oaCameraPresetAWBLabel[ OA_AWB_PRESET_LAST_P1 ] = {

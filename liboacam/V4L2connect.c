@@ -907,6 +907,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     }
   }
 
+  // FIX ME -- what if we have autoExposure, but neither absolute nor
+  // unscaled exposure types?
   if ( autoExposureType ) {
     if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
       camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =

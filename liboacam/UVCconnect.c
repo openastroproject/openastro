@@ -83,12 +83,12 @@ struct puCtrl controlData[] = {
     .size		= 2
   }, {
     .uvcControl		= UVC_PU_WHITE_BALANCE_COMPONENT_CONTROL,
-    .oaControl		= 0, // odd one.  R&B combined?
+    .oaControl		= 0, // R&B combined.  Handle this separately
     .oaControlType	= OA_CTRL_TYPE_INT32,
     .size		= 4
   }, {
     .uvcControl		= UVC_PU_BACKLIGHT_COMPENSATION_CONTROL,
-    .oaControl		= 0,
+    .oaControl		= OA_CAM_CTRL_BACKLIGHT_COMPENSATION,
     .oaControlType	= OA_CTRL_TYPE_INT32,
     .size		= 2
   }, {
@@ -98,7 +98,7 @@ struct puCtrl controlData[] = {
     .size		= 2
   }, {
     .uvcControl		= UVC_PU_POWER_LINE_FREQUENCY_CONTROL,
-    .oaControl		= 0,
+    .oaControl		= OA_CAM_CTRL_POWER_LINE_FREQ,
     .oaControlType	= OA_CTRL_TYPE_MENU,
     .size		= 1
   }, {
@@ -108,7 +108,7 @@ struct puCtrl controlData[] = {
     .size		= 1
   }, {
     .uvcControl		= UVC_PU_WHITE_BALANCE_TEMPERATURE_AUTO_CONTROL,
-    .oaControl		= OA_CAM_CTRL_AUTO_WHITE_BALANCE_TEMP,
+    .oaControl		= OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE_TEMP ),
     .oaControlType	= OA_CTRL_TYPE_BOOLEAN,
     .size		= 1
   }, {
@@ -118,22 +118,22 @@ struct puCtrl controlData[] = {
     .size		= 1
   }, {
     .uvcControl		= UVC_PU_DIGITAL_MULTIPLIER_CONTROL,
-    .oaControl		= 0,
+    .oaControl		= 0, // deprecated control
     .oaControlType	= OA_CTRL_TYPE_INT32,
     .size		= 2
   }, {
     .uvcControl		= UVC_PU_DIGITAL_MULTIPLIER_LIMIT_CONTROL,
-    .oaControl		= 0,
+    .oaControl		= 0, // presumably also deprecated
     .oaControlType	= OA_CTRL_TYPE_INT32,
     .size		= 2
   }, {
     .uvcControl		= UVC_PU_ANALOG_VIDEO_STANDARD_CONTROL,
-    .oaControl		= 0,
+    .oaControl		= 0, // only for analogue devices
     .oaControlType	= OA_CTRL_TYPE_READONLY,
     .size		= 1
   }, {
     .uvcControl		= UVC_PU_ANALOG_LOCK_STATUS_CONTROL,
-    .oaControl		= 0,
+    .oaControl		= 0, // only for analogue devices
     .oaControlType	= OA_CTRL_TYPE_READONLY,
     .size		= 1
   }, {
@@ -331,6 +331,10 @@ oaUVCInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
+  // These are so we can get the auto focus stuff right later.
+  int   autoFocusType = 0;
+  uint8_t autoFocusMax, autoFocusMin, autoFocusDef, autoFocusStep;
+
   control = 1;
   flags = cameraTerminal->bmControls;
   while ( flags ) {
@@ -341,9 +345,23 @@ oaUVCInitCamera ( oaCameraDevice* device )
       switch ( control ) {
 
         case UVC_CT_SCANNING_MODE_CONTROL:
-          fprintf ( stderr, "Unsupported control CT_SCANNING_MODE_CONTROL\n" );
-          break;
+        {
+          uint32_t val_u32;
 
+          if ( uvc_get_exposure_abs ( uvcHandle, &val_u32, UVC_GET_DEF ) !=
+              UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get default for scanning mode\n" );
+          }
+
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_INTERLACE_ENABLE ) =
+              OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_INTERLACE_ENABLE ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_INTERLACE_ENABLE ) = 1;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_INTERLACE_ENABLE ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_INTERLACE_ENABLE ) =
+            val_u32 ? 1 : 0;
+          break;
+        }
         case UVC_CT_AE_MODE_CONTROL:
         {
           // UVC auto exposure mode is messy -- a bitfield of:
@@ -408,24 +426,24 @@ oaUVCInitCamera ( oaCameraDevice* device )
               OA_CTRL_TYPE_INT64;
           if ( uvc_get_exposure_abs ( uvcHandle, &val_u32, UVC_GET_MIN ) !=
               UVC_SUCCESS ) {
-            fprintf ( stderr, "failed to get min value for AE setting\n" );
+            fprintf ( stderr, "failed to get min value for exposure\n" );
           }
           commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = val_u32;
           if ( uvc_get_exposure_abs ( uvcHandle, &val_u32, UVC_GET_MAX ) !=
               UVC_SUCCESS ) {
-            fprintf ( stderr, "failed to get max value for AE setting\n" );
+            fprintf ( stderr, "failed to get max value for exposure\n" );
           }
           commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               val_u32;
           if ( uvc_get_exposure_abs ( uvcHandle, &val_u32, UVC_GET_RES ) !=
               UVC_SUCCESS ) {
-            fprintf ( stderr, "failed to get resolution for AE setting\n" );
+            fprintf ( stderr, "failed to get resolution for exposure\n" );
           }
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               val_u32;
           if ( uvc_get_exposure_abs ( uvcHandle, &val_u32, UVC_GET_DEF ) !=
               UVC_SUCCESS ) {
-            fprintf ( stderr, "failed to get default for AE setting\n" );
+            fprintf ( stderr, "failed to get default for exposure\n" );
           }
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               val_u32;
@@ -440,22 +458,255 @@ oaUVCInitCamera ( oaCameraDevice* device )
           break;
         }
         case UVC_CT_ZOOM_ABSOLUTE_CONTROL:
-        case UVC_CT_EXPOSURE_TIME_RELATIVE_CONTROL:
+        {
+          uint16_t val_u16;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_ZOOM_ABSOLUTE ) =
+              OA_CTRL_TYPE_INT32;
+          if ( uvc_get_zoom_abs ( uvcHandle, &val_u16, UVC_GET_MIN ) !=
+              UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get min value for zoom abs\n" );
+          }
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_ZOOM_ABSOLUTE ) = val_u16;
+          if ( uvc_get_zoom_abs ( uvcHandle, &val_u16, UVC_GET_MAX ) !=
+              UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get max value for zoom abs\n" );
+          }
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_ZOOM_ABSOLUTE ) =
+              val_u16;
+          if ( uvc_get_zoom_abs ( uvcHandle, &val_u16, UVC_GET_RES ) !=
+              UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get resolution for zoom abs\n" );
+          }
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_ZOOM_ABSOLUTE ) =
+              val_u16;
+          if ( uvc_get_zoom_abs ( uvcHandle, &val_u16, UVC_GET_DEF ) !=
+              UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get default for zoom abs\n" );
+          }
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_ZOOM_ABSOLUTE ) =
+              val_u16;
+          break;
+        }
+
         case UVC_CT_AE_PRIORITY_CONTROL:
+          // we come to this one after auto exposure, which is good, because
+          // if auto-exposure is supported this needs to change it from a
+          // boolean to a menu including shutter priority and aperture
+          // priority
+          // FIX ME -- make it work
+          // what if we have this, but there is no auto exposure control?
+          fprintf ( stderr, "Unsupported UVC control CT_AE_PRIORITY\n" );
+          break;
+
         case UVC_CT_FOCUS_ABSOLUTE_CONTROL:
-        case UVC_CT_FOCUS_RELATIVE_CONTROL:
+        {
+          uint16_t val_u16;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+              OA_CTRL_TYPE_INT32;
+          if ( uvc_get_focus_abs ( uvcHandle, &val_u16, UVC_GET_MIN ) !=
+              UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get min value for AE setting\n" );
+          }
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_FOCUS_ABSOLUTE ) = val_u16;
+          if ( uvc_get_focus_abs ( uvcHandle, &val_u16, UVC_GET_MAX ) !=
+              UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get max value for AE setting\n" );
+          }
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+              val_u16;
+          if ( uvc_get_focus_abs ( uvcHandle, &val_u16, UVC_GET_RES ) !=
+              UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get resolution for AE setting\n" );
+          }
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+              val_u16;
+          if ( uvc_get_focus_abs ( uvcHandle, &val_u16, UVC_GET_DEF ) !=
+              UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get default for AE setting\n" );
+          }
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+              val_u16;
+          break;
+        }
+
         case UVC_CT_FOCUS_AUTO_CONTROL:
+        {
+          // This might allow an autofocus option for "focus absolute",
+          // "focus relative" or "focus simple", so we need to remember
+          // the settings and handle this later when we know which focus
+          // options exist
+
+          autoFocusType = OA_CTRL_TYPE_BOOLEAN;
+          if ( uvc_get_focus_auto ( uvcHandle, &autoFocusMin, UVC_GET_MIN )
+              != UVC_SUCCESS ) { 
+            fprintf ( stderr, "failed to get min value for autofocus\n" );
+          }
+          if ( uvc_get_focus_auto ( uvcHandle, &autoFocusMax, UVC_GET_MAX )
+              != UVC_SUCCESS ) { 
+            fprintf ( stderr, "failed to get max value for autofocus\n" );
+          }
+          if ( uvc_get_focus_auto ( uvcHandle, &autoFocusStep, UVC_GET_RES )
+              != UVC_SUCCESS ) { 
+            fprintf ( stderr, "failed to get resolution for autofocus\n" );
+          }
+          if ( uvc_get_focus_auto ( uvcHandle, &autoFocusDef, UVC_GET_DEF )
+              != UVC_SUCCESS ) { 
+            fprintf ( stderr, "failed to get default for autofocus\n" );
+          }
+          break;
+        }
+
         case UVC_CT_IRIS_ABSOLUTE_CONTROL:
-        case UVC_CT_IRIS_RELATIVE_CONTROL:
-        case UVC_CT_ZOOM_RELATIVE_CONTROL:
+        {
+          uint16_t val_u16;
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_IRIS_ABSOLUTE ) =
+              OA_CTRL_TYPE_INT32;
+          if ( uvc_get_iris_abs ( uvcHandle, &val_u16, UVC_GET_MIN ) !=
+              UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get min value for iris abs\n" );
+          }
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_IRIS_ABSOLUTE ) = val_u16;
+          if ( uvc_get_iris_abs ( uvcHandle, &val_u16, UVC_GET_MAX ) !=
+              UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get max value for iris abs\n" );
+          }
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_IRIS_ABSOLUTE ) =
+              val_u16;
+          if ( uvc_get_iris_abs ( uvcHandle, &val_u16, UVC_GET_RES ) !=
+              UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get resolution for iris abs\n" );
+          }
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_IRIS_ABSOLUTE ) =
+              val_u16;
+          if ( uvc_get_iris_abs ( uvcHandle, &val_u16, UVC_GET_DEF ) !=
+              UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get default for iris abs\n" );
+          }
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_IRIS_ABSOLUTE ) =
+              val_u16;
+          break;
+        }
+
         case UVC_CT_PANTILT_ABSOLUTE_CONTROL:
-        case UVC_CT_PANTILT_RELATIVE_CONTROL:
+        {
+          int32_t defPan, defTilt;
+          // we have two controls combined here
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_PAN_ABSOLUTE ) =
+              camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TILT_ABSOLUTE ) =
+              OA_CTRL_TYPE_INT32; 
+
+          // units are arcseconds, and the spec defines the min and max
+          // values as -180*3600 to 180*3600
+
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_PAN_ABSOLUTE ) =
+              commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TILT_ABSOLUTE ) =
+              -180 * 3600;
+
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_PAN_ABSOLUTE ) =
+              commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TILT_ABSOLUTE ) =
+              180 * 3600;
+
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_PAN_ABSOLUTE ) =
+              commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TILT_ABSOLUTE ) = 1;
+
+          if ( uvc_get_pantilt_abs ( uvcHandle, &defPan, &defTilt,
+              UVC_GET_DEF ) != UVC_SUCCESS ) { 
+            fprintf ( stderr, "failed to get default for pan/tilt default\n" );
+          }
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_PAN_ABSOLUTE ) = defPan;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TILT_ABSOLUTE ) = defTilt;
+          break;
+        }
+
         case UVC_CT_ROLL_ABSOLUTE_CONTROL:
-        case UVC_CT_ROLL_RELATIVE_CONTROL:
+        {
+          int16_t val_s16;
+
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_ROLL_ABSOLUTE ) =
+              OA_CTRL_TYPE_INT32;
+
+          // units are degrees, and the spec defines the min and max
+          // values as -180 to 180
+
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_ROLL_ABSOLUTE ) = -180;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_ROLL_ABSOLUTE ) = 180;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_ROLL_ABSOLUTE ) = 1;
+
+          if ( uvc_get_roll_abs ( uvcHandle, &val_s16, UVC_GET_DEF ) !=
+              UVC_SUCCESS ) { 
+            fprintf ( stderr, "failed to get default for pan/tilt default\n" );
+          }
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_ROLL_ABSOLUTE ) = val_s16;
+          break;
+        }
+
         case UVC_CT_PRIVACY_CONTROL:
+        {
+          uint8_t val_u8;
+
+          if ( uvc_get_privacy ( uvcHandle, &val_u8, UVC_GET_DEF ) !=
+              UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get default for privacy mode\n" );
+          }
+
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_PRIVACY_ENABLE ) =
+              OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_PRIVACY_ENABLE ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_PRIVACY_ENABLE ) = 1;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_PRIVACY_ENABLE ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_PRIVACY_ENABLE ) =
+            val_u8 ? 1 : 0;
+          break;
+        }
+
         case UVC_CT_FOCUS_SIMPLE_CONTROL:
+        {
+          uint8_t val_u8;
+
+          if ( uvc_get_focus_simple_range ( uvcHandle, &val_u8,
+              UVC_GET_DEF ) != UVC_SUCCESS ) {
+            fprintf ( stderr, "failed to get default for simple focus\n" );
+          }
+
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FOCUS_SIMPLE ) =
+              OA_CTRL_TYPE_MENU;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_FOCUS_SIMPLE ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_FOCUS_SIMPLE ) = 3;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_FOCUS_SIMPLE ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FOCUS_SIMPLE ) = val_u8;
+          break;
+        }
+
+        case UVC_CT_EXPOSURE_TIME_RELATIVE_CONTROL:
+          // FIX ME -- this needs a new control type to provide increment
+          // and decrement functions
+
+        case UVC_CT_FOCUS_RELATIVE_CONTROL:
+          // FIX ME -- this needs to be split into two controls, one to set
+          // the speed and a new type for in/stop/out
+
+        case UVC_CT_IRIS_RELATIVE_CONTROL:
+          // FIX ME -- needs a new control type (as for FOCUS), but for the
+          // options open 1 step/default/close 1 step
+
+        case UVC_CT_ZOOM_RELATIVE_CONTROL:
+          // FIX ME -- really not sure about this one, specifically with
+          // reference to the digital zoom mode.  How do we know if it
+          // exists?
+          // Perhaps this should be three controls -- zoom in/stop/zoom out,
+          // digital zoom enabled and zoom speed
+
+        case UVC_CT_PANTILT_RELATIVE_CONTROL:
+        case UVC_CT_ROLL_RELATIVE_CONTROL:
+          // FIX ME -- again, new controls as for focus relative
+
         case UVC_CT_DIGITAL_WINDOW_CONTROL:
+          // FIX ME -- I'm really not sure I understand this one
+
         case UVC_CT_REGION_OF_INTEREST_CONTROL:
+          // FIX ME -- I want to use this, but there's a lot of complexity
+          // around how the auto controls are affected.  See the UVC1.5
+          // spec, section 4.2.2.1.20
           fprintf ( stderr, "Unsupported UVC control %d\n", control );
           break;
 
@@ -466,6 +717,47 @@ oaUVCInitCamera ( oaCameraDevice* device )
     }
     flags >>= 1;
     control++;
+  }
+
+  // FIX ME -- what if we have auto focus, but none of the three focus
+  // modes?
+  if ( autoFocusType ) {
+    if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FOCUS_ABSOLUTE )) {
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+          autoFocusType;
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+          autoFocusMin;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+          autoFocusMax;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+          autoFocusStep;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+          autoFocusDef;
+    }
+    if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FOCUS_RELATIVE )) {
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_FOCUS_RELATIVE ) =
+          autoFocusType;
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_FOCUS_RELATIVE ) =
+          autoFocusMin;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_FOCUS_RELATIVE ) =
+          autoFocusMax;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_FOCUS_RELATIVE ) =
+          autoFocusStep;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_FOCUS_RELATIVE ) =
+          autoFocusDef;
+    }
+    if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FOCUS_SIMPLE )) {
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_FOCUS_SIMPLE ) =
+          autoFocusType;
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_FOCUS_SIMPLE ) =
+          autoFocusMin;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_FOCUS_SIMPLE ) =
+          autoFocusMax;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_FOCUS_SIMPLE ) =
+          autoFocusStep;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_FOCUS_SIMPLE ) =
+          autoFocusDef;
+    }
   }
 
   if (!( processingUnits = uvc_get_processing_units ( uvcHandle ))) {
