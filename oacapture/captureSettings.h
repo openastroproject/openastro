@@ -51,18 +51,26 @@ class CaptureSettings : public QWidget
     QVBoxLayout*	vLayout;
     QHBoxLayout*	hLayout;
     QGridLayout*	grid;
+#if 0
     QLabel*		fitsLabel;
     QLabel*		commentLabel;
     QLabel*		instrumentLabel;
     QLabel*		objectLabel;
     QLabel*		observerLabel;
     QLabel*		telescopeLabel;
+    QLabel*		focalLengthLabel;
+    QLabel*		apertureDiaLabel;
+    QLabel*		apertureAreaLabel;
     QLineEdit*		titleInput;
     QLineEdit*		commentInput;
     QLineEdit*		instrumentInput;
     QLineEdit*		objectInput;
     QLineEdit*		observerInput;
     QLineEdit*		telescopeInput;
+    QLineEdit*		focalLengthInput;
+    QLineEdit*		apertureDiaInput;
+    QLineEdit*		apertureAreaInput;
+#endif
 
   public slots:
     void		resetIndex ( void );

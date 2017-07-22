@@ -2,7 +2,7 @@
  *
  * fitsSettings.h -- class declaration
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -50,9 +50,29 @@ class FITSSettings : public QWidget
     QLabel*		objectLabel;
     QLabel*		observerLabel;
     QLabel*		telescopeLabel;
+    QLabel*             focalLengthLabel;
+    QLabel*             apertureDiaLabel;
+    QLabel*             apertureAreaLabel;
+    QLabel*             pixelSizeXLabel;
+    QLabel*             pixelSizeYLabel;
+    QLabel*             subframeOriginXLabel;
+    QLabel*             subframeOriginYLabel;
+    QLabel*             siteLatitudeLabel;
+    QLabel*             siteLongitudeLabel;
+    QLabel*             filterLabel;
     QLineEdit*		commentInput;
     QLineEdit*		instrumentInput;
     QLineEdit*		objectInput;
     QLineEdit*		observerInput;
     QLineEdit*		telescopeInput;
+    QLineEdit*          focalLengthInput;
+    QLineEdit*          apertureDiaInput;
+    QLineEdit*          apertureAreaInput;
+    QLineEdit*          pixelSizeXInput;
+    QLineEdit*          pixelSizeYInput;
+    QLineEdit*          subframeOriginXInput;
+    QLineEdit*          subframeOriginYInput;
+    QLineEdit*          siteLatitudeInput;
+    QLineEdit*          siteLongitudeInput;
+    QLineEdit*          filterInput;
 };

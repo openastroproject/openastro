@@ -40,6 +40,8 @@ extern "C" {
 #include "outputFITS.h"
 #include "configuration.h"
 #include "state.h"
+#include "targets.h"
+
 
 OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt ) :
     OutputHandler ( x, y, n, d )
@@ -224,15 +226,16 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   int i, status = 0;
   fitsfile* fptr;
   void* outputBuffer = frame;
-  // Hack to get around older versions of library using const* rather
+  char stringBuff[FLEN_VALUE+1];
+  // Hack to get around older versions of library using char* rather
   // than const char*
 #if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
   const char* timestampStr = constTimestampStr;
-  const char* tempStr;
+  const char* cString = stringBuff;
 #else
   char stampStr[FLEN_VALUE+1];
   char *timestampStr;
-  char tempStr[FLEN_VALUE+1];
+  char *cString = stringBuff;
 
   if ( constTimestampStr ) {
     ( void ) strcpy ( stampStr, constTimestampStr );
@@ -318,72 +321,131 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   if ( timestampStr ) {
     fits_write_key_str ( fptr, "DATE-OBS", timestampStr, "", &status );
   } else {
-    QDateTime now = QDateTime::currentDateTime();
-    QString dateStr = now.toString ( Qt::ISODate );
-#if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
-    tempStr = dateStr.toStdString().c_str();
-#else
-    strncpy ( tempStr, dateStr.toStdString().c_str(), FLEN_VALUE + 1 );
-#endif
-    fits_write_key_str ( fptr, "DATE-OBS", tempStr, "", &status );
+    QDateTime now = QDateTime::currentDateTimeUtc();
+    // QString dateStr = now.toString ( Qt::ISODate );
+    QString dateStr = now.toString ( "yyyy-MM-ddThh:mm:ss.zzz" );
+    ( void ) strncpy ( stringBuff,
+        dateStr.toStdString().c_str(), FLEN_VALUE+1 );
+    fits_write_key_str ( fptr, "DATE-OBS", cString, "UTC", &status );
   }
 
   fits_write_date ( fptr, &status );
 
   if ( config.fitsObserver != "" ) {
-#if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
-    tempStr = config.fitsObserver.toStdString().c_str();
-#else
-    strncpy ( tempStr, config.fitsObserver.toStdString().c_str(),
-        FLEN_VALUE + 1 );
-#endif
-    fits_write_key_str ( fptr, "OBSERVER", tempStr, "", &status );
+    ( void ) strncpy ( stringBuff,
+        config.fitsObserver.toStdString().c_str(), FLEN_VALUE+1 );
+    fits_write_key_str ( fptr, "OBSERVER", cString, "", &status );
   }
 
-  if ( config.fitsObject != "" ) {
-#if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
-    tempStr = config.fitsObject.toStdString().c_str();
-#else
-    strncpy ( tempStr, config.fitsObject.toStdString().c_str(),
-        FLEN_VALUE + 1 );
-#endif
-    fits_write_key_str ( fptr, "OBJECT", tempStr, "", &status );
+  stringBuff[0] = 0;
+  int currentTargetId = state.captureWidget->getCurrentTargetId();
+  if ( currentTargetId > 0 && currentTargetId != TGT_UNKNOWN ) {
+    ( void ) strncpy ( stringBuff, targetList[ currentTargetId ],
+        FLEN_VALUE+1 );
+  } else {
+    ( void ) strncpy ( stringBuff,
+        config.fitsObject.toStdString().c_str(), FLEN_VALUE+1 );
+  }
+  if ( stringBuff[0]) {
+    fits_write_key_str ( fptr, "OBJECT", cString, "", &status );
   }
 
   if ( config.fitsTelescope != "" ) {
-#if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
-    tempStr = config.fitsTelescope.toStdString().c_str();
-#else
-    strncpy ( tempStr, config.fitsTelescope.toStdString().c_str(),
-        FLEN_VALUE + 1 );
-#endif
-    fits_write_key_str ( fptr, "TELESCOP", tempStr, "", &status );
+    ( void ) strncpy ( stringBuff,
+        config.fitsTelescope.toStdString().c_str(), FLEN_VALUE+1 );
+    fits_write_key_str ( fptr, "TELESCOP", cString, "", &status );
   }
 
   if ( config.fitsInstrument != "" ) {
-#if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
-    tempStr = config.fitsInstrument.toStdString().c_str();
-#else
-    strncpy ( tempStr, config.fitsInstrument.toStdString().c_str(),
-        FLEN_VALUE + 1 );
-#endif
-    fits_write_key_str ( fptr, "INSTRUME", tempStr, "", &status );
+    ( void ) strncpy ( stringBuff,
+        config.fitsInstrument.toStdString().c_str(), FLEN_VALUE+1 );
+    fits_write_key_str ( fptr, "INSTRUME", cString, "", &status );
   }
 
   if ( config.fitsComment != "" ) {
-#if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
-    tempStr = config.fitsComment.toStdString().c_str();
-#else
-    strncpy ( tempStr, config.fitsComment.toStdString().c_str(),
-        FLEN_VALUE + 1 );
-#endif
-    fits_write_comment ( fptr, tempStr, &status );
+    ( void ) strncpy ( stringBuff,
+        config.fitsComment.toStdString().c_str(), FLEN_VALUE+1 );
+    fits_write_comment ( fptr, cString, &status );
   }
 
-  fits_write_key_dbl ( fptr, "EXPTIME", expTime / 1000000.0, 10, "", &status );
+  if ( config.fitsFocalLength != "" ) {
+    fits_write_key_lng ( fptr, "FOCALLEN", config.fitsFocalLength.toInt(),
+        "", &status );
+  }
+
+  if ( config.fitsApertureDia != "" ) {
+    fits_write_key_lng ( fptr, "APTDIA", config.fitsApertureDia.toInt(),
+        "", &status );
+  }
+
+  if ( config.fitsApertureArea != "" ) {
+    fits_write_key_lng ( fptr, "APTAREA", config.fitsApertureArea.toInt(),
+        "", &status );
+  }
+
+  if ( config.fitsPixelSizeX != "" ) {
+    fits_write_key_dbl ( fptr, "XPIXSZ", config.fitsPixelSizeX.toFloat(),
+        -5, "", &status );
+  }
+
+  if ( config.fitsPixelSizeY != "" ) {
+    fits_write_key_dbl ( fptr, "YPIXSZ", config.fitsPixelSizeY.toFloat(),
+        -5, "", &status );
+  }
+
+  if ( config.fitsSubframeOriginX != "" ) {
+    fits_write_key_lng ( fptr, "XORGSUBF", config.fitsSubframeOriginX.toInt(),
+        "", &status );
+  }
+
+  if ( config.fitsSubframeOriginY != "" ) {
+    fits_write_key_lng ( fptr, "YORGSUBF", config.fitsSubframeOriginY.toInt(),
+        "", &status );
+  }
+
+  QString currentFilter = state.captureWidget->getCurrentFilterName();
+  if ( config.fitsFilter != "" ) {
+    currentFilter = config.fitsFilter;
+  }
+  if ( currentFilter != "" ) {
+    ( void ) strncpy ( stringBuff,
+        currentFilter.toStdString().c_str(), FLEN_VALUE+1 );
+    fits_write_key_str ( fptr, "FILTER", cString, "", &status );
+  }
+
+  if ( config.fitsSiteLatitude != "" ) {
+    ( void ) strncpy ( stringBuff,
+        config.fitsSiteLatitude.toStdString().c_str(), FLEN_VALUE+1 );
+    fits_write_key_str ( fptr, "SITELAT", cString, "", &status );
+  }
+
+  if ( config.fitsSiteLongitude != "" ) {
+    ( void ) strncpy ( stringBuff,
+        config.fitsSiteLongitude.toStdString().c_str(), FLEN_VALUE+1 );
+    fits_write_key_str ( fptr, "SITELONG", cString, "", &status );
+  }
+
+  fits_write_key_str ( fptr, "SWCREATE", APPLICATION_NAME " " VERSION_STR, "",
+      &status );
+
+  fits_write_key_dbl ( fptr, "BSCALE", 1.0, -5, "", &status );
+  fits_write_key_dbl ( fptr, "BZERO", 0.0, -5, "", &status );
+
+  fits_write_key_dbl ( fptr, "EXPTIME", expTime / 1000000.0, -10, "", &status );
 
   if ( OA_ISBAYER ( imageFormat )) {
     fits_write_key_str ( fptr, "BAYERPAT", "TRUE", "", &status );
+    fits_write_key_lng ( fptr, "XBAYROFF", 0, "", &status );
+    fits_write_key_lng ( fptr, "YBAYROFF", 0, "", &status );
+  }
+
+  if ( state.cameraTempValid ) {
+    fits_write_key_dbl ( fptr, "CCD-TEMP", state.cameraTemp, -5, "", &status );
+  }
+
+  if ( state.binningValid ) {
+    fits_write_key_lng ( fptr, "XBINNING", state.binModeX, "", &status );
+    fits_write_key_lng ( fptr, "YBINNING", state.binModeY, "", &status );
   }
 
   if ( fits_write_img ( fptr, tableType, 1, elements * ( nAxes == 3 ? 3 : 1 ),

@@ -1058,6 +1058,16 @@ CaptureWidget::getCurrentTargetName ( void )
 }
 
 
+int
+CaptureWidget::getCurrentTargetId ( void )
+{
+  if ( config.numProfiles > 0 && config.profileOption < config.numProfiles ) {
+    return config.profiles[ config.profileOption ].target;
+  }
+  return -1;
+}
+
+
 void
 CaptureWidget::profileTypeChanged ( int index )
 {
@@ -1269,8 +1279,8 @@ CaptureWidget::writeSettings ( OutputHandler* out )
                 if ( mod == OA_CAM_CTRL_MODIFIER_AUTO ) {
                   settings << tr ( "Auto" ).toStdString().c_str() << " ";
                 }
-                settings << tr ( oaCameraControlLabel[c] ).toStdString().c_str()
-                    << ": ";
+                settings << tr ( oaCameraControlLabel[
+                    baseVal ] ).toStdString().c_str() << ": ";
               }
               break;
           }
@@ -1307,6 +1317,8 @@ CaptureWidget::writeSettings ( OutputHandler* out )
                   {
                     QString stringVal;
                     float temp = state.camera->getTemperature();
+                    state.cameraTempValid = 1;
+                    state.cameraTemp = temp;
                     if ( !config.tempsInC ) {
                       temp = temp * 9 / 5 + 32;
                     }
