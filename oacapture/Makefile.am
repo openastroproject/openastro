@@ -55,6 +55,7 @@ oacapture_SOURCES = autorunSettings.cc camera.cc cameraSettings.cc \
   moc_previewWidget.cc moc_profileSettings.cc moc_settingsWidget.cc \
   moc_zoomWidget.cc moc_advancedSettings.cc moc_focusOverlay.cc \
   moc_fitsSettings.cc moc_timerSettings.cc moc_demosaicSettings.cc \
+  moc_histogramSettings.cc \
   qrc_oacapture.cc
 
 oacapture_LDADD = \
