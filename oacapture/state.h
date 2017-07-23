@@ -91,6 +91,12 @@ typedef struct
 
   QString		appPath;
 
+  int			cameraTempValid;
+  float			cameraTemp;
+  int			binningValid;
+  int			binModeX;
+  int			binModeY;
+
 } STATE;
 
 extern STATE		state;

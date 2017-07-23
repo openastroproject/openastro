@@ -2,7 +2,7 @@
  *
  * demosaicSettings.h -- class declaration
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -36,6 +36,8 @@
 
 class DemosaicSettings : public QWidget
 {
+  Q_OBJECT
+
   public:
     			DemosaicSettings ( QWidget* );
     			~DemosaicSettings();

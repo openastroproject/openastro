@@ -26,6 +26,7 @@
 
 #include <oa_common.h>
 
+#if 0
 extern "C" {
 #ifdef HAVE_FITSIO_H 
 #include "fitsio.h"
@@ -35,6 +36,7 @@ extern "C" {
 #endif
 #endif
 }
+#endif
 
 #include "captureSettings.h"
 #include "state.h"
@@ -52,9 +54,15 @@ CaptureSettings::CaptureSettings ( QWidget* parent ) : QWidget ( parent )
       this );
   utVideoBox->setChecked ( config.useUtVideo );
 
+#if 0
   fitsLabel = new QLabel ( tr ( "FITS data" ), this );
+  // FIX ME -- these labels should probably come from the FITS data in
+  // liboavideo
   observerLabel = new QLabel ( tr ( "Observer" ), this );
   telescopeLabel = new QLabel ( tr ( "Telescope" ), this );
+  focalLengthLabel = new QLabel ( tr ( "Focal Length (mm)" ), this );
+  apertureDiaLabel = new QLabel ( tr ( "Aperture Diameter (mm)" ), this );
+  apertureAreaLabel = new QLabel ( tr ( "Aperture Area (mm)" ), this );
   instrumentLabel = new QLabel ( tr ( "Instrument" ), this );
   objectLabel = new QLabel ( tr ( "Object" ), this );
   commentLabel = new QLabel ( tr ( "Comments" ), this );
@@ -73,6 +81,30 @@ CaptureSettings::CaptureSettings ( QWidget* parent ) : QWidget ( parent )
   connect ( telescopeInput, SIGNAL( editingFinished()), parent,
       SLOT( dataChanged()));
   connect ( telescopeInput, SIGNAL( textEdited ( const QString& )), parent,
+      SLOT( dataChanged()));
+
+  focalLengthInput = new QLineEdit ( this );
+  focalLengthInput->setMaxLength ( FLEN_VALUE );
+  focalLengthInput->setText ( config.fitsFocalLength );
+  connect ( focalLengthInput, SIGNAL( editingFinished()), parent,
+      SLOT( dataChanged()));
+  connect ( focalLengthInput, SIGNAL( textEdited ( const QString& )), parent,
+      SLOT( dataChanged()));
+
+  apertureDiaInput = new QLineEdit ( this );
+  apertureDiaInput->setMaxLength ( FLEN_VALUE );
+  apertureDiaInput->setText ( config.fitsApertureDia );
+  connect ( apertureDiaInput, SIGNAL( editingFinished()), parent,
+      SLOT( dataChanged()));
+  connect ( apertureDiaInput, SIGNAL( textEdited ( const QString& )), parent,
+      SLOT( dataChanged()));
+
+  apertureAreaInput = new QLineEdit ( this );
+  apertureAreaInput->setMaxLength ( FLEN_VALUE );
+  apertureAreaInput->setText ( config.fitsApertureArea );
+  connect ( apertureAreaInput, SIGNAL( editingFinished()), parent,
+      SLOT( dataChanged()));
+  connect ( apertureAreaInput, SIGNAL( textEdited ( const QString& )), parent,
       SLOT( dataChanged()));
 
   instrumentInput = new QLineEdit ( this );
@@ -103,14 +135,22 @@ CaptureSettings::CaptureSettings ( QWidget* parent ) : QWidget ( parent )
   grid = new QGridLayout;
   grid->addWidget ( observerLabel, 0, 0 );
   grid->addWidget ( observerInput, 0, 1 );
-  grid->addWidget ( telescopeLabel, 1, 0 );
-  grid->addWidget ( telescopeInput, 1, 1 );
   grid->addWidget ( instrumentLabel, 2, 0 );
   grid->addWidget ( instrumentInput, 2, 1 );
   grid->addWidget ( objectLabel, 3, 0 );
   grid->addWidget ( objectInput, 3, 1 );
   grid->addWidget ( commentLabel, 4, 0 );
   grid->addWidget ( commentInput, 4, 1 );
+
+  grid->addWidget ( telescopeLabel, 1, 2 );
+  grid->addWidget ( telescopeInput, 1, 3 );
+  grid->addWidget ( focalLengthLabel, 2, 2 );
+  grid->addWidget ( focalLengthInput, 2, 3 );
+  grid->addWidget ( apertureDiaLabel, 3, 2 );
+  grid->addWidget ( apertureDiaInput, 3, 3 );
+  grid->addWidget ( apertureAreaLabel, 4, 2 );
+  grid->addWidget ( apertureAreaInput, 4, 3 );
+#endif
 #endif
 
   hLayout = new QHBoxLayout ( this );
@@ -118,10 +158,13 @@ CaptureSettings::CaptureSettings ( QWidget* parent ) : QWidget ( parent )
   vLayout->addWidget ( indexResetButton );
   vLayout->addWidget ( winAVIBox );
   vLayout->addWidget ( utVideoBox );
+
+#if 0
 #ifdef HAVE_LIBCFITSIO
   vLayout->addStretch ( 1 );
   vLayout->addWidget ( fitsLabel );
   vLayout->addLayout ( grid );
+#endif
 #endif
   vLayout->addStretch ( 1 );
   hLayout->addLayout ( vLayout );
@@ -148,11 +191,16 @@ CaptureSettings::storeSettings ( void )
 {
   config.windowsCompatibleAVI = winAVIBox->isChecked() ? 1 : 0;
   config.useUtVideo = utVideoBox->isChecked() ? 1 : 0;
+#if 0
   config.fitsObserver = observerInput->text();
   config.fitsTelescope = telescopeInput->text();
+  config.fitsFocalLength = focalLengthInput->text();
+  config.fitsApertureDia = apertureDiaInput->text();
+  config.fitsApertureArea = apertureAreaInput->text();
   config.fitsInstrument = instrumentInput->text();
   config.fitsObject = objectInput->text();
   config.fitsComment = commentInput->text();
+#endif
 }
 
 

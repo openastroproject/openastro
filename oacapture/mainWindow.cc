@@ -68,6 +68,10 @@ static const char* styleGroupBoxBorders =
 
 MainWindow::MainWindow()
 {
+  QString qtVer;
+  unsigned int qtMajorVersion, i;
+  bool ok;
+
   cameraSignalMapper = filterWheelSignalMapper = 0;
   timerSignalMapper = 0;
   advancedFilterWheelSignalMapper = 0;
@@ -81,12 +85,22 @@ MainWindow::MainWindow()
   state.histogramOn = 0;
   state.histogramWidget = 0;
   state.needGroupBoxBorders = 0;
+  state.cameraTempValid = 0;
+  state.binningValid = 0;
 
   // The gtk+ style doesn't enable group box borders by default, which makes
   // the display look confusing.
+  //
+  // Same thing with Qt5, so work out the version and add them if required
+
+  qtVer = qVersion();
+  if (( i = qtVer.indexOf ( '.' )) >= 0 ) {
+    qtVer.truncate ( i );
+  }
+  qtMajorVersion = qtVer.toInt( &ok );
 
   QString currentStyle = QApplication::style()->objectName();
-  if ( currentStyle.toLower() == "gtk+" ) {
+  if ( currentStyle.toLower() == "gtk+" || ( ok && qtMajorVersion > 4 )) {
     state.needGroupBoxBorders = 1;
     this->setStyleSheet ( styleGroupBoxBorders );
   }
@@ -338,10 +352,20 @@ MainWindow::readConfig ( void )
     config.numCustomColours = 0;
 
     config.fitsObserver = "";
-    config.fitsTelescope = "";
     config.fitsInstrument = "";
     config.fitsObject = "";
     config.fitsComment = "";
+    config.fitsTelescope = "";
+    config.fitsFocalLength = "";
+    config.fitsApertureDia = "";
+    config.fitsApertureArea = "";
+    config.fitsPixelSizeX = "";
+    config.fitsPixelSizeY = "";
+    config.fitsSubframeOriginX = "";
+    config.fitsSubframeOriginY = "";
+    config.fitsSiteLatitude = "";
+    config.fitsSiteLongitude = "";
+    config.fitsFilter = "";
 
     config.timerMode = OA_TIMER_MODE_UNSET;
     config.timerEnabled = 0;
@@ -845,10 +869,27 @@ MainWindow::readConfig ( void )
   }
 
   config.fitsObserver = settings.value ( "fits/observer", "" ).toString();
-  config.fitsTelescope = settings.value ( "fits/telescope", "" ).toString();
   config.fitsInstrument = settings.value ( "fits/instrument", "" ).toString();
   config.fitsObject = settings.value ( "fits/object", "" ).toString();
   config.fitsComment = settings.value ( "fits/comment", "" ).toString();
+  config.fitsTelescope = settings.value ( "fits/telescope", "" ).toString();
+  config.fitsFocalLength = settings.value (
+      "fits/focalLength", "" ).toString();
+  config.fitsApertureDia = settings.value (
+      "fits/apertureDia", "" ).toString();
+  config.fitsApertureArea = settings.value (
+      "fits/apertureArea", "" ).toString();
+  config.fitsPixelSizeX = settings.value ( "fits/pixelSizeX", "" ).toString();
+  config.fitsPixelSizeY = settings.value ( "fits/pixelSizeY", "" ).toString();
+  config.fitsSubframeOriginX = settings.value (
+      "fits/subframeOriginX", "" ).toString();
+  config.fitsSubframeOriginY = settings.value (
+      "fits/subframeOriginY", "" ).toString();
+  config.fitsSiteLatitude = settings.value (
+      "fits/siteLatitude", "" ).toString();
+  config.fitsSiteLongitude = settings.value (
+      "fits/siteLongitude", "" ).toString();
+  config.fitsFilter = settings.value ( "fits/filter", "" ).toString();
 
   config.timerMode = settings.value ( "timer/mode",
       OA_TIMER_MODE_UNSET ).toInt();
@@ -1104,10 +1145,20 @@ MainWindow::writeConfig ( void )
   settings.endArray();
 
   settings.setValue ( "fits/observer", config.fitsObserver );
-  settings.setValue ( "fits/telescope", config.fitsTelescope );
   settings.setValue ( "fits/instrument", config.fitsInstrument );
   settings.setValue ( "fits/object", config.fitsObject );
   settings.setValue ( "fits/comment", config.fitsComment );
+  settings.setValue ( "fits/telescope", config.fitsTelescope );
+  settings.setValue ( "fits/focalLength", config.fitsFocalLength );
+  settings.setValue ( "fits/apertureDia", config.fitsApertureDia );
+  settings.setValue ( "fits/apertureArea", config.fitsApertureArea );
+  settings.setValue ( "fits/pixelSizeX", config.fitsPixelSizeX );
+  settings.setValue ( "fits/pixelSizeY", config.fitsPixelSizeY );
+  settings.setValue ( "fits/subframeOriginX", config.fitsSubframeOriginX );
+  settings.setValue ( "fits/subframeOriginY", config.fitsSubframeOriginY );
+  settings.setValue ( "fits/siteLatitude", config.fitsSiteLatitude );
+  settings.setValue ( "fits/siteLongitude", config.fitsSiteLongitude );
+  settings.setValue ( "fits/filter", config.fitsFilter );
 
   settings.setValue ( "timer/mode", config.timerMode );
   settings.setValue ( "timer/enabled", config.timerEnabled );
@@ -1508,6 +1559,8 @@ MainWindow::connectCamera ( int deviceIndex )
 void
 MainWindow::disconnectCamera ( void )
 {
+  state.cameraTempValid = 0;
+  state.binningValid = 0;
   if ( state.settingsWidget ) {
     state.settingsWidget->enableTab ( state.cameraSettingsIndex, 0 );
   }
@@ -1702,6 +1755,8 @@ MainWindow::setTemperature()
   QString stringVal;
 
   temp = state.camera->getTemperature();
+  state.cameraTempValid = 1;
+  state.cameraTemp = temp;
 
   if ( updateTemperatureLabel == 1 ) {
     if ( config.tempsInC ) {

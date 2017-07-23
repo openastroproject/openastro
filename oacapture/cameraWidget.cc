@@ -146,6 +146,8 @@ CameraWidget::setBinning ( int newState )
         config.imageSizeX *= 2;
         config.imageSizeY *= 2;
       }
+      state.binModeX = state.binModeY = 1;
+      state.binningValid = 1;
     } else {
       state.camera->setControl ( OA_CAM_CTRL_BINNING, OA_BIN_MODE_2x2 );
       config.binning2x2 = 1;
@@ -155,6 +157,8 @@ CameraWidget::setBinning ( int newState )
         config.imageSizeX /= 2;
         config.imageSizeY /= 2;
       }
+      state.binModeX = state.binModeY = 2;
+      state.binningValid = 1;
     }
     state.imageWidget->configure();
   }

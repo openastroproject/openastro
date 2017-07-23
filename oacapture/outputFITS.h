@@ -55,4 +55,5 @@ class OutputFITS : public OutputHandler
     int                 planeDepth;
     int			elements;
     long		fitsAxes[3];
+    unsigned int	imageFormat;
 };

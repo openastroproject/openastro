@@ -53,7 +53,7 @@ ProfileSettings::ProfileSettings ( QWidget* parent ) : QWidget ( parent )
   for ( int i = 0; i < NUM_TARGETS; i++ ) {
     if ( i != TGT_EARTH ) {
       QVariant v(i);
-      targetMenu->addItem ( targetList[i], v );
+      targetMenu->addItem ( tr ( targetList[i]), v );
     }
   }
   targetMenu->setEnabled ( 0 );

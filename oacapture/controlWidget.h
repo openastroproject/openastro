@@ -60,6 +60,7 @@ class ControlWidget : public QGroupBox
     void		updateSpinbox ( int, int );
     void		updateCheckbox ( int, int );
     QStringList		getFrameRates ( void );
+    unsigned int	getFrameRateIndex ( void );
     void		updateFrameRate ( int );
     void		disableAutoControls ( void );
     unsigned int	getCurrentGain ( void );

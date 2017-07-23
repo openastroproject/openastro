@@ -70,6 +70,7 @@ class CaptureWidget : public QGroupBox
     QString		getCurrentFilterName ( void );
     QString		getCurrentProfileName ( void );
     QString		getCurrentTargetName ( void );
+    int			getCurrentTargetId ( void );
     void		reloadFilters ( void );
     void		reloadProfiles ( void );
     void		updateFromConfig ( void );

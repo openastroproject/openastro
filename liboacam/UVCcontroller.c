@@ -201,7 +201,10 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       case OA_CAM_CTRL_WHITE_BALANCE_TEMP:
       case OA_CAM_CTRL_SHARPNESS:
       case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ):
-      case OA_CAM_CTRL_AUTO_WHITE_BALANCE_TEMP:
+      case OA_CAM_CTRL_BACKLIGHT_COMPENSATION:
+      case OA_CAM_CTRL_POWER_LINE_FREQ:
+      case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE_TEMP ):
+      case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTRAST ):
         return _doSetUVCControl ( cameraInfo->uvcHandle, cameraInfo->unitId,
             uvcControl, len, val_s32 );
         break;
@@ -291,6 +294,118 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       return _doCameraConfig ( camera, command );
       break;
 
+    case OA_CAM_CTRL_INTERLACE_ENABLE:
+    {
+      uint8_t data = valp->boolean ? 1 : 0;
+      if (( err = uvc_set_scanning_mode ( cameraInfo->uvcHandle, data ))
+          != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_set_scanning_mode ( %d ) failed in %s, err %d\n",
+            data, __FUNCTION__, err );
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_ZOOM_ABSOLUTE:
+    {
+      uint16_t data = valp->int32;
+      if (( err = uvc_set_zoom_abs ( cameraInfo->uvcHandle, data ))
+          != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_set_zoom_abs ( %d ) failed in %s, err %d\n",
+            data, __FUNCTION__, err );
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_FOCUS_ABSOLUTE:
+    {
+      uint16_t data = valp->int32;
+      if (( err = uvc_set_focus_abs ( cameraInfo->uvcHandle, data ))
+          != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_set_focus_abs ( %d ) failed in %s, err %d\n",
+            data, __FUNCTION__, err );
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_IRIS_ABSOLUTE:
+    {
+      uint16_t data = valp->int32;
+      if (( err = uvc_set_iris_abs ( cameraInfo->uvcHandle, data ))
+          != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_set_iris_abs ( %d ) failed in %s, err %d\n",
+            data, __FUNCTION__, err );
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_PAN_ABSOLUTE:
+    case OA_CAM_CTRL_TILT_ABSOLUTE:
+    {
+      int32_t data = valp->int32;
+
+      if ( OA_CAM_CTRL_PAN_ABSOLUTE == control ) {
+        cameraInfo->currentPan = data;
+      } else {
+        cameraInfo->currentTilt = data;
+      }
+      if (( err = uvc_set_pantilt_abs ( cameraInfo->uvcHandle,
+          cameraInfo->currentPan, cameraInfo->currentTilt )) != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_set_pantilt_abs ( %d, %d ) failed in %s,"
+            " err %d\n", cameraInfo->currentPan, cameraInfo->currentTilt,
+            __FUNCTION__, err );
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_ROLL_ABSOLUTE:
+    {
+      int16_t data = valp->int32;
+      if (( err = uvc_set_roll_abs ( cameraInfo->uvcHandle, data ))
+          != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_set_iris_abs ( %d ) failed in %s, err %d\n",
+            data, __FUNCTION__, err );
+      }
+      break;
+    }
+
+
+    case OA_CAM_CTRL_PRIVACY_ENABLE:
+    {
+      uint8_t data = valp->boolean ? 1 : 0;
+      if (( err = uvc_set_privacy ( cameraInfo->uvcHandle, data ))
+          != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_set_privacy ( %d ) failed in %s, err %d\n",
+            data, __FUNCTION__, err );
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_FOCUS_SIMPLE:
+    {
+      // FIX ME -- more error checking might be good?
+      uint8_t data = valp->menu & 0xff;
+
+      if (( err = uvc_set_focus_simple_range ( cameraInfo->uvcHandle, data ))
+          != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_set_focus_simple_range( %d ) failed in %s,"
+            " err %d\n", data, __FUNCTION__, err );
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_FOCUS_ABSOLUTE ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_FOCUS_RELATIVE ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_FOCUS_SIMPLE ):
+    {
+      uint8_t data = valp->boolean ? 1 : 0;
+      if (( err = uvc_set_focus_auto ( cameraInfo->uvcHandle, data ))
+          != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_set_focus_auto ( %d ) failed in %s, err %d\n",
+            data, __FUNCTION__, err );
+      }
+      break;
+    }
+
     default:
       fprintf ( stderr, "Unrecognised control %d in %s\n", control,
           __FUNCTION__ );
@@ -306,7 +421,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 {
   int			control = command->controlId;
   oaControlValue*	valp = command->resultData;
-  int			found, len;
+  int			found, len, err;
   uint8_t		uvcControl;
   unsigned int		i;
   UVC_STATE*		cameraInfo = camera->_private;
@@ -330,15 +445,25 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       case OA_CAM_CTRL_GAIN:
       case OA_CAM_CTRL_WHITE_BALANCE_TEMP:
       case OA_CAM_CTRL_SHARPNESS:
+      case OA_CAM_CTRL_BACKLIGHT_COMPENSATION:
         valp->valueType = OA_CTRL_TYPE_INT32;
         valp->int32 = getUVCControl ( cameraInfo->uvcHandle,
             cameraInfo->unitId, uvcControl, len, UVC_GET_CUR );
         break;
+
       case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ):
       case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ):
       case OA_CAM_CTRL_AUTO_WHITE_BALANCE_TEMP:
+      case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE_TEMP ):
+      case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTRAST ):
         valp->valueType = OA_CTRL_TYPE_BOOLEAN;
         valp->boolean = getUVCControl ( cameraInfo->uvcHandle,
+            cameraInfo->unitId, uvcControl, len, UVC_GET_CUR );
+        break;
+
+      case OA_CAM_CTRL_POWER_LINE_FREQ:
+        valp->valueType = OA_CTRL_TYPE_MENU;
+        valp->menu = getUVCControl ( cameraInfo->uvcHandle,
             cameraInfo->unitId, uvcControl, len, UVC_GET_CUR );
         break;
 
@@ -411,6 +536,135 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       valp->valueType = OA_CTRL_TYPE_INT32;
       valp->int32 = cameraInfo->componentBalance >> 16;
       break;
+
+    case OA_CAM_CTRL_INTERLACE_ENABLE:
+    {
+      uint8_t data;
+
+      if (( err = uvc_get_scanning_mode ( cameraInfo->uvcHandle, &data,
+          UVC_GET_CUR )) != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_get_scanning_mode() failed in %s, err %d\n",
+            __FUNCTION__, err );
+      }
+      valp->valueType = OA_CTRL_TYPE_BOOLEAN;
+      valp->boolean = data ? 1 : 0;
+      break;
+    }
+
+    case OA_CAM_CTRL_ZOOM_ABSOLUTE:
+    {
+      uint16_t data;
+
+      if (( err = uvc_get_zoom_abs ( cameraInfo->uvcHandle, &data,
+          UVC_GET_CUR )) != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_get_zoom_abs() failed in %s, err %d\n",
+            __FUNCTION__, err );
+      }
+      valp->valueType = OA_CTRL_TYPE_INT32;
+      valp->int32 = data;
+      break;
+    }
+
+    case OA_CAM_CTRL_FOCUS_ABSOLUTE:
+    {
+      uint16_t data;
+
+      if (( err = uvc_get_focus_abs ( cameraInfo->uvcHandle, &data,
+          UVC_GET_CUR )) != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_get_focus_abs() failed in %s, err %d\n",
+            __FUNCTION__, err );
+      }
+      valp->valueType = OA_CTRL_TYPE_INT32;
+      valp->int32 = data;
+      break;
+    }
+
+    case OA_CAM_CTRL_IRIS_ABSOLUTE:
+    {
+      uint16_t data;
+
+      if (( err = uvc_get_iris_abs ( cameraInfo->uvcHandle, &data,
+          UVC_GET_CUR )) != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_get_iris_abs() failed in %s, err %d\n",
+            __FUNCTION__, err );
+      }
+      valp->valueType = OA_CTRL_TYPE_INT32;
+      valp->int32 = data;
+      break;
+    }
+
+    case OA_CAM_CTRL_PAN_ABSOLUTE:
+    case OA_CAM_CTRL_TILT_ABSOLUTE:
+
+      if (( err = uvc_get_pantilt_abs ( cameraInfo->uvcHandle,
+          &cameraInfo->currentPan, &cameraInfo->currentTilt, UVC_GET_CUR )) !=
+          UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_get_pantilt_abs() failed in %s, err %d\n",
+            __FUNCTION__, err );
+      }
+      valp->valueType = OA_CTRL_TYPE_INT32;
+      valp->int32 = OA_CAM_CTRL_PAN_ABSOLUTE == control ?
+          cameraInfo->currentPan : cameraInfo->currentTilt;
+      break;
+
+    case OA_CAM_CTRL_ROLL_ABSOLUTE:
+    {
+      int16_t data;
+
+      if (( err = uvc_get_roll_abs ( cameraInfo->uvcHandle, &data,
+          UVC_GET_CUR )) != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_get_iris_abs() failed in %s, err %d\n",
+            __FUNCTION__, err );
+      }
+      break;
+      valp->valueType = OA_CTRL_TYPE_INT32;
+      valp->int32 = data;
+    }
+
+
+    case OA_CAM_CTRL_PRIVACY_ENABLE:
+    {
+      uint8_t data;
+
+      if (( err = uvc_get_privacy ( cameraInfo->uvcHandle, &data,
+          UVC_GET_CUR )) != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_get_privacy() failed in %s, err %d\n",
+            __FUNCTION__, err );
+      }
+      valp->valueType = OA_CTRL_TYPE_BOOLEAN;
+      valp->boolean = data ? 1 : 0;
+      break;
+    }
+
+    case OA_CAM_CTRL_FOCUS_SIMPLE:
+    {
+      uint8_t data;
+
+      if (( err = uvc_get_focus_simple_range ( cameraInfo->uvcHandle, &data,
+          UVC_GET_CUR )) != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_get_focus_simple_range() failed in %s, err %d\n",
+            __FUNCTION__, err );
+      }
+      valp->valueType = OA_CTRL_TYPE_MENU;
+      valp->menu = data;
+      break;
+    }
+
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_FOCUS_ABSOLUTE ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_FOCUS_RELATIVE ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_FOCUS_SIMPLE ):
+    {
+      uint8_t data;
+
+      if (( err = uvc_get_focus_auto ( cameraInfo->uvcHandle, &data,
+          UVC_GET_CUR )) != UVC_SUCCESS ) {
+        fprintf ( stderr, "uvc_get_focus_auto() failed in %s, err %d\n",
+            __FUNCTION__, err );
+      }
+      valp->valueType = OA_CTRL_TYPE_BOOLEAN;
+      valp->boolean = data ? 1 : 0;
+      break;
+    }
 
     default:
       fprintf ( stderr, "Unrecognised control %d in %s\n", control,

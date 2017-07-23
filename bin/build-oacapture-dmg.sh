@@ -23,6 +23,8 @@
 # <http://www.gnu.org/licenses/>.
 #
 
+set -e
+
 ROOT=./app
 APPDIR=$ROOT/oaCapture.app
 rm -fr $ROOT

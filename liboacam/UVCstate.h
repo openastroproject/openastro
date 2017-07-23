@@ -68,6 +68,8 @@ typedef struct UVC_STATE {
   uint32_t		xSize;
   uint32_t		ySize;
   // camera settings
+  int32_t		currentPan;
+  int32_t		currentTilt;
   // image settings
   unsigned int          maxResolutionX;
   unsigned int          maxResolutionY;
