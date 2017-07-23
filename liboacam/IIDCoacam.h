@@ -59,7 +59,6 @@ extern int		oaIIDCCameraGetFramePixelFormat ( oaCamera*, int );
 struct iidcCtrl {
   int  iidcControl;
   int  oaControl;
-  int  oaAutoControl;
 };
 
 extern struct iidcCtrl dc1394Controls[];

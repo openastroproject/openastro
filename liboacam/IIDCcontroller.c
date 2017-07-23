@@ -192,8 +192,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
   unsigned int		i;
 
   for ( i = 0, found = -1; found < 0 && i < numIIDCControls; i++ ) {
-    if ( dc1394Controls[i].oaControl == control ||
-        dc1394Controls[i].oaAutoControl == control ) {
+    if ( dc1394Controls[i].oaControl == OA_CAM_CTRL_MODE_NONAUTO( control )) {
       iidcControl = dc1394Controls[i].iidcControl;
       found = 1;
     }
@@ -322,6 +321,66 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     return OA_ERR_NONE;
   }
 
+  if ( OA_CAM_CTRL_COOLER == control ) {
+    // This is a boolean
+    // 0 -- swich the feature off
+    // 1 -- swich the feature on, and enable auto mode if
+    //      OA_CAM_CTRL_TEMP_SETPOINT is allowed
+
+    if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
+      fprintf ( stderr, "%s: invalid control type %d where boolean expected "
+          "for OA_CAM_CTRL_COOLER\n", __FUNCTION__, val->valueType );
+      return -OA_ERR_INVALID_CONTROL_TYPE;
+    }
+
+    if ( val->boolean ) {
+      if ( dc1394_feature_set_power ( cameraInfo->iidcHandle,
+          DC1394_FEATURE_TEMPERATURE, DC1394_ON ) != DC1394_SUCCESS ) {
+        fprintf ( stderr, "%s: dc1394_feature_set_power %d failed\n",
+            __FUNCTION__, control );
+        return -OA_ERR_CAMERA_IO;
+      }
+      if ( cameraInfo->haveSetpointCooling ) {
+        if ( dc1394_feature_set_mode ( cameraInfo->iidcHandle,
+            DC1394_FEATURE_TEMPERATURE, DC1394_FEATURE_MODE_AUTO ) !=
+            DC1394_SUCCESS ) {
+          fprintf ( stderr, "%s: dc1394_feature_set_mode fail for control %d\n",
+              __FUNCTION__, iidcControl );
+          return -OA_ERR_CAMERA_IO;
+        }
+      }
+    } else {
+      if ( dc1394_feature_set_power ( cameraInfo->iidcHandle,
+          DC1394_FEATURE_TEMPERATURE, DC1394_OFF ) != DC1394_SUCCESS ) {
+        fprintf ( stderr, "%s: dc1394_feature_set_power %d failed\n",
+            __FUNCTION__, control );
+        return -OA_ERR_CAMERA_IO;
+      }
+    }
+    return OA_ERR_NONE;
+  }
+
+  if ( OA_CAM_CTRL_TEMP_SETPOINT == control ) {
+    int32_t setpoint;
+
+    if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
+      fprintf ( stderr, "%s: invalid control type %d where int32 expected "
+          "for OA_CAM_CTRL_TEMP_SETPOINT\n", __FUNCTION__, val->valueType );
+      return -OA_ERR_INVALID_CONTROL_TYPE;
+    }
+
+    // allegedly the temperature is in K, so we need to rebase from C
+    // Looks like the measurement is actually 1/10th K.
+    setpoint = val->int32 + 273.15;
+    if ( dc1394_feature_temperature_set_value ( cameraInfo->iidcHandle,
+        setpoint ) != DC1394_SUCCESS ) {
+      fprintf ( stderr, "%s: dc1394_feature_set_value failed for "
+          "control %d\n", __FUNCTION__, control );
+      return -OA_ERR_CAMERA_IO;
+    }
+    return OA_ERR_NONE;
+  }
+
   fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
   return -OA_ERR_INVALID_CONTROL;
 }
@@ -355,8 +414,7 @@ _processGetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
   }
 
   for ( i = 0, found = 0; !found && i < numIIDCControls; i++ ) {
-    if ( dc1394Controls[i].oaControl == control ||
-        dc1394Controls[i].oaAutoControl == control ) {
+    if ( dc1394Controls[i].oaControl == OA_CAM_CTRL_MODE_NONAUTO( control )) {
       iidcControl = dc1394Controls[i].iidcControl;
       found = 1;
     }
@@ -415,6 +473,28 @@ _processGetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     }
     return OA_ERR_NONE;
   }
+
+  if ( OA_CAM_CTRL_TEMPERATURE == control || OA_CAM_CTRL_TEMP_SETPOINT ==
+      control ) {
+    int32_t setpoint, current;
+    if ( dc1394_feature_temperature_get_value ( cameraInfo->iidcHandle,
+        &setpoint, &current ) != DC1394_SUCCESS ) {
+      fprintf ( stderr, "%s: dc1394_feature_get_temperature failed\n",
+          __FUNCTION__ );
+      return -OA_ERR_CAMERA_IO;
+    }
+    // allegedly the temperature is in K, so we need to rebase to C
+    // Looks like the measurement is actually 1/10th K.
+    if ( OA_CAM_CTRL_TEMP_SETPOINT == control ) {
+      val->int32 = setpoint - 2731.5;
+    } else {
+      val->int32 = current - 2731.5;
+    }
+    val->valueType = OA_CTRL_TYPE_INT32;
+    return OA_ERR_NONE;
+
+  }
+
 
   fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
   return -OA_ERR_INVALID_CONTROL;

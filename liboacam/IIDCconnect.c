@@ -46,35 +46,29 @@ static int  _processNonFormat7Modes ( oaCamera*, dc1394camera_t*,
     dc1394video_modes_t );
 
 struct iidcCtrl dc1394Controls[] = {
-  { DC1394_FEATURE_BRIGHTNESS, OA_CAM_CTRL_BRIGHTNESS,
-      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS )},
+  { DC1394_FEATURE_BRIGHTNESS, OA_CAM_CTRL_BRIGHTNESS },
   // The IIDC spec says this one is like contrast.  Who am I to argue?
-  { DC1394_FEATURE_EXPOSURE, OA_CAM_CTRL_CONTRAST,
-      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTRAST )},
-  { DC1394_FEATURE_SHARPNESS, OA_CAM_CTRL_SHARPNESS, 0 },
-  { DC1394_FEATURE_WHITE_BALANCE, OA_CAM_CTRL_WHITE_BALANCE,
-      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE )},
-  { DC1394_FEATURE_HUE, OA_CAM_CTRL_HUE,
-      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE )},
-  { DC1394_FEATURE_SATURATION, OA_CAM_CTRL_SATURATION, 0 },
-  { DC1394_FEATURE_GAMMA, OA_CAM_CTRL_GAMMA,
-      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA )},
-  { DC1394_FEATURE_SHUTTER, -1, -1 },
-  { DC1394_FEATURE_GAIN, OA_CAM_CTRL_GAIN,
-      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN )},
-  { DC1394_FEATURE_IRIS, 0, 0 },
-  { DC1394_FEATURE_FOCUS, 0, 0 },
-  { DC1394_FEATURE_TEMPERATURE, 0, 0 }, // FIX ME -- actually we have this one
-  { DC1394_FEATURE_TRIGGER, OA_CAM_CTRL_TRIGGER_MODE, 0 },
-  { DC1394_FEATURE_TRIGGER_DELAY, OA_CAM_CTRL_TRIGGER_DELAY, 0 },
-  { DC1394_FEATURE_WHITE_SHADING, 0, 0 },
-  { DC1394_FEATURE_FRAME_RATE, -1, -1 },
-  { DC1394_FEATURE_ZOOM, 0, 0 },
-  { DC1394_FEATURE_PAN, 0, 0 },
-  { DC1394_FEATURE_TILT, 0, 0 },
-  { DC1394_FEATURE_OPTICAL_FILTER, 0, 0 },
-  { DC1394_FEATURE_CAPTURE_SIZE, 0, 0 },
-  { DC1394_FEATURE_CAPTURE_QUALITY, 0, 0 }
+  { DC1394_FEATURE_EXPOSURE, OA_CAM_CTRL_CONTRAST },
+  { DC1394_FEATURE_SHARPNESS, OA_CAM_CTRL_SHARPNESS },
+  { DC1394_FEATURE_WHITE_BALANCE, OA_CAM_CTRL_WHITE_BALANCE },
+  { DC1394_FEATURE_HUE, OA_CAM_CTRL_HUE },
+  { DC1394_FEATURE_SATURATION, OA_CAM_CTRL_SATURATION },
+  { DC1394_FEATURE_GAMMA, OA_CAM_CTRL_GAMMA },
+  { DC1394_FEATURE_SHUTTER, -1 }, // have to handle this separately
+  { DC1394_FEATURE_GAIN, OA_CAM_CTRL_GAIN },
+  { DC1394_FEATURE_IRIS, OA_CAM_CTRL_IRIS_ABSOLUTE },
+  { DC1394_FEATURE_FOCUS, OA_CAM_CTRL_FOCUS_ABSOLUTE },
+  { DC1394_FEATURE_TEMPERATURE, -1 }, // have to handle this separately
+  { DC1394_FEATURE_TRIGGER, OA_CAM_CTRL_TRIGGER_MODE },
+  { DC1394_FEATURE_TRIGGER_DELAY, OA_CAM_CTRL_TRIGGER_DELAY },
+  { DC1394_FEATURE_WHITE_SHADING, 0 },
+  { DC1394_FEATURE_FRAME_RATE, -1 },
+  { DC1394_FEATURE_ZOOM, OA_CAM_CTRL_ZOOM_ABSOLUTE },
+  { DC1394_FEATURE_PAN, OA_CAM_CTRL_PAN_ABSOLUTE },
+  { DC1394_FEATURE_TILT, OA_CAM_CTRL_TILT_RESET },
+  { DC1394_FEATURE_OPTICAL_FILTER, 0 },
+  { DC1394_FEATURE_CAPTURE_SIZE, 0 },
+  { DC1394_FEATURE_CAPTURE_QUALITY, 0 }
 };
 
 unsigned int numIIDCControls = sizeof ( dc1394Controls ) /
@@ -106,7 +100,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
   dc1394video_modes_t   videoModes;
   dc1394featureset_t    features;
   oaCamera*             camera;
-  int                   oaControl, oaAutoControl, use1394B;
+  int                   oaControl, oaAutoControl, oaOnOffControl, use1394B;
   unsigned int		i;
   DEVICE_INFO*		devInfo;
   IIDC_STATE*		cameraInfo;
@@ -217,16 +211,17 @@ oaIIDCInitCamera ( oaCameraDevice* device )
   // There's a lot of work still to be done here.  For most stuff I'm
   // ignoring absolute_capable because it uses completely different
   // ranges and units and everything becomes a nightmare :(
-  // I'm also (mostly) ignoring on/off, readout and polarity
+  // I'm also (mostly) ignoring readout and polarity
 
   for ( i = 0; i < DC1394_FEATURE_NUM; i++ ) {
-    if ( features.feature[ i ].available &&
-        (( features.feature[ i ].on_off_capable &&
-        features.feature[ i ].is_on ) ||
-        !features.feature[ i ].on_off_capable )) {
+    if ( features.feature[ i ].available ) {
 
       oaControl = dc1394Controls[ i ].oaControl;
-      oaAutoControl = dc1394Controls[ i ].oaAutoControl;
+      oaAutoControl = OA_CAM_CTRL_MODE_AUTO( oaControl );
+      oaOnOffControl = OA_CAM_CTRL_MODE_STATE( oaControl );
+
+      cameraInfo->absoluteSupported[i] =
+          features.feature[ i ].absolute_capable;
 
       switch ( i + DC1394_FEATURE_MIN ) {
 
@@ -237,6 +232,13 @@ oaIIDCInitCamera ( oaCameraDevice* device )
         case DC1394_FEATURE_GAMMA:
         case DC1394_FEATURE_GAIN:
         case DC1394_FEATURE_EXPOSURE:
+        case DC1394_FEATURE_IRIS:
+        case DC1394_FEATURE_FOCUS:
+        case DC1394_FEATURE_ZOOM:
+        case DC1394_FEATURE_PAN:
+        case DC1394_FEATURE_TILT:
+          // FIX ME -- will need  to make sure the units are correct for focus,
+          // pan and tilt in absolute mode.  See IIDC spec.
         {
           unsigned int j;
 
@@ -255,19 +257,20 @@ oaIIDCInitCamera ( oaCameraDevice* device )
                 break;
 
               case DC1394_FEATURE_MODE_AUTO:
-                if ( oaAutoControl ) {
-                  camera->OA_CAM_CTRL_TYPE( oaAutoControl ) =
-                      OA_CTRL_TYPE_BOOLEAN;
-                  commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = 0;
-                  commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = 1;
-                  commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
-                  commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) = (
-                      DC1394_FEATURE_MODE_AUTO ==
-                      features.feature[i].current_mode ) ? 1 : 0;
-                } else {
-                  fprintf ( stderr, "%s: have auto for control %d, but "
-                      "liboacam does not", __FUNCTION__, oaControl );
-                }
+                camera->OA_CAM_CTRL_TYPE( oaAutoControl ) =
+                    OA_CTRL_TYPE_BOOLEAN;
+                commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = 0;
+                commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = 1;
+                commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
+                commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) = (
+                    DC1394_FEATURE_MODE_AUTO ==
+                    features.feature[i].current_mode ) ? 1 : 0;
+                break;
+
+              case DC1394_FEATURE_MODE_ONE_PUSH_AUTO:
+                fprintf ( stderr, "%s: unhandled feature mode %d for %d\n",
+                    __FUNCTION__, features.feature[i].modes.modes[j],
+                    i + DC1394_FEATURE_MIN );
                 break;
 
               default:
@@ -289,6 +292,8 @@ oaIIDCInitCamera ( oaCameraDevice* device )
           if ( features.feature[ i ].absolute_capable ) {
             oaAutoControl =
                 OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
+            oaOnOffControl =
+                OA_CAM_CTRL_MODE_STATE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
             // have to set the control to use the absolute settings...
             if (( err = dc1394_feature_set_absolute_control ( iidcCam,
                 DC1394_FEATURE_SHUTTER, DC1394_ON ) != DC1394_SUCCESS )) {
@@ -315,20 +320,13 @@ oaIIDCInitCamera ( oaCameraDevice* device )
             oaControl = OA_CAM_CTRL_EXPOSURE_ABSOLUTE;
             min = features.feature[ i ].abs_min * 1000000.0;
             max = features.feature[ i ].abs_max * 1000000.0;
-            /*
-             * Fudge no longer required
-            unsigned long m = features.feature[ i ].abs_max * 1000000.0;
-            if ( m > 0x7fffffff ) {
-              m = 0x7fffffff;
-              fprintf ( stderr, "fudging IIDC maximum exposure time\n" );
-            }
-            max = m;
-             */
             step = 1000; // arbitrary
             def = features.feature[ i ].abs_value * 1000000.0;
           } else {
             oaAutoControl =
                 OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED );
+            oaOnOffControl =
+                OA_CAM_CTRL_MODE_STATE( OA_CAM_CTRL_EXPOSURE_UNSCALED );
             oaControl = OA_CAM_CTRL_EXPOSURE_UNSCALED;
             min = features.feature[i].min;
             max = features.feature[i].max;
@@ -353,6 +351,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
           // white balance control
           unsigned int j;
 
+          oaOnOffControl = OA_CAM_CTRL_MODE_STATE( oaControl );
           for ( j = 0; j < features.feature[i].modes.num; j++ ) {
             switch ( features.feature[i].modes.modes[j] ) {
 
@@ -377,19 +376,14 @@ oaIIDCInitCamera ( oaCameraDevice* device )
                 break;
 
               case DC1394_FEATURE_MODE_AUTO:
-                if ( oaAutoControl ) {
-                  camera->OA_CAM_CTRL_TYPE( oaAutoControl ) =
-                      OA_CTRL_TYPE_BOOLEAN;
-                  commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = 0;
-                  commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = 1;
-                  commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
-                  commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) = (
-                      DC1394_FEATURE_MODE_AUTO ==
-                      features.feature[i].current_mode ) ? 1 : 0;
-                } else {
-                  fprintf ( stderr, "%s: have auto for control %d, but "
-                      "liboacam does not", __FUNCTION__, oaControl );
-                }
+                camera->OA_CAM_CTRL_TYPE( oaAutoControl ) =
+                    OA_CTRL_TYPE_BOOLEAN;
+                commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = 0;
+                commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = 1;
+                commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
+                commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) = (
+                    DC1394_FEATURE_MODE_AUTO ==
+                    features.feature[i].current_mode ) ? 1 : 0;
                 break;
 
               default:
@@ -403,28 +397,97 @@ oaIIDCInitCamera ( oaCameraDevice* device )
         }
         case DC1394_FEATURE_FRAME_RATE:
           // this is used, but handled elsewhere
+          oaOnOffControl = 0;
           break;
 
-        case DC1394_FEATURE_IRIS:
-        case DC1394_FEATURE_FOCUS:
         case DC1394_FEATURE_TEMPERATURE:
+        {
+          // This feature actually allows reading of the camera temperature
+          // and setting a temperature set-point for cooling.  In manual
+          // mode you get permanent cooling, in auto mode it's cooling based
+          // on the set-point.
+
+          // we can always read the temperature
+
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) =
+              OA_CTRL_TYPE_READONLY;
+
+          // if manual or auto modes exist we can enable OA_CAM_CTRL_COOLER as
+          // a boolean.  if auto mode exists we can additionally have
+          // OA_CAM_CTRL_TEMP_SETPOINT
+
+          unsigned int j;
+          cameraInfo->haveSetpointCooling = 0;
+          for ( j = 0; j < features.feature[i].modes.num; j++ ) {
+            switch ( features.feature[i].modes.modes[j] ) {
+
+              case DC1394_FEATURE_MODE_MANUAL:
+                oaOnOffControl = 0; // don't want this separately
+                camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COOLER ) =
+                    OA_CTRL_TYPE_BOOLEAN;
+                commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_COOLER ) = 0;
+                commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_COOLER ) = 1;
+                commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_COOLER ) = 1;
+                commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER ) = 0;
+                break;
+
+              case DC1394_FEATURE_MODE_AUTO:
+                oaOnOffControl = 0; // don't want this separately
+                cameraInfo->haveSetpointCooling = 1;
+                camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COOLER ) =
+                    OA_CTRL_TYPE_BOOLEAN;
+                commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_COOLER ) = 0;
+                commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_COOLER ) = 1;
+                commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_COOLER ) = 1;
+                commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER ) = 0;
+
+                camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMP_SETPOINT ) =
+                    OA_CTRL_TYPE_INT32; 
+                commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TEMP_SETPOINT ) =
+                    features.feature[i].min;
+                commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TEMP_SETPOINT ) =
+                    features.feature[i].max;
+                commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TEMP_SETPOINT ) = 1;
+                commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) =
+                    features.feature[i].value;
+                break;
+
+              default:
+                fprintf ( stderr, "%s: unhandled feature mode %d for %d\n",
+                    __FUNCTION__, features.feature[i].modes.modes[j],
+                    i + DC1394_FEATURE_MIN );
+                break;
+            }
+          }
+          break;
+        }
+
         case DC1394_FEATURE_TRIGGER:
         case DC1394_FEATURE_TRIGGER_DELAY:
         case DC1394_FEATURE_WHITE_SHADING:
-        case DC1394_FEATURE_ZOOM:
-        case DC1394_FEATURE_PAN:
-        case DC1394_FEATURE_TILT:
         case DC1394_FEATURE_OPTICAL_FILTER:
-        case DC1394_FEATURE_CAPTURE_SIZE:
-        case DC1394_FEATURE_CAPTURE_QUALITY:
+
+        case DC1394_FEATURE_CAPTURE_SIZE: // only relevant for format6
+        case DC1394_FEATURE_CAPTURE_QUALITY: // only relevant for format6
+          oaOnOffControl = 0;
           fprintf ( stderr, "%s: unsupported IIDC control %d\n", __FUNCTION__,
               i + DC1394_FEATURE_MIN );
           break;
 
         default:
+          oaOnOffControl = 0;
           fprintf ( stderr, "%s: unknown IIDC control %d\n", __FUNCTION__,
               i + DC1394_FEATURE_MIN );
           break;
+      }
+
+      if ( features.feature[ i ].on_off_capable ) {
+        camera->OA_CAM_CTRL_TYPE( oaOnOffControl ) = OA_CTRL_TYPE_BOOLEAN;
+        commonInfo->OA_CAM_CTRL_MIN( oaOnOffControl ) = 0;
+        commonInfo->OA_CAM_CTRL_MAX( oaOnOffControl ) = 1;
+        commonInfo->OA_CAM_CTRL_STEP( oaOnOffControl ) = 1;
+        commonInfo->OA_CAM_CTRL_DEF( oaOnOffControl ) =
+            ( features.feature[ i ].is_on ) ? 1 : 0;
       }
     }
   }

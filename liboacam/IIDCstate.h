@@ -52,6 +52,8 @@ typedef struct IIDC_STATE {
   int			isTISColour;
   uint32_t		xSize;
   uint32_t		ySize;
+  uint8_t		absoluteSupported[ DC1394_FEATURE_NUM ];
+  uint8_t		haveSetpointCooling;
   // image settings
   FRAMESIZES		frameSizes[2];
   FRAMERATES		frameRates;
