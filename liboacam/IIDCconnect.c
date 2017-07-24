@@ -59,8 +59,8 @@ struct iidcCtrl dc1394Controls[] = {
   { DC1394_FEATURE_IRIS, OA_CAM_CTRL_IRIS_ABSOLUTE },
   { DC1394_FEATURE_FOCUS, OA_CAM_CTRL_FOCUS_ABSOLUTE },
   { DC1394_FEATURE_TEMPERATURE, -1 }, // have to handle this separately
-  { DC1394_FEATURE_TRIGGER, OA_CAM_CTRL_TRIGGER_MODE },
-  { DC1394_FEATURE_TRIGGER_DELAY, OA_CAM_CTRL_TRIGGER_DELAY },
+  { DC1394_FEATURE_TRIGGER, -1 }, // have to handle this separately
+  { DC1394_FEATURE_TRIGGER_DELAY, -1 }, // have to handle this separately
   { DC1394_FEATURE_WHITE_SHADING, 0 },
   { DC1394_FEATURE_FRAME_RATE, -1 },
   { DC1394_FEATURE_ZOOM, OA_CAM_CTRL_ZOOM_ABSOLUTE },
@@ -463,9 +463,64 @@ oaIIDCInitCamera ( oaCameraDevice* device )
         }
 
         case DC1394_FEATURE_TRIGGER:
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_MODE ) =
+              OA_CTRL_TYPE_MENU;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_MODE ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_MODE ) = 5;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_MODE ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_MODE ) =
+              cameraInfo->triggerMode = features.feature[i].value;
+
+          if ( features.feature[ i ].on_off_capable ) {
+            camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_ENABLE ) =
+                OA_CTRL_TYPE_BOOLEAN;
+            commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_ENABLE ) = 0;
+            commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_ENABLE ) = 1;
+            commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_ENABLE ) = 1;
+            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_ENABLE ) =
+                cameraInfo->triggerEnable =
+                ( features.feature[ i ].is_on ) ? 1 : 0;
+          }
+          oaOnOffControl = 0;
+
+          if ( features.feature[ i ].polarity_capable ) {
+            camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_POLARITY ) =
+                OA_CTRL_TYPE_MENU;
+            commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_POLARITY ) = 0;
+            commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_POLARITY ) = 1;
+            commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_POLARITY ) = 1;
+            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_POLARITY ) =
+                cameraInfo->triggerPolarity =
+                ( features.feature[ i ].trigger_polarity ) ? 1 : 0;
+          }
+          break;
+
         case DC1394_FEATURE_TRIGGER_DELAY:
-        case DC1394_FEATURE_WHITE_SHADING:
-        case DC1394_FEATURE_OPTICAL_FILTER:
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_DELAY ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_DELAY ) =
+              features.feature[i].min;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_DELAY ) =
+              features.feature[i].max;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_DELAY ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_DELAY ) =
+              cameraInfo->triggerDelay = features.feature[i].value;
+
+          if ( features.feature[ i ].on_off_capable ) {
+            camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) =
+                OA_CTRL_TYPE_BOOLEAN;
+            commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) = 0;
+            commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) = 1;
+            commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) = 1;
+            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) =
+                cameraInfo->triggerDelayEnable =
+                ( features.feature[ i ].is_on ) ? 1 : 0;
+          }
+          oaOnOffControl = 0;
+          break;
+
+        case DC1394_FEATURE_WHITE_SHADING: // it's really not clear how these
+        case DC1394_FEATURE_OPTICAL_FILTER:// two should work
 
         case DC1394_FEATURE_CAPTURE_SIZE: // only relevant for format6
         case DC1394_FEATURE_CAPTURE_QUALITY: // only relevant for format6
@@ -481,7 +536,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
           break;
       }
 
-      if ( features.feature[ i ].on_off_capable ) {
+      if ( oaOnOffControl && features.feature[ i ].on_off_capable ) {
         camera->OA_CAM_CTRL_TYPE( oaOnOffControl ) = OA_CTRL_TYPE_BOOLEAN;
         commonInfo->OA_CAM_CTRL_MIN( oaOnOffControl ) = 0;
         commonInfo->OA_CAM_CTRL_MAX( oaOnOffControl ) = 1;
@@ -682,6 +737,8 @@ _IIDCInitFunctionPointers ( oaCamera* camera )
 
   camera->funcs.enumerateFrameRates = oaIIDCCameraGetFrameRates;
   camera->funcs.setFrameInterval = oaIIDCCameraSetFrameInterval;
+
+  camera->funcs.getMenuString = oaIIDCCameraGetMenuString;
 }
 
 

@@ -381,6 +381,90 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     return OA_ERR_NONE;
   }
 
+  if ( OA_CAM_CTRL_TRIGGER_ENABLE ) {
+    if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
+      fprintf ( stderr, "%s: invalid control type %d where boolean expected "
+          "for OA_CAM_CTRL_TRIGGER_ENABLE\n", __FUNCTION__, val->valueType );
+      return -OA_ERR_INVALID_CONTROL_TYPE;
+    }
+
+    if ( dc1394_external_trigger_set_power ( cameraInfo->iidcHandle,
+        val->boolean ? DC1394_ON : DC1394_OFF ) != DC1394_SUCCESS ) {
+      fprintf ( stderr, "%s: dc1394_external_trigger_set_power %d failed\n",
+          __FUNCTION__, control );
+      return -OA_ERR_CAMERA_IO;
+    }
+    return OA_ERR_NONE;
+  }
+
+  if ( OA_CAM_CTRL_TRIGGER_MODE ) {
+    if ( OA_CTRL_TYPE_MENU != val->valueType ) {
+      fprintf ( stderr, "%s: invalid control type %d where boolean expected "
+          "for OA_CAM_CTRL_TRIGGER_MENU\n", __FUNCTION__, val->valueType );
+      return -OA_ERR_INVALID_CONTROL_TYPE;
+    }
+    
+    if ( dc1394_external_trigger_set_mode ( cameraInfo->iidcHandle,
+        val->menu ) != DC1394_SUCCESS ) {
+      fprintf ( stderr, "%s: dc1394_external_trigger_set_power %d failed\n",
+          __FUNCTION__, control );
+      return -OA_ERR_CAMERA_IO;
+    }
+    return OA_ERR_NONE;
+  }
+
+  if ( OA_CAM_CTRL_TRIGGER_POLARITY ) {
+    if ( OA_CTRL_TYPE_MENU != val->valueType ) {
+      fprintf ( stderr, "%s: invalid control type %d where boolean expected "
+          "for OA_CAM_CTRL_TRIGGER_POLARITY\n", __FUNCTION__, val->valueType );
+      return -OA_ERR_INVALID_CONTROL_TYPE;
+    }
+
+    if ( dc1394_external_trigger_set_polarity ( cameraInfo->iidcHandle,
+        val->menu ? DC1394_TRIGGER_ACTIVE_LOW : DC1394_TRIGGER_ACTIVE_HIGH )
+        != DC1394_SUCCESS ) {
+      fprintf ( stderr, "%s: dc1394_external_trigger_set_polarity %d failed\n",
+          __FUNCTION__, control );
+      return -OA_ERR_CAMERA_IO;
+    }
+    return OA_ERR_NONE;
+  }
+
+  if ( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) {
+    if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
+      fprintf ( stderr, "%s: invalid control type %d where boolean expected "
+          "for OA_CAM_CTRL_TRIGGER_DELAY_ENABLE\n", __FUNCTION__,
+          val->valueType );
+      return -OA_ERR_INVALID_CONTROL_TYPE;
+    }
+
+    if ( dc1394_feature_set_power ( cameraInfo->iidcHandle,
+        DC1394_FEATURE_TRIGGER_DELAY, val->boolean ? DC1394_ON :
+        DC1394_OFF ) != DC1394_SUCCESS ) {
+      fprintf ( stderr, "%s: dc1394_feature_set_power %d failed\n",
+          __FUNCTION__, control );
+      return -OA_ERR_CAMERA_IO;
+    }
+    return OA_ERR_NONE;
+  }
+
+  if ( OA_CAM_CTRL_TRIGGER_DELAY == control ) {
+    uint32_t val_u32;
+    if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
+      fprintf ( stderr, "%s: invalid control type %d where int32 expected "
+          "for OA_CAM_CTRL_TRIGGER_DELAY\n", __FUNCTION__, val->valueType );
+      return -OA_ERR_INVALID_CONTROL_TYPE;
+    }
+    val_u32 = val->int32;
+    if ( dc1394_feature_set_value ( cameraInfo->iidcHandle, iidcControl,
+        val_u32 ) != DC1394_SUCCESS ) {
+      fprintf ( stderr, "%s: dc1394_feature_set_value failed for "
+          "control %d\n", __FUNCTION__, control );
+      return -OA_ERR_CAMERA_IO;
+    }
+    return OA_ERR_NONE;
+  }
+
   fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
   return -OA_ERR_INVALID_CONTROL;
 }

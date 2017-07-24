@@ -54,6 +54,11 @@ typedef struct IIDC_STATE {
   uint32_t		ySize;
   uint8_t		absoluteSupported[ DC1394_FEATURE_NUM ];
   uint8_t		haveSetpointCooling;
+  int32_t		triggerMode;
+  int32_t		triggerEnable;
+  int32_t		triggerPolarity;
+  int32_t		triggerDelay;
+  int32_t		triggerDelayEnable;
   // image settings
   FRAMESIZES		frameSizes[2];
   FRAMERATES		frameRates;

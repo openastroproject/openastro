@@ -300,4 +300,51 @@ oaIIDCCameraStopStreaming ( oaCamera* camera )
   return retval;
 }
 
+
+const char*
+oaIIDCCameraGetMenuString ( oaCamera* camera, int control, int index )
+{
+  if ( OA_CAM_CTRL_TRIGGER_POLARITY == control ||
+      OA_CAM_CTRL_STROBE_POLARITY == control ) {
+
+    switch ( index ) {
+      case 0:
+        return "Active on trailing edge";
+        break;
+      case 1:
+        return "Active on leading edge";
+        break;
+    }
+    return "Invalid index";
+
+  }
+
+  if ( OA_CAM_CTRL_TRIGGER_MODE == control ) {
+    switch ( index ) {
+      case 0:
+        return "External Trigger";
+        break;
+      case 1:
+        return "Bulb Shutter Trigger";
+        break;
+      case 2:
+        return "Pulse Count Trigger";
+        break;
+      case 3:
+        return "Skip Frames Trigger";
+        break;
+      case 4:
+        return "Multiple Preset Trigger";
+        break;
+      case 5:
+        return "Multiple Pulse Width Trigger";
+        break;
+    }
+    return "Invalid index";
+  }
+
+  fprintf ( stderr, "%s: control not implemented\n", __FUNCTION__ );
+  return "";
+}
+
 #endif /* HAVE_LIBDC1394 */
