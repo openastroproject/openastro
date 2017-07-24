@@ -1285,8 +1285,8 @@ CaptureWidget::writeSettings ( OutputHandler* out )
               break;
           }
 
-          if ( state.camera->hasControl ( OA_CAM_CTRL_MODE_STATE (baseVal))) {
-            v = config.CONTROL_VALUE ( OA_CAM_CTRL_MODE_STATE ( baseVal ));
+          if ( state.camera->hasControl ( OA_CAM_CTRL_MODE_ON_OFF (baseVal))) {
+            v = config.CONTROL_VALUE ( OA_CAM_CTRL_MODE_ON_OFF ( baseVal ));
             settings << tr ( v ? "on" : "off" ).toStdString().c_str() <<
                 std::endl;
           } else {

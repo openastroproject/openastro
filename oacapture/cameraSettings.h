@@ -74,6 +74,8 @@ class CameraSettings : public QWidget
     QPushButton*	defaultButton;
     QLabel*		autoLabel1;
     QLabel*		autoLabel2;
+    QLabel*		onOffLabel1;
+    QLabel*		onOffLabel2;
     int			controlType[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
     QLabel*		frameRateLabel;
     QSlider*		frameRateSlider;

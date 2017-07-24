@@ -1467,15 +1467,20 @@ ControlWidget::updateSpinbox ( int control, int value )
 void
 ControlWidget::updateCheckbox ( int control, int value )
 {
-  if ( oaIsAuto ( control )) {
-    int baseControl = oaGetControlForAuto ( control );
-    if ( baseControl > 0 ) {
-      selectableControlCheckbox[ baseControl ]->setChecked ( value );
-    } else {
-      qWarning() << "oaGetControlForAuto(" << control << ") returns" <<
-          baseControl;
-    }
+  if ( OA_CAM_CTRL_IS_AUTO ( control )) {
+    int baseControl = OA_CAM_CTRL_MODE_BASE ( control );
+    selectableControlCheckbox[ baseControl ]->setChecked ( value );
   } else {
+    if ( OA_CAM_CTRL_IS_ON_OFF ( control )) {
+      int baseControl = OA_CAM_CTRL_MODE_BASE ( control );
+      if ( selectableControlSlider[ baseControl ] ) {
+        selectableControlSlider[ baseControl ]->setEnabled ( value );
+        selectableControlSpinbox[ baseControl ]->setEnabled ( value );
+      }
+      if ( selectableControlCheckbox[ baseControl ] ) {
+        selectableControlCheckbox[ baseControl ]->setEnabled ( value );
+      }
+    }
     config.CONTROL_VALUE( control ) = value;
     SET_PROFILE_CONTROL( control, value );
     state.camera->setControl ( control, value );

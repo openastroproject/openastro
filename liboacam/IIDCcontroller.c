@@ -205,7 +205,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     iidcControl = DC1394_FEATURE_SHUTTER;
   }
 
-  if ( oaIsAuto ( control )) {
+  if ( OA_CAM_CTRL_IS_AUTO ( control )) {
     uint32_t val_u32;
     if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
         OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
@@ -236,6 +236,24 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
         val_u32 ? DC1394_FEATURE_MODE_AUTO : DC1394_FEATURE_MODE_MANUAL ) !=
         DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_feature_set_mode failed for control %d\n",
+          __FUNCTION__, iidcControl );
+      return -OA_ERR_CAMERA_IO;
+    }
+    return OA_ERR_NONE;
+  }
+
+  if ( OA_CAM_CTRL_IS_ON_OFF ( control )) {
+    uint32_t val_u32;
+    // anything here should be a boolean value
+    if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
+      fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
+          __FUNCTION__, val->valueType );
+      return -OA_ERR_INVALID_CONTROL_TYPE;
+    }
+    val_u32 = val->boolean;
+    if ( dc1394_feature_set_power ( cameraInfo->iidcHandle, iidcControl,
+        val_u32 ? DC1394_ON : DC1394_OFF ) != DC1394_SUCCESS ) {
+      fprintf ( stderr, "%s: dc1394_feature_set_power failed for control %d\n",
           __FUNCTION__, iidcControl );
       return -OA_ERR_CAMERA_IO;
     }

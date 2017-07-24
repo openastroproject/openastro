@@ -154,11 +154,11 @@
 
 #define OA_CAM_CTRL_MODE_NONAUTO(x)	( x & OA_CAM_CTRL_MODIFIER_BASE_MASK )
 #define OA_CAM_CTRL_MODE_AUTO(x)	( x | OA_CAM_CTRL_MODIFIER_AUTO_MASK )
-#define OA_CAM_CTRL_MODE_STATE(x)	( x | OA_CAM_CTRL_MODIFIER_ON_OFF_MASK )
+#define OA_CAM_CTRL_MODE_ON_OFF(x)	( x | OA_CAM_CTRL_MODIFIER_ON_OFF_MASK )
 #define OA_CAM_CTRL_MODE_BASE(x)	( x & 0xff )
 
 #define OA_CAM_CTRL_IS_AUTO(x)		( x & OA_CAM_CTRL_MODIFIER_AUTO_MASK )
-#define OA_CAM_CTRL_IS_STATE(x)		( x & OA_CAM_CTRL_MODIFIER_ON_OFF_MASK )
+#define OA_CAM_CTRL_IS_ON_OFF(x)	( x & OA_CAM_CTRL_MODIFIER_ON_OFF_MASK )
 
 #define OA_CAM_CTRL_TYPE(x)	controlType[OA_CAM_CTRL_MODIFIER(x)][OA_CAM_CTRL_MODE_BASE(x)]
 
@@ -227,6 +227,7 @@
 #define OA_TRIGGER_POLARITY_ACTIVE_HIGH	1
 
 extern const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ];
+extern const char* oaCameraControlModifierPrefix[ OA_CAM_CTRL_MODIFIERS_P1 ];
 extern const char* oaCameraPresetAWBLabel[ OA_AWB_PRESET_LAST_P1 ];
 extern const char* oaCameraAutoExposureLabel[ OA_EXPOSURE_TYPE_LAST_P1 ];
 

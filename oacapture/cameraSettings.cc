@@ -73,8 +73,8 @@ CameraSettings::configure ( void )
   menuSignalMapper = new QSignalMapper ( this );
 
   for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
-    for ( mod = 0; mod <= OA_CAM_CTRL_MODIFIER_AUTO; mod++ ) {
-      c = baseVal | ( mod ? OA_CAM_CTRL_MODIFIER_AUTO_MASK : 0 );
+    for ( mod = 0; mod < OA_CAM_CTRL_MODIFIERS_P1; mod++ ) {
+      c = baseVal | ( mod ? ( 0x80 << mod ) : 0 );
       controlLabel[mod][baseVal] = 0;
       controlSlider[mod][baseVal] = 0;
       controlSpinbox[mod][baseVal] = 0;
@@ -135,6 +135,7 @@ CameraSettings::configure ( void )
             case OA_CTRL_TYPE_BOOLEAN:
               numCheckboxes++;
               controlCheckbox[mod][baseVal] = new QCheckBox ( QString ( tr (
+                  oaCameraControlModifierPrefix[mod] )) + QString ( tr (
                   oaCameraControlLabel[baseVal] )), this );
               if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == c ||
                   OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == c ) {
@@ -278,40 +279,59 @@ CameraSettings::configure ( void )
   sliderGrid = new QGridLayout();
   autoLabel1 = new QLabel ( tr ( "Auto" ));
   autoLabel2 = new QLabel ( tr ( "Auto" ));
+  onOffLabel1 = new QLabel ( tr ( "On/Off" ));
+  onOffLabel2 = new QLabel ( tr ( "On/Off" ));
 
   int row = 1, col = 0;
 
   sliderGrid->addWidget ( autoLabel1, 0, 1 );
-  sliderGrid->addWidget ( autoLabel2, 0, 5 );
+  sliderGrid->addWidget ( onOffLabel1, 0, 2 );
+  sliderGrid->setColumnMinimumWidth ( 5, 40 );
+  sliderGrid->addWidget ( autoLabel2, 0, 7 );
+  sliderGrid->addWidget ( onOffLabel2, 0, 8 );
 
   int autoControl;
   for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
-    for ( mod = 0; mod <= OA_CAM_CTRL_MODIFIER_AUTO; mod++ ) {
-      if ( OA_CTRL_TYPE_INT32 == controlType[mod][baseVal] ||
-          OA_CTRL_TYPE_INT64 == controlType[mod][baseVal] ) {
-        sliderGrid->addWidget ( controlLabel[mod][baseVal], row, col++ );
-        added[mod][baseVal] = 1;
-        if ( !mod && controlType[OA_CAM_CTRL_MODIFIER_AUTO][baseVal] ==
-            OA_CTRL_TYPE_BOOLEAN ) {
-          controlCheckbox[OA_CAM_CTRL_MODIFIER_AUTO][baseVal]->setText ( "" );
-          sliderGrid->addWidget (
-              controlCheckbox[OA_CAM_CTRL_MODIFIER_AUTO][baseVal], row, col );
-          added[OA_CAM_CTRL_MODIFIER_AUTO][baseVal] = 1;
-          numSliderCheckboxes++;
+    for ( mod = 0; mod < OA_CAM_CTRL_MODIFIERS_P1; mod++ ) {
+      if ( OA_CTRL_TYPE_INT32 ==
+          controlType[OA_CAM_CTRL_MODIFIER_STD][baseVal] ||
+          OA_CTRL_TYPE_INT64 ==
+          controlType[OA_CAM_CTRL_MODIFIER_STD][baseVal] ) {
+        if ( 0 == mod ) {
+          sliderGrid->addWidget ( controlLabel[mod][baseVal], row, col++ );
+          sliderGrid->addWidget ( controlSlider[mod][baseVal], row, col + 2 );
+          sliderGrid->addWidget ( controlSpinbox[mod][baseVal], row, col + 3 );
+          added[mod][baseVal] = 1;
+        } else {
+          if ( controlType[mod][baseVal] == OA_CTRL_TYPE_BOOLEAN ) {
+            controlCheckbox[mod][baseVal]->setText ( "" );
+            sliderGrid->addWidget ( controlCheckbox[mod][baseVal], row, col,
+                Qt::AlignCenter );
+            added[mod][baseVal] = 1;
+            numSliderCheckboxes++;
+          }
+          col++;
         }
-        col++;
-        sliderGrid->addWidget ( controlSlider[mod][baseVal], row, col++ );
-        sliderGrid->addWidget ( controlSpinbox[mod][baseVal], row, col++ );
+        // last time through, we want to add two to account for the slider and
+        // spinbox added above
+        if (( OA_CAM_CTRL_MODIFIERS_P1 - 1 ) == mod ) {
+          col += 2;
+        }
       }
-      if (( 4 * SLIDERS_PER_ROW ) == col ) {
-        col = 0;
-        row++;
-      }
+    }
+    // skip the stretched column if we added anything since last time through
+    if ( col % 6 ) {
+      col++;
+    }
+    if (( 6 * SLIDERS_PER_ROW ) == col ) {
+      col = 0;
+      row++;
     }
   }
 
   if ( state.camera->isInitialised() && state.camera->hasFrameRateSupport()) {
     sliderGrid->addWidget ( frameRateLabel, row, col++ );
+    col++;
     col++;
     sliderGrid->addWidget ( frameRateSlider, row, col++ );
     sliderGrid->addWidget ( frameRateMenu, row, col++ );
@@ -325,7 +345,7 @@ CameraSettings::configure ( void )
   col = 0;
   int addedBoxes = 0;
   for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
-    for ( mod = 0; mod <= OA_CAM_CTRL_MODIFIER_AUTO; mod++ ) {
+    for ( mod = 0; mod < OA_CAM_CTRL_MODIFIERS_P1; mod++ ) {
       if ( OA_CTRL_TYPE_BOOLEAN == controlType[mod][baseVal] &&
           !added[mod][baseVal]) {
         checkboxGrid->addWidget ( controlCheckbox[mod][baseVal], row, col++ );
@@ -505,13 +525,25 @@ CameraSettings::updateCheckboxControl ( int control )
       break;
   }
 
-  if ( oaIsAuto ( control )) {
-    int baseControl = oaGetControlForAuto ( control );
+  if ( OA_CAM_CTRL_IS_ON_OFF ( control )) {
+    int baseControl = OA_CAM_CTRL_MODE_BASE ( control );
     if ( controlSlider[OA_CAM_CTRL_MODIFIER_STD][ baseControl ] ) {
       controlSlider[OA_CAM_CTRL_MODIFIER_STD][ baseControl ]->
-          setEnabled ( !value );
+          setEnabled ( value );
       controlSpinbox[OA_CAM_CTRL_MODIFIER_STD][ baseControl ]->
-          setEnabled ( !value );
+          setEnabled ( value );
+    }
+    if ( controlCheckbox[OA_CAM_CTRL_MODIFIER_AUTO][ baseControl ] ) {
+      controlCheckbox[OA_CAM_CTRL_MODIFIER_AUTO][ baseControl ]->
+          setEnabled ( value );
+    }
+    if ( controlButton[OA_CAM_CTRL_MODIFIER_AUTO][ baseControl ] ) {
+      controlButton[OA_CAM_CTRL_MODIFIER_AUTO][ baseControl ]->
+          setEnabled ( value );
+    }
+    if ( controlMenu[OA_CAM_CTRL_MODIFIER_AUTO][ baseControl ] ) {
+      controlButton[OA_CAM_CTRL_MODIFIER_AUTO][ baseControl ]->
+          setEnabled ( value );
     }
   }
 }

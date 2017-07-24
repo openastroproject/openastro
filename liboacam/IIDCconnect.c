@@ -218,7 +218,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
 
       oaControl = dc1394Controls[ i ].oaControl;
       oaAutoControl = OA_CAM_CTRL_MODE_AUTO( oaControl );
-      oaOnOffControl = OA_CAM_CTRL_MODE_STATE( oaControl );
+      oaOnOffControl = OA_CAM_CTRL_MODE_ON_OFF( oaControl );
 
       cameraInfo->absoluteSupported[i] =
           features.feature[ i ].absolute_capable;
@@ -293,7 +293,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
             oaAutoControl =
                 OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
             oaOnOffControl =
-                OA_CAM_CTRL_MODE_STATE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
+                OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
             // have to set the control to use the absolute settings...
             if (( err = dc1394_feature_set_absolute_control ( iidcCam,
                 DC1394_FEATURE_SHUTTER, DC1394_ON ) != DC1394_SUCCESS )) {
@@ -326,7 +326,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
             oaAutoControl =
                 OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED );
             oaOnOffControl =
-                OA_CAM_CTRL_MODE_STATE( OA_CAM_CTRL_EXPOSURE_UNSCALED );
+                OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_EXPOSURE_UNSCALED );
             oaControl = OA_CAM_CTRL_EXPOSURE_UNSCALED;
             min = features.feature[i].min;
             max = features.feature[i].max;
@@ -351,7 +351,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
           // white balance control
           unsigned int j;
 
-          oaOnOffControl = OA_CAM_CTRL_MODE_STATE( oaControl );
+          oaOnOffControl = OA_CAM_CTRL_MODE_ON_OFF( oaControl );
           for ( j = 0; j < features.feature[i].modes.num; j++ ) {
             switch ( features.feature[i].modes.modes[j] ) {
 

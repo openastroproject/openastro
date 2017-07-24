@@ -159,6 +159,12 @@ const char* oaCameraAutoExposureLabel[ OA_EXPOSURE_TYPE_LAST_P1 ] = {
   "Aperture Priority"
 };
 
+const char* oaCameraControlModifierPrefix[ OA_CAM_CTRL_MODIFIERS_P1 ] = {
+  "",
+  "Auto ",
+  "Enable "
+};
+
 
 int
 oaGetAutoForControl ( int control )
