@@ -608,7 +608,8 @@ _videoStreamCallback ( struct libusb_transfer* transfer )
 
     case LIBUSB_TRANSFER_STALL:
     case LIBUSB_TRANSFER_OVERFLOW:
-      fprintf ( stderr, "retrying transfer, status = %d\n", transfer->status );
+      fprintf ( stderr, "retrying transfer, status = %d (%s)\n",
+          transfer->status, libusb_error_name ( transfer->status ));
       break;
   }
 
@@ -661,8 +662,19 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
 
   txBufferSize = cameraInfo->frameInfo [ cameraInfo->binMode ][
       cameraInfo->sizeIndex ].maxBufferSize;
+#ifdef USB_OVERFLOW_HANGS
+  if ( cameraInfo->overflowTransmit ) {
+    txBufferSize *= 2.5;
+  }
+#endif
   // This is a guess based on experimentation
-  numTxBuffers = 16777216 / txBufferSize;
+  numTxBuffers = 200 * 1024 * 1024 / txBufferSize;
+  if ( numTxBuffers < 8 ) {
+    numTxBuffers = 8;
+  }
+  if ( numTxBuffers > 100 ) {
+    numTxBuffers = 100;
+  }
   for ( txId = 0; txId < EUVC_NUM_TRANSFER_BUFS; txId++ ) {
     if ( txId < numTxBuffers ) {
       transfer = libusb_alloc_transfer(0);
@@ -691,9 +703,13 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
   // free up any transfer buffers that we're not using
   if ( ret && txId > 0 ) {
     for ( ; txId < EUVC_NUM_TRANSFER_BUFS; txId++) {
-      free ( cameraInfo->transfers[ txId ]->buffer );
-      libusb_free_transfer ( cameraInfo->transfers[ txId ]);
-      cameraInfo->transfers[ txId ] = 0;
+      if ( cameraInfo->transfers[ txId ] ) {
+        if ( cameraInfo->transfers[ txId ]->buffer ) {
+          free ( cameraInfo->transfers[ txId ]->buffer );
+        }
+        libusb_free_transfer ( cameraInfo->transfers[ txId ]);
+        cameraInfo->transfers[ txId ] = 0;
+      }
     }
   }
 

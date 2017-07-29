@@ -376,6 +376,9 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 
   cameraInfo->cameraTypeFlags = cameraTypeFlags;
   cameraInfo->isColour = ( 2 == ( cameraTypeFlags & 0x3 )) ? 1 : 0;
+  // Set overflowTransmit just for the Neximage 5.
+  cameraInfo->overflowTransmit = ( TIS_VENDOR_ID == devInfo->vendorId &&
+      0x8207 == devInfo->productId ) ? 1 : 0;
 
   // Grab all the stuff associated with a processing unit
 

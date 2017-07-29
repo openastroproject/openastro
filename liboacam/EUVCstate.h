@@ -56,6 +56,7 @@ typedef struct EUVC_STATE {
   int			colourFormats;
   uint32_t		minPixelClock;
   uint32_t		maxPixelClock;
+  uint8_t		overflowTransmit;
   // USB connection data
   libusb_context*       usbContext;
   libusb_device_handle* usbHandle;

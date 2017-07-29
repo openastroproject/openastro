@@ -900,6 +900,7 @@ case $host in
     DEFAULT_PATH_CFLAGS="-DUSE_HOME_DEFAULT=1"
     DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_DYLIB"
     OSX_WARNINGS="-Qunused-arguments"
+    AC_DEFINE([USB_OVERFLOW_HANGS],[1],[USB overflow causes hang])
     ;;
   i?86-apple-*)
     AC_CONFIG_LINKS([$ext2/libASICamera/libASICamera.a:ext/libASICamera/mac/libASICamera.a])
@@ -911,6 +912,7 @@ case $host in
     DEFAULT_PATH_CFLAGS="-DUSE_HOME_DEFAULT=1"
     DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_DYLIB"
     OSX_WARNINGS="-Qunused-arguments"
+    AC_DEFINE([USB_OVERFLOW_HANGS],[1],[USB overflow causes hang])
     ;;
   i?86-*-*)
     AC_CONFIG_LINKS([$ext3/libASICamera/libASICamera.a:ext/libASICamera/x86/libASICamera.a])
