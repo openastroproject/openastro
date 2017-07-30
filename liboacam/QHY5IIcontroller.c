@@ -574,9 +574,10 @@ _doReadExposure ( QHY_STATE* cameraInfo )
     ret = _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_IN, buffer, toTransfer,
         &xferred, timeout );
     if ( ret < 0 && ret != LIBUSB_ERROR_TIMEOUT ) {
-      fprintf ( stderr, "QHY5-II::%s, usbBulkTransfer returns %d\n",
-          __FUNCTION__, ret );
+      fprintf ( stderr, "QHY5-II::%s, usbBulkTransfer returns %d (%s)\n",
+          __FUNCTION__, ret, libusb_error_name ( ret ));
       cameraInfo->droppedFrames++;
+      libusb_clear_halt ( cameraInfo->usbHandle, QHY_BULK_ENDP_IN );
       return -OA_ERR_CAMERA_IO;
     }
 
