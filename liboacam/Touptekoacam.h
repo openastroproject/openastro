@@ -42,6 +42,8 @@ extern int		oaTouptekCameraReadControl ( oaCamera*, int,
 				oaControlValue* );
 extern int		oaTouptekCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
+extern int              oaTouptekCameraGetControlDiscreteSet ( oaCamera*, int,
+                                int32_t*, int64_t** );
 
 extern int		oaTouptekCameraStartStreaming ( oaCamera*,
 				void* (*)(void*, void*, int), void* );
@@ -58,6 +60,8 @@ extern void*		oacamTouptekcallbackHandler ( void* );
 
 extern const FRAMESIZES* oaTouptekCameraGetFrameSizes ( oaCamera* );
 extern int		oaTouptekCameraGetFramePixelFormat ( oaCamera*, int );
+
+extern const char*      oaTouptekCameraGetMenuString ( oaCamera*, int, int );
 
 
 extern const char*	( *p_Toupcam_Version )();

@@ -137,7 +137,10 @@ const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
   "Pan Relative Speed",
   "Tilt Relative Speed",
   "Relative Roll",		// 100
-  "Relative Roll Speed" 
+  "Relative Roll Speed",
+  "White Shading",
+  "LED State",
+  "LED Period"
 };
 
 const char* oaCameraPresetAWBLabel[ OA_AWB_PRESET_LAST_P1 ] = {

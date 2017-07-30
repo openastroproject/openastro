@@ -481,6 +481,32 @@ _processSetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
       val = valp->discrete;
       return _setBitDepth ( cameraInfo, val );
       break;
+
+    case OA_CAM_CTRL_LED_STATE:
+    case OA_CAM_CTRL_LED_PERIOD:
+      if ( control == OA_CAM_CTRL_LED_STATE ) {
+        if ( OA_CTRL_TYPE_DISC_MENU != valp->valueType ) {
+          fprintf ( stderr, "%s: invalid control type %d where menu expected "
+              "for control %d\n", __FUNCTION__, valp->valueType, control );
+          return -OA_ERR_INVALID_CONTROL_TYPE;
+        }
+        cameraInfo->ledState = valp->menu;
+      } else {
+        if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
+          fprintf ( stderr, "%s: invalid control type %d where int32 expected "
+              "for control %d\n", __FUNCTION__, valp->valueType, control );
+          return -OA_ERR_INVALID_CONTROL_TYPE;
+        }
+        cameraInfo->ledPeriod = valp->int32;
+      }
+      if (( *p_Toupcam_put_LEDState )( cameraInfo->handle, 0,
+          cameraInfo->ledState, cameraInfo->ledPeriod )) {
+        fprintf ( stderr, "Toupcam_put_LEDState ( 0, %d, %d ) failed\n",
+            cameraInfo->ledState, cameraInfo->ledPeriod );
+        return -OA_ERR_CAMERA_IO;
+      }
+      return OA_ERR_NONE;
+      break;
   }
 
   fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );

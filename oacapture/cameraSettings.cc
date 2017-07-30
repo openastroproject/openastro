@@ -181,6 +181,7 @@ CameraSettings::configure ( void )
                     SLOT( map()));
               } else {
                 numUnhandled++;
+                // FIX ME
                 qWarning() << "Can't handle menu with min = " << min <<
                     " and step = " << step;
               }

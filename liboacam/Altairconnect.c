@@ -317,6 +317,27 @@ oaAltairInitCamera ( oaCameraDevice* device )
     }
   }
 
+  // There doesn't appear to be a way to tell if any of these cameras
+  // have LEDs or not, so assume there's just one in all cases
+
+/*
+ * Commented out because I can't find a camera this does actually work on
+ *
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_LED_STATE ) = OA_CTRL_TYPE_DISC_MENU;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_LED_STATE ) = 1;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_LED_STATE ) = 3;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_LED_STATE ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_LED_STATE ) =
+      cameraInfo->ledState = 2;
+
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_LED_PERIOD ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_LED_PERIOD ) = 500;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_LED_PERIOD ) = 0xffff;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_LED_PERIOD ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_LED_PERIOD ) =
+      cameraInfo->ledState = 500;
+*/
+
   if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_ROI_HARDWARE ) {
     camera->features.ROI = 1;
   }
@@ -566,6 +587,7 @@ _AltairInitFunctionPointers ( oaCamera* camera )
   camera->funcs.readControl = oaAltairCameraReadControl;
   camera->funcs.testControl = oaAltairCameraTestControl;
   camera->funcs.getControlRange = oaAltairCameraGetControlRange;
+  camera->funcs.getControlDiscreteSet = oaAltairCameraGetControlDiscreteSet;
 
   camera->funcs.startStreaming = oaAltairCameraStartStreaming;
   camera->funcs.stopStreaming = oaAltairCameraStopStreaming;
@@ -580,6 +602,8 @@ _AltairInitFunctionPointers ( oaCamera* camera )
 
   camera->funcs.enumerateFrameSizes = oaAltairCameraGetFrameSizes;
   camera->funcs.getFramePixelFormat = oaAltairCameraGetFramePixelFormat;
+
+  camera->funcs.getMenuString = oaAltairCameraGetMenuString;
 }
 
 

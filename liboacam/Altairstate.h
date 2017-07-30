@@ -71,6 +71,8 @@ typedef struct Altaircam_STATE {
   int			binMode;
   int			maxBitDepth;
   int			currentBitsPerPixel;
+  int32_t		ledState;
+  int32_t		ledPeriod;
   // image settings
   FRAMESIZES		frameSizes[ OA_MAX_BINNING+1 ];
   // thread management

@@ -42,6 +42,8 @@ extern int		oaAltairCameraReadControl ( oaCamera*, int,
 				oaControlValue* );
 extern int		oaAltairCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
+extern int              oaAltairCameraGetControlDiscreteSet ( oaCamera*, int,
+                                int32_t*, int64_t** );
 
 extern int		oaAltairCameraStartStreaming ( oaCamera*,
 				void* (*)(void*, void*, int), void* );
@@ -58,6 +60,8 @@ extern void*		oacamAltaircallbackHandler ( void* );
 
 extern const FRAMESIZES* oaAltairCameraGetFrameSizes ( oaCamera* );
 extern int		oaAltairCameraGetFramePixelFormat ( oaCamera*, int );
+
+extern const char*      oaAltairCameraGetMenuString ( oaCamera*, int, int );
 
 
 extern const char*	( *p_Altaircam_Version )();
