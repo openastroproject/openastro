@@ -67,4 +67,9 @@ ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8413", \
   GROUP="users", MODE="0660"
 
+# DFK 27AUJ003 ?
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8619", \
+  GROUP="users", MODE="0660"
+
 LABEL="tis_uvc_end"
