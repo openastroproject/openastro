@@ -251,8 +251,22 @@ OutputFFMPEG::addFrame ( void* frame, const char* timestampStr,
           l += 2;
         }
       } else {
-        qWarning() << __FUNCTION__ << "unsupported pixel format" <<
-            actualPixelFormat << "to" << storedPixelFormat;
+        if ( actualPixelFormat == AV_PIX_FMT_GRAY16LE &&
+            storedPixelFormat == AV_PIX_FMT_GRAY16BE ) {
+          // again, just for quicktime
+          uint8_t* t = picture->data[0];
+          uint8_t* s = ( uint8_t*) frame;
+          int l = 0;
+          while ( l < frameSize ) {
+            *(t+1) = *s++;
+            *t = *s++;
+            t += 2;
+            l += 2;
+          }
+        } else {
+          qWarning() << __FUNCTION__ << "unsupported pixel format" <<
+              actualPixelFormat << "to" << storedPixelFormat;
+        }
       }
     }
   } else {
