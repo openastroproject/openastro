@@ -198,7 +198,7 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
 #ifdef DYNLIB_EXT_DYLIB
   const char*		libName = "MacOS/libtoupcam.dylib";
 #else
-  const char*		libName = "libtoupcam.so";
+  const char*		libName = "libtoupcam.so.1";
 #endif
 
   static void*		libHandle = 0;

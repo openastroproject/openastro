@@ -202,7 +202,7 @@ oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
 #ifdef DYNLIB_EXT_DYLIB
   const char*		libName = "MacOS/libaltaircam.dylib";
 #else
-  const char*		libName = "libaltaircam.so";
+  const char*		libName = "libaltaircam.so.1";
 #endif
   static void*		libHandle = 0;
 
