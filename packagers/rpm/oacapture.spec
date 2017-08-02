@@ -39,6 +39,7 @@ BuildRequires:  qt-devel
 BuildRequires:  qt-x11
 BuildRequires:  yasm
 BuildRequires:  autoconf
+BuildRequires:  autoconf-archive
 BuildRequires:  libtool
 Source:         oacapture-%{version}.tar.bz2
 
