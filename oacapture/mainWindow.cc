@@ -69,7 +69,8 @@ static const char* styleGroupBoxBorders =
 MainWindow::MainWindow()
 {
   QString qtVer;
-  unsigned int qtMajorVersion, i;
+  unsigned int qtMajorVersion;
+  int i;
   bool ok;
 
   cameraSignalMapper = filterWheelSignalMapper = 0;
