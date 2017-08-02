@@ -33,7 +33,7 @@
 
 
 static void    _oaSERInitMicrosoftTimestamp();
-static int64_t _oaSERGetMicrosoftTimestamp ( int );
+static int64_t _oaSERGetMicrosoftTimestamp ( const char*, int );
 static void    _oaSER32BitToLittleEndian ( int32_t, uint8_t* );
 static void    _oaSER64BitToLittleEndian ( int64_t, uint8_t* );
 static void    _oaSERnToLittleEndian ( int64_t, uint8_t*, uint8_t );
@@ -164,13 +164,13 @@ oaSERWriteHeader ( oaSERContext* context, oaSERHeader* userHeader )
   }
 
   _oaSERInitMicrosoftTimestamp();
-  now = _oaSERGetMicrosoftTimestamp(0);
+  now = _oaSERGetMicrosoftTimestamp ( 0, 0 );
   _oaSER64BitToLittleEndian ( now, ( uint8_t* ) buffer );
   if ( write ( context->SERfd, buffer, 8 ) != 8 ) {
     return -1;
   }
 
-  now = _oaSERGetMicrosoftTimestamp(1);
+  now = _oaSERGetMicrosoftTimestamp ( 0, 1 );
   _oaSER64BitToLittleEndian ( now, ( uint8_t* ) buffer );
   if ( write ( context->SERfd, buffer, 8 ) != 8 ) {
     return -1;
@@ -192,16 +192,10 @@ oaSERWriteFrame ( oaSERContext* context, void* frame, const char* timestampStr )
   static int warn = 0;
 
   if ( timestampStr && *timestampStr ) {
-    // FIX ME -- need to convert the timestamp to seconds and useconds
-    // since the epoch
-    if ( !warn ) {
-      fprintf ( stderr, "Not handling timestamp passed into %s\n",
-          __FUNCTION__ );
-    }
-    int64_t now = _oaSERGetMicrosoftTimestamp(0);
+    int64_t now = _oaSERGetMicrosoftTimestamp ( timestampStr, 0 );
     _oaSER64BitToLittleEndian ( now, buffer );
   } else {
-    int64_t now = _oaSERGetMicrosoftTimestamp(0);
+    int64_t now = _oaSERGetMicrosoftTimestamp ( 0, 0 );
     _oaSER64BitToLittleEndian ( now, buffer );
   }
 
@@ -293,12 +287,26 @@ _oaSERInitMicrosoftTimestamp()
 
 
 static int64_t
-_oaSERGetMicrosoftTimestamp ( int utc )
+_oaSERGetMicrosoftTimestamp ( const char* timestamp, int utc )
 {
   int64_t        stamp;
   struct timeval tv;
+  struct tm      tm;
+  int            millisecs;
 
-  gettimeofday ( &tv, 0 );
+  if ( timestamp ) {
+    // timestamp is CCYY-MM-DDThh:mm:ss.sss
+    ( void ) sscanf ( timestamp, "%d-%d-%dT%d:%d:%d.%d", &tm.tm_year,
+        &tm.tm_mon, &tm.tm_mday, &tm.tm_hour, &tm.tm_min, &tm.tm_sec,
+        &millisecs );
+    tm.tm_mon--;
+    tm.tm_year -= 1900;
+    tm.tm_isdst = tm.tm_wday = tm.tm_yday = -1;
+    tv.tv_sec = timegm ( &tm );
+    tv.tv_usec = millisecs * 1000;
+  } else {
+    gettimeofday ( &tv, 0 );
+  }
   stamp = tv.tv_sec * ticksPerSecond + tv.tv_usec * ticksPerMicrosecond +
       epochTicks;
   if ( !utc ) {
