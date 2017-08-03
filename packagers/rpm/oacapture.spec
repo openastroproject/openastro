@@ -41,6 +41,7 @@ BuildRequires:  yasm
 BuildRequires:  autoconf
 BuildRequires:  autoconf-archive
 BuildRequires:  libtool
+BuildRequires:  desktop-file-utils
 Source:         oacapture-%{version}.tar.bz2
 
 %description
@@ -61,11 +62,14 @@ BuildRequires: systemd
 
 %install
 %make_install
+desktop-file-validate %{buildroot}/%{_datadir}/applications/oacapture.desktop
 
 %files
 /usr/bin/oacapture
 /lib/udev/rules.d/*
 /lib/firmware/qhy/*
+/usr/share/applications/oacapture.desktop
+/usr/share/icons/hicolor/*/apps/*
 
 %post
 %systemd_post udev.service
