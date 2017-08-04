@@ -49,6 +49,7 @@ OutputFFMPEG::OutputFFMPEG ( int x, int y, int n, int d, int fmt ) :
   if ( !state.libavStarted ) {
     av_register_all();
     av_log_set_level ( AV_LOG_QUIET );
+    // av_log_set_level ( AV_LOG_INFO );
     state.libavStarted = 1;
   }
 
@@ -223,6 +224,8 @@ int
 OutputFFMPEG::addFrame ( void* frame, const char* timestampStr,
     int64_t expTime )
 {
+  int64_t lastPTS;
+
   if ( actualPixelFormat != storedPixelFormat ) {
     // the second here is for quicktime
     if ( AV_PIX_FMT_BGR24 == actualPixelFormat || ( actualPixelFormat ==
@@ -273,13 +276,19 @@ OutputFFMPEG::addFrame ( void* frame, const char* timestampStr,
     memcpy ( picture->data[0], ( uint8_t* ) frame, frameSize );
   }
 
+  lastPTS = picture->pts;
   picture->pts = frameCount * fpsNumerator / fpsDenominator;
+  if ( picture->pts <= lastPTS ) {
+    picture->pts++;
+  }
 
   AVPacket packet;
   AVCodecContext* codecContext = videoStream->codec;
   av_init_packet ( &packet );
   packet.data = videoOutputBuffer;
   packet.size = videoOutputBufferSize;
+  packet.dts = AV_NOPTS_VALUE;
+  packet.pts = AV_NOPTS_VALUE;
   int gotPacket, ret;
   if (!( ret = avcodec_encode_video2 ( codecContext, &packet, picture,
       &gotPacket ))) {
@@ -287,6 +296,11 @@ OutputFFMPEG::addFrame ( void* frame, const char* timestampStr,
       packet.pts = av_rescale_q ( packet.pts,
           codecContext->time_base, videoStream->time_base );
     }
+    // This is just a hack to make the error "Application provided invalid,
+    // non monotonically increasing dts to muxer" go away.  I should fix it
+    // properly somehow
+    packet.dts = videoStream->cur_dts;
+    packet.dts++;
     if ( gotPacket ) {
       ret = av_write_frame ( formatContext, &packet );
       av_free_packet ( &packet );
@@ -421,7 +435,8 @@ OutputFFMPEG::closeVideo ( void )
 
 
 AVFrame*
-OutputFFMPEG::allocatePicture ( enum PixelFormat format, int width, int height )
+OutputFFMPEG::allocatePicture ( enum AVPixelFormat format, int width,
+    int height )
 {
   AVFrame* picture = av_frame_alloc();
   if ( !picture ) {

@@ -270,67 +270,90 @@ use_system_ffmpeg=no
 if test $checkSystemFFMPEG -eq 1
 then
 
-if `$PKG_CONFIG --exists 'libavcodec-ffmpeg >= 56.26.100'`; then
-  flags=`$PKG_CONFIG --cflags-only-I libavcodec-ffmpeg`
+# Some things can make you quite sweary, like people changing the names
+# of packages between releases.  Grrr!
+
+# First we check for packages without the "-ffmpeg" extension
+
+if `$PKG_CONFIG --exists 'libavcodec >= 56.26.100'`; then
+  flags=`$PKG_CONFIG --cflags-only-I libavcodec`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
   if test $useisystemInclude -eq 1; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   FFM_CPPFLAGS="$flags $FFM_CPPFLAGS"
-  FFM_LDFLAGS="`$PKG_CONFIG --libs-only-L libavcodec-ffmpeg` $FFM_LDFLAGS"
-  FFM_LIBS="`$PKG_CONFIG --libs-only-l libavcodec-ffmpeg` $FFM_LIBS"
+  FFM_LDFLAGS="`$PKG_CONFIG --libs-only-L libavcodec` $FFM_LDFLAGS"
+  FFM_LIBS="`$PKG_CONFIG --libs-only-l libavcodec` $FFM_LIBS"
   have_libavcodec=yes
-else
-# commented out because we can't be sure of the version
-# AC_CHECK_LIB([avformat],[av_format_get_video_codec],[
-#   LIBS="-lavformat $LIBS"
-#   AC_DEFINE([HAVE_LIBAVFORMAT],[1],[Have libavformat])
-#   have_libavformat=yes
-# ],[
-  AC_MSG_WARN([No suitable version of system libavformat found.])
-# ])
 fi
 
-if `$PKG_CONFIG --exists 'libavformat-ffmpeg >= 56.25.101'`; then
-  flags=`$PKG_CONFIG --cflags-only-I libavformat-ffmpeg`
+if `$PKG_CONFIG --exists 'libavformat >= 56.25.101'`; then
+  flags=`$PKG_CONFIG --cflags-only-I libavformat`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
   if test $useisystemInclude -eq 1; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   FFM_CPPFLAGS="$flags $FFM_CPPFLAGS"
-  FFM_LDFLAGS="`$PKG_CONFIG --libs-only-L libavformat-ffmpeg` $FFM_LDFLAGS"
-  FFM_LIBS="`$PKG_CONFIG --libs-only-l libavformat-ffmpeg` $FFM_LIBS"
+  FFM_LDFLAGS="`$PKG_CONFIG --libs-only-L libavformat` $FFM_LDFLAGS"
+  FFM_LIBS="`$PKG_CONFIG --libs-only-l libavformat` $FFM_LIBS"
   have_libavformat=yes
-else
-# commented out because we can't be sure of the version
-# AC_CHECK_LIB([avcodec],[av_codec_get_codec_descriptor],[
-#   LIBS="-lavcodec $LIBS"
-#   AC_DEFINE([HAVE_LIBAVCODEC],[1],[Have libavcodec])
-#   have_libavcodec=yes
-# ],[
-  AC_MSG_WARN([No suitable version of system libavcodec found.])
-# ])
 fi
 
-if `$PKG_CONFIG --exists 'libavutil-ffmpeg >= 54.20.100'`; then
-  flags=`$PKG_CONFIG --cflags-only-I libavutil-ffmpeg`
+if `$PKG_CONFIG --exists 'libavutil >= 54.20.100'`; then
+  flags=`$PKG_CONFIG --cflags-only-I libavutil`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
   if test $useisystemInclude -eq 1; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   FFM_CPPFLAGS="$flags $FFM_CPPFLAGS"
-  FFM_LDFLAGS="`$PKG_CONFIG --libs-only-L libavutil-ffmpeg` $FFM_LDFLAGS"
-  FFM_LIBS="`$PKG_CONFIG --libs-only-l libavutil-ffmpeg` $FFM_LIBS"
+  FFM_LDFLAGS="`$PKG_CONFIG --libs-only-L libavutil` $FFM_LDFLAGS"
+  FFM_LIBS="`$PKG_CONFIG --libs-only-l libavutil` $FFM_LIBS"
   have_libavutil=yes
-else
-# commented out because we can't be sure of the version
-# AC_CHECK_LIB([avutil],[avutil_license],[
-#   LIBS="-lavutil $LIBS"
-#   AC_DEFINE([HAVE_LIBAVUTIL],[1],[Have libavutil])
-#   have_libavutil=yes
-# ],[
-  AC_MSG_WARN([No suitable version of system libavutil found.])
-# ])
+fi
+
+if test "$have_libavcodec$have_libavformat$have_libavutil" != "yesyesyes"
+then
+  if `$PKG_CONFIG --exists 'libavcodec-ffmpeg >= 56.26.100'`; then
+    flags=`$PKG_CONFIG --cflags-only-I libavcodec-ffmpeg`
+    MOC_CFLAGS="$flags $MOC_CFLAGS"
+    if test $useisystemInclude -eq 1; then
+      flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+    fi
+    FFM_CPPFLAGS="$flags $FFM_CPPFLAGS"
+    FFM_LDFLAGS="`$PKG_CONFIG --libs-only-L libavcodec-ffmpeg` $FFM_LDFLAGS"
+    FFM_LIBS="`$PKG_CONFIG --libs-only-l libavcodec-ffmpeg` $FFM_LIBS"
+    have_libavcodec=yes
+  else
+    AC_MSG_WARN([No suitable version of system libavcodec found.])
+  fi
+
+  if `$PKG_CONFIG --exists 'libavformat-ffmpeg >= 56.25.101'`; then
+    flags=`$PKG_CONFIG --cflags-only-I libavformat-ffmpeg`
+    MOC_CFLAGS="$flags $MOC_CFLAGS"
+    if test $useisystemInclude -eq 1; then
+      flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+    fi
+    FFM_CPPFLAGS="$flags $FFM_CPPFLAGS"
+    FFM_LDFLAGS="`$PKG_CONFIG --libs-only-L libavformat-ffmpeg` $FFM_LDFLAGS"
+    FFM_LIBS="`$PKG_CONFIG --libs-only-l libavformat-ffmpeg` $FFM_LIBS"
+    have_libavformat=yes
+  else
+    AC_MSG_WARN([No suitable version of system libavcodec found.])
+  fi
+
+  if `$PKG_CONFIG --exists 'libavutil-ffmpeg >= 54.20.100'`; then
+    flags=`$PKG_CONFIG --cflags-only-I libavutil-ffmpeg`
+    MOC_CFLAGS="$flags $MOC_CFLAGS"
+    if test $useisystemInclude -eq 1; then
+      flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+    fi
+    FFM_CPPFLAGS="$flags $FFM_CPPFLAGS"
+    FFM_LDFLAGS="`$PKG_CONFIG --libs-only-L libavutil-ffmpeg` $FFM_LDFLAGS"
+    FFM_LIBS="`$PKG_CONFIG --libs-only-l libavutil-ffmpeg` $FFM_LIBS"
+    have_libavutil=yes
+  else
+    AC_MSG_WARN([No suitable version of system libavutil found.])
+  fi
 fi
 
 if test "$have_libavcodec$have_libavformat$have_libavutil" == "yesyesyes"
