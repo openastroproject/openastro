@@ -248,4 +248,5 @@ class MainWindow : public QMainWindow
     void		setProgress ( unsigned int );
     void		reveal ( void );
     void		showStatusMessage ( QString );
+    void		frameWriteFailedPopup ( void );
 };

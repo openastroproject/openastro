@@ -85,6 +85,7 @@ class PreviewWidget : public QFrame
     void		updateHistogram ( void );
     void		updateDisplay ( void );
     void		stopRecording ( void );
+    void		frameWriteFailed ( void );
 
   private:
     QImage		image;

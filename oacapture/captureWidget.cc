@@ -680,7 +680,9 @@ CaptureWidget::stopRecording ( void )
       ( config.secondsLimitValue && !config.limitType ))) {
     autorunButton->setEnabled ( 1 );
   }
-  stopButton->setEnabled ( 0 );
+  // shouldn't need this as it should get done in
+  // setButtonsForRecordingStopped()
+  // stopButton->setEnabled ( 0 );
 }
 
 

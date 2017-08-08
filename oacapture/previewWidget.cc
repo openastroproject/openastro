@@ -873,12 +873,19 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
       } else {
         timestamp = 0;
       }
-      output->addFrame ( writeBuffer, timestamp,
-          state->controlWidget->getCurrentExposure());
-      if (( self->lastCapturedFramesUpdateTime +
-          self->capturedFramesDisplayInterval ) < now ) {
-        emit self->updateFrameCount ( output->getFrameCount());
-        self->lastCapturedFramesUpdateTime = now;
+      if ( output->addFrame ( writeBuffer, timestamp,
+          state->controlWidget->getCurrentExposure()) < 0 ) {
+        self->recordingInProgress = 0;
+        self->manualStop = 0;
+        state->autorunEnabled = 0;
+        emit self->stopRecording();
+        emit self->frameWriteFailed();
+      } else {
+        if (( self->lastCapturedFramesUpdateTime +
+            self->capturedFramesDisplayInterval ) < now ) {
+          emit self->updateFrameCount ( output->getFrameCount());
+          self->lastCapturedFramesUpdateTime = now;
+        }
       }
     }
   }

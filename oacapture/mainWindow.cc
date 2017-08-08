@@ -145,6 +145,8 @@ MainWindow::MainWindow()
       state.captureWidget, SLOT ( doStopRecording ( void )));
   connect ( state.captureWidget, SIGNAL( writeStatusMessage ( QString )),
       this, SLOT ( showStatusMessage ( QString )));
+  connect ( state.previewWidget, SIGNAL( frameWriteFailed ( void )),
+      this, SLOT ( frameWriteFailedPopup ( void )));
 
   // update filters for matching filter wheels from config
   state.filterWheel->updateAllSearchFilters();
@@ -2806,4 +2808,12 @@ void
 MainWindow::reveal ( void )
 {
   show();
+}
+
+
+void
+MainWindow::frameWriteFailedPopup ( void )
+{
+  QMessageBox::warning ( this, APPLICATION_NAME,
+      tr ( "Error saving captured frame" ));
 }
