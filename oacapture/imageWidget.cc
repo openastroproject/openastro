@@ -434,5 +434,7 @@ ImageWidget::changeROI ( void )
     xSize->setText ( QString::number ( config.imageSizeX ));
     ySize->setText ( QString::number ( config.imageSizeY ));
     doResolutionChange ( 1 );
+    roi->setChecked ( true );
+    max->setChecked ( false );
   }
 }
