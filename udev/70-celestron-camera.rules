@@ -43,6 +43,11 @@ ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8208", \
   GROUP="users", MODE="0660"
 
+# Neximage 10
+ATTRS{idVendor}=="199e", \
+ATTRS{idProduct}=="8619", \
+  GROUP="users", MODE="0660"
+
 # Skyris ???
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8441", \
