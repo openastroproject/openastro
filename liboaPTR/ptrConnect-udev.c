@@ -2,7 +2,7 @@
  *
  * ptrInit-udev.c -- Initialise PTR device (udev)
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -152,6 +152,10 @@ oaPTRInit ( oaPTRDevice* device )
   privateInfo->fd = ptrDesc;
   privateInfo->isRunning = 0;
   privateInfo->index = devInfo->devIndex;
+  privateInfo->majorVersion = devInfo->majorVersion;
+  privateInfo->minorVersion = devInfo->minorVersion;
+  privateInfo->version = ( privateInfo->majorVersion << 8 ) |
+      privateInfo->minorVersion;
 
   pthread_mutex_init ( &privateInfo->commandQueueMutex, 0 );
   pthread_mutex_init ( &privateInfo->callbackQueueMutex, 0 );

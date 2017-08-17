@@ -2,7 +2,7 @@
  *
  * openastro.h -- Main Open Astro Project API header
  *
- * Copyright 2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -65,6 +65,8 @@ typedef struct {
 #ifdef HAVE_LIBTOUPCAM
   char			toupcamId[65];
 #endif
+  uint32_t		majorVersion;
+  uint32_t		minorVersion;
 } DEVICE_INFO;
 
 typedef struct OA_CONTROL_VALUE {

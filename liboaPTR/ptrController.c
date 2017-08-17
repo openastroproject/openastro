@@ -2,7 +2,7 @@
  *
  * ptrController.c -- PTR device control functions
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -51,7 +51,7 @@ static int	_processPTRStart ( PRIVATE_INFO*, OA_COMMAND* );
 static int	_processPTRStop ( PRIVATE_INFO* );
 static int	_processTimestampFetch ( PRIVATE_INFO*, OA_COMMAND* );
 static int	_doSync ( PRIVATE_INFO* );
-static int	_readTimestamp ( int, char* );
+static int	_readTimestamp ( uint32_t, int, char* );
 
 
 void*
@@ -64,10 +64,14 @@ oaPTRcontroller ( void* param )
   int			resultCode, running = 0;
   fd_set		readable;
   struct timeval	timeout;
-  char			readBuffer[ PTR_TIMESTAMP_BUFFER_LEN + 1 ];
+  // use the longest version here
+  char			readBuffer[ PTR_TIMESTAMP_BUFFER_LEN_V1_1 + 1 ];
   char			numberBuffer[ 8 ];
   int			frameNumber, numRead, available, i;
+  int			timestampLength;
 
+  timestampLength = ( deviceInfo->version < 0x0101 ) ?
+      PTR_TIMESTAMP_BUFFER_LEN_V1_0 : PTR_TIMESTAMP_BUFFER_LEN_V1_1;
   timeout.tv_sec = 0;
   timeout.tv_usec = 10000;
   do {
@@ -94,8 +98,9 @@ oaPTRcontroller ( void* param )
       FD_ZERO ( &readable );
       FD_SET ( deviceInfo->fd, &readable );
       if ( select ( deviceInfo->fd + 1, &readable, 0, 0, &timeout ) == 1 ) {
-        numRead = _readTimestamp ( deviceInfo->fd, readBuffer );
-        if ( numRead != PTR_TIMESTAMP_BUFFER_LEN ) {
+        numRead = _readTimestamp ( deviceInfo->version, deviceInfo->fd,
+            readBuffer );
+        if ( numRead != timestampLength ) {
           fprintf ( stderr, "%s: read incorrect timestamp length %d (",
               __FUNCTION__, numRead );
           if ( numRead > 0 ) {
@@ -341,6 +346,10 @@ _processReset ( PRIVATE_INFO* deviceInfo )
   if (( namePtr = strstr ( buffer, "PTR-" )) && isdigit ( namePtr[4] )
       && namePtr[5] == '.' ) {
     endPtr = namePtr + 5;
+    deviceInfo->majorVersion = namePtr[4] - '0';
+    deviceInfo->minorVersion = namePtr[6] - '0';
+    deviceInfo->version = ( deviceInfo->majorVersion << 8 ) &
+        deviceInfo->minorVersion;
     while ( *endPtr++ != ' ' );
     sprintf ( endPtr, "(%s)", deviceInfo->devicePath );
   } else {
@@ -519,28 +528,31 @@ _processTimestampFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
     return OA_ERR_NONE;
   }
 
-  // PTR returns a timestamp as YYMMDDThhmmss.sss
+  // PTR < v1.1 returns a timestamp as YYMMDDThhmmss.sss
   // convert it to CCYY-MM-DDThh:mm:ss.sss
+  // PTR >= v1.1 returns YYYY-MM-DDThh:mm:ss.sss
 
   p = command->resultData;
   q = deviceInfo->timestampBuffer [ first ];
-  *p++ = *q++; // C
-  *p++ = *q++; // C
-  *p++ = *q++; // Y
-  *p++ = *q++; // Y
-  *p++ = '-';
-  *p++ = *q++; // M
-  *p++ = *q++; // M
-  *p++ = '-';
-  *p++ = *q++; // D
-  *p++ = *q++; // D
-  *p++ = *q++; // T
-  *p++ = *q++; // h
-  *p++ = *q++; // h
-  *p++ = ':';
-  *p++ = *q++; // m
-  *p++ = *q++; // m
-  *p++ = ':';
+  if ( deviceInfo->version < 0x0101 ) {
+    *p++ = *q++; // C
+    *p++ = *q++; // C
+    *p++ = *q++; // Y
+    *p++ = *q++; // Y
+    *p++ = '-';
+    *p++ = *q++; // M
+    *p++ = *q++; // M
+    *p++ = '-';
+    *p++ = *q++; // D
+    *p++ = *q++; // D
+    *p++ = *q++; // T
+    *p++ = *q++; // h
+    *p++ = *q++; // h
+    *p++ = ':';
+    *p++ = *q++; // m
+    *p++ = *q++; // m
+    *p++ = ':';
+  }
   ( void ) strcpy ( p, q );
 
   pthread_mutex_lock ( &deviceInfo->callbackQueueMutex );
@@ -554,9 +566,9 @@ _processTimestampFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 
 
 static int
-_readTimestamp ( int fd, char* buffer )
+_readTimestamp ( uint32_t version, int fd, char* buffer )
 {
-  int		readSoFar = 0, i, l;
+  int		readSoFar = 0, i, l, maxChars;
   int		__attribute__((unused)) dummy;
   char*		p = buffer;
   char*		complete = "Acquisition sequence complete";
@@ -567,7 +579,8 @@ _readTimestamp ( int fd, char* buffer )
   // and once we have enough data to form a timestamp, add that to the
   // queue
 
-  memset ( buffer, 0, PTR_TIMESTAMP_BUFFER_LEN );
+  memset ( buffer, 0, ( version < 0x0101 ) ?
+      PTR_TIMESTAMP_BUFFER_LEN_V1_0 : PTR_TIMESTAMP_BUFFER_LEN_V1_1 );
   *p = 0;
   if ( read ( fd, p, 1 ) != 1 ) {
     return readSoFar;
@@ -575,7 +588,7 @@ _readTimestamp ( int fd, char* buffer )
   readSoFar++;
 
   // We're expecting something that matches either of:
-  // "[ST]:\d{6}:\{8}T\d{6}.d{3}"
+  // "[ST]:\d{6}:\{8}T\d{6}.d{3}" (or the 1.1+ equivalent)
   // "Acquisition sequence complete"
 
   if ( *p != 'S' && *p != 'T' && *p != 'A' ) {
@@ -626,14 +639,22 @@ _readTimestamp ( int fd, char* buffer )
       return readSoFar;
     }
     p++;
-    // read "\d{8}" (YYYYMMDD)
-    for ( i = 0; i < 8; i++ ) {
+    // read "\d{8}" (YYYYMMDD) or "\d{4}-\d\d-\d\d" for PTR >= 1.1
+    maxChars = ( version >= 0x0101 ) ? 10 : 8;
+    for ( i = 0; i < maxChars; i++ ) {
       if ( read ( fd, p, 1 ) != 1 ) {
         return readSoFar;
       }
       readSoFar++;
       if ( !isdigit ( *p )) {
-        return readSoFar;
+        if (!( version >= 0x0101 && ( i == 4 || i == 7 ) &&
+            *p == '-' )) {
+          return readSoFar;
+        }
+      }
+      if ( version < 0x0101 && ( i == 4 || i == 6 )) {
+        *++p = '-';
+        readSoFar++;
       }
       p++;
     }
@@ -646,14 +667,22 @@ _readTimestamp ( int fd, char* buffer )
       return readSoFar;
     }
     p++;
-    // read "\d{6}" (HHmmss)
-    for ( i = 0; i < 6; i++ ) {
+    // read "\d{6}" (HHmmss) or "\d\d:\d\d:\d\d"
+    maxChars = ( version >= 0x0101 ) ? 8 : 6;
+    for ( i = 0; i < maxChars; i++ ) {
       if ( read ( fd, p, 1 ) != 1 ) {
         return readSoFar;
       }
       readSoFar++;
       if ( !isdigit ( *p )) {
-        return readSoFar;
+        if (!( version >= 0x0101 && ( i == 2 || i == 5 ) &&
+            *p == ':' )) {
+          return readSoFar;
+        }
+      }
+      if ( version < 0x0101 && ( i == 1 || i == 3 )) {
+        *++p = ':';
+        readSoFar++;
       }
       p++;
     }

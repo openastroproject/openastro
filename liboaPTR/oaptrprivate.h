@@ -2,7 +2,7 @@
  *
  * oaptrprivate.h -- shared declarations not exposed to the cruel world
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -52,6 +52,9 @@ typedef struct {
   char			devicePath[ PATH_MAX+1 ];
   int			fd;
   pthread_mutex_t       ioMutex;
+  uint32_t		majorVersion;
+  uint32_t		minorVersion;
+  uint32_t		version;
   // timer configuration
   int32_t		requestedCount;
   int32_t		requestedInterval;
@@ -91,6 +94,7 @@ extern void		oaptrDebugMsg ( int, const char*, ... );
 extern int		_oaCheckPTRArraySize ( PTR_LIST* );
 extern void		_oaFreePTRDeviceList ( PTR_LIST* );
 
-#define PTR_TIMESTAMP_BUFFER_LEN 28
+#define PTR_TIMESTAMP_BUFFER_LEN_V1_0 28
+#define PTR_TIMESTAMP_BUFFER_LEN_V1_1 32
 
 #endif /* OA_PTR_PRIVATE_H */

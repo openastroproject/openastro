@@ -2,7 +2,7 @@
  *
  * ptr-udev.c -- Find PTR devices using (Linux) udev
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -74,6 +74,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
   int				ptrDesc, numRead, result, i;
   fd_set			readable;
   struct timeval		timeout;
+  uint32_t			major, minor;
 
 
   if (!( udev = udev_new())) {
@@ -230,6 +231,8 @@ oaPTREnumerate ( PTR_LIST* deviceList )
                 if (( namePtr = strstr ( buffer, "PTR-" )) &&
                     isdigit ( namePtr[4] ) && namePtr[5] == '.' ) {
                   endPtr = namePtr + 5;
+                  major = namePtr[4] - '0';
+                  minor = namePtr[6] - '0';
                   while ( *endPtr++ != ' ' );
                   sprintf ( endPtr, "(%s)", deviceNode );
                   ( void ) strncpy ( nameBuffer, namePtr, 63 );
@@ -289,6 +292,8 @@ oaPTREnumerate ( PTR_LIST* deviceList )
           _oaInitPTRDeviceFunctionPointers ( ptr );
           ptr->_private = _private;
           _private->devType = 1;
+          _private->majorVersion = major;
+          _private->minorVersion = minor;
           ( void ) strcpy ( ptr->deviceName, nameBuffer );
           _private->devIndex = numFound++;
           // _private->vendorId = vid;
