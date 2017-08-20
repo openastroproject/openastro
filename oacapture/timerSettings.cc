@@ -2,7 +2,7 @@
  *
  * timerSettings.cc -- class for the timer settings in the settings UI
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -88,6 +88,8 @@ TimerSettings::TimerSettings ( QWidget* parent ) : QWidget ( parent )
     drainDelay->setText ( n );
   }
 
+  checkGPSBox = new QCheckBox ( tr ( "Read GPS for every capture run" ));
+  checkGPSBox->setChecked ( config.queryGPSForEachCapture );
   /*
    * Not sure we need this for the moment
    *
@@ -139,6 +141,8 @@ TimerSettings::TimerSettings ( QWidget* parent ) : QWidget ( parent )
   box->addSpacing ( 15 );
   box->addWidget ( enableUserDrainBox );
   box->addLayout ( drainDelayLayout );
+  box->addSpacing ( 15 );
+  box->addWidget ( checkGPSBox );
   /*
   box->addLayout ( timestampDelayLayout );
    */
@@ -153,6 +157,8 @@ TimerSettings::TimerSettings ( QWidget* parent ) : QWidget ( parent )
   connect ( interval, SIGNAL ( textEdited ( const QString& )), parent,
       SLOT ( dataChanged()));
   connect ( drainDelay, SIGNAL ( textEdited ( const QString& )), parent,
+      SLOT ( dataChanged()));
+  connect ( checkGPSBox, SIGNAL ( stateChanged ( int )), parent,
       SLOT ( dataChanged()));
   /*
   connect ( timestampDelay, SIGNAL ( textEdited ( const QString& )), parent,
@@ -226,6 +232,8 @@ TimerSettings::storeSettings ( void )
     config.timestampDelay = timestampDelayStr.toInt();
   }
    */
+
+  config.queryGPSForEachCapture = checkGPSBox->isChecked() ? 1 : 0;
 }
 
 

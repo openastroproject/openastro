@@ -2,7 +2,7 @@
  *
  * unimplemented.c -- catch-all for unimplemented PTR functions
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015, 2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -78,6 +78,15 @@ _testControl ( oaPTR* device, int c, oaControlValue* v )
 }
 
 
+static int
+_readGPS ( oaPTR* device, double* buffer )
+{
+  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+      device->deviceName );
+  return -OA_ERR_UNIMPLEMENTED;
+}
+
+
 void
 _oaInitPTRDeviceFunctionPointers ( oaPTRDevice* device )
 {
@@ -93,4 +102,5 @@ _oaInitPTRFunctionPointers ( oaPTR* device )
   device->funcs.readControl = _readControl;
   device->funcs.testControl = _testControl;
   device->funcs.setControl = _setControl;
+  device->funcs.readGPS = _readGPS;
 }

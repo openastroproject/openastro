@@ -2,7 +2,7 @@
  *
  * state.h -- global application state datastructures
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -96,6 +96,11 @@ typedef struct
   int			binningValid;
   int			binModeX;
   int			binModeY;
+
+  int			gpsValid;
+  double		longitude;
+  double		latitude;
+  double		altitude;
 
 } STATE;
 

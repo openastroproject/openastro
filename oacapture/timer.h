@@ -2,7 +2,7 @@
  *
  * timer.h -- class declaration
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -56,10 +56,12 @@ class Timer // : public QObject
     int			isRunning ( void );
     int			hasReset ( void );
     int			hasSync ( void );
+    int			hasGPS ( void );
     int			hasControl ( int );
     void		updateSearchFilters ( int );
     void		updateAllSearchFilters ( void );
     const char*		readTimestamp ( void );
+    int			readGPS ( double*, double*, double* );
 
     void		populateControlValue ( oaControlValue*, uint32_t,
 				int64_t );

@@ -41,7 +41,7 @@
 #include "ptr.h"
 
 
-static void _ptrInitFunctionPointers ( oaPTR* );
+static void _ptrInitFunctionPointers ( oaPTR*, uint32_t );
 
 
 /**
@@ -80,6 +80,7 @@ oaPTRInit ( oaPTRDevice* device )
   OA_CLEAR ( *privateInfo );
   OA_CLEAR ( *commonInfo );
   OA_CLEAR ( ptr->controls );
+  OA_CLEAR ( ptr->features );
 
   ptr->_private = privateInfo;
   ptr->_common = commonInfo;
@@ -218,14 +219,21 @@ oaPTRInit ( oaPTRDevice* device )
   commonInfo->def [ OA_TIMER_CTRL_MODE ] = OA_TIMER_MODE_TRIGGER;
   privateInfo->requestedMode = OA_TIMER_MODE_TRIGGER;
 
-  _ptrInitFunctionPointers ( ptr );
+  if ( privateInfo->version >= 0x0101 ) {
+    ptr->features.gps = 1;
+  }
+
+  _ptrInitFunctionPointers ( ptr, privateInfo->version );
+
+  usleep ( 500000 );
+  tcflush ( ptrDesc, TCIFLUSH );
 
   return ptr;
 }
 
 
 static void
-_ptrInitFunctionPointers ( oaPTR* ptr )
+_ptrInitFunctionPointers ( oaPTR* ptr, uint32_t version )
 {
   ptr->funcs.init = oaPTRInit;
   ptr->funcs.close = oaPTRClose;
@@ -236,7 +244,10 @@ _ptrInitFunctionPointers ( oaPTR* ptr )
   ptr->funcs.readControl = oaPTRReadControl;
   ptr->funcs.setControl = oaPTRSetControl;
   ptr->funcs.readTimestamp = oaPTRGetTimestamp;
-fprintf ( stderr, "%s: need control range function\n", __FUNCTION__ );
+  if ( version >= 0x0101 ) {
+    ptr->funcs.readGPS = oaPTRReadGPS;
+  }
+  // FIX ME -- need control range function for PTR
 }
 
 

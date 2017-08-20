@@ -477,6 +477,13 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     format = OA_DEMOSAIC_FMT ( format );
   }
 
+  if ( config.queryGPSForEachCapture && state.timer && state.timer->hasGPS()) {
+    if ( state.timer->readGPS ( &state.latitude, &state.longitude,
+        &state.altitude ) == OA_ERR_NONE ) {
+      state.gpsValid = 1;
+    }
+  }
+
   switch ( config.fileTypeOption ) {
     case CAPTURE_AVI:
       if ( config.windowsCompatibleAVI && WINDIB_OK( format )) {

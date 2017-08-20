@@ -2,7 +2,7 @@
  *
  * outputFITS.cc -- FITS output class
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -413,15 +413,27 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     fits_write_key_str ( fptr, "FILTER", cString, "", &status );
   }
 
-  if ( config.fitsSiteLatitude != "" ) {
+  stringBuff[0] = 0;
+  if ( state.gpsValid ) {
+    ( void ) sprintf ( stringBuff, "%g", state.latitude );
+  }
+  if ( !stringBuff[0] && config.fitsSiteLatitude != "" ) {
     ( void ) strncpy ( stringBuff,
         config.fitsSiteLatitude.toStdString().c_str(), FLEN_VALUE+1 );
+  }
+  if ( stringBuff[0] ) {
     fits_write_key_str ( fptr, "SITELAT", cString, "", &status );
   }
 
-  if ( config.fitsSiteLongitude != "" ) {
+  stringBuff[0] = 0;
+  if ( state.gpsValid ) {
+    ( void ) sprintf ( stringBuff, "%g", state.longitude );
+  }
+  if ( !stringBuff[0] && config.fitsSiteLongitude != "" ) {
     ( void ) strncpy ( stringBuff,
         config.fitsSiteLongitude.toStdString().c_str(), FLEN_VALUE+1 );
+  }
+  if ( stringBuff[0] ) {
     fits_write_key_str ( fptr, "SITELONG", cString, "", &status );
   }
 

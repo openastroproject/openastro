@@ -50,6 +50,7 @@ static int	_processReset ( PRIVATE_INFO* );
 static int	_processPTRStart ( PRIVATE_INFO*, OA_COMMAND* );
 static int	_processPTRStop ( PRIVATE_INFO* );
 static int	_processTimestampFetch ( PRIVATE_INFO*, OA_COMMAND* );
+static int	_processGPSFetch ( PRIVATE_INFO*, OA_COMMAND* );
 static int	_doSync ( PRIVATE_INFO* );
 static int	_readTimestamp ( uint32_t, int, char* );
 
@@ -181,6 +182,9 @@ oaPTRcontroller ( void* param )
             break;
           case OA_CMD_DATA_GET:
             resultCode = _processTimestampFetch ( deviceInfo, command );
+            break;
+          case OA_CMD_GPS_GET:
+            resultCode = _processGPSFetch ( deviceInfo, command );
             break;
           default:
             fprintf ( stderr, "Invalid command type %d in controller\n",
@@ -652,10 +656,6 @@ _readTimestamp ( uint32_t version, int fd, char* buffer )
           return readSoFar;
         }
       }
-      if ( version < 0x0101 && ( i == 4 || i == 6 )) {
-        *++p = '-';
-        readSoFar++;
-      }
       p++;
     }
     // read "T"
@@ -679,10 +679,6 @@ _readTimestamp ( uint32_t version, int fd, char* buffer )
             *p == ':' )) {
           return readSoFar;
         }
-      }
-      if ( version < 0x0101 && ( i == 1 || i == 3 )) {
-        *++p = ':';
-        readSoFar++;
       }
       p++;
     }
@@ -714,4 +710,98 @@ _readTimestamp ( uint32_t version, int fd, char* buffer )
   dummy = read ( fd, crlf, 2 );
 
   return readSoFar;
+}
+
+
+static int
+_processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
+{
+  char		commandStr[128], buffer[128];
+  char		*p;
+  int		commandLen, readBytes;
+  CALLBACK*	cb = command->commandData;
+  double	latDeg, latMin, longDeg, longMin, alt;
+  double*	r = command->resultData;
+
+  if ( deviceInfo->isRunning ) {
+    return -OA_ERR_TIMER_RUNNING;
+  }
+
+  tcflush ( deviceInfo->fd, TCIFLUSH );
+
+  ( void ) strcpy ( commandStr, "geo\r" );
+  commandLen = strlen ( commandStr );
+  if ( _ptrWrite ( deviceInfo->fd, commandStr, commandLen )) {
+    fprintf ( stderr, "%s: failed to write command:\n%s\n  to %s\n",
+        __FUNCTION__, commandStr, deviceInfo->devicePath );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, commandLen + 1 )) !=
+      ( commandLen )) {
+    fprintf ( stderr, "%s: failed to read back command:\n%s\n"
+        "  from %s, commandLen = %d, read len = %d\n",
+        __FUNCTION__, commandStr, deviceInfo->devicePath, commandLen,
+        readBytes );
+    if ( readBytes > 0 ) {
+      buffer[ readBytes ] = 0;
+      fprintf ( stderr, "  string read = '%s'\n", buffer );
+    }
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  // We expect to get a string back of the form:
+  // G:+ddmm.mmmm,-dddmm.mmmm,aaa.a
+  // where aaa does not have a fixed length.  We should therefore be able to
+  // read at least 27 bytes and then pick off the rest to the end of the line
+
+  usleep ( 100000 );
+  memset ( buffer, 0, 128 );
+  // 28 here to allow for null termination
+  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, 28 )) != 27 ) {
+    fprintf ( stderr, "%s, failed to read initial response to 'geo' command\n",
+        __FUNCTION__ );
+    if ( readBytes > 0 ) {
+      buffer[ readBytes ] = 0;
+      fprintf ( stderr, "  string read (%d bytes) = '%s'\n", readBytes,
+          buffer );
+    }
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  p = buffer + 26;
+  do {
+    p++;
+    if (( readBytes = _ptrRead ( deviceInfo->fd, p, 1 )) < 0 ) {
+      fprintf ( stderr, "%s, failed to read end of response to 'geo' command\n",
+          __FUNCTION__ );
+      *p = 0;
+      fprintf ( stderr, "  string read = '%s'\n", buffer );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+  } while ( readBytes );
+  *p = 0;
+
+  if ( *buffer != 'G' || *( buffer + 1 ) != ':' ) {
+    fprintf ( stderr, "%s, geo string '%s' has invalid format\n",
+        __FUNCTION__, buffer );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if ( sscanf ( buffer + 2, "%3lf%lf,%4lf%lf,%lf", &latDeg, &latMin, &longDeg,
+      &longMin, &alt ) < 5 ) {
+    fprintf ( stderr, "%s, geo string '%s' fails to match expected format",
+        __FUNCTION__, buffer + 2 );
+  }
+
+  if ( latDeg < 0 ) { latMin = -latMin; }
+  if ( longDeg < 0 ) { longMin = -longMin; }
+
+  deviceInfo->latitude = latDeg + latMin / 60;
+  deviceInfo->longitude = longDeg + longMin / 60;
+  deviceInfo->altitude = alt;
+
+  r[0] = deviceInfo->latitude;
+  r[1] = deviceInfo->longitude;
+  r[2] = deviceInfo->altitude;
+  return -OA_ERR_NONE;
 }

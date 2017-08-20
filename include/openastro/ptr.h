@@ -2,7 +2,7 @@
  *
  * ptr.h -- PTR API header
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -33,6 +33,7 @@
 #include <openastro/userConfig.h>
 #include <openastro/ptr/controls.h>
 #include <openastro/timer/controls.h>
+#include <openastro/timer/features.h>
 
 
 struct oaPTR;
@@ -54,6 +55,7 @@ typedef struct oaPTRFuncs {
   int			( *getControlRange )( struct oaPTR*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
   int			( *readTimestamp )( struct oaPTR*, int, char* );
+  int			( *readGPS )( struct oaPTR*, double* );
 } oaPTRFuncs;
 
 #define OA_MAX_NAME_LEN			60
@@ -63,6 +65,7 @@ typedef struct oaPTR {
   char			deviceName[OA_MAX_NAME_LEN+1];
   oaPTRFuncs		funcs;
   uint8_t		controls[OA_TIMER_CTRL_LAST_P1];
+  oaTimerFeatures	features;
   void*			_common;
   void*			_private;
 } oaPTR;

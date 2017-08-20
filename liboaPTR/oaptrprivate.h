@@ -55,6 +55,9 @@ typedef struct {
   uint32_t		majorVersion;
   uint32_t		minorVersion;
   uint32_t		version;
+  double		longitude;
+  double		latitude;
+  double		altitude;
   // timer configuration
   int32_t		requestedCount;
   int32_t		requestedInterval;

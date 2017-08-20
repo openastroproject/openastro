@@ -87,6 +87,7 @@ MainWindow::MainWindow()
   state.histogramWidget = 0;
   state.needGroupBoxBorders = 0;
   state.cameraTempValid = 0;
+  state.gpsValid = 0;
   state.binningValid = 0;
 
   // The gtk+ style doesn't enable group box borders by default, which makes
@@ -904,6 +905,8 @@ MainWindow::readConfig ( void )
   config.drainDelay = settings.value ( "timer/drainDelay", 500 ).toInt();
   config.timestampDelay = settings.value ( "timer/timestampDelay",
       50 ).toInt();
+  config.queryGPSForEachCapture = settings.value (
+      "timer/queryGPSForEachCapture", 0 ).toInt();
 }
 
 
@@ -1169,6 +1172,8 @@ MainWindow::writeConfig ( void )
   settings.setValue ( "timer/drainDelayEnabled", config.userDrainDelayEnabled );
   settings.setValue ( "timer/drainDelay", config.drainDelay );
   settings.setValue ( "timer/timestampDelay", config.timestampDelay );
+  settings.setValue ( "timer/queryGPSForEachCapture",
+      config.queryGPSForEachCapture );
 }
 
 
@@ -1690,6 +1695,12 @@ MainWindow::connectTimer ( int deviceIndex )
   disconnectTimerDevice->setEnabled( 1 );
   resetTimerDevice->setEnabled( state.timer->hasReset());
   rescanTimer->setEnabled( 0 );
+  if ( state.timer->hasGPS()) {
+    if ( state.timer->readGPS ( &state.latitude, &state.longitude,
+        &state.altitude ) == OA_ERR_NONE ) {
+      state.gpsValid = 1;
+    }
+  }
   statusLine->showMessage ( state.timer->name() + tr ( " connected" ), 5000 );
 }
 
@@ -1697,6 +1708,7 @@ MainWindow::connectTimer ( int deviceIndex )
 void
 MainWindow::disconnectTimer ( void )
 {
+  state.gpsValid = 0;
   doDisconnectTimer();
   statusLine->showMessage ( tr ( "Timer disconnected" ));
 }

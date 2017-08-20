@@ -204,6 +204,7 @@ typedef struct
   int			userDrainDelayEnabled;
   int			drainDelay;
   int			timestampDelay;
+  int			queryGPSForEachCapture;
 
 } CONFIG;
 

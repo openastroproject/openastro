@@ -2,7 +2,7 @@
  *
  * timer.cc -- timer device interface class
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -303,4 +303,36 @@ Timer::readTimestamp ( void )
   }
 
   return timestamp;
+}
+
+
+int
+Timer::readGPS ( double* lat, double* lng, double* alt )
+{
+  double	data[3];
+  int		ret;
+
+  if ( !initialised ) {
+    qWarning() << __FUNCTION__ << " called with timer uninitialised";
+    return 0;
+  }
+
+  if (( ret = timerFuncs.readGPS ( timerContext, data )) == OA_ERR_NONE ) {
+    *lat = data[0];
+    *lng = data[1];
+    *alt = data[2];
+  }
+
+  return ret;
+}
+
+
+int
+Timer::hasGPS ( void )
+{
+  if ( !initialised ) {
+    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    return 0;
+  }
+  return timerContext->features.gps;
 }
