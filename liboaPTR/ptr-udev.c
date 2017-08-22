@@ -254,6 +254,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
               fprintf ( stderr, "%s: PTR select timed out\n", __FUNCTION__ );
               result = -1;
             } else {
+              usleep ( 100000 );
               numRead = _ptrRead ( ptrDesc, buffer, sizeof ( buffer ) - 1 );
               if ( numRead > 0 ) {
                 // ignore this -- we won't check it for now
