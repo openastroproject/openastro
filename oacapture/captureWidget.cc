@@ -430,6 +430,45 @@ CaptureWidget::startRecording ( void )
     }
   }
 
+  // Warn if we're using an index in the filename and a single image per
+  // file capture format and the number of runs multiplied by the expected
+  // number of frames would exceed the size of the index.
+
+  if ( config.limitEnabled && ( CAPTURE_TIFF == config.fileTypeOption ||
+      CAPTURE_PNG == config.fileTypeOption ||
+      CAPTURE_FITS == config.fileTypeOption ) &&
+      ( config.fileNameTemplate.contains ( "%INDEX" ) ||
+      config.fileNameTemplate.contains ( "%I" ))) {
+
+    int numRuns, numDigits;
+    unsigned long long numFrames, maxFrames;
+
+    numRuns = state.autorunEnabled ? config.autorunCount : 1;
+    switch ( config.limitType ) {
+      case 0:
+        numFrames = config.secondsLimitValue * state.currentFPS;
+        break;
+      case 1:
+        numFrames = config.framesLimitValue;
+        break;
+    }
+    maxFrames = state.captureIndex + numRuns * numFrames;
+    numDigits = 0;
+    do {
+      maxFrames /= 10;
+      numDigits++;
+    } while ( maxFrames );
+    if ( numDigits > config.indexDigits ) {
+      if ( QMessageBox::critical ( this, APPLICATION_NAME,
+          tr ( "The number of frames in the currently configured capture run "
+          "is likely to exceed the size of the index in the filename.  "
+          "Continue?" ), QMessageBox::Ok | QMessageBox::Cancel ) != 
+          QMessageBox::Ok ) {
+        return;
+      }
+    }
+  }
+
   doStartRecording ( 0 );
   if ( state.autorunEnabled ) {
     emit changeAutorunLabel ( "1 of " +

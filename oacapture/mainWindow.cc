@@ -1782,6 +1782,7 @@ MainWindow::setActualFrameRate ( unsigned int count )
 
   stringVal.setNum ( count );
   fpsActualValue->setText ( stringVal );
+  state.currentFPS = count;
 }
 
 
