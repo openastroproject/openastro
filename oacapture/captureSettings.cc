@@ -54,6 +54,12 @@ CaptureSettings::CaptureSettings ( QWidget* parent ) : QWidget ( parent )
       this );
   utVideoBox->setChecked ( config.useUtVideo );
 
+  indexSizeLabel = new QLabel ( tr ( "Filename capture index size" ));
+  indexSizeSpinbox = new QSpinBox ( this );
+  indexSizeSpinbox->setMinimum ( 3 );
+  indexSizeSpinbox->setMaximum ( 10 );
+  indexSizeSpinbox->setValue ( config.indexDigits );
+
 #if 0
   fitsLabel = new QLabel ( tr ( "FITS data" ), this );
   // FIX ME -- these labels should probably come from the FITS data in
@@ -154,10 +160,14 @@ CaptureSettings::CaptureSettings ( QWidget* parent ) : QWidget ( parent )
 #endif
 
   hLayout = new QHBoxLayout ( this );
+  spinboxLayout = new QHBoxLayout();
   vLayout = new QVBoxLayout();
   vLayout->addWidget ( indexResetButton );
   vLayout->addWidget ( winAVIBox );
   vLayout->addWidget ( utVideoBox );
+  spinboxLayout->addWidget ( indexSizeLabel );
+  spinboxLayout->addWidget ( indexSizeSpinbox );
+  vLayout->addLayout ( spinboxLayout );
 
 #if 0
 #ifdef HAVE_LIBCFITSIO
@@ -177,6 +187,8 @@ CaptureSettings::CaptureSettings ( QWidget* parent ) : QWidget ( parent )
       SLOT ( dataChanged()));
   connect ( utVideoBox, SIGNAL ( stateChanged ( int )), parent,
       SLOT ( dataChanged()));
+  connect ( indexSizeSpinbox, SIGNAL ( valueChanged ( int )), parent,
+      SLOT ( dataChanged()));
 }
 
 
@@ -191,6 +203,7 @@ CaptureSettings::storeSettings ( void )
 {
   config.windowsCompatibleAVI = winAVIBox->isChecked() ? 1 : 0;
   config.useUtVideo = utVideoBox->isChecked() ? 1 : 0;
+  config.indexDigits = indexSizeSpinbox->value();
 #if 0
   config.fitsObserver = observerInput->text();
   config.fitsTelescope = telescopeInput->text();

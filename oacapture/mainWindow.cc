@@ -335,6 +335,7 @@ MainWindow::readConfig ( void )
     config.saveCaptureSettings = 1;
     config.windowsCompatibleAVI = 0;
     config.useUtVideo = 0;
+    config.indexDigits = 6;
 
     config.preview = 1;
     config.nightMode = 0;
@@ -394,6 +395,7 @@ MainWindow::readConfig ( void )
     config.windowsCompatibleAVI = settings.value ( "windowsCompatibleAVI",
         0 ).toInt();
     config.useUtVideo = settings.value ( "useUtVideo", 0 ).toInt();
+    config.indexDigits = settings.value ( "indexDigits", 6 ).toInt();
 
     config.showHistogram = settings.value ( "options/showHistogram",
         0 ).toInt();
@@ -934,6 +936,7 @@ MainWindow::writeConfig ( void )
   settings.setValue ( "saveCaptureSettings", config.saveCaptureSettings );
   settings.setValue ( "windowsCompatibleAVI", config.windowsCompatibleAVI );
   settings.setValue ( "useUtVideo", config.useUtVideo );
+  settings.setValue ( "indexDigits", config.indexDigits );
 
   // FIX ME -- how to handle this?
   // settings.setValue ( "device/camera", -1 ).toInt();

@@ -86,7 +86,8 @@ OutputHandler::generateFilename ( void )
 
   QString index, gain, exposureMs, exposureS;
   unsigned int exposure;
-  index = QString("%1").arg ( state.captureIndex, 6, 10, QChar('0'));
+  index = QString("%1").arg ( state.captureIndex, config.indexDigits, 10,
+      QChar('0'));
   gain = QString("%1").arg ( state.controlWidget->getCurrentGain());
   exposure = state.controlWidget->getCurrentExposure();
   exposureMs = QString("%1").arg ( exposure / 1000 );

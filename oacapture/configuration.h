@@ -144,6 +144,7 @@ typedef struct
   int			saveCaptureSettings;
   int			windowsCompatibleAVI;
   int			useUtVideo;
+  int			indexDigits;
 
   // display config
   int			preview;

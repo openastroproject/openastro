@@ -51,6 +51,9 @@ class CaptureSettings : public QWidget
     QVBoxLayout*	vLayout;
     QHBoxLayout*	hLayout;
     QGridLayout*	grid;
+    QHBoxLayout*	spinboxLayout;
+    QLabel*		indexSizeLabel;
+    QSpinBox*		indexSizeSpinbox;
 #if 0
     QLabel*		fitsLabel;
     QLabel*		commentLabel;
