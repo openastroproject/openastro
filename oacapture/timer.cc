@@ -331,7 +331,6 @@ int
 Timer::hasGPS ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
     return 0;
   }
   return timerContext->features.gps;
