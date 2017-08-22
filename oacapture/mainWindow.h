@@ -102,6 +102,8 @@ class MainWindow : public QMainWindow
     QStatusBar*		statusLine;
     QLabel*		tempValue;
     int			updateTemperatureLabel;
+    QLabel*             timerStatus;
+    QLabel*             wheelStatus;
 
     void		readConfig ( void );
     void		createStatusBar ( void );

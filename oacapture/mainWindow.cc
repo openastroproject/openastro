@@ -75,6 +75,7 @@ MainWindow::MainWindow()
 
   cameraSignalMapper = filterWheelSignalMapper = 0;
   timerSignalMapper = 0;
+  timerStatus = wheelStatus = 0;
   advancedFilterWheelSignalMapper = 0;
   rescanCam = disconnectCam = 0;
   rescanWheel = disconnectWheel = warmResetWheel = coldResetWheel = 0;
@@ -1618,6 +1619,14 @@ MainWindow::connectFilterWheel ( int deviceIndex )
   warmResetWheel->setEnabled( state.filterWheel->hasWarmReset());
   coldResetWheel->setEnabled( state.filterWheel->hasColdReset());
   rescanWheel->setEnabled( 0 );
+  if ( !wheelStatus ) {
+    wheelStatus = new QLabel();
+    wheelStatus->setPixmap ( QPixmap ( QString::fromUtf8 (
+        ":/qt-icons/filter-wheel.png" )));
+    statusLine->insertWidget( 0, wheelStatus );
+  }
+  statusLine->addWidget ( wheelStatus );
+  wheelStatus->show();
   statusLine->showMessage ( state.filterWheel->name() +
       tr ( " connected" ), 5000 );
   if ( state.filterWheel->hasSpeedControl()) {
@@ -1638,6 +1647,7 @@ void
 MainWindow::disconnectFilterWheel ( void )
 {
   doDisconnectFilterWheel();
+  statusLine->removeWidget ( wheelStatus );
   statusLine->showMessage ( tr ( "Filter wheel disconnected" ));
 }
 
@@ -1695,6 +1705,14 @@ MainWindow::connectTimer ( int deviceIndex )
   disconnectTimerDevice->setEnabled( 1 );
   resetTimerDevice->setEnabled( state.timer->hasReset());
   rescanTimer->setEnabled( 0 );
+  if ( !timerStatus ) {
+    timerStatus = new QLabel();
+    timerStatus->setPixmap ( QPixmap ( QString::fromUtf8 (
+        ":/qt-icons/timer.png" )));
+    statusLine->insertWidget( 0, timerStatus );
+  }
+  statusLine->addWidget ( timerStatus );
+  timerStatus->show();
   if ( state.timer->hasGPS()) {
     if ( state.timer->readGPS ( &state.latitude, &state.longitude,
         &state.altitude ) == OA_ERR_NONE ) {
@@ -1710,6 +1728,7 @@ MainWindow::disconnectTimer ( void )
 {
   state.gpsValid = 0;
   doDisconnectTimer();
+  statusLine->removeWidget ( timerStatus );
   statusLine->showMessage ( tr ( "Timer disconnected" ));
 }
 
