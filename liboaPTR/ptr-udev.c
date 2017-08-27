@@ -179,20 +179,22 @@ oaPTREnumerate ( PTR_LIST* deviceList )
             continue;
           }
 
-          // ctrl-C
-          if ( _ptrWrite ( ptrDesc, "\003", 1 )) {
-            fprintf ( stderr, "%s: failed to write ctrl-C to %s\n",
-                __FUNCTION__, deviceNode );
-            close ( ptrDesc );
-            continue;
+          for ( i = 0; i < 2; i++ ) {
+            // ctrl-C
+            if ( _ptrWrite ( ptrDesc, "\003", 1 )) {
+              fprintf ( stderr, "%s: failed to write ctrl-C to %s\n",
+                  __FUNCTION__, deviceNode );
+              close ( ptrDesc );
+              continue;
+            }
+            // we need to wait at least 5ms here for the PTR to respond
+            usleep ( 50000 );
+
+            // now flush the input buffer to get rid of the echoed "^C" and
+            // the PTR prompt
+
+            tcflush ( ptrDesc, TCIFLUSH );
           }
-          // we need to wait at least 5ms here for the PTR to respond
-          usleep ( 10000 );
-
-          // now flush the input buffer to get rid of the echoed "^C" and
-          // the PTR prompt
-
-          tcflush ( ptrDesc, TCIFLUSH );
 
           if ( _ptrWrite ( ptrDesc, "sysreset\r", 9 )) {
             fprintf ( stderr, "%s: failed to write sysreset to %s\n",
@@ -254,16 +256,14 @@ oaPTREnumerate ( PTR_LIST* deviceList )
               fprintf ( stderr, "%s: PTR select timed out\n", __FUNCTION__ );
               result = -1;
             } else {
-              usleep ( 100000 );
-              numRead = _ptrRead ( ptrDesc, buffer, sizeof ( buffer ) - 1 );
-              if ( numRead > 0 ) {
-                // ignore this -- we won't check it for now
-                tcflush ( ptrDesc, TCIFLUSH );
-              } else {
-                fprintf ( stderr, "%s: PTR status message not found\n",
-                    __FUNCTION__ );
-                result = -1;
-              }
+              do {
+                numRead = _ptrRead ( ptrDesc, buffer, sizeof ( buffer ) - 1 );
+                if ( numRead <= 0 ) {
+                  fprintf ( stderr, "%s: PTR status message not found\n",
+                      __FUNCTION__ );
+                  result = -1;
+                }
+              } while ( !strstr ( buffer, "lock" ));
             }
           }
 
