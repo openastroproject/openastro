@@ -309,10 +309,10 @@ oaIIDCCameraGetMenuString ( oaCamera* camera, int control, int index )
 
     switch ( index ) {
       case 0:
-        return "Active on trailing edge";
+        return "Active on falling edge";
         break;
       case 1:
-        return "Active on leading edge";
+        return "Active on rising edge";
         break;
     }
     return "Invalid index";
