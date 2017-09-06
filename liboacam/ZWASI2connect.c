@@ -442,7 +442,11 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           cameraInfo->dewHeater = currentValue;
           break;
 
+#if HAVE_DECL_ASI_AUTO_MAX_EXP_MS
         case ASI_AUTO_MAX_EXP_MS:
+#else
+        case ASI_AUTO_MAX_EXP:
+#endif
           camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_MAX_AUTO_EXPOSURE ) =
               OA_CTRL_TYPE_INT32;
           commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_MAX_AUTO_EXPOSURE ) =
@@ -491,7 +495,9 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           break;
 
         case ASI_AUTO_MAX_GAIN:
+#if HAVE_DECL_ASI_AUTO_MAX_EXP_MS
         case ASI_AUTO_MAX_EXP:
+#endif
         case ASI_AUTO_MAX_BRIGHTNESS:
         case ASI_HARDWARE_BIN:
           fprintf ( stderr, "%s: control %s is not supported\n", __FUNCTION__,

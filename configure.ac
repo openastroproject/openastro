@@ -634,6 +634,7 @@ AC_CHECK_FUNCS([fseeki64 ftelli64])
 AC_CHECK_FUNCS([clock_gettime mkdir pow strcasecmp strchr strcspn strdup])
 AC_CHECK_FUNCS([strerror strncasecmp strndup strrchr strstr strtoul])
 
+AC_CHECK_DECLS([ASI_AUTO_MAX_EXP_MS],[],[],[#include <ASICamera2.h>])
 
 if test "$use_system_ffmpeg" == "no"
 then
