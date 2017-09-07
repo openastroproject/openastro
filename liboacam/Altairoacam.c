@@ -197,7 +197,7 @@ oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
   unsigned int		i;
   oaCameraDevice*       dev;
   DEVICE_INFO*		_private;
-  int                   ret;
+  int                   ret, oalib;
   char			libraryPath[ PATH_MAX+1 ];
 #ifdef DYNLIB_EXT_DYLIB
   const char*		libName = "MacOS/libaltaircam.dylib";
@@ -793,13 +793,17 @@ oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
   }
    */
 
-  // Now comes the really ugly bit.  Patch the data section of the loaded
-  // Altair library to match the new USB product IDs.  Actually, this
-  // probably even gives "ugly" a bad name.
+  oalib = !strcmp ( "1.8.7036.20160321", p_Altaircam_Version());
 
-  _patchLibrary ( p_Altaircam_Enum );
+  if ( oalib ) {
+    // Now comes the really ugly bit.  Patch the data section of the loaded
+    // Altair library to match the new USB product IDs.  Actually, this
+    // probably even gives "ugly" a bad name.
 
-  numCameras = ( *p_Altaircam_Enum )( devList );
+    _patchLibrary ( p_Altaircam_Enum );
+  }
+
+  numCameras = ( p_Altaircam_Enum )( devList );
   if ( numCameras < 1 ) {
     return 0;
   }
