@@ -207,7 +207,7 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= TOUPCAM_BRIGHTNESS_MIN && val <= TOUPCAM_BRIGHTNESS_MAX ) {
-        if (( *p_Mallincam_put_Brightness )( cameraInfo->handle, val )) {
+        if ((( p_Mallincam_put_Brightness )( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, "Mallincam_put_Brightness ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -225,7 +225,7 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= TOUPCAM_CONTRAST_MIN && val <= TOUPCAM_CONTRAST_MAX ) {
-        if (( *p_Mallincam_put_Contrast )( cameraInfo->handle, val )) {
+        if ((( p_Mallincam_put_Contrast )( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, "Mallincam_put_Contrast ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -243,7 +243,7 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= TOUPCAM_GAMMA_MIN && val <= TOUPCAM_GAMMA_MAX ) {
-        if (( *p_Mallincam_put_Gamma )( cameraInfo->handle, val )) {
+        if ((( p_Mallincam_put_Gamma )( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, "Mallincam_put_Gamma ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -260,7 +260,7 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 1 : 0;
-      if (( *p_Mallincam_put_HFlip )( cameraInfo->handle, val )) {
+      if ((( p_Mallincam_put_HFlip )( cameraInfo->handle, val )) < 0 ) {
         fprintf ( stderr, "Mallincam_put_HFlip ( %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
       }
@@ -274,7 +274,7 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 1 : 0;
-      if (( *p_Mallincam_put_VFlip )( cameraInfo->handle, val )) {
+      if ((( p_Mallincam_put_VFlip )( cameraInfo->handle, val )) < 0 ) {
         fprintf ( stderr, "Mallincam_put_VFlip ( %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
       }
@@ -288,7 +288,8 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = ( valp->boolean == OA_EXPOSURE_MANUAL ) ? 0 : 1;
-      if (( *p_Mallincam_put_AutoExpoEnable )( cameraInfo->handle, val )) {
+      if ((( p_Mallincam_put_AutoExpoEnable )( cameraInfo->handle,
+          val )) < 0 ) {
         fprintf ( stderr, "Mallincam_put_AutoExpoEnable ( %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
       }
@@ -303,7 +304,7 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= cameraInfo->exposureMin && val <= cameraInfo->exposureMax ) {
-        if (( *p_Mallincam_put_ExpoTime )( cameraInfo->handle, val )) {
+        if ((( p_Mallincam_put_ExpoTime )( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, "Mallincam_put_ExpoTime ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -321,7 +322,7 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= cameraInfo->gainMin && val <= cameraInfo->gainMax ) {
-        if (( *p_Mallincam_put_ExpoAGain )( cameraInfo->handle, val )) {
+        if ((( p_Mallincam_put_ExpoAGain )( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, "Mallincam_put_ExpoAGain ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -339,7 +340,7 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= 0 && val <= cameraInfo->speedMax ) {
-        if (( *p_Mallincam_put_Speed )( cameraInfo->handle, val )) {
+        if ((( p_Mallincam_put_Speed )( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, "Mallincam_put_Speed ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -357,7 +358,7 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= TOUPCAM_HUE_MIN && val <= TOUPCAM_HUE_MAX ) {
-        if (( *p_Mallincam_put_Hue )( cameraInfo->handle, val )) {
+        if ((( p_Mallincam_put_Hue )( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, "Mallincam_put_Hue ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -375,7 +376,7 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= TOUPCAM_SATURATION_MIN && val <= TOUPCAM_SATURATION_MAX ) {
-        if (( *p_Mallincam_put_Saturation )( cameraInfo->handle, val )) {
+        if ((( p_Mallincam_put_Saturation )( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, "Mallincam_put_Saturation ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -396,7 +397,8 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
       val = valp->int32;
       if ( val >= TOUPCAM_WBGAIN_MIN && val <= TOUPCAM_WBGAIN_MAX ) {
         int gain[3];
-        if (( *p_Mallincam_get_WhiteBalanceGain )( cameraInfo->handle, gain )) {
+        if ((( p_Mallincam_get_WhiteBalanceGain )( cameraInfo->handle,
+            gain )) < 0 ) {
           fprintf ( stderr, "Mallincam_get_WhiteBalanceGain (gain[3]) failed\n" );
           return -OA_ERR_CAMERA_IO;
         }
@@ -411,7 +413,8 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
             gain[1] = val;
             break;
         }
-        if (( *p_Mallincam_put_WhiteBalanceGain )( cameraInfo->handle, gain )) {
+        if ((( p_Mallincam_put_WhiteBalanceGain )( cameraInfo->handle,
+            gain )) < 0 ) {
           fprintf ( stderr, "Mallincam_put_WhiteBalanceGain (gain[3]) failed\n" );
           return -OA_ERR_CAMERA_IO;
         }
@@ -438,8 +441,8 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 0 : 1;
-      if (( *p_Mallincam_put_Option )( cameraInfo->handle,
-          TOUPCAM_OPTION_COOLER, 1 )) {
+      if ((( p_Mallincam_put_Option )( cameraInfo->handle,
+          TOUPCAM_OPTION_COOLER, 1 )) < 0 ) {
         fprintf ( stderr, "Mallincam_put_Option ( cooler, %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
       }
@@ -453,8 +456,8 @@ _processSetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 0 : 1;
-      if (( *p_Mallincam_put_Option )( cameraInfo->handle,
-          TOUPCAM_OPTION_FAN, 1 )) {
+      if ((( p_Mallincam_put_Option )( cameraInfo->handle,
+          TOUPCAM_OPTION_FAN, 1 )) < 0 ) {
         fprintf ( stderr, "Mallincam_put_Option ( fan, %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
       }
@@ -504,7 +507,8 @@ _processGetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_BRIGHTNESS:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if (( *p_Mallincam_get_Brightness )( cameraInfo->handle, &val_s32 )) {
+      if ((( p_Mallincam_get_Brightness )( cameraInfo->handle,
+          &val_s32 )) < 0 ) {
         fprintf ( stderr, "Mallincam_get_Brightness failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -514,7 +518,7 @@ _processGetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_CONTRAST:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if (( *p_Mallincam_get_Contrast )( cameraInfo->handle, &val_s32 )) {
+      if ((( p_Mallincam_get_Contrast )( cameraInfo->handle, &val_s32 )) < 0 ) {
         fprintf ( stderr, "Mallincam_get_Contrast failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -524,7 +528,7 @@ _processGetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_GAMMA:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if (( *p_Mallincam_get_Gamma )( cameraInfo->handle, &val_s32 )) {
+      if ((( p_Mallincam_get_Gamma )( cameraInfo->handle, &val_s32 )) < 0 ) {
         fprintf ( stderr, "Mallincam_get_Gamma failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -534,7 +538,7 @@ _processGetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_HFLIP:
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
-      if (( *p_Mallincam_get_HFlip )( cameraInfo->handle, &val_s32 )) {
+      if ((( p_Mallincam_get_HFlip )( cameraInfo->handle, &val_s32 )) < 0 ) {
         fprintf ( stderr, "Mallincam_get_HFlip failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -544,7 +548,7 @@ _processGetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_VFLIP:
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
-      if (( *p_Mallincam_get_VFlip )( cameraInfo->handle, &val_s32 )) {
+      if ((( p_Mallincam_get_VFlip )( cameraInfo->handle, &val_s32 )) < 0 ) {
         fprintf ( stderr, "Mallincam_get_VFlip failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -554,7 +558,8 @@ _processGetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
-      if (( *p_Mallincam_get_AutoExpoEnable )( cameraInfo->handle, &val_s32 )) {
+      if ((( p_Mallincam_get_AutoExpoEnable )( cameraInfo->handle,
+        &val_s32 )) < 0 ) {
         fprintf ( stderr, "Mallincam_get_AutoExpoEnable failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -564,7 +569,7 @@ _processGetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if (( *p_Mallincam_get_ExpoTime )( cameraInfo->handle, &val_u32 )) {
+      if ((( p_Mallincam_get_ExpoTime )( cameraInfo->handle, &val_u32 )) < 0 ) {
         fprintf ( stderr, "Mallincam_get_ExpoTime failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -574,7 +579,8 @@ _processGetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_GAIN:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if (( *p_Mallincam_get_ExpoAGain )( cameraInfo->handle, &val_u16 )) {
+      if (((  p_Mallincam_get_ExpoAGain )( cameraInfo->handle,
+        &val_u16 )) < 0 ) {
         fprintf ( stderr, "Mallincam_get_ExpoAGain failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -584,7 +590,7 @@ _processGetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_SPEED:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if (( *p_Mallincam_get_Speed )( cameraInfo->handle, &val_u16 )) {
+      if ((( p_Mallincam_get_Speed )( cameraInfo->handle, &val_u16 )) < 0 ) {
         fprintf ( stderr, "Mallincam_get_Speed failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -594,7 +600,7 @@ _processGetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_HUE:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if (( *p_Mallincam_get_Hue )( cameraInfo->handle, &val_s32 )) {
+      if ((( p_Mallincam_get_Hue )( cameraInfo->handle, &val_s32 )) < 0 ) {
         fprintf ( stderr, "Mallincam_get_Hue failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -604,7 +610,8 @@ _processGetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_SATURATION:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if (( *p_Mallincam_get_Saturation )( cameraInfo->handle, &val_s32 )) {
+      if ((( p_Mallincam_get_Saturation )( cameraInfo->handle,
+        &val_s32 )) < 0 ) {
         fprintf ( stderr, "Mallincam_get_Saturation failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -618,7 +625,8 @@ _processGetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
     {
       int gain[3];
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if (( *p_Mallincam_get_WhiteBalanceGain )( cameraInfo->handle, gain )) {
+      if ((( p_Mallincam_get_WhiteBalanceGain )( cameraInfo->handle,
+        gain )) < 0 ) {
         fprintf ( stderr, "Mallincam_get_WhiteBalanceGain (gain[3]) failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -640,7 +648,8 @@ _processGetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_TEMPERATURE:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if (( *p_Mallincam_get_Temperature )( cameraInfo->handle, &val_s16 )) {
+      if ((( p_Mallincam_get_Temperature )( cameraInfo->handle,
+          &val_s16 )) < 0 ) {
         fprintf ( stderr, "Mallincam_get_Temperature failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -708,13 +717,13 @@ _processSetResolution ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
   /*
   // Reset the ROI
 
-  if (( *p_Mallincam_put_Roi )( cameraInfo->handle, 0, 0, 0, 0 )) {
+  if ((( p_Mallincam_put_Roi )( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
     fprintf ( stderr, "Can't clear Mallincam ROI\n" );
     return -OA_ERR_CAMERA_IO;
   }
    */
 
-  if (( *p_Mallincam_put_Size )( cameraInfo->handle, size->x, size->y )) {
+  if ((( p_Mallincam_put_Size )( cameraInfo->handle, size->x, size->y )) < 0 ) {
     fprintf ( stderr, "Can't set Mallincam frame size %dx%d\n", size->x,
       size->y );
     return -OA_ERR_CAMERA_IO;
@@ -757,7 +766,8 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
   offsetX = (( cameraInfo->currentXResolution - x ) / 2 ) & ~1;
   offsetY = (( cameraInfo->currentYResolution - y ) / 2 ) & ~1;
 
-  if (( *p_Mallincam_put_Roi )( cameraInfo->handle, offsetX, offsetY, x, y )) {
+  if ((( p_Mallincam_put_Roi )( cameraInfo->handle, offsetX, offsetY,
+      x, y )) < 0 ) {
     fprintf ( stderr, "Can't set Mallincam ROI ( %d, %d, %d, %d )\n",
         offsetX, offsetY, x, y );
     return -OA_ERR_CAMERA_IO;
@@ -796,8 +806,8 @@ _doStart ( MALLINCAM_STATE* cameraInfo )
 {
   int			ret;
 
-  if (( ret = ( *p_Mallincam_StartPushMode )( cameraInfo->handle,
-      _MallincamFrameCallback, cameraInfo ))) {
+  if (( ret = ( p_Mallincam_StartPushMode )( cameraInfo->handle,
+      _MallincamFrameCallback, cameraInfo )) < 0 ) {
     fprintf ( stderr, "%s: Mallincam_StartPushMode failed: 0x%x\n",
         __FUNCTION__, ret );
     return -OA_ERR_CAMERA_IO;
@@ -830,7 +840,7 @@ _doStop ( MALLINCAM_STATE* cameraInfo )
   cameraInfo->isStreaming = 0;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
-  if (( ret = ( *p_Mallincam_Stop )( cameraInfo->handle ))) {
+  if (( ret = ( p_Mallincam_Stop )( cameraInfo->handle )) < 0 ) {
     fprintf ( stderr, "%s: Mallincam_Stop failed: %d\n", __FUNCTION__, ret );
     return -OA_ERR_CAMERA_IO;
   }
@@ -851,7 +861,7 @@ _setBinning ( MALLINCAM_STATE* cameraInfo, int binMode )
   /*
   // Reset the ROI
 
-  if (( *p_Mallincam_put_Roi )( cameraInfo->handle, 0, 0, 0, 0 )) {
+  if ((( p_Mallincam_put_Roi )( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
     fprintf ( stderr, "Can't clear Mallincam ROI\n" );
     return -OA_ERR_CAMERA_IO;
   }
@@ -864,7 +874,7 @@ _setBinning ( MALLINCAM_STATE* cameraInfo, int binMode )
 
   x = cameraInfo->frameSizes[ binMode ].sizes[0].x;
   y = cameraInfo->frameSizes[ binMode ].sizes[0].y;
-  if (( *p_Mallincam_put_Size )( cameraInfo->handle, x, y )) {
+  if ((( p_Mallincam_put_Size )( cameraInfo->handle, x, y )) < 0 ) {
     fprintf ( stderr, "Can't set Mallincam frame size\n" );
     return -OA_ERR_CAMERA_IO;
   }
@@ -891,8 +901,8 @@ _setColourMode ( MALLINCAM_STATE* cameraInfo, int mode )
     _doStop ( cameraInfo );
   }
 
-  if (( *p_Mallincam_put_Option )( cameraInfo->handle,
-      TOUPCAM_OPTION_RAW, OA_COLOUR_MODE_RAW == mode ? 1 : 0  )) {
+  if ((( p_Mallincam_put_Option )( cameraInfo->handle,
+      TOUPCAM_OPTION_RAW, OA_COLOUR_MODE_RAW == mode ? 1 : 0  )) < 0 ) {
     fprintf ( stderr, "Mallincam_put_Option ( raw, %d ) failed\n", mode );
     return -OA_ERR_CAMERA_IO;
   }
@@ -943,8 +953,8 @@ _setBitDepth ( MALLINCAM_STATE* cameraInfo, int depth )
     return OA_ERR_NONE;
   }
 
-  if (( *p_Mallincam_put_Option )( cameraInfo->handle, TOUPCAM_OPTION_BITDEPTH,
-      16 == depth ? 1 : 0  )) {
+  if ((( p_Mallincam_put_Option )( cameraInfo->handle, TOUPCAM_OPTION_BITDEPTH,
+      16 == depth ? 1 : 0  )) < 0 ) {
     fprintf ( stderr, "Mallincam_put_Option ( depth, %d ) failed\n",
         16 == depth ? 1 : 0 );
     return -OA_ERR_CAMERA_IO;

@@ -2,7 +2,7 @@
  *
  * Mallincamoacam.c -- main entrypoint for Mallincam cameras
  *
- * Copyright 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -796,7 +796,7 @@ oaMallincamGetCameras ( CAMERA_LIST* deviceList, int flags )
   }
    */
 
-  numCameras = ( *p_Mallincam_Enum )( devList );
+  numCameras = ( p_Mallincam_Enum )( devList );
   if ( numCameras < 1 ) {
     return 0;
   }
