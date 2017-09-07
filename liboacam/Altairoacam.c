@@ -2,7 +2,7 @@
  *
  * Altairoacam.c -- main entrypoint for Altair cameras
  *
- * Copyright 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
