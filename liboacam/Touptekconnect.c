@@ -65,7 +65,7 @@ oaTouptekInitCamera ( oaCameraDevice* device )
   int				x, y;
   char				toupcamId[128]; // must be longer than 64
 
-  numCameras = ( *p_Toupcam_Enum )( devList );
+  numCameras = ( p_Toupcam_Enum )( devList );
   devInfo = device->_private;
   if ( numCameras < 1 || devInfo->devIndex > numCameras ) {
     return 0;
@@ -111,7 +111,7 @@ oaTouptekInitCamera ( oaCameraDevice* device )
     *toupcamId = 0;
   }
   ( void ) strcat ( toupcamId, devInfo->toupcamId );
-  if (!( handle = ( *p_Toupcam_Open )( toupcamId ))) {
+  if (!( handle = ( p_Toupcam_Open )( toupcamId ))) {
     fprintf ( stderr, "Can't get Toupcam handle\n" );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
@@ -173,8 +173,8 @@ oaTouptekInitCamera ( oaCameraDevice* device )
   commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
   commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 0;
 
-  if (( *p_Toupcam_get_ExpTimeRange )( handle, &min, &max, &def ) < 0 ) {
-    ( *p_Toupcam_Close )( handle );
+  if (( p_Toupcam_get_ExpTimeRange )( handle, &min, &max, &def ) < 0 ) {
+    ( p_Toupcam_Close )( handle );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
@@ -191,9 +191,9 @@ oaTouptekInitCamera ( oaCameraDevice* device )
   cameraInfo->exposureMin = min;
   cameraInfo->exposureMax = max;
 
-  if (( *p_Toupcam_get_ExpoAGainRange )( handle, &smin, &smax, &sdef ) < 0 ) {
+  if (( p_Toupcam_get_ExpoAGainRange )( handle, &smin, &smax, &sdef ) < 0 ) {
     fprintf ( stderr, "Toupcam_get_ExpoAGainRange() failed\n" );
-    ( *p_Toupcam_Close )( handle );
+    ( p_Toupcam_Close )( handle );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
@@ -305,9 +305,9 @@ oaTouptekInitCamera ( oaCameraDevice* device )
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COLOUR_MODE ) = OA_CTRL_TYPE_DISCRETE;
 
     // force the camera out of raw mode
-    if ((( *p_Toupcam_put_Option )( handle, TOUPCAM_OPTION_RAW, 0 ))) {
+    if ((( p_Toupcam_put_Option )( handle, TOUPCAM_OPTION_RAW, 0 )) < 0 ) {
       fprintf ( stderr, "Toupcam_put_Option ( raw, 0 ) returns error\n" );
-      ( *p_Toupcam_Close )( handle );
+      ( p_Toupcam_Close )( handle );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -319,9 +319,9 @@ oaTouptekInitCamera ( oaCameraDevice* device )
     // It looks like mono cameras return RGB frames by default.  That
     // seems wasteful, so try to turn it off.
 
-    if ((( *p_Toupcam_put_Option )( handle, TOUPCAM_OPTION_RAW, 1 ))) {
+    if ((( p_Toupcam_put_Option )( handle, TOUPCAM_OPTION_RAW, 1 )) < 0 ) {
       fprintf ( stderr, "Toupcam_put_Option ( raw, 1 ) returns error\n" );
-      ( *p_Toupcam_Close )( handle );
+      ( p_Toupcam_Close )( handle );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -356,9 +356,9 @@ oaTouptekInitCamera ( oaCameraDevice* device )
 
   // force camera into 8-bit mode
 
-  if ((( *p_Toupcam_put_Option )( handle, TOUPCAM_OPTION_BITDEPTH, 0 ))) {
+  if ((( p_Toupcam_put_Option )( handle, TOUPCAM_OPTION_BITDEPTH, 0 )) < 0 ) {
     fprintf ( stderr, "Toupcam_put_Option ( bitdepth, 0 ) returns error\n" );
-    ( *p_Toupcam_Close )( handle );
+    ( p_Toupcam_Close )( handle );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
@@ -408,9 +408,9 @@ oaTouptekInitCamera ( oaCameraDevice* device )
   if ( cameraInfo->colour ) {
     camera->features.rawMode = camera->features.demosaicMode = 1;
     cameraInfo->currentVideoFormat = OA_PIX_FMT_RGB24;
-    if ((( *p_Toupcam_get_RawFormat )( handle, &fourcc, &depth )) < 0 ) {
+    if ((( p_Toupcam_get_RawFormat )( handle, &fourcc, &depth )) < 0 ) {
       fprintf ( stderr, "get_RawFormat returns error\n" );
-      ( *p_Toupcam_Close )( handle );
+      ( p_Toupcam_Close )( handle );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -444,9 +444,9 @@ oaTouptekInitCamera ( oaCameraDevice* device )
 
   if (( numStillResolutions = devList[ devInfo->devIndex ].model->still )) {
     for ( i = 0; i < numStillResolutions; i++ ) {
-      if ((( *p_Toupcam_get_StillResolution )( handle, i, &x, &y )) < 0 ) {
+      if ((( p_Toupcam_get_StillResolution )( handle, i, &x, &y )) < 0 ) {
         fprintf ( stderr, "failed to get still resolution %d\n", i );
-        ( *p_Toupcam_Close )( handle );
+        ( p_Toupcam_Close )( handle );
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
         free (( void* ) camera );
@@ -470,9 +470,9 @@ oaTouptekInitCamera ( oaCameraDevice* device )
   }
 
   for ( i = 0; i < numResolutions; i++ ) {
-    if ((( *p_Toupcam_get_Resolution )( handle, i, &x, &y )) < 0 ) {
+    if ((( p_Toupcam_get_Resolution )( handle, i, &x, &y )) < 0 ) {
       fprintf ( stderr, "failed to get resolution %d\n", i );
-      ( *p_Toupcam_Close )( handle );
+      ( p_Toupcam_Close )( handle );
       // FIX ME -- free the other sizes here too
       free (( void* ) cameraInfo->frameSizes[1].sizes );
       free (( void* ) commonInfo );
@@ -496,7 +496,7 @@ oaTouptekInitCamera ( oaCameraDevice* device )
       if (!(  cameraInfo->frameSizes[ binX ].sizes = realloc (
           cameraInfo->frameSizes[ binX ].sizes, sizeof ( FRAMESIZE ) * 2 ))) {
         fprintf ( stderr, "malloc for frame sizes failed\n" );
-        ( *p_Toupcam_Close )( handle );
+        ( p_Toupcam_Close )( handle );
         // FIX ME -- free the other sizes here too
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
@@ -540,7 +540,7 @@ oaTouptekInitCamera ( oaCameraDevice* device )
         }
       }
       // FIX ME -- free frame data
-      ( *p_Toupcam_Close )( handle );
+      ( p_Toupcam_Close )( handle );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -633,7 +633,7 @@ oaTouptekCloseCamera ( oaCamera* camera )
     pthread_cond_broadcast ( &cameraInfo->callbackQueued );
     pthread_join ( cameraInfo->callbackThread, &dummy );
 
-    ( *p_Toupcam_Close ) ( cameraInfo->handle );
+    ( p_Toupcam_Close ) ( cameraInfo->handle );
 
     free (( void* ) cameraInfo->frameSizes[1].sizes );
 

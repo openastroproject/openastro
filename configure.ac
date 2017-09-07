@@ -941,7 +941,6 @@ case $host in
   i?86-*-*)
     AC_CONFIG_LINKS([$ext3/libASICamera/libASICamera.a:ext/libASICamera/x86/libASICamera.a])
     AC_CONFIG_LINKS([$ext9/libASICamera/libASICamera2.a:ext/libASICamera/x86/libASICamera2.a])
-    AC_CONFIG_LINKS([$extF/libtoupcam/libtoupcam.so:ext/libtoupcam/x86/libtoupcam.so])
     have_toupcam=yes
     have_mallincam=yes
     have_altaircam=yes
@@ -949,7 +948,6 @@ case $host in
   x86_64-*-*)
     AC_CONFIG_LINKS([$ext4/libASICamera/libASICamera.a:ext/libASICamera/x64/libASICamera.a])
     AC_CONFIG_LINKS([$extA/libASICamera/libASICamera2.a:ext/libASICamera/x64/libASICamera2.a])
-    AC_CONFIG_LINKS([$extG/libtoupcam/libtoupcam.so:ext/libtoupcam/x64/libtoupcam.so])
     ;;
   armv7l-*-*)
     AC_CONFIG_LINKS([$extD/libASICamera/libASICamera.a:ext/libASICamera/armv7/libASICamera.a])

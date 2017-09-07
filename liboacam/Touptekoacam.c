@@ -790,7 +790,7 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
   }
    */
 
-  numCameras = ( *p_Toupcam_Enum )( devList );
+  numCameras = ( p_Toupcam_Enum )( devList );
   if ( numCameras < 1 ) {
     return 0;
   }
