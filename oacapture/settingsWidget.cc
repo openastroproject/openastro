@@ -2,7 +2,7 @@
  *
  * settingsWidget.cc -- the main settings widget wrapper class
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *

@@ -2,7 +2,7 @@
  *
  * oacapture.cc -- main application entrypoint
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
