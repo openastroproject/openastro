@@ -2,7 +2,7 @@
  *
  * demosaicSettings.cc -- class for the demosaic settings in the settings UI
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -37,6 +37,14 @@ extern "C" {
 
 DemosaicSettings::DemosaicSettings ( QWidget* parent ) : QWidget ( parent )
 {
+#ifdef OACAPTURE
+  demosaicLabel = new QLabel ( tr ( "When demosaic is enabled:" ));
+  previewBox = new QCheckBox ( tr ( "Demosaic preview image" ), this );
+  previewBox->setChecked ( config.demosaicPreview );
+  outputBox = new QCheckBox ( tr ( "Demosaic output data" ), this );
+  outputBox->setChecked ( config.demosaicOutput );
+#endif
+
   cfaLabel = new QLabel ( tr ( "Bayer format" ));
   cfaButtons = new QButtonGroup ( this );
   rggbButton = new QRadioButton ( tr ( "RGGB" ));
@@ -49,10 +57,10 @@ DemosaicSettings::DemosaicSettings ( QWidget* parent ) : QWidget ( parent )
   grbgButton->setChecked ( config.cfaPattern == OA_DEMOSAIC_GRBG ? 1 : 0 );
   gbrgButton->setChecked ( config.cfaPattern == OA_DEMOSAIC_GBRG ? 1 : 0 );
   autoButton->setChecked ( config.cfaPattern == OA_DEMOSAIC_AUTO ? 1 : 0 );
-  rggbButton->setIcon ( QIcon ( ":/icons/RGGB.png" ));
-  bggrButton->setIcon ( QIcon ( ":/icons/BGGR.png" ));
-  grbgButton->setIcon ( QIcon ( ":/icons/GRBG.png" ));
-  gbrgButton->setIcon ( QIcon ( ":/icons/GBRG.png" ));
+  rggbButton->setIcon ( QIcon ( ":/qt-icons/RGGB.png" ));
+  bggrButton->setIcon ( QIcon ( ":/qt-icons/BGGR.png" ));
+  grbgButton->setIcon ( QIcon ( ":/qt-icons/GRBG.png" ));
+  gbrgButton->setIcon ( QIcon ( ":/qt-icons/GBRG.png" ));
 
   cfaButtons->addButton ( rggbButton );
   cfaButtons->addButton ( bggrButton );
@@ -81,6 +89,12 @@ DemosaicSettings::DemosaicSettings ( QWidget* parent ) : QWidget ( parent )
   methodButtons->addButton ( vngButton );
 
   box = new QVBoxLayout ( this );
+#ifdef OACAPTURE
+  box->addWidget ( demosaicLabel );
+  box->addWidget ( previewBox );
+  box->addWidget ( outputBox );
+#endif
+  box->addSpacing ( 15 );
   box->addWidget ( cfaLabel );
   box->addWidget ( rggbButton );
   box->addWidget ( bggrButton );
@@ -95,6 +109,12 @@ DemosaicSettings::DemosaicSettings ( QWidget* parent ) : QWidget ( parent )
   box->addWidget ( vngButton );
   box->addStretch ( 1 );
   setLayout ( box );
+#ifdef OACAPTURE
+  connect ( previewBox, SIGNAL ( stateChanged ( int )), parent,
+      SLOT ( dataChanged()));
+  connect ( outputBox, SIGNAL ( stateChanged ( int )), parent,
+      SLOT ( dataChanged()));
+#endif
   connect ( cfaButtons, SIGNAL ( buttonClicked ( int )), parent,
       SLOT ( dataChanged()));
   connect ( methodButtons, SIGNAL ( buttonClicked ( int )), parent,
@@ -111,6 +131,10 @@ DemosaicSettings::~DemosaicSettings()
 void
 DemosaicSettings::storeSettings ( void )
 {
+#ifdef OACAPTURE
+  config.demosaicPreview = previewBox->isChecked() ? 1 : 0;
+  config.demosaicOutput = outputBox->isChecked() ? 1 : 0;
+#endif
   if ( rggbButton->isChecked()) {
     config.cfaPattern = OA_DEMOSAIC_RGGB;
   }
@@ -138,14 +162,21 @@ DemosaicSettings::storeSettings ( void )
   if ( vngButton->isChecked()) {
     config.demosaicMethod = OA_DEMOSAIC_VNG;
   }
+#ifdef OACAPTURE
   if ( state.camera->isInitialised()) {
-qWarning() << "Need to enable suitable output formats";
-/*
     int format = state.camera->videoFramePixelFormat ( 0 );
-    state.captureWidget->enableFITSCapture ( OA_ISGREYSCALE( format ) ? 1 : 0 );
-    state.captureWidget->enableMOVCapture ( QUICKTIME_OK( format ) ? 1 : 0 );
-*/
+    state.captureWidget->enableTIFFCapture (( !OA_ISBAYER( format ) ||
+        ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
+    state.captureWidget->enablePNGCapture (( !OA_ISBAYER( format ) ||
+        ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
+    state.captureWidget->enableFITSCapture (( !OA_ISBAYER( format ) ||
+        ( OA_ISBAYER8( format ) && config.demosaic &&
+        config.demosaicOutput )) ? 1 : 0 );
+    state.captureWidget->enableMOVCapture (( QUICKTIME_OK( format ) || 
+        ( OA_ISBAYER( format ) && config.demosaic &&
+        config.demosaicOutput )) ? 1 : 0 );
   }
+#endif
 }
 
 

@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * viewWidget.cc -- class for the viewing window in the UI (and more)
+ * previewWidget.cc -- class for the preview window in the UI (and more)
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -40,25 +40,37 @@ extern "C" {
 }
 
 #include "configuration.h"
+#ifdef OACAPTURE
+#include "previewWidget.h"
+#include "histogramWidget.h"
+#else
 #include "viewWidget.h"
+#endif
 #include "outputHandler.h"
 #include "focusOverlay.h"
 #include "state.h"
 
 
 // FIX ME -- Lots of this stuff needs refactoring or placing elsewhere
-// as it's really not anything to do with the actual view window
+// as it's really not anything to do with the actual preview window
 // any more
 
 ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
 {
-  // FIX ME -- need to read this from the controls widget
   currentZoom = 100;
-  int zoomFactor = 100; // state.zoomWidget->getZoomFactor();
+#ifdef OACAPTURE
+  int zoomFactor = state.zoomWidget->getZoomFactor();
+#else
+  int zoomFactor = 100;
+#endif
+  // setAttribute( Qt::WA_NoSystemBackground, true );
   lastCapturedFramesUpdateTime = 0;
   capturedFramesDisplayInterval = 200;
   lastDisplayUpdateTime = 0;
   frameDisplayInterval = 1000/15; // display frames per second
+#ifdef OACAPTURE
+  previewEnabled = 1;
+#endif
   videoFramePixelFormat = OA_PIX_FMT_RGB24;
   framesInLastSecond = 0;
   secondForFrameCount = secondForTemperature = secondForDropped = 0;
@@ -66,15 +78,22 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
   movingReticle = rotatingReticle = rotationAngle = 0;
   savedXSize = savedYSize = 0;
   recalculateDimensions ( zoomFactor );
+#ifdef OACAPTURE
+  demosaic = config.demosaic;
+  previewBufferLength = 0;
+  previewImageBuffer[0] = writeImageBuffer[0] = 0;
+  previewImageBuffer[1] = writeImageBuffer[1] = 0;
+  expectedSize = config.imageSizeX * config.imageSizeY *
+      OA_BYTES_PER_PIXEL( videoFramePixelFormat );
+#else
   stackBufferLength = viewBufferLength = 0;
   viewImageBuffer[0] = writeImageBuffer[0] = stackBuffer[0] = 0;
   viewImageBuffer[1] = writeImageBuffer[1] = stackBuffer[1] = 0;
   currentStackBuffer = -1;
   stackBufferInUse = 0;
   averageBuffer = 0;
-  expectedSize = config.imageSizeX * config.imageSizeY *
-      OA_BYTES_PER_PIXEL( videoFramePixelFormat );
   totalFrames = 0;
+#endif
 
   int r = config.currentColouriseColour.red();
   int g = config.currentColouriseColour.green();
@@ -102,14 +121,22 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
 
 ViewWidget::~ViewWidget()
 {
+#ifdef OACAPTURE
+  if ( previewImageBuffer[0] ) {
+    free ( previewImageBuffer[0] );
+    free ( previewImageBuffer[1] );
+  }
+#else
   if ( viewImageBuffer[0] ) {
     free ( viewImageBuffer[0] );
     free ( viewImageBuffer[1] );
   }
+#endif
   if ( writeImageBuffer[0] ) {
     free ( writeImageBuffer[0] );
     free ( writeImageBuffer[1] );
   }
+#ifdef OALIVE
   if ( stackBuffer[0] ) {
     free ( stackBuffer[0] );
     free ( stackBuffer[1] );
@@ -117,6 +144,7 @@ ViewWidget::~ViewWidget()
   if ( averageBuffer ) {
     free (( void* ) averageBuffer );
   }
+#endif
 }
 
 
@@ -128,36 +156,67 @@ ViewWidget::configure ( void )
 
 
 void
+#ifdef OACAPTURE
+PreviewWidget::updatePreviewSize ( void )
+#else
 ViewWidget::updateFrameSize ( void )
+#endif
 {
-  // FIX ME -- need to read this from the controls widget
-  int zoomFactor = 100; // state.zoomWidget->getZoomFactor();
+#ifdef OACAPTURE
+  int zoomFactor = state.zoomWidget->getZoomFactor();
+#else
+  int zoomFactor = 100;
+#endif
   recalculateDimensions ( zoomFactor );
   expectedSize = config.imageSizeX * config.imageSizeY *
       OA_BYTES_PER_PIXEL( videoFramePixelFormat );
-qWarning() << "check new buffer length";
   int newBufferLength = config.imageSizeX * config.imageSizeY * 3;
+#ifdef OACAPTURE
+  if ( newBufferLength > previewBufferLength ) {
+    if (!( previewImageBuffer[0] = realloc ( previewImageBuffer[0],
+#else
   if ( newBufferLength > viewBufferLength ) {
     if (!( viewImageBuffer[0] = realloc ( viewImageBuffer[0],
+#endif
         newBufferLength ))) {
+#ifdef OACAPTURE
+      qWarning() << "preview image buffer realloc failed";
+#else
       qWarning() << "view image buffer realloc failed";
+#endif
     }
+#ifdef OACAPTURE
+    if (!( previewImageBuffer[1] = realloc ( previewImageBuffer[1],
+#else
     if (!( viewImageBuffer[1] = realloc ( viewImageBuffer[1],
+#endif
         newBufferLength ))) {
+#ifdef OACAPTURE
+      qWarning() << "preview image buffer realloc failed";
+#else
       qWarning() << "view image buffer realloc failed";
+#endif
     }
+#ifdef OALIVE
     if (!( stackBuffer[0] = realloc ( stackBuffer[0], newBufferLength ))) {
       qWarning() << "stack image buffer realloc failed";
     }
+#endif
+#ifdef OACAPTURE
+    previewBufferLength = newBufferLength;
+#else
     if (!( stackBuffer[1] = realloc ( stackBuffer[1], newBufferLength ))) {
       qWarning() << "stack image buffer realloc failed";
     }
     stackBufferLength = viewBufferLength = newBufferLength;
+#endif
   }
   diagonalLength = sqrt ( config.imageSizeX * config.imageSizeX +
       config.imageSizeY * config.imageSizeY );
+#ifdef OALIVE
   memset ( stackBuffer[0], 0, stackBufferLength );
   memset ( stackBuffer[1], 0, stackBufferLength );
+#endif
 }
 
 
@@ -334,6 +393,15 @@ ViewWidget::setCapturedFramesDisplayInterval ( int millisecs )
 }
 
 
+#ifdef OACAPTURE
+void
+ViewWidget::setEnabled ( int state )
+{
+  previewEnabled = state;
+}
+#endif
+
+
 void
 ViewWidget::setVideoFramePixelFormat ( int format )
 {
@@ -371,14 +439,23 @@ ViewWidget::enableFlipY ( int state )
 }
 
 
+#ifdef OACAPTURE
+void
+ViewWidget::enableDemosaic ( int state )
+{
+  demosaic = state;
+}
+#endif
+
+
 void
 ViewWidget::setDisplayFPS ( int fps )
 {
-qWarning() << "Does ViewWidget::setDisplayFPS make sense any more?";
   frameDisplayInterval = 1000 / fps;
 }
 
-/*
+
+#ifdef OACAPTURE
 // FIX ME -- could combine this with beginRecording() ?
 void
 ViewWidget::setFirstFrameTime ( void )
@@ -399,7 +476,8 @@ ViewWidget::forceRecordingStop ( void )
 {
   manualStop = 1;
 }
-*/
+#endif
+
 
 void
 ViewWidget::processFlip ( void* imageData, int length, int format )
@@ -632,42 +710,112 @@ ViewWidget::setMonoPalette ( QColor colour )
   } 
 }
 
+
 void*
+#ifdef OACAPTURE
+PreviewWidget::updatePreview ( void* args, void* imageData, int length )
+#else
 ViewWidget::addImage ( void* args, void* imageData, int length )
+#endif
 {
   STATE*		state = ( STATE* ) args;
+#ifdef OACAPTURE
+  PreviewWidget*	self = state->previewWidget;
+#else
   ViewWidget*		self = state->viewWidget;
+#endif
   struct timeval	t;
   int			doDisplay = 0;
   int			doHistogram = 0;
+#ifdef OACAPTURE
+  int			previewPixelFormat, writePixelFormat;
+#else
   int			viewPixelFormat, writePixelFormat;
+#endif
   // write straight from the data if possible
+#ifdef OACAPTURE
+  void*			previewBuffer = imageData;
+  int			currentPreviewBuffer = -1;
+  int			writeDemosaicPreviewBuffer = 0;
+  int			previewIsDemosaicked = 0;
+  int			maxLength;
+  const char*		timestamp;
+#else
   void*			viewBuffer = imageData;
-  void*			writeBuffer = imageData;
   int			currentViewBuffer = -1;
-  // commented to stop unused error int			writeDemosaicViewBuffer = 0;
   int			viewIsDemosaicked = 0;
   int			ret;
   OutputHandler*	output;
+#endif
+  void*			writeBuffer = imageData;
 
   // don't do anything if the length is not as expected
   if ( length != self->expectedSize ) {
-    qWarning() << "size mismatch.  have:" << length << " expected: "
-       << self->expectedSize;
+    // qWarning() << "size mismatch.  have:" << length << " expected: "
+    //    << self->expectedSize;
     return 0;
   }
 
-  if (( ret = self->checkBuffers ( self ))) {
-    return 0;
+#ifdef OACAPTURE
+  // assign the temporary buffers for image transforms if they
+  // don't already exist or the existing ones are too small
+
+  maxLength = config.imageSizeX * config.imageSizeY * 6;
+  if ( !self->previewImageBuffer[0] ||
+      self->previewBufferLength < maxLength ) {
+    self->previewBufferLength = maxLength;
+    if (!( self->previewImageBuffer[0] =
+        realloc ( self->previewImageBuffer[0], self->previewBufferLength ))) {
+      qWarning() << "preview image buffer 0 malloc failed";
+      return 0;
+    }
+    if (!( self->previewImageBuffer[1] =
+        realloc ( self->previewImageBuffer[1], self->previewBufferLength ))) {
+      qWarning() << "preview image buffer 1 malloc failed";
+      return 0;
+    }
+  }
+  if ( !self->writeImageBuffer[0] ||
+      self->writeBufferLength < maxLength ) {
+    self->writeBufferLength = maxLength;
+    if (!( self->writeImageBuffer[0] =
+        realloc ( self->writeImageBuffer[0], self->writeBufferLength ))) {
+      qWarning() << "write image buffer 0 malloc failed";
+      return 0;
+    }
+    if (!( self->writeImageBuffer[1] =
+        realloc ( self->writeImageBuffer[1], self->writeBufferLength ))) {
+      qWarning() << "write image buffer 1 malloc failed";
+      return 0;
+    }
   }
 
-  viewPixelFormat = writePixelFormat = self->videoFramePixelFormat;
+  previewPixelFormat = writePixelFormat = self->videoFramePixelFormat;
+
+#else
+
+   if (( ret = self->checkBuffers ( self ))) {
+     return 0;
+   }
+   viewPixelFormat = writePixelFormat = self->videoFramePixelFormat;
+
+#endif
 
   // if we have a luminance/chrominance video format then we need to
   // unpack that first
 
   if ( OA_IS_LUM_CHROM( self->videoFramePixelFormat )) {
     // this is going to make the flip quite ugly and means we need to
+#ifdef OACAPTURE
+    // start using currentPreviewBuffer too
+    currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :
+        !currentPreviewBuffer;
+    previewPixelFormat = OA_PIX_FMT_RGB24;
+    ( void ) oaconvert ( previewBuffer,
+        self->previewImageBuffer[ currentPreviewBuffer ], config.imageSizeX,
+        config.imageSizeY, self->videoFramePixelFormat, previewPixelFormat );
+    previewBuffer = self->previewImageBuffer [ currentPreviewBuffer ];
+#else
     // start using currentViewBuffer too
     currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
         !currentViewBuffer;
@@ -698,10 +846,15 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
       viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
     }
   }
+#endif /* OACAPTURE */
 
+#ifdef OACAPTURE
+    // we can flip the preview image here if required, but not the
+#else
   // Hopefully at this point we have the original frame in the write
   // buffer and RGB or mono in the view buffer (which may be the same
   // as the write buffer
+#endif
 
   /*
    * FIX ME -- handle a manual flip here if required
@@ -711,7 +864,11 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
     // FIX ME -- work this out some time
 
     if ( self->flipX || self->flipY ) {
+#ifdef OACAPTURE
+      self->processFlip ( previewBuffer, length, previewPixelFormat );
+#else
       self->processFlip ( viewBuffer, length, viewPixelFormat );
+#endif
     }
   } else {
     // do a vertical/horizontal flip if required
@@ -723,13 +880,35 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
           writePixelFormat );
       // both view and write will come from this buffer for the
       // time being.  This may change later on
+#ifdef OACAPTURE
+      previewBuffer = self->writeImageBuffer[0];
+#else
       viewBuffer = self->writeImageBuffer[0];
+#endif
       writeBuffer = self->writeImageBuffer[0];
     }
   }
+#endif
    */
 
   int reducedGreyscaleBitDepth = 0;
+#ifdef OACAPTURE
+  if ( OA_PIX_FMT_GREY16BE == previewPixelFormat ||
+      OA_PIX_FMT_GREY16LE == previewPixelFormat ||
+      OA_ISBAYER16 ( previewPixelFormat )) {
+    currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :
+        !currentPreviewBuffer;
+    ( void ) memcpy ( self->previewImageBuffer[ currentPreviewBuffer ],
+        previewBuffer, length );
+    self->convert16To8Bit ( self->previewImageBuffer[ currentPreviewBuffer ],
+        length, previewPixelFormat );
+    previewBuffer = self->previewImageBuffer [ currentPreviewBuffer ];
+    if (  OA_PIX_FMT_GREY16BE == previewPixelFormat ||
+        OA_PIX_FMT_GREY16LE == previewPixelFormat ) {
+      reducedGreyscaleBitDepth = 1;
+    }
+  }
+#else
   if ( OA_PIX_FMT_GREY16BE == viewPixelFormat ||
       OA_PIX_FMT_GREY16LE == viewPixelFormat ||
       OA_ISBAYER16 ( viewPixelFormat )) {
@@ -745,7 +924,20 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
       reducedGreyscaleBitDepth = 1;
     }
   }
+#endif /* OACAPTURE */
 
+#ifdef OACAPTURE
+  ( void ) gettimeofday ( &t, 0 );
+  unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
+      ( unsigned long ) t.tv_usec / 1000;
+
+  int cfaPattern = config.cfaPattern;
+  if ( OA_ISBAYER ( previewPixelFormat )) {
+    if ( OA_DEMOSAIC_AUTO == cfaPattern ) {
+      cfaPattern = self->formatToCfaPattern ( previewPixelFormat );
+    }
+  }
+#else
   if ( state->stackingMethod != OA_STACK_NONE ) {
     self->totalFrames++;
     switch ( state->stackingMethod ) {
@@ -774,6 +966,237 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
         break;
     }
   }
+#endif /* OACAPTURE */
+
+#ifdef OACAPTURE
+  if ( self->previewEnabled ) {
+    if (( self->lastDisplayUpdateTime + self->frameDisplayInterval ) < now ) {
+      self->lastDisplayUpdateTime = now;
+      doDisplay = 1;
+
+      if ( self->demosaic && config.demosaicPreview ) {
+        if ( OA_ISBAYER ( previewPixelFormat )) {
+          currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :
+              !currentPreviewBuffer;
+          // Use the demosaicking to copy the data to the previewImageBuffer
+          ( void ) oademosaic ( previewBuffer,
+              self->previewImageBuffer[ currentPreviewBuffer ],
+              config.imageSizeX, config.imageSizeY, 8, cfaPattern,
+              config.demosaicMethod );
+          if ( config.demosaicOutput && previewBuffer == writeBuffer ) {
+            writeDemosaicPreviewBuffer = 1;
+          }
+          previewIsDemosaicked = 1;
+          previewBuffer = self->previewImageBuffer [ currentPreviewBuffer ];
+        }
+      }
+
+      if ( config.showFocusAid ) {
+        int fmt = previewPixelFormat;
+
+        if ( previewIsDemosaicked ) {
+          fmt = OA_ISBAYER16 ( fmt )  ? OA_PIX_FMT_RGB48BE :
+              OA_PIX_FMT_RGB24;
+        }
+        state->focusOverlay->addScore ( oaFocusScore ( previewBuffer,
+            0, config.imageSizeX, config.imageSizeY, fmt ));
+      }
+
+      QImage* newImage;
+      QImage* swappedImage = 0;
+
+      if ( OA_PIX_FMT_GREY8 == self->videoFramePixelFormat ||
+           ( OA_ISBAYER ( previewPixelFormat ) && ( !self->demosaic ||
+           !config.demosaicPreview )) || reducedGreyscaleBitDepth ) {
+        newImage = new QImage (( const uint8_t* ) previewBuffer,
+            config.imageSizeX, config.imageSizeY, config.imageSizeX,
+            QImage::Format_Indexed8 );
+        if (( OA_PIX_FMT_GREY8 == self->videoFramePixelFormat ||
+            reducedGreyscaleBitDepth ) && config.colourise ) {
+          newImage->setColorTable ( self->falseColourTable );
+        } else {
+          newImage->setColorTable ( self->greyscaleColourTable );
+        }
+        swappedImage = newImage;
+      } else {
+        // Need the stride size here or QImage appears to "tear" the
+        // right hand edge of the image when the X dimension is an odd
+        // number of pixels
+        newImage = new QImage (( const uint8_t* ) previewBuffer,
+            config.imageSizeX, config.imageSizeY, config.imageSizeX * 3,
+            QImage::Format_RGB888 );
+        if ( OA_PIX_FMT_BGR24 == previewPixelFormat ) {
+          swappedImage = new QImage ( newImage->rgbSwapped());
+        } else {
+          swappedImage = newImage;
+        }
+      }
+
+      int zoomFactor = state->zoomWidget->getZoomFactor();
+      if ( zoomFactor && zoomFactor != self->currentZoom ) {
+        self->recalculateDimensions ( zoomFactor );
+      }
+
+      if ( self->currentZoom != 100 ) {
+        QImage scaledImage = swappedImage->scaled ( self->currentZoomX,
+          self->currentZoomY );
+
+        if ( config.showFocusAid ) {
+        }
+
+        pthread_mutex_lock ( &self->imageMutex );
+        self->image = scaledImage.copy();
+        pthread_mutex_unlock ( &self->imageMutex );
+      } else {
+        pthread_mutex_lock ( &self->imageMutex );
+        self->image = swappedImage->copy();
+        pthread_mutex_unlock ( &self->imageMutex );
+      }
+      if ( swappedImage != newImage ) {
+        delete swappedImage;
+      }
+      delete newImage;
+    }
+  }
+
+  OutputHandler* output = 0;
+  if ( !state->pauseEnabled ) {
+    output = state->captureWidget->getOutputHandler();
+    if ( output && self->recordingInProgress ) {
+      if ( self->setNewFirstFrameTime ) {
+        state->firstFrameTime = now;
+        self->setNewFirstFrameTime = 0;
+      }
+      state->lastFrameTime = now;
+      if ( config.demosaicOutput && OA_ISBAYER ( writePixelFormat )) {
+        if ( writeDemosaicPreviewBuffer ) {
+          writeBuffer = previewBuffer;
+        } else {
+          // we can use the preview buffer here because we're done with it
+          // for actual preview purposes
+          // If it's possible that the write CFA pattern is not the same
+          // as the preview one, this code will need fixing to reset
+          // cfaPattern, but I can't see that such a thing is possible
+          // at the moment
+          ( void ) oademosaic ( writeBuffer,
+              self->previewImageBuffer[0], config.imageSizeX,
+              config.imageSizeY, 8, cfaPattern, config.demosaicMethod );
+          writeBuffer = self->previewImageBuffer[0];
+        }
+        writePixelFormat = OA_DEMOSAIC_FMT ( writePixelFormat );
+      }
+      if ( state->timer->isInitialised() && state->timer->isRunning()) {
+        timestamp = state->timer->readTimestamp();
+      } else {
+        timestamp = 0;
+      }
+      if ( output->addFrame ( writeBuffer, timestamp,
+          state->controlWidget->getCurrentExposure()) < 0 ) {
+        self->recordingInProgress = 0;
+        self->manualStop = 0;
+        state->autorunEnabled = 0;
+        emit self->stopRecording();
+        emit self->frameWriteFailed();
+      } else {
+        if (( self->lastCapturedFramesUpdateTime +
+            self->capturedFramesDisplayInterval ) < now ) {
+          emit self->updateFrameCount ( output->getFrameCount());
+          self->lastCapturedFramesUpdateTime = now;
+        }
+      }
+    }
+  }
+
+  self->framesInLastSecond++;
+  if ( t.tv_sec != self->secondForFrameCount ) {
+    self->secondForFrameCount = t.tv_sec;
+    emit self->updateActualFrameRate ( self->framesInLastSecond );
+    self->framesInLastSecond = 0;
+    if ( state->histogramOn ) {
+      state->histogramWidget->process ( writeBuffer, length,
+          writePixelFormat );
+      doHistogram = 1;
+    }
+  }
+
+  if ( self->hasTemp && t.tv_sec != self->secondForTemperature &&
+      t.tv_sec % 5 == 0 ) {
+    emit self->updateTemperature();
+    self->secondForTemperature = t.tv_sec;
+  }
+  if ( self->hasDroppedFrames && t.tv_sec != self->secondForDropped &&
+      t.tv_sec % 2 == 0 ) {
+    emit self->updateDroppedFrames();
+    self->secondForTemperature = t.tv_sec;
+  }
+
+  if ( doDisplay ) {
+    emit self->updateDisplay();
+  }
+
+  // check histogram control here just in case it got changed
+  // this ought to be done rather more safely
+  if ( state->histogramOn && state->histogramWidget && doHistogram ) {
+    emit self->updateHistogram();
+  }
+
+  if ( self->manualStop ) {
+    self->recordingInProgress = 0;
+    emit self->stopRecording();
+    self->manualStop = 0;
+  }
+
+if ( output && self->recordingInProgress ) {
+    if ( config.limitEnabled ) {
+      int finished = 0;
+      float percentage = 0;
+      int frames = output->getFrameCount();
+      switch ( config.limitType ) {
+        case 0: // FIX ME -- nasty magic number
+          // start and current times here are in ms, but the limit value is in
+          // secs, so rather than ( current - start ) / time * 100 to get the
+          // %age, we do ( current - start ) / time / 10
+          percentage = ( now - state->captureWidget->recordingStartTime ) /
+              ( config.secondsLimitValue * 1000.0 +
+              state->captureWidget->totalTimePaused ) * 100.0;
+          if ( now > state->captureWidget->recordingEndTime ) {
+            finished = 1;
+          }
+          break;
+        case 1: // FIX ME -- nasty magic number
+          percentage = ( 100.0 * frames ) / config.framesLimitValue;
+          if ( frames >= config.framesLimitValue ) {
+            finished = 1;
+          }
+          break;
+      }
+      if ( finished ) {
+        // need to stop now, even if we don't know what's happening
+        // with the UI
+        self->recordingInProgress = 0;
+        self->manualStop = 0;
+        emit self->stopRecording();
+        // these two are really just tidying up the display
+        emit self->updateProgress ( 100 );
+        emit self->updateFrameCount ( frames );
+        if ( state->autorunEnabled ) {
+          // returns non-zero if more runs are left
+          if ( state->captureWidget->singleAutorunFinished()) {
+            state->autorunStartNext = now + 1000 * config.autorunDelay;
+          }
+        }
+      } else {
+        emit self->updateProgress (( unsigned int ) percentage );
+      }
+    }
+  }
+
+  if ( state->autorunEnabled && state->autorunStartNext &&
+      now > state->autorunStartNext ) {
+    state->autorunStartNext = 0;
+    state->captureWidget->startNewAutorun();
+  }
+#else /* OACAPTURE */
 
   ( void ) gettimeofday ( &t, 0 );
   unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
@@ -852,48 +1275,15 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
 
   output = state->controlsWidget->getProcessedOutputHandler();
   if ( output ) {
-    output->addFrame ( viewBuffer, 0 );
+    output->addFrame ( viewBuffer, 0, 0 );
   }
   state->captureIndex++;
-/*
-  if ( output && self->recordingInProgress ) {
-    if ( self->setNewFirstFrameTime ) {
-      state->firstFrameTime = now;
-      self->setNewFirstFrameTime = 0;
-    }
-    state->lastFrameTime = now;
-    if ( config.demosaicOutput && OA_ISBAYER ( writePixelFormat )) {
-      if ( writeDemosaicViewBuffer ) {
-        writeBuffer = viewBuffer;
-      } else {
-        // we can use the view buffer here because we're done with it
-        // for actual view purposes
-        // If it's possible that the write CFA pattern is not the same
-        // as the view one, this code will need fixing to reset
-        // cfaPattern, but I can't see that such a thing is possible
-        // at the moment
-        ( void ) oademosaic ( writeBuffer,
-            self->viewImageBuffer[0], config.imageSizeX,
-            config.imageSizeY, 8, cfaPattern, config.demosaicMethod );
-        writeBuffer = self->viewImageBuffer[0];
-      }
-      writePixelFormat = OA_DEMOSAIC_FMT ( writePixelFormat );
-    }
-    if (( self->lastCapturedFramesUpdateTime +
-        self->capturedFramesDisplayInterval ) < now ) {
-      emit self->updateFrameCount ( output->getFrameCount());
-      self->lastCapturedFramesUpdateTime = now;
-    }
-  }
-*/
 
   self->framesInLastSecond++;
   if ( t.tv_sec != self->secondForFrameCount ) {
     self->secondForFrameCount = t.tv_sec;
     emit self->updateActualFrameRate ( self->framesInLastSecond );
     self->framesInLastSecond = 0;
-    // state->histogramWidget->process ( writeBuffer, length, writePixelFormat );
-    doHistogram = 1;
   }
 
   if ( self->hasTemp && t.tv_sec != self->secondForTemperature &&
@@ -911,15 +1301,12 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
     emit self->updateDisplay();
   }
 
-  if ( doHistogram ) {
-    // emit self->updateHistogram();
-  }
-
   if ( self->manualStop ) {
     self->recordingInProgress = 0;
     emit self->stopRecording();
     self->manualStop = 0;
   }
+#endif /* OACAPTURE */
 
   return 0;
 }

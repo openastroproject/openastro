@@ -2,7 +2,7 @@
  *
  * filterwheel.h -- class declaration
  *
- * Copyright 2014, 2015, 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2016 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -31,6 +31,7 @@
 #ifdef HAVE_QT5
 #include <QtWidgets>
 #endif
+#include <QtCore>
 #include "QtGui"
 
 extern "C" {

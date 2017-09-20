@@ -2,7 +2,7 @@
  *
  * settingsWidget.h -- class declaration
  *
- * Copyright 2015, 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -31,13 +31,24 @@
 #ifdef HAVE_QT5
 #include <QtWidgets>
 #endif
+#include <QtCore>
 #include <QtGui>
 
 #include "generalSettings.h"
 #include "captureSettings.h"
+#ifdef OACAPTURE
+#include "cameraSettings.h"
+#endif
 #include "profileSettings.h"
 #include "filterSettings.h"
+#ifdef OACAPTURE
+#include "autorunSettings.h"
+#include "histogramSettings.h"
+#include "timerSettings.h"
+#endif
 #include "demosaicSettings.h"
+#include "fitsSettings.h"
+
 
 class SettingsWidget : public QWidget
 {
@@ -49,15 +60,31 @@ class SettingsWidget : public QWidget
     void		setActiveTab ( int );
     void		enableTab ( int, int );
     void		updateCFASetting ( void );
+    void		configureCameraSettings ( void );
+    void		enableFlipX ( int );
+    void		enableFlipY ( int );
+    void		updateControl ( int, int );
+    void		propagateNewSlotName ( int, const QString& );
     QString		getSlotFilterName ( int );
     void		setSlotCount ( int );
+    void		updateFrameRate ( int );
+    void		reconfigureControl ( int );
 
   private:
     GeneralSettings*	general;
     CaptureSettings*	capture;
+#ifdef OACAPTURE
+    CameraSettings*	cameras;
+#endif
     ProfileSettings*	profiles;
     FilterSettings*	filters;
+#ifdef OACAPTURE
+    AutorunSettings*	autorun;
+    HistogramSettings*	histogram;
+    TimerSettings*	timer;
+#endif
     DemosaicSettings*	demosaic;
+    FITSSettings*	fits;
     QVBoxLayout*	vbox;
     QTabWidget*		tabSet;
     QHBoxLayout*	buttonBox;

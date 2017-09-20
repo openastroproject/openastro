@@ -2,7 +2,7 @@
  *
  * controlsWidget.cc -- the tab block for the controls
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *

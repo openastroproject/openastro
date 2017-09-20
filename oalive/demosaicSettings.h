@@ -2,7 +2,7 @@
  *
  * demosaicSettings.h -- class declaration
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -31,6 +31,7 @@
 #ifdef HAVE_QT5
 #include <QtWidgets>
 #endif
+#include <QtCore>
 #include <QtGui>
 
 
@@ -45,6 +46,9 @@ class DemosaicSettings : public QWidget
     void		updateCFASetting ( void );
 
   private:
+    QLabel*             demosaicLabel;
+    QCheckBox*		previewBox;
+    QCheckBox*		outputBox;
     QVBoxLayout*	box;
     QLabel*             cfaLabel;
     QButtonGroup*       cfaButtons;

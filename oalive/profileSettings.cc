@@ -2,7 +2,7 @@
  *
  * profileSettings.cc -- class for profile settings tab in the settings UI
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -53,20 +53,20 @@ ProfileSettings::ProfileSettings ( QWidget* parent ) : QWidget ( parent )
   for ( int i = 0; i < NUM_TARGETS; i++ ) {
     if ( i != TGT_EARTH ) {
       QVariant v(i);
-      targetMenu->addItem ( targetList[i], v );
+      targetMenu->addItem ( tr ( targetList[i]), v );
     }
   }
   targetMenu->setEnabled ( 0 );
   connect ( targetMenu, SIGNAL( currentIndexChanged ( int )), this,
       SLOT( targetChanged ( int )));
-  addButton = new QPushButton ( QIcon ( ":/icons/list-add-4.png" ),
+  addButton = new QPushButton ( QIcon ( ":/qt-icons/list-add-4.png" ),
       tr ( "Add Profile" ));
   addButton->setToolTip (
       tr ( "Create a new profile with the current settings" ));
   addButton->setStyleSheet("Text-align:left");
   connect ( addButton, SIGNAL ( clicked()), this, SLOT ( addEntry()));
   connect ( addButton, SIGNAL ( clicked()), parent, SLOT ( dataChanged()));
-  removeButton = new QPushButton ( QIcon ( ":/icons/list-remove-4.png" ),
+  removeButton = new QPushButton ( QIcon ( ":/qt-icons/list-remove-4.png" ),
       tr ( "Remove Profile" ));
   if ( 1 == config.numProfiles ) {
     removeButton->setEnabled ( 0 );
@@ -128,7 +128,7 @@ ProfileSettings::storeSettings ( void )
     }
     config.numProfiles = list->count();
     config.profiles = changedProfiles;
-qWarning() << "Handle reloading profiles";
+qWarning() << "state.captureWidget->reloadProfiles();";
     // state.captureWidget->reloadProfiles();
   }
 }
@@ -161,6 +161,9 @@ ProfileSettings::addEntry ( void )
   p.profileName = newName;
   p.sixteenBit = config.sixteenBit;
   p.binning2x2 = config.binning2x2;
+#ifdef OACAPTURE
+  p.rawMode = config.rawMode;
+#endif
   p.colourise = config.colourise;
   p.useROI = config.useROI;
   p.imageSizeX = config.imageSizeX;
@@ -169,17 +172,22 @@ ProfileSettings::addEntry ( void )
     FILTER_PROFILE fp;
     fp.filterName = config.filters[j].filterName;
     for ( int i = 1; i < OA_CAM_CTRL_LAST_P1; i++ ) {
-      fp.controls[i] = config.controlValues[i];
+      for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_P1; j++ ) {
+        fp.controls[j][i] = config.controlValues[j][i];
+      }
     }
     p.filterProfiles.append ( fp );
   }
-qWarning() << "frame rate has disappeared?";
-  // p.frameRateNumerator = config.frameRateNumerator;
-  // p.frameRateDenominator = config.frameRateDenominator;
+  p.frameRateNumerator = config.frameRateNumerator;
+  p.frameRateDenominator = config.frameRateDenominator;
   p.filterOption = config.filterOption;
   p.fileTypeOption = config.fileTypeOption;
   p.frameFileNameTemplate = config.frameFileNameTemplate;
-  p.processedFileNameTemplate = config.processedFileNameTemplate;
+#ifdef OACAPTURE
+  p.limitEnabled = config.limitEnabled;
+  p.framesLimitValue = config.framesLimitValue;
+  p.secondsLimitValue = config.secondsLimitValue;
+#endif
   p.target = TGT_UNKNOWN;
   ignoreTargetChange = 1;
   targetMenu->setCurrentIndex ( 0 );

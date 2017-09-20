@@ -84,6 +84,7 @@ class MainWindow : public QMainWindow
     QAction*		warmResetWheel;
     QAction*		coldResetWheel;
     QAction*		filterWheelMenuSeparator;
+    QAction*		fits;
 /*
     QProgressBar*	progressBar;
     QLabel*		capturedValue;
@@ -94,6 +95,7 @@ class MainWindow : public QMainWindow
     QStatusBar*		statusLine;
     QLabel*		tempValue;
     int			updateTemperatureLabel;
+    QLabel*		wheelStatus;
 
     void		readConfig ( void );
     void		createStatusBar ( void );
@@ -185,4 +187,6 @@ class MainWindow : public QMainWindow
     void		doColouriseSettings ( void );
     void		setTemperature ( void );
     void		reveal ( void );
+    void		doFITSSettings ( void );
+    void		frameWriteFailedPopup ( void );
 };

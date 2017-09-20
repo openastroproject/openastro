@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * outputTIFF.h -- class declaration
+ * outputPNG.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2016 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -27,14 +27,14 @@
 #pragma once
 
 extern "C" {
-#include "tiffio.h"
+#include "png.h"
 }
 
-class OutputTIFF : public OutputHandler
+class OutputPNG : public OutputHandler
 {
   public:
-    			OutputTIFF ( int, int, int, int, int, QString );
-    			~OutputTIFF();
+    			OutputPNG ( int, int, int, int, int, QString );
+    			~OutputPNG();
     int			openOutput ( void );
     int			addFrame ( void*, const char*, int64_t );
     void		closeOutput ( void );
@@ -45,10 +45,14 @@ class OutputTIFF : public OutputHandler
     int			xSize;
     int			ySize;
     int			pixelDepth;
+    int			rowLength;
     int			validFileType;
     int			reverseByteOrder;
     int			swapRedBlue;
     int			colour;
     int			frameSize;
     unsigned char*	writeBuffer;
+    png_structp		pngPtr;
+    png_infop		infoPtr;
+    png_bytep*		rowPointers;
 };

@@ -2,7 +2,7 @@
  *
  * config.h -- declaration of data structures for configuration data
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -36,11 +36,12 @@ extern "C" {
 #include <openastro/userConfig.h>
 }
 
-#define	CONFIG_VERSION	1
+#define	CONFIG_VERSION	2
 
 typedef struct {
   QString	filterName;
-  int		controls[ OA_CAM_CTRL_LAST_P1 ];
+  int		controls[OA_CAM_CTRL_MODIFIERS_P1][ OA_CAM_CTRL_LAST_P1 ];
+  int		intervalMenuOption;
 } FILTER_PROFILE;
 
 typedef struct {
@@ -52,11 +53,11 @@ typedef struct {
   unsigned int  imageSizeX;
   unsigned int  imageSizeY;
   QList<FILTER_PROFILE> filterProfiles;
-  int		frameRateNumerator;
-  int		frameRateDenominator;
+  int           frameRateNumerator;
+  int           frameRateDenominator;
   int           fileTypeOption;
   int           filterOption;
-  QString       frameFileNameTemplate;
+  QString	frameFileNameTemplate;
   QString       processedFileNameTemplate;
   int		target;
 } PROFILE;
@@ -88,13 +89,6 @@ typedef struct
   int			flipY;
   int			demosaic;
 
-  // FITS keyword data
-  QString		fitsObserver;
-  QString		fitsTelescope;
-  QString		fitsInstrument;
-  QString		fitsObject;
-  QString		fitsComment;
-
   // camera config
   int			sixteenBit;
   int			binning2x2;
@@ -116,11 +110,12 @@ typedef struct
   int			zoomValue;
 
   // control config
-  int64_t		controlValues[ OA_CAM_CTRL_LAST_P1 ];
+  int64_t		controlValues[OA_CAM_CTRL_MODIFIERS_P1][ OA_CAM_CTRL_LAST_P1 ];
   int			exposureMenuOption;
   int			frameRateNumerator;
   int			frameRateDenominator;
   int			selectableControl[2];
+  int			intervalMenuOption;
 
   // capture config
   int			profileOption;
@@ -132,7 +127,7 @@ typedef struct
   int			saveEachFrame;
   int			saveProcessedImage;
   int			saveCaptureSettings;
-  int			windowsCompatibleAVI;
+  int			indexDigits;
 
   // reticle config
   int			reticleStyle;
@@ -155,10 +150,30 @@ typedef struct
   // advanced user configuration
 
   QList<userConfigList>	filterWheelConfig;
-  int			experimentalASI2;
+
+  // FITS keyword data
+  QString               fitsObserver;
+  QString               fitsTelescope;
+  QString               fitsInstrument;
+  QString               fitsObject;
+  QString               fitsComment;
+  QString               fitsFocalLength;
+  QString               fitsApertureDia;
+  QString               fitsApertureArea;
+  QString               fitsPixelSizeX;
+  QString               fitsPixelSizeY;
+  QString               fitsSubframeOriginX;
+  QString               fitsSubframeOriginY;
+  QString               fitsSiteLatitude;
+  QString               fitsSiteLongitude;
+  QString               fitsFilter;
 
 } CONFIG;
 
 extern CONFIG		config;
 
-#define	SET_PROFILE_CONTROL(c,v) if ( config.profileOption >= 0 ) config.profiles[ config.profileOption ].filterProfiles[ config.filterOption ].controls[ c ] = v
+#define CONTROL_VALUE(c)	controlValues[OA_CAM_CTRL_MODIFIER(c)][OA_CAM_CTRL_MODE_BASE(c)]
+
+#define	SET_PROFILE_CONTROL(c,v) if ( config.profileOption >= 0 ) config.profiles[ config.profileOption ].filterProfiles[ config.filterOption ].controls[OA_CAM_CTRL_MODIFIER(c)][OA_CAM_CTRL_MODE_BASE(c)] = v
+
+#define	SET_PROFILE_INTERVAL(v) if ( config.profileOption >= 0 ) config.profiles[ config.profileOption ].filterProfiles[ config.filterOption ].intervalMenuOption = v

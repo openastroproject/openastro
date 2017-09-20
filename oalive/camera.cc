@@ -2,7 +2,7 @@
  *
  * camera.cc -- camera interface class
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -65,6 +65,7 @@ Camera::populateControlValue ( oaControlValue* cp, uint32_t c, int64_t v )
       cp->boolean = v ? 1 : 0;
       break;
     case OA_CTRL_TYPE_MENU:
+    case OA_CTRL_TYPE_DISC_MENU:
       cp->menu = v & 0xffffffff;
       break;
     case OA_CTRL_TYPE_BUTTON:
@@ -95,6 +96,7 @@ Camera::unpackControlValue ( oaControlValue *cp )
       res = cp->boolean;
       break;
     case OA_CTRL_TYPE_MENU:
+    case OA_CTRL_TYPE_DISC_MENU:
       res = cp->menu;
       break;
     case OA_CTRL_TYPE_READONLY:
@@ -110,7 +112,8 @@ Camera::unpackControlValue ( oaControlValue *cp )
       res = cp->discrete;
       break;
     default:
-      qWarning() << __FUNCTION__ << " called with invalid control type " <<
+      qWarning() << "Camera" << __FUNCTION__ <<
+        " called with invalid control type " <<
         cameraControls( cp->valueType );
       res = -1;
   }
@@ -213,7 +216,7 @@ Camera::hasControl ( int control )
     return 0;
   }
 
-  return cameraControls(  control );
+  return cameraControls( control );
 }
 
 
@@ -235,7 +238,7 @@ Camera::isAuto ( int control )
   if ( !initialised ) {
     qWarning() << __FUNCTION__ << " called with camera uninitialised";
     return 0;
-  }
+  } 
 
   return cameraFuncs.isAuto ( cameraContext, control );
 }
@@ -297,6 +300,18 @@ Camera::controlRange ( int control, int64_t* min, int64_t* max,
   *max &= 0xffffffff;
   *step &= 0xffffffff;
   *def &= 0xffffffff;
+  return;
+}
+
+
+void
+Camera::controlDiscreteSet ( int control, int32_t *count, int64_t** values )
+{
+  if ( !initialised ) {
+    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+  } else {
+    cameraFuncs.getControlDiscreteSet ( cameraContext, control, count, values );
+  }
   return;
 }
 

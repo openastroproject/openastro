@@ -2,7 +2,7 @@
  *
  * advancedSettings.cc -- the advanced settings widget class
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -28,14 +28,17 @@
 
 #include <QtGui>
 
+extern "C" {
 #include <openastro/camera.h>
 #include <openastro/filterwheel.h>
 #include <openastro/userConfig.h>
+}
 
 #include "version.h"
 #include "configuration.h"
 #include "state.h"
 #include "advancedSettings.h"
+#include "mainWindow.h"
 
 
 AdvancedSettings::AdvancedSettings ( int device, int interface )
@@ -58,6 +61,18 @@ AdvancedSettings::AdvancedSettings ( int device, int interface )
       }
       configFlags = oaFilterWheelInterfaces[ interfaceType ].userConfigFlags;
       break;
+
+#ifdef OACAPTURE
+    case OA_DEVICE_PTR:
+      ifaceStr = "PTR";
+      deviceStr = tr ( "Timer" );
+      if ( !config.timerConfig[0].isEmpty()) {
+        configList = config.timerConfig[0];
+        haveItems = 1;
+      }
+      configFlags = OA_UDC_FLAG_USB_ALL;
+      break;
+#endif
 
     default:
       ifaceStr = tr ( "Unknown" );
@@ -214,7 +229,7 @@ AdvancedSettings::AdvancedSettings ( int device, int interface )
         }
         currCol++;
       }
-      deleteButton = new QPushButton ( QIcon ( ":/icons/list-remove-4.png" ),
+      deleteButton = new QPushButton ( QIcon ( ":/qt-icons/list-remove-4.png" ),
           tr ( "Remove" ));
       grid->addWidget ( deleteButton, i+1, currCol );
       deleteMapper->setMapping ( deleteButton, i );
@@ -386,7 +401,7 @@ AdvancedSettings::addFilterToGrid ( void )
 
   editedList.append ( c );
   rowList.append ( addedRows );
-  deleteButton = new QPushButton ( QIcon ( ":/icons/list-remove-4.png" ),
+  deleteButton = new QPushButton ( QIcon ( ":/qt-icons/list-remove-4.png" ),
       tr ( "Remove " ));
   grid->addWidget ( deleteButton, addedRows, currCol );
   deleteMapper->setMapping ( deleteButton, addedRows - 1 );
@@ -425,14 +440,15 @@ AdvancedSettings::deleteFilter ( int rowIndex )
 void
 AdvancedSettings::saveFilters ( void )
 {
-  int numFilters;
+  int numDevices;
 
-  numFilters = editedList.count(); 
+  numDevices = editedList.count(); 
+
   switch ( deviceType ) {
 
     case OA_DEVICE_FILTERWHEEL:
       config.filterWheelConfig[ interfaceType ].clear();
-      if ( numFilters ) {
+      if ( numDevices ) {
         for ( int i = 0; i < editedList.count(); i++ ) {
           config.filterWheelConfig[ interfaceType ].append (
               editedList.takeFirst());
@@ -440,6 +456,19 @@ AdvancedSettings::saveFilters ( void )
       }
       state.filterWheel->updateSearchFilters ( interfaceType );
       break;
+
+#ifdef OACAPTURE
+    case OA_DEVICE_PTR:
+      config.timerConfig[0].clear();
+      if ( numDevices ) {
+        for ( int i = 0; i < editedList.count(); i++ ) {
+          config.timerConfig[0].append (
+              editedList.takeFirst());
+        }
+      }
+      state.timer->updateSearchFilters(0);
+      break;
+#endif
 
     default:
       break;

@@ -2,7 +2,7 @@
  *
  * filterSettings.cc -- class for the filter settings tab in the settings UI
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -27,7 +27,10 @@
 #include <oa_common.h>
 
 #include <QtGui>
+
+extern "C" {
 #include <openastro/filterwheel.h>
+}
 
 #include "configuration.h"
 #include "state.h"
@@ -49,12 +52,12 @@ FilterSettings::FilterSettings ( QWidget* parent ) : QWidget ( parent )
       entry->setFlags ( entry->flags() | Qt :: ItemIsEditable );
     }
   }
-  addButton = new QPushButton ( QIcon ( ":/icons/list-add-4.png" ),
+  addButton = new QPushButton ( QIcon ( ":/qt-icons/list-add-4.png" ),
       tr ( "Add Item" ));
   addButton->setStyleSheet("Text-align:left");
   connect ( addButton, SIGNAL ( clicked()), this, SLOT ( addEntry()));
   connect ( addButton, SIGNAL ( clicked()), parent, SLOT ( dataChanged()));
-  removeButton = new QPushButton ( QIcon ( ":/icons/list-remove-4.png" ),
+  removeButton = new QPushButton ( QIcon ( ":/qt-icons/list-remove-4.png" ),
       tr ( "Remove Item" ));
   removeButton->setStyleSheet("Text-align:left");
   connect ( removeButton, SIGNAL ( clicked()), this, SLOT ( removeEntry()));
@@ -159,7 +162,7 @@ FilterSettings::storeSettings ( void )
     totalFilters = oldFilterCount = config.numFilters;
     // handle the degenerate case
     if ( !newFilterCount && !oldFilterCount ) {
-qWarning() << "handle reloading filters";
+qWarning() << "state.captureWidget->reloadFilters();";
       // state.captureWidget->reloadFilters();
       return;
     }
@@ -182,7 +185,9 @@ qWarning() << "handle reloading filters";
           FILTER_PROFILE fp;
           fp.filterName = f.filterName;
           for ( int j = 1; j <  OA_CAM_CTRL_LAST_P1; j++ ) {
-            fp.controls[j] = config.controlValues[j];
+            for ( int k = 0; k <  OA_CAM_CTRL_MODIFIERS_P1; k++ ) {
+              fp.controls[k][j] = config.controlValues[k][j];
+            }
           }
           config.profiles[i].filterProfiles.append ( fp );
         }
@@ -227,7 +232,7 @@ qWarning() << "handle reloading filters";
       config.filterSlots[i] = slotMenus[i]->currentIndex();
     }
   }
-qWarning() << "Handle reloading filters";
+qWarning() << "state.captureWidget->reloadFilters();";
   // state.captureWidget->reloadFilters();
 }
 
@@ -317,6 +322,7 @@ FilterSettings::filterSlotChanged ( int slotIndex )
   if ( currentFilter >= 0 ) {
     filterName = slotMenus[ slotIndex ]->itemText ( currentFilter );
   }
+  state.settingsWidget->propagateNewSlotName ( slotIndex, filterName );
   slotsChanged = 1;
 }
 

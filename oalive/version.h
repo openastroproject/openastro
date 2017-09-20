@@ -32,10 +32,11 @@
 #define	ORGANISATION_NAME_SETTINGS	"OpenAstro"
 
 #define MAJOR_VERSION			"0"
-#define	MINOR_VERSION			"0"
-#define	REVISION			"1 alpha"
+#define	MINOR_VERSION			"1"
+#define	REVISION			"0"
 
 #define	COPYRIGHT_YEARS			"2015,2017"
 #define	AUTHOR_NAME			"James Fidell"
+#define AUTHOR_EMAIL			"james@openastroproject.org"
 
 #define	VERSION_STR		MAJOR_VERSION "." MINOR_VERSION "." REVISION

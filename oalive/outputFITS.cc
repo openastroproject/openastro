@@ -2,7 +2,7 @@
  *
  * outputFITS.cc -- FITS output class
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -40,10 +40,8 @@ extern "C" {
 #include "outputFITS.h"
 #include "configuration.h"
 #include "state.h"
+#include "targets.h"
 
-/*
- * FITS RGB -- naxes = 3, 1 = R, 2 = G, 3 = B
- */
 
 OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
     QString fileTemplate ) : OutputHandler ( x, y, n, d, fileTemplate )
@@ -65,9 +63,10 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
   tableType = 0;
   swapRedBlue = 0;
   bytesPerPixel = 1;
-  splitPlanes = 1;
+  splitPlanes = 0;
   writeBuffer = 0;
   elements = 0;
+  imageFormat = fmt;
 
   switch ( fmt ) {
 
@@ -78,7 +77,6 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
       planeDepth = 1;
       break;
 
-#ifdef RGB_FITS
     case OA_PIX_FMT_BGR24:
       swapRedBlue = 1;
     case OA_PIX_FMT_RGB24:
@@ -87,8 +85,8 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
       nAxes = 3;
       splitPlanes = 1;
       planeDepth = 1;
+      bytesPerPixel = 3;
       break;
-#endif
 
     case OA_PIX_FMT_GREY16LE:
       bitpix = USHORT_IMG;
@@ -112,7 +110,7 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
       planeDepth = 2;
       break;
 
-#ifdef RGB_FITS
+#ifdef RGB48_FITS
     case OA_PIX_FMT_BGR48BE:
       swapRedBlue = 1;
     case OA_PIX_FMT_RGB48BE:
@@ -122,7 +120,7 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
         reverseByteOrder = 1;
       }
       tableType = TULONG;
-      bytesPerPixel = 4;
+      bytesPerPixel = 6;
       splitPlanes = 1;
       planeDepth = 4;
       break;
@@ -149,21 +147,16 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
 
   if ( validFileType ) {
     elements = xSize * ySize;
-    frameSize = xSize * ySize * bytesPerPixel;
-    rowLength = xSize * planeDepth;
-    totalRows = ySize;
-    if ( nAxes == 3 ) {
-      totalRows *= 3;
-    }
+    frameSize = elements * bytesPerPixel;
+    planeSize = fitsSize = elements * planeDepth;
 
     fitsAxes[0] = xSize;
     fitsAxes[1] = ySize;
     if ( nAxes == 3 ) {
       fitsAxes[2] = 3;
+      fitsSize *= 3;
     }
   }
-
-qWarning() << "valid file type" << validFileType;
 }
 
 
@@ -197,7 +190,7 @@ OutputFITS::outputWritable ( void )
   QString testPath = fullSaveFilePath;
   int slashPos;
 
-  if (( slashPos = testPath.indexOf ( "/", -1 )) == -1 ) {
+  if (( slashPos = testPath.lastIndexOf ( "/", -1 )) == -1 ) {
     testPath = ".";
   } else {
     testPath = testPath.left ( slashPos + 1 );
@@ -212,8 +205,8 @@ int
 OutputFITS::openOutput ( void )
 {
   if ( validFileType ) {
-    if ( reverseByteOrder || swapRedBlue ) {
-      if (!( writeBuffer = ( unsigned char* ) malloc ( frameSize ))) {;
+    if ( reverseByteOrder || swapRedBlue || nAxes == 3 ) {
+      if (!( writeBuffer = ( unsigned char* ) malloc ( fitsSize ))) {;
         qWarning() << "write buffer allocation failed";
         return -1;
       }
@@ -225,21 +218,24 @@ OutputFITS::openOutput ( void )
 
 
 int
-OutputFITS::addFrame ( void* frame, const char* constTimestampStr )
+OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
+    int64_t expTime )
 {
   unsigned char* s;
   unsigned char* t;
   int i, status = 0;
   fitsfile* fptr;
-  // Hack to get around older versions of library using const* rather
+  void* outputBuffer = frame;
+  char stringBuff[FLEN_VALUE+1];
+  // Hack to get around older versions of library using char* rather
   // than const char*
 #if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
   const char* timestampStr = constTimestampStr;
-  const char* tempStr;
+  const char* cString = stringBuff;
 #else
   char stampStr[FLEN_VALUE+1];
   char *timestampStr;
-  char tempStr[FLEN_VALUE+1];
+  char *cString = stringBuff;
 
   if ( constTimestampStr ) {
     ( void ) strcpy ( stampStr, constTimestampStr );
@@ -263,50 +259,37 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr )
 
   if ( 2 == bytesPerPixel ) {
     if ( reverseByteOrder ) {
-#ifdef RGB_FITS
-      if ( swapRedBlue ) {
-        for ( i = 0; i < frameSize; i += 6, s += 6 ) {
-          *t++ = *( s + 5 );
-          *t++ = *( s + 4 );
-          *t++ = *( s + 3 );
-          *t++ = *( s + 2 );
-          *t++ = *( s + 1 );
-          *t++ = *s;
-        }
-      } else {
-#endif
-        for ( i = 0; i < frameSize; i += 2, s += 2 ) {
-          *t++ = *( s + 1 );
-          *t++ = *s;
-        }
-#ifdef RGB_FITS
-      }
-    } else {
-      if ( swapRedBlue ) {
-        for ( i = 0; i < frameSize; i += 6, s += 6 ) {
-          *t++ = *( s + 4 );
-          *t++ = *( s + 5 );
-          *t++ = *( s + 2 );
-          *t++ = *( s + 3 );
-          *t++ = *s;
-          *t++ = *( s + 1 );
-        }
-      }
-#endif
-    }
-  }
-
-#ifdef RGB_FITS
-  if ( 1 == bytesPerPixel ) {
-    if ( swapRedBlue ) {
-      for ( i = 0; i < frameSize; i += 3, s += 3 ) {
-        *t++ = *( s + 2 );
+      for ( i = 0; i < frameSize; i += 2, s += 2 ) {
         *t++ = *( s + 1 );
         *t++ = *s;
       }
     }
+    outputBuffer = writeBuffer;
   }
-#endif
+
+  if ( 3 == bytesPerPixel ) { // RGB or BGR
+    unsigned char* redPlane;
+    unsigned char* greenPlane;
+    unsigned char* bluePlane;
+
+    redPlane = t;
+    greenPlane = redPlane + planeSize;
+    bluePlane = greenPlane + planeSize;
+    if ( swapRedBlue ) { // BGR
+      for ( i = 0; i < frameSize; i += 3 ) {
+        *bluePlane++ = *s++;
+        *greenPlane++ = *s++;
+        *redPlane++ = *s++;
+      }
+    } else { // RGB
+      for ( i = 0; i < frameSize; i += 3 ) {
+        *redPlane++ = *s++;
+        *greenPlane++ = *s++;
+        *bluePlane++ = *s++;
+      }
+    }
+    outputBuffer = writeBuffer;
+  }
 
   if ( fits_create_file ( &fptr, fullSaveFilePath.toStdString().c_str(),
       &status )) {
@@ -338,73 +321,161 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr )
   if ( timestampStr ) {
     fits_write_key_str ( fptr, "DATE-OBS", timestampStr, "", &status );
   } else {
-    QDateTime now = QDateTime::currentDateTime();
-    QString dateStr = now.toString ( Qt::ISODate );
-#if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
-    tempStr = dateStr.toStdString().c_str();
-#else
-    strncpy ( tempStr, dateStr.toStdString().c_str(), FLEN_VALUE + 1 );
-#endif
-    fits_write_key_str ( fptr, "DATE-OBS", tempStr, "", &status );
+    QDateTime now = QDateTime::currentDateTimeUtc();
+    // QString dateStr = now.toString ( Qt::ISODate );
+    QString dateStr = now.toString ( "yyyy-MM-ddThh:mm:ss.zzz" );
+    ( void ) strncpy ( stringBuff,
+        dateStr.toStdString().c_str(), FLEN_VALUE+1 );
+    fits_write_key_str ( fptr, "DATE-OBS", cString, "UTC", &status );
   }
 
   fits_write_date ( fptr, &status );
 
   if ( config.fitsObserver != "" ) {
-#if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
-    tempStr = config.fitsObserver.toStdString().c_str();
-#else
-    strncpy ( tempStr, config.fitsObserver.toStdString().c_str(),
-        FLEN_VALUE + 1 );
-#endif
-    fits_write_key_str ( fptr, "OBSERVER", tempStr, "", &status );
-  }
-  if ( config.fitsObject != "" ) {
-#if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
-    tempStr = config.fitsObject.toStdString().c_str();
-#else
-    strncpy ( tempStr, config.fitsObject.toStdString().c_str(),
-        FLEN_VALUE + 1 );
-#endif
-    fits_write_key_str ( fptr, "OBJECT", tempStr, "", &status );
-  }
-  if ( config.fitsTelescope != "" ) {
-#if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
-    tempStr = config.fitsTelescope.toStdString().c_str();
-#else
-    strncpy ( tempStr, config.fitsTelescope.toStdString().c_str(),
-        FLEN_VALUE + 1 );
-#endif
-    fits_write_key_str ( fptr, "TELESCOP", tempStr, "", &status );
-  }
-  if ( config.fitsInstrument != "" ) {
-#if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
-    tempStr = config.fitsInstrument.toStdString().c_str();
-#else
-    strncpy ( tempStr, config.fitsInstrument.toStdString().c_str(),
-        FLEN_VALUE + 1 );
-#endif
-    fits_write_key_str ( fptr, "INSTRUME", tempStr, "", &status );
-  }
-  if ( config.fitsComment != "" ) {
-#if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
-    tempStr = config.fitsComment.toStdString().c_str();
-#else
-    strncpy ( tempStr, config.fitsComment.toStdString().c_str(),
-        FLEN_VALUE + 1 );
-#endif
-    fits_write_comment ( fptr, tempStr, &status );
+    ( void ) strncpy ( stringBuff,
+        config.fitsObserver.toStdString().c_str(), FLEN_VALUE+1 );
+    fits_write_key_str ( fptr, "OBSERVER", cString, "", &status );
   }
 
-  if ( fits_write_img ( fptr, tableType, 1, elements, frame, &status )) {
+  stringBuff[0] = 0;
+  int currentTargetId = 0;
+#ifdef OACAPTURE
+  currentTargetId = state.captureWidget->getCurrentTargetId();
+#endif
+  if ( currentTargetId > 0 && currentTargetId != TGT_UNKNOWN ) {
+    ( void ) strncpy ( stringBuff, targetList[ currentTargetId ],
+        FLEN_VALUE+1 );
+  } else {
+    ( void ) strncpy ( stringBuff,
+        config.fitsObject.toStdString().c_str(), FLEN_VALUE+1 );
+  }
+  if ( stringBuff[0]) {
+    fits_write_key_str ( fptr, "OBJECT", cString, "", &status );
+  }
+
+  if ( config.fitsTelescope != "" ) {
+    ( void ) strncpy ( stringBuff,
+        config.fitsTelescope.toStdString().c_str(), FLEN_VALUE+1 );
+    fits_write_key_str ( fptr, "TELESCOP", cString, "", &status );
+  }
+
+  if ( config.fitsInstrument != "" ) {
+    ( void ) strncpy ( stringBuff,
+        config.fitsInstrument.toStdString().c_str(), FLEN_VALUE+1 );
+    fits_write_key_str ( fptr, "INSTRUME", cString, "", &status );
+  }
+
+  if ( config.fitsComment != "" ) {
+    ( void ) strncpy ( stringBuff,
+        config.fitsComment.toStdString().c_str(), FLEN_VALUE+1 );
+    fits_write_comment ( fptr, cString, &status );
+  }
+
+  if ( config.fitsFocalLength != "" ) {
+    fits_write_key_lng ( fptr, "FOCALLEN", config.fitsFocalLength.toInt(),
+        "", &status );
+  }
+
+  if ( config.fitsApertureDia != "" ) {
+    fits_write_key_lng ( fptr, "APTDIA", config.fitsApertureDia.toInt(),
+        "", &status );
+  }
+
+  if ( config.fitsApertureArea != "" ) {
+    fits_write_key_lng ( fptr, "APTAREA", config.fitsApertureArea.toInt(),
+        "", &status );
+  }
+
+  if ( config.fitsPixelSizeX != "" ) {
+    fits_write_key_dbl ( fptr, "XPIXSZ", config.fitsPixelSizeX.toFloat(),
+        -5, "", &status );
+  }
+
+  if ( config.fitsPixelSizeY != "" ) {
+    fits_write_key_dbl ( fptr, "YPIXSZ", config.fitsPixelSizeY.toFloat(),
+        -5, "", &status );
+  }
+
+  if ( config.fitsSubframeOriginX != "" ) {
+    fits_write_key_lng ( fptr, "XORGSUBF", config.fitsSubframeOriginX.toInt(),
+        "", &status );
+  }
+
+  if ( config.fitsSubframeOriginY != "" ) {
+    fits_write_key_lng ( fptr, "YORGSUBF", config.fitsSubframeOriginY.toInt(),
+        "", &status );
+  }
+
+  QString currentFilter;
+#ifdef OACAPTURE
+  currentFilter = state.captureWidget->getCurrentFilterName();
+#endif
+  if ( config.fitsFilter != "" ) {
+    currentFilter = config.fitsFilter;
+  }
+  if ( currentFilter != "" ) {
+    ( void ) strncpy ( stringBuff,
+        currentFilter.toStdString().c_str(), FLEN_VALUE+1 );
+    fits_write_key_str ( fptr, "FILTER", cString, "", &status );
+  }
+
+#ifdef OACAPTURE
+  stringBuff[0] = 0;
+  if ( state.gpsValid ) {
+    ( void ) sprintf ( stringBuff, "%g", state.latitude );
+  }
+  if ( !stringBuff[0] && config.fitsSiteLatitude != "" ) {
+    ( void ) strncpy ( stringBuff,
+        config.fitsSiteLatitude.toStdString().c_str(), FLEN_VALUE+1 );
+  }
+  if ( stringBuff[0] ) {
+    fits_write_key_str ( fptr, "SITELAT", cString, "", &status );
+  }
+
+  stringBuff[0] = 0;
+  if ( state.gpsValid ) {
+    ( void ) sprintf ( stringBuff, "%g", state.longitude );
+  }
+  if ( !stringBuff[0] && config.fitsSiteLongitude != "" ) {
+    ( void ) strncpy ( stringBuff,
+        config.fitsSiteLongitude.toStdString().c_str(), FLEN_VALUE+1 );
+  }
+  if ( stringBuff[0] ) {
+    fits_write_key_str ( fptr, "SITELONG", cString, "", &status );
+  }
+#endif /* OACAPTURE */
+
+  fits_write_key_str ( fptr, "SWCREATE", APPLICATION_NAME " " VERSION_STR, "",
+      &status );
+
+  fits_write_key_dbl ( fptr, "BSCALE", 1.0, -5, "", &status );
+  fits_write_key_dbl ( fptr, "BZERO", 0.0, -5, "", &status );
+
+  fits_write_key_dbl ( fptr, "EXPTIME", expTime / 1000000.0, -10, "", &status );
+
+  if ( OA_ISBAYER ( imageFormat )) {
+    fits_write_key_str ( fptr, "BAYERPAT", "TRUE", "", &status );
+    fits_write_key_lng ( fptr, "XBAYROFF", 0, "", &status );
+    fits_write_key_lng ( fptr, "YBAYROFF", 0, "", &status );
+  }
+
+  if ( state.cameraTempValid ) {
+    fits_write_key_dbl ( fptr, "CCD-TEMP", state.cameraTemp, -5, "", &status );
+  }
+
+  if ( state.binningValid ) {
+    fits_write_key_lng ( fptr, "XBINNING", state.binModeX, "", &status );
+    fits_write_key_lng ( fptr, "YBINNING", state.binModeY, "", &status );
+  }
+
+  if ( fits_write_img ( fptr, tableType, 1, elements * ( nAxes == 3 ? 3 : 1 ),
+      outputBuffer, &status )) {
     if ( status ) {
       fits_report_error ( stderr, status );
     }
     frameCount++;
     return -1;
   }
-
-  // Write additional keywords
 
   if ( fits_close_file ( fptr, &status )) {
     if ( status ) {
@@ -414,6 +485,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr )
     return -1;
   }
 
+  state.captureIndex++;
   frameCount++;
   return 0;
 }

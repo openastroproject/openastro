@@ -2,7 +2,7 @@
  *
  * outputFITS.h -- class declaration
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -26,15 +26,13 @@
 
 #pragma once
 
-#include "outputHandler.h"
-
 class OutputFITS : public OutputHandler
 {
   public:
     			OutputFITS ( int, int, int, int, int, QString );
     			~OutputFITS();
     int			openOutput ( void );
-    int			addFrame ( void*, const char* );
+    int			addFrame ( void*, const char*, int64_t );
     void		closeOutput ( void );
     int			outputExists ( void );
     int			outputWritable ( void );
@@ -46,15 +44,16 @@ class OutputFITS : public OutputHandler
     int			reverseByteOrder;
     int			swapRedBlue;
     int			frameSize;
+    int			planeSize;
+    int			fitsSize;
     unsigned char*	writeBuffer;
     int			nAxes;
     int			bitpix;
     int			tableType;
     int			bytesPerPixel;
     int			splitPlanes;
-    int                 rowLength;
-    int                 totalRows;
     int                 planeDepth;
     int			elements;
     long		fitsAxes[3];
+    unsigned int	imageFormat;
 };

@@ -2,7 +2,7 @@
  *
  * outputHandler.h -- class declaration
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -31,6 +31,7 @@
 #ifdef HAVE_QT5
 #include <QtWidgets>
 #endif
+#include <QtCore>
 #include <QtGui>
 
 class OutputHandler
@@ -41,7 +42,7 @@ class OutputHandler
     unsigned int	getFrameCount ( void );
 
     virtual int		openOutput() = 0;
-    virtual int		addFrame ( void*, const char* ) = 0;
+    virtual int		addFrame ( void*, const char*, int64_t ) = 0;
     virtual void	closeOutput() = 0;
     virtual int		outputExists ( void ) = 0;
     virtual int		outputWritable ( void ) = 0;

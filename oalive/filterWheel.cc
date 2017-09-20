@@ -2,7 +2,7 @@
  *
  * filterwheel.cc -- filter wheel interface class
  *
- * Copyright 2014 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -102,7 +102,8 @@ FilterWheel::unpackControlValue ( oaControlValue *cp )
       res = cp->discrete;
       break;
     default:
-      qWarning() << __FUNCTION__ << " called with invalid control type " <<
+      qWarning() << "FilterWheel" << __FUNCTION__ <<
+        "called with invalid control type " <<
         wheelContext->controls[ cp->valueType ];
       res = -1;
   }
@@ -134,10 +135,10 @@ FilterWheel::initialise ( oaFilterWheelDevice* device )
     // FIX ME -- this lot should probably be done in the caller
     if ( state.settingsWidget ) {
       state.settingsWidget->setSlotCount ( wheelContext->numSlots );
-      // FIX ME --  Need to set slot count in capture screen
+qWarning() << "state.captureWidget->setSlotCount ( wheelContext->numSlots );";
       // state.captureWidget->setSlotCount ( wheelContext->numSlots );
     }
-    // FIX ME -- Need to reload filters in capture screen
+qWarning() << "state.captureWidget->reloadFilters();";
 /*
     if ( state.captureWidget ) {
       state.captureWidget->reloadFilters();
@@ -157,11 +158,11 @@ FilterWheel::disconnect ( void )
     initialised = 0;
     // FIX ME -- this lot should probably be done in the caller
     if ( state.settingsWidget ) {
+qWarning() << "state.settingsWidget->setSlotCount";
       state.settingsWidget->setSlotCount ( 0 );
-      // FIX ME -- Need to set wheel slot count to zero
       // state.captureWidget->setSlotCount ( 0 );
     }
-      // FIX ME -- Need to reload filters in capture screen #2
+qWarning() << "state.captureWidget->reloadFilters();";
 /*
     if ( state.captureWidget ) {
       state.captureWidget->reloadFilters();
@@ -336,8 +337,6 @@ FilterWheel::setSpeed ( unsigned int speed, int nodelay )
 void
 FilterWheel::updateSearchFilters ( int interfaceType )
 {
-  // FIX ME -- Need to implement this function
-/*
   int numFilters;
 
   oaClearFilterWheelIDFilters ( interfaceType );
@@ -348,7 +347,6 @@ FilterWheel::updateSearchFilters ( int interfaceType )
           &( config.filterWheelConfig[ interfaceType ][ i ] ));
     }
   }
-*/
 }
 
 

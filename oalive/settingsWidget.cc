@@ -2,7 +2,7 @@
  *
  * settingsWidget.cc -- the main settings widget wrapper class
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -35,21 +35,39 @@
 #include "settingsWidget.h"
 #include "generalSettings.h"
 #include "captureSettings.h"
+#ifdef OACAPTURE
+#include "cameraSettings.h"
+#endif
 #include "profileSettings.h"
 #include "filterSettings.h"
+#ifdef OACAPTURE
+#include "autorunSettings.h"
+#include "histogramSettings.h"
+#include "timerSettings.h"
+#endif
 #include "demosaicSettings.h"
+#include "fitsSettings.h"
 
 
 SettingsWidget::SettingsWidget()
 {
   setWindowTitle( APPLICATION_NAME + tr ( " Settings" ));
-  setWindowIcon ( QIcon ( ":/icons/configure-3.png" ));
+  setWindowIcon ( QIcon ( ":/qt-icons/configure-3.png" ));
 
   general = new GeneralSettings ( this );
   capture = new CaptureSettings ( this );
+#ifdef OACAPTURE
+  cameras = new CameraSettings ( this );
+#endif
   profiles = new ProfileSettings ( this );
   filters = new FilterSettings ( this );
+#ifdef OACAPTURE
+  autorun = new AutorunSettings ( this );
+  histogram = new HistogramSettings ( this );
+  timer = new TimerSettings ( this );
+#endif
   demosaic = new DemosaicSettings ( this );
+  fits = new FITSSettings ( this );
   vbox = new QVBoxLayout ( this );
   tabSet = new QTabWidget ( this );
   buttonBox = new QHBoxLayout();
@@ -59,15 +77,31 @@ SettingsWidget::SettingsWidget()
   saveButton->setEnabled ( 0 );
 
   state.generalSettingsIndex = tabSet->addTab ( general, 
-      QIcon ( ":/icons/cog.png" ), tr ( "General" ));
+      QIcon ( ":/qt-icons/cog.png" ), tr ( "General" ));
   state.captureSettingsIndex = tabSet->addTab ( capture,
-      QIcon ( ":/icons/capture.png" ), tr ( "Capture" ));
+      QIcon ( ":/qt-icons/capture.png" ), tr ( "Capture" ));
+#ifdef OACAPTURE
+  state.cameraSettingsIndex = tabSet->addTab ( cameras,
+      QIcon ( ":/qt-icons/planetary-camera.png" ), tr ( "Camera" ));
+#endif
   state.profileSettingsIndex = tabSet->addTab ( profiles,
-      QIcon ( ":/icons/jupiter.png" ), tr ( "Profiles" ));
+      QIcon ( ":/qt-icons/jupiter.png" ), tr ( "Profiles" ));
   state.filterSettingsIndex = tabSet->addTab ( filters,
-      QIcon ( ":/icons/filter-wheel.png" ), tr ( "Filters" ));
+      QIcon ( ":/qt-icons/filter-wheel.png" ), tr ( "Filters" ));
+#ifdef OACAPTURE
+  state.autorunSettingsIndex = tabSet->addTab ( autorun,
+      QIcon ( ":/qt-icons/clicknrun.png" ), tr ( "Autorun" ));
+  state.histogramSettingsIndex = tabSet->addTab ( histogram,
+      QIcon ( ":/qt-icons/barchart.png" ), tr ( "Histogram" ));
+#endif
   state.demosaicSettingsIndex = tabSet->addTab ( demosaic,
-      QIcon ( ":/icons/mosaic.png" ), tr ( "Demosaic" ));
+      QIcon ( ":/qt-icons/mosaic.png" ), tr ( "Demosaic" ));
+  state.fitsSettingsIndex = tabSet->addTab ( fits,
+      QIcon ( ":/qt-icons/fits.png" ), tr ( "FITS/SER Metadata" ));
+#ifdef OACAPTURE
+  state.timerSettingsIndex = tabSet->addTab ( timer,
+      QIcon ( ":/qt-icons/timer.png" ), tr ( "Timer" ));
+#endif
 
   tabSet->setUsesScrollButtons ( false );
 
@@ -102,6 +136,9 @@ void
 SettingsWidget::enableTab ( int index, int state )
 {
   tabSet->setTabEnabled ( index, state );
+#ifdef OACAPTURE
+  cameras->configure();
+#endif
 }
 
 
@@ -109,9 +146,19 @@ void
 SettingsWidget::storeSettings ( void )
 {
   general->storeSettings();
+  capture->storeSettings();
+#ifdef OACAPTURE
+  cameras->storeSettings();
+#endif
   profiles->storeSettings();
   filters->storeSettings();
+#ifdef OACAPTURE
+  autorun->storeSettings();
+  histogram->storeSettings();
+  timer->storeSettings();
+#endif
   demosaic->storeSettings();
+  fits->storeSettings();
   state.mainWindow->writeConfig();
   state.mainWindow->showStatusMessage ( tr ( "Changes saved" ));
   cancelButton->setText ( tr ( "Close" ));
@@ -135,10 +182,81 @@ SettingsWidget::updateCFASetting ( void )
   demosaic->updateCFASetting();
 }
 
+
+#ifdef OACAPTURE
+void
+SettingsWidget::configureCameraSettings ( void )
+{
+  cameras->configure();
+}
+
+
+void
+SettingsWidget::enableFlipX ( int state )
+{
+  cameras->enableFlipX ( state );
+}
+
+
+void
+SettingsWidget::enableFlipY ( int state )
+{
+  cameras->enableFlipY ( state );
+}
+
+
+void
+SettingsWidget::updateControl ( int control, int value )
+{
+  cameras->updateControl ( control, value );
+}
+
+
+void
+SettingsWidget::reconfigureControl ( int control )
+{
+  cameras->reconfigureControl ( control);
+}
+#endif
+
+
+void
+SettingsWidget::propagateNewSlotName ( int slotIndex, const QString& name )
+{
+#ifdef OACAPTURE
+  autorun->setSlotName ( slotIndex, name );
+#endif
+}
+
+
+QString
+SettingsWidget::getSlotFilterName ( int slotIndex )
+{
+  if ( !filters ) {
+    qWarning() << __FUNCTION__ << ": filters not set";
+    return "";
+  }
+  return filters->getSlotFilterName ( slotIndex );
+}
+
+
 void
 SettingsWidget::setSlotCount ( int numSlots )
 {
+#ifdef OACAPTURE
+  if ( autorun ) {
+    autorun->setSlotCount ( numSlots );
+  }
+#endif
   if ( filters ) {
     filters->setSlotCount ( numSlots );
   }
 }
+
+#ifdef OACAPTURE
+void
+SettingsWidget::updateFrameRate ( int index )
+{
+  cameras->updateFrameRate ( index );
+}
+#endif

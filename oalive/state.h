@@ -2,7 +2,7 @@
  *
  * state.h -- global application state datastructures
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -68,6 +68,7 @@ typedef struct
   int			profileSettingsIndex;
   int			filterSettingsIndex;
   int			demosaicSettingsIndex;
+  int			fitsSettingsIndex;
 /*
   int			cameraSettingsIndex;
   int			autorunSettingsIndex;
@@ -81,6 +82,15 @@ typedef struct
 
   int			stackingMethod;
 
+  int                   preferredExposureControl;
+
+  QString               appPath;
+
+  int                   cameraTempValid;
+  float                 cameraTemp;
+  int                   binningValid;
+  int                   binModeX;
+  int                   binModeY;
 } STATE;
 
 extern STATE		state;

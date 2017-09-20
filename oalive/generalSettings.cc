@@ -2,7 +2,7 @@
  *
  * generalSettings.cc -- class for general settings in the settings UI
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -75,6 +75,31 @@ GeneralSettings::GeneralSettings ( QWidget* parent ) : QWidget ( parent )
       "Connect single camera on startup" ));
   connectSole->setChecked ( config.connectSoleCamera );
 
+#ifdef OACAPTURE
+  dockable = new QCheckBox ( tr ( "Make controls dockable" ));
+  dockable->setChecked ( config.dockableControls );
+
+  controlPosn = new QCheckBox ( tr ( "Display controls on right" ));
+  controlPosn->setChecked ( config.controlsOnRight );
+
+  separateControls = new QCheckBox ( tr ( "Use separate window for controls" ));
+  separateControls->setChecked ( config.separateControls );
+
+  fpsLabel = new QLabel ( tr ( "Display FPS" ), this );
+  fpsCountLabel = new QLabel ( QString::number ( config.displayFPS ), this );
+  fpsSlider = new QSlider ( Qt::Horizontal, this );
+  fpsSlider->setRange ( 1, 30 );
+  fpsSlider->setSingleStep ( 1 );
+  fpsSlider->setValue ( config.displayFPS );
+  fpsSlider->setTickPosition ( QSlider::TicksBelow );
+  fpsSlider->setTickInterval ( 1 );
+
+  fpsbox = new QHBoxLayout();
+  fpsbox->addWidget ( fpsLabel );
+  fpsbox->addWidget ( fpsCountLabel );
+  fpsbox->addWidget ( fpsSlider );
+#endif
+
   box = new QVBoxLayout ( this );
   topBox = new QHBoxLayout();
   leftBox = new QVBoxLayout();
@@ -97,12 +122,21 @@ GeneralSettings::GeneralSettings ( QWidget* parent ) : QWidget ( parent )
   rightBox->addWidget ( saveCaptureSettings );
   rightBox->addSpacing ( 15 );
   rightBox->addWidget ( connectSole );
+#ifdef OACAPTURE
+  rightBox->addSpacing ( 15 );
+  rightBox->addWidget ( dockable );
+  rightBox->addWidget ( controlPosn );
+  rightBox->addWidget ( separateControls );
+#endif
   rightBox->addStretch ( 1 );
 
   topBox->addLayout ( leftBox );
   topBox->addLayout ( rightBox );
   topBox->addStretch ( 1 );
   box->addLayout ( topBox );
+#ifdef OACAPTURE
+  box->addLayout ( fpsbox );
+#endif
   box->addStretch ( 1 );
   setLayout ( box );
 
@@ -116,10 +150,29 @@ GeneralSettings::GeneralSettings ( QWidget* parent ) : QWidget ( parent )
       SLOT ( dataChanged()));
   connect ( connectSole, SIGNAL ( stateChanged ( int )), parent,
       SLOT ( dataChanged()));
+#ifdef OACAPTURE
+  connect ( dockable, SIGNAL ( stateChanged ( int )), this,
+      SLOT ( showRestartWarning()));
+  connect ( controlPosn, SIGNAL ( stateChanged ( int )), this,
+      SLOT ( showRestartWarning()));
+  connect ( separateControls, SIGNAL ( stateChanged ( int )), this,
+      SLOT ( showRestartWarning()));
+  connect ( fpsSlider, SIGNAL ( valueChanged ( int )), parent,
+      SLOT ( dataChanged()));
+  connect ( fpsSlider, SIGNAL ( valueChanged ( int )), this,
+      SLOT ( updateFPSLabel ( int )));
+#endif
+#ifdef OACAPTURE
+  connect ( recentreButton, SIGNAL ( clicked()), state.previewWidget,
+      SLOT ( recentreReticle()));
+  connect ( derotateButton, SIGNAL ( clicked()), state.previewWidget,
+      SLOT ( derotateReticle()));
+#else
   connect ( recentreButton, SIGNAL ( clicked()), state.viewWidget,
       SLOT ( recentreReticle()));
   connect ( derotateButton, SIGNAL ( clicked()), state.viewWidget,
       SLOT ( derotateReticle()));
+#endif
 }
 
 
@@ -150,4 +203,39 @@ GeneralSettings::storeSettings ( void )
   state.mainWindow->resetTemperatureLabel();
   config.saveCaptureSettings = saveCaptureSettings->isChecked() ? 1 : 0;
   config.connectSoleCamera = connectSole->isChecked() ? 1 : 0;
+
+#ifdef OACAPTURE
+  config.displayFPS = fpsSlider->value();
+  state.previewWidget->setDisplayFPS ( config.displayFPS );
+
+  config.dockableControls = dockable->isChecked() ? 1 : 0;
+  config.controlsOnRight = controlPosn->isChecked() ? 1 : 0;
+  config.separateControls = separateControls->isChecked() ? 1 : 0;
+#endif
+}
+
+
+void
+GeneralSettings::updateFPSLabel ( int value )
+{
+  fpsCountLabel->setText ( QString::number ( value ));
+}
+
+
+void
+GeneralSettings::showRestartWarning ( void )
+{
+  QString msg1, msg2;
+
+  msg1 = tr ( "The application must be restarted for this change to take "
+       "effect." );
+  msg2 = "";
+  if (( dockable->isChecked() || controlPosn->isChecked()) &&
+      separateControls->isChecked()) {
+    msg2 = tr ( "\n\nPlacing the controls in a separate window overrides "
+        "selections to make the controls dockable or appear on the right." );
+  }
+
+  QMessageBox::warning ( this, APPLICATION_NAME, msg1 + msg2 );
+  state.settingsWidget->dataChanged();
 }

@@ -31,6 +31,7 @@
 #ifdef HAVE_QT5
 #include <QtWidgets>
 #endif
+#include <QtCore>
 #include "QtGui"
 
 extern "C" {
@@ -39,6 +40,8 @@ extern "C" {
 
 class Camera : public QObject
 {
+  Q_OBJECT
+
   public:
     			Camera();
     			~Camera();
@@ -65,6 +68,7 @@ class Camera : public QObject
 
     void		controlRange ( int, int64_t*, int64_t*, int64_t*,
                             int64_t* );
+    void		controlDiscreteSet ( int, int32_t*, int64_t** );
     const char*		name ( void );
     const FRAMESIZES*	frameSizes ( void );
     const FRAMERATES*	frameRates ( int, int );

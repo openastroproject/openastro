@@ -2,7 +2,7 @@
  *
  * outputHandler.cc -- output hander (mostly) virtual class
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -40,7 +40,11 @@ OutputHandler::OutputHandler ( int x, int y, int n, int d,
   Q_UNUSED( n );
   Q_UNUSED( d );
 
+#ifdef OACAPTURE
+  generateFilename();
+#else
   filenameTemplate = fileTemplate;
+#endif
 }
 
 
@@ -87,13 +91,18 @@ OutputHandler::generateFilename ( void )
 
   QString index, gain, exposureMs, exposureS;
   unsigned int exposure;
-  index = QString("%1").arg ( state.captureIndex, 6, 10, QChar('0'));
+  index = QString("%1").arg ( state.captureIndex, config.indexDigits, 10,
+      QChar('0'));
   gain = QString("%1").arg ( state.cameraControls->getCurrentGain());
   exposure = state.cameraControls->getCurrentExposure();
-  exposureMs = QString("%1").arg ( exposure );
-  exposureS = QString("%1").arg (( int ) ( exposure / 1000 ));
+  exposureMs = QString("%1").arg ( exposure / 1000 );
+  exposureS = QString("%1").arg (( int ) ( exposure / 1000000 ));
 
+#ifdef OACAPTURE
+  filename = config.frameFileNameTemplate;
+#else
   filename = filenameTemplate;
+#endif
 
   filename.replace ( "%DATE", date );
   filename.replace ( "%TIME", time );
@@ -104,10 +113,12 @@ OutputHandler::generateFilename ( void )
   filename.replace ( "%MINUTE", minutes );
   filename.replace ( "%SECOND", seconds );
   filename.replace ( "%EPOCH", epoch );
-  // FIX ME -- add support for these back in
-  // filename.replace ( "%FILTER", state.captureWidget->getCurrentFilterName());
-  // filename.replace ( "%PROFILE",
-      // state.captureWidget->getCurrentProfileName());
+#ifdef OACAPTURE
+  // FIX ME -- add support for these back in oalive
+  filename.replace ( "%FILTER", state.captureWidget->getCurrentFilterName());
+  filename.replace ( "%PROFILE",
+      state.captureWidget->getCurrentProfileName());
+#endif
   filename.replace ( "%INDEX", index );
   filename.replace ( "%GAIN", gain );
   filename.replace ( "%EXPMS", exposureMs );

@@ -2,7 +2,7 @@
  *
  * generalSettings.h -- class declaration
  *
- * Copyright 2015, 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -31,6 +31,7 @@
 #ifdef HAVE_QT5
 #include <QtWidgets>
 #endif
+#include <QtCore>
 #include <QtGui>
 
 #include "version.h"
@@ -49,11 +50,14 @@ class GeneralSettings : public QWidget
     QCheckBox*		saveBox;
     QCheckBox*		saveCaptureSettings;
     QCheckBox*		connectSole;
+    QCheckBox*		dockable;
+    QCheckBox*		controlPosn;
+    QCheckBox*		separateControls;
     QVBoxLayout*	box;
     QVBoxLayout*	leftBox;
     QVBoxLayout*	rightBox;
     QHBoxLayout*	topBox;
-
+    QHBoxLayout*	fpsbox;
     QHBoxLayout*	reticlebox;
     QButtonGroup*	reticleButtons;
     QRadioButton*	circleButton;
@@ -62,9 +66,13 @@ class GeneralSettings : public QWidget
     QButtonGroup*	tempButtons;
     QRadioButton*	degCButton;
     QRadioButton*	degFButton;
+    QLabel*		fpsLabel;
+    QLabel*		fpsCountLabel;
+    QSlider*		fpsSlider;
     QPushButton*	recentreButton;
     QPushButton*	derotateButton;
 
   public slots:
-    // void		updateFPSLabel ( int );
+    void		updateFPSLabel ( int );
+    void		showRestartWarning ( void );
 };

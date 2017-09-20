@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * outputTIFF.cc -- TIFF output class
+ * outputPNG.cc -- PNG output class
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2016 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -27,22 +27,19 @@
 #include <oa_common.h>
 
 extern "C" {
-#include <tiffio.h>
+#include <png.h>
 };
 
 #include "outputHandler.h"
-#include "outputTIFF.h"
+#include "outputPNG.h"
 #include "configuration.h"
 #include "state.h"
 
 
-OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
+OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt,
     QString fileTemplate ) : OutputHandler ( x, y, n, d, fileTemplate )
 {
-  uint16_t byteOrderTest = 0x1234;
-  uint8_t* firstByte;
-
-  firstByte = ( uint8_t* ) &byteOrderTest;
+  int pixelSize;
 
   writesDiscreteFiles = 1;
   frameCount = 0;
@@ -55,6 +52,7 @@ OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
   swapRedBlue = 0;
   colour = 0;
   writeBuffer = 0;
+  rowPointers = 0;
 
   switch ( fmt ) {
 
@@ -70,16 +68,11 @@ OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
 
     case OA_PIX_FMT_GREY16LE:
       pixelDepth = 16;
-      if ( *firstByte == 0x12 ) {
-        reverseByteOrder = 1;
-      }
+      reverseByteOrder = 1;
       break;
 
     case OA_PIX_FMT_GREY16BE:
       pixelDepth = 16;
-      if ( *firstByte == 0x34 ) {
-        reverseByteOrder = 1;
-      }
       break;
 
     case OA_PIX_FMT_BGR48BE:
@@ -87,9 +80,6 @@ OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
     case OA_PIX_FMT_RGB48BE:
       colour = 1;
       pixelDepth = 16;
-      if ( *firstByte == 0x34 ) {
-        reverseByteOrder = 1;
-      }
       break;
 
     case OA_PIX_FMT_BGR48LE:
@@ -97,9 +87,7 @@ OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
     case OA_PIX_FMT_RGB48LE:
       colour = 1;
       pixelDepth = 16;
-      if ( *firstByte == 0x12 ) {
-        reverseByteOrder = 1;
-      }
+      reverseByteOrder = 1;
       break;
 
     default:
@@ -107,24 +95,26 @@ OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
       break;
   }
 
+  pixelSize = pixelDepth / 8 * ( colour ? 3 : 1 );
   if ( validFileType ) {
-    frameSize = xSize * ySize * pixelDepth / 8 * ( colour ? 3 : 1 );
+    frameSize = xSize * ySize * pixelSize;
+    rowLength = xSize * pixelSize;
   }
 }
 
 
-OutputTIFF::~OutputTIFF()
+OutputPNG::~OutputPNG()
 {
-  // Probably nothing to do here for TIFF files
+  // Probably nothing to do here for PNG files
 }
 
 
 int
-OutputTIFF::outputExists ( void )
+OutputPNG::outputExists ( void )
 {
   if ( fullSaveFilePath == "" ) {
     filenameRoot = getFilename();
-    fullSaveFilePath = filenameRoot + ".tiff";
+    fullSaveFilePath = filenameRoot + ".png";
   }
 
   // FIX ME -- what if this returns an error?
@@ -133,11 +123,11 @@ OutputTIFF::outputExists ( void )
 
 
 int
-OutputTIFF::outputWritable ( void )
+OutputPNG::outputWritable ( void )
 {
   if ( fullSaveFilePath == "" ) {
     filenameRoot = getFilename();
-    fullSaveFilePath = filenameRoot + ".tiff";
+    fullSaveFilePath = filenameRoot + ".png";
   }
 
   QString testPath = fullSaveFilePath;
@@ -155,11 +145,19 @@ OutputTIFF::outputWritable ( void )
 
 
 int
-OutputTIFF::openOutput ( void )
+OutputPNG::openOutput ( void )
 {
   if ( validFileType ) {
-    if (!( writeBuffer = ( unsigned char* ) malloc ( frameSize ))) {;
+    if (!( writeBuffer = ( unsigned char* ) malloc ( frameSize ))) {
       qWarning() << "write buffer allocation failed";
+      return -1;
+    }
+
+    if (!( rowPointers = ( png_bytep* ) calloc ( ySize,
+        sizeof ( png_bytep )))) {
+      free ( writeBuffer );
+      writeBuffer = 0;
+      qWarning() << "row pointers allocation failed";
       return -1;
     }
   }
@@ -168,40 +166,56 @@ OutputTIFF::openOutput ( void )
 
 
 int
-OutputTIFF::addFrame ( void* frame, const char* timestampStr, int64_t expTime )
+OutputPNG::addFrame ( void* frame, const char* timestampStr,
+    int64_t expTime )
 {
-  int            ret, i;
-  TIFF*          handle;
+  int            i;
+  FILE*          handle;
   void*          buffer = frame;
   unsigned char* s;
   unsigned char* t;
+  unsigned int   pngTransforms;
 
   filenameRoot = getNewFilename();
-  fullSaveFilePath = filenameRoot + ".tiff";
+  fullSaveFilePath = filenameRoot + ".png";
 
-  if (!( handle = TIFFOpen ( fullSaveFilePath.toStdString().c_str(), "w" ))) {
+  if (!( handle = fopen ( fullSaveFilePath.toStdString().c_str(), "wb" ))) {
     qWarning() << "open of " << fullSaveFilePath << " failed";
     // Need this or we'll never stop
     frameCount++;
     return -1;
   }
 
-  TIFFSetField ( handle, TIFFTAG_IMAGEWIDTH, xSize );
-  TIFFSetField ( handle, TIFFTAG_IMAGELENGTH, ySize );
-  TIFFSetField ( handle, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG );
-  TIFFSetField ( handle, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT );
-  TIFFSetField ( handle, TIFFTAG_ROWSPERSTRIP, ySize );
-
-  if ( colour ) {
-    TIFFSetField ( handle, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB );
-    TIFFSetField ( handle, TIFFTAG_SAMPLESPERPIXEL, 3 );
-  } else {
-    TIFFSetField ( handle, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK );
-    TIFFSetField ( handle, TIFFTAG_SAMPLESPERPIXEL, 1 );
+  pngPtr = png_create_write_struct ( PNG_LIBPNG_VER_STRING, 0, 0, 0 );
+  if ( !pngPtr ) {
+    qWarning() << "create of write struct for " << fullSaveFilePath <<
+        " failed";
+    // Need this or we'll never stop
+    frameCount++;
+    return -1;
   }
-  TIFFSetField ( handle, TIFFTAG_BITSPERSAMPLE, pixelDepth );
 
-  // swap byte orders if we need to
+  infoPtr = png_create_info_struct ( pngPtr );
+  if ( !infoPtr ) {
+    png_destroy_write_struct ( &pngPtr, 0 );
+    qWarning() << "create of write struct for " << fullSaveFilePath <<
+        " failed";
+    // Need this or we'll never stop
+    frameCount++;
+    return -1;
+  }
+
+  png_init_io ( pngPtr, handle );
+
+  png_set_IHDR ( pngPtr, infoPtr, xSize, ySize, pixelDepth, colour ?
+      PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE,
+      PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT );
+
+  pngTransforms = PNG_TRANSFORM_IDENTITY;
+  if ( pixelDepth > 8 && reverseByteOrder ) {
+    pngTransforms |= PNG_TRANSFORM_SWAP_ENDIAN;
+  }
+
   // swap R and B if we need to
   // I've done this in for separate loops to avoid tests inside the loops
 
@@ -209,35 +223,16 @@ OutputTIFF::addFrame ( void* frame, const char* timestampStr, int64_t expTime )
   t = writeBuffer;
 
   if ( 16 == pixelDepth ) {
-    if ( reverseByteOrder ) {
-      if ( swapRedBlue ) {
-        for ( i = 0; i < frameSize; i += 6, s += 6 ) {
-          *t++ = *( s + 5 );
-          *t++ = *( s + 4 );
-          *t++ = *( s + 3 );
-          *t++ = *( s + 2 );
-          *t++ = *( s + 1 );
-          *t++ = *s;
-        }
-      } else {
-        for ( i = 0; i < frameSize; i += 2, s += 2 ) {
-          *t++ = *( s + 1 );
-          *t++ = *s;
-        }
+    if ( swapRedBlue ) {
+      for ( i = 0; i < frameSize; i += 6, s += 6 ) {
+        *t++ = *( s + 4 );
+        *t++ = *( s + 5 );
+        *t++ = *( s + 2 );
+        *t++ = *( s + 3 );
+        *t++ = *s;
+        *t++ = *( s + 1 );
       }
       buffer = writeBuffer;
-    } else {
-      if ( swapRedBlue ) {
-        for ( i = 0; i < frameSize; i += 6, s += 6 ) {
-          *t++ = *( s + 4 );
-          *t++ = *( s + 5 );
-          *t++ = *( s + 2 );
-          *t++ = *( s + 3 );
-          *t++ = *s;
-          *t++ = *( s + 1 );
-        }
-        buffer = writeBuffer;
-      }
     }
   }
   if ( 8 == pixelDepth ) {
@@ -251,17 +246,33 @@ OutputTIFF::addFrame ( void* frame, const char* timestampStr, int64_t expTime )
     }
   }
 
-  ret = TIFFWriteEncodedStrip ( handle, 0, buffer, frameSize );
-  TIFFClose ( handle );
+  t = ( unsigned char* ) buffer;
+  for ( i = 0; i < ySize; i++ ) {
+    rowPointers[i] = t;
+    t += rowLength;
+  }
+
+  // zlib barfs if compression is enabled
+  png_set_compression_level ( pngPtr, 0 );
+  png_set_rows ( pngPtr, infoPtr, rowPointers );
+  png_write_png ( pngPtr, infoPtr, pngTransforms, 0 );
+  png_destroy_write_struct ( &pngPtr, &infoPtr );
+
+  fclose ( handle );
   frameCount++;
   state.captureIndex++;
-  return ret;
+  return OA_ERR_NONE;
 }
 
 void
-OutputTIFF::closeOutput ( void )
+OutputPNG::closeOutput ( void )
 {
   if ( writeBuffer ) {
     ( void ) free ( writeBuffer );
   }
+  if ( rowPointers ) {
+    ( void ) free ( rowPointers );
+  }
+  writeBuffer = 0;
+  rowPointers = 0;
 }

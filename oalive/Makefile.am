@@ -1,7 +1,7 @@
 #
 # Makefile.am -- oalive Makefile template
 #
-# Copyright 2015,2017 James Fidell (james@openastroproject.org)
+# Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -22,48 +22,35 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-AM_CPPFLAGS = -I$(top_srcdir)/include \
-  -I$(top_srcdir)/ext/ffmpeg \
-  $(LIBUVC_CFLAGS) $(LIBHIDAPI_CFLAGS) $(LIBUSB_CFLAGS) $(APP_PATH_CFLAGS) \
-  $(LIBWINDIB_CFLAGS) $(LIBFTDI_CFLAGS) \
-  -D__STDC_CONSTANT_MACROS
+#AM_CPPFLAGS = -I$(top_srcdir)/include $(FFMPEG_CFLAGS) $(APP_PATH_CFLAGS) \
+#  $(DEFAULT_PATH_CFLAGS) $(LIBWINDIB_CFLAGS) -D__STDC_CONSTANT_MACROS \
+#  $(LIBUVC_CFLAGS) $(LIBHIDAPI_CFLAGS) $(LIBUSB_CFLAGS) $(LIBDC1394_CFLAGS) \
+#  $(LIBFTDI_CFLAGS)
 
-MOC_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/ext/ffmpeg \
-  $(MOC_CFLAGS) $(APP_PATH_CFLAGS) -D__STDC_CONSTANT_MACROS
+SUBDIRS = icons desktop # translations
+
+AM_CPPFLAGS = -I$(top_srcdir)/include $(APP_PATH_CFLAGS) \
+  $(DEFAULT_PATH_CFLAGS) -D__STDC_CONSTANT_MACROS -DOALIVE \
+  -DTRANSLATE_DIR=\"${datadir}/$(bin_PROGRAMS)/\"
+
+MOC_CPPFLAGS = -I$(top_srcdir)/include $(MOC_CFLAGS) $(APP_PATH_CFLAGS) \
+  $(DEFAULT_PATH_CFLAGS) -D__STDC_CONSTANT_MACROS -DOALIVE \
+  -DTRANSLATE_DIR=\"${datadir}/$(bin_PROGRAMS)/\"
 
 bin_PROGRAMS = oalive
 BUILT_SOURCES = 
-oalive_SOURCES = oalive.cc mainWindow.cc viewWidget.cc focusOverlay.cc \
-  controlsWidget.cc cameraControls.cc stackingControls.cc \
-  saveControls.cc \
-  settingsWidget.cc captureSettings.cc demosaicSettings.cc \
-  filterSettings.cc profileSettings.cc generalSettings.cc \
-  advancedSettings.cc \
-  camera.cc filterWheel.cc targets.cc \
-  outputHandler.cc outputTIFF.cc outputFITS.cc \
-  moc_mainWindow.cc moc_viewWidget.cc moc_focusOverlay.cc \
-  moc_controlsWidget.cc moc_cameraControls.cc moc_stackingControls.cc \
-  moc_saveControls.cc \
-  moc_settingsWidget.cc moc_captureSettings.cc moc_demosaicSettings.cc \
-  moc_filterSettings.cc moc_profileSettings.cc moc_generalSettings.cc \
-  moc_advancedSettings.cc \
-  qrc_oalive.cc
-
-#autorunSettings.cc camera.cc cameraSettings.cc \
-#  cameraWidget.cc captureSettings.cc captureWidget.cc controlWidget.cc \
-#  demosaicSettings.cc filterSettings.cc filterWheel.cc generalSettings.cc \
-#  histogramSettings.cc histogramWidget.cc imageWidget.cc mainWindow.cc \
-#  oalive.cc outputAVI.cc $(OUTPUT_FITS) outputHandler.cc outputSER.cc \
-#  outputTIFF.cc previewWidget.cc profileSettings.cc settingsWidget.cc \
-#  targets.cc zoomWidget.cc advancedSettings.cc outputFFMPEG.cc \
-#  outputMOV.cc outputDIB.cc focusOverlay.cc \
-#  moc_autorunSettings.cc moc_camera.cc moc_cameraSettings.cc \
-#  moc_cameraWidget.cc moc_captureSettings.cc moc_captureWidget.cc \
-#  moc_controlWidget.cc moc_filterSettings.cc \
-#  moc_generalSettings.cc moc_imageWidget.cc moc_mainWindow.cc \
-#  moc_previewWidget.cc moc_profileSettings.cc moc_settingsWidget.cc \
-#  moc_zoomWidget.cc moc_advancedSettings.cc moc_focusOverlay.cc \
-#  qrc_oalive.cc
+oalive_SOURCES = advancedSettings.cc camera.cc controlsWidget.cc \
+  captureSettings.cc demosaicSettings.cc filterSettings.cc filterWheel.cc \
+  fitsSettings.cc focusOverlay.cc generalSettings.cc oalive.cc outputFITS.cc \
+  outputHandler.cc outputPNG.cc outputTIFF.cc profileSettings.cc \
+  settingsWidget.cc targets.cc mainWindow.cc viewWidget.cc cameraControls.cc \
+  stackingControls.cc saveControls.cc \
+  moc_advancedSettings.cc moc_camera.cc moc_controlsWidget.cc \
+  moc_captureSettings.cc moc_demosaicSettings.cc moc_filterSettings.cc \
+  moc_filterWheel.cc moc_fitsSettings.cc moc_focusOverlay.cc \
+  moc_generalSettings.cc moc_profileSettings.cc moc_settingsWidget.cc \
+  moc_mainWindow.cc moc_viewWidget.cc moc_cameraControls.cc \
+  moc_stackingControls.cc moc_saveControls.cc
 
 oalive_LDADD = \
   ../liboacam/liboacam.la \
@@ -71,6 +58,7 @@ oalive_LDADD = \
   ../liboademosaic/liboademosaic.la \
   ../liboavideo/liboavideo.la \
   ../liboafilterwheel/liboafilterwheel.la \
+  ../liboaPTR/liboaPTR.la \
   ../liboautil/liboautil.la \
   $(LIBUVC_LIBS) \
   $(LIBHIDAPI_LIBS) \
@@ -99,3 +87,6 @@ ui-%.h: %.ui
 
 qrc_%.cc: %.qrc
 	@RCC@ -o $@ $<
+
+mostlyclean-local:
+	-rm -rf moc_*.cc qrc_*.cc
