@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -x
+set -x -e
 autoreconf -fvi
 
 for extdir in ext/libdc1394 ext/libhidapi ext/libusb
