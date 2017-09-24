@@ -13,5 +13,13 @@
     <file>qt-icons/RGGB.png</file>
     <file>qt-icons/folder-new-7.png</file>
     <file>qt-icons/folder-open-4.png</file>
+    <file>qt-icons/capture.png</file>
+    <file>qt-icons/configure-3.png</file>
+    <file>qt-icons/fits.png</file>
+    <file>qt-icons/jupiter.png</file>
+    <file>qt-icons/list-add-4.png</file>
+    <file>qt-icons/list-remove-4.png</file>
+    <file>qt-icons/sun.png</file>
+    <file>qt-icons/timer.png</file>
   </qresource>
 </RCC>
