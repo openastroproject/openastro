@@ -129,14 +129,13 @@ oaPTRInit ( oaPTRDevice* device )
   tio.c_iflag = IGNBRK | IGNPAR | CS8;
   tio.c_oflag |= CS8;
   tio.c_oflag &= ~( ONLRET | ONOCR );
-  tio.c_lflag &= ~ICANON;
+  tio.c_lflag &= ~( ICANON | ECHO );
   tio.c_cc[VMIN] = 1;
   tio.c_cc[VTIME] = 4;
   tio.c_cflag &= ~PARENB; // no parity
   tio.c_cflag &= ~CSTOPB; // 1 stop bit
   cfsetispeed ( &tio, B38400 );
   cfsetospeed ( &tio, B38400 );
-  tcflush ( ptrDesc, TCIFLUSH );
 
   if ( tcsetattr ( ptrDesc, TCSANOW, &tio )) {
     int errnoCopy = errno;

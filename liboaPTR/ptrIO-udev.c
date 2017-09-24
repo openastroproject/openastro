@@ -2,7 +2,7 @@
  *
  * ptrIO-udev.c -- PTR IO routines (libudev)
  *
- * Copyright 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2016, 2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -53,20 +53,22 @@ int
 _ptrRead ( int fd, char* buffer, int maxlen )
 {
   char *p = buffer;
-  int done = 0, len = 1, err;
+  int done = 0, len = 0, err;
 
   do {
     if (( err = read ( fd, p, 1 )) != 1 ) {
       return err;
     }
-    if ( *p != 0x0d ) {
-      if ( *p++ == 0x0a ) {
-        done = 1;
-      }
-      len++;
+    if ( *p++ == 0x0a ) {
+      done = 1;
     }
+    len++;
   } while ( !done && len < maxlen );
-  *p = 0;
 
-  return len - 1;
+  if ( len > 1 && *(p-1) == 0x0a ) {
+    len -= 1;
+    p -= 1;
+  }
+  *p = 0;
+  return len;
 }

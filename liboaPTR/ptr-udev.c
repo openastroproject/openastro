@@ -163,7 +163,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
           tio.c_iflag = IGNBRK | IGNPAR | CS8;
           tio.c_oflag |= CS8;
           tio.c_oflag &= ~( ONLRET | ONOCR );
-          tio.c_lflag &= ~ICANON;
+          tio.c_lflag &= ~( ICANON | ECHO );
           tio.c_cc[VMIN] = 1;
           tio.c_cc[VTIME] = 4;
           tio.c_cflag &= ~PARENB; // no parity
@@ -186,15 +186,17 @@ oaPTREnumerate ( PTR_LIST* deviceList )
                   __FUNCTION__, deviceNode );
               close ( ptrDesc );
               continue;
+              // we need to wait at least 5ms here for the PTR to respond
+              usleep ( 100000 );
             }
-            // we need to wait at least 5ms here for the PTR to respond
-            usleep ( 50000 );
 
             // now flush the input buffer to get rid of the echoed "^C" and
             // the PTR prompt
 
             tcflush ( ptrDesc, TCIFLUSH );
           }
+
+          usleep ( 100000 );
 
           if ( _ptrWrite ( ptrDesc, "sysreset\r", 9 )) {
             fprintf ( stderr, "%s: failed to write sysreset to %s\n",
@@ -218,6 +220,8 @@ oaPTREnumerate ( PTR_LIST* deviceList )
           //
           // Internal clock synchronized: 20160531T212127.000
           // PTR-0.1 >
+
+          usleep ( 100000 );
 
           result = 0;
           for ( i = 0; i < 7 && !result; i++ ) {
@@ -267,6 +271,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
             }
           }
 
+          tcflush ( ptrDesc, TCIFLUSH );
           close ( ptrDesc );
 
           if ( result < 0 ) {

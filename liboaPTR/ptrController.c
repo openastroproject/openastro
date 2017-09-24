@@ -312,6 +312,9 @@ _processReset ( PRIVATE_INFO* deviceInfo )
     pthread_mutex_unlock ( &deviceInfo->commandQueueMutex );
   }
 
+  tcflush ( ptrDesc, TCIFLUSH );
+  usleep ( 100000 );
+
   // send ctrl-C
   if ( _ptrWrite ( ptrDesc, "\003", 1 )) {
     fprintf ( stderr, "%s: failed to write ctrl-C to %s\n",
@@ -320,12 +323,14 @@ _processReset ( PRIVATE_INFO* deviceInfo )
   }
   usleep ( 100000 );
 
+#if 0
   numRead = read ( ptrDesc, buffer, sizeof ( buffer ) - 1 );
   if ( numRead <= 0 ) {
     fprintf ( stderr, "%s: failed to read name from %s\n",
         __FUNCTION__, deviceInfo->devicePath );
     return -OA_ERR_SYSTEM_ERROR;
   }
+#endif
 
   if ( _ptrWrite ( ptrDesc, "sysreset\r", 9 )) {
     fprintf ( stderr, "%s: failed to write sysreset to %s\n",
@@ -362,6 +367,9 @@ _processReset ( PRIVATE_INFO* deviceInfo )
     return -OA_ERR_SYSTEM_ERROR;
   }
 
+  tcflush ( ptrDesc, TCIFLUSH );
+  usleep ( 100000 );
+
   return OA_ERR_NONE;
 }
 
@@ -386,6 +394,7 @@ _processPTRStart ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   }
 
   tcflush ( deviceInfo->fd, TCIFLUSH );
+  usleep ( 100000 );
 
   deviceInfo->timestampsAvailable = 0;
   deviceInfo->timestampExpected = 1;
@@ -412,7 +421,8 @@ _processPTRStart ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
         __FUNCTION__, commandStr, deviceInfo->devicePath );
     return -OA_ERR_SYSTEM_ERROR;
   }
-  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, commandLen + 1 )) !=
+
+  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, commandLen + 2 )) !=
       ( commandLen )) {
     fprintf ( stderr, "%s: failed to read back command:\n%s\n"
         "  from %s, commandLen = %d, read len = %d\n",
@@ -449,6 +459,8 @@ _processPTRStop ( PRIVATE_INFO* deviceInfo )
 
   // only do this if running?
   {
+    tcflush ( ptrDesc, TCIFLUSH );
+    usleep ( 100000 );
     // send ctrl-C
     if ( _ptrWrite ( ptrDesc, "\003", 1 )) {
       fprintf ( stderr, "%s: failed to write ctrl-C to %s\n",
@@ -474,6 +486,8 @@ _processPTRStop ( PRIVATE_INFO* deviceInfo )
     } while ( !queueEmpty );
   }
 
+  tcflush ( ptrDesc, TCIFLUSH );
+  usleep ( 100000 );
   return OA_ERR_NONE;
 }
 
@@ -483,6 +497,9 @@ _doSync ( PRIVATE_INFO* deviceInfo )
 {
   char		buffer[ 128 ];
   int		numRead;
+
+  tcflush ( deviceInfo->fd, TCIFLUSH );
+  usleep ( 100000 );
 
   if ( _ptrWrite ( deviceInfo->fd, "sync\r", 5 )) {
     fprintf ( stderr, "%s: failed to write sync command to %s\n",
@@ -509,6 +526,9 @@ _doSync ( PRIVATE_INFO* deviceInfo )
         __FUNCTION__, deviceInfo->devicePath, buffer );
     return -OA_ERR_SYSTEM_ERROR;
   }
+
+  tcflush ( deviceInfo->fd, TCIFLUSH );
+  usleep ( 100000 );
 
   return OA_ERR_NONE;
 }
@@ -728,6 +748,7 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   }
 
   tcflush ( deviceInfo->fd, TCIFLUSH );
+  // usleep ( 100000 );
 
   ( void ) strcpy ( commandStr, "geo\r" );
   commandLen = strlen ( commandStr );
@@ -736,8 +757,13 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
         __FUNCTION__, commandStr, deviceInfo->devicePath );
     return -OA_ERR_SYSTEM_ERROR;
   }
-  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, commandLen + 1 )) !=
+  usleep ( 200000 );
+
+  /*
+  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, commandLen + 2 )) !=
       ( commandLen )) {
+  */
+  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, commandLen + 2 )) < 1 ) {
     fprintf ( stderr, "%s: failed to read back command:\n%s\n"
         "  from %s, commandLen = %d, read len = %d\n",
         __FUNCTION__, commandStr, deviceInfo->devicePath, commandLen,
@@ -751,14 +777,11 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 
   // We expect to get a string back of the form:
   // G:+ddmm.mmmm,-dddmm.mmmm,aaa.a
-  // where aaa does not have a fixed length.  We should therefore be able to
-  // read at least 27 bytes and then pick off the rest to the end of the line
+  // where aaa does not have a fixed length.
 
-  usleep ( 100000 );
   memset ( buffer, 0, 128 );
-  // 28 here to allow for null termination
-  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, 28 )) != 27 ) {
-    fprintf ( stderr, "%s, failed to read initial response to 'geo' command\n",
+  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, 40 )) < 28 ) {
+    fprintf ( stderr, "%s, failed to read response to 'geo' command\n",
         __FUNCTION__ );
     if ( readBytes > 0 ) {
       buffer[ readBytes ] = 0;
@@ -767,19 +790,6 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
     }
     return -OA_ERR_SYSTEM_ERROR;
   }
-
-  p = buffer + 26;
-  do {
-    p++;
-    if (( readBytes = _ptrRead ( deviceInfo->fd, p, 1 )) < 0 ) {
-      fprintf ( stderr, "%s, failed to read end of response to 'geo' command\n",
-          __FUNCTION__ );
-      *p = 0;
-      fprintf ( stderr, "  string read = '%s'\n", buffer );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-  } while ( readBytes );
-  *p = 0;
 
   if ( *buffer != 'G' || *( buffer + 1 ) != ':' ) {
     fprintf ( stderr, "%s, geo string '%s' has invalid format\n",
@@ -803,5 +813,9 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   r[0] = deviceInfo->latitude;
   r[1] = deviceInfo->longitude;
   r[2] = deviceInfo->altitude;
+
+  tcflush ( deviceInfo->fd, TCIFLUSH );
+  usleep ( 100000 );
+
   return -OA_ERR_NONE;
 }
