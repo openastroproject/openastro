@@ -86,6 +86,8 @@ ImageWidget::ImageWidget ( QWidget* parent ) : QGroupBox ( parent )
     config.imageSizeY = 0;
   }
   ySize->setText ( yStr );
+  SET_PROFILE_CONFIG( imageSizeX, config.imageSizeX );
+  SET_PROFILE_CONFIG( imageSizeY, config.imageSizeY );
 
   roiButton = new QPushButton (
       QIcon ( ":/qt-icons/roi.png" ), "", this );
@@ -200,6 +202,8 @@ ImageWidget::configure ( void )
   }
   maxX = xRes[ lastKey ];
   maxY = yRes[ lastKey ];
+  SET_PROFILE_CONFIG( imageSizeX, config.imageSizeX );
+  SET_PROFILE_CONFIG( imageSizeY, config.imageSizeY );
 
   // There's a gotcha here for cameras that only support a single
   // resolution, as the index won't actually change, and the slot
@@ -287,10 +291,8 @@ ImageWidget::doResolutionChange ( int roiChanged )
   if ( state.previewWidget ) {
     state.previewWidget->updatePreviewSize();
   }
-  if ( config.profileOption >= 0 ) {
-    config.profiles[ config.profileOption ].imageSizeX = config.imageSizeX;
-    config.profiles[ config.profileOption ].imageSizeY = config.imageSizeY;
-  }
+  SET_PROFILE_CONFIG( imageSizeX, config.imageSizeX );
+  SET_PROFILE_CONFIG( imageSizeY, config.imageSizeY );
 }
 
 

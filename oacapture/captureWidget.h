@@ -141,6 +141,7 @@ class CaptureWidget : public QGroupBox
     void		filterTypeChanged ( int );
     void		profileTypeChanged ( int );
     void		updateSettingsFromProfile ( void );
+    void		updateFilterSettingsFromProfile ( void );
     void		changeFramesLimitText ( void );
     void		changeSecondsLimitText ( void );
     void		changeFramesLimitCount ( int );

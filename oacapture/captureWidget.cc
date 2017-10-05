@@ -350,6 +350,7 @@ CaptureWidget::showLimitInputBox ( int state )
       countFramesMenu->hide();
     }
   }
+  SET_PROFILE_CONFIG( limitEnabled, config.limitEnabled );
 }
 
 
@@ -358,6 +359,7 @@ CaptureWidget::fileTypeChanged ( int index )
 {
   QVariant v = typeMenu->itemData ( index );
   config.fileTypeOption = v.toInt();
+  SET_PROFILE_CONFIG( fileTypeOption, config.fileTypeOption );
   if ( CAPTURE_TIFF == config.fileTypeOption ||
       CAPTURE_PNG == config.fileTypeOption ||
       CAPTURE_FITS == config.fileTypeOption ) {
@@ -377,6 +379,7 @@ void
 CaptureWidget::limitTypeChanged ( int index )
 {
   config.limitType = index;
+  SET_PROFILE_CONFIG( limitType, config.limitType );
   if ( index ) {
     countSecondsMenu->hide();
     countFramesMenu->show();
@@ -932,6 +935,7 @@ CaptureWidget::changeFramesLimitText ( void )
   QString countStr = framesInputBox->text();
   if ( countStr != "" ) {
     config.framesLimitValue = countStr.toInt();
+    SET_PROFILE_CONFIG( framesLimitValue, config.framesLimitValue );
   }
 }
 
@@ -942,6 +946,7 @@ CaptureWidget::changeSecondsLimitText ( void )
   QString countStr = secondsInputBox->text();
   if ( countStr != "" ) {
     config.secondsLimitValue = countStr.toInt();
+    SET_PROFILE_CONFIG( secondsLimitValue, config.secondsLimitValue );
   }
 }
 
@@ -1062,6 +1067,7 @@ void
 CaptureWidget::updateFileNameTemplate ( void )
 {
   config.fileNameTemplate = fileName->text();
+  SET_PROFILE_CONFIG( fileNameTemplate, config.fileNameTemplate );
 }
 
 
@@ -1082,7 +1088,7 @@ CaptureWidget::filterTypeChanged ( int index )
   if ( state.filterWheel->isInitialised()) {
     state.filterWheel->selectFilter ( index + 1 );
   }
-  updateSettingsFromProfile();
+  updateFilterSettingsFromProfile();
 }
 
 
@@ -1245,11 +1251,31 @@ CaptureWidget::updateSettingsFromProfile ( void )
 
 
 void
+CaptureWidget::updateFilterSettingsFromProfile ( void )
+{
+  for ( int i = 1; i < OA_CAM_CTRL_LAST_P1; i++ ) {
+    for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_P1; j++ ) {
+      config.controlValues[j][i] =
+        config.profiles[ config.profileOption ].filterProfiles[
+        config.filterOption ].controls[j][i];
+    }
+  }
+
+  state.controlWidget->updateFromConfig();
+  updateFromConfig();
+}
+
+
+void
 CaptureWidget::updateFromConfig ( void )
 {
+  disconnect ( filterMenu, SIGNAL( currentIndexChanged ( int )), this,
+      SLOT( filterTypeChanged ( int )));
   if ( config.numFilters > config.filterOption ) {
     filterMenu->setCurrentIndex ( config.filterOption );
   }
+  connect ( filterMenu, SIGNAL( currentIndexChanged ( int )), this,
+      SLOT( filterTypeChanged ( int )));
   fileName->setText ( config.fileNameTemplate );
   if ( typeMenu->count() >= config.fileTypeOption ) {
     typeMenu->setCurrentIndex ( config.fileTypeOption - 1 );

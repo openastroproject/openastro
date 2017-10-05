@@ -890,6 +890,8 @@ ControlWidget::updateFrameRates ( void )
     framerateSlider->setSingleStep ( 1 );
     config.frameRateNumerator = frameRateNumerator[ showItem ];
     config.frameRateDenominator = frameRateDenominator[ showItem ];
+    SET_PROFILE_CONFIG( frameRateNumerator, config.frameRateNumerator );
+    SET_PROFILE_CONFIG( frameRateDenominator, config.frameRateDenominator );
     ignoreFrameRateChanges = 0;
 
     // Handle only having one frame rate
@@ -1029,7 +1031,6 @@ ControlWidget::frameRateChanged ( void )
   if ( ignoreFrameRateChanges ) {
     return;
   }
-
   int index = framerateSlider->sliderPosition();
   if ( framerateSlider->isSliderDown()) {
     return;
@@ -1053,6 +1054,8 @@ ControlWidget::_doFrameRateChange ( int index, int updateUI )
 
   config.frameRateNumerator = frameRateNumerator[ index ];
   config.frameRateDenominator = frameRateDenominator[ index ];
+  SET_PROFILE_CONFIG( frameRateNumerator, config.frameRateNumerator );
+  SET_PROFILE_CONFIG( frameRateDenominator, config.frameRateDenominator );
   theoreticalFPSNumerator = config.frameRateNumerator;
   theoreticalFPSDenominator = config.frameRateDenominator;
   theoreticalFPS = config.frameRateDenominator /
@@ -1061,6 +1064,8 @@ ControlWidget::_doFrameRateChange ( int index, int updateUI )
   if ( updateUI && state.settingsWidget ) {
     state.settingsWidget->updateFrameRate ( index );
   }
+
+  // FIX ME -- this last bit of the function could be tidier
 
   if ( !state.camera->isInitialised()) {
     return;
@@ -1210,8 +1215,8 @@ ControlWidget::updateFromConfig ( void )
       }
     }
 
+#ifdef BUGGY_CODE
     if ( state.camera->hasFrameRateSupport()) {
-
       updateFrameRates();
 
       const FRAMERATES* rates = state.camera->frameRates ( config.imageSizeX,
@@ -1224,6 +1229,7 @@ ControlWidget::updateFromConfig ( void )
         }
       }
     }
+#endif /* BUGGY_CODE */
   }
 
   for ( int c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {

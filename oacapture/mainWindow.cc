@@ -1465,6 +1465,8 @@ MainWindow::connectCamera ( int deviceIndex )
   doDisconnectCam();
   config.sixteenBit = 0;
   config.rawMode = 0;
+  SET_PROFILE_CONFIG( sixteenBit, 0 );
+  SET_PROFILE_CONFIG( rawMode, 0 );
 
   for ( attempt = 0, ret = 1; ret == 1 && attempt < 2; attempt++ ) {
     if (( ret = state.camera->initialise ( cameraDevs[ deviceIndex ] ))) {

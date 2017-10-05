@@ -160,6 +160,9 @@ CameraWidget::setBinning ( int newState )
       state.binModeX = state.binModeY = 2;
       state.binningValid = 1;
     }
+    SET_PROFILE_CONFIG( binning2x2, config.binning2x2 );
+    SET_PROFILE_CONFIG( imageSizeX, config.imageSizeX );
+    SET_PROFILE_CONFIG( imageSizeY, config.imageSizeY );
     state.imageWidget->configure();
   }
 }
@@ -184,6 +187,7 @@ CameraWidget::set16Bit ( int newState )
       state.camera->setBitDepth ( 16 );
       config.sixteenBit = 1;
     }
+    SET_PROFILE_CONFIG( sixteenBit, config.sixteenBit );
     format = state.camera->videoFramePixelFormat ( 0 );
     state.previewWidget->setVideoFramePixelFormat ( format );
     state.captureWidget->enableTIFFCapture (( !OA_ISBAYER( format ) ||
@@ -211,6 +215,7 @@ CameraWidget::setRawMode ( int newState )
     } else {
       config.rawMode = 1;
     }
+    SET_PROFILE_CONFIG( rawMode, config.rawMode );
     state.camera->setRawMode ( config.rawMode );
     format = state.camera->videoFramePixelFormat ( 0 );
     state.previewWidget->setVideoFramePixelFormat ( format );
@@ -273,4 +278,5 @@ void
 CameraWidget::setColouriseMode ( int state )
 {
   config.colourise = state;
+  SET_PROFILE_CONFIG( colourise, config.colourise );
 }

@@ -216,3 +216,5 @@ extern CONFIG		config;
 #define	SET_PROFILE_CONTROL(c,v) if ( config.profileOption >= 0 ) config.profiles[ config.profileOption ].filterProfiles[ config.filterOption ].controls[OA_CAM_CTRL_MODIFIER(c)][OA_CAM_CTRL_MODE_BASE(c)] = v
 
 #define	SET_PROFILE_INTERVAL(v) if ( config.profileOption >= 0 ) config.profiles[ config.profileOption ].filterProfiles[ config.filterOption ].intervalMenuOption = v
+
+#define SET_PROFILE_CONFIG(n,v) if ( config.profileOption >= 0 ) config.profiles[config.profileOption].n = v
