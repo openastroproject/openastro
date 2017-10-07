@@ -1074,10 +1074,16 @@ CaptureWidget::updateFileNameTemplate ( void )
 QString
 CaptureWidget::getCurrentFilterName ( void )
 {
-  if ( config.numFilters > 0 && config.filterOption < config.numFilters ) {
-    return ( config.filters[ config.filterOption ].filterName );
+  int f = -1;
+
+  if ( state.filterWheel && state.filterWheel->isInitialised()) {
+    f = config.filterSlots[ config.filterOption ];
+  } else {
+    if ( config.numFilters > 0 && config.filterOption < config.numFilters ) {
+      f = config.filterOption;
+    }
   }
-  return "";
+  return ( f >= 0 ) ? config.filters[ f ].filterName : "";
 }
 
 
@@ -1468,9 +1474,9 @@ CaptureWidget::writeSettings ( OutputHandler* out )
       settings << std::endl;
     }
     if ( config.numFilters > 0 && config.filterOption < config.numFilters ) {
+      QString n = getCurrentFilterName();
       settings <<  tr ( "Filter: " ).toStdString().c_str() <<
-          config.filters[ config.filterOption ].filterName.toStdString() <<
-          std::endl;
+          n.toStdString() << std::endl;
     }
 
     time_t t = state.firstFrameTime / 1000;
