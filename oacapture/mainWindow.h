@@ -244,7 +244,7 @@ class MainWindow : public QMainWindow
     void		advancedClosed ( void );
     void		doColouriseSettings ( void );
     void		setCapturedFrames ( unsigned int );
-    void		setActualFrameRate ( unsigned int );
+    void		setActualFrameRate ( double );
     void		setTemperature ( void );
     void		setDroppedFrames ( void );
     void		setProgress ( unsigned int );

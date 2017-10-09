@@ -136,7 +136,7 @@ MainWindow::MainWindow()
   connect ( state.previewWidget, SIGNAL( updateFrameCount ( unsigned int )),
       this, SLOT ( setCapturedFrames ( unsigned int )));
   connect ( state.previewWidget, SIGNAL( updateActualFrameRate (
-      unsigned int )), this, SLOT ( setActualFrameRate ( unsigned int )));
+      double )), this, SLOT ( setActualFrameRate ( double )));
   connect ( state.previewWidget, SIGNAL( updateTemperature ( void )),
       this, SLOT ( setTemperature ( void )));
   connect ( state.previewWidget, SIGNAL( updateDroppedFrames ( void )),
@@ -1212,7 +1212,7 @@ MainWindow::createStatusBar ( void )
   fpsMaxValue = new QLabel ( "0" );
   fpsMaxValue->setFixedWidth ( 30 );
   fpsActualValue = new QLabel ( "0" );
-  fpsActualValue->setFixedWidth ( 30 );
+  fpsActualValue->setFixedWidth ( 50 );
   capturedValue = new QLabel ( "0" );
   capturedValue->setFixedWidth ( 40 );
   droppedValue = new QLabel ( "0" );
@@ -1778,13 +1778,14 @@ MainWindow::setCapturedFrames ( unsigned int newVal )
 
 
 void
-MainWindow::setActualFrameRate ( unsigned int count )
+MainWindow::setActualFrameRate ( double fps )
 {
   QString stringVal;
 
-  stringVal.setNum ( count );
+  // precision, eg 100, 10.0, 1.00, 0.10, 0.01
+  stringVal.setNum ( fps, 'f', std::min(2, std::max(0, 2-(int)log10(fps))) );
   fpsActualValue->setText ( stringVal );
-  state.currentFPS = count;
+  state.currentFPS = fps;
 }
 
 
