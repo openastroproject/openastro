@@ -330,7 +330,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       break;
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
-      val_s32 = valp->int32;
+      val_s32 = valp->boolean;
       return _setUserControl ( cameraInfo->fd, V4L2_CID_AUTOGAIN, val_s32 );
       break;
 
@@ -340,12 +340,12 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       break;
 
     case OA_CAM_CTRL_HFLIP:
-      val_s32 = valp->int32;
+      val_s32 = valp->boolean;
       return _setUserControl ( cameraInfo->fd, V4L2_CID_HFLIP, val_s32 );
       break;
 
     case OA_CAM_CTRL_VFLIP:
-      val_s32 = valp->int32;
+      val_s32 = valp->boolean;
       return _setUserControl ( cameraInfo->fd, V4L2_CID_VFLIP, val_s32 );
       break;
 
@@ -356,7 +356,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       break;
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ):
-      val_s32 = valp->int32;
+      val_s32 = valp->boolean;
       return _setUserControl ( cameraInfo->fd, V4L2_CID_HUE_AUTO, val_s32 );
       break;
 
@@ -393,7 +393,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       break;
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS ):
-      val_s32 = valp->int32;
+      val_s32 = valp->boolean;
       return _setUserControl ( cameraInfo->fd, V4L2_CID_BRIGHTNESS, val_s32 );
       break;
 
