@@ -993,6 +993,8 @@ CaptureWidget::singleAutorunFinished ( void )
       autorunFilter++;
     }
   }
+  // This can be called from the preview window thread, so it can't make
+  // direct calls to change the labels
   if ( !--state.autorunRemaining ) {
     emit changeAutorunLabel ( "     " );
     state.autorunEnabled = 0;

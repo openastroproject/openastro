@@ -65,7 +65,6 @@ class CaptureWidget : public QGroupBox
     void		enableFITSCapture ( int );
     void		enableMOVCapture ( int );
     int			singleAutorunFinished ( void );
-    void		startNewAutorun ( void );
     void		enableAutorun ( void );
     QString		getCurrentFilterName ( void );
     QString		getCurrentProfileName ( void );
@@ -151,4 +150,5 @@ class CaptureWidget : public QGroupBox
     void		changeStopButtonState ( int );
     void		setButtonsForBeginRecording ( int );
     void		setButtonsForRecordingStopped ( void );
+    void		startNewAutorun ( void );
 };

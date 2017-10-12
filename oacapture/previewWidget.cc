@@ -781,6 +781,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
           fmt = OA_ISBAYER16 ( fmt )  ? OA_PIX_FMT_RGB48BE :
               OA_PIX_FMT_RGB24;
         }
+        // This call should be thread-safe
         state->focusOverlay->addScore ( oaFocusScore ( previewBuffer,
             0, config.imageSizeX, config.imageSizeY, fmt ));
       }
@@ -815,6 +816,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
         }
       }
 
+      // This call should be thread-safe
       int zoomFactor = state->zoomWidget->getZoomFactor();
       if ( zoomFactor && zoomFactor != self->currentZoom ) {
         self->recalculateDimensions ( zoomFactor );
@@ -844,6 +846,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
 
   OutputHandler* output = 0;
   if ( !state->pauseEnabled ) {
+    // This should be thread-safe
     output = state->captureWidget->getOutputHandler();
     if ( output && self->recordingInProgress ) {
       if ( self->setNewFirstFrameTime ) {
@@ -868,12 +871,14 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
         }
         writePixelFormat = OA_DEMOSAIC_FMT ( writePixelFormat );
       }
+      // These calls should be thread-safe
       if ( state->timer->isInitialised() && state->timer->isRunning()) {
         timestamp = state->timer->readTimestamp();
       } else {
         timestamp = 0;
       }
       if ( output->addFrame ( writeBuffer, timestamp,
+          // This call should be thread-safe
           state->controlWidget->getCurrentExposure()) < 0 ) {
         self->recordingInProgress = 0;
         self->manualStop = 0;
@@ -896,6 +901,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
     emit self->updateActualFrameRate ( self->framesInLastSecond );
     self->framesInLastSecond = 0;
     if ( state->histogramOn ) {
+      // This call should be thread-safe
       state->histogramWidget->process ( writeBuffer, length,
           writePixelFormat );
       doHistogram = 1;
@@ -964,6 +970,9 @@ if ( output && self->recordingInProgress ) {
         emit self->updateFrameCount ( frames );
         if ( state->autorunEnabled ) {
           // returns non-zero if more runs are left
+          // This call is thread-safe because the called function is aware
+          // that the GUI changes it makes must be done indirectly
+          // FIX ME -- doing it with invokeMethod would be nicer though
           if ( state->captureWidget->singleAutorunFinished()) {
             state->autorunStartNext = now + 1000 * config.autorunDelay;
           }
@@ -977,7 +986,10 @@ if ( output && self->recordingInProgress ) {
   if ( state->autorunEnabled && state->autorunStartNext &&
       now > state->autorunStartNext ) {
     state->autorunStartNext = 0;
-    state->captureWidget->startNewAutorun();
+    // Have to do it this way rather than calling direct to ensure
+    // thread-safety
+    QMetaObject::invokeMethod ( state->captureWidget, "startNewAutorun",
+        Qt::BlockingQueuedConnection );
   }
 
   return 0;

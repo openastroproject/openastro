@@ -1254,11 +1254,23 @@ ControlWidget::updateFromConfig ( void )
     if ( foundDropdownValue == -1 ) {
       qWarning() << "can't find new exposure setting in dropdown";
     } else {
+      disconnect ( expMenu, SIGNAL( currentIndexChanged ( int )), this,
+          SLOT( exposureMenuChanged ( int )));
+      disconnect ( exposureSlider, SIGNAL( sliderMoved ( int )),
+          exposureSpinbox, SLOT( setValue( int )));
+      disconnect ( exposureSlider, SIGNAL( valueChanged ( int )),
+          exposureSpinbox, SLOT( setValue( int )));
       expMenu->setCurrentIndex ( foundDropdownValue );
       exposureSlider->setRange ( minSettings[ foundDropdownValue ],
           maxSettings[ foundDropdownValue ] );
       exposureSpinbox->setRange ( minSettings[ foundDropdownValue ],
           maxSettings[ foundDropdownValue ] );
+      connect ( expMenu, SIGNAL( currentIndexChanged ( int )), this,
+          SLOT( exposureMenuChanged ( int )));
+      connect ( exposureSlider, SIGNAL( sliderMoved ( int )), exposureSpinbox,
+          SLOT( setValue( int )));
+      connect ( exposureSlider, SIGNAL( valueChanged ( int )), exposureSpinbox,
+          SLOT( setValue( int )));
     }
   }
   exposureSpinbox->setValue ( exposureSetting );
