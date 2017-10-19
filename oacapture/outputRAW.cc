@@ -82,10 +82,6 @@ OutputRAW::outputWritable ( void )
 int
 OutputRAW::openOutput ( void )
 {
-  if (!( writeBuffer = ( unsigned char* ) malloc ( frameSize ))) {
-      qWarning() << "write buffer allocation failed";
-      return -1;
-  }
   return 0;
 }
 
@@ -119,8 +115,4 @@ OutputRAW::addFrame ( void* frame, const char* timestampStr,
 void
 OutputRAW::closeOutput ( void )
 {
-  if ( writeBuffer ) {
-    ( void ) free ( writeBuffer );
-  }
-  writeBuffer = 0;
 }

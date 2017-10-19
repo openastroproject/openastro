@@ -42,5 +42,4 @@ class OutputRAW : public OutputHandler
 
   private:
     int frameSize;
-    unsigned char*	writeBuffer;
 };
