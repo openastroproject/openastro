@@ -46,17 +46,18 @@
 #endif
 #include "outputTIFF.h"
 #include "outputPNG.h"
+#include "outputRAW.h"
 #include "targets.h"
 
 #ifdef HAVE_LIBCFITSIO
-#define	MAX_FILE_FORMATS	7
+#define	MAX_FILE_FORMATS	8
 static QString	fileFormats[MAX_FILE_FORMATS] = {
-    "", "AVI", "SER", "TIFF", "PNG", "FITS", "MOV"
+    "", "AVI", "SER", "TIFF", "PNG", "FITS", "MOV", "RAW"
 };
 #else
-#define	MAX_FILE_FORMATS	6
+#define	MAX_FILE_FORMATS	7
 static QString	fileFormats[MAX_FILE_FORMATS] = {
-    "", "AVI", "SER", "TIFF", "PNG", "MOV"
+    "", "AVI", "SER", "TIFF", "PNG", "MOV", "RAW"
 };
 #endif
 
@@ -585,6 +586,12 @@ CaptureWidget::doStartRecording ( int autorunFlag )
           state.controlWidget->getFPSDenominator(), format );
       break;
 #endif
+
+    case CAPTURE_RAW:
+      out = new OutputRAW ( config.imageSizeX, config.imageSizeY,
+          state.controlWidget->getFPSNumerator(),
+          state.controlWidget->getFPSDenominator(), format );
+      break;
   }
 
   if ( out && ( CAPTURE_TIFF == config.fileTypeOption ||
