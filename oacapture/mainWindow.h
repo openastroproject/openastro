@@ -61,6 +61,7 @@ class MainWindow : public QMainWindow
     void		clearTemperature ( void );
     void		resetTemperatureLabel ( void );
     void		clearDroppedFrames ( void );
+    void		setBitDepthValue ( int );
     void		showFPSMaxValue ( int );
     void		clearFPSMaxValue ( void );
     void		setNightStyleSheet ( QWidget* );
@@ -97,6 +98,7 @@ class MainWindow : public QMainWindow
     QProgressBar*	progressBar;
     QLabel*		capturedValue;
     QLabel*		droppedValue;
+    QLabel*		bitDepthValue;
     QLabel*		fpsMaxValue;
     QLabel*		fpsActualValue;
     QStatusBar*		statusLine;
@@ -128,6 +130,7 @@ class MainWindow : public QMainWindow
     oaTimerDevice**	timerDevs;
 
     QLabel*		tempLabel;
+    QLabel*		bitDepthLabel;
     QLabel*		fpsMaxLabel;
     QLabel*		fpsActualLabel;
     QLabel*		capturedLabel;

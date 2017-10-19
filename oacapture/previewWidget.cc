@@ -329,6 +329,7 @@ PreviewWidget::setVideoFramePixelFormat ( int format )
   videoFramePixelFormat = format;
   expectedSize = config.imageSizeX * config.imageSizeY *
       OA_BYTES_PER_PIXEL( videoFramePixelFormat );
+  state.mainWindow->setBitDepthValue( OA_BYTES_PER_PIXEL( format ) * 8 );
 }
 
 
