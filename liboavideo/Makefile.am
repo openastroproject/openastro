@@ -27,7 +27,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/include
 lib_LTLIBRARIES = liboavideo.la
 
 liboavideo_la_SOURCES = \
-  oavideo.c yuv.c fits.c
+  oavideo.c yuv.c grey.c fits.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
@@ -38,3 +38,11 @@ warnings:
 verbose-warnings:
 	$(MAKE) V=1 CFLAGS='$(WARNINGS)' CXXFLAGS='$(WARNINGS)'
 	$(MAKE) V=1 CFLAGS='$(WARNINGS)' CXXFLAGS='$(WARNINGS)' $(check_PROGRAMS)
+
+test:
+	@gcc --std=c99 -g3 -O0 -I./ -I../include test_oaconvert.c yuv.c grey.c oavideo.c -o test_oaconvert
+	@./test_oaconvert 2>&1 | tee test_oaconvert.txt
+	@if grep -q "at line" test_oaconvert.txt; then \
+        echo;\
+		head -n `grep at\ line test_oaconvert.txt | sed -e 's/.* at line \(.*\) .*/\1/g'` test_oaconvert.c | tail -n 1; \
+	fi

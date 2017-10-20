@@ -27,6 +27,8 @@
 #include <oa_common.h>
 #include <openastro/video.h>
 
+#include <stdint.h>
+
 #include "yuv.h"
 #include "yuvlut.h"
 
