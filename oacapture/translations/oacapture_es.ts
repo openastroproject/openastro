@@ -764,24 +764,79 @@ Captura iniciada cancelada</translation>
 <context>
     <name>FITSSettings</name>
     <message>
+        <location filename="../fitsSettings.cc" line="51"/>
         <source>Observer</source>
-        <translation type="obsolete">Observador</translation>
+        <translation>Observador</translation>
     </message>
     <message>
+        <location filename="../fitsSettings.cc" line="52"/>
+        <source>Site latitude</source>
+        <translation>Latitud</translation>
+    </message>
+    <message>
+        <location filename="../fitsSettings.cc" line="53"/>
+        <source>Site longitude</source>
+        <translation>longitud</translation>
+    </message>
+    <message>
+        <location filename="../fitsSettings.cc" line="56"/>
         <source>Telescope</source>
-        <translation type="obsolete">Telescopio</translation>
+        <translation>Telescopio</translation>
     </message>
     <message>
+        <location filename="../fitsSettings.cc" line="57"/>
+        <source>Focal Length (mm)</source>
+        <translation>Distancia Focal (mm)</translation>
+    </message>
+    <message>
+        <location filename="../fitsSettings.cc" line="58"/>
+        <source>Aperture Diameter (mm)</source>
+        <translation>Diámetro Apertura (mm)</translation>
+    </message>
+    <message>
+        <location filename="../fitsSettings.cc" line="59"/>
+        <source>Aperture Area (mm)</source>
+        <translation>Área de Apertura (mm)</translation>
+    </message>
+    <message>
+        <location filename="../fitsSettings.cc" line="61"/>
         <source>Instrument</source>
-        <translation type="obsolete">Instrumentos</translation>
+        <translation>Instrumentos</translation>
     </message>
     <message>
+        <location filename="../fitsSettings.cc" line="62"/>
+        <source>Pixel width (um)</source>
+        <translation>Ancho del Pixel (um)</translation>
+    </message>
+    <message>
+        <location filename="../fitsSettings.cc" line="63"/>
+        <source>Pixel height (um)</source>
+        <translation>Alto del Pixel (um)</translation>
+    </message>
+    <message>
+        <location filename="../fitsSettings.cc" line="64"/>
+        <source>X subframe origin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../fitsSettings.cc" line="65"/>
+        <source>Y subframe origin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../fitsSettings.cc" line="67"/>
         <source>Object</source>
-        <translation type="obsolete">Objeto</translation>
+        <translation>Objeto</translation>
     </message>
     <message>
+        <location filename="../fitsSettings.cc" line="68"/>
+        <source>Filter</source>
+        <translation>Filtro</translation>
+    </message>
+    <message>
+        <location filename="../fitsSettings.cc" line="54"/>
         <source>Comments</source>
-        <translation type="obsolete">Comentarios</translation>
+        <translation>Comentarios</translation>
     </message>
 </context>
 <context>
@@ -1479,62 +1534,79 @@ Colocar los controles en una ventana separada anula las selecciones para hacer l
 <context>
     <name>TimerSettings</name>
     <message>
+        <location filename="../timerSettings.cc" line="44"/>
         <source>Enable Timer</source>
-        <translation type="obsolete">Habilitar Temporizador</translation>
+        <translation>Habilitar Temporizador</translation>
     </message>
     <message>
+        <location filename="../timerSettings.cc" line="47"/>
         <source>Timer mode</source>
-        <translation type="obsolete">Modo del Temporizador</translation>
+        <translation>Modo del Temporizador</translation>
     </message>
     <message>
+        <location filename="../timerSettings.cc" line="49"/>
         <source>Strobe</source>
-        <translation type="obsolete">Estroboscópico</translation>
+        <translation>Estroboscópico</translation>
     </message>
     <message>
+        <location filename="../timerSettings.cc" line="50"/>
         <source>Trigger</source>
-        <translation type="obsolete">Disparador</translation>
+        <translation>Disparador</translation>
     </message>
     <message>
+        <location filename="../timerSettings.cc" line="62"/>
         <source>Reset Timer</source>
-        <translation type="obsolete">Reiniciar Temporizador</translation>
+        <translation>Reiniciar Temporizador</translation>
     </message>
     <message>
+        <location filename="../timerSettings.cc" line="65"/>
         <source>Resync Timer</source>
-        <translation type="obsolete">Resincronizar Temporizador</translation>
+        <translation>Resincronizar Temporizador</translation>
     </message>
     <message>
+        <location filename="../timerSettings.cc" line="69"/>
         <source>Trigger interval (ms)</source>
-        <translation type="obsolete">Intervalo de activación (ms)</translation>
+        <translation>Intervalo de activación (ms)</translation>
     </message>
     <message>
+        <location filename="../timerSettings.cc" line="78"/>
         <source>Enable User-specified frame drain delay</source>
-        <translation type="obsolete">Habilitar retardo de fotogramas especificado por el usuario</translation>
+        <translation>Habilitar retardo de fotogramas especificado por el usuario</translation>
     </message>
     <message>
+        <location filename="../timerSettings.cc" line="82"/>
         <source>Image Drain delay (ms)</source>
-        <translation type="obsolete">Retardo </translation>
+        <translation>Retardo </translation>
     </message>
     <message>
+        <location filename="../timerSettings.cc" line="91"/>
+        <source>Read GPS for every capture run</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../timerSettings.cc" line="196"/>
         <source>
 
 When using timer mode the image capture type should be FITS and a frame-based capture limit should be set.</source>
-        <translation type="obsolete">
+        <translation>
 
 Cuando se utiliza el modo temporizador, el tipo de captura de imagen debe ser FITS y se debe establecer un límite de captura basado en fotogramas.</translation>
     </message>
     <message>
+        <location filename="../timerSettings.cc" line="204"/>
         <source>
 
 The timer is in trigger mode but the camera is not.  These two settings should be the same.</source>
-        <translation type="obsolete">
+        <translation>
 
 El temporizador está en modo disparador pero la cámara no. Estos dos ajustes deben ser los mismos.</translation>
     </message>
     <message>
+        <location filename="../timerSettings.cc" line="210"/>
         <source>
 
 The timer is in strobe mode but the camera is not.  These two settings should be the same.</source>
-        <translation type="obsolete">El temporizador está en modo estroboscópico pero la cámara no. Estos dos ajustes deben ser los mismos.</translation>
+        <translation>El temporizador está en modo estroboscópico pero la cámara no. Estos dos ajustes deben ser los mismos.</translation>
     </message>
 </context>
 <context>
