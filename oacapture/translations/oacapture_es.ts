@@ -74,39 +74,46 @@
     <message>
         <location filename="../camera.cc" line="414"/>
         <source>Unexpected error loading firmware.</source>
-        <translation>Error inesperado al cargar el firmware</translation>
+        <translation>Error inesperado al cargar el firmware.</translation>
     </message>
 </context>
 <context>
     <name>CameraSettings</name>
     <message>
-        <location filename="../cameraSettings.cc" line="235"/>
+        <location filename="../cameraSettings.cc" line="237"/>
         <source>Reset to defaults</source>
         <translation>Restablecer los valores predeterminados</translation>
     </message>
     <message>
-        <location filename="../cameraSettings.cc" line="252"/>
+        <location filename="../cameraSettings.cc" line="254"/>
         <source>Framerate (fps)</source>
         <translation>Framerate (fps)</translation>
     </message>
     <message>
-        <location filename="../cameraSettings.cc" line="279"/>
-        <location filename="../cameraSettings.cc" line="280"/>
+        <location filename="../cameraSettings.cc" line="281"/>
+        <location filename="../cameraSettings.cc" line="282"/>
         <source>Auto</source>
         <translation>Automático</translation>
     </message>
     <message>
-        <location filename="../cameraSettings.cc" line="413"/>
-        <source>Unhandled controls</source>
-        <translation type="unfinished"></translation>
+        <location filename="../cameraSettings.cc" line="283"/>
+        <location filename="../cameraSettings.cc" line="284"/>
+        <source>On/Off</source>
+        <translation>Encender/Apagar</translation>
     </message>
     <message>
-        <location filename="../cameraSettings.cc" line="570"/>
+        <location filename="../cameraSettings.cc" line="434"/>
+        <source>Unhandled controls</source>
+        <translatorcomment>Revisar contexto</translatorcomment>
+        <translation>Controles sin definir</translation>
+    </message>
+    <message>
+        <location filename="../cameraSettings.cc" line="603"/>
         <source>Restore Settings</source>
         <translation>Restaurar configuracion</translation>
     </message>
     <message>
-        <location filename="../cameraSettings.cc" line="571"/>
+        <location filename="../cameraSettings.cc" line="604"/>
         <source>Depending on how this function is implemented in the camera it is possible that the control settings may now be set to incorrect values</source>
         <translation>Dependiendo de cómo se implemente esta función en la cámara, es posible que los ajustes de control se puedan establecer en valores incorrectos</translation>
     </message>
@@ -182,47 +189,67 @@
 <context>
     <name>CaptureSettings</name>
     <message>
-        <location filename="../captureSettings.cc" line="44"/>
+        <location filename="../captureSettings.cc" line="46"/>
         <source>Reset capture counter</source>
         <translation>Reiniciar contador de captura</translation>
     </message>
     <message>
-        <location filename="../captureSettings.cc" line="46"/>
+        <location filename="../captureSettings.cc" line="48"/>
         <source>Use Windows-compatible format for AVI files (8-bit mono/raw colour)</source>
         <translation>Utilizar el formato compatible con Windows para archivos AVI (8-bit mono /color RAW)</translation>
     </message>
     <message>
-        <location filename="../captureSettings.cc" line="51"/>
+        <location filename="../captureSettings.cc" line="53"/>
         <source>Use UtVideo lossless compression for AVI files where possible</source>
         <translation>Utilizar compresión sin pérdidas de UtVideo para archivos AVI, siempre que sea posible</translation>
     </message>
     <message>
-        <location filename="../captureSettings.cc" line="55"/>
+        <location filename="../captureSettings.cc" line="57"/>
+        <source>Filename capture index size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../captureSettings.cc" line="64"/>
         <source>FITS data</source>
         <translation>Datos FITS</translation>
     </message>
     <message>
-        <location filename="../captureSettings.cc" line="56"/>
+        <location filename="../captureSettings.cc" line="67"/>
         <source>Observer</source>
         <translation>Observador</translation>
     </message>
     <message>
-        <location filename="../captureSettings.cc" line="57"/>
+        <location filename="../captureSettings.cc" line="68"/>
         <source>Telescope</source>
         <translation>Telescopio</translation>
     </message>
     <message>
-        <location filename="../captureSettings.cc" line="58"/>
+        <location filename="../captureSettings.cc" line="69"/>
+        <source>Focal Length (mm)</source>
+        <translation>Distancia Focal (mm)</translation>
+    </message>
+    <message>
+        <location filename="../captureSettings.cc" line="70"/>
+        <source>Aperture Diameter (mm)</source>
+        <translation>Diámetro Apertura (mm)</translation>
+    </message>
+    <message>
+        <location filename="../captureSettings.cc" line="71"/>
+        <source>Aperture Area (mm)</source>
+        <translation>Área de Apertura (mm)</translation>
+    </message>
+    <message>
+        <location filename="../captureSettings.cc" line="72"/>
         <source>Instrument</source>
         <translation>Instrumentos</translation>
     </message>
     <message>
-        <location filename="../captureSettings.cc" line="59"/>
+        <location filename="../captureSettings.cc" line="73"/>
         <source>Object</source>
         <translation>Objeto</translation>
     </message>
     <message>
-        <location filename="../captureSettings.cc" line="60"/>
+        <location filename="../captureSettings.cc" line="74"/>
         <source>Comments</source>
         <translation>Comentarios</translation>
     </message>
@@ -315,17 +342,17 @@
         <translation>Capturar</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="367"/>
+        <location filename="../captureWidget.cc" line="369"/>
         <source>The </source>
         <translation>El </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="368"/>
+        <location filename="../captureWidget.cc" line="370"/>
         <source> file format is selected, but the filename template does not contain either the &quot;%INDEX&quot; or &quot;%I&quot; pattern.  Output files may therefore overwrite each other</source>
         <translation>formato de archivo está seleccionado, pero la plantilla de nombre de archivo no contiene el patrón &quot;%INDEX&quot; o &quot;%I&quot;. Por lo tanto, los archivos de salida pueden sobrescribirse</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="425"/>
+        <location filename="../captureWidget.cc" line="428"/>
         <source>
 
 When using timer mode the image capture type should be FITS and a frame-based capture limit should be set.
@@ -338,278 +365,283 @@ Cuando se utiliza el modo temporizador, el tipo de captura de imagen debe ser FI
 Captura iniciada cancelada</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="465"/>
+        <location filename="../captureWidget.cc" line="466"/>
+        <source>The number of frames in the currently configured capture run is likely to exceed the size of the index in the filename.  Continue?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../captureWidget.cc" line="507"/>
         <source>Change to next filter: </source>
         <translation>Cambiar al siguiente filtro: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="546"/>
-        <location filename="../captureWidget.cc" line="556"/>
-        <location filename="../captureWidget.cc" line="565"/>
+        <location filename="../captureWidget.cc" line="595"/>
+        <location filename="../captureWidget.cc" line="605"/>
+        <location filename="../captureWidget.cc" line="614"/>
         <source>Start Recording</source>
         <translation>Iniciar Grabación</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="547"/>
+        <location filename="../captureWidget.cc" line="596"/>
         <source>Output is not writable</source>
         <translation>La salida no se puede escribir</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="557"/>
+        <location filename="../captureWidget.cc" line="606"/>
         <source>Output file exists.  OK to overwrite?</source>
         <translation>Ya existe el archivo de salida. ¿Sobrescribir?</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="566"/>
+        <location filename="../captureWidget.cc" line="615"/>
         <source>Output file exists and is not writable</source>
         <translation>El archivo de salida existe y no puede escribirse</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="577"/>
+        <location filename="../captureWidget.cc" line="626"/>
         <source>Unable to create file for output</source>
         <translation>No se puede crear el archivo de salida</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="621"/>
+        <location filename="../captureWidget.cc" line="670"/>
         <source>Pausing camera</source>
         <translation>Pausar cámara</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="637"/>
+        <location filename="../captureWidget.cc" line="686"/>
         <source>Starting timer</source>
         <translation>Iniciando temporizador</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="639"/>
+        <location filename="../captureWidget.cc" line="688"/>
         <source>Restarting camera</source>
         <translation>Reinicio de la cámara</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="645"/>
+        <location filename="../captureWidget.cc" line="694"/>
         <source>Recording started</source>
         <translation>Grabación iniciada</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="690"/>
+        <location filename="../captureWidget.cc" line="741"/>
         <source>Recording stopped</source>
         <translation>Grabación detenida</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="761"/>
+        <location filename="../captureWidget.cc" line="812"/>
         <source>TIFF output format has been disabled</source>
         <translation>El formato de salida TIFF se ha deshabilitado</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="783"/>
+        <location filename="../captureWidget.cc" line="834"/>
         <source>PNG output format has been disabled</source>
         <translation>El formato de salida PNG se ha deshabilitado</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="806"/>
+        <location filename="../captureWidget.cc" line="857"/>
         <source>FITS output format has been disabled</source>
         <translation>El formato de salida FITS se ha deshabilitado</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="831"/>
+        <location filename="../captureWidget.cc" line="882"/>
         <source>MOV output format has been disabled</source>
         <translation>El formato de salida MOV se ha deshabilitado</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="856"/>
+        <location filename="../captureWidget.cc" line="907"/>
         <source>Select capture directory</source>
         <translation>Seleccionar directorio de captura</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="866"/>
+        <location filename="../captureWidget.cc" line="917"/>
         <source>The selected directory is not writable/accessible</source>
         <translation>El directorio seleccionado no se puede escribir / acceder</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="868"/>
+        <location filename="../captureWidget.cc" line="919"/>
         <source>Select another?</source>
         <translation>¿Seleccionar otro?</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="970"/>
+        <location filename="../captureWidget.cc" line="1025"/>
         <source>Autorun Enabled</source>
         <translation>Autoejecución Habilitada</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="979"/>
-        <location filename="../captureWidget.cc" line="985"/>
-        <location filename="../captureWidget.cc" line="989"/>
+        <location filename="../captureWidget.cc" line="1034"/>
+        <location filename="../captureWidget.cc" line="1040"/>
+        <location filename="../captureWidget.cc" line="1044"/>
         <source>Delete File</source>
         <translation>Eliminar Archivo</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="980"/>
+        <location filename="../captureWidget.cc" line="1035"/>
         <source>No last file to delete</source>
         <translation>No hay último archivo que eliminar</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="986"/>
+        <location filename="../captureWidget.cc" line="1041"/>
         <source>Delete file </source>
         <translation>Eliminar archivo</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="990"/>
+        <location filename="../captureWidget.cc" line="1045"/>
         <source>Delete failed for</source>
         <translation>Error al eliminar</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1008"/>
+        <location filename="../captureWidget.cc" line="1063"/>
         <source>Capture directory</source>
         <translation>Directorio de captura</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1231"/>
+        <location filename="../captureWidget.cc" line="1323"/>
         <source>Camera: </source>
         <translation>Cámara: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1233"/>
+        <location filename="../captureWidget.cc" line="1325"/>
         <source>Time: </source>
         <translation>Hora: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1238"/>
+        <location filename="../captureWidget.cc" line="1330"/>
         <source>Timezone: </source>
         <translation>Zona Horaria: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1240"/>
+        <location filename="../captureWidget.cc" line="1332"/>
         <source>Profile: </source>
         <translation>Perfil: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1242"/>
+        <location filename="../captureWidget.cc" line="1334"/>
         <source>Target: </source>
         <translation>Objetivo: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1262"/>
+        <location filename="../captureWidget.cc" line="1354"/>
         <source>Temp (C): </source>
         <translation>Temp (C): </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1264"/>
+        <location filename="../captureWidget.cc" line="1356"/>
         <source>Temp (F): </source>
         <translation>Temp (F): </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1270"/>
+        <location filename="../captureWidget.cc" line="1362"/>
         <source>Auto</source>
         <translation>Automático</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1324"/>
-        <location filename="../captureWidget.cc" line="1353"/>
-        <location filename="../captureWidget.cc" line="1360"/>
+        <location filename="../captureWidget.cc" line="1418"/>
+        <location filename="../captureWidget.cc" line="1447"/>
+        <location filename="../captureWidget.cc" line="1454"/>
         <source>not recorded</source>
         <translation>no grabado</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1369"/>
+        <location filename="../captureWidget.cc" line="1463"/>
         <source>Image size: </source>
         <translation>Tamaño de imagen: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1373"/>
+        <location filename="../captureWidget.cc" line="1467"/>
         <source>Frame rate/sec: </source>
         <translation>Tasa fotogramas/seg: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1375"/>
+        <location filename="../captureWidget.cc" line="1469"/>
         <source>n/a (capture paused)</source>
         <translation>n/d (captura pausada)</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1385"/>
+        <location filename="../captureWidget.cc" line="1480"/>
         <source>Filter: </source>
         <translation>Filtro: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1397"/>
+        <location filename="../captureWidget.cc" line="1491"/>
         <source>First frame: </source>
         <translation>Primer fotograma: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1408"/>
+        <location filename="../captureWidget.cc" line="1502"/>
         <source>Middle: </source>
         <translation>Media: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1412"/>
+        <location filename="../captureWidget.cc" line="1506"/>
         <source> (estimate -- recording paused)</source>
         <translation>(estimado -- grabación pausada)</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1422"/>
+        <location filename="../captureWidget.cc" line="1516"/>
         <source>Last frame: </source>
         <translation>Último fotograma:</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1429"/>
+        <location filename="../captureWidget.cc" line="1523"/>
         <source>Duration (seconds): </source>
         <translation>Duración (segundos):</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1432"/>
+        <location filename="../captureWidget.cc" line="1526"/>
         <source>Frames captured: </source>
         <translation>Fotogramas capturados: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1436"/>
+        <location filename="../captureWidget.cc" line="1530"/>
         <source>Frames per second (average): </source>
         <translation>Fotogramas por segundo (promedio): </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1439"/>
+        <location filename="../captureWidget.cc" line="1533"/>
         <source> (recording paused)</source>
         <translation>(grabación pausada)</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1444"/>
+        <location filename="../captureWidget.cc" line="1538"/>
         <source>Filename: </source>
         <translation>Nombre de archivo: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1449"/>
+        <location filename="../captureWidget.cc" line="1543"/>
         <source>Recording type: </source>
         <translation>Tipo de grabación: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1456"/>
+        <location filename="../captureWidget.cc" line="1550"/>
         <source>Limit </source>
         <translation>Límite</translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1458"/>
+        <location filename="../captureWidget.cc" line="1552"/>
         <source>(frames) : </source>
         <translation>(fotogramas) : </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1461"/>
+        <location filename="../captureWidget.cc" line="1555"/>
         <source>(seconds) : </source>
         <translation>(segundos) : </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1467"/>
+        <location filename="../captureWidget.cc" line="1561"/>
         <source>Histogram Min: </source>
         <translation>Histograma Mín: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1469"/>
+        <location filename="../captureWidget.cc" line="1563"/>
         <source>Histogram Max: </source>
         <translation>Histograma Máx: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1474"/>
+        <location filename="../captureWidget.cc" line="1568"/>
         <source>Histogram %: </source>
         <translation>Histograma %: </translation>
     </message>
     <message>
-        <location filename="../captureWidget.cc" line="1482"/>
+        <location filename="../captureWidget.cc" line="1576"/>
         <source>Unable to create settings output file</source>
         <translation>No se puede crear el archivo de salida de configuración</translation>
     </message>
@@ -633,7 +665,7 @@ Captura iniciada cancelada</translation>
     </message>
     <message>
         <location filename="../controlWidget.cc" line="49"/>
-        <location filename="../controlWidget.cc" line="688"/>
+        <location filename="../controlWidget.cc" line="691"/>
         <source>Exp. Range</source>
         <translation>Rango Exposición</translation>
     </message>
@@ -727,6 +759,29 @@ Captura iniciada cancelada</translation>
         <location filename="../demosaicSettings.cc" line="74"/>
         <source>VNG</source>
         <translation>VNG</translation>
+    </message>
+</context>
+<context>
+    <name>FITSSettings</name>
+    <message>
+        <source>Observer</source>
+        <translation type="obsolete">Observador</translation>
+    </message>
+    <message>
+        <source>Telescope</source>
+        <translation type="obsolete">Telescopio</translation>
+    </message>
+    <message>
+        <source>Instrument</source>
+        <translation type="obsolete">Instrumentos</translation>
+    </message>
+    <message>
+        <source>Object</source>
+        <translation type="obsolete">Objeto</translation>
+    </message>
+    <message>
+        <source>Comments</source>
+        <translation type="obsolete">Comentarios</translation>
     </message>
 </context>
 <context>
@@ -868,12 +923,12 @@ Colocar los controles en una ventana separada anula las selecciones para hacer l
         <translation>Establecer marco máximo de imagen</translation>
     </message>
     <message>
-        <location filename="../imageWidget.cc" line="92"/>
+        <location filename="../imageWidget.cc" line="94"/>
         <source>Set new ROI</source>
         <translation>Establecer nueva RDI</translation>
     </message>
     <message>
-        <location filename="../imageWidget.cc" line="104"/>
+        <location filename="../imageWidget.cc" line="106"/>
         <source>Image</source>
         <translation>Imagen</translation>
     </message>
@@ -881,429 +936,442 @@ Colocar los controles en una ventana separada anula las selecciones para hacer l
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../mainWindow.cc" line="1141"/>
-        <location filename="../mainWindow.cc" line="1720"/>
+        <source>None</source>
+        <translation type="obsolete">Ninguno</translation>
+    </message>
+    <message>
+        <source>default</source>
+        <translation type="obsolete">predeterminado</translation>
+    </message>
+    <message>
+        <location filename="../mainWindow.cc" line="1192"/>
+        <location filename="../mainWindow.cc" line="1803"/>
         <source>Temp (C)</source>
         <translation>Temp (C)</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1143"/>
-        <location filename="../mainWindow.cc" line="1722"/>
+        <location filename="../mainWindow.cc" line="1194"/>
+        <location filename="../mainWindow.cc" line="1805"/>
         <source>Temp (F)</source>
         <translation>Temp (F)</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1146"/>
+        <location filename="../mainWindow.cc" line="1197"/>
         <source>FPS (max)</source>
         <translation>FPS (máx)</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1148"/>
+        <location filename="../mainWindow.cc" line="1199"/>
         <source>FPS (actual)</source>
         <translation>FPS (actual)</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1150"/>
+        <location filename="../mainWindow.cc" line="1201"/>
         <source>Captured</source>
         <translation>Capturados</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1152"/>
+        <location filename="../mainWindow.cc" line="1203"/>
         <source>Dropped</source>
         <translation>Eliminados</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1182"/>
+        <location filename="../mainWindow.cc" line="1233"/>
         <source>started</source>
         <translation>iniciado</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1192"/>
+        <location filename="../mainWindow.cc" line="1243"/>
         <source>Re&amp;load Config</source>
         <translation>&amp;Recargar Configuración</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1193"/>
+        <location filename="../mainWindow.cc" line="1244"/>
         <source>Load default configuration</source>
         <translation>Cargar configuración predeterminada</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1196"/>
+        <location filename="../mainWindow.cc" line="1247"/>
         <source>&amp;Save Config</source>
         <translation>&amp;Guardar Configuración</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1198"/>
+        <location filename="../mainWindow.cc" line="1249"/>
         <source>Save default configuration</source>
         <translation>Guardar configuración predeterminada</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1201"/>
+        <location filename="../mainWindow.cc" line="1252"/>
         <source>&amp;Quit</source>
         <translation>&amp;Salir</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1205"/>
+        <location filename="../mainWindow.cc" line="1256"/>
         <source>&amp;File</source>
         <translation>&amp;Archivo</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1213"/>
+        <location filename="../mainWindow.cc" line="1264"/>
         <source>&amp;Camera</source>
-        <translation>&amp;Camara</translation>
+        <translation>&amp;Cámara</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1218"/>
+        <location filename="../mainWindow.cc" line="1269"/>
         <source>&amp;Filter Wheel</source>
         <translation>&amp;Rueda de Filtros</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1223"/>
+        <location filename="../mainWindow.cc" line="1274"/>
         <source>&amp;Timer</source>
         <translation>&amp;Temporizador</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1229"/>
-        <location filename="../mainWindow.cc" line="1352"/>
+        <location filename="../mainWindow.cc" line="1280"/>
+        <location filename="../mainWindow.cc" line="1403"/>
         <source>Histogram</source>
         <translation>Histograma</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1230"/>
+        <location filename="../mainWindow.cc" line="1281"/>
         <source>Open window for image histogram</source>
         <translation>Abrir ventana para el histograma de la imagen</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1235"/>
+        <location filename="../mainWindow.cc" line="1286"/>
         <source>Auto Align</source>
         <translation>Auto Alineación</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1239"/>
+        <location filename="../mainWindow.cc" line="1290"/>
         <source>Align Box</source>
         <translation>Alinear Caja</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1243"/>
+        <location filename="../mainWindow.cc" line="1294"/>
         <source>Auto Guide</source>
         <translation>Auto Guía</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1248"/>
+        <location filename="../mainWindow.cc" line="1299"/>
         <source>Reticle</source>
         <translation>Retícula</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1249"/>
+        <location filename="../mainWindow.cc" line="1300"/>
         <source>Overlay a reticle on the preview image</source>
         <translation>Superponer una retícula en la imagen de vista previa</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1254"/>
+        <location filename="../mainWindow.cc" line="1305"/>
         <source>Cut Out</source>
         <translation>Separar</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1258"/>
+        <location filename="../mainWindow.cc" line="1309"/>
         <source>Focus Aid</source>
         <translation>Ayuda Enfoque</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1262"/>
+        <location filename="../mainWindow.cc" line="1313"/>
         <source>Dark Frame</source>
         <translatorcomment>Posible revisión</translatorcomment>
         <translation>Marco oscuro</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1267"/>
+        <location filename="../mainWindow.cc" line="1318"/>
         <source>Flip X</source>
         <translation>Voltear X</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1268"/>
+        <location filename="../mainWindow.cc" line="1319"/>
         <source>Flip image left&lt;-&gt;right</source>
         <translation>Voltear imagen Izquierda &lt;-&gt; Derecha</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1274"/>
+        <location filename="../mainWindow.cc" line="1325"/>
         <source>Flip Y</source>
         <translation>Voltear Y</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1275"/>
+        <location filename="../mainWindow.cc" line="1326"/>
         <source>Flip image top&lt;-&gt;bottom</source>
         <translation>Voltear imagen Arriba &lt;-&gt; Abajo</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1281"/>
-        <location filename="../mainWindow.cc" line="1337"/>
+        <location filename="../mainWindow.cc" line="1332"/>
+        <location filename="../mainWindow.cc" line="1388"/>
         <source>Demosaic</source>
         <translation>Interpolación Cromática (Demosaic)</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1286"/>
+        <location filename="../mainWindow.cc" line="1337"/>
         <source>&amp;Options</source>
         <translation>&amp;Opciones</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1312"/>
+        <location filename="../mainWindow.cc" line="1363"/>
         <source>General</source>
         <translation>General</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1313"/>
+        <location filename="../mainWindow.cc" line="1364"/>
         <source>General configuration</source>
         <translation>Configuración general</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1317"/>
-        <location filename="../mainWindow.cc" line="2567"/>
+        <location filename="../mainWindow.cc" line="1368"/>
+        <location filename="../mainWindow.cc" line="2650"/>
         <source>Capture</source>
         <translation>Captura</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1321"/>
-        <location filename="../mainWindow.cc" line="2547"/>
+        <location filename="../mainWindow.cc" line="1372"/>
+        <location filename="../mainWindow.cc" line="2630"/>
         <source>Camera</source>
         <translation>Cámara</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1327"/>
+        <location filename="../mainWindow.cc" line="1378"/>
         <source>Profiles</source>
         <translation>Perfiles</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1328"/>
+        <location filename="../mainWindow.cc" line="1379"/>
         <source>Edit saved profiles</source>
         <translation>Editar perfiles guardados</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1332"/>
+        <location filename="../mainWindow.cc" line="1383"/>
         <source>Filters</source>
         <translation>Filtros</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1333"/>
+        <location filename="../mainWindow.cc" line="1384"/>
         <source>Configuration for filters</source>
         <translation>Configuración para filtros</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1338"/>
+        <location filename="../mainWindow.cc" line="1389"/>
         <source>Configuration for demosaicking</source>
         <translation>Configuración para Interpolación Cromática (Demosaicking)</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1342"/>
+        <location filename="../mainWindow.cc" line="1393"/>
         <source>FITS/SER Metadata</source>
         <translation>Metadatos FITS/SER</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1343"/>
+        <location filename="../mainWindow.cc" line="1394"/>
         <source>Configuration for FITS/SER metadata keywords</source>
         <translation>Configuración de palabras clave para metadatos FITS/SER</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1347"/>
+        <location filename="../mainWindow.cc" line="1398"/>
         <source>Autorun</source>
         <translation>Autoejecución</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1348"/>
+        <location filename="../mainWindow.cc" line="1399"/>
         <source>Configuration for repeat captures</source>
         <translation>Configuración para repetir capturas</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1353"/>
+        <location filename="../mainWindow.cc" line="1404"/>
         <source>Configuration for histogram</source>
         <translation>Configuración del histograma</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1358"/>
+        <location filename="../mainWindow.cc" line="1409"/>
         <source>False Colour</source>
         <translation>Falso Color</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1363"/>
+        <location filename="../mainWindow.cc" line="1414"/>
         <source>Timer</source>
         <translation>Temporizador</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1364"/>
+        <location filename="../mainWindow.cc" line="1415"/>
         <source>Configuration for Timer unit</source>
         <translation>Configuración del dispositivo Temporizador</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1367"/>
+        <location filename="../mainWindow.cc" line="1418"/>
         <source>&amp;Settings</source>
         <translation>&amp;Ajustes</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1391"/>
+        <location filename="../mainWindow.cc" line="1442"/>
         <source>&amp;Advanced</source>
         <translation>&amp;Avanzado</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1397"/>
+        <location filename="../mainWindow.cc" line="1448"/>
         <source>About</source>
         <translation>Acerca</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1400"/>
+        <location filename="../mainWindow.cc" line="1451"/>
         <source>&amp;Help</source>
         <translation>A&amp;yuda</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1439"/>
-        <location filename="../mainWindow.cc" line="1443"/>
+        <location filename="../mainWindow.cc" line="1492"/>
+        <location filename="../mainWindow.cc" line="1496"/>
         <source>The firmware has loaded, but a rescan is required and the camera must be selected again.</source>
         <translation>El firmware se ha cargado, pero se requiere una nueva exploración y se debe seleccionar de nuevo la cámara.</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1448"/>
+        <location filename="../mainWindow.cc" line="1501"/>
         <source>Unable to connect camera</source>
         <translation>No se puede conectar la cámara</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1475"/>
-        <location filename="../mainWindow.cc" line="1573"/>
-        <location filename="../mainWindow.cc" line="1649"/>
+        <location filename="../mainWindow.cc" line="1528"/>
+        <location filename="../mainWindow.cc" line="1636"/>
+        <location filename="../mainWindow.cc" line="1727"/>
         <source> connected</source>
         <translation> conectada</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1532"/>
+        <location filename="../mainWindow.cc" line="1587"/>
         <source>Camera disconnected</source>
         <translation>Cámara desconectada</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1564"/>
+        <location filename="../mainWindow.cc" line="1619"/>
         <source>Unable to connect filter wheel</source>
         <translation>No se puede conectar a la rueda de filtros</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1592"/>
+        <location filename="../mainWindow.cc" line="1656"/>
         <source>Filter wheel disconnected</source>
         <translation>Rueda de filtros desconectada</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1602"/>
-        <location filename="../mainWindow.cc" line="1612"/>
+        <location filename="../mainWindow.cc" line="1666"/>
+        <location filename="../mainWindow.cc" line="1676"/>
         <source>Filter wheel reset</source>
         <translation>Resetear rueda de filtros</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1642"/>
+        <location filename="../mainWindow.cc" line="1706"/>
         <source>Unable to connect timer</source>
         <translation>No se puede conectar al temporizador</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1657"/>
+        <location filename="../mainWindow.cc" line="1737"/>
         <source>Timer disconnected</source>
         <translation>Temporizador desconectado</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1667"/>
+        <location filename="../mainWindow.cc" line="1747"/>
         <source>Timer reset</source>
         <translation>Reiniciar Temporizador</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="1976"/>
+        <location filename="../mainWindow.cc" line="2059"/>
         <source>Flipping a raw camera image may require a different colour mask to be used for demosaicking </source>
         <translation>Dar la vuelta a una imagen RAW puede requerir una máscara de color diferente que se utilizará para la interpolación cromática (Demosaicking) </translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2008"/>
+        <location filename="../mainWindow.cc" line="2091"/>
         <source>About </source>
         <translation>Acerca</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2009"/>
+        <location filename="../mainWindow.cc" line="2092"/>
         <source>&lt;h2&gt;</source>
         <translation>&lt;h2&gt;</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2191"/>
-        <location filename="../mainWindow.cc" line="2280"/>
-        <location filename="../mainWindow.cc" line="2364"/>
+        <location filename="../mainWindow.cc" line="2274"/>
+        <location filename="../mainWindow.cc" line="2363"/>
+        <location filename="../mainWindow.cc" line="2447"/>
         <source>Rescan</source>
         <translation>Explorar</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2192"/>
+        <location filename="../mainWindow.cc" line="2275"/>
         <source>Scan for newly connected devices</source>
         <translation>Buscar dispositivos recién conectados</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2194"/>
-        <location filename="../mainWindow.cc" line="2285"/>
-        <location filename="../mainWindow.cc" line="2369"/>
+        <location filename="../mainWindow.cc" line="2277"/>
+        <location filename="../mainWindow.cc" line="2368"/>
+        <location filename="../mainWindow.cc" line="2452"/>
         <source>Disconnect</source>
         <translation>Desconectar</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2266"/>
+        <location filename="../mainWindow.cc" line="2349"/>
         <source>Warm Reset</source>
         <translation>Reinicio Parcial</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2267"/>
+        <location filename="../mainWindow.cc" line="2350"/>
         <source>Send a &apos;warm reset&apos; command to the wheel</source>
         <translation>Envía un comando de &apos;reinicio parcial&apos; a la rueda de filtros</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2273"/>
+        <location filename="../mainWindow.cc" line="2356"/>
         <source>Cold Reset</source>
         <translation>Reinicio Total</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2274"/>
+        <location filename="../mainWindow.cc" line="2357"/>
         <source>Send a &apos;cold reset&apos; command to the wheel</source>
         <translation>Envía un comando de &apos;reinicio total&apos; a la rueda de filtros</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2281"/>
+        <location filename="../mainWindow.cc" line="2364"/>
         <source>Scan for newly connected wheels</source>
         <translation>Busca nuevas ruedas conectadas</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2358"/>
+        <location filename="../mainWindow.cc" line="2441"/>
         <source>Reset</source>
         <translation>Reiniciar</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2359"/>
+        <location filename="../mainWindow.cc" line="2442"/>
         <source>Reset the timer device</source>
         <translation>Reiniciar el dispositivo temporizador</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2365"/>
+        <location filename="../mainWindow.cc" line="2448"/>
         <source>Scan for newly-connected timers</source>
         <translation>Busca nuevos temporizadores conectados</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2553"/>
+        <location filename="../mainWindow.cc" line="2636"/>
         <source>Image/Zoom</source>
         <translation>Imagen/Zoom</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2561"/>
+        <location filename="../mainWindow.cc" line="2644"/>
         <source>Control</source>
         <translation>Control</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2590"/>
+        <location filename="../mainWindow.cc" line="2673"/>
         <source>oaCapture controls</source>
         <translation>controles oaCapture</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2656"/>
+        <location filename="../mainWindow.cc" line="2739"/>
         <source>filter wheels</source>
         <translation>ruedas de filtros</translation>
     </message>
     <message>
-        <location filename="../mainWindow.cc" line="2675"/>
+        <location filename="../mainWindow.cc" line="2758"/>
         <source>timers</source>
         <translation>temporizadores</translation>
+    </message>
+    <message>
+        <location filename="../mainWindow.cc" line="2855"/>
+        <source>Error saving captured frame</source>
+        <translation>Error al guardar el fotograma capturado</translation>
     </message>
 </context>
 <context>
@@ -1411,74 +1479,62 @@ Colocar los controles en una ventana separada anula las selecciones para hacer l
 <context>
     <name>TimerSettings</name>
     <message>
-        <location filename="../timerSettings.cc" line="44"/>
         <source>Enable Timer</source>
-        <translation>Habilitar Temporizador</translation>
+        <translation type="obsolete">Habilitar Temporizador</translation>
     </message>
     <message>
-        <location filename="../timerSettings.cc" line="47"/>
         <source>Timer mode</source>
-        <translation>Modo del Temporizador</translation>
+        <translation type="obsolete">Modo del Temporizador</translation>
     </message>
     <message>
-        <location filename="../timerSettings.cc" line="49"/>
         <source>Strobe</source>
-        <translation>Estroboscópico</translation>
+        <translation type="obsolete">Estroboscópico</translation>
     </message>
     <message>
-        <location filename="../timerSettings.cc" line="50"/>
         <source>Trigger</source>
-        <translation>Disparador</translation>
+        <translation type="obsolete">Disparador</translation>
     </message>
     <message>
-        <location filename="../timerSettings.cc" line="62"/>
         <source>Reset Timer</source>
-        <translation>Reiniciar Temporizador</translation>
+        <translation type="obsolete">Reiniciar Temporizador</translation>
     </message>
     <message>
-        <location filename="../timerSettings.cc" line="65"/>
         <source>Resync Timer</source>
-        <translation>Resincronizar Temporizador</translation>
+        <translation type="obsolete">Resincronizar Temporizador</translation>
     </message>
     <message>
-        <location filename="../timerSettings.cc" line="69"/>
         <source>Trigger interval (ms)</source>
-        <translation>Intervalo de activación (ms)</translation>
+        <translation type="obsolete">Intervalo de activación (ms)</translation>
     </message>
     <message>
-        <location filename="../timerSettings.cc" line="78"/>
         <source>Enable User-specified frame drain delay</source>
-        <translation>Habilitar retardo de fotogramas especificado por el usuario</translation>
+        <translation type="obsolete">Habilitar retardo de fotogramas especificado por el usuario</translation>
     </message>
     <message>
-        <location filename="../timerSettings.cc" line="82"/>
         <source>Image Drain delay (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Retardo </translation>
     </message>
     <message>
-        <location filename="../timerSettings.cc" line="190"/>
         <source>
 
 When using timer mode the image capture type should be FITS and a frame-based capture limit should be set.</source>
-        <translation>
+        <translation type="obsolete">
 
 Cuando se utiliza el modo temporizador, el tipo de captura de imagen debe ser FITS y se debe establecer un límite de captura basado en fotogramas.</translation>
     </message>
     <message>
-        <location filename="../timerSettings.cc" line="198"/>
         <source>
 
 The timer is in trigger mode but the camera is not.  These two settings should be the same.</source>
-        <translation>
+        <translation type="obsolete">
 
 El temporizador está en modo disparador pero la cámara no. Estos dos ajustes deben ser los mismos.</translation>
     </message>
     <message>
-        <location filename="../timerSettings.cc" line="204"/>
         <source>
 
 The timer is in strobe mode but the camera is not.  These two settings should be the same.</source>
-        <translation>El temporizador está en modo estroboscópico pero la cámara no. Estos dos ajustes deben ser los mismos.</translation>
+        <translation type="obsolete">El temporizador está en modo estroboscópico pero la cámara no. Estos dos ajustes deben ser los mismos.</translation>
     </message>
 </context>
 <context>
