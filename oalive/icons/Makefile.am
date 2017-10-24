@@ -25,6 +25,9 @@
 install-icons:
 	mkdir -p $(DESTDIR)${datarootdir}/pixmaps
 	$(INSTALL_DATA) oalive.xpm $(DESTDIR)${datarootdir}/pixmaps
+	mkdir -p $(DESTDIR)${datarootdir}/icons/hicolor/scalable/apps
+	$(INSTALL_DATA) oalive.svg \
+		$(DESTDIR)${datarootdir}/icons/hicolor/scalable/apps
 	for s in 16 24 32 48 256; do \
 		d=$(DESTDIR)${datarootdir}/icons/hicolor/$$s"x"$$s/apps; \
 		$(MKDIR_P) $$d || exit 1; \
