@@ -44,7 +44,9 @@ HEADERS += camera.h \
            histogramSettings.h \
            filterSettings.h \
            profileSettings.h \
-           demosaicSettings.h
+           demosaicSettings.h \
+           timerSettings.h \
+           fitsSettings.h
 
 SOURCES += camera.cc \
            cameraWidget.cc \
@@ -70,6 +72,8 @@ SOURCES += camera.cc \
            histogramSettings.cc \
            filterSettings.cc \
            profileSettings.cc \
-           demosaicSettings.cc
+           demosaicSettings.cc \
+           timerSettings.cc \
+           fitsSettings.cc
 
 TRANSLATIONS += translations/oacapture_es.ts
