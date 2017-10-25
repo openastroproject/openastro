@@ -30,11 +30,11 @@
 #include "grey.h"
 
 void
-oaGreyscale_8to16LE( uint8_t* source, uint8_t* target, int len )
+oaGreyscale_8to16LE( const uint8_t* source, uint8_t* target, int len )
 {
   int i;
   uint8_t* t = target + (len-1)*2;
-  uint8_t* s = source + (len-1);
+  const uint8_t* s = source + (len-1);
 
   for ( i = len; i > 0; i--, s-=1, t-=2 ) {
     *(t+1) = *s; 
@@ -43,12 +43,12 @@ oaGreyscale_8to16LE( uint8_t* source, uint8_t* target, int len )
 }
 
 void
-oaGreyscale_8to16BE( uint8_t* source, uint8_t* target, int len )
+oaGreyscale_8to16BE( const uint8_t* source, uint8_t* target, int len )
 {
   int i;
   uint8_t v;
   uint8_t* t = target + (len-1)*2;
-  uint8_t* s = source + (len-1);
+  const uint8_t* s = source + (len-1);
 
   for ( i = len; i > 0; i--, s-=1, t-=2 ) {
     *t = *s;
@@ -56,8 +56,9 @@ oaGreyscale_8to16BE( uint8_t* source, uint8_t* target, int len )
   }
 }
 
+/* FIXME awaiting OA_PIX_FMT_XXXX10X
 void
-oaGreyscale_10to8( uint8_t* s, uint8_t* t, int len, bool packed )
+oaGreyscale_10to8( const uint8_t* s, uint8_t* t, int len, bool packed )
 {
   int i;
   uint16_t p;
@@ -80,10 +81,10 @@ oaGreyscale_10to8( uint8_t* s, uint8_t* t, int len, bool packed )
 }
 
 void
-oaGreyscale_10to16( uint8_t* source, uint8_t* target, int len, bool packed, bool little_endian )
+oaGreyscale_10to16( const uint8_t* source, uint8_t* target, int len, bool packed, bool little_endian )
 {
   int i;
-  uint8_t* s;
+  const uint8_t* s;
   uint8_t* t;
   uint16_t p1, p2, p3, p4;
 
@@ -144,19 +145,20 @@ oaGreyscale_10to16( uint8_t* source, uint8_t* target, int len, bool packed, bool
 }
 
 void
-oaGreyscale_10to16LE( uint8_t* s, uint8_t* t, int len, bool packed )
+oaGreyscale_10to16LE( const uint8_t* s, uint8_t* t, int len, bool packed )
 {
   oaGreyscale_10to16( s, t, len, packed, true );
 }
 
 void
-oaGreyscale_10to16BE( uint8_t* s, uint8_t* t, int len, bool packed )
+oaGreyscale_10to16BE( const uint8_t* s, uint8_t* t, int len, bool packed )
 {
   oaGreyscale_10to16( s, t, len, packed, false );
 }
+*/
 
 void
-oaGreyscale_16LEto8( uint8_t* s, uint8_t* t, int len )
+oaGreyscale_16LEto8( const uint8_t* s, uint8_t* t, int len )
 {
   int i;
   for ( i = 0; i < len; i+=2, s+=2, t++ ) {
@@ -165,7 +167,7 @@ oaGreyscale_16LEto8( uint8_t* s, uint8_t* t, int len )
 }
 
 void
-oaGreyscale_16BEto8( uint8_t* s, uint8_t* t, int len )
+oaGreyscale_16BEto8( const uint8_t* s, uint8_t* t, int len )
 {
   int i;
   for ( i = 0; i < len; i+=2, s+=2, t++ ) {
@@ -174,7 +176,7 @@ oaGreyscale_16BEto8( uint8_t* s, uint8_t* t, int len )
 }
 
 void
-oaGreyscale_16swap( uint8_t* s, uint8_t* t, int len )
+oaGreyscale_16swap( const uint8_t* s, uint8_t* t, int len )
 {
   int i;
   for ( i = 0; i < len; i+=2, s+=2, t+=2 ) {
@@ -185,7 +187,7 @@ oaGreyscale_16swap( uint8_t* s, uint8_t* t, int len )
 }
 
 void
-oaGreyscale_RGB24to8( uint8_t* s, uint8_t* t, int len, bool swapRB )
+oaGreyscale_RGB24to8( const uint8_t* s, uint8_t* t, int len, bool swapRB )
 {
   int i;
   uint8_t R, G, B;
@@ -196,7 +198,7 @@ oaGreyscale_RGB24to8( uint8_t* s, uint8_t* t, int len, bool swapRB )
 }
 
 void
-oaGreyscale_RGB24to16LE( uint8_t* s, uint8_t* t, int len, bool swapRB )
+oaGreyscale_RGB24to16LE( const uint8_t* s, uint8_t* t, int len, bool swapRB )
 {
   int i;
   uint16_t R, G, B;
@@ -210,7 +212,7 @@ oaGreyscale_RGB24to16LE( uint8_t* s, uint8_t* t, int len, bool swapRB )
 }
 
 void
-oaGreyscale_RGB24to16BE( uint8_t* s, uint8_t* t, int len, bool swapRB )
+oaGreyscale_RGB24to16BE( const uint8_t* s, uint8_t* t, int len, bool swapRB )
 {
   int i;
   uint16_t R, G, B;
@@ -224,7 +226,7 @@ oaGreyscale_RGB24to16BE( uint8_t* s, uint8_t* t, int len, bool swapRB )
 }
 
 void
-oaGreyscale_RGB48LEto8( uint8_t* s, uint8_t* t, int len, bool swapRB )
+oaGreyscale_RGB48LEto8( const uint8_t* s, uint8_t* t, int len, bool swapRB )
 {
   int i;
   uint16_t R, G, B;
@@ -239,7 +241,7 @@ oaGreyscale_RGB48LEto8( uint8_t* s, uint8_t* t, int len, bool swapRB )
 }
 
 void
-oaGreyscale_RGB48LEto16LE( uint8_t* s, uint8_t* t, int len, bool swapRB )
+oaGreyscale_RGB48LEto16LE( const uint8_t* s, uint8_t* t, int len, bool swapRB )
 {
   int i;
   uint16_t R, G, B;
@@ -255,7 +257,7 @@ oaGreyscale_RGB48LEto16LE( uint8_t* s, uint8_t* t, int len, bool swapRB )
 }
 
 void
-oaGreyscale_RGB48LEto16BE( uint8_t* s, uint8_t* t, int len, bool swapRB )
+oaGreyscale_RGB48LEto16BE( const uint8_t* s, uint8_t* t, int len, bool swapRB )
 {
   int i;
   uint16_t R, G, B;
@@ -271,7 +273,7 @@ oaGreyscale_RGB48LEto16BE( uint8_t* s, uint8_t* t, int len, bool swapRB )
 }
 
 void
-oaGreyscale_RGB48BEto8( uint8_t* s, uint8_t* t, int len, bool swapRB )
+oaGreyscale_RGB48BEto8( const uint8_t* s, uint8_t* t, int len, bool swapRB )
 {
   int i;
   uint16_t R, G, B;
@@ -286,7 +288,7 @@ oaGreyscale_RGB48BEto8( uint8_t* s, uint8_t* t, int len, bool swapRB )
 }
 
 void
-oaGreyscale_RGB48BEto16LE( uint8_t* s, uint8_t* t, int len, bool swapRB )
+oaGreyscale_RGB48BEto16LE( const uint8_t* s, uint8_t* t, int len, bool swapRB )
 {
   int i;
   uint16_t R, G, B;
@@ -302,7 +304,7 @@ oaGreyscale_RGB48BEto16LE( uint8_t* s, uint8_t* t, int len, bool swapRB )
 }
 
 void
-oaGreyscale_RGB48BEto16BE( uint8_t* s, uint8_t* t, int len, bool swapRB )
+oaGreyscale_RGB48BEto16BE( const uint8_t* s, uint8_t* t, int len, bool swapRB )
 {
   int i;
   uint16_t R, G, B;

@@ -93,7 +93,7 @@ do {\
 
 
 
-/* TODO
+/* FIXME - no routines and hence no tests exist for the following formats
 #define OA_PIX_FMT_YUV444P 		22
 #define OA_PIX_FMT_YUV422P 		23
 #define OA_PIX_FMT_YUV420P		24
@@ -129,6 +129,8 @@ void test_8()
 
 void test_10()
 {
+/* FIXME awaiting OA_PIX_FMT_XXXX10X
+ 
   int fmt;
   uint8_t FORMATS_10P[]  = { //OA_PIX_FMT_BGGR10P,
                              //OA_PIX_FMT_RGGB10P,
@@ -157,6 +159,7 @@ void test_10()
   }
 
   fprintf(stderr, "\n");
+*/
 }
 
 void test_16 ()

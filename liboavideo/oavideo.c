@@ -34,7 +34,7 @@
 #include "grey.h"
 
 int
-oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
+oaconvert ( const void* source, void* target, int xSize, int ySize, int sourceFormat,
     int targetFormat )
 {
   if ( OA_ISGREYSCALE( targetFormat ) ) {
@@ -76,18 +76,8 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
 
 
 
-//#define OA_PIX_FMT_YUV444P 		22
-//#define OA_PIX_FMT_YUV422P 		23
-//#define OA_PIX_FMT_YUV420P		24
-//#define OA_PIX_FMT_YUV410P		25
-//#define OA_PIX_FMT_YUYV  		27
-//#define OA_PIX_FMT_UYVY  		28
-//#define OA_PIX_FMT_YUV420 		29
-//#define OA_PIX_FMT_YUV411 		30
-//#define OA_PIX_FMT_YUV410 		31
-
 int
-oaconvert_greyscale ( void* source, void* target, int xSize, int ySize, int sourceFormat,
+oaconvert_greyscale ( const void* source, void* target, int xSize, int ySize, int sourceFormat,
     int targetFormat )
 {
   int length;
@@ -126,6 +116,7 @@ oaconvert_greyscale ( void* source, void* target, int xSize, int ySize, int sour
       }
       break;
 
+/* FIXME awaiting OA_PIX_FMTXXXX10X
     //case OA_PIX_FMT_BGGR10P:
     //case OA_PIX_FMT_RGGB10P:
     //case OA_PIX_FMT_GBRG10P:
@@ -133,13 +124,13 @@ oaconvert_greyscale ( void* source, void* target, int xSize, int ySize, int sour
       length = xSize * ySize * 1.25;
       switch ( targetFormat ) {
         case OA_PIX_FMT_GREY8:
-          oaGreyscale_10to8( source, target, length, 1 );
+          oaGreyscale_10to8( source, target, length, true );
           break;
         case OA_PIX_FMT_GREY16LE:
-          oaGreyscale_10to16LE( source, target, length, 1 );
+          oaGreyscale_10to16LE( source, target, length, true );
           break;
         case OA_PIX_FMT_GREY16BE:
-          oaGreyscale_10to16BE( source, target, length, 1 );
+          oaGreyscale_10to16BE( source, target, length, true );
           break;
         default:
           return -1; // FIX ME -- set errno
@@ -153,19 +144,19 @@ oaconvert_greyscale ( void* source, void* target, int xSize, int ySize, int sour
       length = xSize * ySize * 2;
       switch ( targetFormat ) {
         case OA_PIX_FMT_GREY8:
-          oaGreyscale_10to8( source, target, length, 0 );
+          oaGreyscale_10to8( source, target, length, false );
           break;
         case OA_PIX_FMT_GREY16LE:
-          oaGreyscale_10to16LE( source, target, length, 0 );
+          oaGreyscale_10to16LE( source, target, length, false );
           break;
         case OA_PIX_FMT_GREY16BE:
-          oaGreyscale_10to16BE( source, target, length, 0 );
+          oaGreyscale_10to16BE( source, target, length, false );
           break;
         default:
           return -1; // FIX ME -- set errno
       }
       break;
-
+*/
     case OA_PIX_FMT_GREY16LE:
     case OA_PIX_FMT_BGGR16LE:
     case OA_PIX_FMT_RGGB16LE:
@@ -201,7 +192,7 @@ oaconvert_greyscale ( void* source, void* target, int xSize, int ySize, int sour
           oaGreyscale_16swap( source, target, length );
           break;
         case OA_PIX_FMT_GREY16BE:
-          if ( target != source ) memcpy( target, source, xSize * ySize * 2 );
+          if ( target != source ) memcpy( target, source, length );
           break;
         default:
           return -1; // FIX ME -- set errno
@@ -264,9 +255,19 @@ oaconvert_greyscale ( void* source, void* target, int xSize, int ySize, int sour
           return -1; // FIX ME -- set errno
       }
       break;
-      
+
+    //FIXME TODO
+    case OA_PIX_FMT_YUV444P:
+    case OA_PIX_FMT_YUV422P:
+    case OA_PIX_FMT_YUV420P:
+    case OA_PIX_FMT_YUV410P:
+    case OA_PIX_FMT_YUYV:
+    case OA_PIX_FMT_UYVY:
+    case OA_PIX_FMT_YUV420:
+    case OA_PIX_FMT_YUV411:
+    case OA_PIX_FMT_YUV410:
     default:
-      return -1;
+      return -1; // FIX ME -- set errno
   }
   return 0;
 }  

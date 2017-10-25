@@ -30,27 +30,29 @@
 #include <stdint.h>
 typedef enum { false, true } bool;
 
-extern void oaGreyscale_8to16LE( uint8_t* s, uint8_t* t, int len );
-extern void oaGreyscale_8to16BE( uint8_t* s, uint8_t* t, int len );
+extern void oaGreyscale_8to16LE( const uint8_t* s, uint8_t* t, int len );
+extern void oaGreyscale_8to16BE( const uint8_t* s, uint8_t* t, int len );
 
-extern void oaGreyscale_10to8( uint8_t* s, uint8_t* t, int len, bool packed );
-extern void oaGreyscale_10to16LE( uint8_t* s, uint8_t* t, int len, bool packed );
-extern void oaGreyscale_10to16BE( uint8_t* s, uint8_t* t, int len, bool packed );
+/* FIXME awaiting OA_PIX_FMT_XXXX10X
+extern void oaGreyscale_10to8( const uint8_t* s, uint8_t* t, int len, bool packed );
+extern void oaGreyscale_10to16LE( const uint8_t* s, uint8_t* t, int len, bool packed );
+extern void oaGreyscale_10to16BE( const uint8_t* s, uint8_t* t, int len, bool packed );
+*/
 
-extern void oaGreyscale_16LEto8( uint8_t* s, uint8_t* t, int len );
-extern void oaGreyscale_16BEto8( uint8_t* s, uint8_t* t, int len );
-extern void oaGreyscale_16swap( uint8_t* s, uint8_t* t, int len );
+extern void oaGreyscale_16LEto8( const uint8_t* s, uint8_t* t, int len );
+extern void oaGreyscale_16BEto8( const uint8_t* s, uint8_t* t, int len );
+extern void oaGreyscale_16swap( const uint8_t* s, uint8_t* t, int len );
 
-extern void oaGreyscale_RGB24to8( uint8_t* s, uint8_t* t, int len, bool swapRB );
-extern void oaGreyscale_RGB24to16LE( uint8_t* s, uint8_t* t, int len, bool swapRB );
-extern void oaGreyscale_RGB24to16BE( uint8_t* s, uint8_t* t, int len, bool swapRB );
+extern void oaGreyscale_RGB24to8( const uint8_t* s, uint8_t* t, int len, bool swapRB );
+extern void oaGreyscale_RGB24to16LE( const uint8_t* s, uint8_t* t, int len, bool swapRB );
+extern void oaGreyscale_RGB24to16BE( const uint8_t* s, uint8_t* t, int len, bool swapRB );
 
-extern void oaGreyscale_RGB48LEto8( uint8_t* s, uint8_t* t, int len, bool swapRB );
-extern void oaGreyscale_RGB48LEto16LE( uint8_t* s, uint8_t* t, int len, bool swapRB );
-extern void oaGreyscale_RGB48LEto16BE( uint8_t* s, uint8_t* t, int len, bool swapRB );
+extern void oaGreyscale_RGB48LEto8( const uint8_t* s, uint8_t* t, int len, bool swapRB );
+extern void oaGreyscale_RGB48LEto16LE( const uint8_t* s, uint8_t* t, int len, bool swapRB );
+extern void oaGreyscale_RGB48LEto16BE( const uint8_t* s, uint8_t* t, int len, bool swapRB );
 
-extern void oaGreyscale_RGB48BEto8( uint8_t* s, uint8_t* t, int len, bool swapRB );
-extern void oaGreyscale_RGB48BEto16LE( uint8_t* s, uint8_t* t, int len, bool swapRB );
-extern void oaGreyscale_RGB48BEto16BE( uint8_t* s, uint8_t* t, int len, bool swapRB );
+extern void oaGreyscale_RGB48BEto8( const uint8_t* s, uint8_t* t, int len, bool swapRB );
+extern void oaGreyscale_RGB48BEto16LE( const uint8_t* s, uint8_t* t, int len, bool swapRB );
+extern void oaGreyscale_RGB48BEto16BE( const uint8_t* s, uint8_t* t, int len, bool swapRB );
 
 #endif	/* OPENASTRO_VIDEO_GREY_H */
