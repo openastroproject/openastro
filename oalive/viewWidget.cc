@@ -844,6 +844,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
       }
       viewIsDemosaicked = 1;
       viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
+      viewPixelFormat = OA_PIX_FMT_RGB24;
     }
   }
 #endif /* OACAPTURE */
@@ -940,18 +941,20 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
 #else
   if ( state->stackingMethod != OA_STACK_NONE ) {
     self->totalFrames++;
+    const int viewFrameLength = config.imageSizeX * config.imageSizeY *
+        OA_BYTES_PER_PIXEL( viewPixelFormat );
     switch ( state->stackingMethod ) {
       case OA_STACK_SUM:
         if ( -1 == self->currentStackBuffer && OA_STACK_NONE !=
             state->stackingMethod ) {
           self->currentStackBuffer = 0;
           self->stackBufferInUse = self->stackBuffer[0];
-          memcpy ( self->stackBufferInUse, viewBuffer, length );
+          memcpy ( self->stackBufferInUse, viewBuffer, viewFrameLength );
         } else {
           self->currentStackBuffer = self->currentStackBuffer ? 0 : 1;
         }
         oaStackSum8 ( viewBuffer, self->stackBufferInUse,
-            self->stackBuffer[ self->currentStackBuffer ], length );
+            self->stackBuffer[ self->currentStackBuffer ], viewFrameLength );
         viewBuffer = self->stackBufferInUse =
             self->stackBuffer[ self->currentStackBuffer ];
         break;
@@ -961,7 +964,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
             !currentViewBuffer;
         oaStackMean8 ( viewBuffer, self->averageBuffer,
             self->viewImageBuffer[ currentViewBuffer ], self->totalFrames,
-            length );
+            viewFrameLength );
         viewBuffer = self->viewImageBuffer[ currentViewBuffer ];
         break;
     }
