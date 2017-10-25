@@ -240,12 +240,12 @@ MainWindow::~MainWindow()
   delete capturedValue;
   delete fpsActualValue;
   delete fpsMaxValue;
-  delete bitDepthValue;
+  delete pixelFormatValue;
   delete progressBar;
   delete capturedLabel;
   delete fpsActualLabel;
   delete fpsMaxLabel;
-  delete bitDepthLabel;
+  delete pixelFormatLabel;
   if ( state.camera ) {
     delete state.camera;
   }
@@ -1196,8 +1196,8 @@ MainWindow::createStatusBar ( void )
     tempLabel->setText ( tr ( "Temp (F)" ));
   }
   tempLabel->setFixedWidth ( 60 );
-  bitDepthLabel = new QLabel ( tr ( "Bit depth" ));
-  bitDepthLabel->setFixedWidth ( 65 );
+  pixelFormatLabel = new QLabel ( tr ( "Pixel format" ));
+  pixelFormatLabel->setFixedWidth ( 80 );
   fpsMaxLabel = new QLabel ( tr ( "FPS (max)" ));
   fpsMaxLabel->setFixedWidth ( 65 );
   fpsActualLabel = new QLabel ( tr ( "FPS (actual)" ));
@@ -1213,8 +1213,8 @@ MainWindow::createStatusBar ( void )
 
   tempValue = new QLabel ( "" );
   tempValue->setFixedWidth ( 30 );
-  bitDepthValue = new QLabel ( "0" );
-  bitDepthValue->setFixedWidth ( 40 );
+  pixelFormatValue = new QLabel ( "" );
+  pixelFormatValue->setFixedWidth ( 70 );
   fpsMaxValue = new QLabel ( "0" );
   fpsMaxValue->setFixedWidth ( 30 );
   fpsActualValue = new QLabel ( "0" );
@@ -1226,8 +1226,8 @@ MainWindow::createStatusBar ( void )
 
   statusLine->addPermanentWidget ( tempLabel );
   statusLine->addPermanentWidget ( tempValue );
-  statusLine->addPermanentWidget ( bitDepthLabel );
-  statusLine->addPermanentWidget ( bitDepthValue );
+  statusLine->addPermanentWidget ( pixelFormatLabel );
+  statusLine->addPermanentWidget ( pixelFormatValue );
   statusLine->addPermanentWidget ( fpsMaxLabel );
   statusLine->addPermanentWidget ( fpsMaxValue );
   statusLine->addPermanentWidget ( fpsActualLabel );
@@ -1868,9 +1868,9 @@ MainWindow::quit ( void )
 
 
 void
-MainWindow::setBitDepthValue ( int value )
+MainWindow::setPixelFormatValue ( int format )
 {
-  bitDepthValue->setText ( QString::number ( value ));
+  pixelFormatValue->setText ( QString( OA_PIX_FMT_STRING( format )));
 }
 
 
