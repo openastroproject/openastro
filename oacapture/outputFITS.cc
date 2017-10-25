@@ -71,6 +71,10 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt ) :
   switch ( fmt ) {
 
     case OA_PIX_FMT_GREY8:
+    case OA_PIX_FMT_BGGR8:
+    case OA_PIX_FMT_RGGB8:
+    case OA_PIX_FMT_GBRG8:
+    case OA_PIX_FMT_GRBG8:
       bitpix = BYTE_IMG;
       tableType = TBYTE;
       nAxes = 2;
@@ -89,6 +93,10 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt ) :
       break;
 
     case OA_PIX_FMT_GREY16LE:
+    case OA_PIX_FMT_BGGR16LE:
+    case OA_PIX_FMT_RGGB16LE:
+    case OA_PIX_FMT_GBRG16LE:
+    case OA_PIX_FMT_GRBG16LE:
       bitpix = USHORT_IMG;
       nAxes = 2;
       if ( *firstByte == 0x12 ) {
@@ -100,6 +108,10 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt ) :
       break;
 
     case OA_PIX_FMT_GREY16BE:
+    case OA_PIX_FMT_BGGR16BE:
+    case OA_PIX_FMT_RGGB16BE:
+    case OA_PIX_FMT_GBRG16BE:
+    case OA_PIX_FMT_GRBG16BE:
       bitpix = USHORT_IMG;
       nAxes = 2;
       if ( *firstByte == 0x34 ) {
@@ -446,9 +458,38 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   fits_write_key_dbl ( fptr, "EXPTIME", expTime / 1000000.0, -10, "", &status );
 
   if ( OA_ISBAYER ( imageFormat )) {
+    long xoff = 0, yoff = 0;
+    // "Bayer" format is GRBG, so all the other formats are offset in some
+    // manner from that
+    switch ( imageFormat ) {
+      case OA_PIX_FMT_BGGR8:
+      case OA_PIX_FMT_BGGR16LE:
+      case OA_PIX_FMT_BGGR16BE:
+        xoff = 0;
+        yoff = 1;
+        break;
+      case OA_PIX_FMT_RGGB8:
+      case OA_PIX_FMT_RGGB16LE:
+      case OA_PIX_FMT_RGGB16BE:
+        xoff = 1;
+        yoff = 0;
+        break;
+      case OA_PIX_FMT_GBRG8:
+      case OA_PIX_FMT_GBRG16LE:
+      case OA_PIX_FMT_GBRG16BE:
+        xoff = 1;
+        yoff = 1;
+        break;
+      case OA_PIX_FMT_GRBG8:
+      case OA_PIX_FMT_GRBG16LE:
+      case OA_PIX_FMT_GRBG16BE:
+        xoff = 0;
+        yoff = 0;
+        break;
+    }
     fits_write_key_str ( fptr, "BAYERPAT", "TRUE", "", &status );
-    fits_write_key_lng ( fptr, "XBAYROFF", 0, "", &status );
-    fits_write_key_lng ( fptr, "YBAYROFF", 0, "", &status );
+    fits_write_key_lng ( fptr, "XBAYROFF", xoff, "", &status );
+    fits_write_key_lng ( fptr, "YBAYROFF", yoff, "", &status );
   }
 
   if ( state.cameraTempValid ) {
