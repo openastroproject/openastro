@@ -78,7 +78,7 @@ class PreviewWidget : public QFrame
 
   signals:
     void		updateFrameCount ( unsigned int );
-    void		updateActualFrameRate ( unsigned int );
+    void		updateActualFrameRate ( double );
     void		updateTemperature ( void );
     void		updateDroppedFrames ( void );
     void		updateProgress ( unsigned int );
@@ -98,8 +98,8 @@ class PreviewWidget : public QFrame
     unsigned long	lastDisplayUpdateTime;
     int			previewEnabled;
     int			videoFramePixelFormat;
-    unsigned int	framesInLastSecond;
-    long		secondForFrameCount;
+    int			framesInFpsCalcPeriod;
+    unsigned long	fpsCalcPeriodStartTime;
     long		secondForTemperature;
     long		secondForDropped;
     int			hasTemp;

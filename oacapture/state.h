@@ -86,7 +86,7 @@ typedef struct
 
   unsigned long		firstFrameTime;
   unsigned long		lastFrameTime;
-  int			currentFPS;
+  double			currentFPS;
 
   int			preferredExposureControl;
 

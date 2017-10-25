@@ -62,8 +62,8 @@ PreviewWidget::PreviewWidget ( QWidget* parent ) : QFrame ( parent )
   frameDisplayInterval = 1000/15; // display frames per second
   previewEnabled = 1;
   videoFramePixelFormat = OA_PIX_FMT_RGB24;
-  framesInLastSecond = 0;
-  secondForFrameCount = secondForTemperature = secondForDropped = 0;
+  framesInFpsCalcPeriod = fpsCalcPeriodStartTime = 0;
+  secondForTemperature = secondForDropped = 0;
   flipX = flipY = 0;
   movingReticle = rotatingReticle = rotationAngle = 0;
   savedXSize = savedYSize = 0;
@@ -895,11 +895,15 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
     }
   }
 
-  self->framesInLastSecond++;
-  if ( t.tv_sec != self->secondForFrameCount ) {
-    self->secondForFrameCount = t.tv_sec;
-    emit self->updateActualFrameRate ( self->framesInLastSecond );
-    self->framesInLastSecond = 0;
+  self->framesInFpsCalcPeriod++;
+  if ( self->framesInFpsCalcPeriod &&
+      now - self->fpsCalcPeriodStartTime > 1000 ) {
+    double fpsCalcPeriodDuration_s = (now - self->fpsCalcPeriodStartTime)/1000.0;
+    emit self->updateActualFrameRate (self->framesInFpsCalcPeriod / fpsCalcPeriodDuration_s);
+
+    self->fpsCalcPeriodStartTime = now;
+    self->framesInFpsCalcPeriod = 0;
+
     if ( state->histogramOn ) {
       // This call should be thread-safe
       state->histogramWidget->process ( writeBuffer, length,
