@@ -114,5 +114,7 @@ ui_*.h
 /ext/ffmpeg/libavutil/libavutil.a
 /ext/ffmpeg/libswresample/libswresample.a
 /ext/ffmpeg/libswscale/libswscale.a
+/liboavideo/test_oaconvert
+/liboavideo/test_oaconvert.txt
 /oacapture/oacapture
 /oalive/oalive
