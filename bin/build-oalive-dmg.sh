@@ -64,5 +64,5 @@ install_name_tool -change /System/Library/Frameworks/ImageIO.framework/Versions/
 install_name_tool -change /System/Library/Frameworks/CFNetwork.framework/Versions/A/CFNetwork /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CFNetwork.framework/CFNetwork $APPDIR/Contents/Frameworks/QtNetwork.framework/Versions/4/QtNetwork
 
 cd $ROOT
-rm -f ../oalive-0.0.2.dmg
-hdiutil create -format UDBZ -quiet -srcfolder oalive.app ../oalive-0.0.2.dmg
+rm -f ../oalive-1.3.0.dmg
+hdiutil create -format UDBZ -quiet -srcfolder oalive.app ../oalive-1.3.0.dmg

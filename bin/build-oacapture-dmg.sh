@@ -76,5 +76,5 @@ install_name_tool -change /System/Library/Frameworks/ImageIO.framework/Versions/
 install_name_tool -change /System/Library/Frameworks/CFNetwork.framework/Versions/A/CFNetwork /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CFNetwork.framework/CFNetwork $APPDIR/Contents/Frameworks/QtNetwork.framework/Versions/4/QtNetwork
 
 cd $ROOT
-rm -f ../oaCapture-1.2.0.dmg
-hdiutil create -format UDBZ -quiet -srcfolder oaCapture.app ../oaCapture-1.2.0.dmg
+rm -f ../oaCapture-1.3.0.dmg
+hdiutil create -format UDBZ -quiet -srcfolder oaCapture.app ../oaCapture-1.3.0.dmg

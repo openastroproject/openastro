@@ -31,8 +31,8 @@
 // just for name of settings directory
 #define	ORGANISATION_NAME_SETTINGS	"OpenAstro"
 
-#define MAJOR_VERSION			"0"
-#define	MINOR_VERSION			"1"
+#define MAJOR_VERSION			"1"
+#define	MINOR_VERSION			"3"
 #define	REVISION			"0"
 
 #define	COPYRIGHT_YEARS			"2015,2017"

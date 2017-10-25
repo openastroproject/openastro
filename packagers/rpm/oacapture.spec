@@ -1,12 +1,12 @@
 Name:           oacapture
-Version:        1.2.0
+Version:        1.3.0
 Release:        1
 Summary:        planetary capture application
 License:        GPL-3
 URL:            http://www.openastroproject.org/
 Prefix:         %{_prefix}
 Provides:       oacapture = %{version}-%{release}
-Obsoletes:      oacapture <= 1.1.0
+Obsoletes:      oacapture <= 1.2.0
 Requires:       libtiff
 Requires:       libdc1394
 Requires:       systemd
