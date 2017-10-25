@@ -27,8 +27,6 @@
 #ifndef OPENASTRO_VIDEO_YUV_H
 #define OPENASTRO_VIDEO_YUV_H
 
-#include <stdint.h>
-
 extern void	oaYUV444PtoRGB888 ( const void*, void*, unsigned int, unsigned int );
 extern void	oaYUV422PtoRGB888 ( const void*, void*, unsigned int, unsigned int );
 extern void	oaYUV411toRGB888 ( const void*, void*, unsigned int, unsigned int );
