@@ -34,14 +34,14 @@ then
   exit 4
 fi
 
-for f in `cat $source/.gitignore | sed -e '/^#/d' -e '/^[ 	]*$/d' | sort -u`
+for f in `cat $source/.gitignore | sed -e '/^#/d' -e '/^[ 	]*$/d' -e '/^$/d' | sort -u`
 do
   case $f in
     /*)
       rm -fr $distroPath$f
       ;;
     *)
-      find $distroPath -name "$f" -print | xargs rm -fr
+      find $distroPath -name "$f" -print | egrep -v 'ffmpeg/(configure|.*Makefile)$' | xargs rm -fr
       ;;
   esac
 done
