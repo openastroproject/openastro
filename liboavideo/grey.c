@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * yuv.c -- convert YUV formats to RGB888
+ * grey.c -- convert any format to GREYxx
  *
  * Copyright 2014 James Fidell (james@openastroproject.org)
  *
