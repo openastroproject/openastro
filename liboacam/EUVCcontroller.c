@@ -999,3 +999,24 @@ _doSetFrameRate ( EUVC_STATE* cameraInfo, unsigned int x, unsigned int y )
     return;
   }
 }
+
+
+const char*
+oaEUVCCameraGetMenuString ( oaCamera* camera, int control, int index )
+{
+  if ( control != OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY ) {
+    fprintf ( stderr, "%s: control not implemented\n", __FUNCTION__ );
+    return "";
+  }
+
+  switch ( index ) {
+    case 0:
+      return "Constant frame rate";
+      break;
+    case 1:
+      return "Variable frame rate";
+      break;
+  }
+
+  return "Unknown";
+}

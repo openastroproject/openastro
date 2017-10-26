@@ -319,24 +319,38 @@ oaUVCCameraStopStreaming ( oaCamera* camera )
 const char*
 oaUVCCameraGetMenuString ( oaCamera* camera, int control, int index )
 {
-  if ( control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
+  if ( control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) &&
+      control != OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY) {
     fprintf ( stderr, "%s: control not implemented\n", __FUNCTION__ );
     return "";
   }
 
-  switch ( index ) {
-    case 1:
-      return "Manual";
-      break;
-    case 2:
-      return "Auto";
-      break;
-    case 4:
-      return "Shutter Priority";
-      break;
-    case 8:
-      return "Aperture Priority";
-      break;
+  if ( OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY == control ) {
+
+    switch ( index ) {
+      case 0:
+        return "Constant frame rate";
+        break;
+      case 1:
+        return "Variable frame rate";
+        break;
+    }
+  } else {
+
+    switch ( index ) {
+      case 1:
+        return "Manual";
+        break;
+      case 2:
+        return "Auto";
+        break;
+      case 4:
+        return "Shutter Priority";
+        break;
+      case 8:
+        return "Aperture Priority";
+        break;
+    }
   }
 
   return "Unknown";

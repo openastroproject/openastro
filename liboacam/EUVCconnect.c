@@ -576,9 +576,20 @@ oaEUVCInitCamera ( oaCameraDevice* device )
           break;
         }
 
+        case EUVC_CT_AE_PRIORITY_CONTROL:
+          // The values specified here are from the UVC 1.1 spec.  I'm
+          // guessing they'll apply here
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY ) =
+              OA_CTRL_TYPE_MENU;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY ) = 1;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY ) =
+              1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY ) = 0;
+          break;
+
         case EUVC_CT_ZOOM_ABSOLUTE_CONTROL:
         case EUVC_CT_EXPOSURE_TIME_RELATIVE_CONTROL: // relative to current val
-        case EUVC_CT_AE_PRIORITY_CONTROL:
         case EUVC_CT_FOCUS_ABSOLUTE_CONTROL:
         case EUVC_CT_FOCUS_RELATIVE_CONTROL:
         case EUVC_CT_FOCUS_AUTO_CONTROL:
@@ -921,6 +932,8 @@ _EUVCInitFunctionPointers ( oaCamera* camera )
 
   camera->funcs.enumerateFrameRates = oaEUVCCameraGetFrameRates;
   camera->funcs.setFrameInterval = oaEUVCCameraSetFrameInterval;
+
+  camera->funcs.getMenuString = oaEUVCCameraGetMenuString;
 }
 
 
