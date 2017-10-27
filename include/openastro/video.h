@@ -27,6 +27,7 @@
 #ifndef OPENASTRO_VIDEO_H
 #define OPENASTRO_VIDEO_H
 
-extern int		oaconvert ( void*, void*, int, int, int, int );
+extern int		oaconvert ( const void*, void*, int, int, int, int );
+extern int		oaconvert_greyscale ( const void*, void*, int, int, int, int );
 
 #endif	/* OPENASTRO_VIDEO_H */

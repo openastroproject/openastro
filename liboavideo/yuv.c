@@ -27,6 +27,8 @@
 #include <oa_common.h>
 #include <openastro/video.h>
 
+#include <stdint.h>
+
 #include "yuv.h"
 #include "yuvlut.h"
 
@@ -34,13 +36,13 @@
 
 
 void
-oaYUV444PtoRGB888 ( void* source, void* target, unsigned int xSize,
+oaYUV444PtoRGB888 ( const void* source, void* target, unsigned int xSize,
     unsigned int ySize )
 {
   unsigned int len = xSize * ySize;
-  uint8_t* ys = source;
-  uint8_t* us = ( uint8_t* ) source + len;
-  uint8_t* vs = ( uint8_t* ) source + 2 * len;
+  const uint8_t* ys = source;
+  const uint8_t* us = ( uint8_t* ) source + len;
+  const uint8_t* vs = ( uint8_t* ) source + 2 * len;
   uint8_t* t = ( uint8_t* ) target;
   int32_t r32, g32, b32;
   uint8_t r8, g8, b8, y, u, v;
@@ -64,13 +66,13 @@ oaYUV444PtoRGB888 ( void* source, void* target, unsigned int xSize,
 
 
 void
-oaYUV422PtoRGB888 ( void* source, void* target, unsigned int xSize,
+oaYUV422PtoRGB888 ( const void* source, void* target, unsigned int xSize,
     unsigned int ySize )
 {
   unsigned int len = xSize * ySize;
-  uint8_t* ys = ( uint8_t* ) source;
-  uint8_t* us = ( uint8_t* ) source + len;
-  uint8_t* vs = us + len / 2;
+  const uint8_t* ys = ( uint8_t* ) source;
+  const uint8_t* us = ( uint8_t* ) source + len;
+  const uint8_t* vs = us + len / 2;
   uint8_t* t = ( uint8_t* ) target;
   int32_t r32, g32, b32;
   uint8_t r8, g8, b8, y1, y2, u, v;
@@ -113,7 +115,7 @@ oaYUV422PtoRGB888 ( void* source, void* target, unsigned int xSize,
 
 
 void
-oaYUV420PtoRGB888 ( void* source, void* target, unsigned int xSize,
+oaYUV420PtoRGB888 ( const void* source, void* target, unsigned int xSize,
     unsigned int ySize )
 {
   unsigned int len = xSize * ySize;
@@ -121,7 +123,7 @@ oaYUV420PtoRGB888 ( void* source, void* target, unsigned int xSize,
   unsigned int c, r;
   int32_t r32, g32, b32;
   uint8_t r8, g8, b8, y, u, v;
-  uint8_t* ys = ( uint8_t* ) source;
+  const uint8_t* ys = ( uint8_t* ) source;
   uint8_t* u_off;
   uint8_t* v_off;
   uint8_t* t = ( uint8_t* ) target;
@@ -152,11 +154,11 @@ oaYUV420PtoRGB888 ( void* source, void* target, unsigned int xSize,
 
 
 void
-oaYUYVtoRGB888 ( void* source, void* target, unsigned int xSize,
+oaYUYVtoRGB888 ( const void* source, void* target, unsigned int xSize,
     unsigned int ySize )
 {
   unsigned int len = xSize * ySize;
-  uint8_t* s = ( uint8_t* ) source;
+  const uint8_t* s = ( uint8_t* ) source;
   uint8_t* t = ( uint8_t* ) target;
   int32_t r32, g32, b32;
   uint8_t r8, g8, b8, y1, y2, u, v;
@@ -199,11 +201,11 @@ oaYUYVtoRGB888 ( void* source, void* target, unsigned int xSize,
 
 
 void
-oaUYVYtoRGB888 ( void* source, void* target, unsigned int xSize,
+oaUYVYtoRGB888 ( const void* source, void* target, unsigned int xSize,
     unsigned int ySize )
 {
   unsigned int len = xSize * ySize;
-  uint8_t* s = ( uint8_t* ) source;
+  const uint8_t* s = ( uint8_t* ) source;
   uint8_t* t = ( uint8_t* ) target;
   int32_t r32, g32, b32;
   uint8_t r8, g8, b8, y1, y2, u, v;
@@ -246,11 +248,11 @@ oaUYVYtoRGB888 ( void* source, void* target, unsigned int xSize,
 
 
 void
-oaYUV411toRGB888 ( void* source, void* target, unsigned int xSize,
+oaYUV411toRGB888 ( const void* source, void* target, unsigned int xSize,
     unsigned int ySize )
 {
   unsigned int len = xSize * ySize;
-  uint8_t* s = ( uint8_t* ) source;
+  const uint8_t* s = ( uint8_t* ) source;
   uint8_t* t = ( uint8_t* ) target;
   int32_t r32, g32, b32;
   uint8_t r8, g8, b8, y1, y2, y3, y4, u, v;

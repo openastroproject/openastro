@@ -27,10 +27,10 @@
 #ifndef OPENASTRO_VIDEO_YUV_H
 #define OPENASTRO_VIDEO_YUV_H
 
-extern void	oaYUV444PtoRGB888 ( void*, void*, unsigned int, unsigned int );
-extern void	oaYUV422PtoRGB888 ( void*, void*, unsigned int, unsigned int );
-extern void	oaYUV411toRGB888 ( void*, void*, unsigned int, unsigned int );
-extern void	oaYUYVtoRGB888 ( void*, void*, unsigned int, unsigned int );
-extern void	oaUYVYtoRGB888 ( void*, void*, unsigned int, unsigned int );
+extern void	oaYUV444PtoRGB888 ( const void*, void*, unsigned int, unsigned int );
+extern void	oaYUV422PtoRGB888 ( const void*, void*, unsigned int, unsigned int );
+extern void	oaYUV411toRGB888 ( const void*, void*, unsigned int, unsigned int );
+extern void	oaYUYVtoRGB888 ( const void*, void*, unsigned int, unsigned int );
+extern void	oaUYVYtoRGB888 ( const void*, void*, unsigned int, unsigned int );
 
 #endif	/* OPENASTRO_VIDEO_YUV_H */
