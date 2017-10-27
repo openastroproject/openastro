@@ -240,10 +240,12 @@ MainWindow::~MainWindow()
   delete capturedValue;
   delete fpsActualValue;
   delete fpsMaxValue;
+  delete pixelFormatValue;
   delete progressBar;
   delete capturedLabel;
   delete fpsActualLabel;
   delete fpsMaxLabel;
+  delete pixelFormatLabel;
   if ( state.camera ) {
     delete state.camera;
   }
@@ -1194,6 +1196,8 @@ MainWindow::createStatusBar ( void )
     tempLabel->setText ( tr ( "Temp (F)" ));
   }
   tempLabel->setFixedWidth ( 60 );
+  pixelFormatLabel = new QLabel ( tr ( "Pixel format" ));
+  pixelFormatLabel->setFixedWidth ( 80 );
   fpsMaxLabel = new QLabel ( tr ( "FPS (max)" ));
   fpsMaxLabel->setFixedWidth ( 65 );
   fpsActualLabel = new QLabel ( tr ( "FPS (actual)" ));
@@ -1209,6 +1213,8 @@ MainWindow::createStatusBar ( void )
 
   tempValue = new QLabel ( "" );
   tempValue->setFixedWidth ( 30 );
+  pixelFormatValue = new QLabel ( "" );
+  pixelFormatValue->setFixedWidth ( 70 );
   fpsMaxValue = new QLabel ( "0" );
   fpsMaxValue->setFixedWidth ( 30 );
   fpsActualValue = new QLabel ( "0" );
@@ -1220,6 +1226,8 @@ MainWindow::createStatusBar ( void )
 
   statusLine->addPermanentWidget ( tempLabel );
   statusLine->addPermanentWidget ( tempValue );
+  statusLine->addPermanentWidget ( pixelFormatLabel );
+  statusLine->addPermanentWidget ( pixelFormatValue );
   statusLine->addPermanentWidget ( fpsMaxLabel );
   statusLine->addPermanentWidget ( fpsMaxValue );
   statusLine->addPermanentWidget ( fpsActualLabel );
@@ -1853,6 +1861,13 @@ MainWindow::quit ( void )
   doDisconnectFilterWheel();
   writeConfig();
   qApp->quit();
+}
+
+
+void
+MainWindow::setPixelFormatValue ( int format )
+{
+  pixelFormatValue->setText ( QString( OA_PIX_FMT_STRING( format )));
 }
 
 
