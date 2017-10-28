@@ -635,7 +635,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
 
           if ( uvc_get_roll_abs ( uvcHandle, &val_s16, UVC_GET_DEF ) !=
               UVC_SUCCESS ) { 
-            fprintf ( stderr, "failed to get default for pan/tilt default\n" );
+            fprintf ( stderr, "failed to get default for roll default\n" );
           }
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_ROLL_ABSOLUTE ) = val_s16;
           break;
