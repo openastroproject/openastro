@@ -140,7 +140,9 @@ const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
   "Relative Roll Speed",
   "White Shading",
   "LED State",
-  "LED Period"
+  "LED Period",
+  "Auto Exposure Priority",
+  "Exposure Value"
 };
 
 const char* oaCameraPresetAWBLabel[ OA_AWB_PRESET_LAST_P1 ] = {
@@ -193,6 +195,7 @@ oaGetAutoForControl ( int control )
     case OA_CAM_CTRL_WHITE_BALANCE_TEMP:
     case OA_CAM_CTRL_CONTRAST:
     case OA_CAM_CTRL_OVERCLOCK:
+    case OA_CAM_CTRL_EXPOSURE_VALUE:
       return OA_CAM_CTRL_MODE_AUTO(control);
       break;
   }

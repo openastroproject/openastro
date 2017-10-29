@@ -43,7 +43,8 @@ static void _PGEInitFunctionPointers ( oaCamera* );
 struct pgeCtrl pgeControls[] = {
   { FC2_BRIGHTNESS, OA_CAM_CTRL_BRIGHTNESS,
       OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS )},
-  { FC2_AUTO_EXPOSURE, 0, 0 },
+  { FC2_AUTO_EXPOSURE, OA_CAM_CTRL_EXPOSURE_VALUE,
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_VALUE )},
   { FC2_SHARPNESS, OA_CAM_CTRL_SHARPNESS,
       OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_SHARPNESS )},
   { FC2_WHITE_BALANCE, OA_CAM_CTRL_WHITE_BALANCE,
@@ -52,11 +53,16 @@ struct pgeCtrl pgeControls[] = {
   { FC2_SATURATION, OA_CAM_CTRL_SATURATION, 
       OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_SATURATION )},
   { FC2_GAMMA, OA_CAM_CTRL_GAMMA, OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA )},
-  { FC2_IRIS, 0, 0 },
-  { FC2_FOCUS, 0, 0 },
-  { FC2_ZOOM, 0, 0 },
-  { FC2_PAN, 0, 0 },
-  { FC2_TILT, 0, 0 },
+  { FC2_IRIS, OA_CAM_CTRL_IRIS_ABSOLUTE,
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_IRIS_ABSOLUTE )},
+  { FC2_FOCUS, OA_CAM_CTRL_FOCUS_ABSOLUTE,
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_FOCUS_ABSOLUTE )},
+  { FC2_ZOOM, OA_CAM_CTRL_ZOOM_ABSOLUTE, 
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_ZOOM_ABSOLUTE )},
+  { FC2_PAN, OA_CAM_CTRL_PAN_ABSOLUTE,
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_PAN_ABSOLUTE )},
+  { FC2_TILT, OA_CAM_CTRL_TILT_ABSOLUTE, 
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_TILT_ABSOLUTE )},
   { FC2_SHUTTER, -1, -1 },
   { FC2_GAIN, OA_CAM_CTRL_GAIN, OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN )},
   { FC2_TRIGGER_MODE, OA_CAM_CTRL_TRIGGER_MODE, 0 },
@@ -314,6 +320,12 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         case FC2_SATURATION:
         case FC2_GAMMA:
         case FC2_GAIN:
+        case FC2_IRIS:
+        case FC2_FOCUS:
+        case FC2_ZOOM:
+        case FC2_PAN:
+        case FC2_TILT:
+        case FC2_AUTO_EXPOSURE:
           if ( propertyInfo.manualSupported ) {
             camera->OA_CAM_CTRL_TYPE( oaControl ) = OA_CTRL_TYPE_INT32;
             commonInfo->OA_CAM_CTRL_MIN( oaControl ) = propertyInfo.min;
@@ -432,16 +444,6 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         case FC2_TRIGGER_DELAY:
           fprintf ( stderr, "%s: unsupported PGE TRIGGER_DELAY control\n",
               __FUNCTION__ );
-          break;
-
-        case FC2_AUTO_EXPOSURE:
-        case FC2_IRIS:
-        case FC2_FOCUS:
-        case FC2_ZOOM:
-        case FC2_PAN:
-        case FC2_TILT:
-          fprintf ( stderr, "%s: unsupported PGE control %d\n", __FUNCTION__,
-              i + FC2_BRIGHTNESS );
           break;
 
         default:
