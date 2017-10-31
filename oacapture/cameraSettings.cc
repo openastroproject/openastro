@@ -137,8 +137,9 @@ CameraSettings::configure ( void )
               controlCheckbox[mod][baseVal] = new QCheckBox ( QString ( tr (
                   oaCameraControlModifierPrefix[mod] )) + QString ( tr (
                   oaCameraControlLabel[baseVal] )), this );
-              if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == c ||
-                  OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == c ) {
+              if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) ==
+                  c || OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) ==
+                  c ) {
                 controlCheckbox[mod][baseVal]->setChecked (
                     ( config.CONTROL_VALUE(c) == OA_EXPOSURE_MANUAL ) ? 0 : 1 );
               } else {
@@ -293,12 +294,13 @@ CameraSettings::configure ( void )
 
   int autoControl;
   for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
-    for ( mod = 0; mod < OA_CAM_CTRL_MODIFIERS_P1; mod++ ) {
+    for ( mod = OA_CAM_CTRL_MODIFIER_STD; mod < OA_CAM_CTRL_MODIFIERS_P1;
+        mod++ ) {
       if ( OA_CTRL_TYPE_INT32 ==
           controlType[OA_CAM_CTRL_MODIFIER_STD][baseVal] ||
           OA_CTRL_TYPE_INT64 ==
           controlType[OA_CAM_CTRL_MODIFIER_STD][baseVal] ) {
-        if ( 0 == mod ) {
+        if ( OA_CAM_CTRL_MODIFIER_STD == mod ) {
           sliderGrid->addWidget ( controlLabel[mod][baseVal], row, col++ );
           sliderGrid->addWidget ( controlSlider[mod][baseVal], row, col + 2 );
           sliderGrid->addWidget ( controlSpinbox[mod][baseVal], row, col + 3 );
@@ -310,6 +312,20 @@ CameraSettings::configure ( void )
                 Qt::AlignCenter );
             added[mod][baseVal] = 1;
             numSliderCheckboxes++;
+            if ( OA_CAM_CTRL_MODIFIER_AUTO == mod ) {
+              int autoMode =
+                config.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO ( baseVal ));
+              if ( OA_CAM_CTRL_EXPOSURE_UNSCALED == baseVal ||
+                  OA_CAM_CTRL_EXPOSURE_ABSOLUTE == baseVal ) {
+                autoMode = ( OA_EXPOSURE_MANUAL == autoMode ) ? 0 : 1;
+              }
+              if ( controlSlider[OA_CAM_CTRL_MODIFIER_STD][baseVal]) {
+                controlSlider[OA_CAM_CTRL_MODIFIER_STD][baseVal]->setEnabled (
+                    !autoMode );
+                controlSpinbox[OA_CAM_CTRL_MODIFIER_STD][baseVal]->setEnabled (
+                    !autoMode );
+              }
+            }
           }
           col++;
         }
@@ -545,6 +561,24 @@ CameraSettings::updateCheckboxControl ( int control )
     if ( controlMenu[OA_CAM_CTRL_MODIFIER_AUTO][ baseControl ] ) {
       controlButton[OA_CAM_CTRL_MODIFIER_AUTO][ baseControl ]->
           setEnabled ( value );
+    }
+  }
+
+  if ( OA_CAM_CTRL_IS_AUTO ( control )) {
+    int baseControl = OA_CAM_CTRL_MODE_BASE ( control );
+    if ( controlSlider[OA_CAM_CTRL_MODIFIER_STD][ baseControl ] ) {
+      controlSlider[OA_CAM_CTRL_MODIFIER_STD][ baseControl ]->
+          setEnabled ( !value );
+      controlSpinbox[OA_CAM_CTRL_MODIFIER_STD][ baseControl ]->
+          setEnabled ( !value );
+    }
+    if ( controlButton[OA_CAM_CTRL_MODIFIER_AUTO][ baseControl ] ) {
+      controlButton[OA_CAM_CTRL_MODIFIER_AUTO][ baseControl ]->
+          setEnabled ( !value );
+    }
+    if ( controlMenu[OA_CAM_CTRL_MODIFIER_AUTO][ baseControl ] ) {
+      controlButton[OA_CAM_CTRL_MODIFIER_AUTO][ baseControl ]->
+          setEnabled ( !value );
     }
   }
 }
