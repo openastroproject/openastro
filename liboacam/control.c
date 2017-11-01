@@ -196,6 +196,7 @@ oaGetAutoForControl ( int control )
     case OA_CAM_CTRL_CONTRAST:
     case OA_CAM_CTRL_OVERCLOCK:
     case OA_CAM_CTRL_EXPOSURE_VALUE:
+    case OA_CAM_CTRL_SHARPNESS:
       return OA_CAM_CTRL_MODE_AUTO(control);
       break;
   }
@@ -224,6 +225,8 @@ oaGetControlForAuto ( int control )
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE_TEMP ):
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTRAST ):
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_OVERCLOCK ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_VALUE ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_SHARPNESS ):
       return OA_CAM_CTRL_MODE_NONAUTO ( control );
       break;
   }
@@ -253,6 +256,8 @@ oacamHasAuto ( oaCamera* camera, int control )
     case OA_CAM_CTRL_WHITE_BALANCE_TEMP:
     case OA_CAM_CTRL_CONTRAST:
     case OA_CAM_CTRL_OVERCLOCK:
+    case OA_CAM_CTRL_EXPOSURE_VALUE:
+    case OA_CAM_CTRL_SHARPNESS:
       return camera->OA_CAM_CTRL_AUTO_TYPE( control ) ?
           OA_CAM_CTRL_MODE_AUTO(control) : 0;
       break;
