@@ -403,14 +403,22 @@ ControlWidget::configure ( void )
     if ( c != OA_CAM_CTRL_GAIN && c != state.preferredExposureControl ) {
       type = state.camera->hasControl ( c );
       if ( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) {
-        if ( replaceSelectable1 < 0 ) {
-          replaceSelectable1 = config.selectableControl[0] = c;
-          if ( c == config.selectableControl[1] ) {
-            replaceSelectable2 = -1;
+        if ( replaceSelectable1 <= 0 ) {
+          if ( replaceSelectable1 == 0 && c == config.selectableControl[0] ) {
+            replaceSelectable1 = c;
+          } else {
+            replaceSelectable1 = config.selectableControl[0] = c;
+            if ( c == config.selectableControl[1] ) {
+              replaceSelectable2 = -1;
+            }
           }
         } else {
-          if ( replaceSelectable2 < 0 && c != config.selectableControl[0] ) {
-            replaceSelectable2 = config.selectableControl[1] = c;
+          if ( replaceSelectable2 <= 0 && c != config.selectableControl[0] ) {
+            if ( replaceSelectable2 == 0 && c == config.selectableControl[1] ) {
+              replaceSelectable2 = c;
+            } else {
+              replaceSelectable2 = config.selectableControl[1] = c;
+            }
           }
         }
         if ( c != replaceSelectable2 ) {
