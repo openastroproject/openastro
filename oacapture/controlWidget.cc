@@ -513,21 +513,24 @@ ControlWidget::configure ( void )
   int i;
   for ( i = 0; i < 2; i++ ) {
     // make sure they're enabled by default
-    selectableControlSlider[ config.selectableControl[i]]->setEnabled ( 1 );
-    selectableControlSpinbox[ config.selectableControl[i]]->setEnabled ( 1 );
-    uint32_t autoControl;
-    if (( autoControl = oaGetAutoForControl ( config.selectableControl[i]))) {
-      if ( selectableControlCheckbox[ config.selectableControl[i]] &&
-          autoControl >= 0 && state.camera->hasControl ( autoControl ) ==
-          OA_CTRL_TYPE_BOOLEAN ) { // FIX ME -- what if this is not boolean?
-        uint32_t value = config.CONTROL_VALUE( autoControl );
-        selectableControlCheckbox[ config.selectableControl[i]]->
-            setChecked ( value );
-        if ( selectableControlSlider[ config.selectableControl[i]] ) {
-          selectableControlSlider[ config.selectableControl[i]]->
-              setEnabled ( !value );
-          selectableControlSpinbox[ config.selectableControl[i]]->
-              setEnabled ( !value );
+    if ( config.selectableControl[i] >= 0 &&
+        selectableControlSlider[ config.selectableControl[i]] ) {
+      selectableControlSlider[ config.selectableControl[i]]->setEnabled ( 1 );
+      selectableControlSpinbox[ config.selectableControl[i]]->setEnabled ( 1 );
+      uint32_t autoControl;
+      if (( autoControl = oaGetAutoForControl ( config.selectableControl[i]))) {
+        if ( selectableControlCheckbox[ config.selectableControl[i]] &&
+            autoControl >= 0 && state.camera->hasControl ( autoControl ) ==
+            OA_CTRL_TYPE_BOOLEAN ) { // FIX ME -- what if this is not boolean?
+          uint32_t value = config.CONTROL_VALUE( autoControl );
+          selectableControlCheckbox[ config.selectableControl[i]]->
+              setChecked ( value );
+          if ( selectableControlSlider[ config.selectableControl[i]] ) {
+            selectableControlSlider[ config.selectableControl[i]]->
+                setEnabled ( !value );
+            selectableControlSpinbox[ config.selectableControl[i]]->
+                setEnabled ( !value );
+          }
         }
       }
     }
