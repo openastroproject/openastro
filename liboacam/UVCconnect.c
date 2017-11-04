@@ -39,6 +39,7 @@
 #include "UVC.h"
 #include "UVCoacam.h"
 #include "UVCstate.h"
+#include "UVCExtnUnits.h"
 
 
 // FIX ME -- move this somewhere more sensible
@@ -825,16 +826,33 @@ oaUVCInitCamera ( oaCameraDevice* device )
     fprintf ( stderr, "Extension units found\n" );
     extn = extensionUnits;
     do {
-      int i;
-      fprintf ( stderr, "extn unit: %d, controls: %08lx, guid: ",
-          extn->bUnitID, ( long unsigned int ) extn->bmControls );
-      for ( i = 0; i < 16; i++ ) {
-        fprintf ( stderr, "%02x", extn->guidExtensionCode[i] );
-        if ( i == 3 || i == 5 || i == 7 || i == 9 ) {
-          fprintf ( stderr, "-" );
+      int i, j, mismatch, done;
+      done = i = 0;
+      while ( UVCExtensionMap[i].handler && !done ) {
+        mismatch = 0;
+        for ( j = 0; j < 16 && !mismatch; j++ ) {
+          if ( UVCExtensionMap[i].guid[j] != extn->guidExtensionCode[j] ) {
+            mismatch = 1;
+          }
         }
+        if ( !mismatch ) {
+          done = 1;
+          UVCExtensionMap[i].handler ( camera, commonInfo, extn->bmControls );
+        }
+        i++;
       }
-      fprintf ( stderr, "\n" );
+      if ( !done ) {
+        int i;
+        fprintf ( stderr, "extn unit: %d, controls: %08lx, guid: ",
+            extn->bUnitID, ( long unsigned int ) extn->bmControls );
+        for ( i = 0; i < 16; i++ ) {
+          fprintf ( stderr, "%02x", extn->guidExtensionCode[i] );
+          if ( i == 3 || i == 5 || i == 7 || i == 9 ) {
+            fprintf ( stderr, "-" );
+          }
+        }
+        fprintf ( stderr, "\n" );
+      }
       extn = extn->next;
     } while ( extn );
   }

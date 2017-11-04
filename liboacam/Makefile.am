@@ -47,7 +47,7 @@ V4L2SRC = V4L2oacam.c V4L2connect.c V4L2ioctl.c V4L2cameras.c \
 endif
 
 UVCSRC = UVCoacam.c UVCconnect.c UVCgetState.c UVCcontrol.c \
-  UVCcontroller.c UVCcallback.c
+  UVCcontroller.c UVCcallback.c UVCExtnUnits.c TISExtensionUnits.c
 IIDCSRC = IIDCoacam.c IIDCconnect.c IIDCgetState.c IIDCcontrol.c \
   IIDCcontroller.c IIDCcallback.c
 

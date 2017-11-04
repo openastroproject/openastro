@@ -431,10 +431,32 @@ oaEUVCInitCamera ( oaCameraDevice* device )
         break;
 
       case EUVC_VC_EXTENSION_UNIT:
-        // don't whine about this for the time being
-        // fprintf ( stderr, "Unhandled VC extension unit\n" );
-        break;
+      /*
+       * Nothing much I can do with this for the moment
+      {
+        int unitId, numPins, numControls, i;
+        const uint8_t* startOfControls;
+        uint64_t bmControls;
 
+        unitId = data[3];
+        numPins = data[21];
+        numControls = data[ 22 + numPins ];
+        startOfControls = data + 23 + numPins;
+        for ( i = numControls - 1; i >= 0; --i ) {
+          bmControls = startOfControls[i] | ( bmControls << 8 );
+        }
+        fprintf ( stderr, "EUVC extn unit: %d, controls: %08lx, guid: ",
+          unitId, ( long unsigned int ) bmControls );
+        for ( i = 0; i < 16; i++ ) {
+          fprintf ( stderr, "%02x", data[ 4 + i ]);
+          if ( i == 3 || i == 5 || i == 7 || i == 9 ) {
+            fprintf ( stderr, "-" );
+          }
+        }
+        fprintf ( stderr, "\n" );
+        break;
+      }
+       */
       case EUVC_VC_OUTPUT_TERMINAL:
       case EUVC_VC_SELECTOR_UNIT:
         break;
