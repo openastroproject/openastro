@@ -308,8 +308,14 @@ CameraSettings::configure ( void )
         } else {
           if ( controlType[mod][baseVal] == OA_CTRL_TYPE_BOOLEAN ) {
             controlCheckbox[mod][baseVal]->setText ( "" );
-            sliderGrid->addWidget ( controlCheckbox[mod][baseVal], row, col,
-                Qt::AlignCenter );
+            if ( OA_CAM_CTRL_MODIFIER_AUTO == mod ) {
+              sliderGrid->addWidget ( controlCheckbox[mod][baseVal], row, col,
+                  Qt::AlignCenter );
+            }
+            if ( OA_CAM_CTRL_MODIFIER_ON_OFF == mod ) {
+              sliderGrid->addWidget ( controlCheckbox[mod][baseVal], row, col,
+                  Qt::AlignCenter );
+            }
             added[mod][baseVal] = 1;
             numSliderCheckboxes++;
             if ( OA_CAM_CTRL_MODIFIER_AUTO == mod ) {

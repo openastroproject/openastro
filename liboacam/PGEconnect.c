@@ -100,7 +100,8 @@ oaPGEInitCamera ( oaCameraDevice* device )
   COMMON_INFO*			commonInfo;
   fc2Context			pgeContext;
   DEVICE_INFO*			devInfo;
-  int				oaControl, oaAutoControl, mode, firstMode;
+  int				oaControl, oaAutoControl, onOffControl;
+  int				mode, firstMode;
   fc2Property			property;
   fc2PropertyInfo		propertyInfo;
   fc2GigEImageSettings		settings;
@@ -306,151 +307,167 @@ fprintf ( stderr, "  min: %d, max %d\n", propertyInfo.min, propertyInfo.max );
 fprintf ( stderr, "  abs: %d, absmin: %f, absmax: %f\n", propertyInfo.absValSupported, propertyInfo.absMin, propertyInfo.absMax );
 fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupported, propertyInfo.manualSupported, property.autoManualMode );
 */
-    if (( propertyInfo.onOffSupported && property.onOff ) ||
-        !propertyInfo.onOffSupported ) {
 
-      oaControl = pgeControls[ i ].oaControl;
-      oaAutoControl = pgeControls[ i ].oaAutoControl;
+    oaControl = pgeControls[ i ].oaControl;
+    oaAutoControl = pgeControls[ i ].oaAutoControl;
+    onOffControl = OA_CAM_CTRL_MODE_ON_OFF( oaControl );
 
-      switch ( i + FC2_BRIGHTNESS ) {
+    switch ( i + FC2_BRIGHTNESS ) {
 
-        case FC2_BRIGHTNESS:
-        case FC2_SHARPNESS:
-        case FC2_HUE:
-        case FC2_SATURATION:
-        case FC2_GAMMA:
-        case FC2_GAIN:
-        case FC2_IRIS:
-        case FC2_FOCUS:
-        case FC2_ZOOM:
-        case FC2_PAN:
-        case FC2_TILT:
-        case FC2_AUTO_EXPOSURE:
-          if ( propertyInfo.manualSupported ) {
-            camera->OA_CAM_CTRL_TYPE( oaControl ) = OA_CTRL_TYPE_INT32;
-            commonInfo->OA_CAM_CTRL_MIN( oaControl ) = propertyInfo.min;
-            commonInfo->OA_CAM_CTRL_MAX( oaControl ) = propertyInfo.max;
-            commonInfo->OA_CAM_CTRL_STEP( oaControl ) = 1; // arbitrary
-            commonInfo->OA_CAM_CTRL_DEF( oaControl ) = property.valueA;
-          }
-          if ( propertyInfo.autoSupported ) {
-            if ( oaAutoControl ) {
-              camera->OA_CAM_CTRL_TYPE( oaAutoControl ) = OA_CTRL_TYPE_BOOLEAN;
-              commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = 0;
-              commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = 1;
-              commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
-              commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) =
-                  ( property.autoManualMode ) ? 1 : 0;
-            } else {
-              fprintf ( stderr, "%s: have auto for control %d, but "
-                  "liboacam does not\n", __FUNCTION__, oaControl );
-            }
-          }
-          break;
-
-        case FC2_SHUTTER:
-        {
-          unsigned int min, max, step, def;
-          // FIX ME -- should really handle both absolute and unscaled
-          // exposure times here
-          // shutter is actually exposure time.  exposure is something
-          // else
-          if ( propertyInfo.absValSupported ) {
-            oaControl = OA_CAM_CTRL_EXPOSURE_ABSOLUTE;
-            camera->OA_CAM_CTRL_TYPE( oaControl ) = OA_CTRL_TYPE_INT64;
-            // On the Blackfly at least, these values appear to be in seconds
-            // rather than as the units string suggests
-            min = propertyInfo.absMin * 1000.0;
-            max = propertyInfo.absMax * 1000.0;
-            step = 1000; // arbitrary
-            def = property.absValue * 1000.0;
-          } else {
-            oaControl = OA_CAM_CTRL_EXPOSURE_UNSCALED;
-            camera->OA_CAM_CTRL_TYPE( oaControl ) = OA_CTRL_TYPE_INT32;
-            min = propertyInfo.min;
-            max = propertyInfo.max;
-            step = 1; // arbitrary
-            def = property.valueA;
-          }
-          commonInfo->OA_CAM_CTRL_MIN( oaControl ) = min;
-          commonInfo->OA_CAM_CTRL_MAX( oaControl ) = max;
-          commonInfo->OA_CAM_CTRL_STEP( oaControl ) = step;
-          commonInfo->OA_CAM_CTRL_DEF( oaControl ) = def;
-          if ( propertyInfo.autoSupported ) {
-            oaAutoControl = OA_CAM_CTRL_MODE_AUTO( oaControl );
-            camera->OA_CAM_CTRL_TYPE( oaAutoControl ) = OA_CTRL_TYPE_BOOLEAN;
-            commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = OA_EXPOSURE_AUTO;
-            commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = OA_EXPOSURE_MANUAL;
-            commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
-            commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) = ( property.autoManualMode ) ?
-                OA_EXPOSURE_AUTO : OA_EXPOSURE_MANUAL;
-          }
-          break;
+      case FC2_BRIGHTNESS:
+      case FC2_SHARPNESS:
+      case FC2_HUE:
+      case FC2_SATURATION:
+      case FC2_GAMMA:
+      case FC2_GAIN:
+      case FC2_IRIS:
+      case FC2_FOCUS:
+      case FC2_ZOOM:
+      case FC2_PAN:
+      case FC2_TILT:
+      case FC2_AUTO_EXPOSURE:
+        if ( propertyInfo.manualSupported ) {
+          camera->OA_CAM_CTRL_TYPE( oaControl ) = OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( oaControl ) = propertyInfo.min;
+          commonInfo->OA_CAM_CTRL_MAX( oaControl ) = propertyInfo.max;
+          commonInfo->OA_CAM_CTRL_STEP( oaControl ) = 1; // arbitrary
+          commonInfo->OA_CAM_CTRL_DEF( oaControl ) = property.valueA;
         }
-        case FC2_WHITE_BALANCE:
-          // This is more complex.
-          // The manual white balance control is actually achieved by
-          // setting the red and blue balances independently (though they
-          // both have to be set at the same time).  Auto mode however
-          // controls both at once.
-          // So, we need manual red and blue balance controls and an auto
-          // white balance control
-
-          if ( propertyInfo.manualSupported ) {
-            camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) =
-                camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RED_BALANCE ) =
-                OA_CTRL_TYPE_INT32;
-            commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) =
-                commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) =
-                propertyInfo.min;
-            commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) =
-                commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE ) =
-                propertyInfo.max;
-            commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLUE_BALANCE ) =
-                commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RED_BALANCE ) = 1;//arbitrary
-            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) =
-                cameraInfo->currentRedBalance = property.valueA;
-            commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) =
-                cameraInfo->currentBlueBalance = property.valueB;
+        if ( propertyInfo.autoSupported ) {
+          if ( oaAutoControl ) {
+            camera->OA_CAM_CTRL_TYPE( oaAutoControl ) = OA_CTRL_TYPE_BOOLEAN;
+            commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = 0;
+            commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = 1;
+            commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
+            commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) =
+                ( property.autoManualMode ) ? 1 : 0;
+          } else {
+            fprintf ( stderr, "%s: have auto for control %d, but "
+                "liboacam does not\n", __FUNCTION__, oaControl );
           }
-          if ( propertyInfo.autoSupported ) {
-            if ( oaAutoControl ) {
-              camera->OA_CAM_CTRL_TYPE( oaAutoControl ) = OA_CTRL_TYPE_BOOLEAN;
-              commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = 0;
-              commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = 1;
-              commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
-              commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) =
-                  ( property.autoManualMode ) ? 1 : 0;
-            } else {
-              fprintf ( stderr, "%s: have auto for control %d, but "
-                  "liboacam does not\n", __FUNCTION__, oaControl );
-            }
-          }
-          break;
+        }
+        if ( propertyInfo.onOffSupported ) {
+          camera->OA_CAM_CTRL_TYPE( onOffControl ) = OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( onOffControl ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( onOffControl ) = 1;
+          commonInfo->OA_CAM_CTRL_STEP( onOffControl ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( onOffControl ) = 1; // a guess
+        }
+        break;
 
-        case FC2_FRAME_RATE:
-          fprintf ( stderr, "Need to set up frame rates for PGE camera\n" );
-          break;
-
-        case FC2_TEMPERATURE:
-          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
-          break;
-
-        case FC2_TRIGGER_MODE:
-          fprintf ( stderr, "%s: unsupported PGE TRIGGER_MODE control\n",
-              __FUNCTION__ );
-          break;
-
-        case FC2_TRIGGER_DELAY:
-          fprintf ( stderr, "%s: unsupported PGE TRIGGER_DELAY control\n",
-              __FUNCTION__ );
-          break;
-
-        default:
-          fprintf ( stderr, "%s: unknown PGE control %d\n", __FUNCTION__,
-              i + FC2_BRIGHTNESS );
-          break;
+      case FC2_SHUTTER:
+      {
+        unsigned int min, max, step, def;
+        // FIX ME -- should really handle both absolute and unscaled
+        // exposure times here
+        // shutter is actually exposure time.  exposure is something
+        // else
+        if ( propertyInfo.absValSupported ) {
+          oaControl = OA_CAM_CTRL_EXPOSURE_ABSOLUTE;
+          camera->OA_CAM_CTRL_TYPE( oaControl ) = OA_CTRL_TYPE_INT64;
+          // On the Blackfly at least, these values appear to be in seconds
+          // rather than as the units string suggests
+          min = propertyInfo.absMin * 1000.0;
+          max = propertyInfo.absMax * 1000.0;
+          step = 1000; // arbitrary
+          def = property.absValue * 1000.0;
+        } else {
+          oaControl = OA_CAM_CTRL_EXPOSURE_UNSCALED;
+          camera->OA_CAM_CTRL_TYPE( oaControl ) = OA_CTRL_TYPE_INT32;
+          min = propertyInfo.min;
+          max = propertyInfo.max;
+          step = 1; // arbitrary
+          def = property.valueA;
+        }
+        commonInfo->OA_CAM_CTRL_MIN( oaControl ) = min;
+        commonInfo->OA_CAM_CTRL_MAX( oaControl ) = max;
+        commonInfo->OA_CAM_CTRL_STEP( oaControl ) = step;
+        commonInfo->OA_CAM_CTRL_DEF( oaControl ) = def;
+        if ( propertyInfo.autoSupported ) {
+          oaAutoControl = OA_CAM_CTRL_MODE_AUTO( oaControl );
+          camera->OA_CAM_CTRL_TYPE( oaAutoControl ) = OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = OA_EXPOSURE_AUTO;
+          commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = OA_EXPOSURE_MANUAL;
+          commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) = ( property.autoManualMode ) ?
+              OA_EXPOSURE_AUTO : OA_EXPOSURE_MANUAL;
+        }
+        if ( propertyInfo.onOffSupported ) {
+          camera->OA_CAM_CTRL_TYPE( onOffControl ) = OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( onOffControl ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( onOffControl ) = 1;
+          commonInfo->OA_CAM_CTRL_STEP( onOffControl ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( onOffControl ) = 1; // a guess
+        }
+        break;
       }
+      case FC2_WHITE_BALANCE:
+        // This is more complex.
+        // The manual white balance control is actually achieved by
+        // setting the red and blue balances independently (though they
+        // both have to be set at the same time).  Auto mode however
+        // controls both at once.
+        // So, we need manual red and blue balance controls and an auto
+        // white balance control
+
+        if ( propertyInfo.manualSupported ) {
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) =
+              camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RED_BALANCE ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) =
+              commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) =
+              propertyInfo.min;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) =
+              commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE ) =
+              propertyInfo.max;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLUE_BALANCE ) =
+              commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RED_BALANCE ) = 1;//arbitrary
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) =
+              cameraInfo->currentRedBalance = property.valueA;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) =
+              cameraInfo->currentBlueBalance = property.valueB;
+        }
+        if ( propertyInfo.autoSupported ) {
+          if ( oaAutoControl ) {
+            camera->OA_CAM_CTRL_TYPE( oaAutoControl ) = OA_CTRL_TYPE_BOOLEAN;
+            commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = 0;
+            commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = 1;
+            commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
+            commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) =
+                ( property.autoManualMode ) ? 1 : 0;
+          } else {
+            fprintf ( stderr, "%s: have auto for control %d, but "
+                "liboacam does not\n", __FUNCTION__, oaControl );
+          }
+        }
+        if ( propertyInfo.onOffSupported ) {
+          camera->OA_CAM_CTRL_TYPE( onOffControl ) = OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( onOffControl ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( onOffControl ) = 1;
+          commonInfo->OA_CAM_CTRL_STEP( onOffControl ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( onOffControl ) = 1; // a guess
+        }
+        break;
+
+      case FC2_FRAME_RATE:
+        fprintf ( stderr, "Need to set up frame rates for PGE camera\n" );
+        break;
+
+      case FC2_TEMPERATURE:
+        camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
+        break;
+
+      // FIX ME -- not sure how to handle these next two because the trigger
+      // control is all done with separate API calls.  It's not clear to me
+      // why these exist
+      case FC2_TRIGGER_MODE:
+      case FC2_TRIGGER_DELAY:
+        break;
+
+      default:
+        fprintf ( stderr, "%s: unknown PGE control %d\n", __FUNCTION__,
+            i + FC2_BRIGHTNESS );
+        break;
     }
   }
 
