@@ -29,7 +29,6 @@
 #include <pthread.h>
 
 #include <openastro/camera.h>
-#include <ASICamera.h>
 
 #include "oacamprivate.h"
 #include "unimplemented.h"

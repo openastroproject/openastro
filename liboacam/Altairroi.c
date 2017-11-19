@@ -29,8 +29,6 @@
 #include <openastro/errno.h>
 #include <openastro/util.h>
 
-#include <ASICamera.h>
-
 #include "oacamprivate.h"
 #include "Altairstate.h"
 #include "Altairoacam.h"

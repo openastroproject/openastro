@@ -135,7 +135,7 @@ oacamZWASI2controller ( void* param )
         nextBuffer = cameraInfo->nextBuffer;
         haveFrame = 0;
 //      do {
-          if ( ASIGetVideoData ( cameraInfo->cameraId,
+          if ( !ASIGetVideoData ( cameraInfo->cameraId,
               cameraInfo->buffers[ nextBuffer ].start, imageBufferLength,
               frameWait )) {
             haveFrame = 1;
