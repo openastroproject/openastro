@@ -104,6 +104,14 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     return 0;
   }
 
+  if ( ASIInitCamera ( cameraInfo->cameraId )) {
+    fprintf ( stderr, "init of camera %ld failed\n", cameraInfo->cameraId );
+    free (( void* ) commonInfo );
+    free (( void* ) cameraInfo );
+    free (( void* ) camera );
+    return 0;
+  }
+
   _oaInitCameraFunctionPointers ( camera );
   _ZWASIInitFunctionPointers ( camera );
 
@@ -518,6 +526,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   cameraInfo->maxResolutionX = camInfo.MaxWidth;
   cameraInfo->maxResolutionY = camInfo.MaxHeight;
 
+  memcpy ( cameraInfo->binModes, camInfo.SupportedBins,
+      sizeof ( camInfo.SupportedBins ));
   i = 0;
   while (( bin = camInfo.SupportedBins[i] )) {
     if ( 2 == bin || 3 ==bin || 4 == bin ) {
@@ -1217,7 +1227,7 @@ _ZWASIInitFunctionPointers ( oaCamera* camera )
   camera->funcs.initCamera = oaZWASI2InitCamera;
   camera->funcs.closeCamera = oaZWASI2CloseCamera;
 
-  camera->funcs.testControl = oaZWASICameraTestControl;
+  camera->funcs.testControl = oaZWASI2CameraTestControl;
   camera->funcs.readControl = oaZWASI2CameraReadControl;
   camera->funcs.setControl = oaZWASICameraSetControl;
   camera->funcs.getControlRange = oaZWASICameraGetControlRange;

@@ -34,20 +34,24 @@ AM_CPPFLAGS = \
 lib_LTLIBRARIES = liboacam.la
 
 if LIBASI_COND
-ASISRC = ZWASIoacam.c ZWASIconnect.c ZWASIcontroller.c ZWASIcallback.c \
-  ZWASIcontrol.c ZWASIgetState.c ZWASIroi.c
+ASISRC = ZWASIoacam.c ZWASIconnect.c ZWASIcontroller.c ZWASIgetState.c \
+  ZWASIcontrol.c
 endif
 if LIBASI2_COND
 ASI2SRC = ZWASI2oacam.c ZWASI2connect.c ZWASI2controller.c ZWASI2getState.c \
   ZWASI2control.c
 endif
+if LIBASI_COMMON_COND
+ASICOMMON = ZWASIcommonControl.c ZWASIcallback.c ZWASIroi.c ZWASIcommon.c
+endif
+
 if LIBV4L2_COND
 V4L2SRC = V4L2oacam.c V4L2connect.c V4L2ioctl.c V4L2cameras.c \
   V4L2getState.c V4L2controller.c V4L2callback.c V4L2control.c
 endif
 
 UVCSRC = UVCoacam.c UVCconnect.c UVCgetState.c UVCcontrol.c \
-  UVCcontroller.c UVCcallback.c
+  UVCcontroller.c UVCcallback.c UVCExtnUnits.c TISExtensionUnits.c
 IIDCSRC = IIDCoacam.c IIDCconnect.c IIDCgetState.c IIDCcontrol.c \
   IIDCcontroller.c IIDCcallback.c
 
@@ -88,9 +92,9 @@ endif
 
 liboacam_la_SOURCES = \
   control.c debug.c oacam.c unimplemented.c utils.c \
-  $(V4L2SRC) $(ASISRC) $(ASI2SRC) $(UVCSRC) $(IIDCSRC) $(ATIKSRC) \
-  $(ATIKSERIALUDEVSRC) $(ATIKSERIALFTDISRC) $(PGESRC) $(TOUPCAMSRC) \
-  $(MALLINCAMSRC) $(ALTAIRSRC) \
+  $(V4L2SRC) $(ASISRC) $(ASI2SRC) $(ASICOMMON) $(UVCSRC) $(IIDCSRC) \
+  $(ATIKSRC) $(ATIKSERIALUDEVSRC) $(ATIKSERIALFTDISRC) $(PGESRC) \
+  $(TOUPCAMSRC) $(MALLINCAMSRC) $(ALTAIRSRC) \
   PWCgetState.c PWCconnect.c PWCoacam.c \
   QHYoacam.c QHYconnect.c QHYfirmware.c QHYcontrol.c QHYcallback.c \
   QHYgetState.c QHYusb.c \

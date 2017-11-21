@@ -189,6 +189,7 @@ CaptureWidget::CaptureWidget ( QWidget* parent ) : QGroupBox ( parent )
   countSecondsMenu->setEditable ( true );
   countSecondsMenu->setValidator ( countValidator );
   countSecondsMenu->setInsertPolicy ( QComboBox::InsertAtBottom );
+  countSecondsMenu->setCompleter ( 0 );
   secondsInputBox = countSecondsMenu->lineEdit();
 
   countFramesMenu = new QComboBox ( this );
@@ -199,6 +200,7 @@ CaptureWidget::CaptureWidget ( QWidget* parent ) : QGroupBox ( parent )
   countFramesMenu->setEditable ( true );
   countFramesMenu->setValidator ( countValidator );
   countFramesMenu->setInsertPolicy ( QComboBox::InsertAtBottom );
+  countFramesMenu->setCompleter ( 0 );
   framesInputBox = countFramesMenu->lineEdit();
 
   QString countStr;

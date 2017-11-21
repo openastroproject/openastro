@@ -159,6 +159,94 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       break;
     }
 
+    case OA_CAM_CTRL_BACKLIGHT_COMPENSATION:
+    {
+      uint16_t val_u16;
+
+      if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
+        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+            __FUNCTION__, val->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val_u16 = val->int32;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_SET_CUR,
+          EUVC_PU_BACKLIGHT_COMPENSATION_CONTROL << 8,
+          cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u16, 2,
+          USB_CTRL_TIMEOUT ) != 2 ) {
+        fprintf ( stderr, "set backlight compensation failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_POWER_LINE_FREQ:
+    {
+      uint8_t val_u8;
+
+      if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
+        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+            __FUNCTION__, val->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val_u8 = val->int32;
+    
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_SET_CUR,
+          EUVC_PU_POWER_LINE_FREQUENCY_CONTROL << 8,
+          cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u8, 1,
+          USB_CTRL_TIMEOUT ) != 1 ) {
+        fprintf ( stderr, "set powerline frequency failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE_TEMP ):
+    { 
+      uint8_t val_u8;
+      
+      if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
+        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
+            __FUNCTION__, val->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val_u8 = val->boolean ? 1 : 0;
+      
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_SET_CUR,
+          EUVC_PU_WHITE_BALANCE_TEMPERATURE_AUTO_CONTROL << 8, 
+          cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u8, 1,
+          USB_CTRL_TIMEOUT ) != 1 ) {
+        fprintf ( stderr, "set auto white balance temperature failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTRAST ):
+    {   
+      uint8_t val_u8;
+      
+      if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
+        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
+            __FUNCTION__, val->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val_u8 = val->boolean ? 1 : 0;
+      
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_SET_CUR,
+          EUVC_PU_CONTRAST_AUTO_CONTROL << 8,
+          cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u8, 1,
+          USB_CTRL_TIMEOUT ) != 1 ) {
+        fprintf ( stderr, "set auto contrast control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      break;
+    }
+
     case OA_CAM_CTRL_GAIN:
     {
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
@@ -288,6 +376,209 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       fprintf ( stderr, "auto gain not yet implemented\n" );
       break;
 
+    case OA_CAM_CTRL_INTERLACE_ENABLE:
+    {
+      uint8_t val_u8;
+
+      if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
+        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
+            __FUNCTION__, val->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val_u8 = val->boolean ? 1 : 0;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_SET_CUR,
+          EUVC_CT_SCANNING_MODE_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
+          USB_CTRL_TIMEOUT ) != 1 ) {
+        fprintf ( stderr, "set interlace mode control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_ZOOM_ABSOLUTE:
+    {
+      uint16_t val_u16;
+
+      if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
+        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+            __FUNCTION__, val->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val_u16 = val->int32;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_SET_CUR,
+          EUVC_CT_ZOOM_ABSOLUTE_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
+          USB_CTRL_TIMEOUT ) != 2 ) {
+        fprintf ( stderr, "set absolute zoom control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_FOCUS_ABSOLUTE:
+    {
+      uint16_t val_u16;
+
+      if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
+        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+            __FUNCTION__, val->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val_u16 = val->int32;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_SET_CUR,
+          EUVC_CT_FOCUS_ABSOLUTE_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
+          USB_CTRL_TIMEOUT ) != 2 ) {
+        fprintf ( stderr, "set absolute focus control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_IRIS_ABSOLUTE:
+    {
+      uint16_t val_u16;
+
+      if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
+        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+            __FUNCTION__, val->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val_u16 = val->int32;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_SET_CUR,
+          EUVC_CT_IRIS_ABSOLUTE_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
+          USB_CTRL_TIMEOUT ) != 2 ) {
+        fprintf ( stderr, "set absolute iris control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_PAN_ABSOLUTE:
+    case OA_CAM_CTRL_TILT_ABSOLUTE:
+    {
+      int32_t data[2];
+
+      if ( OA_CAM_CTRL_PAN_ABSOLUTE == control ) {
+        cameraInfo->currentPan = val->int32;
+      } else {
+        cameraInfo->currentTilt = val->int32;
+      }
+
+      data[0] = cameraInfo->currentPan;
+      data[1] = cameraInfo->currentTilt;
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_SET_CUR,
+          EUVC_CT_PANTILT_ABSOLUTE_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) data, 8,
+          USB_CTRL_TIMEOUT ) != 8 ) {
+
+        fprintf ( stderr, "uvc_set_pantilt_abs ( %d, %d ) failed in %s",
+            cameraInfo->currentPan, cameraInfo->currentTilt, __FUNCTION__ );
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_ROLL_ABSOLUTE:
+    {
+      uint16_t val_u16;
+
+      if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
+        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+            __FUNCTION__, val->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val_u16 = val->int32;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_SET_CUR,
+          EUVC_CT_ROLL_ABSOLUTE_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
+          USB_CTRL_TIMEOUT ) != 2 ) {
+        fprintf ( stderr, "set absolute roll control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_PRIVACY_ENABLE:
+    {
+      uint8_t val_u8;
+
+      if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
+        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
+            __FUNCTION__, val->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val_u8 = val->boolean ? 1 : 0;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_SET_CUR,
+          EUVC_CT_PRIVACY_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
+          USB_CTRL_TIMEOUT ) != 1 ) {
+        fprintf ( stderr, "set privacy control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_FOCUS_SIMPLE:
+    {
+      uint8_t val_u8;
+
+      if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
+        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+            __FUNCTION__, val->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val_u8 = val->int32;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_SET_CUR,
+          EUVC_CT_ROLL_ABSOLUTE_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
+          USB_CTRL_TIMEOUT ) != 1 ) {
+        fprintf ( stderr, "set simple focus control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      break;
+    }
+
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_FOCUS_ABSOLUTE ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_FOCUS_RELATIVE ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_FOCUS_SIMPLE ):
+    {
+      uint8_t val_u8;
+
+      if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
+        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
+            __FUNCTION__, val->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val_u8 = val->boolean ? 1 : 0;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_SET_CUR,
+          EUVC_CT_FOCUS_AUTO_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
+          USB_CTRL_TIMEOUT ) != 1 ) {
+        fprintf ( stderr, "set privacy control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      break;
+    }
+
     default:
       fprintf ( stderr, "Unrecognised control %d in %s\n", control,
           __FUNCTION__ );
@@ -329,6 +620,221 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       val->valueType = OA_CTRL_TYPE_READONLY;
       val->readonly = cameraInfo->droppedFrames;
       break;
+
+    case OA_CAM_CTRL_PAN_ABSOLUTE:
+      val->valueType = OA_CTRL_TYPE_INT32;
+      val->int32 = cameraInfo->currentPan;
+      break;
+
+    case OA_CAM_CTRL_TILT_ABSOLUTE:
+      val->valueType = OA_CTRL_TYPE_INT32;
+      val->int32 = cameraInfo->currentTilt;
+      break;
+
+    case OA_CAM_CTRL_BACKLIGHT_COMPENSATION:
+    {
+      uint16_t val_u16;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_GET_CUR,
+          EUVC_PU_BACKLIGHT_COMPENSATION_CONTROL << 8,
+          cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u16, 2,
+          USB_CTRL_TIMEOUT ) != 2 ) {
+        fprintf ( stderr, "get backlight compensation failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      val->valueType = OA_CTRL_TYPE_INT32;
+      val->int32 = val_u16;
+      break;
+    }
+
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE_TEMP ):
+    {
+      uint8_t val_u8;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_GET_CUR,
+          EUVC_PU_WHITE_BALANCE_TEMPERATURE_AUTO_CONTROL << 8,
+          cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u8, 1,
+          USB_CTRL_TIMEOUT ) != 1 ) {
+        fprintf ( stderr, "get auto white balance temperature failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      val->valueType = OA_CTRL_TYPE_BOOLEAN;
+      val->boolean = val_u8 ? 1 : 0;
+      break;
+    }
+
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTRAST ):
+    {
+      uint8_t val_u8;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_GET_CUR,
+          EUVC_PU_CONTRAST_AUTO_CONTROL << 8,
+          cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u8, 1,
+          USB_CTRL_TIMEOUT ) != 1 ) {
+        fprintf ( stderr, "get auto contrast control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      val->valueType = OA_CTRL_TYPE_BOOLEAN;
+      val->boolean = val_u8 ? 1 : 0;
+      break;
+    }
+
+    case OA_CAM_CTRL_POWER_LINE_FREQ:
+    {
+      uint8_t val_u8;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_GET_CUR,
+          EUVC_PU_POWER_LINE_FREQUENCY_CONTROL << 8,
+          cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u8, 1,
+          USB_CTRL_TIMEOUT ) != 1 ) {
+        fprintf ( stderr, "get powerline frequency failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      val->valueType = OA_CTRL_TYPE_INT32;
+      val->int32 = val_u8;
+      break;
+    }
+
+    case OA_CAM_CTRL_INTERLACE_ENABLE:
+    {
+      uint8_t val_u8;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_GET_CUR,
+          EUVC_CT_SCANNING_MODE_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
+          USB_CTRL_TIMEOUT ) != 1 ) {
+        fprintf ( stderr, "get interlace mode control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      val->valueType = OA_CTRL_TYPE_INT32;
+      val->int32 = val_u8;
+      break;
+    }
+
+    case OA_CAM_CTRL_ZOOM_ABSOLUTE:
+    {
+      uint16_t val_u16;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_GET_CUR,
+          EUVC_CT_ZOOM_ABSOLUTE_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
+          USB_CTRL_TIMEOUT ) != 2 ) {
+        fprintf ( stderr, "get absolute zoom control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      val->valueType = OA_CTRL_TYPE_INT32;
+      val->int32 = val_u16;
+      break;
+    }
+
+    case OA_CAM_CTRL_FOCUS_ABSOLUTE:
+    {
+      uint16_t val_u16;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_GET_CUR,
+          EUVC_CT_FOCUS_ABSOLUTE_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
+          USB_CTRL_TIMEOUT ) != 2 ) {
+        fprintf ( stderr, "get absolute focus control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      val->valueType = OA_CTRL_TYPE_INT32;
+      val->int32 = val_u16;
+      break;
+    }
+
+    case OA_CAM_CTRL_IRIS_ABSOLUTE:
+    {
+      uint16_t val_u16;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_GET_CUR,
+          EUVC_CT_IRIS_ABSOLUTE_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
+          USB_CTRL_TIMEOUT ) != 2 ) {
+        fprintf ( stderr, "get absolute iris control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      val->valueType = OA_CTRL_TYPE_INT32;
+      val->int32 = val_u16;
+      break;
+    }
+
+    case OA_CAM_CTRL_ROLL_ABSOLUTE:
+    {
+      uint16_t val_u16;
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_GET_CUR,
+          EUVC_CT_ROLL_ABSOLUTE_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
+          USB_CTRL_TIMEOUT ) != 2 ) {
+        fprintf ( stderr, "get absolute roll control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      val->valueType = OA_CTRL_TYPE_INT32;
+      val->int32 = val_u16;
+      break;
+    }
+
+    case OA_CAM_CTRL_PRIVACY_ENABLE:
+    {
+      uint8_t val_u8;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_GET_CUR,
+          EUVC_CT_PRIVACY_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
+          USB_CTRL_TIMEOUT ) != 1 ) {
+        fprintf ( stderr, "get privacy control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      val->valueType = OA_CTRL_TYPE_BOOLEAN;
+      val->int32 = val_u8 ? 1 : 0;
+      break;
+    }
+
+    case OA_CAM_CTRL_FOCUS_SIMPLE:
+    {
+      uint8_t val_u8;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_GET_CUR,
+          EUVC_CT_ROLL_ABSOLUTE_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
+          USB_CTRL_TIMEOUT ) != 1 ) {
+        fprintf ( stderr, "set simple focus control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      val->valueType = OA_CTRL_TYPE_INT32;
+      val->int32 = val_u8;
+      break;
+    }
+
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_FOCUS_ABSOLUTE ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_FOCUS_RELATIVE ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_FOCUS_SIMPLE ):
+    {
+      uint8_t val_u8;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_GET_CUR,
+          EUVC_CT_FOCUS_AUTO_CONTROL << 8,
+          cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
+          USB_CTRL_TIMEOUT ) != 1 ) {
+        fprintf ( stderr, "set privacy control failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      val->valueType = OA_CTRL_TYPE_BOOLEAN;
+      val->int32 = val_u8 ? 1 : 0;
+      break;
+    }
 
     default:
       fprintf ( stderr,

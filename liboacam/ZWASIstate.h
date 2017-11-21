@@ -43,6 +43,7 @@ typedef struct ZWASI_STATE {
   int			colour;
   long			cameraId;
   int			usb3Cam;
+  int			binModes[16];
   // video mode settings
   int			videoRGB24;
   int			videoGrey16;

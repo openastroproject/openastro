@@ -137,8 +137,9 @@
 #define	OA_CAM_CTRL_LED_STATE			103
 #define	OA_CAM_CTRL_LED_PERIOD			104
 #define OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY	105
+#define OA_CAM_CTRL_EXPOSURE_VALUE		106
 // Adding more items here may require updating liboacam/control.c
-#define	OA_CAM_CTRL_LAST_P1		OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY+1
+#define	OA_CAM_CTRL_LAST_P1		OA_CAM_CTRL_EXPOSURE_VALUE+1
 
 // Adding more here will need camera.h and oacamprivate.h changing to make
 // the array bigger and require the the OA_CAM_CTRL_MODIFIER define

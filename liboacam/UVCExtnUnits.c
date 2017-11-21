@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * Altairroi.c -- region of interest management for Altair cameras
+ * UVCExtnUnits.c -- List of UVC extension units
  *
- * Copyright 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -25,30 +25,29 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
+#if HAVE_LIBUVC
+
 #include <openastro/camera.h>
-#include <openastro/errno.h>
-#include <openastro/util.h>
 
 #include "oacamprivate.h"
-#include "Altairstate.h"
-#include "Altairoacam.h"
+#include "UVCExtnUnits.h"
+#include "TISExtensionUnits.h"
 
 
-int
-oaAltairCameraTestROISize ( oaCamera* camera, unsigned int tryX,
-    unsigned int tryY, unsigned int* suggX, unsigned int* suggY )
-{
-  if (( tryX % 2 == 0 ) && ( tryY % 2 == 0 ) && tryX >= 16 && tryY >= 16 ) {
-    return OA_ERR_NONE;
+struct UVCExtension UVCExtensionMap[] = {
+  {
+    .guid = { 0x0a, 0xba, 0x49, 0xde, 0x5c, 0x0b, 0x49, 0xd5,
+              0x8f, 0x71, 0x0b, 0xe4, 0x0f, 0x94, 0xa6, 0x7a },
+    .handler = processTISExtnUnitUSB
+  },
+  {
+    .guid = { 0xde, 0x49, 0xba, 0x0a, 0x0b, 0x5c, 0xd5, 0x49,
+              0x8f, 0x71, 0x0b, 0xe4, 0x0f, 0x94, 0xa6, 0x7a },
+    .handler = processTISExtnUnitUSB3
+  },
+  { .handler = 0
   }
+};
 
-  if ( tryX < 16 ) { tryX = 16; }
-  if ( tryY < 16 ) { tryY = 16; }
-  if ( tryX % 2 ) { tryX--; }
-  if ( tryY % 2 ) { tryY--; }
-
-  *suggX = tryX;
-  *suggY = tryY;
-
-  return -OA_ERR_INVALID_SIZE;
-}
+#endif

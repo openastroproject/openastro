@@ -182,17 +182,24 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
 
   for ( i = 0, found = -1; found < 0 && i < numPGEControls; i++ ) {
     if ( pgeControls[i].oaControl == control ||
-        pgeControls[i].oaAutoControl == control ) {
+        pgeControls[i].oaAutoControl == control ||
+        ( OA_CAM_CTRL_IS_ON_OFF( control ) && pgeControls[i].oaControl ==
+        OA_CAM_CTRL_MODE_BASE ( control ))) {
       pgeControl = pgeControls[i].pgeControl;
-      found = 1;
+      found = OA_CAM_CTRL_IS_ON_OFF( control ) ? 3 :
+          ( OA_CAM_CTRL_IS_AUTO( control ) ? 2 : 1 );
     }
   }
 
   if ( OA_CAM_CTRL_EXPOSURE_UNSCALED == control ||
       OA_CAM_CTRL_EXPOSURE_ABSOLUTE == control ||
       OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
-      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
+      OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ||
+      OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
+      OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
     pgeControl = FC2_SHUTTER;
+    found = OA_CAM_CTRL_IS_ON_OFF( control ) ? 3 :
+        ( OA_CAM_CTRL_IS_AUTO( control ) ? 2 : 1 );
   }
 
   switch ( control ) {
@@ -217,7 +224,7 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
 
   OA_CLEAR ( property );
 
-  if ( oaIsAuto ( control )) {
+  if ( found == 2 || found == 3 ) { // auto or on/off
     uint32_t val_u32;
     if ( OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
         OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
@@ -250,7 +257,11 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
       fprintf ( stderr, "Can't get PGE property %d\n", pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
-    property.autoManualMode = val_u32 ? 1 : 0;
+    if ( found == 2 ) {
+      property.autoManualMode = val_u32 ? 1 : 0;
+    } else {
+      property.onOff = val_u32 ? 1 : 0;
+    }
     if (( *p_fc2SetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
       fprintf ( stderr, "Can't set PGE property %d\n", pgeControl );

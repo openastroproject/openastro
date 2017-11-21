@@ -83,6 +83,8 @@ typedef struct EUVC_STATE {
   unsigned int          ySize;
   unsigned int          binMode;
   unsigned int          sizeIndex;
+  int32_t		currentPan;
+  int32_t		currentTilt;
   // image settings
   uint32_t              maxResolutionX;
   uint32_t              maxResolutionY;

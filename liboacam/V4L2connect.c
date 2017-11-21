@@ -902,6 +902,12 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 #ifdef V4L2_CID_AUTO_FOCUS_RANGE
       case V4L2_CID_AUTO_FOCUS_RANGE:
 #endif
+#ifdef V4L2_CID_PAN_SPEED
+      case V4L2_CID_PAN_SPEED:
+#endif
+#ifdef V4L2_CID_TILT_SPEED
+      case V4L2_CID_TILT_SPEED:
+#endif
         fprintf ( stderr, "currently unsupported V4L2 control 0x%x\n", id );
         break;
     }
