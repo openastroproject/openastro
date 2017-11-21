@@ -922,7 +922,7 @@ FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"\$(bindir)/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/
 APP_PATH_CFLAGS=""
 DEFAULT_PATH_CFLAGS=""
 if test "x$use_system_libasicamera" == "xno"; then
-  if test -f $(top_builddir)/ext/libASICamera/libASICamera.a
+  if test -f ext/libASICamera/libASICamera.a
   then
     LIBASI_CFLAGS="-DHAVE_LIBASI=1"
     DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_SO"
@@ -930,7 +930,7 @@ if test "x$use_system_libasicamera" == "xno"; then
   fi
 fi
 if test "x$use_system_libasicamera2" == "xno"; then
-  if test -f $(top_builddir)/ext/libASICamera/libASICamera2.a
+  if test -f ext/libASICamera/libASICamera2.a
   then
     LIBASI2_CFLAGS="-DHAVE_LIBASI2=1"
     DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_SO"
