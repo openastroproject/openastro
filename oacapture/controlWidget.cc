@@ -186,6 +186,7 @@ ControlWidget::ControlWidget ( QWidget* parent ) : QGroupBox ( parent )
       selectableControlCheckbox[ c ] = new QCheckBox ( "", this );
       selectableControlCheckbox[ c ]->hide();
       checkboxSignalMapper->setMapping ( selectableControlCheckbox[ c ], c );
+
       connect ( selectableControlCheckbox[ c ], SIGNAL (
           stateChanged ( int )), checkboxSignalMapper, SLOT( map()));
     }
@@ -402,14 +403,22 @@ ControlWidget::configure ( void )
     if ( c != OA_CAM_CTRL_GAIN && c != state.preferredExposureControl ) {
       type = state.camera->hasControl ( c );
       if ( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) {
-        if ( replaceSelectable1 < 0 ) {
-          replaceSelectable1 = config.selectableControl[0] = c;
-          if ( c == config.selectableControl[1] ) {
-            replaceSelectable2 = -1;
+        if ( replaceSelectable1 <= 0 ) {
+          if ( replaceSelectable1 == 0 && c == config.selectableControl[0] ) {
+            replaceSelectable1 = c;
+          } else {
+            replaceSelectable1 = config.selectableControl[0] = c;
+            if ( c == config.selectableControl[1] ) {
+              replaceSelectable2 = -1;
+            }
           }
         } else {
-          if ( replaceSelectable2 < 0 && c != config.selectableControl[0] ) {
-            replaceSelectable2 = config.selectableControl[1] = c;
+          if ( replaceSelectable2 <= 0 && c != config.selectableControl[0] ) {
+            if ( replaceSelectable2 == 0 && c == config.selectableControl[1] ) {
+              replaceSelectable2 = c;
+            } else {
+              replaceSelectable2 = config.selectableControl[1] = c;
+            }
           }
         }
         if ( c != replaceSelectable2 ) {
@@ -496,6 +505,35 @@ ControlWidget::configure ( void )
   } else {
     config.selectableControl[0] = -1;
     config.selectableControl[1] = -1;
+  }
+
+  // Step 6, set any auto controls to have the correct checked status
+  // and enable/disable sliders and spinboxes appropriately
+
+  int i;
+  for ( i = 0; i < 2; i++ ) {
+    // make sure they're enabled by default
+    if ( config.selectableControl[i] >= 0 &&
+        selectableControlSlider[ config.selectableControl[i]] ) {
+      selectableControlSlider[ config.selectableControl[i]]->setEnabled ( 1 );
+      selectableControlSpinbox[ config.selectableControl[i]]->setEnabled ( 1 );
+      uint32_t autoControl;
+      if (( autoControl = oaGetAutoForControl ( config.selectableControl[i]))) {
+        if ( selectableControlCheckbox[ config.selectableControl[i]] &&
+            autoControl >= 0 && state.camera->hasControl ( autoControl ) ==
+            OA_CTRL_TYPE_BOOLEAN ) { // FIX ME -- what if this is not boolean?
+          uint32_t value = config.CONTROL_VALUE( autoControl );
+          selectableControlCheckbox[ config.selectableControl[i]]->
+              setChecked ( value );
+          if ( selectableControlSlider[ config.selectableControl[i]] ) {
+            selectableControlSlider[ config.selectableControl[i]]->
+                setEnabled ( !value );
+            selectableControlSpinbox[ config.selectableControl[i]]->
+                setEnabled ( !value );
+          }
+        }
+      }
+    }
   }
 
   // And we're all done with the selectable controls
@@ -1334,15 +1372,7 @@ ControlWidget::_setSelectableControl ( int selector, int index )
   grid->removeItem ( grid->itemAtPosition ( thisOne + 2, 1 ));
   grid->removeItem ( grid->itemAtPosition ( thisOne + 2, 2 ));
   grid->removeItem ( grid->itemAtPosition ( thisOne + 2, 3 ));
-  int autoctrl;
-  autoctrl = oaGetAutoForControl ( config.selectableControl[ thisOne ] );
-  if ( selectableControlCheckbox[ config.selectableControl[ thisOne ]] &&
-      autoctrl >= 0 && state.camera->hasControl ( autoctrl )) {
-    grid->addWidget (
-        selectableControlCheckbox[ config.selectableControl[ thisOne ]],
-        thisOne + 2, 1 );
-    selectableControlCheckbox[ config.selectableControl[ thisOne ]]->show();
-  }
+
   grid->addWidget (
       selectableControlSlider[ config.selectableControl[ thisOne ]],
       thisOne + 2, 2 );
@@ -1351,6 +1381,30 @@ ControlWidget::_setSelectableControl ( int selector, int index )
       thisOne + 2, 3 );
   selectableControlSlider[ config.selectableControl[ thisOne ]]->show();
   selectableControlSpinbox[ config.selectableControl[ thisOne ]]->show();
+  // Enable these by default
+  selectableControlSlider[ config.selectableControl[ thisOne ]]->
+      setEnabled( 1 );
+  selectableControlSpinbox[ config.selectableControl[ thisOne ]]->
+      setEnabled( 1 );
+
+  int autoctrl;
+  autoctrl = oaGetAutoForControl ( config.selectableControl[ thisOne ] );
+  if ( selectableControlCheckbox[ config.selectableControl[ thisOne ]] &&
+      autoctrl >= 0 && state.camera->hasControl ( autoctrl )) {
+    grid->addWidget (
+        selectableControlCheckbox[ config.selectableControl[ thisOne ]],
+        thisOne + 2, 1 );
+    selectableControlCheckbox[ config.selectableControl[ thisOne ]]->show();
+    // If we have an auto control, make sure the checkbox is set correctly
+    // and that the slider/spinbox are appropriately enabled
+    uint32_t value = config.CONTROL_VALUE( autoctrl );
+    selectableControlCheckbox[ config.selectableControl[ thisOne ]]->
+        setChecked ( value );
+    selectableControlSlider[ config.selectableControl[ thisOne ]]->
+        setEnabled ( !value );
+    selectableControlSpinbox[ config.selectableControl[ thisOne ]]->
+        setEnabled ( !value );
+  }
 
   // Now the entire second menu needs rebuilding from the available
   // controls (minus the one we just chose).

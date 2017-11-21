@@ -941,7 +941,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
     self->manualStop = 0;
   }
 
-if ( output && self->recordingInProgress ) {
+  if ( output && self->recordingInProgress ) {
     if ( config.limitEnabled ) {
       int finished = 0;
       float percentage = 0;

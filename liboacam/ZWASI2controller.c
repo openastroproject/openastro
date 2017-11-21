@@ -135,7 +135,7 @@ oacamZWASI2controller ( void* param )
         nextBuffer = cameraInfo->nextBuffer;
         haveFrame = 0;
 //      do {
-          if ( ASIGetVideoData ( cameraInfo->cameraId,
+          if ( !ASIGetVideoData ( cameraInfo->cameraId,
               cameraInfo->buffers[ nextBuffer ].start, imageBufferLength,
               frameWait )) {
             haveFrame = 1;
@@ -430,6 +430,7 @@ _doFrameReconfiguration ( ZWASI_STATE* cameraInfo )
 {
   int		multiplier;
   int		restartStreaming = 0;
+  unsigned int	actualX, actualY;
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
   if ( cameraInfo->isStreaming ) {
@@ -441,6 +442,14 @@ _doFrameReconfiguration ( ZWASI_STATE* cameraInfo )
   if ( restartStreaming ) {
     ASIStopVideoCapture ( cameraInfo->cameraId );
   }
+  actualX = cameraInfo->xSize;
+  actualY = cameraInfo->ySize;
+  if (( actualX * cameraInfo->binMode ) > cameraInfo->maxResolutionX ) {
+    actualX = cameraInfo->maxResolutionX / cameraInfo->binMode;
+  }
+  if (( actualY * cameraInfo->binMode ) > cameraInfo->maxResolutionY ) {
+    actualY = cameraInfo->maxResolutionY / cameraInfo->binMode;
+  }
   ASISetROIFormat ( cameraInfo->cameraId, cameraInfo->xSize,
       cameraInfo->ySize, cameraInfo->binMode, cameraInfo->videoCurrent );
   if ( OA_BIN_MODE_NONE == cameraInfo->binMode &&
@@ -451,20 +460,17 @@ _doFrameReconfiguration ( ZWASI_STATE* cameraInfo )
         ( cameraInfo->maxResolutionY - cameraInfo->ySize ) / 2 );
   }
 
-  if ( restartStreaming ) {
-    pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-    ASIStartVideoCapture ( cameraInfo->cameraId );
-    cameraInfo->isStreaming = 1;
-    pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
-  }
-
   // RGB colour is 3 bytes per pixel, mono one for 8-bit, two for 16-bit,
   // RAW is one for 8-bit, 2 for 16-bit
   multiplier = ( ASI_IMG_RGB24 == cameraInfo->videoCurrent ) ? 3 :
       ( ASI_IMG_RAW16 == cameraInfo->videoCurrent ) ? 2 : 1;
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->imageBufferLength = cameraInfo->xSize * cameraInfo->ySize *
-      multiplier / cameraInfo->binMode / cameraInfo->binMode;
+  cameraInfo->imageBufferLength = actualX * actualY * multiplier;
+  if ( restartStreaming ) {
+    usleep ( 300000 );
+    ASIStartVideoCapture ( cameraInfo->cameraId );
+    cameraInfo->isStreaming = 1;
+  }
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 }
 

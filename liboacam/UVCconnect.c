@@ -39,6 +39,7 @@
 #include "UVC.h"
 #include "UVCoacam.h"
 #include "UVCstate.h"
+#include "UVCExtnUnits.h"
 
 
 // FIX ME -- move this somewhere more sensible
@@ -489,13 +490,14 @@ oaUVCInitCamera ( oaCameraDevice* device )
         }
 
         case UVC_CT_AE_PRIORITY_CONTROL:
-          // we come to this one after auto exposure, which is good, because
-          // if auto-exposure is supported this needs to change it from a
-          // boolean to a menu including shutter priority and aperture
-          // priority
-          // FIX ME -- make it work
-          // what if we have this, but there is no auto exposure control?
-          fprintf ( stderr, "Unsupported UVC control CT_AE_PRIORITY\n" );
+          // The values specified here are from the UVC 1.1 spec.
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY ) =
+              OA_CTRL_TYPE_MENU;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY ) = 1;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY ) =
+              1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY ) = 0;
           break;
 
         case UVC_CT_FOCUS_ABSOLUTE_CONTROL:
@@ -634,7 +636,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
 
           if ( uvc_get_roll_abs ( uvcHandle, &val_s16, UVC_GET_DEF ) !=
               UVC_SUCCESS ) { 
-            fprintf ( stderr, "failed to get default for pan/tilt default\n" );
+            fprintf ( stderr, "failed to get default for roll default\n" );
           }
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_ROLL_ABSOLUTE ) = val_s16;
           break;
@@ -824,16 +826,33 @@ oaUVCInitCamera ( oaCameraDevice* device )
     fprintf ( stderr, "Extension units found\n" );
     extn = extensionUnits;
     do {
-      int i;
-      fprintf ( stderr, "extn unit: %d, controls: %08lx, guid: ",
-          extn->bUnitID, ( long unsigned int ) extn->bmControls );
-      for ( i = 0; i < 16; i++ ) {
-        fprintf ( stderr, "%02x", extn->guidExtensionCode[i] );
-        if ( i == 3 || i == 5 || i == 7 || i == 9 ) {
-          fprintf ( stderr, "-" );
+      int i, j, mismatch, done;
+      done = i = 0;
+      while ( UVCExtensionMap[i].handler && !done ) {
+        mismatch = 0;
+        for ( j = 0; j < 16 && !mismatch; j++ ) {
+          if ( UVCExtensionMap[i].guid[j] != extn->guidExtensionCode[j] ) {
+            mismatch = 1;
+          }
         }
+        if ( !mismatch ) {
+          done = 1;
+          UVCExtensionMap[i].handler ( camera, commonInfo, extn->bmControls );
+        }
+        i++;
       }
-      fprintf ( stderr, "\n" );
+      if ( !done ) {
+        int i;
+        fprintf ( stderr, "extn unit: %d, controls: %08lx, guid: ",
+            extn->bUnitID, ( long unsigned int ) extn->bmControls );
+        for ( i = 0; i < 16; i++ ) {
+          fprintf ( stderr, "%02x", extn->guidExtensionCode[i] );
+          if ( i == 3 || i == 5 || i == 7 || i == 9 ) {
+            fprintf ( stderr, "-" );
+          }
+        }
+        fprintf ( stderr, "\n" );
+      }
       extn = extn->next;
     } while ( extn );
   }

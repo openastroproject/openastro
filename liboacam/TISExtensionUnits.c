@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * Altairroi.c -- region of interest management for Altair cameras
+ * TISExtensionUnits.c -- Process TIS Extension Units
  *
- * Copyright 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -25,30 +25,31 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
+#if HAVE_LIBUVC
+
 #include <openastro/camera.h>
-#include <openastro/errno.h>
-#include <openastro/util.h>
 
 #include "oacamprivate.h"
-#include "Altairstate.h"
-#include "Altairoacam.h"
+#include "UVCExtnUnits.h"
+#include "TISExtensionUnits.h"
 
 
-int
-oaAltairCameraTestROISize ( oaCamera* camera, unsigned int tryX,
-    unsigned int tryY, unsigned int* suggX, unsigned int* suggY )
+void
+processTISExtnUnitUSB ( oaCamera* camera, COMMON_INFO* commonInfo,
+    uint64_t flags )
 {
-  if (( tryX % 2 == 0 ) && ( tryY % 2 == 0 ) && tryX >= 16 && tryY >= 16 ) {
-    return OA_ERR_NONE;
-  }
-
-  if ( tryX < 16 ) { tryX = 16; }
-  if ( tryY < 16 ) { tryY = 16; }
-  if ( tryX % 2 ) { tryX--; }
-  if ( tryY % 2 ) { tryY--; }
-
-  *suggX = tryX;
-  *suggY = tryY;
-
-  return -OA_ERR_INVALID_SIZE;
+  fprintf ( stderr, "TIS USB XU 0aba49de-5c0b-49d5-8f71-0be40f94a67a not "
+      "currently handled\n" );
 }
+
+
+void
+processTISExtnUnitUSB3 ( oaCamera* camera, COMMON_INFO* commonInfo,
+    uint64_t flags )
+{
+  fprintf ( stderr, "TIS USB3 XU de49ba0a-0b5c-d549-8f71-0be40f94a67a not "
+      "currently handled\n" );
+}
+
+#endif /* HAVE_LIBUVC */

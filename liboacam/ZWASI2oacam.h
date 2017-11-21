@@ -31,6 +31,8 @@ extern int		oaZWASI2GetCameras ( CAMERA_LIST*, int );
 extern oaCamera*	oaZWASI2InitCamera ( oaCameraDevice* );
 extern int              oaZWASI2CloseCamera ( oaCamera* );
 
+extern int		oaZWASI2CameraTestControl ( oaCamera*, int,
+				oaControlValue* );
 extern int		oaZWASI2CameraReadControl ( oaCamera*, int,
 				oaControlValue* );
 extern int		oaZWASI2CameraGetControlRange ( oaCamera*, int,

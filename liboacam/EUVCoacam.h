@@ -58,6 +58,8 @@ extern int		oaEUVCCameraGetFramePixelFormat ( oaCamera*, int );
 extern const FRAMERATES* oaEUVCCameraGetFrameRates ( oaCamera*, int, int );
 extern int              oaEUVCCameraSetFrameInterval ( oaCamera*, int, int );
 
+extern const char*	oaEUVCCameraGetMenuString ( oaCamera*, int, int );
+
 int			getEUVCControl ( EUVC_STATE*, uint8_t, int, int );
 int			getEUVCTermControl ( EUVC_STATE*, uint8_t, void*,
 			    int, int );

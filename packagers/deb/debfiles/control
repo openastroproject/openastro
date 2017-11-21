@@ -2,7 +2,7 @@ Source: oacapture
 Section: science
 Priority: optional
 Maintainer: James Fidell <james@openastroproject.org>
-Build-Depends: debhelper (>=9), libusb-1.0-0-dev, pkg-config, libasicamera-dev, libudev-dev, libcfitsio-dev, libpng-dev, libtiff-dev, libv4l-dev, libqt4-dev, libavcodec-dev, libavformat-dev, libavutil-dev, libswscale-dev, libhidapi-dev, libftdi1-dev, liblzma-dev, libsdl1.2-dev, autotools-dev, autoconf-archive. qt4-dev-tools
+Build-Depends: debhelper (>=9), libusb-1.0-0-dev, pkg-config, libasicamera-dev, libudev-dev, libcfitsio-dev, libpng-dev, libtiff-dev, libv4l-dev, libqt4-dev, libavcodec-dev, libavformat-dev, libavutil-dev, libswscale-dev, libhidapi-dev, libftdi1-dev, liblzma-dev, libsdl1.2-dev, autotools-dev, autoconf-archive, qt4-dev-tools
 Standards-Version: 3.9.7
 Homepage: http://www.openastroproject.org/
 

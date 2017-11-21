@@ -121,8 +121,7 @@ oaInterface	oaCameraInterfaces[] = {
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
-// #if HAVE_LIBASI2
-#if 0
+#if HAVE_LIBASI2
   { OA_CAM_IF_ZWASI2, "ZW Optical ASI v2", "ZWASI2", oaZWASI2GetCameras, 0,
       OA_UDC_FLAG_NONE },
 #else
