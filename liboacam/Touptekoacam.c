@@ -212,8 +212,14 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
 
   if ( !libHandle ) {
     if (!( libHandle = dlopen ( libraryPath, RTLD_LAZY ))) {
-      // fprintf ( stderr, "can't load %s\n", libraryPath );
-      return 0;
+#ifndef DYNLIB_EXT_DYLIB
+      // We can try the library installed with the Altair binaries directly,
+      // just to see if it is there
+      if (!( libHandle = dlopen ( "/usr/local/AltairCapture/libaltaircam.so",
+          RTLD_LAZY )))
+#endif
+        // fprintf ( stderr, "can't load %s\n", libraryPath );
+        return 0;
     }
   }
 

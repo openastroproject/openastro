@@ -1561,9 +1561,6 @@ MainWindow::connectCamera ( int deviceIndex )
       ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
   state.captureWidget->enablePNGCapture (( !OA_ISBAYER( format ) ||
       ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
-  state.captureWidget->enableFITSCapture (( !OA_ISBAYER( format ) ||
-      ( OA_ISBAYER8( format ) && config.demosaic &&
-      config.demosaicOutput )) ? 1 : 0 );
   state.captureWidget->enableMOVCapture (( QUICKTIME_OK( format ) || 
       ( OA_ISBAYER( format ) && config.demosaic &&
       config.demosaicOutput )) ? 1 : 0 );
@@ -2076,9 +2073,6 @@ MainWindow::enableDemosaic ( void )
         ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
     state.captureWidget->enablePNGCapture (( !OA_ISBAYER( format ) ||
         ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
-    state.captureWidget->enableFITSCapture (( !OA_ISBAYER( format ) ||
-        ( OA_ISBAYER8( format ) && config.demosaic &&
-        config.demosaicOutput )) ? 1 : 0 );
     state.captureWidget->enableMOVCapture (( QUICKTIME_OK( format ) || 
         ( OA_ISBAYER( format ) && config.demosaic &&
         config.demosaicOutput )) ? 1 : 0 );
@@ -2544,16 +2538,27 @@ MainWindow::createPreviewWindow()
 
   // These figures are a bit arbitrary, but give a size that should work
   // initially on small displays
-  QRect rec = QApplication::desktop()->availableGeometry();
+  QRect rec = QApplication::desktop()->availableGeometry (
+      QApplication::desktop()->primaryScreen());
   height = rec.height();
   width = rec.width();
-  height *= 2.0/3.0;
-  width *= 2.0/3.0;
-  if ( minHeight > height ) {
-    minHeight = height;
-  }
-  if ( minWidth > width ) {
-    minWidth = width;
+  if ( height < 1024 || width < 1280 ) {
+    if ( height < 600 || width < 800 ) {
+      minWidth = 640;
+      minHeight = 480;
+    } else {
+      minWidth = 800;
+      minHeight = 600;
+    }
+  } else {
+    height *= 2.0/3.0;
+    width *= 2.0/3.0;
+    if ( minHeight > height ) {
+      minHeight = height;
+    }
+    if ( minWidth > width ) {
+      minWidth = width;
+    }
   }
   previewScroller->setMinimumSize ( minWidth, minHeight );
   previewScroller->setSizePolicy( QSizePolicy::Expanding,

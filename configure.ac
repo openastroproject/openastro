@@ -536,6 +536,7 @@ else
 fi
 
 use_system_libasicamera=no
+use_system_libasicamera2=no
 if test $checkSystemLibasicamera -eq 1
 then
   if `$PKG_CONFIG --exists libasicamera`; then
@@ -550,26 +551,52 @@ then
     if test "x$use_system_libusb" == "xyes"; then
       LIBASI_LDFLAGS="`$PKG_CONFIG --libs-only-L libasicamera`"
       LIBASI_LIBS="`$PKG_CONFIG --libs-only-l libasicamera`"
-      LIBASI2_LIBS="`$PKG_CONFIG --libs-only-l libasicamera2`"
     else
       AC_MSG_NOTICE([Using static libasicamera to avoid system libusb])
       LIBASI_LDFLAGS=""
       mylibdir="`$PKG_CONFIG --variable=libdir libasicamera`"
       LIBASI_LIBS="$mylibdir/libASICamera.a"
-      LIBASI2_LIBS="$mylibdir/libASICamera2.a"
     fi
     have_libasicamera=yes
     use_system_libasicamera=yes
     AC_DEFINE([HAVE_LIBASI],[1],[Have libasicamera])
-    AC_DEFINE([HAVE_LIBASI2],[1],[Have libasicamera2])
   else
     AC_CHECK_LIB([ASICamera],[getNumberOfConnectedCameras],[
-      LIBS="-lASICamera -lASICamera2 $LIBS"
+      LIBS="-lASICamera $LIBS"
       AC_DEFINE([HAVE_LIBASI],[1],[Have libasicamera])
+      have_libasicamera=yes
+    ],[
+      AC_MSG_WARN([libasicamera not found.  Attempting to use libasicamera2.])
+    ])
+  fi
+  if `$PKG_CONFIG --exists libasicamera2`; then
+    AC_MSG_NOTICE([Using system libasicamera2 library])
+    flags=`$PKG_CONFIG --cflags-only-I libasicamera2`
+    if test $useisystemInclude -eq 1; then
+      flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+    fi
+    LIBASI_CFLAGS="$flags"
+    # can't use shared libasicamera2 if we're not using the system libusb
+    # because it will try to pull it in anyhow
+    if test "x$use_system_libusb" == "xyes"; then
+      LIBASI_LDFLAGS="`$PKG_CONFIG --libs-only-L libasicamera2`"
+      LIBASI2_LIBS="`$PKG_CONFIG --libs-only-l libasicamera2`"
+    else
+      AC_MSG_NOTICE([Using static libasicamera2 to avoid system libusb])
+      LIBASI_LDFLAGS=""
+      mylibdir="`$PKG_CONFIG --variable=libdir libasicamera2`"
+      LIBASI2_LIBS="$mylibdir/libASICamera2.a"
+    fi
+    have_libasicamera=yes
+    use_system_libasicamera2=yes
+    AC_DEFINE([HAVE_LIBASI2],[1],[Have libasicamera2])
+  else
+    AC_CHECK_LIB([ASICamera2],[ASIGetNumOfConnectedCameras],[
+      LIBS="-lASICamera2 $LIBS"
       AC_DEFINE([HAVE_LIBASI2],[1],[Have libasicamera2])
       have_libasicamera=yes
     ],[
-      AC_MSG_WARN([No suitable version of system libasicamera found.  Using internal version.])
+      AC_MSG_WARN([No suitable version of system libasicamera2 found.  Using internal version.])
     ])
   fi
 fi
@@ -895,11 +922,20 @@ FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"\$(bindir)/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/
 APP_PATH_CFLAGS=""
 DEFAULT_PATH_CFLAGS=""
 if test "x$use_system_libasicamera" == "xno"; then
-  LIBASI_CFLAGS="-DHAVE_LIBASI=1"
-  LIBASI2_CFLAGS="-DHAVE_LIBASI2=1"
-  DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_SO"
-  LIBASI_LIBS="\$(top_builddir)/ext/libASICamera/libASICamera.a"
-  LIBASI2_LIBS="\$(top_builddir)/ext/libASICamera/libASICamera2.a"
+  if test -f $(top_builddir)/ext/libASICamera/libASICamera.a
+  then
+    LIBASI_CFLAGS="-DHAVE_LIBASI=1"
+    DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_SO"
+    LIBASI_LIBS="\$(top_builddir)/ext/libASICamera/libASICamera.a"
+  fi
+fi
+if test "x$use_system_libasicamera2" == "xno"; then
+  if test -f $(top_builddir)/ext/libASICamera/libASICamera2.a
+  then
+    LIBASI2_CFLAGS="-DHAVE_LIBASI2=1"
+    DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_SO"
+    LIBASI2_LIBS="\$(top_builddir)/ext/libASICamera/libASICamera2.a"
+  fi
 fi
 
 libudev_default=yes
@@ -910,7 +946,6 @@ extD=ext; extE=ext; extF=ext; extG=ext; extH=ext; extI=ext
 extJ=ext; extK=ext; extL=ext; extM=ext
 case $host in
   x86_64-apple-*)
-    AC_CONFIG_LINKS([$ext1/libASICamera/libASICamera.a:ext/libASICamera/mac/libASICamera.a])
     AC_CONFIG_LINKS([$ext7/libASICamera/libASICamera2.a:ext/libASICamera/mac/libASICamera2.a])
     AC_CONFIG_LINKS([$extH/libtoupcam/libtoupcam.dylib:ext/libtoupcam/mac64/libtoupcam.dylib])
     AC_CONFIG_LINKS([$extI/libaltaircam/libaltaircam.dylib:ext/libaltaircam/mac64/libaltaircam.dylib])
@@ -927,7 +962,6 @@ case $host in
     AC_DEFINE([USB_OVERFLOW_HANGS],[1],[USB overflow causes hang])
     ;;
   i?86-apple-*)
-    AC_CONFIG_LINKS([$ext2/libASICamera/libASICamera.a:ext/libASICamera/mac/libASICamera.a])
     AC_CONFIG_LINKS([$ext8/libASICamera/libASICamera2.a:ext/libASICamera/mac/libASICamera2.a])
     OSX_FRAMEWORKS="-framework Carbon -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
     FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
@@ -939,38 +973,36 @@ case $host in
     AC_DEFINE([USB_OVERFLOW_HANGS],[1],[USB overflow causes hang])
     ;;
   i?86-*-*)
-    AC_CONFIG_LINKS([$ext3/libASICamera/libASICamera.a:ext/libASICamera/x86/libASICamera.a])
     AC_CONFIG_LINKS([$ext9/libASICamera/libASICamera2.a:ext/libASICamera/x86/libASICamera2.a])
     have_toupcam=yes
     have_mallincam=yes
     have_altaircam=yes
     ;;
   x86_64-*-*)
-    AC_CONFIG_LINKS([$ext4/libASICamera/libASICamera.a:ext/libASICamera/x64/libASICamera.a])
     AC_CONFIG_LINKS([$extA/libASICamera/libASICamera2.a:ext/libASICamera/x64/libASICamera2.a])
     ;;
   armv7l-*-*)
-    AC_CONFIG_LINKS([$extD/libASICamera/libASICamera.a:ext/libASICamera/armv7/libASICamera.a])
     AC_CONFIG_LINKS([$extE/libASICamera/libASICamera2.a:ext/libASICamera/armv7/libASICamera2.a])
     have_toupcam=yes
     have_mallincam=yes
     have_altaircam=yes
     ;;
   armv6l-*-*)
-    AC_CONFIG_LINKS([$ext5/libASICamera/libASICamera.a:ext/libASICamera/armv6/libASICamera.a])
     AC_CONFIG_LINKS([$extB/libASICamera/libASICamera2.a:ext/libASICamera/armv6/libASICamera2.a])
     ;;
   armv5l-*-*)
-    AC_CONFIG_LINKS([$ext6/libASICamera/libASICamera.a:ext/libASICamera/armv5/libASICamera.a])
     AC_CONFIG_LINKS([$extC/libASICamera/libASICamera2.a:ext/libASICamera/armv5/libASICamera2.a])
     ;;
   *)
     if test "x$use_system_libasicamera" == "xno"; then
       LIBASI_LIBS=""
       LIBASI_CFLAGS="-DHAVE_LIBASI=0"
+      AC_MSG_NOTICE([No compatible ASI library for architecture $host.])
+    fi
+    if test "x$use_system_libasicamera2" == "xno"; then
       LIBASI2_LIBS=""
       LIBASI2_CFLAGS="-DHAVE_LIBASI2=0"
-      AC_MSG_NOTICE([No compatible ASI library for architecture $host.  Support for ASI cameras not included])
+      AC_MSG_NOTICE([No compatible ASI2 library for architecture $host.  Support for ASI cameras not included])
     fi
     ;;
 esac
@@ -1053,6 +1085,7 @@ AC_SUBST(MOC_CFLAGS)
 
 AM_CONDITIONAL([LIBASI_COND], [test "x$LIBASI_LIBS" != "x"])
 AM_CONDITIONAL([LIBASI2_COND], [test "x$LIBASI2_LIBS" != "x"])
+AM_CONDITIONAL([LIBASI_COMMON_COND], [test "x$LIBASI_LIBS$LIBASI2_LIBS" != "x"])
 AM_CONDITIONAL([LIBV4L2_COND], [test "x$have_v4l2" == "xyes"])
 AM_CONDITIONAL([LIBDC1394_COND], [test "x$use_system_dc1394" == "xno"])
 AM_CONDITIONAL([LIBUDEV_COND], [test "x$have_udev" == "xyes"])

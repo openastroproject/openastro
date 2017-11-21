@@ -28,8 +28,6 @@
 #include <openastro/camera.h>
 #include <openastro/errno.h>
 
-#include <ASICamera.h>
-
 #include "oacamprivate.h"
 #include "ZWASIoacam.h"
 #include "ZWASIstate.h"
