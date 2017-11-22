@@ -1250,8 +1250,7 @@ _processGetMenuItem ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
     *buff = 0;
   } else {
     if ( OA_CAM_CTRL_WHITE_BALANCE_PRESET == control ) {
-      if ( index >= 0 && index < ( sizeof ( oaCameraPresetAWBLabel ) /
-          sizeof ( const char* ))) {
+      if ( index >= 0 && index < OA_AWB_PRESET_LAST_P1 ) {
         retStr = oaCameraPresetAWBLabel[ index ];
       } else {
         retStr = "";
