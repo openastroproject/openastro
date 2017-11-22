@@ -350,7 +350,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       break;
 
     case OA_CAM_CTRL_POWER_LINE_FREQ:
-      val_s32 = valp->int32;
+      val_s32 = valp->menu;
       return _setUserControl ( cameraInfo->fd, V4L2_CID_POWER_LINE_FREQUENCY,
           val_s32 );
       break;
@@ -493,8 +493,39 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         valp );
       break;
 
+    case OA_CAM_CTRL_FOCUS_ABSOLUTE:
+      return _setExtendedControl ( cameraInfo->fd, V4L2_CID_FOCUS_ABSOLUTE,
+        valp );
+      break;
+
+    case OA_CAM_CTRL_FOCUS_RELATIVE:
+      return _setExtendedControl ( cameraInfo->fd, V4L2_CID_FOCUS_RELATIVE,
+        valp );
+      break;
+
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_FOCUS_ABSOLUTE ):
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_FOCUS_RELATIVE ):
+      return _setExtendedControl ( cameraInfo->fd, V4L2_CID_FOCUS_AUTO,
+        valp );
+      break;
+
     case OA_CAM_CTRL_ZOOM_ABSOLUTE:
       return _setExtendedControl ( cameraInfo->fd, V4L2_CID_ZOOM_ABSOLUTE,
+        valp );
+      break;
+
+    case OA_CAM_CTRL_PRIVACY_ENABLE:
+      return _setExtendedControl ( cameraInfo->fd, V4L2_CID_PRIVACY,
+        valp );
+      break;
+
+    case OA_CAM_CTRL_IRIS_ABSOLUTE:
+      return _setExtendedControl ( cameraInfo->fd, V4L2_CID_IRIS_ABSOLUTE,
+        valp );
+      break;
+
+    case OA_CAM_CTRL_IRIS_RELATIVE:
+      return _setExtendedControl ( cameraInfo->fd, V4L2_CID_IRIS_RELATIVE,
         valp );
       break;
 
@@ -1212,7 +1243,8 @@ _processGetMenuItem ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
   // FIX ME -- need map of OA_CTRL to V4L2_CID values for this really
   if ( control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ) &&
       control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) &&
-      control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
+      control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) &&
+      control != OA_CAM_CTRL_POWER_LINE_FREQ ) {
     fprintf ( stderr, "%s: control not implemented\n", __FUNCTION__ );
     *buff = 0;
   } else {
@@ -1224,16 +1256,15 @@ _processGetMenuItem ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
     if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ) == control ) {
       menuItem.id = V4L2_CID_AUTO_WHITE_BALANCE;
     }
+    if ( OA_CAM_CTRL_POWER_LINE_FREQ == control ) {
+      menuItem.id = V4L2_CID_POWER_LINE_FREQUENCY;
+    }
     menuItem.index = index;
     if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_QUERYMENU, &menuItem )) {
       perror ("VIDIOC_QUERYMENU");
-      fprintf ( stderr, "%s: control: %s, index %d\n", __FUNCTION__,
-          menuItem.id == V4L2_CID_EXPOSURE_AUTO ? "auto-exposure" : "auto-wb",
-          index );
-      if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
-          OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
-        retStr = "";
-      }
+      fprintf ( stderr, "%s: control: %d, index %d\n", __FUNCTION__,
+          menuItem.id, index );
+      retStr = "";
     } else {
       strncpy ( buff, ( char* ) menuItem.name, V4L2_MAX_MENU_ITEM_LENGTH );
     }
@@ -1242,4 +1273,3 @@ _processGetMenuItem ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
   command->resultData = ( void* ) retStr;
   return OA_ERR_NONE;
 }
-

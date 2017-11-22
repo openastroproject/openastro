@@ -504,13 +504,20 @@ oaV4L2InitCamera ( oaCameraDevice* device )
         }
         break;
 
-#ifdef V4L2_CID_HCENTER
-      case V4L2_CID_HCENTER:
-#endif
-#ifdef V4L2_CID_VCENTER
-      case V4L2_CID_VCENTER:
-#endif
       case V4L2_CID_POWER_LINE_FREQUENCY:
+        if ( V4L2_CTRL_TYPE_MENU == ctrl.type ) {
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_POWER_LINE_FREQ ) =
+              OA_CTRL_TYPE_MENU;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_POWER_LINE_FREQ ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_POWER_LINE_FREQ ) = 1;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_POWER_LINE_FREQ ) = 3;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_POWER_LINE_FREQ ) =
+              ctrl.default_value;
+        } else {
+          if ( ctrl.type ) {
+            fprintf ( stderr, "POWER_LINE_FREQ is not MENU (%d)\n", ctrl.type );
+          }
+        }
         break;
 
       case V4L2_CID_HUE_AUTO:
@@ -607,9 +614,11 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     }
   }
 
-  // These are so we can get the auto exposure stuff right later.
+  // These are so we can get the auto exposure and autofocus stuff right later.
   int	autoExposureType = 0;
   int64_t autoMax, autoMin, autoDef, autoStep;
+  int   autoFocusType = 0;
+  uint8_t autoFocusMax, autoFocusMin, autoFocusDef, autoFocusStep;
 
   for ( id = V4L2_CID_CAMERA_CLASS_BASE; id < V4L2_CAMERA_CLASS_LASTP1;
       id++ ) {
@@ -835,10 +844,64 @@ oaV4L2InitCamera ( oaCameraDevice* device )
         break;
 
       case V4L2_CID_FOCUS_ABSOLUTE:
-      case V4L2_CID_FOCUS_RELATIVE:
-      case V4L2_CID_FOCUS_AUTO:
+        if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+              ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+              ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+              ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+              ctrl.default_value;
+        } else {
+          if ( ctrl.type ) {
+            fprintf ( stderr, "focus absolute is not INTEGER (%d)\n",
+                ctrl.type );
+          }
+        }
         break;
 
+      case V4L2_CID_FOCUS_RELATIVE:
+        if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FOCUS_RELATIVE ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_FOCUS_RELATIVE ) =
+              ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_FOCUS_RELATIVE ) =
+              ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_FOCUS_RELATIVE ) =
+              ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FOCUS_RELATIVE ) =
+              ctrl.default_value;
+        } else {
+          if ( ctrl.type ) {
+            fprintf ( stderr, "focus relative is not INTEGER (%d)\n",
+                ctrl.type );
+          }
+        }
+        break;
+
+      case V4L2_CID_FOCUS_AUTO:
+      {
+        if ( V4L2_CTRL_TYPE_BOOLEAN == ctrl.type ) {
+          // This might allow an autofocus option for "focus absolute" or
+          // "focus relative", so we need to remember the settings and handle
+          // this later when we know which focus options exist
+
+          autoFocusType = OA_CTRL_TYPE_BOOLEAN;
+          autoFocusMin = ctrl.minimum;
+          autoFocusMax = ctrl.maximum;
+          autoFocusStep = ctrl.step;
+          autoFocusDef = ctrl.default_value;
+        } else {
+          if ( ctrl.type ) {
+            fprintf ( stderr, "auto focus is not BOOLEAN (%d)\n", ctrl.type );
+          }
+        }
+        break;
+      }
       case V4L2_CID_ZOOM_ABSOLUTE:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
           camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_ZOOM_ABSOLUTE ) =
@@ -860,9 +923,65 @@ oaV4L2InitCamera ( oaCameraDevice* device )
         break;
 
       case V4L2_CID_ZOOM_CONTINUOUS:
+        break;
+
       case V4L2_CID_PRIVACY:
+        if ( V4L2_CTRL_TYPE_BOOLEAN == ctrl.type ) {
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_PRIVACY_ENABLE ) =
+              OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_PRIVACY_ENABLE ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_PRIVACY_ENABLE ) = 1;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_PRIVACY_ENABLE ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_PRIVACY_ENABLE ) =
+              ctrl.default_value;
+        } else {
+          if ( ctrl.type ) {
+            fprintf ( stderr, "privacy enable is not BOOLEAN (%d)\n",
+                ctrl.type );
+          }
+        }
+        break;
+
       case V4L2_CID_IRIS_ABSOLUTE:
+        if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_IRIS_ABSOLUTE ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_IRIS_ABSOLUTE ) =
+              ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_IRIS_ABSOLUTE ) =
+              ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_IRIS_ABSOLUTE ) =
+              ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_IRIS_ABSOLUTE ) =
+              ctrl.default_value;
+        } else {
+          if ( ctrl.type ) {
+            fprintf ( stderr, "iris absolute is not INTEGER (%d)\n",
+                ctrl.type );
+          }
+        }
+        break;
+
       case V4L2_CID_IRIS_RELATIVE:
+        if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_IRIS_RELATIVE ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_IRIS_RELATIVE ) =
+              ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_IRIS_RELATIVE ) =
+              ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_IRIS_RELATIVE ) =
+              ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_IRIS_RELATIVE ) =
+              ctrl.default_value;
+        } else {
+          if ( ctrl.type ) {
+            fprintf ( stderr, "focus relative is not INTEGER (%d)\n",
+                ctrl.type );
+          }
+        }
+        break;
+
 #ifdef V4L2_CID_AUTO_EXPOSURE_BIAS
       case V4L2_CID_AUTO_EXPOSURE_BIAS:
 #endif
@@ -940,6 +1059,34 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           autoStep;
       commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
           autoDef;
+    }
+  }
+
+  // FIX ME -- what if we have auto focus, but none of the focus modes?
+  if ( autoFocusType ) {
+    if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FOCUS_ABSOLUTE )) {
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+          autoFocusType;
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+          autoFocusMin;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+          autoFocusMax;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+          autoFocusStep;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
+          autoFocusDef;
+    }
+    if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FOCUS_RELATIVE )) {
+      camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_FOCUS_RELATIVE ) =
+          autoFocusType;
+      commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_FOCUS_RELATIVE ) =
+          autoFocusMin;
+      commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_FOCUS_RELATIVE ) =
+          autoFocusMax;
+      commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_FOCUS_RELATIVE ) =
+          autoFocusStep;
+      commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_FOCUS_RELATIVE ) =
+          autoFocusDef;
     }
   }
 
