@@ -982,11 +982,31 @@ oaV4L2InitCamera ( oaCameraDevice* device )
         }
         break;
 
-#ifdef V4L2_CID_AUTO_EXPOSURE_BIAS
-      case V4L2_CID_AUTO_EXPOSURE_BIAS:
-#endif
 #ifdef V4L2_CID_AUTO_N_PRESET_WHITE_BALANCE
       case V4L2_CID_AUTO_N_PRESET_WHITE_BALANCE:
+        if ( V4L2_CTRL_TYPE_MENU == ctrl.type ) {
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_WHITE_BALANCE_PRESET ) =
+              OA_CTRL_TYPE_MENU;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_WHITE_BALANCE_PRESET ) =
+              ctrl.minimum;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_WHITE_BALANCE_PRESET ) =
+              ctrl.maximum;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_WHITE_BALANCE_PRESET ) =
+              ctrl.step;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_WHITE_BALANCE_PRESET ) =
+              ctrl.default_value;
+        } else {
+          if ( ctrl.type ) {
+            fprintf ( stderr, "V4L2_CID_AUTO_N_PRESET_WHITE_BALANCE "
+                "is not MENU (%d)\n", ctrl.type );
+          }
+        }
+        break;
+#endif
+
+
+#ifdef V4L2_CID_AUTO_EXPOSURE_BIAS
+      case V4L2_CID_AUTO_EXPOSURE_BIAS:
 #endif
 #ifdef V4L2_CID_WIDE_DYNAMIC_RANGE
       case V4L2_CID_WIDE_DYNAMIC_RANGE:

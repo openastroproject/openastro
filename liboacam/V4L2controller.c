@@ -1244,29 +1244,41 @@ _processGetMenuItem ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
   if ( control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ) &&
       control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) &&
       control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) &&
-      control != OA_CAM_CTRL_POWER_LINE_FREQ ) {
+      control != OA_CAM_CTRL_POWER_LINE_FREQ &&
+      control != OA_CAM_CTRL_WHITE_BALANCE_PRESET ) {
     fprintf ( stderr, "%s: control not implemented\n", __FUNCTION__ );
     *buff = 0;
   } else {
-    OA_CLEAR( menuItem );
-    if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
-        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
-      menuItem.id = V4L2_CID_EXPOSURE_AUTO;
-    }
-    if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ) == control ) {
-      menuItem.id = V4L2_CID_AUTO_WHITE_BALANCE;
-    }
-    if ( OA_CAM_CTRL_POWER_LINE_FREQ == control ) {
-      menuItem.id = V4L2_CID_POWER_LINE_FREQUENCY;
-    }
-    menuItem.index = index;
-    if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_QUERYMENU, &menuItem )) {
-      perror ("VIDIOC_QUERYMENU");
-      fprintf ( stderr, "%s: control: %d, index %d\n", __FUNCTION__,
-          menuItem.id, index );
-      retStr = "";
+    if ( OA_CAM_CTRL_WHITE_BALANCE_PRESET == control ) {
+      if ( index >= 0 && index < ( sizeof ( oaCameraPresetAWBLabel ) /
+          sizeof ( const char* ))) {
+        retStr = oaCameraPresetAWBLabel[ index ];
+      } else {
+        retStr = "";
+      }
     } else {
-      strncpy ( buff, ( char* ) menuItem.name, V4L2_MAX_MENU_ITEM_LENGTH );
+      OA_CLEAR( menuItem );
+      switch ( control ) {
+        case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ):
+        case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
+          menuItem.id = V4L2_CID_EXPOSURE_AUTO;
+          break;
+        case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ):
+          menuItem.id = V4L2_CID_AUTO_WHITE_BALANCE;
+          break;
+        case OA_CAM_CTRL_POWER_LINE_FREQ:
+          menuItem.id = V4L2_CID_POWER_LINE_FREQUENCY;
+          break;
+      }
+      menuItem.index = index;
+      if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_QUERYMENU, &menuItem )) {
+        perror ("VIDIOC_QUERYMENU");
+        fprintf ( stderr, "%s: control: %d, index %d\n", __FUNCTION__,
+            menuItem.id, index );
+        retStr = "";
+      } else {
+        strncpy ( buff, ( char* ) menuItem.name, V4L2_MAX_MENU_ITEM_LENGTH );
+      }
     }
   }
 
