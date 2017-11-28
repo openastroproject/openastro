@@ -135,6 +135,19 @@ oaPGECameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
       }
       break;
 
+    case OA_CAM_CTRL_BINNING:
+      val_u32 = val->int32;
+      if ( val_u32 < 1 || val_u32 > 4 || 3 == val_u32  ) {
+        return -OA_ERR_OUT_OF_RANGE;
+      }
+      if ( val_u32 >= commonInfo->OA_CAM_CTRL_MIN( control ) &&
+          val_u32 <= commonInfo->OA_CAM_CTRL_MAX( control ) &&
+          ( 0 == ( val_u32 - commonInfo->OA_CAM_CTRL_MIN( control )) %
+          commonInfo->OA_CAM_CTRL_STEP( control ))) {
+        return OA_ERR_NONE;
+      }
+      break;
+
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
     case OA_CAM_CTRL_EXPOSURE_UNSCALED:
       val_s64 = val->int64;
@@ -170,10 +183,6 @@ oaPGECameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
         return -OA_ERR_OUT_OF_RANGE;
       }
       return OA_ERR_NONE;
-      break;
-
-    case OA_CAM_CTRL_BINNING:
-      return -OA_ERR_INVALID_CONTROL;
       break;
 
     default:

@@ -48,6 +48,7 @@ typedef struct PGE_STATE {
   int			bytesPerPixel;
   unsigned int		pixelFormats;
   int			bigEndian;
+  unsigned int		availableBinModes;
   // buffering for image transfers
   struct PGEbuffer*	buffers;
   int			configuredBuffers;

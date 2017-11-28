@@ -54,6 +54,7 @@ static int	_processStreamingStop ( PGE_STATE*, OA_COMMAND* );
 static int	_doStart ( PGE_STATE* );
 static int	_doStop ( PGE_STATE* );
 static int	_doBitDepth ( PGE_STATE*, int );
+static int	_doBinning ( PGE_STATE*, int );
 //static int	_processSetFrameInterval ( PGE_STATE*, OA_COMMAND* );
 
 
@@ -180,6 +181,16 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
   unsigned int		i;
   fc2Property		property;
 
+  // do this first as it's not a recognised control in itself
+  if ( OA_CAM_CTRL_BINNING == control ) {
+    if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
+      fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+          __FUNCTION__, val->valueType );
+      return -OA_ERR_INVALID_CONTROL_TYPE;
+    }
+    return _doBinning ( cameraInfo, val->int32 );
+  }
+
   for ( i = 0, found = -1; found < 0 && i < numPGEControls; i++ ) {
     if ( pgeControls[i].oaControl == control ||
         pgeControls[i].oaAutoControl == control ||
@@ -296,29 +307,6 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
     return OA_ERR_NONE;
   }
 
-  if ( found >= 0 || OA_CAM_CTRL_EXPOSURE_UNSCALED == control ) {
-    uint32_t val_u32;
-    if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
-      fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-          "for control %d\n", __FUNCTION__, val->valueType, control );
-      return -OA_ERR_INVALID_CONTROL_TYPE;
-    }
-    val_u32 = val->int32;
-    property.type = pgeControl;
-    if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
-        FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get PGE property %d\n", pgeControl );
-      return -OA_ERR_CAMERA_IO;
-    }
-    property.valueA = val_u32;
-    if (( *p_fc2SetProperty )( cameraInfo->pgeContext, &property ) !=
-        FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't set PGE property %d\n", pgeControl );
-      return -OA_ERR_CAMERA_IO;
-    }
-    return OA_ERR_NONE;
-  }
-
   // need to handle absolute exposure time separately
   if ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE == control ) {
     float decval;
@@ -347,6 +335,29 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
       return -OA_ERR_CAMERA_IO;
     }
     cameraInfo->currentAbsoluteExposure = val_s64;
+    return OA_ERR_NONE;
+  }
+
+  if ( found >= 0 || OA_CAM_CTRL_EXPOSURE_UNSCALED == control ) {
+    uint32_t val_u32;
+    if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
+      fprintf ( stderr, "%s: invalid control type %d where int32 expected "
+          "for control %d\n", __FUNCTION__, val->valueType, control );
+      return -OA_ERR_INVALID_CONTROL_TYPE;
+    }
+    val_u32 = val->int32;
+    property.type = pgeControl;
+    if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
+        FC2_ERROR_OK ) {
+      fprintf ( stderr, "Can't get PGE property %d\n", pgeControl );
+      return -OA_ERR_CAMERA_IO;
+    }
+    property.valueA = val_u32;
+    if (( *p_fc2SetProperty )( cameraInfo->pgeContext, &property ) !=
+        FC2_ERROR_OK ) {
+      fprintf ( stderr, "Can't set PGE property %d\n", pgeControl );
+      return -OA_ERR_CAMERA_IO;
+    }
     return OA_ERR_NONE;
   }
 
@@ -482,8 +493,13 @@ static int
 _processSetResolution ( PGE_STATE* cameraInfo, OA_COMMAND* command )
 {
   FRAMESIZE*			size = command->commandData;
-  unsigned int			binMode, s, found, mode, restart = 0;
+  unsigned int			binMode, s, mode, restart = 0;
   fc2GigEImageSettings		settings;
+  int				found;
+
+  if ( size->x == cameraInfo->xSize && size->y == cameraInfo->ySize ) {
+    return OA_ERR_NONE;
+  }
 
   found = -1;
   binMode = cameraInfo->binMode;
@@ -517,11 +533,13 @@ _processSetResolution ( PGE_STATE* cameraInfo, OA_COMMAND* command )
     _doStop ( cameraInfo );
   }
 
+/*
   if (( *p_fc2SetGigEImageBinningSettings )( cameraInfo->pgeContext, 1, 1 ) !=
       FC2_ERROR_OK ) {
     fprintf ( stderr, "Can't set mode %d for PGE GUID\n", mode );
     return -OA_ERR_CAMERA_IO;
   }
+*/
 
   if (( *p_fc2SetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
@@ -1100,6 +1118,72 @@ _doBitDepth ( PGE_STATE* cameraInfo, int bitDepth )
   cameraInfo->currentVideoFormat = settings.pixelFormat;
   cameraInfo->currentBytesPerPixel = bpp;
   cameraInfo->imageBufferLength = cameraInfo->xSize * cameraInfo->ySize * bpp;
+
+  if ( restart ) {
+    _doStart ( cameraInfo );
+  }
+
+  return OA_ERR_NONE;
+}
+
+
+static int
+_doBinning ( PGE_STATE* cameraInfo, int binMode )
+{
+  unsigned int			s, mode, restart = 0;
+  unsigned int			oldX, oldY, newX, newY;
+  int				found;
+  fc2GigEImageSettings		settings;
+
+  if (!( cameraInfo->availableBinModes & ( 1 << ( binMode - 1 )))) {
+    return -OA_ERR_OUT_OF_RANGE;
+  }
+
+  oldX = cameraInfo->xSize * cameraInfo->binMode;
+  oldY = cameraInfo->ySize * cameraInfo->binMode;
+  newX = oldX / binMode;
+  newY = oldY / binMode;
+
+  found = -1;
+  for ( s = 0; s < cameraInfo->frameSizes[ binMode ].numSizes; s++ ) {
+    if ( cameraInfo->frameSizes[ binMode ].sizes[ s ].x == newX &&
+        cameraInfo->frameSizes[ binMode ].sizes[ s ].y == newY ) {
+      found = s;
+      break;
+    }
+  }
+
+  if ( found < 0 ) {
+    fprintf ( stderr, "resolution not found\n" );
+    return -OA_ERR_OUT_OF_RANGE;
+  }
+
+  mode = cameraInfo->frameModes[ binMode ][ found ].mode;
+
+  if ( cameraInfo->isStreaming ) {
+    restart = 1;
+    _doStop ( cameraInfo );
+  }
+
+/*
+  if (( *p_fc2SetGigEImagingMode )( cameraInfo->pgeContext, mode ) !=
+      FC2_ERROR_OK ) {
+    fprintf ( stderr, "Can't set mode %d\n", mode );
+    return -OA_ERR_CAMERA_IO;
+  }
+*/
+
+  if (( *p_fc2SetGigEImageBinningSettings )( cameraInfo->pgeContext,
+      binMode, binMode ) != FC2_ERROR_OK ) {
+    fprintf ( stderr, "Can't set binning %d for mode %d\n", binMode, mode );
+    return -OA_ERR_CAMERA_IO;
+  }
+
+  cameraInfo->binMode = binMode;
+  cameraInfo->xSize = newX;
+  cameraInfo->ySize = newY;
+  cameraInfo->imageBufferLength = newX * newY *
+      cameraInfo->currentBytesPerPixel;
 
   if ( restart ) {
     _doStart ( cameraInfo );

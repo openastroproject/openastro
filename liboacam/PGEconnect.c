@@ -113,13 +113,14 @@ oaPGEInitCamera ( oaCameraDevice* device )
   fc2StrobeInfo			strobeInfo;
   fc2StrobeControl		strobeControl;
   fc2CameraInfo			camInfo;
-  unsigned int			i, j, numResolutions, found, xbin, ybin;
+  unsigned int			i, j, numResolutions, found, xbin;
   unsigned int			firstBinMode;
   BOOL				supported;
   uint16_t			mask16;
   unsigned int			numberOfSources, numberOfModes;
   unsigned int			dataFormat;
   int				ret, checkDataFormat = 0;
+  int				numBinModes, maxBinMode;
 
   if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
     perror ( "malloc oaCamera failed" );
@@ -573,7 +574,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       }
 
       if ( numberOfModes > 1 ) {
-        camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_MODE ) = OA_CTRL_TYPE_DISC_MENU;
+        camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_MODE ) =
+            OA_CTRL_TYPE_DISC_MENU;
         commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_MODE ) = 0;
         commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_MODE ) = numberOfModes;
         commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_MODE ) = 1;
@@ -689,9 +691,12 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) = 0;
         }
 
-        camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_DELAY ) = OA_CTRL_TYPE_INT64;
-        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_DELAY ) = delayInfo.min * 1000000;
-        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_DELAY ) = delayInfo.max * 1000000;
+        camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_DELAY ) =
+            OA_CTRL_TYPE_INT64;
+        commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_DELAY ) =
+            delayInfo.min * 1000000;
+        commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_DELAY ) =
+            delayInfo.max * 1000000;
         commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_DELAY ) = 1;
         commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_DELAY ) = 0;
       }
@@ -746,7 +751,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
       cameraInfo->strobeEnable = strobeInfo.onOffSupported ? 1 : 0;
       if ( strobeInfo.onOffSupported ) {
-        camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_STROBE_ENABLE ) = OA_CTRL_TYPE_BOOLEAN;
+        camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_STROBE_ENABLE ) =
+            OA_CTRL_TYPE_BOOLEAN;
         commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_STROBE_ENABLE ) = 0;
         commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_STROBE_ENABLE ) = 1;
         commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_STROBE_ENABLE ) = 1;
@@ -755,7 +761,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       }
 
       if ( strobeInfo.polaritySupported ) {
-        camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_STROBE_POLARITY ) = OA_CTRL_TYPE_MENU;
+        camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_STROBE_POLARITY ) =
+            OA_CTRL_TYPE_MENU;
         commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_STROBE_POLARITY ) = 0;
         commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_STROBE_POLARITY ) = 1;
         commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_STROBE_POLARITY ) = 1;
@@ -764,7 +771,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_STROBE_POLARITY ) = 0;
       }
 
-      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_STROBE_DELAY ) = OA_CTRL_TYPE_INT64;
+      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_STROBE_DELAY ) =
+            OA_CTRL_TYPE_INT64;
       commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_STROBE_DELAY ) =
           strobeInfo.minValue * 1000000;
       commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_STROBE_DELAY ) =
@@ -772,7 +780,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_STROBE_DELAY ) = 1;
       commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_STROBE_DELAY ) = 0;
 
-      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_STROBE_DURATION ) = OA_CTRL_TYPE_INT64;
+      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_STROBE_DURATION ) =
+            OA_CTRL_TYPE_INT64;
       commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_STROBE_DURATION ) =
           strobeInfo.minValue * 1000000;
       commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_STROBE_DURATION ) =
@@ -819,10 +828,29 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
   camera->features.rawMode = camera->features.demosaicMode = 0;
 
+  // It appears to be true for the Flea3 and Blackfly, so perhaps it's
+  // true for others, that:
+  //
+  // Mode 0: standard image
+  // Mode 1: 2x binning
+  // Mode 2: 2x subsampling
+  // Mode 4: looks messy :)
+  // Mode 5: 4x binning
+  // Mode 6: 4x binning for colour cameras, monochrome out
+  // Mode 7: standard image, slower pixel clock, preferred for longer exposures
+  //
+  // For the time being I'll ignore all but 0, 1 and 5.
+
   numResolutions = 0;
-  firstMode = -1;
+  firstMode = 0; // by definition
   firstBinMode = OA_BIN_MODE_NONE;
   for ( mode = FC2_MODE_0; mode < FC2_NUM_MODES; mode++ ) {
+
+    // skip modes unsupported by code
+    if ( mode != FC2_MODE_0 && mode != FC2_MODE_1 && mode != FC2_MODE_5 ) {
+      continue;
+    }
+
     if (( *p_fc2QueryGigEImagingMode )( pgeContext, mode, &supported ) !=
         FC2_ERROR_OK ) {
       fprintf ( stderr, "Can't get mode info %d for PGE GUID\n", i );
@@ -850,32 +878,28 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         free (( void* ) camera );
         return 0;
       }
-      if (( *p_fc2GetGigEImageBinningSettings )( pgeContext, &xbin, &ybin ) !=
-          FC2_ERROR_OK ) {
-        fprintf ( stderr, "Can't get binning info %d for PGE GUID\n", i );
-        ( *p_fc2DestroyContext )( pgeContext );
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
-        return 0;
+
+      switch ( mode ) {
+        case FC2_MODE_0:
+          xbin = 1;
+          break;
+        case FC2_MODE_1:
+          xbin = 2;
+          break;
+        case FC2_MODE_5:
+          xbin = 4;
+          break;
       }
 
-      if ( xbin != ybin ) {
-        fprintf ( stderr, "skipping PGE mode %d x bin %d != y bin %d\n",
-            mode, xbin, ybin );
-        continue;
+      if ( xbin > 1 ) {
+        if (( *p_fc2SetGigEImageBinningSettings )( pgeContext, xbin,
+            xbin ) != FC2_ERROR_OK ) {
+          // looks like this binning level isn't available in this mode
+          continue;
+        }
       }
 
-      if ( xbin > OA_MAX_BINNING ) {
-        fprintf ( stderr, "skipping PGE mode %d binning %d > OA_MAX_BINNING\n",
-            mode, xbin );
-        continue;
-      }
-
-      if ( firstMode == -1 ) {
-        firstMode = mode;
-        firstBinMode = xbin;
-      }
+      cameraInfo->availableBinModes |= ( 1 << ( xbin - 1 ));
       if ( imageInfo.imageHStepSize || imageInfo.imageVStepSize ) {
         camera->features.ROI = 1;
       }
@@ -884,8 +908,10 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       numResolutions = cameraInfo->frameSizes[xbin].numSizes;
       if ( numResolutions ) {
         for ( j = 0; j < numResolutions && !found; j++ ) {
-          if ( cameraInfo->frameSizes[xbin].sizes[j].x == imageInfo.maxWidth &&
-              cameraInfo->frameSizes[xbin].sizes[j].y == imageInfo.maxHeight ) {
+          if ( cameraInfo->frameSizes[xbin].sizes[j].x ==
+              imageInfo.maxWidth &&
+              cameraInfo->frameSizes[xbin].sizes[j].y ==
+              imageInfo.maxHeight ) {
             found = 1;
           }
         }
@@ -918,9 +944,26 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       }
     }
   }
+  maxBinMode = numBinModes = 0;
+  i = cameraInfo->availableBinModes;
+  while ( i ) {
+    maxBinMode++;
+    if ( i & 1 ) {
+      numBinModes++;
+    }
+    i >>= 1;
+  }
+  if ( numBinModes > 1 ) {
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BINNING ) = 1;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BINNING ) = maxBinMode;
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BINNING ) = 1; // arbitrary
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BINNING ) = 1;
+  }
+
   cameraInfo->maxResolutionX = cameraInfo->xSize;
   cameraInfo->maxResolutionY = cameraInfo->ySize;
-  cameraInfo->binMode = firstBinMode;
+  cameraInfo->binMode = OA_BIN_MODE_NONE;
   cameraInfo->pixelFormats = imageInfo.pixelFormatBitField;
 
   // Put the camera into a known state
@@ -959,6 +1002,16 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     free (( void* ) camera );
     return 0;
   }
+  if (( *p_fc2SetGigEImageBinningSettings )( pgeContext, 1, 1 ) !=
+      FC2_ERROR_OK ) {
+    fprintf ( stderr, "Can't set binmode 1 for PGE GUID\n" );
+    ( *p_fc2DestroyContext )( pgeContext );
+    free (( void* ) commonInfo );
+    free (( void* ) cameraInfo );
+    free (( void* ) camera );
+    return 0;
+  }
+
   cameraInfo->currentMode = firstMode;
   cameraInfo->currentVideoFormat = settings.pixelFormat;
 
