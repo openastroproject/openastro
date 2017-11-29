@@ -367,8 +367,8 @@ CaptureWidget::fileTypeChanged ( int index )
       CAPTURE_FITS == config.fileTypeOption ) {
     if ( !config.fileNameTemplate.contains ( "%INDEX" ) &&
         !config.fileNameTemplate.contains ( "%I" )) {
-      QMessageBox::warning ( this, APPLICATION_NAME,
-          tr ( "The " ) + fileFormats[ config.fileTypeOption ] +
+      QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME, tr ( "The " ) +
+          fileFormats[ config.fileTypeOption ] +
           tr ( " file format is selected, but the filename template "
           "does not contain either the \"%INDEX\" or \"%I\" pattern.  Output "
           "files may therefore overwrite each other" ));
@@ -430,7 +430,7 @@ CaptureWidget::startRecording ( void )
       QString msg = tr ( "\n\nWhen using timer mode the image capture type "
           "should be FITS and a frame-based capture limit should be set.\n\n"
           "Capture run abandoned" );
-      QMessageBox::warning ( this, APPLICATION_NAME, msg );
+      QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME, msg );
       return;
     }
   }
@@ -464,10 +464,10 @@ CaptureWidget::startRecording ( void )
       numDigits++;
     } while ( maxFrames );
     if ( numDigits > config.indexDigits ) {
-      if ( QMessageBox::critical ( this, APPLICATION_NAME,
+      if ( QMessageBox::critical ( TOP_WIDGET, APPLICATION_NAME,
           tr ( "The number of frames in the currently configured capture run "
           "is likely to exceed the size of the index in the filename.  "
-          "Continue?" ), QMessageBox::Ok | QMessageBox::Cancel ) != 
+          "Continue?" ), QMessageBox::Ok | QMessageBox::Cancel ) !=
           QMessageBox::Ok ) {
         return;
       }
@@ -506,9 +506,9 @@ CaptureWidget::doStartRecording ( int autorunFlag )
       if ( config.promptForFilterChange && !( state.filterWheel &&
           state.filterWheel->isInitialised())) {
         QMessageBox* changeFilter = new QMessageBox ( QMessageBox::NoIcon,
-          APPLICATION_NAME, tr ( "Change to next filter: " ) +
-          config.filters[ newFilterNum ].filterName,
-          QMessageBox::Ok, state.mainWindow );
+            APPLICATION_NAME, tr ( "Change to next filter: " ) +
+            config.filters[ newFilterNum ].filterName,
+            QMessageBox::Ok, TOP_WIDGET );
         changeFilter->exec();
         delete changeFilter;
       }
@@ -594,8 +594,8 @@ CaptureWidget::doStartRecording ( int autorunFlag )
       CAPTURE_FITS == config.fileTypeOption )) {
     if ( !out->outputWritable()) {
       // FIX ME -- this may cross threads: don't cross the threads!
-      QMessageBox::warning ( this, tr ( "Start Recording" ),
-        tr ( "Output is not writable" ));
+      QMessageBox::warning ( TOP_WIDGET, tr ( "Start Recording" ),
+          tr ( "Output is not writable" ));
       delete out;
       out = 0;
       return;
@@ -604,7 +604,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     if ( out && out->outputExists()) {
       if ( out->outputWritable()) {
         // FIX ME -- this may cross threads: don't cross the threads!
-        if ( QMessageBox::question ( this, tr ( "Start Recording" ),
+        if ( QMessageBox::question ( TOP_WIDGET, tr ( "Start Recording" ),
             tr ( "Output file exists.  OK to overwrite?" ), QMessageBox::No |
             QMessageBox::Yes, QMessageBox::No ) == QMessageBox::No ) {
           delete out;
@@ -613,8 +613,8 @@ CaptureWidget::doStartRecording ( int autorunFlag )
         }
       } else {
         // FIX ME -- this may cross threads: don't cross the threads!
-        QMessageBox::warning ( this, tr ( "Start Recording" ),
-          tr ( "Output file exists and is not writable" ));
+        QMessageBox::warning ( TOP_WIDGET, tr ( "Start Recording" ),
+            tr ( "Output file exists and is not writable" ));
         delete out;
         out = 0;
         return;
@@ -624,7 +624,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
 
   if ( !out || out->openOutput()) {
     // FIX ME -- this may cross threads: don't cross the threads!
-    QMessageBox::warning ( this, APPLICATION_NAME,
+    QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
         tr ( "Unable to create file for output" ));
     if ( state.autorunEnabled ) {
       state.autorunRemaining = 1; // force timeout
@@ -802,50 +802,50 @@ CaptureWidget::enableSERCapture ( int state )
 
 
 void
-CaptureWidget::enableTIFFCapture ( int state )
+CaptureWidget::enableTIFFCapture ( int enabled )
 {
   int posn;
 
   posn = CAPTURE_TIFF - 1 - ( haveSER ? 0 : 1 );
 
-  if ( haveTIFF && !state ) {
+  if ( haveTIFF && !enabled ) {
     if ( typeMenu->currentIndex() == CAPTURE_TIFF - 1 ) {
-      QMessageBox::warning ( this, APPLICATION_NAME,
-        tr ( "TIFF output format has been disabled" ));
+      QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+          tr ( "TIFF output format has been disabled" ));
     }
     typeMenu->removeItem ( posn );
   }
-  if ( !haveTIFF && state ) {
+  if ( !haveTIFF && enabled ) {
     QVariant v( CAPTURE_TIFF );
     typeMenu->insertItem ( posn, fileFormats[ CAPTURE_TIFF ], v );
   }
-  haveTIFF = state;
+  haveTIFF = enabled;
 }
 
 
 void
-CaptureWidget::enablePNGCapture ( int state )
+CaptureWidget::enablePNGCapture ( int enabled )
 {
   int posn;
 
   posn = CAPTURE_PNG - 1 - ( haveSER ? 0 : 1 ) - ( haveTIFF ? 0 : 1 );
 
-  if ( havePNG && !state ) {
+  if ( havePNG && !enabled ) {
     if ( typeMenu->currentIndex() == CAPTURE_PNG - 1 ) {
-      QMessageBox::warning ( this, APPLICATION_NAME,
-        tr ( "PNG output format has been disabled" ));
+      QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+          tr ( "PNG output format has been disabled" ));
     }
     typeMenu->removeItem ( posn );
   }
-  if ( !havePNG && state ) {
+  if ( !havePNG && enabled ) {
     QVariant v( CAPTURE_PNG );
     typeMenu->insertItem ( posn, fileFormats[ CAPTURE_PNG ], v );
   }
-  havePNG = state;
+  havePNG = enabled;
 }
 
 void
-CaptureWidget::enableFITSCapture ( int state )
+CaptureWidget::enableFITSCapture ( int enabled )
 {
 #ifdef HAVE_LIBCFITSIO
   int posn;
@@ -853,43 +853,43 @@ CaptureWidget::enableFITSCapture ( int state )
   posn = CAPTURE_FITS - 1 - ( haveTIFF ? 0 : 1 ) - ( haveSER ? 0 : 1 ) -
       ( havePNG ? 0 : 1 );
 
-  if ( haveFITS && !state ) {
+  if ( haveFITS && !enabled ) {
     if ( typeMenu->currentIndex() == posn ) {
-      QMessageBox::warning ( this, APPLICATION_NAME,
-        tr ( "FITS output format has been disabled" ));
+      QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+          tr ( "FITS output format has been disabled" ));
     }
     typeMenu->removeItem ( posn );
   }
-  if ( !haveFITS && state ) {
+  if ( !haveFITS && enabled ) {
     QVariant v( CAPTURE_FITS );
     typeMenu->insertItem ( posn, fileFormats[ CAPTURE_FITS ], v );
   }
-  haveFITS = state;
+  haveFITS = enabled;
 #endif
   return;
 }
 
 
 void
-CaptureWidget::enableMOVCapture ( int state )
+CaptureWidget::enableMOVCapture ( int enabled )
 {
   int posn;
 
   posn = CAPTURE_MOV - 1 - ( haveFITS ? 0 : 1 ) - ( haveTIFF ? 0 : 1 ) -
       ( haveSER ? 0 : 1 ) - ( havePNG ? 0 : 1 );
 
-  if ( haveMOV && !state ) {
+  if ( haveMOV && !enabled ) {
     if ( typeMenu->currentIndex() == posn ) {
-      QMessageBox::warning ( this, APPLICATION_NAME,
-        tr ( "MOV output format has been disabled" ));
+      QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+          tr ( "MOV output format has been disabled" ));
     }
     typeMenu->removeItem ( posn );
   }
-  if ( !haveMOV && state ) {
+  if ( !haveMOV && enabled ) {
     QVariant v( CAPTURE_MOV );
     typeMenu->insertItem ( posn, fileFormats[ CAPTURE_MOV ], v );
   }
-  haveMOV = state;
+  haveMOV = enabled;
   return;
 }
 
@@ -1033,18 +1033,18 @@ void
 CaptureWidget::deleteLastRecordedFile ( void )
 {
   if ( "" == state.lastRecordedFile ) {
-    QMessageBox::warning ( this, tr ( "Delete File" ),
+    QMessageBox::warning ( TOP_WIDGET, tr ( "Delete File" ),
         tr ( "No last file to delete" ));
     return;
   }
 
   QString name = state.lastRecordedFile.section ( '/', -1 );
-  if ( QMessageBox::question ( this, tr ( "Delete File" ),
+  if ( QMessageBox::question ( TOP_WIDGET, tr ( "Delete File" ),
       tr ( "Delete file " ) + name, QMessageBox::Cancel | QMessageBox::Yes,
       QMessageBox::Cancel ) == QMessageBox::Yes ) {
     if ( unlink ( state.lastRecordedFile.toStdString().c_str())) {
-      QMessageBox::warning ( this, tr ( "Delete File" ),
-      tr ( "Delete failed for" ) + name );
+      QMessageBox::warning ( TOP_WIDGET, tr ( "Delete File" ),
+          tr ( "Delete failed for" ) + name );
     }
     state.lastRecordedFile = "";
   }
@@ -1574,7 +1574,7 @@ CaptureWidget::writeSettings ( OutputHandler* out )
 
     settings.close();
   } else {
-    QMessageBox::warning ( this, APPLICATION_NAME,
+    QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
         tr ( "Unable to create settings output file" ));
   }
 }

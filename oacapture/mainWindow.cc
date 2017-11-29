@@ -1488,16 +1488,16 @@ MainWindow::connectCamera ( int deviceIndex )
           if ( haveCamera && connectedCameras == 1 ) {
             continue;
           }
-          QMessageBox::warning ( this, APPLICATION_NAME,
-              tr ( "The firmware has loaded, but a rescan is required "
-              "and the camera must be selected again." ));
+          QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+              tr ( "The firmware has loaded, but a "
+              "rescan is required and the camera must be selected again." ));
         } else {
-          QMessageBox::warning ( this, APPLICATION_NAME,
-              tr ( "The firmware has loaded, but a rescan is required "
-              "and the camera must be selected again." ));
+          QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+              tr ( "The firmware has loaded, but a "
+              "rescan is required and the camera must be selected again." ));
         }
       } else {
-        QMessageBox::warning ( this, APPLICATION_NAME,
+        QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
             tr ( "Unable to connect camera" ));
       }
       state.histogramOn = oldHistogramState;
@@ -1612,7 +1612,7 @@ MainWindow::connectFilterWheel ( int deviceIndex )
 {
   doDisconnectFilterWheel();
   if ( state.filterWheel->initialise ( filterWheelDevs[ deviceIndex ] )) {
-    QMessageBox::warning ( this, APPLICATION_NAME,
+    QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
         tr ( "Unable to connect filter wheel" ));
     return;
   }
@@ -1699,7 +1699,7 @@ MainWindow::connectTimer ( int deviceIndex )
 {
   doDisconnectTimer();
   if ( state.timer->initialise ( timerDevs[ deviceIndex ] )) {
-    QMessageBox::warning ( this, APPLICATION_NAME,
+    QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
         tr ( "Unable to connect timer" ));
     return;
   }
@@ -2053,8 +2053,9 @@ MainWindow::mosaicFlipWarning ( void )
   int format = state.camera->videoFramePixelFormat();
 
   if ( OA_ISBAYER ( format )) {
-    QMessageBox::warning ( this, APPLICATION_NAME,
-        tr ( "Flipping a raw camera image may require a different colour mask to be used for demosaicking " ));
+    QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+        tr ( "Flipping a raw camera image may "
+        "require a different colour mask to be used for demosaicking " ));
   }
 }
 
@@ -2083,7 +2084,7 @@ MainWindow::enableDemosaic ( void )
 void
 MainWindow::aboutDialog ( void )
 {
-  QMessageBox::about ( this, tr ( "About " APPLICATION_NAME ),
+  QMessageBox::about ( TOP_WIDGET, tr ( "About " APPLICATION_NAME ),
       tr ( "<h2>" APPLICATION_NAME " " VERSION_STR "</h2>"
       "<p>Copyright &copy; " COPYRIGHT_YEARS " " AUTHOR_NAME "<br/>"
       "&lt;" AUTHOR_EMAIL "&gt;</p>"
@@ -2857,6 +2858,6 @@ MainWindow::reveal ( void )
 void
 MainWindow::frameWriteFailedPopup ( void )
 {
-  QMessageBox::warning ( this, APPLICATION_NAME,
+  QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
       tr ( "Error saving captured frame" ));
 }

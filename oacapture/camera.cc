@@ -367,7 +367,7 @@ Camera::initialise ( oaCameraDevice* device )
 
     QMessageBox* loading = new QMessageBox ( QMessageBox::NoIcon,
         APPLICATION_NAME, tr ( "Attempting to load camera firmware" ),
-        QMessageBox::NoButton, state.mainWindow );
+        QMessageBox::NoButton, TOP_WIDGET );
     QAbstractButton* b = loading->button ( QMessageBox::Ok );
     if ( b ) {
       loading->removeButton ( b );
@@ -387,30 +387,30 @@ Camera::initialise ( oaCameraDevice* device )
           break;
 
         case OA_ERR_MANUAL_FIRMWARE:
-          QMessageBox::warning ( state.mainWindow, APPLICATION_NAME,
+          QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
               tr ( "The firmware could not be loaded.  It must be loaded "
               "manually." ));
           break;
 
         case OA_ERR_FXLOAD_NOT_FOUND:
-          QMessageBox::warning ( state.mainWindow, APPLICATION_NAME,
+          QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
               tr ( "The firmware could not be loaded.  The fxload utility "
               "was not found." ));
           break;
 
         case OA_ERR_FXLOAD_ERROR:
-          QMessageBox::warning ( state.mainWindow, APPLICATION_NAME,
+          QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
               tr ( "The firmware could not be loaded.  The fxload utility "
               "returned an error." ));
           break;
 
         case OA_ERR_FIRMWARE_UNKNOWN:
-          QMessageBox::warning ( state.mainWindow, APPLICATION_NAME,
+          QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
               tr ( "The firmware could not be found." ));
           break;
 
         default:
-          QMessageBox::warning ( state.mainWindow, APPLICATION_NAME,
+          QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
               tr ( "Unexpected error loading firmware." ));
           break;
       }

@@ -640,10 +640,10 @@ CameraSettings::buttonPushed ( int control )
         }
       }
 
-      QMessageBox::warning ( this, tr ( "Restore Settings" ),
+      QMessageBox::warning ( TOP_WIDGET, tr ( "Restore Settings" ),
           tr ( "Depending on how this function is implemented in the camera "
-              "it is possible that the control settings may now be set to "
-              "incorrect values" ));
+          "it is possible that the control settings may now be set to "
+          "incorrect values" ));
     }
   } else {
     int64_t min, max, step, def;

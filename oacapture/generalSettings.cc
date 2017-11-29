@@ -219,6 +219,6 @@ GeneralSettings::showRestartWarning ( void )
         "selections to make the controls dockable or appear on the right." );
   }
 
-  QMessageBox::warning ( this, APPLICATION_NAME, msg1 + msg2 );
+  QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME, msg1 + msg2 );
   state.settingsWidget->dataChanged();
 }

@@ -65,6 +65,7 @@ class SettingsWidget : public QWidget
     void		setSlotCount ( int );
     void		updateFrameRate ( int );
     void		reconfigureControl ( int );
+    QWidget*		getTabset ( void );
 
   private:
     GeneralSettings*	general;

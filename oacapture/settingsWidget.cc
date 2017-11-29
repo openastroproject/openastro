@@ -233,3 +233,10 @@ SettingsWidget::updateFrameRate ( int index )
 {
   cameras->updateFrameRate ( index );
 }
+
+
+QWidget*
+SettingsWidget::getTabset ( void )
+{
+  return ( QWidget* ) tabSet;
+}

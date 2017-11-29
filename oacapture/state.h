@@ -129,3 +129,7 @@ extern STATE		state;
 #define WINDIB_OK(f) (( f == OA_PIX_FMT_GREY8 ) || \
     ( f == OA_PIX_FMT_BGGR8 ) || ( f == OA_PIX_FMT_RGGB8 ) || \
     ( f == OA_PIX_FMT_GRBG8 ) || ( f == OA_PIX_FMT_GBRG8 ))
+
+
+#define TOP_WIDGET ( state.settingsWidget ? state.settingsWidget->getTabset() :\
+    ( state.mainWindow ? ( QWidget* ) state.mainWindow : ( QWidget* ) this ))
