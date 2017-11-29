@@ -76,7 +76,7 @@ sobel8 ( uint8_t* source, uint8_t* target, int xSize, int ySize )
     *t++ = 0;
   }
 
-  score = score / xSize / ySize / 5;
+  score = score / xSize / ySize;
 
   return score;
 }

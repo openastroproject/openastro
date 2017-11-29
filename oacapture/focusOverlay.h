@@ -41,6 +41,7 @@ class FocusOverlay : public QWidget
   public:
   		FocusOverlay ( QWidget* );
     void	addScore ( int );
+    void	reset ( void );
  
   protected:
     void	paintEvent ( QPaintEvent* event );
@@ -49,6 +50,9 @@ class FocusOverlay : public QWidget
     int		startOfBuffer;
     int		endOfBuffer;
     int		values [ 256 ];
+    float	currentMaximum;
+    float	currentMinimum;
+    float	currentRange;
 
   signals:
     void	updateFocus ( void );

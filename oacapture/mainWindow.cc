@@ -1584,6 +1584,7 @@ MainWindow::disconnectCamera ( void )
   state.captureWidget->enableStartButton ( 0 );
   state.captureWidget->enableProfileSelect ( 0 );
   doDisconnectCam();
+  focusOverlay->reset();
   statusLine->showMessage ( tr ( "Camera disconnected" ));
 }
 
