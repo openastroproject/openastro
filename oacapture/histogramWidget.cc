@@ -2,7 +2,7 @@
  *
  * histogramWidget.cc -- class for the histogram display
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -66,11 +66,9 @@ HistogramWidget::~HistogramWidget()
 
 
 void
-HistogramWidget::process ( void* imageData, int length, int format )
+HistogramWidget::process ( void* imageData, unsigned int width,
+    unsigned int height, unsigned int length, int format )
 {
-  int maxCount = 1;
-  int minIntensity = 0xffff;
-
   // Can't do this in the constructor because previewWidget might not exist
   // at that time
   if ( !signalConnected ) {
@@ -79,116 +77,20 @@ HistogramWidget::process ( void* imageData, int length, int format )
     signalConnected = 1;
   }
 
-  colours = 1;
-  if ( OA_PIX_FMT_RGB24 == format || OA_PIX_FMT_BGR24 == format ) {
-    colours = 3;
-  }
+  fullIntensity = 0xff;
+  minIntensity = 0xffff;
   doneProcess = 1;
 
-  int step = ( length / colours ) / 10000;
-  step *= colours;
-  if ( step < 1 ) {
-    step = 1;
-  }
-
-  fullIntensity = 0xff;
-  if ( 1 == colours ) {
-    maxIntensity = 0;
-    bzero ( grey, sizeof( int ) * 256 );
-    int intensity;
-    if ( 2 == OA_BYTES_PER_PIXEL( format )) {
-      step *= 2;
-      fullIntensity = 0xffff;
-      if ( OA_PIX_FMT_GREY16LE == format || OA_PIX_FMT_BGGR16LE == format ||
-          OA_PIX_FMT_RGGB16LE == format || OA_PIX_FMT_GBRG16LE == format ||
-          OA_PIX_FMT_GRBG16LE == format ) {
-        int b1, b2;
-        for ( int i = 0; i < length; i += step ) {
-          b1 = *(( uint8_t* ) imageData + i );
-          b2 = *(( uint8_t* ) imageData + i + 1 );
-          intensity = b1 + ( b2 << 8 );
-          maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
-          minIntensity = intensity < minIntensity ? intensity : minIntensity;
-          grey[ b2 ]++;
-        }
-      } else {
-        int b1, b2;
-        for ( int i = 0; i < length; i += step ) {
-          b1 = *(( uint8_t* ) imageData + i );
-          b2 = *(( uint8_t* ) imageData + i + 1 );
-          intensity = ( b1 << 8 ) + b2;
-          maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
-          minIntensity = intensity < minIntensity ? intensity : minIntensity;
-          grey[ b1 ]++;
-        }
-      }
-    } else {
-      for ( int i = 0; i < length; i += step ) {
-        intensity = *(( uint8_t* ) imageData + i );
-        maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
-        minIntensity = intensity < minIntensity ? intensity : minIntensity;
-        grey[ intensity ]++;
-      }
-    }
-    for ( int i = 0; i < 256; i++ ) {
-      maxCount = ( grey[i] > maxCount ) ? grey[i] : maxCount;
-    }
-    for ( int i = 0; i < 256; i++ ) {
-      grey[i] = grey[i] * 100 / maxCount;
-    }
+  if ( OA_PIX_FMT_RGB24 == format || OA_PIX_FMT_BGR24 == format ) {
+    _processRGBHistogram ( imageData, width, height, length, format );
   } else {
-    int* swapRed = red;
-    int* swapBlue = blue;
-    if ( OA_PIX_FMT_BGR24 == format ) {
-      swapRed = blue;
-      swapBlue = red;
+    if ( OA_ISBAYER ( format ) && config.rawRGBHistogram ) {
+      _processMosaicHistogram ( imageData, width, height, length, format );
+    } else {
+      _processGreyscaleHistogram ( imageData, width, height, length, format );
     }
-    maxRedIntensity = 0;
-    maxGreenIntensity = 0;
-    maxBlueIntensity = 0;
-    bzero ( red, sizeof( int ) * 256 );
-    bzero ( green, sizeof( int ) * 256 );
-    bzero ( blue, sizeof( int ) * 256 );
-    int intensity;
-    for ( int i = 0; i < length; i += step ) {
-      intensity = *(( uint8_t* ) imageData + i );
-      maxRedIntensity = intensity > maxRedIntensity ? intensity :
-          maxRedIntensity;
-      maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
-      minIntensity = intensity < minIntensity ? intensity : minIntensity;
-      swapRed[ intensity ]++;
-
-      intensity = *(( uint8_t* ) imageData + i + 1 );
-      maxGreenIntensity = intensity > maxGreenIntensity ? intensity :
-          maxGreenIntensity;
-      maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
-      minIntensity = intensity < minIntensity ? intensity : minIntensity;
-      green[ intensity ]++;
-
-      intensity = *(( uint8_t* ) imageData + i + 2 );
-      maxBlueIntensity = intensity > maxBlueIntensity ? intensity :
-          maxBlueIntensity;
-      maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
-      minIntensity = intensity < minIntensity ? intensity : minIntensity;
-      swapBlue[ intensity ]++;
-    }
-    for ( int i = 0; i < 256; i++ ) {
-      maxCount = ( red[i] > maxCount ) ? red[i] : maxCount;
-      maxCount = ( green[i] > maxCount ) ? green[i] : maxCount;
-      maxCount = ( blue[i] > maxCount ) ? blue[i] : maxCount;
-    }
-    for ( int i = 0; i < 256; i++ ) {
-      red[i] = red[i] * 100 / maxCount;
-      green[i] = green[i] * 100 / maxCount;
-      blue[i] = blue[i] * 100 / maxCount;
-    }
-    if ( OA_PIX_FMT_BGR24 == format ) {
-      int s = maxBlueIntensity;
-      maxBlueIntensity = maxRedIntensity;
-      maxRedIntensity = s;
-    }
-
   }
+
   if ( statsEnabled ) {
     histogramMin = minIntensity < histogramMin ? minIntensity : histogramMin;
     histogramMax = maxIntensity > histogramMax ? maxIntensity : histogramMax;
@@ -322,4 +224,253 @@ void
 HistogramWidget::stopStats ( void )
 {
   statsEnabled = 0;
+}
+
+
+void
+HistogramWidget::_processGreyscaleHistogram ( void* imageData,
+    unsigned int width, unsigned int height, unsigned int length, int format )
+{
+  int maxCount = 1;
+  int intensity, step;
+
+  colours = 1;
+  step = length / 10000;
+  if ( step < 1 ) {
+    step = 1;
+  }
+
+  maxIntensity = 0;
+  bzero ( grey, sizeof( int ) * 256 );
+
+  if ( 2 == OA_BYTES_PER_PIXEL( format )) {
+    step *= 2;
+    fullIntensity = 0xffff;
+    if ( OA_ISLITTLE_ENDIAN ( format )) {
+      int b1, b2;
+      for ( int i = 0; i < length; i += step ) {
+        b1 = *(( uint8_t* ) imageData + i );
+        b2 = *(( uint8_t* ) imageData + i + 1 );
+        intensity = b1 + ( b2 << 8 );
+        maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
+        minIntensity = intensity < minIntensity ? intensity : minIntensity;
+        grey[ b2 ]++;
+      }
+    } else {
+      int b1, b2;
+      for ( int i = 0; i < length; i += step ) {
+        b1 = *(( uint8_t* ) imageData + i );
+        b2 = *(( uint8_t* ) imageData + i + 1 );
+        intensity = ( b1 << 8 ) + b2;
+        maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
+        minIntensity = intensity < minIntensity ? intensity : minIntensity;
+        grey[ b1 ]++;
+      }
+    }
+  } else {
+    for ( int i = 0; i < length; i += step ) {
+      intensity = *(( uint8_t* ) imageData + i );
+      maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
+      minIntensity = intensity < minIntensity ? intensity : minIntensity;
+      grey[ intensity ]++;
+    }
+  }
+  for ( int i = 0; i < 256; i++ ) {
+    maxCount = ( grey[i] > maxCount ) ? grey[i] : maxCount;
+  }
+  for ( int i = 0; i < 256; i++ ) {
+    grey[i] = grey[i] * 100 / maxCount;
+  }
+}
+
+
+void
+HistogramWidget::_processRGBHistogram ( void* imageData,
+    unsigned int width, unsigned int height, unsigned int length, int format )
+{
+  int* swapRed = red;
+  int* swapBlue = blue;
+  int maxCount = 1;
+  int step;
+
+  colours = 3;
+  step = ( length / colours ) / 10000;
+  step *= colours;
+  if ( step < 1 ) {
+    step = 1;
+  }
+
+  if ( OA_PIX_FMT_BGR24 == format ) {
+    swapRed = blue;
+    swapBlue = red;
+  }
+
+  maxRedIntensity = 0;
+  maxGreenIntensity = 0;
+  maxBlueIntensity = 0;
+  bzero ( red, sizeof( int ) * 256 );
+  bzero ( green, sizeof( int ) * 256 );
+  bzero ( blue, sizeof( int ) * 256 );
+  int intensity;
+  for ( int i = 0; i < length; i += step ) {
+    intensity = *(( uint8_t* ) imageData + i );
+    maxRedIntensity = intensity > maxRedIntensity ? intensity :
+        maxRedIntensity;
+    maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
+    minIntensity = intensity < minIntensity ? intensity : minIntensity;
+    swapRed[ intensity ]++;
+
+    intensity = *(( uint8_t* ) imageData + i + 1 );
+    maxGreenIntensity = intensity > maxGreenIntensity ? intensity :
+        maxGreenIntensity;
+    maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
+    minIntensity = intensity < minIntensity ? intensity : minIntensity;
+    green[ intensity ]++;
+
+    intensity = *(( uint8_t* ) imageData + i + 2 );
+    maxBlueIntensity = intensity > maxBlueIntensity ? intensity :
+        maxBlueIntensity;
+    maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
+    minIntensity = intensity < minIntensity ? intensity : minIntensity;
+    swapBlue[ intensity ]++;
+  }
+  for ( int i = 0; i < 256; i++ ) {
+    maxCount = ( red[i] > maxCount ) ? red[i] : maxCount;
+    maxCount = ( green[i] > maxCount ) ? green[i] : maxCount;
+    maxCount = ( blue[i] > maxCount ) ? blue[i] : maxCount;
+  }
+  for ( int i = 0; i < 256; i++ ) {
+    red[i] = red[i] * 100 / maxCount;
+    green[i] = green[i] * 100 / maxCount;
+    blue[i] = blue[i] * 100 / maxCount;
+  }
+  if ( OA_PIX_FMT_BGR24 == format ) {
+    int s = maxBlueIntensity;
+    maxBlueIntensity = maxRedIntensity;
+    maxRedIntensity = s;
+  }
+}
+
+
+void
+HistogramWidget::_processMosaicHistogram ( void* imageData,
+    unsigned int width, unsigned int height, unsigned int length, int format )
+{
+  unsigned int x, y, bytesPerLine, bytesPerPixel;
+  int maxCount = 1;
+  int step;
+  char colour;
+  const char* pattern;
+
+  if ( OA_ISBAYER8( format )) {
+    bytesPerPixel = 1;
+  } else {
+    bytesPerPixel = 2;
+  }
+  bytesPerLine = width * bytesPerPixel;
+  colours = 3;
+  step = length / 10000;
+  if ( step < 1 ) {
+    step = 1;
+  }
+  // make sure step is odd, so we pick up all photosite colours
+  step &= 1;
+  // and step whole photosites
+  step *= bytesPerPixel;
+
+  maxRedIntensity = 0;
+  maxGreenIntensity = 0;
+  maxBlueIntensity = 0;
+  bzero ( red, sizeof( int ) * 256 );
+  bzero ( green, sizeof( int ) * 256 );
+  bzero ( blue, sizeof( int ) * 256 );
+
+  if ( OA_ISBAYER16( format )) {
+    fullIntensity = 0xffff;
+  }
+
+  int intensity;
+  for ( int i = 0; i < length; i += step ) {
+    x = ( i % bytesPerLine ) / bytesPerPixel;
+    y = i / bytesPerLine;
+    switch ( format ) {
+      case OA_PIX_FMT_BGGR8:
+      case OA_PIX_FMT_BGGR16LE:
+      case OA_PIX_FMT_BGGR16BE:
+        pattern = "BGGR";
+        break;
+
+      case OA_PIX_FMT_RGGB8:
+      case OA_PIX_FMT_RGGB16LE:
+      case OA_PIX_FMT_RGGB16BE:
+        pattern = "RGGB";
+        break;
+
+      case OA_PIX_FMT_GBRG8:
+      case OA_PIX_FMT_GBRG16LE:
+      case OA_PIX_FMT_GBRG16BE:
+        pattern = "GBRG";
+        break;
+
+      case OA_PIX_FMT_GRBG8:
+      case OA_PIX_FMT_GRBG16LE:
+      case OA_PIX_FMT_GRBG16BE:
+        pattern = "GRBG";
+        break;
+    }
+    colour = pattern[ 2 * ( y % 2 ) + ( x % 2 )];
+
+    if ( OA_ISBAYER16( format )) {
+      if ( OA_ISLITTLE_ENDIAN ( format )) {
+        int b1, b2;
+        b1 = *(( uint8_t* ) imageData + i );
+        b2 = *(( uint8_t* ) imageData + i + 1 );
+        intensity = b1 + ( b2 << 8 );
+      } else {
+        int b1, b2;
+        b1 = *(( uint8_t* ) imageData + i );
+        b2 = *(( uint8_t* ) imageData + i + 1 );
+        intensity = ( b1 << 8 ) + b2;
+      }
+    } else {
+      intensity = *(( uint8_t* ) imageData + i );
+    }
+
+    switch ( colour ) {
+      case 'R':
+        maxRedIntensity = intensity > maxRedIntensity ? intensity :
+            maxRedIntensity;
+        maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
+        minIntensity = intensity < minIntensity ? intensity : minIntensity;
+        red[ intensity ]++;
+        break;
+
+      case 'G':
+        maxGreenIntensity = intensity > maxGreenIntensity ? intensity :
+            maxGreenIntensity;
+        maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
+        minIntensity = intensity < minIntensity ? intensity : minIntensity;
+        green[ intensity ]++;
+        break;
+
+      case 'B':
+        maxBlueIntensity = intensity > maxBlueIntensity ? intensity :
+            maxBlueIntensity;
+        maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
+        minIntensity = intensity < minIntensity ? intensity : minIntensity;
+        blue[ intensity ]++;
+        break;
+    }
+  }
+
+  for ( int i = 0; i < 256; i++ ) {
+    maxCount = ( red[i] > maxCount ) ? red[i] : maxCount;
+    maxCount = ( green[i] > maxCount ) ? green[i] : maxCount;
+    maxCount = ( blue[i] > maxCount ) ? blue[i] : maxCount;
+  }
+  for ( int i = 0; i < 256; i++ ) {
+    red[i] = red[i] * 100 / maxCount;
+    green[i] = green[i] * 100 / maxCount;
+    blue[i] = blue[i] * 100 / maxCount;
+  }
 }

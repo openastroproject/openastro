@@ -30,6 +30,7 @@
 
 #include <openastro/camera.h>
 #include <openastro/util.h>
+#include <openastro/video/formats.h>
 #include <ASICamera2.h>
 
 #include "oacamprivate.h"
@@ -556,6 +557,24 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     int have16Bit = 0;
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COLOUR_MODE ) = OA_CTRL_TYPE_DISCRETE;
     cameraInfo->colour = 1;
+    switch ( camInfo.BayerPattern ) {
+      case ASI_BAYER_RG:
+        cameraInfo->mosaic8 = OA_PIX_FMT_RGGB8;
+        cameraInfo->mosaic16 = OA_PIX_FMT_RGGB16LE;
+        break;
+      case ASI_BAYER_BG:
+        cameraInfo->mosaic8 = OA_PIX_FMT_BGGR8;
+        cameraInfo->mosaic16 = OA_PIX_FMT_BGGR16LE;
+        break;
+      case ASI_BAYER_GR:
+        cameraInfo->mosaic8 = OA_PIX_FMT_GRBG8;
+        cameraInfo->mosaic16 = OA_PIX_FMT_GRBG16LE;
+        break;
+      case ASI_BAYER_GB:
+        cameraInfo->mosaic8 = OA_PIX_FMT_GBRG8;
+        cameraInfo->mosaic16 = OA_PIX_FMT_GBRG16LE;
+        break;
+    }
     i = 0;
     while (( f = camInfo.SupportedVideoFormat[ i ]) != ASI_IMG_END ) {
       if ( ASI_IMG_RGB24 == f ) {

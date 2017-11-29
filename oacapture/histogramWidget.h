@@ -2,7 +2,7 @@
  *
  * histogramWidget.h -- class declaration
  *
- * Copyright 2013,2014,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -40,7 +40,8 @@ class HistogramWidget : public QWidget
   public:
     			HistogramWidget();
     			~HistogramWidget();
-    void		process ( void*, int, int );
+    void		process ( void*, unsigned int, unsigned int,
+			    unsigned int, int );
     void		updateLayout();
     void		resetStats();
     void		stopStats();
@@ -59,6 +60,7 @@ class HistogramWidget : public QWidget
     int			*grey;
     int			colours;
     int			maxIntensity;
+    int			minIntensity;
     int			maxRedIntensity;
     int			maxGreenIntensity;
     int			maxBlueIntensity;
@@ -68,4 +70,11 @@ class HistogramWidget : public QWidget
     int			doneProcess;
     int			statsEnabled;
     int			signalConnected;
+    void		_processRGBHistogram ( void*, unsigned int,
+			    unsigned int, unsigned int, int );
+    void		_processGreyscaleHistogram ( void*, unsigned int,
+			    unsigned int, unsigned int, int );
+    void		_processMosaicHistogram ( void*, unsigned int,
+			    unsigned int, unsigned int, int );
+
 };

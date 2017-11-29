@@ -598,7 +598,7 @@ PreviewWidget::convert16To8Bit ( void* imageData, int length, int format )
   uint8_t* t = ( uint8_t* ) imageData;
   uint8_t* s = ( uint8_t* ) imageData;
 
-  if ( OA_ISLITTE_ENDIAN( format )) {
+  if ( OA_ISLITTLE_ENDIAN( format )) {
     s++;
   }
   for ( int i = 0; i < length; i += 2, s += 2 ) {
@@ -906,8 +906,8 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
 
     if ( state->histogramOn ) {
       // This call should be thread-safe
-      state->histogramWidget->process ( writeBuffer, length,
-          writePixelFormat );
+      state->histogramWidget->process ( writeBuffer, config.imageSizeX,
+          config.imageSizeY, length, writePixelFormat );
       doHistogram = 1;
     }
   }

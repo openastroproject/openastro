@@ -2,7 +2,7 @@
  *
  * oacam.h -- camera API (sub)header for frame formats
  *
- * Copyright 2014 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -66,7 +66,7 @@
     (( x == OA_PIX_FMT_GREY8 ) || ( x == OA_PIX_FMT_GREY16BE ) || \
     ( x == OA_PIX_FMT_GREY16LE ))
 
-#define OA_ISLITTE_ENDIAN(x) \
+#define OA_ISLITTLE_ENDIAN(x) \
     (( x == OA_PIX_FMT_BGGR16LE ) || ( x == OA_PIX_FMT_RGGB16LE ) || \
     ( x == OA_PIX_FMT_GBRG16LE ) || ( x == OA_PIX_FMT_GRBG16LE ) || \
     ( x == OA_PIX_FMT_GREY16LE ))

@@ -45,6 +45,7 @@ class HistogramSettings : public QWidget
     void		storeSettings ( void );
 
   private:
+    QCheckBox*		rawRGBBox;
     QCheckBox*		splitBox;
     QCheckBox*		onTopBox;
     QVBoxLayout*	box;

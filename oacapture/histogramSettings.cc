@@ -2,7 +2,7 @@
  *
  * histogramSettings.cc -- class for the histogram settings in the settings UI
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -33,11 +33,14 @@
 
 HistogramSettings::HistogramSettings ( QWidget* parent ) : QWidget ( parent )
 {
+  rawRGBBox = new QCheckBox ( tr ( "Show raw colour as RGB histogram" ), this );
+  rawRGBBox->setChecked ( config.rawRGBHistogram );
   splitBox = new QCheckBox ( tr ( "Split RGB histogram" ), this );
   splitBox->setChecked ( config.splitHistogram );
   onTopBox = new QCheckBox ( tr ( "Keep histogram window on top" ), this );
   onTopBox->setChecked ( config.histogramOnTop );
   box = new QVBoxLayout ( this );
+  box->addWidget ( rawRGBBox );
   box->addWidget ( splitBox );
   box->addWidget ( onTopBox );
   box->addStretch ( 1 );
@@ -45,6 +48,8 @@ HistogramSettings::HistogramSettings ( QWidget* parent ) : QWidget ( parent )
   connect ( splitBox, SIGNAL ( stateChanged ( int )), parent,
       SLOT ( dataChanged()));
   connect ( onTopBox, SIGNAL ( stateChanged ( int )), parent,
+      SLOT ( dataChanged()));
+  connect ( rawRGBBox, SIGNAL ( stateChanged ( int )), parent,
       SLOT ( dataChanged()));
 }
 
@@ -63,4 +68,5 @@ HistogramSettings::storeSettings ( void )
     state.histogramWidget->updateLayout();
   }
   config.histogramOnTop = onTopBox->isChecked() ? 1 : 0;
+  config.rawRGBHistogram = rawRGBBox->isChecked() ? 1 : 0;
 }

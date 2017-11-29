@@ -2,7 +2,7 @@
  *
  * ZWASI2getState.c -- state querying for ZW ASI cameras API v2
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -47,13 +47,13 @@ oaZWASI2CameraGetFramePixelFormat ( oaCamera *camera, int depth )
         break;
       case ASI_IMG_RAW16:
         if ( cameraInfo->colour ) {
-          return OA_PIX_FMT_GRBG16LE;
+          return cameraInfo->mosaic16;
         }
         return OA_PIX_FMT_GREY16LE;
         break;
       case ASI_IMG_RAW8:
         if ( cameraInfo->colour ) {
-          return OA_PIX_FMT_GRBG8;
+          return cameraInfo->mosaic8;
         } else {
           return OA_PIX_FMT_GREY8;
         }
@@ -71,7 +71,7 @@ oaZWASI2CameraGetFramePixelFormat ( oaCamera *camera, int depth )
   } else {
     if ( 12 == depth || 16 == depth ) {
       if ( cameraInfo->colour ) {
-        return OA_PIX_FMT_GRBG16LE;
+        return cameraInfo->mosaic16;
       }
       return OA_PIX_FMT_GREY16LE;
     }
@@ -79,7 +79,7 @@ oaZWASI2CameraGetFramePixelFormat ( oaCamera *camera, int depth )
       if ( cameraInfo->colour ) {
         if ( cameraInfo->videoCurrent == ASI_IMG_RAW8 ||
             cameraInfo->videoCurrent == ASI_IMG_RAW16 ) {
-          return OA_PIX_FMT_GRBG8;
+          return cameraInfo->mosaic8;
         } else {
           return OA_PIX_FMT_BGR24;
         }

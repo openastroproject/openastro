@@ -681,7 +681,7 @@ ViewWidget::convert16To8Bit ( void* imageData, int length, int format )
   uint8_t* t = ( uint8_t* ) imageData;
   uint8_t* s = ( uint8_t* ) imageData;
 
-  if ( OA_ISLITTE_ENDIAN( format )) {
+  if ( OA_ISLITTLE_ENDIAN( format )) {
     s++;
   }
   for ( int i = 0; i < length; i += 2, s += 2 ) {

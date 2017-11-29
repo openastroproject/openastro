@@ -2,7 +2,7 @@
  *
  * ZWASIstate.h -- ZW ASI camera state header
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -43,6 +43,8 @@ typedef struct ZWASI_STATE {
   int			colour;
   long			cameraId;
   int			usb3Cam;
+  int			mosaic8;
+  int			mosaic16;
   int			binModes[16];
   // video mode settings
   int			videoRGB24;

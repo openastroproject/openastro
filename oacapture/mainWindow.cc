@@ -342,6 +342,7 @@ MainWindow::readConfig ( void )
 
     config.splitHistogram = 0;
     config.histogramOnTop = 1;
+    config.rawRGBHistogram = 1;
 
     config.demosaicPreview = 0;
     config.demosaicOutput = 0;
@@ -490,6 +491,7 @@ MainWindow::readConfig ( void )
 
     config.splitHistogram = settings.value ( "histogram/split", 0 ).toInt();
     config.histogramOnTop = settings.value ( "histogram/onTop", 1 ).toInt();
+    config.rawRGBHistogram = settings.value ( "histogram/rawRGB", 1 ).toInt();
 
     config.demosaicPreview = settings.value ( "demosaic/preview", 0 ).toInt();
     config.demosaicOutput = settings.value ( "demosaic/output", 0 ).toInt();
@@ -998,6 +1000,7 @@ MainWindow::writeConfig ( void )
 
   settings.setValue ( "histogram/split", config.splitHistogram );
   settings.setValue ( "histogram/onTop", config.histogramOnTop );
+  settings.setValue ( "histogram/rawRGB", config.rawRGBHistogram );
 
   settings.setValue ( "demosaic/preview", config.demosaicPreview );
   settings.setValue ( "demosaic/output", config.demosaicOutput );

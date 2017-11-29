@@ -45,14 +45,14 @@ oaZWASICameraGetFramePixelFormat ( oaCamera *camera, int depth )
         return OA_PIX_FMT_BGR24;
         break;
       case IMG_RAW16:
-        if ( isColorCam()) {
-          return OA_PIX_FMT_GRBG16LE;
+        if ( cameraInfo->colour ) {
+          return cameraInfo->mosaic16;
         }
         return OA_PIX_FMT_GREY16LE;
         break;
       case IMG_RAW8:
-        if ( isColorCam()) {
-          return OA_PIX_FMT_GRBG8;
+        if ( cameraInfo->colour ) {
+          return cameraInfo->mosaic8;
         } else {
           return OA_PIX_FMT_GREY8;
         }
@@ -60,7 +60,7 @@ oaZWASICameraGetFramePixelFormat ( oaCamera *camera, int depth )
       case IMG_Y8:
         // I believe the colour camera returns this as a monochrome RGB
         // image
-        if ( isColorCam()) {
+        if ( cameraInfo->colour ) {
           return OA_PIX_FMT_BGR24;
         } else {
           return OA_PIX_FMT_GREY8;
@@ -69,16 +69,16 @@ oaZWASICameraGetFramePixelFormat ( oaCamera *camera, int depth )
     }
   } else {
     if ( 12 == depth || 16 == depth ) {
-      if ( isColorCam()) {
-        return OA_PIX_FMT_GRBG16LE;
+      if ( cameraInfo->colour ) {
+        return cameraInfo->mosaic16;
       }
       return OA_PIX_FMT_GREY16LE;
     }
     if ( 8 == depth ) {
-      if ( isColorCam()) {
+      if ( cameraInfo->colour ) {
         if ( cameraInfo->videoCurrent == IMG_RAW8 ||
             cameraInfo->videoCurrent == IMG_RAW16 ) {
-          return OA_PIX_FMT_GRBG8;
+          return cameraInfo->mosaic8;
         } else {
           return OA_PIX_FMT_BGR24;
         }

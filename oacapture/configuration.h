@@ -157,6 +157,7 @@ typedef struct
   // histogram config
   int			splitHistogram;
   int			histogramOnTop;
+  int			rawRGBHistogram;
 
   // demosaic config
   int			demosaicPreview;
