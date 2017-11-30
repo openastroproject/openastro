@@ -55,6 +55,12 @@
 #define CAM_QHY23       26
 #define CAM_IMG0H       27
 #define CAM_QHY16000    28
-#define CAM_QHY5LII     29
+#define CAM_QHY5LIIM    29
+#define CAM_QHY5LIIC    30
+#define CAM_QHY5PIIM    31
+#define CAM_QHY5PIIC    32
+#define CAM_QHY5TIIC    33
+#define CAM_QHY5RIIC    34
+#define CAM_QHY5HII     35
 
 #endif	/* OA_QHY_H */

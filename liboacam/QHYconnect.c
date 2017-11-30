@@ -68,7 +68,8 @@ oaQHYInitCamera ( oaCameraDevice* device )
     case CAM_QHY5:
     case CAM_QHY6_ST4:
     case CAM_QHY5II:
-    case CAM_QHY5LII:
+    case CAM_QHY5LIIM:
+    case CAM_QHY5LIIC:
       break;
     default:
       fprintf ( stderr, "Unsupported camera %ld: %s\n", devInfo->devType,
@@ -232,7 +233,8 @@ oaQHYInitCamera ( oaCameraDevice* device )
     case CAM_QHY5II:
       ret = _QHY5IIInitCamera ( camera );
       break;
-    case CAM_QHY5LII:
+    case CAM_QHY5LIIM:
+    case CAM_QHY5LIIC:
       ret = _QHY5LIIInitCamera ( camera );
       break;
     default:

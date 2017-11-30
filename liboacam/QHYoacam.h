@@ -54,6 +54,9 @@ struct qhycam {
   unsigned int	hasFirmware;
   unsigned int	firmwareLoaded;
   unsigned int	supported;
+  int		wIndex;
+  int		subtype;
+  int		colour;
 };
 
 extern struct qhycam cameraList[];
