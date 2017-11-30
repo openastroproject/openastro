@@ -233,6 +233,7 @@ HistogramWidget::_processGreyscaleHistogram ( void* imageData,
 {
   int maxCount = 1;
   int intensity, step;
+  unsigned int i;
 
   colours = 1;
   step = length / 10000;
@@ -248,7 +249,7 @@ HistogramWidget::_processGreyscaleHistogram ( void* imageData,
     fullIntensity = 0xffff;
     if ( OA_ISLITTLE_ENDIAN ( format )) {
       int b1, b2;
-      for ( int i = 0; i < length; i += step ) {
+      for ( i = 0; i < length; i += step ) {
         b1 = *(( uint8_t* ) imageData + i );
         b2 = *(( uint8_t* ) imageData + i + 1 );
         intensity = b1 + ( b2 << 8 );
@@ -258,7 +259,7 @@ HistogramWidget::_processGreyscaleHistogram ( void* imageData,
       }
     } else {
       int b1, b2;
-      for ( int i = 0; i < length; i += step ) {
+      for ( i = 0; i < length; i += step ) {
         b1 = *(( uint8_t* ) imageData + i );
         b2 = *(( uint8_t* ) imageData + i + 1 );
         intensity = ( b1 << 8 ) + b2;
@@ -268,17 +269,17 @@ HistogramWidget::_processGreyscaleHistogram ( void* imageData,
       }
     }
   } else {
-    for ( int i = 0; i < length; i += step ) {
+    for ( i = 0; i < length; i += step ) {
       intensity = *(( uint8_t* ) imageData + i );
       maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
       minIntensity = intensity < minIntensity ? intensity : minIntensity;
       grey[ intensity ]++;
     }
   }
-  for ( int i = 0; i < 256; i++ ) {
+  for ( i = 0; i < 256; i++ ) {
     maxCount = ( grey[i] > maxCount ) ? grey[i] : maxCount;
   }
-  for ( int i = 0; i < 256; i++ ) {
+  for ( i = 0; i < 256; i++ ) {
     grey[i] = grey[i] * 100 / maxCount;
   }
 }
@@ -292,6 +293,7 @@ HistogramWidget::_processRGBHistogram ( void* imageData,
   int* swapBlue = blue;
   int maxCount = 1;
   int step;
+  unsigned int i;
 
   colours = 3;
   step = ( length / colours ) / 10000;
@@ -312,7 +314,7 @@ HistogramWidget::_processRGBHistogram ( void* imageData,
   bzero ( green, sizeof( int ) * 256 );
   bzero ( blue, sizeof( int ) * 256 );
   int intensity;
-  for ( int i = 0; i < length; i += step ) {
+  for ( i = 0; i < length; i += step ) {
     intensity = *(( uint8_t* ) imageData + i );
     maxRedIntensity = intensity > maxRedIntensity ? intensity :
         maxRedIntensity;
@@ -334,12 +336,12 @@ HistogramWidget::_processRGBHistogram ( void* imageData,
     minIntensity = intensity < minIntensity ? intensity : minIntensity;
     swapBlue[ intensity ]++;
   }
-  for ( int i = 0; i < 256; i++ ) {
+  for ( i = 0; i < 256; i++ ) {
     maxCount = ( red[i] > maxCount ) ? red[i] : maxCount;
     maxCount = ( green[i] > maxCount ) ? green[i] : maxCount;
     maxCount = ( blue[i] > maxCount ) ? blue[i] : maxCount;
   }
-  for ( int i = 0; i < 256; i++ ) {
+  for ( i = 0; i < 256; i++ ) {
     red[i] = red[i] * 100 / maxCount;
     green[i] = green[i] * 100 / maxCount;
     blue[i] = blue[i] * 100 / maxCount;
@@ -356,11 +358,11 @@ void
 HistogramWidget::_processMosaicHistogram ( void* imageData,
     unsigned int width, unsigned int height, unsigned int length, int format )
 {
-  unsigned int x, y, bytesPerLine, bytesPerPixel;
+  unsigned int i, x, y, bytesPerLine, bytesPerPixel;
   int maxCount = 1;
   int step;
   char colour;
-  const char* pattern;
+  const char* pattern = "    ";
 
   if ( OA_ISBAYER8( format )) {
     bytesPerPixel = 1;
@@ -390,7 +392,7 @@ HistogramWidget::_processMosaicHistogram ( void* imageData,
   }
 
   int intensity;
-  for ( int i = 0; i < length; i += step ) {
+  for ( i = 0; i < length; i += step ) {
     x = ( i % bytesPerLine ) / bytesPerPixel;
     y = i / bytesPerLine;
     switch ( format ) {
@@ -463,12 +465,12 @@ HistogramWidget::_processMosaicHistogram ( void* imageData,
     }
   }
 
-  for ( int i = 0; i < 256; i++ ) {
+  for ( i = 0; i < 256; i++ ) {
     maxCount = ( red[i] > maxCount ) ? red[i] : maxCount;
     maxCount = ( green[i] > maxCount ) ? green[i] : maxCount;
     maxCount = ( blue[i] > maxCount ) ? blue[i] : maxCount;
   }
-  for ( int i = 0; i < 256; i++ ) {
+  for ( i = 0; i < 256; i++ ) {
     red[i] = red[i] * 100 / maxCount;
     green[i] = green[i] * 100 / maxCount;
     blue[i] = blue[i] * 100 / maxCount;

@@ -1619,9 +1619,11 @@ MainWindow::createMenus ( void )
 void
 MainWindow::connectCamera ( int deviceIndex )
 {
-  int v, ret, attempt, format;
+  int v, ret, attempt;
 
 #ifdef OACAPTURE
+  int format;
+
   if ( -1 == oldHistogramState ) {
     oldHistogramState = state.histogramOn;
   }
@@ -1742,8 +1744,8 @@ MainWindow::connectCamera ( int deviceIndex )
   oldHistogramState = -1;
 #endif
 
-  format = state.camera->videoFramePixelFormat();
 #ifdef OACAPTURE
+  format = state.camera->videoFramePixelFormat();
   state.captureWidget->enableTIFFCapture (( !OA_ISBAYER( format ) ||
       ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
   state.captureWidget->enablePNGCapture (( !OA_ISBAYER( format ) ||

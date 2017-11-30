@@ -726,8 +726,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
 #endif
   struct timeval	t;
   int			doDisplay = 0;
-  int			doHistogram = 0;
 #ifdef OACAPTURE
+  int			doHistogram = 0;
   int			previewPixelFormat, writePixelFormat;
 #else
   int			viewPixelFormat, writePixelFormat;

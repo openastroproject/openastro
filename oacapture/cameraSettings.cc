@@ -292,7 +292,6 @@ CameraSettings::configure ( void )
   sliderGrid->addWidget ( autoLabel2, 0, 7 );
   sliderGrid->addWidget ( onOffLabel2, 0, 8 );
 
-  int autoControl;
   for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
     for ( mod = OA_CAM_CTRL_MODIFIER_STD; mod < OA_CAM_CTRL_MODIFIERS_P1;
         mod++ ) {

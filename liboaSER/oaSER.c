@@ -189,7 +189,6 @@ oaSERWriteFrame ( oaSERContext* context, void* frame, const char* timestampStr )
   uint8_t* t;
   unsigned int i, ret2;
   int      ret;
-  static int warn = 0;
 
   if ( timestampStr && *timestampStr ) {
     int64_t now = _oaSERGetMicrosoftTimestamp ( timestampStr, 0 );

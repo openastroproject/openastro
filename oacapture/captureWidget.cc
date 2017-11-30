@@ -446,7 +446,7 @@ CaptureWidget::startRecording ( void )
       config.fileNameTemplate.contains ( "%I" ))) {
 
     int numRuns, numDigits;
-    unsigned long long numFrames, maxFrames;
+    unsigned long long numFrames = 0, maxFrames;
 
     numRuns = state.autorunEnabled ? config.autorunCount : 1;
     switch ( config.limitType ) {

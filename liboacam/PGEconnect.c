@@ -113,8 +113,7 @@ oaPGEInitCamera ( oaCameraDevice* device )
   fc2StrobeInfo			strobeInfo;
   fc2StrobeControl		strobeControl;
   fc2CameraInfo			camInfo;
-  unsigned int			i, j, numResolutions, found, xbin;
-  unsigned int			firstBinMode;
+  unsigned int			i, j, numResolutions, found, xbin = 1;
   BOOL				supported;
   uint16_t			mask16;
   unsigned int			numberOfSources, numberOfModes;
@@ -843,7 +842,6 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
   numResolutions = 0;
   firstMode = 0; // by definition
-  firstBinMode = OA_BIN_MODE_NONE;
   for ( mode = FC2_MODE_0; mode < FC2_NUM_MODES; mode++ ) {
 
     // skip modes unsupported by code

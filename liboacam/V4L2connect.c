@@ -616,9 +616,10 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
   // These are so we can get the auto exposure and autofocus stuff right later.
   int	autoExposureType = 0;
-  int64_t autoMax, autoMin, autoDef, autoStep;
+  int64_t autoMax = 0, autoMin = 0, autoDef = 0, autoStep = 0;
   int   autoFocusType = 0;
-  uint8_t autoFocusMax, autoFocusMin, autoFocusDef, autoFocusStep;
+  uint8_t autoFocusMax = 0, autoFocusMin = 0, autoFocusDef = 0,
+      autoFocusStep = 0;
 
   for ( id = V4L2_CID_CAMERA_CLASS_BASE; id < V4L2_CAMERA_CLASS_LASTP1;
       id++ ) {
@@ -647,7 +648,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
       case V4L2_CID_EXPOSURE_AUTO:
       {
         struct v4l2_querymenu menuItem;
-        int idx, err;
+        int idx;
 
         // Because we might have either an unscaled exposure control or an
         // absolute exposure control (or both) and not know exactly which at

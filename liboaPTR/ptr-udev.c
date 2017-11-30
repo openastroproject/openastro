@@ -74,7 +74,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
   int				ptrDesc, numRead, result, i;
   fd_set			readable;
   struct timeval		timeout;
-  uint32_t			major, minor;
+  uint32_t			major = 0, minor = 0;
 
 
   if (!( udev = udev_new())) {

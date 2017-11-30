@@ -45,7 +45,7 @@ oaFocusScore ( void* source, void* target, int xSize, int ySize,
   void*		workspace2;
   int		freeSource, freeTarget;
   int		numPixels, result, canProcess;
-  int		cfaPattern, new8BitFormat;
+  int		cfaPattern = 0, new8BitFormat = 0;
 
   freeSource = freeTarget = canProcess = 0;
   numPixels = xSize * ySize;

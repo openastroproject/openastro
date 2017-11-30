@@ -1133,7 +1133,6 @@ _doBinning ( PGE_STATE* cameraInfo, int binMode )
   unsigned int			s, mode, restart = 0;
   unsigned int			oldX, oldY, newX, newY;
   int				found;
-  fc2GigEImageSettings		settings;
 
   if (!( cameraInfo->availableBinModes & ( 1 << ( binMode - 1 )))) {
     return -OA_ERR_OUT_OF_RANGE;

@@ -737,9 +737,7 @@ static int
 _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 {
   char		commandStr[128], buffer[128];
-  char		*p;
   int		commandLen, readBytes;
-  CALLBACK*	cb = command->commandData;
   double	latDeg, latMin, longDeg, longMin, alt;
   double*	r = command->resultData;
 

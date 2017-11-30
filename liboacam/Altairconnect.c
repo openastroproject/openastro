@@ -62,7 +62,7 @@ oaAltairInitCamera ( oaCameraDevice* device )
   DEVICE_INFO*			devInfo;
   unsigned int			i, j, numResolutions, numStillResolutions;
   unsigned int			fourcc, depth, binX, binY;
-  int				x, y, ret;
+  int				x, y;
   char				toupcamId[128]; // must be longer than 64
 
   numCameras = ( p_Altaircam_Enum )( devList );

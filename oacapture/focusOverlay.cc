@@ -76,8 +76,6 @@ FocusOverlay::paintEvent ( QPaintEvent* event )
 void
 FocusOverlay::addScore ( int score )
 {
-  int i, n, numVals;
-
   if ( score > currentMaximum ) {
     currentMaximum = score;
   }
