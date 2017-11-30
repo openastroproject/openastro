@@ -2,7 +2,7 @@
  *
  * focus.c -- focus scoring algorithms
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015, 2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -41,11 +41,72 @@ oaFocusScore ( void* source, void* target, int xSize, int ySize,
 {
   void*		currentSource = source;
   void*		currentTarget = target;
+  void*		workspace1;
+  void*		workspace2;
   int		freeSource, freeTarget;
   int		numPixels, result, canProcess;
+  int		cfaPattern, new8BitFormat;
 
   freeSource = freeTarget = canProcess = 0;
   numPixels = xSize * ySize;
+  workspace1 = workspace2 = 0;
+
+  switch ( frameFormat ) {
+    case OA_PIX_FMT_RGGB8:
+    case OA_PIX_FMT_RGGB16LE:
+    case OA_PIX_FMT_RGGB16BE:
+      cfaPattern = OA_DEMOSAIC_RGGB;
+      new8BitFormat = OA_PIX_FMT_RGGB8;
+      break;
+    case OA_PIX_FMT_BGGR8:
+    case OA_PIX_FMT_BGGR16LE:
+    case OA_PIX_FMT_BGGR16BE:
+      cfaPattern = OA_DEMOSAIC_BGGR;
+      new8BitFormat = OA_PIX_FMT_BGGR8;
+      break;
+    case OA_PIX_FMT_GRBG8:
+    case OA_PIX_FMT_GRBG16LE:
+    case OA_PIX_FMT_GRBG16BE:
+      cfaPattern = OA_DEMOSAIC_GRBG;
+      new8BitFormat = OA_PIX_FMT_GRBG8;
+      break;
+    case OA_PIX_FMT_GBRG8:
+    case OA_PIX_FMT_GBRG16LE:
+    case OA_PIX_FMT_GBRG16BE:
+      cfaPattern = OA_DEMOSAIC_GBRG;
+      new8BitFormat = OA_PIX_FMT_GBRG8;
+      break;
+  }
+
+  if ( OA_ISBAYER16 ( frameFormat )) {
+    int i, length = xSize * ySize;
+    uint8_t* s = currentSource;
+    uint8_t* t;
+
+    if (!( workspace1 = malloc ( xSize * ySize ))) {
+      return -OA_ERR_MEM_ALLOC;
+    }
+    t = workspace1;
+    if ( OA_ISLITTLE_ENDIAN ( frameFormat )) {
+      s++;
+    }
+    for ( i = 0; i < length; i++ ) {
+      *t++ = *s++;
+      s++;
+    }
+    currentSource = workspace1;
+    frameFormat = new8BitFormat;
+  }
+
+  if ( OA_ISBAYER8 ( frameFormat )) {
+    if (!( workspace2 = malloc ( xSize * ySize * 3 ))) {
+      return -OA_ERR_MEM_ALLOC;
+    }
+    oademosaic ( currentSource, workspace2, xSize, ySize, 8,
+        cfaPattern, OA_DEMOSAIC_NEAREST_NEIGHBOUR );
+    currentSource = workspace2;
+    frameFormat = OA_PIX_FMT_RGB24;
+  }
 
   if ( OA_PIX_FMT_RGB24 == frameFormat || OA_PIX_FMT_BGR24 == frameFormat ) {
     uint8_t*	s;
@@ -91,6 +152,15 @@ oaFocusScore ( void* source, void* target, int xSize, int ySize,
     canProcess = 1;
   }
 
+  if ( workspace1 ) {
+    free ( workspace1 );
+    workspace1 = 0;
+  }
+  if ( workspace2 ) {
+    free ( workspace2 );
+    workspace1 = 0;
+  }
+
   if ( OA_PIX_FMT_GREY16BE == frameFormat ||
       OA_PIX_FMT_GREY16LE == frameFormat ) {
     uint8_t*	s;
@@ -108,28 +178,12 @@ oaFocusScore ( void* source, void* target, int xSize, int ySize,
     }
     while ( n-- ) {
       *t++ = *s++;
+      s++;
     }
     currentSource = currentTarget;
     freeSource = 1;
     canProcess = 1;
   }
-
-  /*
-    Need to handle these somehow.  Demosaic may be required.
-
-    OA_PIX_FMT_BGGR8
-    OA_PIX_FMT_RGGB8
-    OA_PIX_FMT_GBRG8
-    OA_PIX_FMT_GRBG8
-    OA_PIX_FMT_BGGR16LE
-    OA_PIX_FMT_BGGR16BE
-    OA_PIX_FMT_RGGB16LE
-    OA_PIX_FMT_RGGB16BE
-    OA_PIX_FMT_GBRG16LE
-    OA_PIX_FMT_GBRG16BE
-    OA_PIX_FMT_GRBG16LE
-    OA_PIX_FMT_GRBG16BE
-   */
 
   if ( canProcess || OA_PIX_FMT_GREY8 == frameFormat ) {
     if (!( currentTarget = malloc ( numPixels ))) {

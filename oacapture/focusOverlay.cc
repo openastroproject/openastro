@@ -40,6 +40,7 @@ FocusOverlay::FocusOverlay ( QWidget* parent ) : QWidget ( parent )
 
   currentMaximum = -1;
   currentMinimum = 0x7fffffff;
+  currentRange = 1;
 
   connect ( this, SIGNAL( updateFocus ( void )),
       this, SLOT( update ( void )));
@@ -79,11 +80,12 @@ FocusOverlay::addScore ( int score )
 
   if ( score > currentMaximum ) {
     currentMaximum = score;
-    currentRange = currentMaximum - currentMinimum;
   }
   if ( score < currentMinimum ) {
     currentMinimum = score;
-    currentRange = currentMaximum - currentMinimum;
+  }
+  if (( currentRange = currentMaximum - currentMinimum ) < 1 ) {
+    currentRange = 1;
   }
 
   if ( startOfBuffer == -1 ) {
