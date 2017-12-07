@@ -1066,7 +1066,7 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
 
 
 libusb_transfer_cb_fn
-_videoStreamCallback ( struct libusb_transfer* transfer )
+_euvcVideoStreamCallback ( struct libusb_transfer* transfer )
 {
   oaCamera*	camera = transfer->user_data;
   EUVC_STATE*	cameraInfo = camera->_private;
@@ -1100,7 +1100,7 @@ _videoStreamCallback ( struct libusb_transfer* transfer )
       }
 
       if ( EUVC_NUM_TRANSFER_BUFS == i ) {
-        fprintf ( stderr, "transfer %p not found; not freeing!", transfer );
+        fprintf ( stderr, "transfer %p not found; not freeing!\n", transfer );
       }
 
       resubmit = 0;
@@ -1138,7 +1138,7 @@ _videoStreamCallback ( struct libusb_transfer* transfer )
         }
       }
       if ( EUVC_NUM_TRANSFER_BUFS == i ) {
-        fprintf ( stderr, "orphan transfer %p not found; not freeing!",
+        fprintf ( stderr, "orphan transfer %p not found; not freeing!\n",
             transfer );
       }
       pthread_mutex_unlock ( &cameraInfo->videoCallbackMutex );
@@ -1192,7 +1192,7 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
       }
       libusb_fill_bulk_transfer ( transfer, cameraInfo->usbHandle,
           USB_BULK_EP_IN, cameraInfo->transferBuffers [ txId ],
-          txBufferSize, ( libusb_transfer_cb_fn ) _videoStreamCallback,
+          txBufferSize, ( libusb_transfer_cb_fn ) _euvcVideoStreamCallback,
           camera,
           USB_BULK_TIMEOUT );
     } else {
