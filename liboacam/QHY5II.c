@@ -160,21 +160,11 @@ _QHY5IIInitCamera ( oaCamera* camera )
   cameraInfo->imageBufferLength = 2 * ( cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY ) + QHY5II_EOF_LEN;
 
-  if (!( cameraInfo->xferBuffer = malloc ( cameraInfo->imageBufferLength ))) {
-    fprintf ( stderr, "malloc of transfer buffer failed in %s\n",
-        __FUNCTION__ );
-    cameraInfo->stopCallbackThread = 1;
-    pthread_join ( cameraInfo->eventHandler, &dummy );
-    free (( void* ) cameraInfo->frameSizes[1].sizes );
-    return -OA_ERR_MEM_ALLOC;
-  }
-
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
       sizeof ( struct QHYbuffer )))) {
     fprintf ( stderr, "malloc of buffer array failed in %s\n",
         __FUNCTION__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
-    free (( void* ) cameraInfo->xferBuffer );
     return -OA_ERR_MEM_ALLOC;
   }
 
@@ -192,7 +182,6 @@ _QHY5IIInitCamera ( oaCamera* camera )
       }
       cameraInfo->stopCallbackThread = 1;
       pthread_join ( cameraInfo->eventHandler, &dummy );
-      free (( void* ) cameraInfo->xferBuffer );
       free (( void* ) cameraInfo->buffers );
       free (( void* ) cameraInfo->frameSizes[1].sizes );
       return -OA_ERR_MEM_ALLOC;
@@ -212,7 +201,6 @@ _QHY5IIInitCamera ( oaCamera* camera )
     cameraInfo->stopCallbackThread = 1;
     pthread_join ( cameraInfo->eventHandler, &dummy );
     free (( void* ) cameraInfo->buffers );
-    free (( void* ) cameraInfo->xferBuffer );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -232,7 +220,6 @@ _QHY5IIInitCamera ( oaCamera* camera )
     }
     cameraInfo->stopCallbackThread = 1;
     pthread_join ( cameraInfo->eventHandler, &dummy );
-    free (( void* ) cameraInfo->xferBuffer );
     free (( void* ) cameraInfo->buffers );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
@@ -314,7 +301,6 @@ oaQHY5IICloseCamera ( oaCamera* camera )
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
     oaDLListDelete ( cameraInfo->callbackQueue, 1 );
 
-    free (( void* ) cameraInfo->xferBuffer );
     free (( void* ) cameraInfo->buffers );
     free (( void* ) cameraInfo );
     free (( void* ) camera->_common );
