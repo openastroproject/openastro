@@ -238,11 +238,10 @@ _QHY5LIIInitCamera ( oaCamera* camera )
     cameraInfo->stopControllerThread = 1;
     pthread_cond_broadcast ( &cameraInfo->commandQueued );
     pthread_join ( cameraInfo->controllerThread, &dummy );
+    pthread_join ( cameraInfo->eventHandler, &dummy );
     for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
       free (( void* ) cameraInfo->buffers[j].start );
     }
-    cameraInfo->stopCallbackThread = 1;
-    pthread_join ( cameraInfo->eventHandler, &dummy );
     free (( void* ) cameraInfo->buffers );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );

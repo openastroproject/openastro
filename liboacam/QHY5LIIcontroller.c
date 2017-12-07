@@ -775,7 +775,7 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 
 
 libusb_transfer_cb_fn
-_qhyVideoStreamCallback ( struct libusb_transfer* transfer )
+_qhy5liiVideoStreamCallback ( struct libusb_transfer* transfer )
 { 
   oaCamera*     camera = transfer->user_data;
   QHY_STATE*    cameraInfo = camera->_private;
@@ -898,7 +898,7 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
       }
       libusb_fill_bulk_transfer ( transfer, cameraInfo->usbHandle,
           QHY_BULK_ENDP_IN, cameraInfo->transferBuffers [ txId ],
-          txBufferSize, ( libusb_transfer_cb_fn ) _qhyVideoStreamCallback,
+          txBufferSize, ( libusb_transfer_cb_fn ) _qhy5liiVideoStreamCallback,
           camera, USB2_TIMEOUT );
     } else {
       cameraInfo->transfers[ txId ] = 0;

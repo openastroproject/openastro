@@ -2,7 +2,7 @@
  *
  * QHY5IIcontroller.c -- Main camera controller thread
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -55,7 +55,8 @@ static int	_doSetHighSpeed ( QHY_STATE*, unsigned int );
 static int	_doSetUSBTraffic ( QHY_STATE*, unsigned int );
 static int	_doSetExposure ( QHY_STATE*, unsigned int );
 static int	_doSetResolution ( QHY_STATE*, int, int );
-static int	_doReadExposure ( QHY_STATE* );
+static void     _processPayload ( oaCamera*, unsigned char*, unsigned int );
+static void     _releaseFrame ( QHY_STATE* );
 
 
 void*
@@ -66,8 +67,6 @@ oacamQHY5IIcontroller ( void* param )
   OA_COMMAND*		command;
   int			exitThread = 0;
   int			resultCode, streaming = 0;
-  int			maxWaitTime, frameWait;
-  int			nextBuffer, buffersFree;
 
   do {
     pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
@@ -121,59 +120,6 @@ oacamQHY5IIcontroller ( void* param )
         }
       }
     } while ( command );
-
-    pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-    streaming = cameraInfo->isStreaming;
-    pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
-
-    if ( streaming ) {
-      pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-      maxWaitTime = frameWait = cameraInfo->currentExposure;
-      pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
-      if ( frameWait > 1000 ) {
-        frameWait = 1000;
-      }
-      while ( !exitThread && maxWaitTime > 0 ) {
-//      usleep ( frameWait );
-        maxWaitTime -= frameWait;
-        pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-        exitThread = cameraInfo->stopControllerThread;
-        pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
-      }
-      if ( !exitThread ) {
-        if ( !_doReadExposure ( cameraInfo )) {
-          pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
-          buffersFree = cameraInfo->buffersFree;
-          pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
-          pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-          streaming = cameraInfo->isStreaming;
-          pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
-          if ( buffersFree && streaming ) {
-            nextBuffer = cameraInfo->nextBuffer;
-            memcpy ( cameraInfo->buffers[ nextBuffer ].start,
-                cameraInfo->xferBuffer, cameraInfo->captureLength );
-            cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
-                OA_CALLBACK_NEW_FRAME;
-            cameraInfo->frameCallbacks[ nextBuffer ].callback =
-                cameraInfo->streamingCallback.callback;
-            cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =
-                cameraInfo->streamingCallback.callbackArg;
-            cameraInfo->frameCallbacks[ nextBuffer ].buffer =
-                cameraInfo->buffers[ nextBuffer ].start;
-            cameraInfo->frameCallbacks[ nextBuffer ].bufferLen =
-                cameraInfo->frameSize;
-            pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
-            oaDLListAddToTail ( cameraInfo->callbackQueue,
-                &cameraInfo->frameCallbacks[ nextBuffer ]);
-            cameraInfo->buffersFree--;
-            cameraInfo->nextBuffer = ( nextBuffer + 1 ) %
-                cameraInfo->configuredBuffers;
-            pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
-            pthread_cond_broadcast ( &cameraInfo->callbackQueued );
-          }
-        }
-      }
-    }
   } while ( !exitThread );
 
   return 0;
@@ -444,7 +390,7 @@ _doSetResolution ( QHY_STATE* cameraInfo, int x, int y )
   _i2cWrite16 ( cameraInfo, 0x23, 0 );
 
   cameraInfo->frameSize = x * y;
-  cameraInfo->captureLength = cameraInfo->frameSize + QHY5II_IMAGE_OFFSET;
+  cameraInfo->captureLength = cameraInfo->frameSize + QHY5II_EOF_LEN;
 
   return OA_ERR_NONE;
 }
@@ -496,12 +442,97 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 }
 
 
+libusb_transfer_cb_fn
+_qhy5iiVideoStreamCallback ( struct libusb_transfer* transfer )
+{
+  oaCamera*     camera = transfer->user_data;
+  QHY_STATE*    cameraInfo = camera->_private;
+  int           resubmit = 1, streaming;
+
+  switch ( transfer->status ) {
+
+    case LIBUSB_TRANSFER_COMPLETED:
+      if ( transfer->num_iso_packets == 0 ) { // bulk mode transfer
+        _processPayload ( camera, transfer->buffer, transfer->actual_length );
+      } else {
+        fprintf ( stderr, "Unexpected isochronous transfer\n" );
+      }
+      break;
+
+    case LIBUSB_TRANSFER_CANCELLED:
+    case LIBUSB_TRANSFER_ERROR:
+    case LIBUSB_TRANSFER_NO_DEVICE:
+    {
+      int i;
+
+      pthread_mutex_lock ( &cameraInfo->videoCallbackMutex );
+
+      for ( i = 0; i < QHY_NUM_TRANSFER_BUFS; i++ ) {
+        if ( cameraInfo->transfers[i] == transfer ) {
+          free ( transfer->buffer );
+          libusb_free_transfer ( transfer );
+          cameraInfo->transfers[i] = 0;
+          break;
+        }
+      }
+
+      if ( QHY_NUM_TRANSFER_BUFS == i ) {
+        fprintf ( stderr, "transfer %p not found; not freeing!\n", transfer );
+      }
+
+      resubmit = 0;
+
+      pthread_mutex_unlock ( &cameraInfo->videoCallbackMutex );
+      break;
+    }
+    case LIBUSB_TRANSFER_TIMED_OUT:
+      break;
+
+    case LIBUSB_TRANSFER_STALL:
+    case LIBUSB_TRANSFER_OVERFLOW:
+      fprintf ( stderr, "retrying transfer, status = %d (%s)\n",
+          transfer->status, libusb_error_name ( transfer->status ));
+      break;
+  }
+
+  if ( resubmit ) {
+    pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+    streaming = cameraInfo->isStreaming;
+    pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+    if ( streaming ) {
+      libusb_submit_transfer ( transfer );
+    } else {
+      int i;
+      pthread_mutex_lock ( &cameraInfo->videoCallbackMutex );
+      // Mark transfer deleted
+      for ( i = 0; i < QHY_NUM_TRANSFER_BUFS; i++ ) {
+        if ( cameraInfo->transfers[i] == transfer ) {
+          fprintf ( stderr, "Freeing orphan transfer %d (%p)\n", i, transfer );
+          free ( transfer->buffer );
+          libusb_free_transfer ( transfer );
+          cameraInfo->transfers[i] = 0;
+        }
+      }
+      if ( QHY_NUM_TRANSFER_BUFS == i ) {
+        fprintf ( stderr, "orphan transfer %p not found; not freeing!\n",
+            transfer );
+      }
+      pthread_mutex_unlock ( &cameraInfo->videoCallbackMutex );
+    }
+  }
+
+  return 0;
+}
+
+
 static int
 _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
 {
-  QHY_STATE*	cameraInfo = camera->_private;
-  CALLBACK*	cb = command->commandData;
-  unsigned char	buf[1] = { 100 };
+  QHY_STATE*	                cameraInfo = camera->_private;
+  CALLBACK*	                cb = command->commandData;
+  int                           txId, ret, txBufferSize, numTxBuffers;
+  struct libusb_transfer*       transfer;
+  unsigned char			buf[1] = { 100 };
 
   if ( cameraInfo->isStreaming ) {
     return -OA_ERR_INVALID_COMMAND;
@@ -509,6 +540,57 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
 
   cameraInfo->streamingCallback.callback = cb->callback;
   cameraInfo->streamingCallback.callbackArg = cb->callbackArg;
+
+  txBufferSize = cameraInfo->captureLength;
+#ifdef USB_OVERFLOW_HANGS
+  if ( cameraInfo->overflowTransmit ) {
+    txBufferSize *= 2.5;
+  }
+#endif
+  // This is a guess
+  numTxBuffers = 8;
+  if ( numTxBuffers < 8 ) {
+    numTxBuffers = 8;
+  }
+  if ( numTxBuffers > 100 ) {
+    numTxBuffers = 100;
+  }
+  for ( txId = 0; txId < QHY_NUM_TRANSFER_BUFS; txId++ ) {
+    if ( txId < numTxBuffers ) {
+      transfer = libusb_alloc_transfer(0);
+      cameraInfo->transfers[ txId ] = transfer;
+      if (!( cameraInfo->transferBuffers [ txId ] =
+          malloc ( txBufferSize ))) {
+        fprintf ( stderr, "malloc failed.  Need to free buffer\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      libusb_fill_bulk_transfer ( transfer, cameraInfo->usbHandle,
+          QHY_BULK_ENDP_IN, cameraInfo->transferBuffers [ txId ],
+          txBufferSize, ( libusb_transfer_cb_fn ) _qhy5iiVideoStreamCallback,
+          camera, USB2_TIMEOUT );
+    } else {
+      cameraInfo->transfers[ txId ] = 0;
+    }
+  }
+
+  for ( txId = 0; txId < numTxBuffers; txId++ ) {
+    if (( ret = libusb_submit_transfer ( cameraInfo->transfers [ txId ]))) {
+      break;
+    }
+  }
+
+  // free up any transfer buffers that we're not using
+  if ( ret && txId > 0 ) {
+    for ( ; txId < QHY_NUM_TRANSFER_BUFS; txId++) {
+      if ( cameraInfo->transfers[ txId ] ) {
+        if ( cameraInfo->transfers[ txId ]->buffer ) {
+          free ( cameraInfo->transfers[ txId ]->buffer );
+        }
+        libusb_free_transfer ( cameraInfo->transfers[ txId ]);
+        cameraInfo->transfers[ txId ] = 0;
+      }
+    }
+  }
 
   _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, QHY_REQ_BEGIN_VIDEO,
       0, 0, buf, 1, 0 );
@@ -524,7 +606,7 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
 static int
 _processStreamingStop ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 {
-  int		queueEmpty;
+  int		queueEmpty, i, res, allReleased;
   unsigned char	buf[4];
 
   if ( !cameraInfo->isStreaming ) {
@@ -536,6 +618,33 @@ _processStreamingStop ( QHY_STATE* cameraInfo, OA_COMMAND* command )
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
   cameraInfo->isStreaming = 0;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+
+  pthread_mutex_lock ( &cameraInfo->videoCallbackMutex );
+  for ( i = 0; i < QHY_NUM_TRANSFER_BUFS; i++ ) {
+    if ( cameraInfo->transfers[i] ) {
+      res = libusb_cancel_transfer ( cameraInfo->transfers[i] );
+      if ( res < 0 && res != LIBUSB_ERROR_NOT_FOUND ) {
+        free ( cameraInfo->transfers[i]->buffer );
+        libusb_free_transfer ( cameraInfo->transfers[i] );
+        cameraInfo->transfers[i] = 0;
+      }
+    }
+  }
+  pthread_mutex_unlock ( &cameraInfo->videoCallbackMutex );
+
+  do {
+    allReleased = 1;
+    for ( i = 0; i < QHY_NUM_TRANSFER_BUFS && allReleased; i++ ) {
+      pthread_mutex_lock ( &cameraInfo->videoCallbackMutex );
+      if ( cameraInfo->transfers[i] ) {
+        allReleased = 0;
+      }
+      pthread_mutex_unlock ( &cameraInfo->videoCallbackMutex );
+    }
+    if ( !allReleased ) {
+      usleep ( 100 ); // FIX ME -- lazy.  should use a pthread condition?
+    }
+  } while ( !allReleased );
 
   // We wait here until the callback queue has drained otherwise a future
   // close of the camera could rip the image frame out from underneath the
@@ -555,59 +664,79 @@ _processStreamingStop ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 }
 
 
-static int
-_doReadExposure ( QHY_STATE* cameraInfo )
+static void
+_processPayload ( oaCamera* camera, unsigned char* buffer, unsigned int len )
 {
-  int			tries, ret;
-  unsigned int		xferred, toTransfer, timeout;
-  unsigned char*	buffer;
-  unsigned char		EOFMarker[] = { 0xaa, 0x11, 0xcc, 0xee };
+  QHY_STATE*            cameraInfo = camera->_private;
+  unsigned int          buffersFree, dropFrame;
+  unsigned char*        p;
 
-  oacamDebugMsg ( DEBUG_CAM_CMD, "QHY5-II: command: %s()\n",
-      __FUNCTION__ );
+  if ( 0 == len ) {
+    return;
+  }
 
-  toTransfer = cameraInfo->captureLength;
-  tries = 0;
-  timeout = cameraInfo->currentExposure / 1000 + 3000;
-  buffer = cameraInfo->xferBuffer;
-  while ( toTransfer && tries < 5 ) {
-    ret = _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_IN, buffer, toTransfer,
-        &xferred, timeout );
-    if ( ret < 0 && ret != LIBUSB_ERROR_TIMEOUT ) {
-      fprintf ( stderr, "QHY5-II::%s, usbBulkTransfer returns %d (%s)\n",
-          __FUNCTION__, ret, libusb_error_name ( ret ));
-      cameraInfo->droppedFrames++;
-      libusb_clear_halt ( cameraInfo->usbHandle, QHY_BULK_ENDP_IN );
-      return -OA_ERR_CAMERA_IO;
-    }
+  dropFrame = 0;
 
-    buffer += xferred;
-    toTransfer -= xferred;
-    tries++;
-
-    if ( toTransfer ) {
-      if ( *( buffer - 5 ) == EOFMarker[0] && *( buffer - 4 ) == EOFMarker[1]
-          && *( buffer - 3 ) == EOFMarker[2] && *( buffer - 2 ) ==
-          EOFMarker[3] ) {
-        buffer = cameraInfo->xferBuffer;
-        tries = 0;
-        toTransfer = cameraInfo->captureLength;
+  pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+  buffersFree = cameraInfo->buffersFree;
+  pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+  if ( buffersFree && ( cameraInfo->receivedBytes + len ) <=
+      cameraInfo->captureLength ) {
+    memcpy (( unsigned char* ) cameraInfo->buffers[
+        cameraInfo->nextBuffer ].start + cameraInfo->receivedBytes,
+        buffer, len );
+    cameraInfo->receivedBytes += len;
+    // It seems that the last five bytes of the frame should be
+    // 0xaa, 0x11, 0xcc, 0xee, 0xXX
+    p = ( unsigned char* ) cameraInfo->buffers[
+      cameraInfo->nextBuffer ].start + cameraInfo->receivedBytes -
+          QHY5II_EOF_LEN;
+    if ( p[0] == 0xaa && p[1] == 0x11 && p[2] == 0xcc && p[3] == 0xee ) {
+      if ( cameraInfo->receivedBytes == cameraInfo->captureLength ) {
+        _releaseFrame ( cameraInfo );
+      } else {
+        if ( cameraInfo->receivedBytes == QHY5II_EOF_LEN ) {
+          cameraInfo->receivedBytes = 0;
+        } else {
+          dropFrame = 1;
+        }
       }
+    } else {
     }
+  } else {
+    dropFrame = 1;
   }
 
-  if ( xferred != cameraInfo->captureLength ) {
-    oacamDebugMsg ( DEBUG_CAM_USB, "QHY5-II: USB: %s, usbBulkTransfer "
-        "returns %d bytes, expected %d\n", __FUNCTION__, xferred,
-        cameraInfo->captureLength );
-    if ( xferred < cameraInfo->captureLength ) {
-      cameraInfo->droppedFrames++;
-      return -OA_ERR_CAMERA_IO;
-    }
+  if ( dropFrame ) {
+    pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+    cameraInfo->droppedFrames++;
+    cameraInfo->receivedBytes = 0;
+    pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
   }
+}
 
-  oacamDebugMsg ( DEBUG_CAM_CMD, "QHY5-II: command: %s() returns %d\n",
-      __FUNCTION__, 0 );
 
-  return OA_ERR_NONE;
+static void
+_releaseFrame ( QHY_STATE* cameraInfo )
+{
+  int           nextBuffer = cameraInfo->nextBuffer;
+
+  cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
+      OA_CALLBACK_NEW_FRAME;
+  cameraInfo->frameCallbacks[ nextBuffer ].callback =
+      cameraInfo->streamingCallback.callback;
+  cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =
+      cameraInfo->streamingCallback.callbackArg;
+  cameraInfo->frameCallbacks[ nextBuffer ].buffer =
+      cameraInfo->buffers[ nextBuffer ].start;
+  cameraInfo->frameCallbacks[ nextBuffer ].bufferLen =
+      cameraInfo->frameSize;
+  pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+  oaDLListAddToTail ( cameraInfo->callbackQueue,
+      &cameraInfo->frameCallbacks[ nextBuffer ]);
+  cameraInfo->buffersFree--;
+  cameraInfo->nextBuffer = ( nextBuffer + 1 ) % cameraInfo->configuredBuffers;
+  cameraInfo->receivedBytes = 0;
+  pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+  pthread_cond_broadcast ( &cameraInfo->callbackQueued );
 }

@@ -39,7 +39,8 @@
 #include "QHYusb.h"
 
 
-static void	_QHY5IIInitFunctionPointers ( oaCamera* );
+static void		_QHY5IIInitFunctionPointers ( oaCamera* );
+void*			_qhy5iiEventHandler ( void* );
 
 static int		oaQHY5IICameraGetFramePixelFormat ( oaCamera*, int );
 static const FRAMESIZES* oaQHY5IICameraGetFrameSizes ( oaCamera* );
@@ -56,6 +57,7 @@ _QHY5IIInitCamera ( oaCamera* camera )
   int		i, j;
   QHY_STATE*	cameraInfo = camera->_private;
   COMMON_INFO*	commonInfo = camera->_common;
+  void		*dummy;
 
   oacamDebugMsg ( DEBUG_CAM_INIT, "QHY5-II: init: %s ()\n", __FUNCTION__ );
 
@@ -146,18 +148,23 @@ _QHY5IIInitCamera ( oaCamera* camera )
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED ) = OA_CTRL_TYPE_READONLY;
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED_RESET ) = OA_CTRL_TYPE_BUTTON;
 
+  pthread_create ( &cameraInfo->eventHandler, 0, _qhy5iiEventHandler,
+      ( void* ) cameraInfo );
+
   cameraInfo->buffers = 0;
   cameraInfo->configuredBuffers = 0;
 
   cameraInfo->frameSize = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY;
-  cameraInfo->captureLength = cameraInfo->frameSize + 5;
+  cameraInfo->captureLength = cameraInfo->frameSize + QHY5II_EOF_LEN;
   cameraInfo->imageBufferLength = 2 * ( cameraInfo->maxResolutionX *
-      cameraInfo->maxResolutionY ) + QHY5II_IMAGE_OFFSET;
+      cameraInfo->maxResolutionY ) + QHY5II_EOF_LEN;
 
   if (!( cameraInfo->xferBuffer = malloc ( cameraInfo->imageBufferLength ))) {
     fprintf ( stderr, "malloc of transfer buffer failed in %s\n",
         __FUNCTION__ );
+    cameraInfo->stopCallbackThread = 1;
+    pthread_join ( cameraInfo->eventHandler, &dummy );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     return -OA_ERR_MEM_ALLOC;
   }
@@ -183,6 +190,8 @@ _QHY5IIInitCamera ( oaCamera* camera )
           free (( void* ) cameraInfo->buffers[j].start );
         }
       }
+      cameraInfo->stopCallbackThread = 1;
+      pthread_join ( cameraInfo->eventHandler, &dummy );
       free (( void* ) cameraInfo->xferBuffer );
       free (( void* ) cameraInfo->buffers );
       free (( void* ) cameraInfo->frameSizes[1].sizes );
@@ -200,6 +209,8 @@ _QHY5IIInitCamera ( oaCamera* camera )
     for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
       free (( void* ) cameraInfo->buffers[j].start );
     }
+    cameraInfo->stopCallbackThread = 1;
+    pthread_join ( cameraInfo->eventHandler, &dummy );
     free (( void* ) cameraInfo->buffers );
     free (( void* ) cameraInfo->xferBuffer );
     free (( void* ) camera->_common );
@@ -219,6 +230,8 @@ _QHY5IIInitCamera ( oaCamera* camera )
     for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
       free (( void* ) cameraInfo->buffers[j].start );
     }
+    cameraInfo->stopCallbackThread = 1;
+    pthread_join ( cameraInfo->eventHandler, &dummy );
     free (( void* ) cameraInfo->xferBuffer );
     free (( void* ) cameraInfo->buffers );
     free (( void* ) camera->_common );
@@ -251,7 +264,7 @@ oaQHY5IICameraGetFrameSizes ( oaCamera* camera )
 static int
 oaQHY5IICloseCamera ( oaCamera* camera )
 {
-  int		j;
+  int		j, res;
   QHY_STATE*	cameraInfo;
   void*		dummy;
 
@@ -263,12 +276,26 @@ oaQHY5IICloseCamera ( oaCamera* camera )
     cameraInfo = camera->_private;
 
     cameraInfo->stopControllerThread = 1;
+
+    pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+    if ( cameraInfo->statusTransfer ) {
+      res = libusb_cancel_transfer ( cameraInfo->statusTransfer );
+      if ( res < 0 && res != LIBUSB_ERROR_NOT_FOUND ) {
+        free ( cameraInfo->statusBuffer );
+        libusb_free_transfer ( cameraInfo->statusTransfer );
+        cameraInfo->statusTransfer = 0;
+      }
+    }
+    pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+
     pthread_cond_broadcast ( &cameraInfo->commandQueued );
     pthread_join ( cameraInfo->controllerThread, &dummy );
 
     cameraInfo->stopCallbackThread = 1;
     pthread_cond_broadcast ( &cameraInfo->callbackQueued );
     pthread_join ( cameraInfo->callbackThread, &dummy );
+
+    pthread_join ( cameraInfo->eventHandler, &dummy );
 
     libusb_release_interface ( cameraInfo->usbHandle, 0 );
     libusb_close ( cameraInfo->usbHandle );
@@ -296,6 +323,25 @@ oaQHY5IICloseCamera ( oaCamera* camera )
    return -OA_ERR_INVALID_CAMERA;
   }
 
+  return 0;
+}
+
+
+void*
+_qhy5iiEventHandler ( void* param )
+{
+  struct timeval        tv;
+  QHY_STATE*            cameraInfo = param;
+  int                   exitThread;
+
+  tv.tv_sec = 1;
+  tv.tv_usec = 0;
+  do { 
+    libusb_handle_events_timeout_completed ( cameraInfo->usbContext, &tv, 0 );
+    pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+    exitThread = cameraInfo->stopCallbackThread;
+    pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+  } while ( !exitThread );
   return 0;
 }
 
