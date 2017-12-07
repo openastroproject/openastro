@@ -2,7 +2,7 @@
  *
  * QHYusb.c -- USB interface for QHY cameras
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -30,6 +30,7 @@
 #include <openastro/errno.h>
 
 #include "oacamprivate.h"
+#include "QHY.h"
 #include "QHYoacam.h"
 #include "QHYstate.h"
 #include "QHYusb.h"
@@ -111,4 +112,74 @@ _i2cWrite16 ( QHY_STATE* cameraInfo, unsigned short address,
 
   return ( _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xbb, 0, address,
       data, 2, 0 ) == 2 ? 0 : -1 );
+}
+
+
+int
+_i2cWriteIMX035 ( QHY_STATE* cameraInfo, unsigned char address,
+    unsigned char value )
+{
+  unsigned char data[32];
+
+  oacamDebugMsg ( DEBUG_CAM_USB, "QHY USB IMX035: %s ( %d, %d )\n",
+      __FUNCTION__, address, value );
+
+  memset ( data, 0, 32 );
+  data[0] = address;
+  data[1] = value;
+
+  return ( _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xb8, 0, address,
+      data, 0x13, 3000 ) == 0x13 ? 0 : -1 );
+}
+
+
+void
+qhyStatusCallback ( struct libusb_transfer* transfer )
+{
+  int           resubmit = 1;
+
+  switch ( transfer->status ) {
+    case LIBUSB_TRANSFER_ERROR:
+    case LIBUSB_TRANSFER_NO_DEVICE:
+      // fprintf ( stderr, "not processing/resubmitting status xfer: err = %d\n",
+      //     transfer->status );
+      return;
+      break;
+
+    case LIBUSB_TRANSFER_CANCELLED:
+      // FIX ME -- I can't get this to work without causing a crash, but
+      // things seem to work ok for the moment without it.  Needs more
+      // investigation
+/*
+      pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+      if ( cameraInfo->statusTransfer ) {
+        free ( cameraInfo->statusBuffer );
+        libusb_free_transfer ( transfer );
+        cameraInfo->statusTransfer = 0;
+      }
+      pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+      resubmit = 0;
+*/
+      break;
+
+    case LIBUSB_TRANSFER_COMPLETED:
+      // This is the good one, but for the moment we'll do nothing here
+      // fprintf ( stderr, "unhandled completed status xfer\n" );
+      break;
+
+    case LIBUSB_TRANSFER_TIMED_OUT:
+    case LIBUSB_TRANSFER_STALL:
+    case LIBUSB_TRANSFER_OVERFLOW:
+      // fprintf ( stderr, "retrying xfer, status = %d\n", transfer->status );
+      break;
+    default:
+      fprintf ( stderr, "unexpected interrupt transfer status = %d\n",
+          transfer->status );
+      break;
+  }
+
+  if ( resubmit ) {
+    libusb_submit_transfer ( transfer );
+  }
+  return;
 }

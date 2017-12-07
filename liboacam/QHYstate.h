@@ -59,6 +59,8 @@ typedef struct QHY_STATE {
   int                   configuredBuffers;
   int			nextBuffer;
   int                   buffersFree;
+  struct libusb_transfer* transfers [ QHY_NUM_TRANSFER_BUFS ];
+  uint8_t*		transferBuffers [ QHY_NUM_TRANSFER_BUFS ];
   // camera status
   uint64_t		droppedFrames;
   unsigned int          isColour;
@@ -66,6 +68,9 @@ typedef struct QHY_STATE {
   unsigned int          ySize;
   unsigned int		frameSize;
   int			firstTimeSetup;
+  struct libusb_transfer* statusTransfer;
+  uint8_t		statusBuffer[32];
+  unsigned int		receivedBytes;
   // camera settings
   int	                xOffset;
   unsigned int		topOffset;
@@ -82,6 +87,7 @@ typedef struct QHY_STATE {
   // image settings
   unsigned int          maxResolutionX;
   unsigned int          maxResolutionY;
+  int			smallFrame;
   FRAMESIZES		frameSizes[3];
   // control values
   unsigned int          currentExposure;
@@ -103,12 +109,14 @@ typedef struct QHY_STATE {
   pthread_cond_t	commandComplete;
   pthread_cond_t	commandQueued;
   int			stopControllerThread;
+  pthread_t		eventHandler;
 
   pthread_t		callbackThread;
   pthread_mutex_t	callbackQueueMutex;
   pthread_cond_t	callbackQueued;
   CALLBACK		frameCallbacks[ OA_CAM_BUFFERS ];
   int			stopCallbackThread;
+  pthread_mutex_t	videoCallbackMutex;
   // queues for controls and callbacks
   DL_LIST		commandQueue;
   DL_LIST		callbackQueue;

@@ -32,6 +32,7 @@
 #include <libusb-1.0/libusb.h>
 
 #include "oacamprivate.h"
+#include "QHY.h"
 #include "QHYoacam.h"
 #include "QHYstate.h"
 #include "QHY6.h"

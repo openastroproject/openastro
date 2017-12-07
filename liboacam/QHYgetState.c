@@ -29,6 +29,7 @@
 #include <openastro/util.h>
 
 #include "oacamprivate.h"
+#include "QHY.h"
 #include "QHYoacam.h"
 #include "QHYstate.h"
 

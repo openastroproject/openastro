@@ -2,7 +2,7 @@
  *
  * QHYoacam.c -- main entrypoint for QHY Cameras
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -76,7 +76,7 @@ struct qhycam cameraList[] =
   { 0x1618, 0x6007, "QHY8M", CAM_QHY8M, 1, 1, 0, -1, 0, 0 },
   { 0x1618, 0x6741, "QHY21", CAM_QHY21, 1, 1, 0, -1, 0, 0 },
   { 0x1618, 0x6669, "QHY50", CAM_QHY50, 1, 1, 0, -1, 0, 0 },
-  { 0x1618, 0x666A, "IMG132E", CAM_IMG132E, 1, 1, 0, -1, 0, 0 },
+  { 0x1618, 0x666A, "IMG132E", CAM_IMG132E, 1, 1, 0, -1, 0, 0 },  // 1006
   { 0x1618, 0x6941, "QHY22", CAM_QHY22, 1, 1, 0, -1, 0, 0 },
   { 0x1618, 0x8141, "QHY23", CAM_QHY23, 1, 1, 0, -1, 0, 0 },
   { 0x1618, 0x8051, "QHY20", CAM_QHY20, 1, 1, 0, -1, 0, 0 },

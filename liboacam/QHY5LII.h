@@ -2,7 +2,7 @@
  *
  * QHY5LII.h -- header for QHY5LII-specific control
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -36,7 +36,7 @@ extern void		oaQHY5LIISetAllControls ( QHY_STATE* );
 #define QHY5LII_DEFAULT_EXPOSURE	100
 #define QHY5LII_DEFAULT_SPEED		1
 #define QHY5LII_DEFAULT_USBTRAFFIC	30
-#define QHY5LII_IMAGE_OFFSET		5
+#define QHY5LII_EOF_LEN			5
 
 #define QHY5LII_MONO_GAIN_MIN		0
 #define QHY5LII_MONO_GAIN_MAX		796

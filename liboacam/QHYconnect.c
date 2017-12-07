@@ -39,6 +39,7 @@
 #include "QHY6.h"
 #include "QHY5II.h"
 #include "QHY5LII.h"
+#include "IMG132E.h"
 
 
 static void _QHYInitFunctionPointers ( oaCamera* );
@@ -70,6 +71,7 @@ oaQHYInitCamera ( oaCameraDevice* device )
     case CAM_QHY5II:
     case CAM_QHY5LIIM:
     case CAM_QHY5LIIC:
+    case CAM_IMG132E:
       break;
     default:
       fprintf ( stderr, "Unsupported camera %ld: %s\n", devInfo->devType,
@@ -236,6 +238,9 @@ oaQHYInitCamera ( oaCameraDevice* device )
     case CAM_QHY5LIIM:
     case CAM_QHY5LIIC:
       ret = _QHY5LIIInitCamera ( camera );
+      break;
+    case CAM_IMG132E:
+      ret = _IMG132EInitCamera ( camera );
       break;
     default:
       fprintf ( stderr, "unsupported camera type\n" );

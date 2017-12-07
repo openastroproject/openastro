@@ -2,7 +2,7 @@
  *
  * QHY.h -- header for QHY camera config
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015, 2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -62,5 +62,7 @@
 #define CAM_QHY5TIIC    33
 #define CAM_QHY5RIIC    34
 #define CAM_QHY5HII     35
+
+#define QHY_NUM_TRANSFER_BUFS	16
 
 #endif	/* OA_QHY_H */

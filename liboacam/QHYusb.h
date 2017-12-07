@@ -2,7 +2,7 @@
  *
  * QHYusb.h -- header for QHY camera USB interface
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -34,6 +34,9 @@ extern int            _usbBulkTransfer ( QHY_STATE*, unsigned char,
 extern int            _i2cWrite16 ( QHY_STATE*, unsigned short,
 			  unsigned short );
 extern unsigned short _i2cRead16 ( QHY_STATE*, unsigned short );
+extern int            _i2cWriteIMX035 ( QHY_STATE*, unsigned char,
+                          unsigned char );
+
 
 #define QHY_CMD_CLEAR_FEATURE	0x01
 #define QHY_CMD_DEFAULT_OUT	0x40
