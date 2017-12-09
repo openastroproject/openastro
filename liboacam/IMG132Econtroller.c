@@ -237,7 +237,7 @@ _doSetGain ( QHY_STATE* cameraInfo, unsigned int gain )
       0xff )) {
     fprintf ( stderr, "%s: write IMX035_REG_AGAIN_HI failed\n", __FUNCTION__ );
   }
-  g = gain / 0x380 & 0x3;
+  g = ( gain - 1 ) / 0x380 & 0x3;
   digitalGain = g | ( g << 2 ) | ( g << 4 );
   _i2cWriteIMX035 ( cameraInfo, IMX035_REG_DGAIN, digitalGain );
 
