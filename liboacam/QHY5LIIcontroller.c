@@ -939,7 +939,7 @@ static int
 _processStreamingStop ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 {
   int		queueEmpty, i, res, allReleased;
-  unsigned char	buf[4];
+  unsigned char	buf[4] = { 0, 0, 0, 0 };
 
   if ( !cameraInfo->isStreaming ) {
     return -OA_ERR_INVALID_COMMAND;
@@ -1033,7 +1033,6 @@ _processPayload ( oaCamera* camera, unsigned char* buffer, unsigned int len )
           dropFrame = 1;
         }
       }
-    } else {
     }
   } else {
     dropFrame = 1;

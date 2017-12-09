@@ -102,6 +102,7 @@ liboacam_la_SOURCES = \
   QHY5II.c QHY5IIcontroller.c \
   QHY5LII.c QHY5LIIcontroller.c \
   QHY6.c QHY6controller.c \
+  IMG132E.c IMG132Econtroller.c \
   SXoacam.c SXconnect.c SXcallback.c SXcontroller.c SXcontrol.c \
   SXgetState.c \
   EUVCoacam.c EUVCconnect.c EUVCcontrol.c EUVCcallback.c EUVCgetState.c \

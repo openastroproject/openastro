@@ -125,10 +125,10 @@ _i2cWriteIMX035 ( QHY_STATE* cameraInfo, unsigned char address,
       __FUNCTION__, address, value );
 
   memset ( data, 0, 32 );
-  data[0] = address;
-  data[1] = value;
+  data[1] = address;
+  data[2] = value;
 
-  return ( _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xb8, 0, address,
+  return ( _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xb8, 0, 0,
       data, 0x13, 3000 ) == 0x13 ? 0 : -1 );
 }
 

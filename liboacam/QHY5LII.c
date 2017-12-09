@@ -104,6 +104,7 @@ _QHY5LIIInitCamera ( oaCamera* camera )
   cameraInfo->xSize = cameraInfo->maxResolutionX;
   cameraInfo->ySize = cameraInfo->maxResolutionY;
 
+  memset ( buf, 0, 4 );
   _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xc1, 0, 0, buf, 4,
       USB2_TIMEOUT );
 

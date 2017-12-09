@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * QHY5IIcontroller.c -- Main camera controller thread
+ * IMG132Econtroller.c -- Main camera controller thread
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -41,7 +41,7 @@
 #include "QHY.h"
 #include "QHYoacam.h"
 #include "QHYstate.h"
-#include "QHY5II.h"
+#include "IMG132E.h"
 #include "QHYusb.h"
 
 
@@ -51,16 +51,16 @@ static int	_processSetResolution ( oaCamera*, OA_COMMAND* );
 static int	_processStreamingStart ( oaCamera*, OA_COMMAND* );
 static int	_processStreamingStop ( QHY_STATE*, OA_COMMAND* );
 static int	_doSetGain ( QHY_STATE*, unsigned int );
-static int	_doSetHighSpeed ( QHY_STATE*, unsigned int );
-static int	_doSetUSBTraffic ( QHY_STATE*, unsigned int );
-static int	_doSetExposure ( QHY_STATE*, unsigned int );
+//static int	_doSetSpeed ( QHY_STATE*, unsigned int );
+static int	_doSetExposure ( QHY_STATE*, unsigned long );
 static int	_doSetResolution ( QHY_STATE*, int, int );
+static int	_doSetColourBalance ( QHY_STATE* );
 static void     _processPayload ( oaCamera*, unsigned char*, unsigned int );
 static void     _releaseFrame ( QHY_STATE* );
 
 
 void*
-oacamQHY5IIcontroller ( void* param )
+oacamIMG132Econtroller ( void* param )
 {
   oaCamera*		camera = param;
   QHY_STATE*		cameraInfo = camera->_private;
@@ -135,7 +135,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
   int32_t val_s32;
   int64_t val_s64;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s ( %d, ? )\n",
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "IMG132E: control: %s ( %d, ? )\n",
       __FUNCTION__, control );
 
   switch ( control ) {
@@ -162,22 +162,10 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
       val_s64 = valp->int64;
       if ( val_s64 < 1 ) { val_s64 = 1; }
       cameraInfo->currentExposure = val_s64;
-      _doSetExposure ( cameraInfo, val_s64 / 1000 );
+      _doSetExposure ( cameraInfo, val_s64 );
       break;
 
-    case OA_CAM_CTRL_HIGHSPEED:
-      if ( valp->valueType != OA_CTRL_TYPE_BOOLEAN ) {
-        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, valp->valueType );
-        return -OA_ERR_INVALID_CONTROL_TYPE;
-      }
-      val_s32 = valp->boolean;
-
-      cameraInfo->currentHighSpeed = val_s32;
-      _doSetHighSpeed ( cameraInfo, cameraInfo->currentHighSpeed );
-      break;
-
-    case OA_CAM_CTRL_USBTRAFFIC:
+    case OA_CAM_CTRL_BLUE_BALANCE:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
             __FUNCTION__, valp->valueType );
@@ -187,17 +175,40 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
       if ( val_s32 < 0 ) {
         return -OA_ERR_OUT_OF_RANGE;
       }
-      cameraInfo->currentUSBTraffic = val_s32;
-      _doSetUSBTraffic ( cameraInfo, cameraInfo->currentUSBTraffic );
+      cameraInfo->currentBlueBalance = val_s32;
+      _doSetColourBalance ( cameraInfo );
       break;
 
-    case OA_CAM_CTRL_DROPPED_RESET:
-      // droppedFrames could be mutexed, but it's not the end of the world
-      cameraInfo->droppedFrames = 0;
+    case OA_CAM_CTRL_RED_BALANCE:
+      if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
+        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+            __FUNCTION__, valp->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val_s32 = valp->int32;
+      if ( val_s32 < 0 ) {
+        return -OA_ERR_OUT_OF_RANGE;
+      }
+      cameraInfo->currentRedBalance = val_s32;
+      _doSetColourBalance ( cameraInfo );
+      break;
+
+    case OA_CAM_CTRL_GREEN_BALANCE:
+      if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
+        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+            __FUNCTION__, valp->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val_s32 = valp->int32;
+      if ( val_s32 < 0 ) {
+        return -OA_ERR_OUT_OF_RANGE;
+      }
+      cameraInfo->currentGreenBalance = val_s32;
+      _doSetColourBalance ( cameraInfo );
       break;
 
     default:
-      fprintf ( stderr, "QHY5-II: unrecognised control %d in %s\n", control,
+      fprintf ( stderr, "IMG132E: unrecognised control %d in %s\n", control,
           __FUNCTION__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
@@ -210,148 +221,132 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 static int
 _doSetGain ( QHY_STATE* cameraInfo, unsigned int gain )
 {
- /*
-  static const int      gainLookup[] = {
-      0x000,0x004,0x005,0x006,0x007,0x008,0x009,0x00A,0x00B,0x00C,0x00D,0x00E,
-      0x00F,0x010,0x011,0x012,0x013,0x014,0x015,0x016,0x017,0x018,0x019,0x01A,
-      0x01B,0x01C,0x01D,0x01E,0x01F,0x051,0x052,0x053,0x054,0x055,0x056,0x057,
-      0x058,0x059,0x05A,0x05B,0x05C,0x05D,0x05E,0x05F,0x6CE,0x6CF,0x6D0,0x6D1,
-      0x6D2,0x6D3,0x6D4,0x6D5,0x6D6,0x6D7,0x6D8,0x6D9,0x6DA,0x6DB,0x6DC,0x6DD,
-      0x6DE,0x6DF,0x6E0,0x6E1,0x6E2,0x6E3,0x6E4,0x6E5,0x6E6,0x6E7,0x6FC,0x6FD,
-      0x6FE,0x6FF
-  };
-  */
+  uint16_t	gainVal;
+  uint8_t	digitalGain, g;
 
-  static const int      gainLookup[] = {
-      0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,0x10,0x11,0x12,0x13,
-      0x14,0x15,0x16,0x17,0x18,0x19,0x1A,0x1B,0x1C,0x1D,0x1E,0x1F,
-      0x20,0x51,0x52,0x53,0x54,0x55,0x56,0x57,0x58,0x59,0x5A,0x5B,
-      0x5C,0x5D,0x5E,0x5F,0x60,0x61,0x62,0x63,0x64,0x65,0x66,0x67
-  };
+  // For the IMX035 0x1000 is the lowest gain value, 0x200 is the highest
+  // There's also a 3-bit digital shift for each colour
+  // It's a bit ugly to get right, so I'm going to ignore that for the time
+  // being
 
+  gainVal = 0x1000 - gain;
+  if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_AGAIN_LO, gainVal & 0xff )) {
+    fprintf ( stderr, "%s: write IMX035_REG_AGAIN_LO failed\n", __FUNCTION__ );
+  }
+  if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_AGAIN_HI, ( gainVal >> 8 ) &
+      0xff )) {
+    fprintf ( stderr, "%s: write IMX035_REG_AGAIN_HI failed\n", __FUNCTION__ );
+  }
+  g = gain / 0x380 & 0x3;
+  digitalGain = g | ( g << 2 ) | ( g << 4 );
+  _i2cWriteIMX035 ( cameraInfo, IMX035_REG_DGAIN, digitalGain );
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s ( %d )\n",
-      __FUNCTION__, gain );
-
-  _i2cWrite16 ( cameraInfo, MT9M001_GLOBAL_GAIN,
-      gainLookup[ gain - QHY5II_MONO_GAIN_MIN ]);
   return OA_ERR_NONE;
 }
 
 
 static int
-_doSetHighSpeed ( QHY_STATE* cameraInfo, unsigned int value )
+_doSetExposure ( QHY_STATE* cameraInfo, unsigned long value )
 {
-  unsigned char	buf;
+  unsigned int		exposureMS, units, remainder, fraction;
+  unsigned int		vunits, hunits;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s ( %d )\n",
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "IMG132E: control: %s ( %d )\n",
       __FUNCTION__, value );
 
-  if ( value ) {
-    cameraInfo->CMOSClock = 48;
-    buf = 2;
+  exposureMS = value / 1000;
+  if ( cameraInfo->xSize > 640 || cameraInfo->ySize > 480 ) {
+    vunits = 40;
+    hunits = 1063;
   } else {
-    cameraInfo->CMOSClock = 24;
-    buf = 1;
+    vunits = 11;
+    hunits = 511;
+  }
+  units = exposureMS / vunits;
+  remainder = exposureMS % vunits;
+  fraction = hunits - remainder * hunits / vunits;
+
+  if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_SVS_LO, units & 0xff )) {
+    fprintf ( stderr, "%s: write reg IMX035_REG_SVS_LO failed\n",
+        __FUNCTION__ );
+  }
+  if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_SVS_HI,
+      ( units >> 8 ) & 0xff )) {
+    fprintf ( stderr, "%s: write reg IMX035_REG_SVS_HI failed\n",
+        __FUNCTION__ );
+  }
+  if ( exposureMS < vunits ) {
+    if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_SSBRK, 1 )) {
+      fprintf ( stderr, "%s: write reg IMX035_REG_SSBRK, 1 failed\n",
+          __FUNCTION__ );
+    }
+    if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_SSBRK, 0 )) {
+      fprintf ( stderr, "%s: write reg IMX035_REG_SSBRK, 0 failed\n",
+          __FUNCTION__ );
+    }
+  }
+  if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_SHS1_LO, fraction & 0xff )) {
+    fprintf ( stderr, "%s: write reg IMX035_REG_SHS1_LO failed\n",
+        __FUNCTION__ );
+  }
+  if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_SHS1_HI,
+      ( fraction >> 8 ) & 0xff )) {
+    fprintf ( stderr, "%s: write reg IMX035_REG_SHS1_HI failed\n",
+        __FUNCTION__ );
   }
 
-  _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xc8, 0, 0, &buf, 1, 0 );
   return OA_ERR_NONE;
 }
 
 
 static int
-_doSetUSBTraffic ( QHY_STATE* cameraInfo, unsigned int value )
+_doSetColourBalance ( QHY_STATE* cameraInfo )
 {
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s ( %d )\n",
-      __FUNCTION__, value );
+  unsigned char	buffer[8];
+  unsigned int	xferred;
 
-  _i2cWrite16 ( cameraInfo, MT9M001_HORIZ_BLANKING, 9 + value * 50 );
+  buffer[0] = 0x03;
+  buffer[1] = cameraInfo->currentRedBalance;
+  buffer[2] = cameraInfo->currentGreenBalance;
+  buffer[3] = cameraInfo->currentBlueBalance;
+
+  if ( _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_OUT, buffer, 5,
+      &xferred, 3000 )) {
+    fprintf ( stderr, "%s: bulk xfer 5 failed\n", __FUNCTION__ );
+  }
 
   return OA_ERR_NONE;
 }
 
 
-static int
-_doSetExposure ( QHY_STATE* cameraInfo, unsigned int value )
+int
+oaIMG132EInitialiseRegisters ( QHY_STATE* cameraInfo )
 {
-  double		pixelTime, rowTime, maxShortExposureTime;
-  unsigned short	columnSize, horizBlanking, shutterWidth;
-  unsigned short	shutterDelay, activeDataTime, frameStartBlanking;
-  unsigned short	frameEndBlanking, horizontalBlanking, rowPixelClocks;
-  unsigned long		newTimeMillisec, newTimeMicrosec;
-  unsigned char		buf[4];
-
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s ( %d )\n",
-      __FUNCTION__, value );
+  int err;
 
   /*
-   * The intent of this appears to be to set the exposure time to zero,
-   * but I don't know that it's necessary
-  buf[0] = buf[1] = buf[2] = buf[3] = 0;
-  _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xc1, 0, 0, buf, 4, 0 );
-  usleep ( 10000 );
-  _i2cWrite16 ( cameraInfo, MT9M001_SHUTTER_WIDTH, 0 );
-  usleep ( 100000 );
-  */
-
-  pixelTime = 1.0 / cameraInfo->CMOSClock;
-  columnSize = _i2cRead16 ( cameraInfo, MT9M001_COLUMN_SIZE );
-  horizBlanking = _i2cRead16 ( cameraInfo, MT9M001_HORIZ_BLANKING );
-  shutterWidth = _i2cRead16 ( cameraInfo, MT9M001_SHUTTER_WIDTH );
-  shutterDelay = _i2cRead16 ( cameraInfo, MT9M001_SHUTTER_DELAY );
-
-  // Lots of these numbers come from the MT9M001 datasheet
-  activeDataTime = columnSize + 1;
-  frameStartBlanking = 242;
-  frameEndBlanking = 2 + horizBlanking - 19;
-  horizontalBlanking = frameStartBlanking + frameEndBlanking;
-  rowPixelClocks = activeDataTime + horizontalBlanking;
-  rowTime = rowPixelClocks * pixelTime;
-  maxShortExposureTime = 15000 * rowTime - 180 * pixelTime - 4 * shutterDelay *
-      pixelTime;
-  newTimeMicrosec = value * 1000;
-
-  if ( newTimeMicrosec > maxShortExposureTime ) {
-    // FIX ME -- does this actually do anything?
-    cameraInfo->longExposureMode = 1;
-    _i2cWrite16 ( cameraInfo, MT9M001_SHUTTER_WIDTH, 15000 );
-    newTimeMillisec = ( newTimeMicrosec - maxShortExposureTime ) / 1000;
-    buf[0] = 0;
-    buf[1] = ( newTimeMillisec >> 16 ) & 0xff;
-    buf[2] = ( newTimeMillisec >> 8 ) & 0xff;
-    buf[3] = newTimeMillisec & 0xff;
-    _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xc1, 0, 0, buf, 4, 0 );
-  } else {
-    cameraInfo->longExposureMode = 0;
-    buf[0] = buf[1] = buf[2] = buf[3] = 0;
-    _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xc1, 0, 0, buf, 4, 0 );
-    usleep ( 1000 );
-    shutterWidth = ( newTimeMicrosec + 180 * pixelTime + 4 * shutterDelay *
-        pixelTime ) / rowTime;
-    if ( shutterWidth < 1 ) {
-      shutterWidth = 1;
-    }
-    _i2cWrite16 ( cameraInfo, MT9M001_SHUTTER_WIDTH, shutterWidth );
+   * Think speed is always 0, so I'm not sure this is required
+   *
+  if (( err = _doSetSpeed ( cameraInfo, IMG132E_DEFAULT_SPEED )) !=
+      OA_ERR_NONE ) {
+    return err;
+  }
+   */
+  if (( err = _doSetExposure ( cameraInfo, IMG132E_DEFAULT_EXPOSURE )) !=
+      OA_ERR_NONE ) {
+    return err;
+  }
+  if (( err = _doSetGain ( cameraInfo, IMG132E_DEFAULT_GAIN )) !=
+      OA_ERR_NONE ) {
+    return err;
+  }
+  if (( err = _doSetResolution ( cameraInfo, IMG132E_IMAGE_WIDTH,
+      IMG132E_IMAGE_HEIGHT )) != OA_ERR_NONE ) {
+    return err;
   }
 
+
   return OA_ERR_NONE;
-}
-
-
-void
-oaQHY5IISetAllControls ( QHY_STATE* cameraInfo )
-{
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s()\n",
-      __FUNCTION__ );
-
-  _doSetUSBTraffic ( cameraInfo, cameraInfo->currentUSBTraffic );
-  _doSetHighSpeed ( cameraInfo, cameraInfo->currentHighSpeed );
-  _doSetResolution ( cameraInfo, cameraInfo->xSize, cameraInfo->ySize );
-  _doSetExposure ( cameraInfo, cameraInfo->currentExposure );
-  _doSetGain ( cameraInfo, cameraInfo->currentGain );
-  _doSetUSBTraffic ( cameraInfo, cameraInfo->currentUSBTraffic );
-  _doSetExposure ( cameraInfo, cameraInfo->currentExposure );
 }
 
 
@@ -365,32 +360,149 @@ _processSetResolution ( oaCamera* camera, OA_COMMAND* command )
   cameraInfo->ySize = size->y;
 
   _doSetResolution ( cameraInfo, cameraInfo->xSize, cameraInfo->ySize );
-  _doSetExposure ( cameraInfo, cameraInfo->currentExposure );
-  _doSetGain ( cameraInfo, cameraInfo->currentGain );
   return OA_ERR_NONE;
 }
+
 
 static int
 _doSetResolution ( QHY_STATE* cameraInfo, int x, int y )
 {
-  unsigned int	xStart, yStart;
+  int		xoffset, yoffset;
+  unsigned char	buffer[64];
+  uint16_t	v1, v2;
+  uint16_t	horizClocks, vertLines;
+  uint32_t	xferred;
 
-  oacamDebugMsg ( DEBUG_CAM_CMD, "QHY5-II: command: %s ( %d, %d )\n",
+  oacamDebugMsg ( DEBUG_CAM_CMD, "IMG132E: command: %s ( %d, %d )\n",
       __FUNCTION__, x, y );
 
-  xStart = 12 + ( QHY5II_IMAGE_WIDTH - x ) / 2;
-  yStart = 20 + ( QHY5II_IMAGE_HEIGHT - y ) / 2;
+  // make sure these numbers are rounded to 4-pixel boundaries
+  x = ( x + 3 ) & ~3;
+  y = ( y + 3 ) & ~3;
+  xoffset = ( IMG132E_IMAGE_WIDTH - x ) / 2;
+  yoffset = ( IMG132E_IMAGE_WIDTH - y ) / 2;
 
-  // _i2cWrite16 ( cameraInfo, MT9M001_SHUTTER_WIDTH, 200 );
-  _i2cWrite16 ( cameraInfo, MT9M001_ROW_START, yStart );
-  _i2cWrite16 ( cameraInfo, MT9M001_COLUMN_START, xStart );
-  _i2cWrite16 ( cameraInfo, MT9M001_ROW_SIZE, y - 1 );
-  _i2cWrite16 ( cameraInfo, MT9M001_COLUMN_SIZE, x - 1 );
-  _i2cWrite16 ( cameraInfo, 0x22, 0 );
-  _i2cWrite16 ( cameraInfo, 0x23, 0 );
+  memset ( buffer, 0, 64 );
+  if (( x + xoffset ) <= 640 && ( y + yoffset ) <= 480 ) {
+    if ( _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_OUT, buffer, 1,
+        &xferred, 3000 )) {
+      fprintf ( stderr, "%s: bulk xfer 1 failed\n", __FUNCTION__ );
+    }
+    if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_TESTEN, 2 )) {
+      fprintf ( stderr, "%s: write IMX035_REG_TESTEN failed\n", __FUNCTION__ );
+    }
+    v1 = 0x17c; // 380
+    v2 = 0x12c; // 300
+    if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_WIN_1, v1 & 0xff )) {
+      fprintf ( stderr, "%s: write IMX035_REG_WIN_1 failed\n", __FUNCTION__ );
+    }
+    if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_WIN_2, (( v1 >> 8 ) & 0x07 ) |
+        (( v2 & 0x0f ) << 4 ))) {
+      fprintf ( stderr, "%s: write IMX035_REG_WIN_2 failed\n", __FUNCTION__ );
+    }
+    if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_WIN_3, v2 >> 4 )) {
+      fprintf ( stderr, "%s: write IMX035_REG_WIN_3 failed\n", __FUNCTION__ );
+    }
+    horizClocks = 0x3840; // 900 << 4 ?
+    if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_HMAX_HI, horizClocks >> 8 )) {
+      fprintf ( stderr, "%s: write IMX035_REG_HMAX_HI failed\n", __FUNCTION__ );
+    }
+    if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_HMAX_LO,
+        horizClocks & 0xff )) {
+      fprintf ( stderr, "%s: write IMX035_REG_HMAX_LO failed\n", __FUNCTION__ );
+    }
+    vertLines = 0x0200;
+    if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_VMAX_HI, vertLines >> 8 )) {
+      fprintf ( stderr, "%s: write IMX035_REG_VMAX_HI failed\n", __FUNCTION__ );
+    }
+    if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_VMAX_LO, vertLines & 0xff )) {
+      fprintf ( stderr, "%s: write IMX035_REG_VMAX_LO failed\n", __FUNCTION__ );
+    }
+    buffer[0] = 0x00;
+    buffer[1] = 0x00;
+    buffer[2] = 0xc9;
+    buffer[3] = 0x03;
+    buffer[4] = 0x49;
+    buffer[5] = 0x00;
+    buffer[6] = 0x1a;
+    buffer[7] = 0x01;
+    buffer[8] = 0xfa;
+    if ( _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xb5, 0, 0, buffer,
+        64, 3000 ) != 64 ) {
+      fprintf ( stderr, "%s: ctrl xfer 0xb5 failed\n", __FUNCTION__ );
+    }
+    cameraInfo->smallFrame = 1;
+    buffer[0] = 0x04;
+    buffer[1] = 0x0a;
+    if ( _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_OUT, buffer, 5,
+        &xferred, 3000 )) {
+      fprintf ( stderr, "%s: bulk xfer 5 failed\n", __FUNCTION__ );
+    }
+    buffer[0] = 0x03;
+    buffer[1] = 0x40;
+    buffer[2] = 0x40;
+    buffer[3] = 0x40;
+    buffer[4] = 0x40;
+    if ( _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_OUT, buffer, 5,
+        &xferred, 3000 )) {
+      fprintf ( stderr, "%s: bulk xfer 5 #2 failed\n", __FUNCTION__ );
+    }
+  } else {
+    if ( _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_OUT, buffer, 1,
+        &xferred, 3000 )) {
+      fprintf ( stderr, "%s: bulk xfer 1 #2 failed\n", __FUNCTION__ );
+    }
+    if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_TESTEN, 0 )) {
+      fprintf ( stderr, "%s: write IMX035_REG_TESTEN failed\n", __FUNCTION__ );
+    }
+    horizClocks = 0x5dc0; // I suspect this may be 1500 << 4
+    vertLines = 0x0428;
+    if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_HMAX_HI, horizClocks >> 8 )) {
+      fprintf ( stderr, "%s: write IMX035_REG_HMAX_HI failed\n", __FUNCTION__ );
+    }
+    if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_HMAX_LO,
+        horizClocks & 0xff )) {
+      fprintf ( stderr, "%s: write IMX035_REG_HMAX_LO failed\n", __FUNCTION__ );
+    }
+    if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_VMAX_HI, vertLines >> 8 )) {
+      fprintf ( stderr, "%s: write IMX035_REG_VMAX_HI failed\n", __FUNCTION__ );
+    }
+    if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_VMAX_LO, vertLines & 0xff )) {
+      fprintf ( stderr, "%s: write IMX035_REG_VMAX_LO failed\n", __FUNCTION__ );
+    }
+    buffer[0] = 0x00;
+    buffer[1] = 0x00;
+    buffer[2] = 0xc9;
+    buffer[3] = 0x05;
+    buffer[4] = 0xc9;
+    buffer[5] = 0x00;
+    buffer[6] = 0x1a;
+    buffer[7] = 0x04;
+    buffer[8] = 0x1a;
+    if ( _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xb5, 0, 0, buffer,
+        64, 3000 ) != 64 ) {
+      fprintf ( stderr, "%s: ctrl xfer 0xb5 #2 failed\n", __FUNCTION__ );
+    }
+    cameraInfo->smallFrame = 0;
+    buffer[0] = 0x04;
+    buffer[1] = 0x0a;
+    if ( _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_OUT, buffer, 5,
+        &xferred, 3000 )) {
+      fprintf ( stderr, "%s: bulk xfer 5 #3 failed\n", __FUNCTION__ );
+    }
+    buffer[0] = 0x03;
+    buffer[1] = 0x40;
+    buffer[2] = 0x40;
+    buffer[3] = 0x40;
+    buffer[4] = 0x40;
+    if ( _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_OUT, buffer, 5,
+        &xferred, 3000 )) {
+      fprintf ( stderr, "%s: bulk xfer 5 #4 failed\n", __FUNCTION__ );
+    }
+  }
 
   cameraInfo->frameSize = x * y;
-  cameraInfo->captureLength = cameraInfo->frameSize + QHY5II_EOF_LEN;
+  cameraInfo->captureLength = cameraInfo->frameSize;
 
   return OA_ERR_NONE;
 }
@@ -402,7 +514,7 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
   int			control = command->controlId;
   oaControlValue*	valp = command->resultData;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s ( %d )\n",
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "IMG132E: control: %s ( %d )\n",
       __FUNCTION__, control );
 
   switch ( control ) {
@@ -417,23 +529,35 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
       valp->int64 = cameraInfo->currentExposure;
       break;
 
-    case OA_CAM_CTRL_HIGHSPEED:
-      valp->valueType = OA_CTRL_TYPE_BOOLEAN;
-      valp->boolean = cameraInfo->currentHighSpeed;
+    case OA_CAM_CTRL_RED_BALANCE:
+      if ( cameraInfo->isColour ) {
+        valp->valueType = OA_CTRL_TYPE_INT32;
+        valp->int32 = cameraInfo->currentRedBalance;
+      } else {
+        return -OA_ERR_INVALID_CONTROL;
+      }
       break;
 
-    case OA_CAM_CTRL_USBTRAFFIC:
-      valp->valueType = OA_CTRL_TYPE_INT32;
-      valp->int32 = cameraInfo->currentUSBTraffic;
+    case OA_CAM_CTRL_BLUE_BALANCE:
+      if ( cameraInfo->isColour ) {
+        valp->valueType = OA_CTRL_TYPE_INT32;
+        valp->int32 = cameraInfo->currentBlueBalance;
+      } else {
+        return -OA_ERR_INVALID_CONTROL;
+      }
       break;
 
-    case OA_CAM_CTRL_DROPPED:
-      valp->valueType = OA_CTRL_TYPE_READONLY;
-      valp->readonly = cameraInfo->droppedFrames;
+    case OA_CAM_CTRL_GREEN_BALANCE:
+      if ( cameraInfo->isColour ) {
+        valp->valueType = OA_CTRL_TYPE_INT32;
+        valp->int32 = cameraInfo->currentGreenBalance;
+      } else {
+        return -OA_ERR_INVALID_CONTROL;
+      }
       break;
 
     default:
-      fprintf ( stderr, "Unimplemented control %d in QHY5-II:%s\n", control,
+      fprintf ( stderr, "Unimplemented control %d in IMG132E:%s\n", control,
           __FUNCTION__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
@@ -443,14 +567,14 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 
 
 libusb_transfer_cb_fn
-_qhy5iiVideoStreamCallback ( struct libusb_transfer* transfer )
-{
+_img132eVideoStreamCallback ( struct libusb_transfer* transfer )
+{ 
   oaCamera*     camera = transfer->user_data;
   QHY_STATE*    cameraInfo = camera->_private;
   int           resubmit = 1, streaming;
-
+      
   switch ( transfer->status ) {
-
+      
     case LIBUSB_TRANSFER_COMPLETED:
       if ( transfer->num_iso_packets == 0 ) { // bulk mode transfer
         _processPayload ( camera, transfer->buffer, transfer->actual_length );
@@ -458,15 +582,15 @@ _qhy5iiVideoStreamCallback ( struct libusb_transfer* transfer )
         fprintf ( stderr, "Unexpected isochronous transfer\n" );
       }
       break;
-
+      
     case LIBUSB_TRANSFER_CANCELLED:
     case LIBUSB_TRANSFER_ERROR:
     case LIBUSB_TRANSFER_NO_DEVICE:
     {
       int i;
-
+      
       pthread_mutex_lock ( &cameraInfo->videoCallbackMutex );
-
+  
       for ( i = 0; i < QHY_NUM_TRANSFER_BUFS; i++ ) {
         if ( cameraInfo->transfers[i] == transfer ) {
           free ( transfer->buffer );
@@ -528,11 +652,11 @@ _qhy5iiVideoStreamCallback ( struct libusb_transfer* transfer )
 static int
 _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
 {
-  QHY_STATE*	                cameraInfo = camera->_private;
-  CALLBACK*	                cb = command->commandData;
-  int                           txId, ret, txBufferSize, numTxBuffers;
-  struct libusb_transfer*       transfer;
-  unsigned char			buf[1] = { 100 };
+  QHY_STATE*			cameraInfo = camera->_private;
+  CALLBACK*			cb = command->commandData;
+  int				txId, ret, txBufferSize, numTxBuffers;
+  struct libusb_transfer*	transfer;
+  unsigned char	buf[1] = { 100 };
 
   if ( cameraInfo->isStreaming ) {
     return -OA_ERR_INVALID_COMMAND;
@@ -565,8 +689,8 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
         return -OA_ERR_SYSTEM_ERROR;
       }
       libusb_fill_bulk_transfer ( transfer, cameraInfo->usbHandle,
-          QHY_BULK_ENDP_IN, cameraInfo->transferBuffers [ txId ],
-          txBufferSize, ( libusb_transfer_cb_fn ) _qhy5iiVideoStreamCallback,
+          QHY_SDRAM_BULK_ENDP_IN, cameraInfo->transferBuffers [ txId ],
+          txBufferSize, ( libusb_transfer_cb_fn ) _img132eVideoStreamCallback,
           camera, USB2_TIMEOUT );
     } else {
       cameraInfo->transfers[ txId ] = 0;
@@ -592,8 +716,10 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
     }
   }
 
-  _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, QHY_REQ_BEGIN_VIDEO,
-      0, 0, buf, 1, 0 );
+  if ( _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, QHY_REQ_BEGIN_VIDEO,
+      0, 0, buf, 1, 3000 ) != 1 ) {
+    fprintf ( stderr, "%s: ctrl xfer begin video failed\n", __FUNCTION__ );
+  }
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
   cameraInfo->isStreaming = 1;
@@ -607,13 +733,10 @@ static int
 _processStreamingStop ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 {
   int		queueEmpty, i, res, allReleased;
-  unsigned char	buf[4] = { 0, 0, 0, 0 };
 
   if ( !cameraInfo->isStreaming ) {
     return -OA_ERR_INVALID_COMMAND;
   }
-
-  _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xc1, 0, 0, buf, 4, 0 );
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
   cameraInfo->isStreaming = 0;
@@ -668,14 +791,11 @@ static void
 _processPayload ( oaCamera* camera, unsigned char* buffer, unsigned int len )
 {
   QHY_STATE*            cameraInfo = camera->_private;
-  unsigned int          buffersFree, dropFrame;
-  unsigned char*        p;
+  unsigned int          buffersFree;
 
   if ( 0 == len ) {
     return;
   }
-
-  dropFrame = 0;
 
   pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
   buffersFree = cameraInfo->buffersFree;
@@ -686,42 +806,25 @@ _processPayload ( oaCamera* camera, unsigned char* buffer, unsigned int len )
         cameraInfo->nextBuffer ].start + cameraInfo->receivedBytes,
         buffer, len );
     cameraInfo->receivedBytes += len;
-    // It seems that the last five bytes of the frame should be
-    // 0xaa, 0x11, 0xcc, 0xee, 0xXX
-    p = ( unsigned char* ) cameraInfo->buffers[
-      cameraInfo->nextBuffer ].start + cameraInfo->receivedBytes -
-          QHY5II_EOF_LEN;
-    if ( p[0] == 0xaa && p[1] == 0x11 && p[2] == 0xcc && p[3] == 0xee ) {
-      if ( cameraInfo->receivedBytes == cameraInfo->captureLength ) {
-        _releaseFrame ( cameraInfo );
-      } else {
-        if ( cameraInfo->receivedBytes == QHY5II_EOF_LEN ) {
-          cameraInfo->receivedBytes = 0;
-        } else {
-          dropFrame = 1;
-        }
-      }
+    if ( cameraInfo->receivedBytes == cameraInfo->captureLength ) {
+      _releaseFrame ( cameraInfo );
     }
   } else {
-    dropFrame = 1;
-  }
-
-  if ( dropFrame ) {
     pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
     cameraInfo->droppedFrames++;
     cameraInfo->receivedBytes = 0;
     pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
-  }
-}
+  } 
+} 
 
-
+  
 static void
 _releaseFrame ( QHY_STATE* cameraInfo )
-{
+{ 
   int           nextBuffer = cameraInfo->nextBuffer;
-
+  
   cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
-      OA_CALLBACK_NEW_FRAME;
+      OA_CALLBACK_NEW_FRAME; 
   cameraInfo->frameCallbacks[ nextBuffer ].callback =
       cameraInfo->streamingCallback.callback;
   cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =

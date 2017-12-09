@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * QHY5II.c -- QHY5II camera interface
+ * IMG132E.c -- IMG132E camera interface
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -35,16 +35,16 @@
 #include "QHY.h"
 #include "QHYoacam.h"
 #include "QHYstate.h"
-#include "QHY5II.h"
+#include "IMG132E.h"
 #include "QHYusb.h"
 
 
-static void		_QHY5IIInitFunctionPointers ( oaCamera* );
-void*			_qhy5iiEventHandler ( void* );
+static void		_IMG132EInitFunctionPointers ( oaCamera* );
+void*			_img132eEventHandler ( void* );
 
-static int		oaQHY5IICameraGetFramePixelFormat ( oaCamera*, int );
-static const FRAMESIZES* oaQHY5IICameraGetFrameSizes ( oaCamera* );
-static int		oaQHY5IICloseCamera ( oaCamera* );
+static int		oaIMG132ECameraGetFramePixelFormat ( oaCamera*, int );
+static const FRAMESIZES* oaIMG132ECameraGetFrameSizes ( oaCamera* );
+static int		oaIMG132ECloseCamera ( oaCamera* );
 
 
 /**
@@ -52,113 +52,99 @@ static int		oaQHY5IICloseCamera ( oaCamera* );
  */
 
 int
-_QHY5IIInitCamera ( oaCamera* camera )
+_IMG132EInitCamera ( oaCamera* camera )
 {
   int		i, j;
   QHY_STATE*	cameraInfo = camera->_private;
   COMMON_INFO*	commonInfo = camera->_common;
-  void		*dummy;
+  void*		dummy;
 
-  oacamDebugMsg ( DEBUG_CAM_INIT, "QHY5-II: init: %s ()\n", __FUNCTION__ );
+  oacamDebugMsg ( DEBUG_CAM_INIT, "IMG132E: init: %s ()\n", __FUNCTION__ );
 
   OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
-  _QHY5IIInitFunctionPointers ( camera );
+  _IMG132EInitFunctionPointers ( camera );
 
-  cameraInfo->videoGrey = 1;
-  cameraInfo->videoCurrent = OA_PIX_FMT_GREY8;
-  ( void ) strcpy ( camera->deviceName, "QHY5-II" );
+  cameraInfo->videoCurrent = OA_PIX_FMT_BGGR8;
+  ( void ) strcpy ( camera->deviceName, "IMG132E" );
 
   cameraInfo->videoRGB24 = cameraInfo->videoGrey16 = 0;
   cameraInfo->currentBitDepth = 8;
   cameraInfo->longExposureMode = 0;
 
-  cameraInfo->maxResolutionX = QHY5II_IMAGE_WIDTH;
-  cameraInfo->maxResolutionY = QHY5II_IMAGE_HEIGHT;
+  cameraInfo->maxResolutionX = IMG132E_IMAGE_WIDTH;
+  cameraInfo->maxResolutionY = IMG132E_IMAGE_HEIGHT;
 
   if (!( cameraInfo->frameSizes[1].sizes =
-      // ( FRAMESIZE* ) malloc ( 10 * sizeof ( FRAMESIZE )))) {
-      ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
+      ( FRAMESIZE* ) malloc ( 5 * sizeof ( FRAMESIZE )))) {
     fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
     return -OA_ERR_MEM_ALLOC;
   }
 
   cameraInfo->frameSizes[1].sizes[0].x = cameraInfo->maxResolutionX;
   cameraInfo->frameSizes[1].sizes[0].y = cameraInfo->maxResolutionY;
-  /*
-   * If I could but get these to work...
-  cameraInfo->frameSizes[1].sizes[1].x = 1280;
-  cameraInfo->frameSizes[1].sizes[1].y = 720;
-  cameraInfo->frameSizes[1].sizes[2].x = 1024;
-  cameraInfo->frameSizes[1].sizes[2].y = 768;
-  cameraInfo->frameSizes[1].sizes[3].x = 1024;
-  cameraInfo->frameSizes[1].sizes[3].y = 1024;
-  cameraInfo->frameSizes[1].sizes[4].x = 960;
-  cameraInfo->frameSizes[1].sizes[4].y = 720;
-  cameraInfo->frameSizes[1].sizes[5].x = 800;
-  cameraInfo->frameSizes[1].sizes[5].y = 800;
-  cameraInfo->frameSizes[1].sizes[6].x = 800;
-  cameraInfo->frameSizes[1].sizes[6].y = 600;
-  cameraInfo->frameSizes[1].sizes[7].x = 640;
-  cameraInfo->frameSizes[1].sizes[7].y = 480;
-  cameraInfo->frameSizes[1].sizes[8].x = 400;
-  cameraInfo->frameSizes[1].sizes[8].y = 400;
-  cameraInfo->frameSizes[1].sizes[9].x = 320;
-  cameraInfo->frameSizes[1].sizes[9].y = 240;
-  cameraInfo->frameSizes[1].numSizes = 10;
-   */
   cameraInfo->frameSizes[1].numSizes = 1;
 
   cameraInfo->xSize = cameraInfo->maxResolutionX;
   cameraInfo->ySize = cameraInfo->maxResolutionY;
 
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RED_BALANCE ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) = 65;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE ) = 255;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RED_BALANCE ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) = 58;
+  cameraInfo->currentRedBalance = 58;
+
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) = 65;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) = 255;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLUE_BALANCE ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) = 58;
+  cameraInfo->currentBlueBalance = 58;
+
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GREEN_BALANCE ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GREEN_BALANCE ) = 65;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GREEN_BALANCE ) = 255;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GREEN_BALANCE ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GREEN_BALANCE ) = 58;
+  cameraInfo->currentGreenBalance = 58;
+
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_INT32;
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = QHY5II_MONO_GAIN_MIN;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = QHY5II_MONO_GAIN_MAX;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = 1;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = 0xe00;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = 20; // completely arbitrary
-  cameraInfo->currentGain = 20;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) =
+      IMG132E_DEFAULT_GAIN;
+  cameraInfo->currentGain = IMG132E_DEFAULT_GAIN;
+
+  // FIX ME -- offset command ?
 
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
       OA_CTRL_TYPE_INT64;
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 0;
-  // made up
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 100000000;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 600000000;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
-  // convert msec to usec
   commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
-      QHY5II_DEFAULT_EXPOSURE * 1000;
-  cameraInfo->currentExposure = QHY5II_DEFAULT_EXPOSURE;
-
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HIGHSPEED ) = OA_CTRL_TYPE_BOOLEAN;
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HIGHSPEED ) = 0;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HIGHSPEED ) = 1;
-  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HIGHSPEED ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HIGHSPEED ) = QHY5II_DEFAULT_SPEED;
-  cameraInfo->currentHighSpeed = QHY5II_DEFAULT_SPEED;
-
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_USBTRAFFIC ) = OA_CTRL_TYPE_INT32;
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_USBTRAFFIC ) = 0;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_USBTRAFFIC ) = 255;
-  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_USBTRAFFIC ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_USBTRAFFIC ) =
-      QHY5II_DEFAULT_USBTRAFFIC;
-  cameraInfo->currentUSBTraffic = QHY5II_DEFAULT_USBTRAFFIC;
-
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED ) = OA_CTRL_TYPE_READONLY;
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED_RESET ) = OA_CTRL_TYPE_BUTTON;
-
-  pthread_create ( &cameraInfo->eventHandler, 0, _qhy5iiEventHandler,
-      ( void* ) cameraInfo );
+      IMG132E_DEFAULT_EXPOSURE;
+  cameraInfo->currentExposure = IMG132E_DEFAULT_EXPOSURE;
 
   cameraInfo->buffers = 0;
   cameraInfo->configuredBuffers = 0;
 
   cameraInfo->frameSize = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY;
-  cameraInfo->captureLength = cameraInfo->frameSize + QHY5II_EOF_LEN;
+  cameraInfo->captureLength = cameraInfo->frameSize;
   cameraInfo->imageBufferLength = 2 * ( cameraInfo->maxResolutionX *
-      cameraInfo->maxResolutionY ) + QHY5II_EOF_LEN;
+      cameraInfo->maxResolutionY );
+
+  if ( oaIMG132EInitialiseRegisters ( cameraInfo ) != OA_ERR_NONE ) {
+    fprintf ( stderr, "IMG132E register initialisation failed\n" );
+    free (( void* ) cameraInfo->frameSizes[1].sizes );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  pthread_create ( &cameraInfo->eventHandler, 0, _img132eEventHandler,
+      ( void* ) cameraInfo );
 
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
       sizeof ( struct QHYbuffer )))) {
@@ -196,7 +182,7 @@ _QHY5IIInitCamera ( oaCamera* camera )
   cameraInfo->commandQueue = oaDLListCreate();
   cameraInfo->callbackQueue = oaDLListCreate();
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
-      oacamQHY5IIcontroller, ( void* ) camera )) {
+      oacamIMG132Econtroller, ( void* ) camera )) {
     for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
       free (( void* ) cameraInfo->buffers[j].start );
     }
@@ -231,18 +217,16 @@ _QHY5IIInitCamera ( oaCamera* camera )
     return -OA_ERR_SYSTEM_ERROR;
   }
 
-  camera->features.hasReset = 1;
-  camera->features.pixelSizeX = 5200;
-  camera->features.pixelSizeY = 5200;
-
-  oaQHY5IISetAllControls ( cameraInfo );
+  camera->features.hasReset = 0;
+  camera->features.pixelSizeX = 3360;
+  camera->features.pixelSizeY = 3360;
 
   return OA_ERR_NONE;
 }
 
 
 const static FRAMESIZES*
-oaQHY5IICameraGetFrameSizes ( oaCamera* camera )
+oaIMG132ECameraGetFrameSizes ( oaCamera* camera )
 {
   QHY_STATE*    cameraInfo = camera->_private;
 
@@ -251,13 +235,13 @@ oaQHY5IICameraGetFrameSizes ( oaCamera* camera )
 
 
 static int
-oaQHY5IICloseCamera ( oaCamera* camera )
+oaIMG132ECloseCamera ( oaCamera* camera )
 {
   int		j, res;
   QHY_STATE*	cameraInfo;
   void*		dummy;
 
-  oacamDebugMsg ( DEBUG_CAM_CMD, "QHY5-II: command: %s()\n",
+  oacamDebugMsg ( DEBUG_CAM_CMD, "IMG132E: command: %s()\n",
       __FUNCTION__ );
 
   if ( camera ) {
@@ -283,8 +267,6 @@ oaQHY5IICloseCamera ( oaCamera* camera )
     cameraInfo->stopCallbackThread = 1;
     pthread_cond_broadcast ( &cameraInfo->callbackQueued );
     pthread_join ( cameraInfo->callbackThread, &dummy );
-
-    pthread_join ( cameraInfo->eventHandler, &dummy );
 
     libusb_release_interface ( cameraInfo->usbHandle, 0 );
     libusb_close ( cameraInfo->usbHandle );
@@ -316,7 +298,7 @@ oaQHY5IICloseCamera ( oaCamera* camera )
 
 
 void*
-_qhy5iiEventHandler ( void* param )
+_img132eEventHandler ( void* param )
 {
   struct timeval        tv;
   QHY_STATE*            cameraInfo = param;
@@ -335,36 +317,21 @@ _qhy5iiEventHandler ( void* param )
 
 
 static int
-oaQHY5IICameraGetFramePixelFormat ( oaCamera* camera, int depth )
+oaIMG132ECameraGetFramePixelFormat ( oaCamera* camera, int depth )
 {
-  QHY_STATE*	cameraInfo = camera->_private;
-
-  if ( 12 == depth || 16 == depth || ( 0 == depth &&
-      cameraInfo->currentBitDepth > 8 ) ) {
-    if ( cameraInfo->isColour ) {
-      return OA_PIX_FMT_GRBG16BE;
-    }
-    return OA_PIX_FMT_GREY16BE;
-  }
-  if ( 8 == depth || 0 == depth ) {
-    if ( cameraInfo->isColour ) {
-      return OA_PIX_FMT_GRBG8;
-    }
-    return OA_PIX_FMT_GREY8;
-  }
-  return -OA_ERR_INVALID_BIT_DEPTH;
+  return OA_PIX_FMT_BGGR8;
 }
 
 
 static int
-oaQHY5IICameraTestControl ( oaCamera* camera, int control,
+oaIMG132ECameraTestControl ( oaCamera* camera, int control,
     oaControlValue* valp )
 {
   int32_t	val_s32;
   int64_t	val_s64;
   COMMON_INFO*	commonInfo = camera->_common;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s ( %d, ? )\n",
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "IMG132E: control: %s ( %d, ? )\n",
       __FUNCTION__, control );
 
   if ( !camera->OA_CAM_CTRL_TYPE( control )) {
@@ -378,7 +345,10 @@ oaQHY5IICameraTestControl ( oaCamera* camera, int control,
   switch ( control ) {
 
     case OA_CAM_CTRL_GAIN:
-    case OA_CAM_CTRL_USBTRAFFIC:
+    case OA_CAM_CTRL_RED_BALANCE:
+    case OA_CAM_CTRL_BLUE_BALANCE:
+    case OA_CAM_CTRL_GREEN_BALANCE:
+    case OA_CAM_CTRL_BINNING:
       val_s32 = valp->int32;
       if ( val_s32 >= commonInfo->OA_CAM_CTRL_MIN( control ) &&
           val_s32 <= commonInfo->OA_CAM_CTRL_MAX( control ) &&
@@ -397,29 +367,21 @@ oaQHY5IICameraTestControl ( oaCamera* camera, int control,
         return OA_ERR_NONE;
       }
       break;
-
-    case OA_CAM_CTRL_HIGHSPEED:
-      return OA_ERR_NONE;
-      break;
-
-    default:
-      return -OA_ERR_INVALID_CONTROL;
-      break;
   }
   return -OA_ERR_OUT_OF_RANGE;
 }
 
 
 static void
-_QHY5IIInitFunctionPointers ( oaCamera* camera )
+_IMG132EInitFunctionPointers ( oaCamera* camera )
 {
   // Set by QHYinit()
   // camera->funcs.initCamera = oaQHYInitCamera;
-  camera->funcs.closeCamera = oaQHY5IICloseCamera;
+  camera->funcs.closeCamera = oaIMG132ECloseCamera;
 
   camera->funcs.setControl = oaQHYCameraSetControl;
   camera->funcs.readControl = oaQHYCameraReadControl;
-  camera->funcs.testControl = oaQHY5IICameraTestControl;
+  camera->funcs.testControl = oaIMG132ECameraTestControl;
   camera->funcs.getControlRange = oaQHYCameraGetControlRange;
 
   camera->funcs.startStreaming = oaQHYCameraStartStreaming;
@@ -430,6 +392,6 @@ _QHY5IIInitFunctionPointers ( oaCamera* camera )
 
   camera->funcs.hasAuto = oacamHasAuto;
 
-  camera->funcs.enumerateFrameSizes = oaQHY5IICameraGetFrameSizes;
-  camera->funcs.getFramePixelFormat = oaQHY5IICameraGetFramePixelFormat;
+  camera->funcs.enumerateFrameSizes = oaIMG132ECameraGetFrameSizes;
+  camera->funcs.getFramePixelFormat = oaIMG132ECameraGetFramePixelFormat;
 }
