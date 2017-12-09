@@ -92,6 +92,7 @@ typedef struct QHY_STATE {
   // control values
   unsigned int          currentExposure;
   unsigned int          currentGain;
+  unsigned int          currentDigitalGain;
   unsigned int		currentAmpMode;
   unsigned int          currentHighSpeed;
   unsigned int          currentBitDepth;

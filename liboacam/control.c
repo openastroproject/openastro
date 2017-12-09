@@ -143,7 +143,11 @@ const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
   "LED Period",
   "Auto Exposure Priority",
   "Exposure Value"
-  "White Balance Preset"
+  "White Balance Preset",
+  "Digital Gain",
+  "Digital Gain (Red)",
+  "Digital Gain (Green)",	// 110
+  "Digital Gain (Blue)"
 };
 
 const char* oaCameraPresetAWBLabel[ OA_AWB_PRESET_LAST_P1 ] = {

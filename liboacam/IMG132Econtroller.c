@@ -50,7 +50,7 @@ static int	_processGetControl ( QHY_STATE*, OA_COMMAND* );
 static int	_processSetResolution ( oaCamera*, OA_COMMAND* );
 static int	_processStreamingStart ( oaCamera*, OA_COMMAND* );
 static int	_processStreamingStop ( QHY_STATE*, OA_COMMAND* );
-static int	_doSetGain ( QHY_STATE*, unsigned int );
+static int	_doSetGain ( QHY_STATE*, unsigned int, uint8_t );
 //static int	_doSetSpeed ( QHY_STATE*, unsigned int );
 static int	_doSetExposure ( QHY_STATE*, unsigned long );
 static int	_doSetResolution ( QHY_STATE*, int, int );
@@ -150,7 +150,22 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
         return -OA_ERR_OUT_OF_RANGE;
       }
       cameraInfo->currentGain = valp->int32;
-      _doSetGain ( cameraInfo, cameraInfo->currentGain );
+      _doSetGain ( cameraInfo, cameraInfo->currentGain,
+          cameraInfo->currentDigitalGain );
+      break;
+
+    case OA_CAM_CTRL_DIGITAL_GAIN:
+      if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
+        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+            __FUNCTION__, valp->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      if ( valp->int32 < 0 || valp->int32 > 3 ) {
+        return -OA_ERR_OUT_OF_RANGE;
+      }
+      cameraInfo->currentDigitalGain = valp->int32;
+      _doSetGain ( cameraInfo, cameraInfo->currentGain,
+          cameraInfo->currentDigitalGain );
       break;
 
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
@@ -219,15 +234,14 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 
 
 static int
-_doSetGain ( QHY_STATE* cameraInfo, unsigned int gain )
+_doSetGain ( QHY_STATE* cameraInfo, unsigned int gain, uint8_t digitalGain )
 {
   uint16_t	gainVal;
-  uint8_t	digitalGain, g;
+  uint8_t	g;
 
   // For the IMX035 0x1000 is the lowest gain value, 0x200 is the highest
-  // There's also a 3-bit digital shift for each colour
-  // It's a bit ugly to get right, so I'm going to ignore that for the time
-  // being
+  // There's also a 3-bit digital shift for each colour, but until I'm
+  // sure which is which I'll treat them all the same for the time being
 
   gainVal = 0x1000 - gain;
   if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_AGAIN_LO, gainVal & 0xff )) {
@@ -237,9 +251,8 @@ _doSetGain ( QHY_STATE* cameraInfo, unsigned int gain )
       0xff )) {
     fprintf ( stderr, "%s: write IMX035_REG_AGAIN_HI failed\n", __FUNCTION__ );
   }
-  g = ( gain - 1 ) / 0x380 & 0x3;
-  digitalGain = g | ( g << 2 ) | ( g << 4 );
-  _i2cWriteIMX035 ( cameraInfo, IMX035_REG_DGAIN, digitalGain );
+  g = digitalGain | ( digitalGain << 2 ) | ( digitalGain << 4 );
+  _i2cWriteIMX035 ( cameraInfo, IMX035_REG_DGAIN, g );
 
   return OA_ERR_NONE;
 }
@@ -336,15 +349,17 @@ oaIMG132EInitialiseRegisters ( QHY_STATE* cameraInfo )
       OA_ERR_NONE ) {
     return err;
   }
-  if (( err = _doSetGain ( cameraInfo, IMG132E_DEFAULT_GAIN )) !=
-      OA_ERR_NONE ) {
+  if (( err = _doSetGain ( cameraInfo, IMG132E_DEFAULT_GAIN,
+      IMG132E_DEFAULT_DIGITAL_GAIN )) != OA_ERR_NONE ) {
     return err;
   }
   if (( err = _doSetResolution ( cameraInfo, IMG132E_IMAGE_WIDTH,
       IMG132E_IMAGE_HEIGHT )) != OA_ERR_NONE ) {
     return err;
   }
-
+  if (( err = _doSetColourBalance ( cameraInfo )) != OA_ERR_NONE ) {
+    return err;
+  }
 
   return OA_ERR_NONE;
 }
@@ -522,6 +537,11 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_GAIN:
       valp->valueType = OA_CTRL_TYPE_INT32;
       valp->int32 = cameraInfo->currentGain;
+      break;
+
+    case OA_CAM_CTRL_DIGITAL_GAIN:
+      valp->valueType = OA_CTRL_TYPE_INT32;
+      valp->int32 = cameraInfo->currentDigitalGain;
       break;
 
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:

@@ -127,6 +127,15 @@ _IMG132EInitCamera ( oaCamera* camera )
       IMG132E_DEFAULT_EXPOSURE;
   cameraInfo->currentExposure = IMG132E_DEFAULT_EXPOSURE;
 
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DIGITAL_GAIN ) =
+      OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_DIGITAL_GAIN ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_DIGITAL_GAIN ) = 3;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_DIGITAL_GAIN ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_DIGITAL_GAIN ) =
+      IMG132E_DEFAULT_DIGITAL_GAIN;
+  cameraInfo->currentDigitalGain = IMG132E_DEFAULT_DIGITAL_GAIN;
+
   cameraInfo->buffers = 0;
   cameraInfo->configuredBuffers = 0;
 
