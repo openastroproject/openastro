@@ -67,7 +67,6 @@ _QHY5IIInitCamera ( oaCamera* camera )
 
   cameraInfo->videoGrey = 1;
   cameraInfo->videoCurrent = OA_PIX_FMT_GREY8;
-  ( void ) strcpy ( camera->deviceName, "QHY5-II" );
 
   cameraInfo->videoRGB24 = cameraInfo->videoGrey16 = 0;
   cameraInfo->currentBitDepth = 8;

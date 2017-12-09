@@ -69,11 +69,9 @@ _QHY5LIIInitCamera ( oaCamera* camera )
   if ( cameraInfo->isColour ) {
     // FIX ME -- need to set any other video state info here?
     cameraInfo->videoCurrent = OA_PIX_FMT_GRBG8;
-    ( void ) strcpy ( camera->deviceName, "QHY5L-II colour" );
   } else {
     cameraInfo->videoGrey = 1;
     cameraInfo->videoCurrent = OA_PIX_FMT_GREY8;
-    ( void ) strcpy ( camera->deviceName, "QHY5L-II mono" );
   }
 
   cameraInfo->videoRGB24 = cameraInfo->videoGrey16 = 0;

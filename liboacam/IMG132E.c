@@ -66,7 +66,6 @@ _IMG132EInitCamera ( oaCamera* camera )
   _IMG132EInitFunctionPointers ( camera );
 
   cameraInfo->videoCurrent = OA_PIX_FMT_BGGR8;
-  ( void ) strcpy ( camera->deviceName, "IMG132E" );
 
   cameraInfo->videoRGB24 = cameraInfo->videoGrey16 = 0;
   cameraInfo->currentBitDepth = 8;
