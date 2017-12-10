@@ -23,7 +23,7 @@
 #
 
 
-FIRMWAREFILES = QHY5.HEX QHY5II.HEX QHY5LOADER.HEX QHY6.HEX
+FIRMWAREFILES = QHY5.HEX QHY5II.HEX QHY5LOADER.HEX QHY6.HEX SLAVEFIFO.HEX
 
 # Nasty, this, but there doesn't appear to be a suitable other way to
 # handle it
