@@ -2,7 +2,7 @@
  *
  * captureWidget.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -117,6 +117,7 @@ class CaptureWidget : public QGroupBox
     QLineEdit*		secondsInputBox;
     int			filterSequenceRemaining;
     int			autorunFilter;
+    int			updateTemperatureLabel;
 
   signals:
     void		writeStatusMessage ( QString );
@@ -124,6 +125,7 @@ class CaptureWidget : public QGroupBox
     void		enableStopButton ( int );
     void		configureButtonsForStart ( int );
     void		configureButtonsAfterStop ( void );
+    void		updateLocation ( void );
 
   public slots:
     void		showLimitInputBox ( int );

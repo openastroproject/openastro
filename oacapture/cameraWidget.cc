@@ -2,7 +2,7 @@
  *
  * cameraWidget.cc -- class for the camera widget in the UI
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -40,18 +40,6 @@ extern "C" {
 
 CameraWidget::CameraWidget ( QWidget* parent ) : QGroupBox ( parent )
 {
-  preview = new QCheckBox ( tr ( "Preview" ), this );
-  preview->setToolTip ( tr ( "Turn preview on/off" ));
-  preview->setChecked ( config.preview );
-  connect ( preview, SIGNAL( stateChanged ( int )), parent,
-      SLOT( changePreviewState ( int )));
-
-  nightMode = new QCheckBox ( tr ( "Night Mode" ), this );
-  nightMode->setToolTip ( tr ( "Turn night colours on/off" ));
-  connect ( nightMode, SIGNAL( stateChanged ( int )), state.mainWindow,
-      SLOT( setNightMode ( int )));
-  nightMode->setChecked ( config.nightMode );
-
   sixteenBit = new QCheckBox ( tr ( "16-bit" ), this );
   sixteenBit->setToolTip ( tr ( "Capture in 16-bit mode" ));
   sixteenBit->setChecked ( config.sixteenBit );
@@ -70,51 +58,47 @@ CameraWidget::CameraWidget ( QWidget* parent ) : QGroupBox ( parent )
   connect ( rawMode, SIGNAL( stateChanged ( int )), this,
       SLOT( setRawMode ( int )));
 
-  colourise = new QCheckBox ( tr ( "Enable false colour" ), this );
-  colourise->setToolTip ( tr ( "Colourise the preview for mono cameras" ));
-  colourise->setChecked ( config.colourise );
-  connect ( colourise, SIGNAL( stateChanged ( int )), this,
-      SLOT( setColouriseMode ( int )));
+  tempLabel = new QLabel();
+  if ( config.tempsInC ) {
+    tempLabel->setText ( tr ( "Temp (C)" ));
+  } else {
+    tempLabel->setText ( tr ( "Temp (F)" ));
+  }
+  tempLabel->setFixedWidth ( 60 );
+  fpsMaxLabel = new QLabel ( tr ( "FPS (max)" ));
+  fpsMaxLabel->setFixedWidth ( 65 );
+  fpsActualLabel = new QLabel ( tr ( "FPS (actual)" ));
+  fpsActualLabel->setFixedWidth ( 80 );
+
+  tempValue = new QLabel ( "" );
+  tempValue->setFixedWidth ( 30 );
+  fpsMaxValue = new QLabel ( "0" );
+  fpsMaxValue->setFixedWidth ( 30 );
+  fpsActualValue = new QLabel ( "0" );
+  fpsActualValue->setFixedWidth ( 50 );
 
   if ( !config.dockableControls ) {
     setTitle ( tr ( "Camera" ));
   }
 
-  box1 = box2 = 0;
-  hbox = 0;
-  box1 = new QVBoxLayout();
-  box1->addWidget ( preview );
-  box1->addWidget ( nightMode );
-  box1->addWidget ( sixteenBit );
-
-  if ( config.controlsOnRight ) {
-    hbox = new QHBoxLayout();
-    box2 = new QVBoxLayout();
-    box2->addWidget ( binning2x2 );
-    box2->addWidget ( rawMode );
-    box2->addWidget ( colourise );
-    hbox->addLayout ( box1 );
-    hbox->addLayout ( box2 );
-    setLayout ( hbox );
-  } else {
-    box1->addWidget ( binning2x2 );
-    box1->addWidget ( rawMode );
-    box1->addWidget ( colourise );
-    setLayout ( box1 );
-  }
+  grid = new QGridLayout();
+  grid->addWidget ( sixteenBit, 0, 0 );
+  grid->addWidget ( binning2x2, 1, 0 );
+  grid->addWidget ( rawMode, 2, 0 );
+  grid->addWidget ( tempLabel, 0, 1 );
+  grid->addWidget ( fpsMaxLabel, 1, 1 );
+  grid->addWidget ( fpsActualLabel, 2, 1 );
+  grid->addWidget ( tempValue, 0, 2 );
+  grid->addWidget ( fpsMaxValue, 1, 2 );
+  grid->addWidget ( fpsActualValue, 2, 2 );
+  setLayout ( grid );
 }
 
 
 CameraWidget::~CameraWidget()
 {
-  if ( box1 ) {
-    state.mainWindow->destroyLayout (( QLayout* ) box1 );
-  }
-  if ( box2 ) {
-    state.mainWindow->destroyLayout (( QLayout* ) box2 );
-  }
-  if ( hbox ) {
-    state.mainWindow->destroyLayout (( QLayout* ) hbox );
+  if ( grid ) {
+    state.mainWindow->destroyLayout (( QLayout* ) grid );
   }
 }
 
@@ -126,8 +110,6 @@ CameraWidget::configure ( void )
   binning2x2->setEnabled ( state.camera->hasBinning ( 2 ) ? 1 : 0 );
   rawMode->setEnabled (( state.camera->hasRawMode() &&
       state.camera->hasDemosaicMode() && state.camera->isColour()) ? 1 : 0 );
-  colourise->setEnabled (( OA_ISGREYSCALE(
-      state.camera->videoFramePixelFormat ( 0 ))));
 }
 
 
@@ -262,15 +244,76 @@ CameraWidget::updateFromConfig ( void )
   if ( rawMode->isEnabled()) {
     rawMode->setChecked ( config.rawMode );
   }
+  /*
   if ( colourise->isEnabled()) {
     colourise->setChecked ( config.colourise );
   }
+  */
 }
 
 
 void
-CameraWidget::setColouriseMode ( int state )
+CameraWidget::setActualFrameRate ( double fps )
 {
-  config.colourise = state;
-  SET_PROFILE_CONFIG( colourise, config.colourise );
+  QString stringVal;
+
+  // precision, eg 100, 10.0, 1.00, 0.10, 0.01
+  stringVal.setNum ( fps, 'f', std::min(2, std::max(0, 2-(int)log10(fps))) );
+  fpsActualValue->setText ( stringVal );
+  state.currentFPS = fps;
+}
+
+
+void
+CameraWidget::setTemperature()
+{
+  float temp;
+  QString stringVal;
+
+  temp = state.camera->getTemperature();
+  state.cameraTempValid = 1;
+  state.cameraTemp = temp;
+
+  if ( updateTemperatureLabel == 1 ) {
+    if ( config.tempsInC ) {
+      tempLabel->setText ( tr ( "Temp (C)" ));
+    } else {
+      tempLabel->setText ( tr ( "Temp (F)" ));
+    }
+    updateTemperatureLabel = 0;
+  }
+
+  if ( !config.tempsInC ) {
+    temp = temp * 9 / 5 + 32;
+  }
+  stringVal.setNum ( temp, 'g', 3 );
+  tempValue->setText ( stringVal );
+}
+
+
+void
+CameraWidget::resetTemperatureLabel()
+{
+  updateTemperatureLabel = 1;
+}
+
+
+void
+CameraWidget::clearTemperature ( void )
+{
+  tempValue->setText ( "" );
+}
+
+
+void
+CameraWidget::showFPSMaxValue ( int value )
+{
+  fpsMaxValue->setText ( QString::number ( value ));
+}
+
+
+void
+CameraWidget::clearFPSMaxValue ( void )
+{
+  fpsMaxValue->setText ( "" );
 }

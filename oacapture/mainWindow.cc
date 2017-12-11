@@ -75,7 +75,7 @@ MainWindow::MainWindow()
 
   cameraSignalMapper = filterWheelSignalMapper = 0;
   timerSignalMapper = 0;
-  timerStatus = wheelStatus = 0;
+  timerStatus = wheelStatus = locationLabel = 0;
   advancedFilterWheelSignalMapper = 0;
   rescanCam = disconnectCam = 0;
   rescanWheel = disconnectWheel = warmResetWheel = coldResetWheel = 0;
@@ -121,7 +121,6 @@ MainWindow::MainWindow()
   state.timer = new Timer;
   oldHistogramState = -1;
   state.lastRecordedFile = "";
-  updateTemperatureLabel = 0;
   state.captureIndex = 0;
   state.settingsWidget = 0;
   state.advancedSettings = 0;
@@ -135,10 +134,6 @@ MainWindow::MainWindow()
 
   connect ( state.previewWidget, SIGNAL( updateFrameCount ( unsigned int )),
       this, SLOT ( setCapturedFrames ( unsigned int )));
-  connect ( state.previewWidget, SIGNAL( updateActualFrameRate (
-      double )), this, SLOT ( setActualFrameRate ( double )));
-  connect ( state.previewWidget, SIGNAL( updateTemperature ( void )),
-      this, SLOT ( setTemperature ( void )));
   connect ( state.previewWidget, SIGNAL( updateDroppedFrames ( void )),
       this, SLOT ( setDroppedFrames ( void )));
   connect ( state.previewWidget, SIGNAL( updateProgress ( unsigned int )),
@@ -149,6 +144,13 @@ MainWindow::MainWindow()
       this, SLOT ( showStatusMessage ( QString )));
   connect ( state.previewWidget, SIGNAL( frameWriteFailed ( void )),
       this, SLOT ( frameWriteFailedPopup ( void )));
+  connect ( state.captureWidget, SIGNAL( updateLocation ( void )),
+      this, SLOT ( setLocation ( void )));
+  connect ( state.previewWidget, SIGNAL( updateActualFrameRate (
+      double )), state.cameraWidget, SLOT ( setActualFrameRate ( double )));
+  connect ( state.previewWidget, SIGNAL( updateTemperature ( void )),
+      state.cameraWidget, SLOT ( setTemperature ( void )));
+
 
   // update filters for matching filter wheels from config
   state.filterWheel->updateAllSearchFilters();
@@ -238,12 +240,8 @@ MainWindow::~MainWindow()
   delete saveConfig;
   delete loadConfig;
   delete capturedValue;
-  delete fpsActualValue;
-  delete fpsMaxValue;
   delete progressBar;
   delete capturedLabel;
-  delete fpsActualLabel;
-  delete fpsMaxLabel;
   if ( state.camera ) {
     delete state.camera;
   }
@@ -1190,17 +1188,6 @@ MainWindow::createStatusBar ( void )
   statusLine = statusBar();
   setStatusBar ( statusLine );
 
-  tempLabel = new QLabel();
-  if ( config.tempsInC ) {
-    tempLabel->setText ( tr ( "Temp (C)" ));
-  } else {
-    tempLabel->setText ( tr ( "Temp (F)" ));
-  }
-  tempLabel->setFixedWidth ( 60 );
-  fpsMaxLabel = new QLabel ( tr ( "FPS (max)" ));
-  fpsMaxLabel->setFixedWidth ( 65 );
-  fpsActualLabel = new QLabel ( tr ( "FPS (actual)" ));
-  fpsActualLabel->setFixedWidth ( 80 );
   capturedLabel = new QLabel ( tr ( "Captured" ));
   capturedLabel->setFixedWidth ( 60 );
   droppedLabel = new QLabel ( tr ( "Dropped" ));
@@ -1210,30 +1197,16 @@ MainWindow::createStatusBar ( void )
   progressBar->setRange ( 0, 100 );
   progressBar->setTextVisible ( true );
 
-  tempValue = new QLabel ( "" );
-  tempValue->setFixedWidth ( 30 );
-  fpsMaxValue = new QLabel ( "0" );
-  fpsMaxValue->setFixedWidth ( 30 );
-  fpsActualValue = new QLabel ( "0" );
-  fpsActualValue->setFixedWidth ( 50 );
   capturedValue = new QLabel ( "0" );
   capturedValue->setFixedWidth ( 40 );
   droppedValue = new QLabel ( "0" );
   droppedValue->setFixedWidth ( 40 );
 
-  statusLine->addPermanentWidget ( tempLabel );
-  statusLine->addPermanentWidget ( tempValue );
-  statusLine->addPermanentWidget ( fpsMaxLabel );
-  statusLine->addPermanentWidget ( fpsMaxValue );
-  statusLine->addPermanentWidget ( fpsActualLabel );
-  statusLine->addPermanentWidget ( fpsActualValue );
   statusLine->addPermanentWidget ( capturedLabel );
   statusLine->addPermanentWidget ( capturedValue );
   statusLine->addPermanentWidget ( droppedLabel );
   statusLine->addPermanentWidget ( droppedValue );
   statusLine->addPermanentWidget ( progressBar );
-  
-  statusLine->showMessage ( tr ( "started" ));
 }
 
 
@@ -1317,6 +1290,21 @@ MainWindow::createMenus ( void )
   darkframe->setCheckable ( true );
   // FIX ME - set up slots
 
+  nightMode = new QAction ( tr ( "Night Mode" ), this );
+  nightMode->setCheckable ( true );
+  connect ( nightMode, SIGNAL( changed()), this, SLOT( enableNightMode()));
+  nightMode->setChecked ( config.nightMode );
+
+  colourise = new QAction ( tr ( "False Colour" ), this );
+  colourise->setCheckable ( true );
+  connect ( colourise, SIGNAL( changed()), this, SLOT( enableColouriseMode()));
+  colourise->setChecked ( config.colourise );
+
+  preview = new QAction ( tr ( "Preview on/off" ), this );
+  preview->setCheckable ( true );
+  preview->setChecked ( config.preview );
+  connect ( preview, SIGNAL( changed()), this, SLOT( enablePreviewMode()));
+
   flipX = new QAction ( QIcon ( ":/qt-icons/object-flip-horizontal.png" ), 
       tr ( "Flip X" ), this );
   flipX->setStatusTip ( tr ( "Flip image left<->right" ));
@@ -1359,6 +1347,9 @@ MainWindow::createMenus ( void )
   optionsMenu->addAction ( flipX );
   optionsMenu->addAction ( flipY );
   optionsMenu->addAction ( demosaicOpt );
+  optionsMenu->addAction ( nightMode );
+  optionsMenu->addAction ( colourise );
+  optionsMenu->addAction ( preview );
 
   // settings menu
 
@@ -1408,9 +1399,9 @@ MainWindow::createMenus ( void )
   connect ( histogram, SIGNAL( triggered()), this,
       SLOT( doHistogramSettings()));
 
-  colourise = new QAction ( QIcon ( ":/qt-icons/sun.png" ),
+  falseColour = new QAction ( QIcon ( ":/qt-icons/sun.png" ),
       tr ( "False Colour" ), this );
-  connect ( colourise, SIGNAL( triggered()), this,
+  connect ( falseColour, SIGNAL( triggered()), this,
       SLOT( doColouriseSettings()));
 
   timer = new QAction ( QIcon ( ":/qt-icons/timer.png" ),
@@ -1428,7 +1419,7 @@ MainWindow::createMenus ( void )
   settingsMenu->addAction ( fits );
   settingsMenu->addAction ( autorun );
   settingsMenu->addAction ( histogram );
-  settingsMenu->addAction ( colourise );
+  settingsMenu->addAction ( falseColour );
   settingsMenu->addAction ( timer );
 
   // For the moment we only add the advanced menu if there are filter
@@ -1529,7 +1520,7 @@ MainWindow::connectCamera ( int deviceIndex )
   }
   configure();
   statusLine->showMessage ( state.camera->name() + tr ( " connected" ), 5000 );
-  clearTemperature();
+  state.cameraWidget->clearTemperature();
   clearDroppedFrames();
   state.captureWidget->enableStartButton ( 1 );
   state.captureWidget->enableProfileSelect ( 1 );
@@ -1540,7 +1531,7 @@ MainWindow::connectCamera ( int deviceIndex )
   state.cameraWidget->enableBinningControl ( state.camera->hasBinning ( 2 ));
   v = state.camera->hasControl ( OA_CAM_CTRL_TEMPERATURE );
   state.previewWidget->enableTempDisplay ( v );
-  styleStatusBarTemp ( v );
+  // styleStatusBarTemp ( v );
   v = state.camera->hasControl ( OA_CAM_CTRL_DROPPED );
   state.previewWidget->enableDroppedDisplay ( v );
   styleStatusBarDroppedFrames ( v );
@@ -1585,7 +1576,7 @@ MainWindow::disconnectCamera ( void )
   state.captureWidget->enableProfileSelect ( 0 );
   doDisconnectCam();
   focusOverlay->reset();
-  statusLine->showMessage ( tr ( "Camera disconnected" ));
+  statusLine->showMessage ( tr ( "Camera disconnected" ), 5000 );
 }
 
 
@@ -1614,6 +1605,8 @@ MainWindow::rescanCameras ( void )
 void
 MainWindow::connectFilterWheel ( int deviceIndex )
 {
+  int position = 0;
+
   doDisconnectFilterWheel();
   if ( state.filterWheel->initialise ( filterWheelDevs[ deviceIndex ] )) {
     QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
@@ -1629,9 +1622,9 @@ MainWindow::connectFilterWheel ( int deviceIndex )
     wheelStatus = new QLabel();
     wheelStatus->setPixmap ( QPixmap ( QString::fromUtf8 (
         ":/qt-icons/filter-wheel.png" )));
-    statusLine->insertWidget( 0, wheelStatus );
   }
-  statusLine->addWidget ( wheelStatus );
+  statusLine->insertPermanentWidget( position, wheelStatus );
+  // statusLine->addWidget ( wheelStatus );
   wheelStatus->show();
   statusLine->showMessage ( state.filterWheel->name() +
       tr ( " connected" ), 5000 );
@@ -1654,7 +1647,7 @@ MainWindow::disconnectFilterWheel ( void )
 {
   doDisconnectFilterWheel();
   statusLine->removeWidget ( wheelStatus );
-  statusLine->showMessage ( tr ( "Filter wheel disconnected" ));
+  statusLine->showMessage ( tr ( "Filter wheel disconnected" ), 5000 );
 }
 
 
@@ -1664,7 +1657,7 @@ MainWindow::warmResetFilterWheel ( void )
   if ( state.filterWheel && state.filterWheel->isInitialised()) {
     state.filterWheel->warmReset();
   }
-  statusLine->showMessage ( tr ( "Filter wheel reset" ));
+  statusLine->showMessage ( tr ( "Filter wheel reset" ), 5000 );
 }
 
 
@@ -1674,7 +1667,7 @@ MainWindow::coldResetFilterWheel ( void )
   if ( state.filterWheel && state.filterWheel->isInitialised()) {
     state.filterWheel->coldReset();
   }
-  statusLine->showMessage ( tr ( "Filter wheel reset" ));
+  statusLine->showMessage ( tr ( "Filter wheel reset" ), 5000 );
 }
 
 
@@ -1701,6 +1694,8 @@ MainWindow::doDisconnectFilterWheel ( void )
 void
 MainWindow::connectTimer ( int deviceIndex )
 {
+  int position = 0;
+
   doDisconnectTimer();
   if ( state.timer->initialise ( timerDevs[ deviceIndex ] )) {
     QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
@@ -1711,18 +1706,26 @@ MainWindow::connectTimer ( int deviceIndex )
   disconnectTimerDevice->setEnabled( 1 );
   resetTimerDevice->setEnabled( state.timer->hasReset());
   rescanTimer->setEnabled( 0 );
+
+  if ( state.filterWheel && state.filterWheel->isInitialised()) {
+    position++;
+  }
   if ( !timerStatus ) {
     timerStatus = new QLabel();
     timerStatus->setPixmap ( QPixmap ( QString::fromUtf8 (
         ":/qt-icons/timer.png" )));
-    statusLine->insertWidget( 0, timerStatus );
+    statusLine->insertPermanentWidget( position, timerStatus );
   }
-  statusLine->addWidget ( timerStatus );
   timerStatus->show();
   if ( state.timer->hasGPS()) {
+    if ( !locationLabel ) {
+      locationLabel = new QLabel;
+      statusLine->insertPermanentWidget( position + 1, locationLabel );
+    }
     if ( state.timer->readGPS ( &state.latitude, &state.longitude,
         &state.altitude ) == OA_ERR_NONE ) {
       state.gpsValid = 1;
+      setLocation();
     }
   }
   statusLine->showMessage ( state.timer->name() + tr ( " connected" ), 5000 );
@@ -1734,8 +1737,9 @@ MainWindow::disconnectTimer ( void )
 {
   state.gpsValid = 0;
   doDisconnectTimer();
+  statusLine->removeWidget ( locationLabel );
   statusLine->removeWidget ( timerStatus );
-  statusLine->showMessage ( tr ( "Timer disconnected" ));
+  statusLine->showMessage ( tr ( "Timer disconnected" ), 5000 );
 }
 
 
@@ -1745,7 +1749,7 @@ MainWindow::resetTimer ( void )
   if ( state.timer && state.timer->isInitialised()) {
     state.timer->reset();
   }
-  statusLine->showMessage ( tr ( "Timer reset" ));
+  statusLine->showMessage ( tr ( "Timer reset" ), 5000 );
 }
 
 
@@ -1779,45 +1783,6 @@ MainWindow::setCapturedFrames ( unsigned int newVal )
 
 
 void
-MainWindow::setActualFrameRate ( double fps )
-{
-  QString stringVal;
-
-  // precision, eg 100, 10.0, 1.00, 0.10, 0.01
-  stringVal.setNum ( fps, 'f', std::min(2, std::max(0, 2-(int)log10(fps))) );
-  fpsActualValue->setText ( stringVal );
-  state.currentFPS = fps;
-}
-
-
-void
-MainWindow::setTemperature()
-{
-  float temp;
-  QString stringVal;
-
-  temp = state.camera->getTemperature();
-  state.cameraTempValid = 1;
-  state.cameraTemp = temp;
-
-  if ( updateTemperatureLabel == 1 ) {
-    if ( config.tempsInC ) {
-      tempLabel->setText ( tr ( "Temp (C)" ));
-    } else {
-      tempLabel->setText ( tr ( "Temp (F)" ));
-    }
-    updateTemperatureLabel = 0;
-  }
-
-  if ( !config.tempsInC ) {
-    temp = temp * 9 / 5 + 32;
-  }
-  stringVal.setNum ( temp, 'g', 3 );
-  tempValue->setText ( stringVal );
-}
-
-
-void
 MainWindow::setDroppedFrames()
 {
   uint64_t dropped;
@@ -1826,20 +1791,6 @@ MainWindow::setDroppedFrames()
   dropped = state.camera->readControl ( OA_CAM_CTRL_DROPPED );
   stringVal.setNum ( dropped );
   droppedValue->setText ( stringVal );
-}
-
-
-void
-MainWindow::resetTemperatureLabel()
-{
-  updateTemperatureLabel = 1;
-} 
-  
-
-void
-MainWindow::clearTemperature ( void )
-{
-  tempValue->setText ( "" );
 }
 
 
@@ -1861,45 +1812,38 @@ MainWindow::quit ( void )
 
 
 void
-MainWindow::showFPSMaxValue ( int value )
-{
-  fpsMaxValue->setText ( QString::number ( value ));
-}
-
-
-void
-MainWindow::clearFPSMaxValue ( void )
-{
-  fpsMaxValue->setText ( "" );
-}
-
-
-void
 MainWindow::showStatusMessage ( QString message )
 {
-  statusLine->showMessage ( message );
+  statusLine->showMessage ( message, 5000  );
 }
 
 
 void
-MainWindow::setNightMode ( int mode )
+MainWindow::enableNightMode ( void )
 {
   // FIX ME -- need to set flag so subwindows can be started with the
   // correct stylesheet
-  if ( mode ) {
+  config.nightMode = nightMode->isChecked() ? 1 : 0;
+  if ( config.nightMode ) {
     setNightStyleSheet ( this );
     if ( state.histogramWidget ) {
       setNightStyleSheet ( state.histogramWidget );
     }
-    config.nightMode = 1;
   } else {
     clearNightStyleSheet ( this );
     if ( state.histogramWidget ) {
       clearNightStyleSheet ( state.histogramWidget );
     }
-    config.nightMode = 0;
   }
   update();
+}
+
+
+void
+MainWindow::enableColouriseMode ( void )
+{
+  config.colourise = colourise->isChecked() ? 1 : 0;
+  SET_PROFILE_CONFIG( colourise, config.colourise );
 }
 
 
@@ -2513,12 +2457,14 @@ MainWindow::destroyLayout ( QLayout* layout )
 }
 
 
+/*
 void
 MainWindow::styleStatusBarTemp ( int state )
 {
   tempLabel->setEnabled ( state );
   tempValue->setEnabled ( state );
 }
+*/
 
 
 void
@@ -2596,19 +2542,22 @@ MainWindow::createPreviewWindow()
 
 
 void
-MainWindow::changePreviewState ( int newState )
+MainWindow::enablePreviewMode ( void )
 {
-  if ( newState == Qt::Unchecked ) {
-    config.preview = 0;
-    previewScroller->hide();
-    if ( previewWidget ) {
-      previewWidget->setEnabled ( 0 );
+  config.preview = preview->isChecked() ? 1 : 0;
+  if ( config.preview ) {
+    if ( previewScroller ) {
+      previewScroller->show();
+      if ( previewWidget ) {
+        previewWidget->setEnabled ( 1 );
+      }
     }
   } else {
-    config.preview = 1;
-    previewScroller->show();
-    if ( previewWidget ) {
-      previewWidget->setEnabled ( 1 );
+    if ( previewScroller ) {
+      previewScroller->hide();
+      if ( previewWidget ) {
+        previewWidget->setEnabled ( 0 );
+      }
     }
   }
 }
@@ -2864,4 +2813,14 @@ MainWindow::frameWriteFailedPopup ( void )
 {
   QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
       tr ( "Error saving captured frame" ));
+}
+
+
+void
+MainWindow::setLocation ( void )
+{
+  QString locationText = QString ( "%1N  %2E, %3m" ).arg (
+      state.latitude, 0, 'f', 4 ).arg ( state.longitude, 0, 'f', 4 ).arg (
+      state.altitude, 0, 'f', 0 );
+  locationLabel->setText ( locationText );
 }

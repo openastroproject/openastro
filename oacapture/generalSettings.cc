@@ -2,7 +2,7 @@
  *
  * generalSettings.cc -- class for general settings in the settings UI
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -185,7 +185,7 @@ GeneralSettings::storeSettings ( void )
     config.reticleStyle = RETICLE_TRAMLINES;
   }
   config.tempsInC = degCButton->isChecked();
-  state.mainWindow->resetTemperatureLabel();
+  state.cameraWidget->resetTemperatureLabel();
   config.saveCaptureSettings = saveCaptureSettings->isChecked() ? 1 : 0;
   config.connectSoleCamera = connectSole->isChecked() ? 1 : 0;
 

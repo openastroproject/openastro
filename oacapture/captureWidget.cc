@@ -312,6 +312,7 @@ CaptureWidget::CaptureWidget ( QWidget* parent ) : QGroupBox ( parent )
   setLayout ( box );
 
   outputHandler = 0;
+  updateTemperatureLabel = 0;
 
   // Final setup for signals to avoid crossing threads when widgets need to
   // be updated
@@ -525,6 +526,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     if ( state.timer->readGPS ( &state.latitude, &state.longitude,
         &state.altitude ) == OA_ERR_NONE ) {
       state.gpsValid = 1;
+      emit ( updateLocation());
     }
   }
 

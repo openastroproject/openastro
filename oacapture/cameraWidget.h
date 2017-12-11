@@ -2,7 +2,7 @@
  *
  * cameraWidget.h -- class declaration
  *
- * Copyright 2013,2014,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -50,21 +50,28 @@ class CameraWidget : public QGroupBox
     void                configure ( void );
     void                enableBinningControl ( int );
     void                updateFromConfig ( void );
+    void                clearTemperature ( void );
+    void                resetTemperatureLabel ( void );
+    void                showFPSMaxValue ( int );
+    void                clearFPSMaxValue ( void );
 
   private:
     QCheckBox*		sixteenBit;
     QCheckBox*		binning2x2;
     QCheckBox*		rawMode;
-    QCheckBox*		preview;
-    QCheckBox*		nightMode;
-    QCheckBox*		colourise;
-    QVBoxLayout*	box1;
-    QVBoxLayout*	box2;
-    QHBoxLayout*	hbox;
+    QGridLayout*	grid;
+    QLabel*             tempLabel;
+    QLabel*             fpsMaxLabel;
+    QLabel*             fpsActualLabel;
+    QLabel*             fpsMaxValue;
+    QLabel*             fpsActualValue;
+    QLabel*             tempValue;
+    int                 updateTemperatureLabel;
 
   public slots:
     void		setBinning ( int );
     void		set16Bit ( int );
     void		setRawMode ( int );
-    void		setColouriseMode ( int );
+    void                setActualFrameRate ( double );
+    void                setTemperature ( void );
 };

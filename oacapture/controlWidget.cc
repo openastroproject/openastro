@@ -811,11 +811,11 @@ ControlWidget::configure ( void )
 
     if ( usingAbsoluteExposure ) {
       if ( setting ) {
-        state.mainWindow->showFPSMaxValue ( 1000000 /
+        state.cameraWidget->showFPSMaxValue ( 1000000 /
             intervalMultipliers [ config.intervalMenuOption ] / setting );
       }
     } else {
-      state.mainWindow->clearFPSMaxValue();
+      state.cameraWidget->clearFPSMaxValue();
     }
   }
 
@@ -1011,11 +1011,11 @@ ControlWidget::exposureMenuChanged ( int index )
   }
   if ( usingAbsoluteExposure ) {
     if ( newSetting ) {
-      state.mainWindow->showFPSMaxValue ( 1000000 /
+      state.cameraWidget->showFPSMaxValue ( 1000000 /
           intervalMultipliers [ config.intervalMenuOption ] / newSetting );
     }
   } else {
-    state.mainWindow->clearFPSMaxValue();
+    state.cameraWidget->clearFPSMaxValue();
   }
 }
 
@@ -1032,7 +1032,7 @@ ControlWidget::updateExposure ( int value )
   if ( usingAbsoluteExposure ) {
     usecValue = value * intervalMultipliers [ config.intervalMenuOption ];
     if ( value ) {
-      state.mainWindow->showFPSMaxValue ( 1000000 / usecValue );
+      state.cameraWidget->showFPSMaxValue ( 1000000 / usecValue );
     }
     config.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = value;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_EXPOSURE_ABSOLUTE, value );
@@ -1054,7 +1054,7 @@ ControlWidget::updateExposure ( int value )
           value );
     }
   } else {
-    state.mainWindow->clearFPSMaxValue();
+    state.cameraWidget->clearFPSMaxValue();
     state.camera->setControl ( OA_CAM_CTRL_EXPOSURE_UNSCALED, value );
     config.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) = value;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_EXPOSURE_UNSCALED, value );
@@ -1322,11 +1322,11 @@ ControlWidget::updateFromConfig ( void )
 
   if ( usingAbsoluteExposure ) {
     if ( exposureSetting ) {
-      state.mainWindow->showFPSMaxValue ( 1000000 /
+      state.cameraWidget->showFPSMaxValue ( 1000000 /
           intervalMultipliers [ config.intervalMenuOption ] / exposureSetting );
     }
   } else {
-    state.mainWindow->clearFPSMaxValue();
+    state.cameraWidget->clearFPSMaxValue();
   }
 
 }
@@ -1849,7 +1849,7 @@ ControlWidget::intervalMenuChanged ( int index )
   exposureSlider->setValue ( setting );
 
   if ( setting ) {
-    state.mainWindow->showFPSMaxValue ( 1000000 /
+    state.cameraWidget->showFPSMaxValue ( 1000000 /
         intervalMultipliers [ config.intervalMenuOption ] / setting );
   }
 }

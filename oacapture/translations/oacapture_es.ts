@@ -126,11 +126,6 @@
         <translation>Vista previa</translation>
     </message>
     <message>
-        <location filename="../cameraWidget.cc" line="44"/>
-        <source>Turn preview on/off</source>
-        <translation>Vista previa si/no</translation>
-    </message>
-    <message>
         <location filename="../cameraWidget.cc" line="49"/>
         <source>Night Mode</source>
         <translation>Modo Noche</translation>
@@ -1159,6 +1154,11 @@ Colocar los controles en una ventana separada anula las selecciones para hacer l
         <translation>Interpolación Cromática (Demosaic)</translation>
     </message>
     <message>
+        <location filename="../mainWindow.cc"/>
+        <source>Preview on/off</source>
+        <translation>Vista previa si/no</translation>
+    </message>
+    <message>
         <location filename="../mainWindow.cc" line="1337"/>
         <source>&amp;Options</source>
         <translation>&amp;Opciones</translation>
@@ -1239,6 +1239,11 @@ Colocar los controles en una ventana separada anula las selecciones para hacer l
         <location filename="../mainWindow.cc" line="1409"/>
         <source>False Colour</source>
         <translation>Falso Color</translation>
+    </message>
+    <message>
+        <location filename="../mainWindow.cc"/>
+        <source>Night Mode</source>
+        <translation>Modo Noche</translation>
     </message>
     <message>
         <location filename="../mainWindow.cc" line="1414"/>

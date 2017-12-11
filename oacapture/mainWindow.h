@@ -2,7 +2,7 @@
  *
  * mainWindow.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -58,11 +58,7 @@ class MainWindow : public QMainWindow
   public:
 			MainWindow();
 			~MainWindow();
-    void		clearTemperature ( void );
-    void		resetTemperatureLabel ( void );
     void		clearDroppedFrames ( void );
-    void		showFPSMaxValue ( int );
-    void		clearFPSMaxValue ( void );
     void		setNightStyleSheet ( QWidget* );
     void		clearNightStyleSheet ( QWidget* );
     void		destroyLayout ( QLayout* );
@@ -97,13 +93,10 @@ class MainWindow : public QMainWindow
     QProgressBar*	progressBar;
     QLabel*		capturedValue;
     QLabel*		droppedValue;
-    QLabel*		fpsMaxValue;
-    QLabel*		fpsActualValue;
     QStatusBar*		statusLine;
-    QLabel*		tempValue;
-    int			updateTemperatureLabel;
     QLabel*             timerStatus;
     QLabel*             wheelStatus;
+    QLabel*             locationLabel;
 
     void		readConfig ( void );
     void		createStatusBar ( void );
@@ -127,11 +120,9 @@ class MainWindow : public QMainWindow
     QString		timerMenuEntry[ OA_MAX_DEVICES ];
     oaTimerDevice**	timerDevs;
 
-    QLabel*		tempLabel;
-    QLabel*		fpsMaxLabel;
-    QLabel*		fpsActualLabel;
     QLabel*		capturedLabel;
     QLabel*		droppedLabel;
+
     QAction*		loadConfig;
     QAction*		saveConfig;
     QAction*		saveConfigAs;
@@ -165,7 +156,10 @@ class MainWindow : public QMainWindow
     QAction*		autorun;
     QAction*		histogram;
     QAction*		about;
+    QAction*		falseColour;
+    QAction*		nightMode;
     QAction*		colourise;
+    QAction*		preview;
     int			oldHistogramState;
     int			connectedCameras;
     int			cameraMenuCreated;
@@ -213,7 +207,6 @@ class MainWindow : public QMainWindow
     void		resetTimer ( void );
     void		rescanTimers ( void );
     void		quit ( void );
-    void		setNightMode ( int );
     void		enableHistogram ( void );
     void		histogramClosed ( void );
     void		enableReticle ( void );
@@ -221,6 +214,9 @@ class MainWindow : public QMainWindow
     void		enableFlipX ( void );
     void		enableFlipY ( void );
     void		enableDemosaic ( void );
+    void		enableNightMode ( void );
+    void		enableColouriseMode ( void );
+    void                enablePreviewMode ( void );
     void		aboutDialog ( void );
     void		doGeneralSettings ( void );
     void		doCaptureSettings ( void );
@@ -237,18 +233,16 @@ class MainWindow : public QMainWindow
     void		doTimerMenu ( int );
     void		closeSettingsWindow ( void );
     void		settingsClosed ( void );
-    void                changePreviewState ( int );
     void		advancedFilterWheelHandler ( int );
     void		advancedPTRHandler ( void );
     void		closeAdvancedWindow ( void );
     void		advancedClosed ( void );
     void		doColouriseSettings ( void );
     void		setCapturedFrames ( unsigned int );
-    void		setActualFrameRate ( double );
-    void		setTemperature ( void );
     void		setDroppedFrames ( void );
     void		setProgress ( unsigned int );
     void		reveal ( void );
     void		showStatusMessage ( QString );
     void		frameWriteFailedPopup ( void );
+    void		setLocation ( void );
 };
