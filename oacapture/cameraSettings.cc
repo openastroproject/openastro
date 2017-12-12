@@ -33,7 +33,7 @@
 #define SLIDERS_PER_ROW		2
 #define CHECKBOXES_PER_ROW	4
 #define BUTTONS_PER_ROW		4
-#define MENUS_PER_ROW		4
+#define MENU_ITEMS_PER_ROW	9
 #define UNHANDLED_PER_ROW	6
 
 
@@ -425,25 +425,40 @@ CameraSettings::configure ( void )
         int64_t min, max, step, def;
         state.camera->controlRange ( c, &min, &max, &step, &def );
         if ( 1 == step && 0 == min ) {
-          menuGrid->addWidget ( controlLabel[mod][baseVal], row, col++ );
-          menuGrid->addWidget ( controlMenu[mod][baseVal], row, col++ );
+          menuGrid->addWidget ( controlLabel[mod][baseVal], row, col++,
+              Qt::AlignRight );
+          menuGrid->addWidget ( controlMenu[mod][baseVal], row, col++,
+              Qt::AlignLeft );
           added[mod][baseVal] = 1;
           addedMenus++;
+          col++;
         }
       }
       if ( OA_CTRL_TYPE_DISC_MENU == controlType[mod][baseVal] ) {
-        menuGrid->addWidget ( controlLabel[mod][baseVal], row, col++ );
-        menuGrid->addWidget ( controlMenu[mod][baseVal], row, col++ );
+        menuGrid->addWidget ( controlLabel[mod][baseVal], row, col++,
+            Qt::AlignRight );
+        menuGrid->addWidget ( controlMenu[mod][baseVal], row, col++,
+            Qt::AlignLeft );
         added[mod][baseVal] = 1;
         addedMenus++;
+          col++;
       }
-      if ( MENUS_PER_ROW == col ) {
+      if ( MENU_ITEMS_PER_ROW == col ) {
         col = 0;
         row++;
       }
     }
-    if ( addedMenus && addedMenus < MENUS_PER_ROW ) {
-      menuGrid->setColumnStretch ( addedMenus * 2, 1 );
+  }
+  if ( addedMenus && addedMenus < MENU_ITEMS_PER_ROW ) {
+    menuGrid->setColumnStretch ( addedMenus * 2 - 1, 1 );
+  }
+  if ( addedMenus > 1 ) {
+    int maxMenus, i;
+    maxMenus = ( addedMenus < MENU_ITEMS_PER_ROW / 3 ) ? addedMenus * 3 :
+        MENU_ITEMS_PER_ROW;
+    addedMenus -= 2;
+    for ( i = 2; i < maxMenus; i += 3 ) {
+      menuGrid->setColumnMinimumWidth ( i, 20 );
     }
   }
 
