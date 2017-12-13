@@ -65,10 +65,6 @@ _ptrRead ( int fd, char* buffer, int maxlen )
     len++;
   } while ( !done && len < maxlen );
 
-  if ( len > 1 && *(p-1) == 0x0a ) {
-    len -= 1;
-    p -= 1;
-  }
   *p = 0;
   return len;
 }

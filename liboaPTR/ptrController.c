@@ -422,8 +422,7 @@ _processPTRStart ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
     return -OA_ERR_SYSTEM_ERROR;
   }
 
-  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, commandLen + 2 )) !=
-      ( commandLen )) {
+  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, 127 )) != commandLen ) {
     fprintf ( stderr, "%s: failed to read back command:\n%s\n"
         "  from %s, commandLen = %d, read len = %d\n",
         __FUNCTION__, commandStr, deviceInfo->devicePath, commandLen,
@@ -757,11 +756,9 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   }
   usleep ( 200000 );
 
-  /*
-  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, commandLen + 2 )) !=
-      ( commandLen )) {
-  */
-  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, commandLen + 2 )) < 1 ) {
+  // Only < 1 here because the preceding tcflush may actually have eaten some
+  // of the data
+  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, 127 )) < 1 ) {
     fprintf ( stderr, "%s: failed to read back command:\n%s\n"
         "  from %s, commandLen = %d, read len = %d\n",
         __FUNCTION__, commandStr, deviceInfo->devicePath, commandLen,
