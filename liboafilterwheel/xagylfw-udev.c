@@ -2,7 +2,7 @@
  *
  * xagylfw-udev.c -- Find Xagyl filter wheels using (Linux) udev
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -161,11 +161,12 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
             continue;
           }
 
-          tio.c_cflag &= ~PARENB; // no parity
-          tio.c_cflag &= ~CSTOPB; // 1 stop bit
-          cfsetospeed ( &tio, B9600 );
-          cfsetispeed ( &tio, B9600 );
-          if ( tcsetattr ( fwDesc, TCSANOW, &tio )) {
+          tio.c_iflag = IXON | IGNPAR | BRKINT;
+          tio.c_oflag = 0;
+          tio.c_cflag = CLOCAL | CREAD | CS8 | B9600;
+          tio.c_lflag = IEXTEN | ECHOKE | ECHOCTL | ECHOK | ECHOE;
+
+          if ( tcsetattr ( fwDesc, TCSAFLUSH, &tio )) {
             int errnoCopy = errno;
             errno = 0;
             while (( close ( fwDesc ) < 0 ) && EINTR == errno );

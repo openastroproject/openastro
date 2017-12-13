@@ -2,7 +2,7 @@
  *
  * oafwprivate.h -- shared declarations not exposed to the cruel world
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -58,6 +58,7 @@ typedef struct {
   int			wheelType;
   int			currentPosition;
   int			numSlots;
+  int			currentSpeed;
   // thread management
   pthread_t             controllerThread;
   pthread_mutex_t       commandQueueMutex;

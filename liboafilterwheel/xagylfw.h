@@ -2,7 +2,7 @@
  *
  * xagylfw.h -- header for Xagyl filter wheel API
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -80,10 +80,12 @@ extern int		xagylConfigEntries;
 #define	XAGYL_FILTERWHEEL_PID1	0x6001
 #define	XAGYL_FILTERWHEEL_PID2	0x6015
 
-#define	FW_UNKNOWN	0
-#define	XAGYL_5125	1
-#define	XAGYL_8125	2
-#define	XAGYL_5200	3
+#define	FW_UNKNOWN		0
+#define	XAGYL_5125		1
+#define	XAGYL_8125		2
+#define	XAGYL_5200		3
+
+#define XAGYL_DEFAULT_SPEED	100
 
 #endif	/* OA_XAGYL_FW_H */
 

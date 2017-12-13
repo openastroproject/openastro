@@ -2,7 +2,7 @@
  *
  * xagylIO-ftdi.c -- Xagyl filter wheel IO routines (libftdi)
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -135,6 +135,7 @@ int
 oaXagylSetWheelSpeed ( PRIVATE_INFO* wheelInfo, unsigned int speed,
     int nodelay )
 {
+  // FIX ME -- make this actually work
   return 0;
 }
 

@@ -124,6 +124,7 @@ int
 oaXagylSetWheelSpeed ( PRIVATE_INFO* wheelInfo, unsigned int speed,
     int nodelay )
 {
+  // FIX ME -- make this actually work
   return 0;
 }
 

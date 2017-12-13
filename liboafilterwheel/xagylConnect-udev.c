@@ -2,7 +2,7 @@
  *
  * xagylInit-udev.c -- Initialise Xagyl filter wheels (udev)
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -114,13 +114,12 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
     return 0;
   }
 
-  tio.c_cflag &= ~PARENB; // no parity
-  tio.c_cflag &= ~CSTOPB; // 1 stop bit
-  tio.c_cflag |= CLOCAL | CREAD | CS8;
-  cfsetospeed ( &tio, B9600 );
-  cfsetispeed ( &tio, B9600 );
-  tcflush ( fwDesc, TCIFLUSH );
-  if ( tcsetattr ( fwDesc, TCSANOW, &tio )) {
+  tio.c_iflag = IXON | IGNPAR | BRKINT;
+  tio.c_oflag = 0;
+  tio.c_cflag = CLOCAL | CREAD | CS8 | B9600;
+  tio.c_lflag = IEXTEN | ECHOKE | ECHOCTL | ECHOK | ECHOE;
+
+  if ( tcsetattr ( fwDesc, TCSAFLUSH, &tio )) {
     int errnoCopy = errno;
     errno = 0;
     while (( close ( fwDesc ) < 0 ) && EINTR == errno );
@@ -130,6 +129,7 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
     free (( void* ) privateInfo );
     return 0;
   }
+  tcflush ( fwDesc, TCIFLUSH );
 
   wheel->interface = device->interface;
   privateInfo->fd = fwDesc;
@@ -184,6 +184,7 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
 
   wheel->controls [ OA_FW_CTRL_MOVE_ABSOLUTE_ASYNC ] = OA_CTRL_TYPE_INT32;
   wheel->controls [ OA_FW_CTRL_SPEED ] = OA_CTRL_TYPE_INT32;
+  privateInfo->currentSpeed = XAGYL_DEFAULT_SPEED;
   wheel->controls [ OA_FW_CTRL_WARM_RESET ] = OA_CTRL_TYPE_BUTTON;
   wheel->controls [ OA_FW_CTRL_COLD_RESET ] = OA_CTRL_TYPE_BUTTON;
 

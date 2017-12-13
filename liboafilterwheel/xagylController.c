@@ -2,7 +2,7 @@
  *
  * xagylController.c -- Xagyl filter wheel control functions
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015, 2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -173,10 +173,16 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
 
 
 static int
-_processGetControl ( PRIVATE_INFO* cameraInfo, OA_COMMAND* command )
+_processGetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
 {
   int			control = command->controlId;
-  // oaControlValue*	val = command->resultData;
+  oaControlValue*	val = command->resultData;
+
+  if ( OA_FW_CTRL_SPEED == control ) {
+    val->valueType = OA_CTRL_TYPE_INT32;
+    val->int32 = wheelInfo->currentSpeed;
+    return OA_ERR_NONE;
+  }
 
   oafwDebugMsg ( DEBUG_CAM_CTRL, "xagyl: control: %s ( %d )\n",
       __FUNCTION__, control );
