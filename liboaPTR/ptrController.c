@@ -469,9 +469,9 @@ _processPTRStop ( PRIVATE_INFO* deviceInfo )
   }
 
   // If we're going to provide timestamps to the user with a callback then
-  // depending on the implementation wed may need to wait here until the
+  // depending on the implementation we may need to wait here until the
   // callback queue has drained, otherwise a future close of the device
-  // could rip the data frame out from underneath the callback
+  // could rip the data out from underneath the callback
 
   if ( deviceInfo->timestampCallback.callback ) {
     queueEmpty = 0;
@@ -483,6 +483,8 @@ _processPTRStop ( PRIVATE_INFO* deviceInfo )
         usleep ( 10000 );
       }
     } while ( !queueEmpty );
+  } else {
+    deviceInfo->timestampsAvailable = deviceInfo->timestampCountdown = 0;
   }
 
   tcflush ( ptrDesc, TCIFLUSH );
