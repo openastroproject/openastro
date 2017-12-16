@@ -142,7 +142,7 @@ const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
   "LED State",
   "LED Period",
   "Auto Exposure Priority",
-  "Exposure Value"
+  "Exposure Value",
   "White Balance Preset",
   "Digital Gain",
   "Digital Gain (Red)",
