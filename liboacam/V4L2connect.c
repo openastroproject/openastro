@@ -196,6 +196,23 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   pthread_cond_init ( &cameraInfo->commandComplete, 0 );
   cameraInfo->isStreaming = 0;
 
+  /*
+   * FIX ME -- this could perhaps be made more efficient as
+   *
+   * struct v4l2_query_ext_ctrl ctrl;
+   * memset(&ctrl, 0, sizeof(ctrl));
+   * ctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL | V4L2_CTRL_FLAG_NEXT_COMPOUND;
+   * while (0 == ioctl(fd, VIDIOC_QUERY_EXT_CTRL, &ctrl)) {
+   *    if (!(ctrl.flags & V4L2_CTRL_FLAG_DISABLED)) {
+   *      ...
+   *    }
+   *    ctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL | V4L2_CTRL_FLAG_NEXT_COMPOUND;
+   * }
+   *
+   * which would return all standard and extended controls, but I don't know
+   * how portable that is to old releases
+   */
+
   for ( id = V4L2_CID_USER_BASE; id < V4L2_CID_LASTP1; id++ ) {
     OA_CLEAR ( ctrl );
     ctrl.id = id;
@@ -285,7 +302,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
       case V4L2_CID_AUDIO_TREBLE:
       case V4L2_CID_AUDIO_MUTE:
       case V4L2_CID_AUDIO_LOUDNESS:
-      case V4L2_CID_BLACK_LEVEL:
+      // this command is deprecated
+      // case V4L2_CID_BLACK_LEVEL:
         break;
 
       case V4L2_CID_AUTO_WHITE_BALANCE:
@@ -358,25 +376,26 @@ oaV4L2InitCamera ( oaCameraDevice* device )
         }
         break;
 
+      /*
+       * FIX ME -- This is a sort of "one-push white balance".  We don't
+       * have a command for that yet
+       *
       case V4L2_CID_DO_WHITE_BALANCE:
-        if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
+        if ( V4L2_CTRL_TYPE_BUTTON == ctrl.type ) {
           camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_WHITE_BALANCE ) =
-              OA_CTRL_TYPE_INT32;
-          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_WHITE_BALANCE ) =
-              ctrl.minimum;
-          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_WHITE_BALANCE ) =
-              ctrl.maximum;
-          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_WHITE_BALANCE ) =
-              ctrl.step;
-          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_WHITE_BALANCE ) =
-              ctrl.default_value;
+              OA_CTRL_TYPE_BUTTON;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_WHITE_BALANCE ) = 1;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_WHITE_BALANCE ) = 1;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_WHITE_BALANCE ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_WHITE_BALANCE ) = 1;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "white balance is not INTEGER (%d)\n",
+            fprintf ( stderr, "white balance is not button (%d)\n",
                 ctrl.type );
           }
         }
         break;
+        */
 
       case V4L2_CID_RED_BALANCE:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
@@ -414,6 +433,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
         break;
 
       case V4L2_CID_GAMMA:
+      // Deprecated
+      // case V4L2_CID_WHITENESS:
         if ( V4L2_CTRL_TYPE_INTEGER == ctrl.type ) {
           camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAMMA ) = OA_CTRL_TYPE_INT32;
           commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA ) = ctrl.minimum;
@@ -573,7 +594,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
         break;
 
       case V4L2_CID_BACKLIGHT_COMPENSATION:
+      // FIX ME -- probably could implement these two
       case V4L2_CID_CHROMA_AGC:
+      case V4L2_CID_CHROMA_GAIN:
       case V4L2_CID_COLOR_KILLER:
       case V4L2_CID_COLORFX:
         break;
@@ -594,13 +617,11 @@ oaV4L2InitCamera ( oaCameraDevice* device )
         }
         break;
 
-      case V4L2_CID_BAND_STOP_FILTER:
       case V4L2_CID_ROTATE:
       case V4L2_CID_BG_COLOR:
-      case V4L2_CID_CHROMA_GAIN:
       case V4L2_CID_ILLUMINATORS_1:
       case V4L2_CID_ILLUMINATORS_2:
-      case V4L2_CID_MIN_BUFFERS_FOR_CAPTURE: // FIX ME -- use this one?
+      case V4L2_CID_MIN_BUFFERS_FOR_CAPTURE:
       case V4L2_CID_MIN_BUFFERS_FOR_OUTPUT:
         break;
 #ifdef V4L2_CID_ALPHA_COMPONENT
@@ -923,6 +944,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
         }
         break;
 
+      case V4L2_CID_ZOOM_RELATIVE:
       case V4L2_CID_ZOOM_CONTINUOUS:
         break;
 
@@ -1006,6 +1028,10 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 #endif
 
 
+      case V4L2_CID_BAND_STOP_FILTER:
+#ifdef V4L2_CID_AUTO_EXPOSURE_PRIORITY
+      case V4L2_CID_AUTO_EXPOSURE_PRIORITY:
+#endif
 #ifdef V4L2_CID_AUTO_EXPOSURE_BIAS
       case V4L2_CID_AUTO_EXPOSURE_BIAS:
 #endif
