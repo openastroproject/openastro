@@ -51,6 +51,8 @@ strip $APPDIR/Contents/MacOS/fxload
 
 cp lib/firmware/qhy/QHY{5,5II,5LOADER,6}.HEX \
     $APPDIR/Contents/Resources/firmware/qhy
+cp lib/firmware/qhy/SLAVEFIFO.HEX \
+    $APPDIR/Contents/Resources/firmware/qhy
 
 cp oacapture/translations/*.qm $APPDIR/Contents/Resources/translations
 
