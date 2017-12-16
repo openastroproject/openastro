@@ -2,7 +2,7 @@
  *
  * ZWASI.h -- header for ZW ASI camera config
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -47,6 +47,8 @@
 #define ZWOCAM_ASI1600MC	16
 #define ZWOCAM_ASI290MM		17
 #define ZWOCAM_ASI290MC		18
-#define ZWO_NUM_CAMERAS		19
+#define ZWOCAM_ASI294MC		19
+#define ZWOCAM_ASI385MC		20
+#define ZWO_NUM_CAMERAS		21
 
 #endif	/* OA_ZWASI_H */

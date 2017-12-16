@@ -2,7 +2,7 @@
  *
  * ZWASI2oacam.c -- main entrypoint for ZW ASI Cameras, API v2
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -39,7 +39,8 @@ static const char *cameraNames[] = {
   "ZWO ASI035MC", "ZWO ASI030MC", "ZWO ASI034MC", "ZWO ASI120MM-S",
   "ZWO ASI120MC-S", "ZWO ASI174MM", "ZWO ASI174MC", "ZWO ASI178MM",
   "ZWO ASI178MC", "ZWO ASI185MC", "ZWO ASI224MC", "ZWO ASI1600MM",
-  "ZWO ASI1600MC", "ZWO ASI290MM", "ZWO ASI290MC"
+  "ZWO ASI1600MC", "ZWO ASI290MM", "ZWO ASI290MC", "ZWO ASI294MC",
+  "ZWO ASI395MC"
 };
 
 /**

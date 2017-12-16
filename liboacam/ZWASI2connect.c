@@ -1114,6 +1114,46 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
       break;
 
+    case ZWOCAM_ASI294MC:
+      cameraInfo->usb3Cam = 1;
+      if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
+          1, sizeof ( FRAMESIZE )))) {
+        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+        free (( void* ) camera->_common );
+        free (( void* ) camera->_private );
+        free (( void* ) camera );
+        return 0;
+      }
+
+      cameraInfo->frameSizes[1].sizes[0].x = 4144;
+      cameraInfo->frameSizes[1].sizes[0].y = 2822;
+      cameraInfo->frameSizes[1].numSizes = 1;
+
+      camera->features.pixelSizeX = 4630;
+      camera->features.pixelSizeY = 4630;
+
+      break;
+
+    case ZWOCAM_ASI385MC:
+      cameraInfo->usb3Cam = 1;
+      if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
+          1, sizeof ( FRAMESIZE )))) {
+        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+        free (( void* ) camera->_common );
+        free (( void* ) camera->_private );
+        free (( void* ) camera );
+        return 0;
+      }
+
+      cameraInfo->frameSizes[1].sizes[0].x = 1936;
+      cameraInfo->frameSizes[1].sizes[0].y = 1096;
+      cameraInfo->frameSizes[1].numSizes = 1;
+
+      camera->features.pixelSizeX = 3750;
+      camera->features.pixelSizeY = 3750;
+
+      break;
+
     default:
       fprintf ( stderr, "unknown camera type %d. Using limited resolutions\n",
           cameraInfo->cameraType );
