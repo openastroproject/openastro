@@ -48,7 +48,7 @@ struct qhycam cameraList[] =
   { 0x16c0, 0x296d, "QHY5", CAM_QHY5, 1, 1, 1, -1, 0, 0 },
   { 0x16c0, 0x2972, "QHY8", CAM_QHY8, 1, 1, 0, -1, 0, 0 },
   { 0x16c0, 0x2981, "QHY6Pro", CAM_QHY6Pro, 1, 1, 0, -1, 0, 0 },
-  { 0x1618, 0x0005, "IMG132E", CAM_IMG132E, 1, 0, 0, -1, 0, 0 },
+  { 0x1618, 0x0005, "IMG132E", CAM_IMG132E, 1, 0, 1, -1, 0, 0 },
   { 0x1618, 0x0259, "QHY6+ST4", CAM_QHY6_ST4, 1, 0, 1, -1, 0, 0 },
   { 0x1618, 0x025a, "QHY6+ST4", CAM_QHY6_ST4, 1, 1, 1, -1, 0, 0 },
   { 0x1618, 0x0901, "QHY5", CAM_QHY5, 1, 0, 1, -1, 0, 0 },
