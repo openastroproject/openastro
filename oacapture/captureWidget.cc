@@ -426,11 +426,11 @@ void
 CaptureWidget::startRecording ( void )
 {
   if ( config.timerEnabled && state.timer && state.timer->isInitialised()) {
-    if ( CAPTURE_FITS != config.fileTypeOption || !config.limitEnabled || 
-        !config.limitType ) {
+    if (( CAPTURE_FITS != config.fileTypeOption && CAPTURE_TIFF !=
+        config.fileTypeOption ) || !config.limitEnabled || !config.limitType ) {
       QString msg = tr ( "\n\nWhen using timer mode the image capture type "
-          "should be FITS and a frame-based capture limit should be set.\n\n"
-          "Capture run abandoned" );
+          "should be FITS/TIFF and a frame-based capture limit should be set."
+          "\n\nCapture run abandoned" );
       QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME, msg );
       return;
     }

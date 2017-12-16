@@ -2,7 +2,7 @@
  *
  * outputTIFF.cc -- TIFF output class
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -168,7 +168,8 @@ OutputTIFF::openOutput ( void )
 
 
 int
-OutputTIFF::addFrame ( void* frame, const char* timestampStr, int64_t expTime )
+OutputTIFF::addFrame ( void* frame, const char* timestampStr, int64_t expTime,
+    const char* commentStr )
 {
   int            ret, i;
   TIFF*          handle;
@@ -200,6 +201,14 @@ OutputTIFF::addFrame ( void* frame, const char* timestampStr, int64_t expTime )
     TIFFSetField ( handle, TIFFTAG_SAMPLESPERPIXEL, 1 );
   }
   TIFFSetField ( handle, TIFFTAG_BITSPERSAMPLE, pixelDepth );
+
+  TIFFSetField ( handle, TIFFTAG_SOFTWARE, APPLICATION_NAME " " VERSION_STR );
+  if ( timestampStr && *timestampStr ) {
+    TIFFSetField ( handle, TIFFTAG_DATETIME, timestampStr );
+  }
+  if ( commentStr && *commentStr ) {
+    TIFFSetField ( handle, TIFFTAG_IMAGEDESCRIPTION, commentStr );
+  }
 
   // swap byte orders if we need to
   // swap R and B if we need to

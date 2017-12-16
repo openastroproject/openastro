@@ -44,7 +44,7 @@ extern int              oaPTRSetControl ( oaPTR*, int,
                                 oaControlValue* );
 extern int              oaPTRReadControl ( oaPTR*, int,
                                 oaControlValue* );
-extern int              oaPTRGetTimestamp ( oaPTR*, int, char* );
+extern int              oaPTRGetTimestamp ( oaPTR*, int, oaTimerStamp* );
 extern int              oaPTRReadGPS ( oaPTR*, double* );
 
 extern void		oaPTRClearIDFilters ( void );

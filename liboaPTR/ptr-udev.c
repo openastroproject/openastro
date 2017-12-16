@@ -36,7 +36,7 @@
 #include <sys/select.h>
 
 #include <openastro/util.h>
-#include <openastro/ptr.h>
+#include <openastro/timer.h>
 
 #include "oaptrprivate.h"
 #include "unimplemented.h"

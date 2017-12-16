@@ -645,6 +645,8 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
   int			previewIsDemosaicked = 0;
   int			maxLength;
   const char*		timestamp;
+  char			commentStr[64];
+  char*			comment;
 
   // don't do anything if the length is not as expected
   if ( length != self->expectedSize ) {
@@ -873,13 +875,17 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
       }
       // These calls should be thread-safe
       if ( state->timer->isInitialised() && state->timer->isRunning()) {
-        timestamp = state->timer->readTimestamp();
+        oaTimerStamp* ts = state->timer->readTimestamp();
+        timestamp = ts->timestamp;
+        comment = commentStr;
+        ( void ) snprintf ( comment, 64, "Timer frame index: %d\n", ts->index );
       } else {
         timestamp = 0;
+        comment = 0;
       }
       if ( output->addFrame ( writeBuffer, timestamp,
           // This call should be thread-safe
-          state->controlWidget->getCurrentExposure()) < 0 ) {
+          state->controlWidget->getCurrentExposure(), comment ) < 0 ) {
         self->recordingInProgress = 0;
         self->manualStop = 0;
         state->autorunEnabled = 0;

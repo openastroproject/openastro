@@ -2,7 +2,7 @@
  *
  * oaptr.c -- main PTR library entrypoint
  *
- * Copyright 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -30,7 +30,7 @@
 #include <limits.h> 
 #endif
 
-#include <openastro/ptr.h>
+#include <openastro/timer.h>
 #include <openastro/util.h>
 #include <openastro/userConfig.h>
 

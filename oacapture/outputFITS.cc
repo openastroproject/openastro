@@ -231,7 +231,7 @@ OutputFITS::openOutput ( void )
 
 int
 OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
-    int64_t expTime )
+    int64_t expTime, const char* commentStr )
 {
   unsigned char* s;
   unsigned char* t;
@@ -378,6 +378,10 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     ( void ) strncpy ( stringBuff,
         config.fitsComment.toStdString().c_str(), FLEN_VALUE+1 );
     fits_write_comment ( fptr, cString, &status );
+  }
+
+  if ( commentStr && *commentStr ) {
+    fits_write_comment ( fptr, commentStr, &status );
   }
 
   if ( config.fitsFocalLength != "" ) {

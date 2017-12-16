@@ -191,10 +191,10 @@ TimerSettings::storeSettings ( void )
       OA_TIMER_MODE_UNSET;
   if (( config.timerEnabled = timerEnableBox->isChecked() ? 1 : 0 )) {
     if ( state.timer && state.timer->isInitialised()) {
-      if ( CAPTURE_FITS != config.fileTypeOption || !config.limitEnabled ||
+      if (( CAPTURE_FITS != config.fileTypeOption && CAPTURE_TIFF !=                      config.fileTypeOption ) || !config.limitEnabled ||
           !config.limitType ) {
         msg = tr ( "\n\nWhen using timer mode the image capture type should "
-            "be FITS and a frame-based capture limit should be set." );
+            "be FITS/TIFF and a frame-based capture limit should be set." );
         QMessageBox::warning ( this, APPLICATION_NAME, msg );
       }
       if ( state.camera && state.camera->isInitialised()) {

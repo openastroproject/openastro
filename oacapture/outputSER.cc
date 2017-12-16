@@ -2,7 +2,7 @@
  *
  * outputSER.cc -- SER output class
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -190,7 +190,8 @@ OutputSER::openOutput ( void )
 
 
 int
-OutputSER::addFrame ( void* frame, const char* timestampStr, int64_t expTime )
+OutputSER::addFrame ( void* frame, const char* timestampStr, int64_t expTime,
+    const char* commentStr )
 {
   int ret;
 

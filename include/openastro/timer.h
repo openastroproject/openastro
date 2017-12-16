@@ -27,6 +27,11 @@
 #ifndef OPENASTRO_TIMER_H
 #define OPENASTRO_TIMER_H
 
+typedef struct {
+  char		timestamp[64];
+  uint32_t	index;
+} oaTimerStamp;
+
 #include <openastro/openastro.h>
 #include <openastro/userConfig.h>
 #include <openastro/ptr.h>

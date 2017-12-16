@@ -2,7 +2,7 @@
  *
  * ptr-udev.c -- Find PTR devices using ACM interface
  *
- * Copyright 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -27,7 +27,7 @@
 #include <oa_common.h>
 
 #include <openastro/util.h>
-#include <openastro/ptr.h>
+#include <openastro/timer.h>
 
 #include "oaptrprivate.h"
 #include "unimplemented.h"

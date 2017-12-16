@@ -2,7 +2,7 @@
  *
  * outputFFMPEG.cc -- FFMPEG output class
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -222,7 +222,7 @@ OutputFFMPEG::openOutput ( void )
 
 int
 OutputFFMPEG::addFrame ( void* frame, const char* timestampStr,
-    int64_t expTime )
+    int64_t expTime, const char* commentStr )
 {
   int64_t lastPTS;
 

@@ -2,7 +2,7 @@
  *
  * debug.c -- debug message handling
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -31,7 +31,7 @@
 #endif
 #include <libusb-1.0/libusb.h>
 
-#include <openastro/ptr.h>
+#include <openastro/timer.h>
 #include <openastro/util.h>
 #include <openastro/debug.h>
 

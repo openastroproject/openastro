@@ -2,7 +2,7 @@
  *
  * ptrCallback.c -- Thread for handling callbacks to user code
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -29,7 +29,7 @@
 #include <pthread.h>
 
 #include <openastro/util.h>
-#include <openastro/ptr.h>
+#include <openastro/timer.h>
 
 #include "oaptrprivate.h"
 #include "unimplemented.h"

@@ -286,11 +286,11 @@ Timer::start ( void )
 }
 
 
-const char*
+oaTimerStamp*
 Timer::readTimestamp ( void )
 {
   // FIX ME -- this is quite an ugly way to do this
-  static char timestamp[64];
+  static oaTimerStamp ts;
 
   if ( !initialised ) {
     qWarning() << __FUNCTION__ << " called with timer uninitialised";
@@ -298,11 +298,12 @@ Timer::readTimestamp ( void )
   }
 
   if ( timerFuncs.readTimestamp ( timerContext, config.timestampDelay,
-      timestamp ) != OA_ERR_NONE ) {
-    *timestamp = 0;
+      &ts ) != OA_ERR_NONE ) {
+    ts.timestamp[0] = 0;
+    ts.index = 0;
   }
 
-  return timestamp;
+  return &ts;
 }
 
 

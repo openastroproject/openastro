@@ -26,7 +26,7 @@
 
 #include <oa_common.h>
 
-#include <openastro/ptr.h>
+#include <openastro/timer.h>
 #include <openastro/util.h>
 
 #include "oaptrprivate.h"

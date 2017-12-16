@@ -28,6 +28,7 @@
 #define OA_PTR_PRIVATE_H
 
 #include <openastro/controller.h>
+#include <openastro/timer.h>
 
 #define OA_CLEAR(x)	memset ( &(x), 0, sizeof ( x ))
 
@@ -78,7 +79,7 @@ typedef struct {
   int			timestampExpected;
   int			timestampCountdown;
   int			firstTimestamp;
-  char			timestampBuffer[ OA_TIMESTAMP_BUFFERS ][ 32 ];
+  oaTimerStamp		timestampBuffer[ OA_TIMESTAMP_BUFFERS ];
   // queues for controls and callbacks
   DL_LIST               commandQueue;
   DL_LIST               callbackQueue;

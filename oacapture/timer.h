@@ -60,7 +60,7 @@ class Timer // : public QObject
     int			hasControl ( int );
     void		updateSearchFilters ( int );
     void		updateAllSearchFilters ( void );
-    const char*		readTimestamp ( void );
+    oaTimerStamp*	readTimestamp ( void );
     int			readGPS ( double*, double*, double* );
 
     void		populateControlValue ( oaControlValue*, uint32_t,

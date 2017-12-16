@@ -2,7 +2,7 @@
  *
  * outputFITS.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -32,7 +32,7 @@ class OutputFITS : public OutputHandler
     			OutputFITS ( int, int, int, int, int );
     			~OutputFITS();
     int			openOutput ( void );
-    int			addFrame ( void*, const char*, int64_t );
+    int			addFrame ( void*, const char*, int64_t, const char* );
     void		closeOutput ( void );
     int			outputExists ( void );
     int			outputWritable ( void );

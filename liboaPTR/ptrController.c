@@ -35,9 +35,8 @@
 #include <sys/select.h>
 
 #include <openastro/util.h>
-#include <openastro/ptr.h>
-#include <openastro/ptr/controls.h>
 #include <openastro/timer.h>
+#include <openastro/ptr/controls.h>
 
 #include "oaptrprivate.h"
 #include "unimplemented.h"
@@ -140,7 +139,9 @@ oaPTRcontroller ( void* param )
               if ( available < OA_TIMESTAMP_BUFFERS ) {
                 ( void ) strcpy ( deviceInfo->timestampBuffer[
                     ( deviceInfo->timestampExpected - 1 ) %
-                    OA_TIMESTAMP_BUFFERS ], readBuffer + 9 );
+                    OA_TIMESTAMP_BUFFERS ].timestamp, readBuffer + 9 );
+                deviceInfo->timestampBuffer[( deviceInfo->timestampExpected -
+                    1 ) % OA_TIMESTAMP_BUFFERS ].index = frameNumber;
                 pthread_mutex_lock ( &deviceInfo->callbackQueueMutex );
                 if ( deviceInfo->firstTimestamp < 0 ) {
                   deviceInfo->firstTimestamp = 0;
@@ -422,7 +423,8 @@ _processPTRStart ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
     return -OA_ERR_SYSTEM_ERROR;
   }
 
-  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, 127 )) != commandLen ) {
+  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, 127 )) !=
+      commandLen + 1 ) {
     fprintf ( stderr, "%s: failed to read back command:\n%s\n"
         "  from %s, commandLen = %d, read len = %d\n",
         __FUNCTION__, commandStr, deviceInfo->devicePath, commandLen,
@@ -541,6 +543,7 @@ _processTimestampFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   int			first, available;
   char*			p;
   char*			q;
+  oaTimerStamp*		tsp = ( oaTimerStamp* ) command->resultData;
 
   pthread_mutex_lock ( &deviceInfo->callbackQueueMutex );
   first = deviceInfo->firstTimestamp;
@@ -548,7 +551,8 @@ _processTimestampFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   pthread_mutex_unlock ( &deviceInfo->callbackQueueMutex );
 
   if ( !available ) {
-    *(( char* ) command->resultData ) = 0;
+    *tsp->timestamp = 0;
+    tsp->index = 0;
     fprintf ( stderr, "%s: no timestamp buffered yet\n", __FUNCTION__ );
     return OA_ERR_NONE;
   }
@@ -557,8 +561,8 @@ _processTimestampFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   // convert it to CCYY-MM-DDThh:mm:ss.sss
   // PTR >= v1.1 returns YYYY-MM-DDThh:mm:ss.sss
 
-  p = command->resultData;
-  q = deviceInfo->timestampBuffer [ first ];
+  p = tsp->timestamp;
+  q = deviceInfo->timestampBuffer [ first ].timestamp;
   if ( deviceInfo->version < 0x0101 ) {
     *p++ = *q++; // C
     *p++ = *q++; // C
@@ -579,6 +583,7 @@ _processTimestampFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
     *p++ = ':';
   }
   ( void ) strcpy ( p, q );
+  tsp->index = deviceInfo->timestampBuffer [ first ].index;
 
   pthread_mutex_lock ( &deviceInfo->callbackQueueMutex );
   deviceInfo->firstTimestamp = ( deviceInfo->firstTimestamp + 1 ) %

@@ -54,7 +54,7 @@ typedef struct oaPTRFuncs {
 				oaControlValue* );
   int			( *getControlRange )( struct oaPTR*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
-  int			( *readTimestamp )( struct oaPTR*, int, char* );
+  int			( *readTimestamp )( struct oaPTR*, int, oaTimerStamp* );
   int			( *readGPS )( struct oaPTR*, double* );
 } oaPTRFuncs;
 

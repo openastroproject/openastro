@@ -30,7 +30,7 @@
 #include <pthread.h>
 
 #include <openastro/util.h>
-#include <openastro/ptr.h>
+#include <openastro/timer.h>
 #include <openastro/ptr/controls.h>
 
 #include "oaptrprivate.h"
@@ -168,14 +168,19 @@ oaPTRStop ( oaPTR* device )
 int
 oaPTRIsRunning ( oaPTR* device )
 {
+  int r;
+
   PRIVATE_INFO* privateInfo = device->_private;
 
-  return ( privateInfo->isRunning );
+  pthread_mutex_lock ( &privateInfo->commandQueueMutex );
+  r = privateInfo->isRunning;
+  pthread_mutex_unlock ( &privateInfo->commandQueueMutex );
+  return r;
 }
 
 
 int
-oaPTRGetTimestamp ( oaPTR* device, int timestampWait, char* val )
+oaPTRGetTimestamp ( oaPTR* device, int timestampWait, oaTimerStamp* val )
 {
   OA_COMMAND    command;
   PRIVATE_INFO* privateInfo = device->_private;
