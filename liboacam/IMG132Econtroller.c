@@ -686,11 +686,6 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
   cameraInfo->streamingCallback.callbackArg = cb->callbackArg;
 
   txBufferSize = cameraInfo->captureLength;
-#ifdef USB_OVERFLOW_HANGS
-  if ( cameraInfo->overflowTransmit ) {
-    txBufferSize *= 2.5;
-  }
-#endif
   // This is a guess
   numTxBuffers = 8;
   if ( numTxBuffers < 8 ) {
