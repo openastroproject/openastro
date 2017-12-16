@@ -68,7 +68,7 @@ oacamV4L2controller ( void* param )
   OA_COMMAND*		command;
   int			exitThread = 0;
   int			resultCode, streaming, r;
-  int			frameWait, maxWaitTime, haveFrame;
+  int			frameWait, haveFrame;
   int			nextBuffer, buffersFree;
   struct timeval	tv;
   fd_set		fds;
@@ -90,7 +90,7 @@ oacamV4L2controller ( void* param )
   // whilst the camera is streaming wil require the camera to be stopped
   // and restarted.
 
-  while ( 1 ) {
+  do {
     pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
     exitThread = cameraInfo->stopControllerThread;
     pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
@@ -179,7 +179,6 @@ oacamV4L2controller ( void* param )
         }
       }
       // pause between tests for frame here is no more than 1ms
-      maxWaitTime = frameWait * 2;
       if ( frameWait > 1000 ) {
         frameWait = 1000;
       }
@@ -191,59 +190,56 @@ oacamV4L2controller ( void* param )
       if ( buffersFree ) {
         nextBuffer = cameraInfo->nextBuffer;
         haveFrame = 0;
-        do {
+        pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+        fd = cameraInfo->fd;
+        pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+        FD_ZERO ( &fds );
+        FD_SET ( fd, &fds );
+        tv.tv_sec = ( int ) ( frameWait / 1000000 );
+        tv.tv_usec = ( frameWait % 1000000 );
+        r = select ( cameraInfo->fd + 1, &fds, 0, 0, &tv );
+        if ( r > 0 ) {
+          // This mutex prevents attempts to dequeue frames if streaming
+          // has stopped since we last checked
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-          fd = cameraInfo->fd;
+          streaming = cameraInfo->isStreaming;
+          if ( streaming ) {
+            OA_CLEAR( cameraInfo->currentFrame[ nextBuffer ]);
+            frame = &cameraInfo->currentFrame[ nextBuffer ];
+            frame->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+            frame->memory = V4L2_MEMORY_MMAP;
+            frame->index = nextBuffer;
+            if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_DQBUF, frame ) < 0 ) {
+              perror ( "VIDIOC_DQBUF" );
+            } else {
+              haveFrame = 1;
+            }
+          }
+          exitThread = cameraInfo->stopControllerThread;
           pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
-          FD_ZERO ( &fds );
-          FD_SET ( fd, &fds );
-          tv.tv_sec = ( int ) ( frameWait / 1000000 );
-          tv.tv_usec = ( frameWait % 1000000 );
-          r = select ( cameraInfo->fd + 1, &fds, 0, 0, &tv );
-          maxWaitTime -= frameWait;
-          if ( r > 0 ) {
-            // This mutex prevents attempts to dequeue frames if streaming
-            // has stopped since we last checked
-            pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-            streaming = cameraInfo->isStreaming;
-            if ( streaming ) {
-              OA_CLEAR( cameraInfo->currentFrame[ nextBuffer ]);
-              frame = &cameraInfo->currentFrame[ nextBuffer ];
-              frame->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-              frame->memory = V4L2_MEMORY_MMAP;
-              frame->index = nextBuffer;
-              if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_DQBUF, frame ) < 0 ) {
-                perror ( "VIDIOC_DQBUF" );
-              } else {
-                haveFrame = 1;
-              }
-            }
-            exitThread = cameraInfo->stopControllerThread;
-            pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
-          }
+        }
 
-          if ( !exitThread ) {
-            if ( haveFrame ) {
-              cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
-                  OA_CALLBACK_NEW_FRAME;
-              cameraInfo->frameCallbacks[ nextBuffer ].callback =
-                  cameraInfo->streamingCallback.callback;
-              cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =
-                  cameraInfo->streamingCallback.callbackArg;
-              cameraInfo->frameCallbacks[ nextBuffer ].buffer = frame;
-              cameraInfo->frameCallbacks[ nextBuffer ].bufferLen =
-                  frame->bytesused;
-              pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
-              oaDLListAddToTail ( cameraInfo->callbackQueue,
-                  &cameraInfo->frameCallbacks[ nextBuffer ]);
-              cameraInfo->buffersFree--;
-              cameraInfo->nextBuffer = ( nextBuffer + 1 ) %
-                  cameraInfo->configuredBuffers;
-              pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
-              pthread_cond_broadcast ( &cameraInfo->callbackQueued );
-            }
+        if ( !exitThread ) {
+          if ( haveFrame ) {
+            cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
+                OA_CALLBACK_NEW_FRAME;
+            cameraInfo->frameCallbacks[ nextBuffer ].callback =
+                cameraInfo->streamingCallback.callback;
+            cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =
+                cameraInfo->streamingCallback.callbackArg;
+            cameraInfo->frameCallbacks[ nextBuffer ].buffer = frame;
+            cameraInfo->frameCallbacks[ nextBuffer ].bufferLen =
+                frame->bytesused;
+            pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+            oaDLListAddToTail ( cameraInfo->callbackQueue,
+                &cameraInfo->frameCallbacks[ nextBuffer ]);
+            cameraInfo->buffersFree--;
+            cameraInfo->nextBuffer = ( nextBuffer + 1 ) %
+                cameraInfo->configuredBuffers;
+            pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+            pthread_cond_broadcast ( &cameraInfo->callbackQueued );
           }
-        } while ( !exitThread && streaming && !haveFrame && maxWaitTime > 0 );
+        }
       }
     }
   } while ( !exitThread );
