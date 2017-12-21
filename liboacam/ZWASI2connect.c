@@ -1154,6 +1154,121 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
       break;
 
+    case ZWOCAM_ASI071MC:
+      cameraInfo->usb3Cam = 1;
+      if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
+          5, sizeof ( FRAMESIZE )))) {
+        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+        free (( void* ) camera->_common );
+        free (( void* ) camera->_private );
+        free (( void* ) camera );
+        return 0;
+      }
+
+      cameraInfo->frameSizes[1].sizes[0].x = 4944;
+      cameraInfo->frameSizes[1].sizes[0].y = 3284;
+      cameraInfo->frameSizes[1].sizes[1].x = 1920;
+      cameraInfo->frameSizes[1].sizes[1].y = 1200;
+      cameraInfo->frameSizes[1].sizes[2].x = 1280;
+      cameraInfo->frameSizes[1].sizes[2].y = 1080;
+      cameraInfo->frameSizes[1].sizes[3].x = 640;
+      cameraInfo->frameSizes[1].sizes[3].y = 480;
+      cameraInfo->frameSizes[1].sizes[4].x = 320;
+      cameraInfo->frameSizes[1].sizes[4].y = 240;
+      cameraInfo->frameSizes[1].numSizes = 5;
+
+      camera->features.pixelSizeX = 4780;
+      camera->features.pixelSizeY = 4780;
+
+      break;
+
+    case ZWOCAM_ASI094MC:
+      cameraInfo->usb3Cam = 1;
+      if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
+          5, sizeof ( FRAMESIZE )))) {
+        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+        free (( void* ) camera->_common );
+        free (( void* ) camera->_private );
+        free (( void* ) camera );
+        return 0;
+      }
+
+      cameraInfo->frameSizes[1].sizes[0].x = 7376;
+      cameraInfo->frameSizes[1].sizes[0].y = 4928;
+      cameraInfo->frameSizes[1].sizes[1].x = 1920;
+      cameraInfo->frameSizes[1].sizes[1].y = 1200;
+      cameraInfo->frameSizes[1].sizes[2].x = 1280;
+      cameraInfo->frameSizes[1].sizes[2].y = 1024;
+      cameraInfo->frameSizes[1].sizes[3].x = 640;
+      cameraInfo->frameSizes[1].sizes[3].y = 480;
+      cameraInfo->frameSizes[1].sizes[4].x = 320;
+      cameraInfo->frameSizes[1].sizes[4].y = 240;
+      cameraInfo->frameSizes[1].numSizes = 5;
+
+      camera->features.pixelSizeX = 4880;
+      camera->features.pixelSizeY = 4880;
+
+      break;
+
+    case ZWOCAM_ASI128MC:
+      cameraInfo->usb3Cam = 1;
+      if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
+          5, sizeof ( FRAMESIZE )))) {
+        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+        free (( void* ) camera->_common );
+        free (( void* ) camera->_private );
+        free (( void* ) camera );
+        return 0;
+      }
+
+      cameraInfo->frameSizes[1].sizes[0].x = 6032;
+      cameraInfo->frameSizes[1].sizes[0].y = 4032;
+      cameraInfo->frameSizes[1].sizes[1].x = 1920;
+      cameraInfo->frameSizes[1].sizes[1].y = 1200;
+      cameraInfo->frameSizes[1].sizes[2].x = 1280;
+      cameraInfo->frameSizes[1].sizes[2].y = 1024;
+      cameraInfo->frameSizes[1].sizes[3].x = 640;
+      cameraInfo->frameSizes[1].sizes[3].y = 480;
+      cameraInfo->frameSizes[1].sizes[4].x = 320;
+      cameraInfo->frameSizes[1].sizes[4].y = 240;
+      cameraInfo->frameSizes[1].numSizes = 5;
+
+      camera->features.pixelSizeX = 5970;
+      camera->features.pixelSizeY = 5970;
+
+      break;
+
+    case ZWOCAM_ASI183MM:
+    case ZWOCAM_ASI183MC:
+      cameraInfo->usb3Cam = 1;
+      if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
+          6, sizeof ( FRAMESIZE )))) {
+        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+        free (( void* ) camera->_common );
+        free (( void* ) camera->_private );
+        free (( void* ) camera );
+        return 0;
+      }
+
+      cameraInfo->frameSizes[1].sizes[0].x = 5496;
+      cameraInfo->frameSizes[1].sizes[0].y = 3672;
+      cameraInfo->frameSizes[1].sizes[1].x = 3840;
+      cameraInfo->frameSizes[1].sizes[1].y = 2160;
+      cameraInfo->frameSizes[1].sizes[2].x = 1920;
+      cameraInfo->frameSizes[1].sizes[2].y = 1080;
+      cameraInfo->frameSizes[1].sizes[3].x = 1280;
+      cameraInfo->frameSizes[1].sizes[3].y = 720;
+      cameraInfo->frameSizes[1].sizes[4].x = 640;
+      cameraInfo->frameSizes[1].sizes[4].y = 480;
+      cameraInfo->frameSizes[1].sizes[5].x = 320;
+      cameraInfo->frameSizes[1].sizes[5].y = 240;
+      cameraInfo->frameSizes[1].numSizes = 6;
+
+      camera->features.pixelSizeX = 2400;
+      camera->features.pixelSizeY = 2400;
+
+      break;
+
     default:
       fprintf ( stderr, "unknown camera type %d. Using limited resolutions\n",
           cameraInfo->cameraType );
