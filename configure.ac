@@ -363,6 +363,8 @@ then
   FFMPEG_DIRS=""
   use_system_ffmpeg=yes
   AC_MSG_NOTICE([Using system FFmpeg libraries])
+else
+  AC_DEFINE([INTERNAL_FFMPEG],[1],[Using internal FFmpeg libraries])
 fi
 
 fi

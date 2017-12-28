@@ -34,6 +34,7 @@
 
 extern "C" {
 #include "libavutil/avutil.h"
+#include "libavutil/imgutils.h"
 #include "libavformat/avformat.h"
 #include "libavcodec/avcodec.h"
 };
@@ -188,8 +189,11 @@ OutputFFMPEG::openOutput ( void )
   }
 
   formatContext->oformat = outputFormat;
+
   snprintf ( formatContext->filename, sizeof ( formatContext->filename ),
     "%s", fullSaveFilePath.toStdString().c_str());
+
+  // av_log_set_level ( AV_LOG_DEBUG );
 
   if (!( videoStream = addVideoStream ( formatContext, videoCodec ))) {
     qWarning() << "add video stream failed";
@@ -199,11 +203,6 @@ OutputFFMPEG::openOutput ( void )
   av_dump_format ( formatContext, 0,
       fullSaveFilePath.toStdString().c_str(), 1 );
 
-  if ( openVideo ( videoStream )) {
-    qWarning() << "open video stream failed";
-    return -1;
-  }
-
   if (( e = avio_open ( &formatContext->pb,
       fullSaveFilePath.toStdString().c_str(), AVIO_FLAG_WRITE )) < 0 ) {
     av_strerror( e, errbuf, sizeof(errbuf));
@@ -212,9 +211,10 @@ OutputFFMPEG::openOutput ( void )
     return -1;
   }
 
-  avformat_write_header ( formatContext, 0 );
-
-  // av_log_set_level ( AV_LOG_DEBUG );
+  if (( e = avformat_write_header ( formatContext, 0 )) < 0 ) {
+    qWarning() << "write header failed, error =" << e;
+    return -1;
+  }
 
   return 0;
 }
@@ -224,7 +224,8 @@ int
 OutputFFMPEG::addFrame ( void* frame, const char* timestampStr,
     int64_t expTime, const char* commentStr )
 {
-  int64_t lastPTS;
+  int64_t	lastPTS;
+  int		ret;
 
   if ( actualPixelFormat != storedPixelFormat ) {
     // the second here is for quicktime
@@ -276,12 +277,18 @@ OutputFFMPEG::addFrame ( void* frame, const char* timestampStr,
     memcpy ( picture->data[0], ( uint8_t* ) frame, frameSize );
   }
 
+  if ( av_frame_make_writable ( picture ) < 0 ) {
+    qWarning() << __FUNCTION__ << "Can't make frame writable";
+    return -1;
+  }
+
   lastPTS = picture->pts;
   picture->pts = frameCount * fpsNumerator / fpsDenominator;
   if ( picture->pts <= lastPTS ) {
     picture->pts++;
   }
 
+#if INTERNAL_FFMPEG
   AVPacket packet;
   AVCodecContext* codecContext = videoStream->codec;
   av_init_packet ( &packet );
@@ -289,7 +296,7 @@ OutputFFMPEG::addFrame ( void* frame, const char* timestampStr,
   packet.size = videoOutputBufferSize;
   packet.dts = AV_NOPTS_VALUE;
   packet.pts = AV_NOPTS_VALUE;
-  int gotPacket, ret;
+  int gotPacket;
   if (!( ret = avcodec_encode_video2 ( codecContext, &packet, picture,
       &gotPacket ))) {
     /*
@@ -315,9 +322,39 @@ OutputFFMPEG::addFrame ( void* frame, const char* timestampStr,
     av_free_packet ( &packet );
     qWarning() << "avcodec_encode_video2 failed, error" << ret;
   }
+#else
+  AVPacket* packet;
+  if (!( packet = av_packet_alloc())) {
+    qWarning() << __FUNCTION__ << "Can't allocate packet";
+    return -1;
+  }
+
+  if (( ret = avcodec_send_frame ( codecContext, picture )) < 0 ) {
+    qWarning() << __FUNCTION__ << "send frame failed";
+    return -1;
+  }
+
+  while ( ret >= 0 ) {
+    if (!( ret = avcodec_receive_packet ( codecContext, packet ))) {
+      // This is just a hack to make the error "Application provided invalid,
+      // non monotonically increasing dts to muxer" go away.  I should fix it
+      // properly somehow
+      packet->dts = videoStream->cur_dts;
+      packet->dts++;
+      packet->pts = packet->dts;
+      ret = av_write_frame ( formatContext, packet );
+      av_packet_unref ( packet );
+    }
+  }
+  if ( ret != AVERROR(EAGAIN)  && ret != AVERROR_EOF ) {
+    qWarning() << __FUNCTION__ << "error writing packet";
+  }
+
+  av_packet_free ( &packet );
+#endif
 
   frameCount++;
-  return ret;
+  return 0;
 }
 
 
@@ -331,11 +368,15 @@ OutputFFMPEG::closeOutput ( void )
 
   av_write_trailer ( formatContext );
 
+#if INTERNAL_FFMPEG
   for ( unsigned int i = 0; i < formatContext->nb_streams; i++ ) {
     avcodec_close ( formatContext->streams[i]->codec );
     // av_freep ( &formatContext->streams[i]->codec );
     // av_freep ( &formatContext->streams[i] );
   }
+#else
+  avcodec_free_context ( &codecContext );
+#endif
 
   closeVideo();
   avio_closep ( &formatContext->pb );
@@ -364,60 +405,83 @@ AVStream*
 OutputFFMPEG::addVideoStream ( AVFormatContext* formatContext,
     enum AVCodecID codecId )
 {
-  AVCodecContext*	codecContext;
   AVStream*		stream;
+  int			ret;
+  char			errbuf[100];
+  const AVCodec*	codec;
+#if INTERNAL_FFMPEG
+  AVCodecContext*       codecContext;
+#endif
 
   if (!( stream = avformat_new_stream ( formatContext, 0 ))) {
     qWarning() << "avformat_new_stream failed";
     return 0;
   }
 
-  codecContext = stream->codec;
+  if (!( codec = avcodec_find_encoder ( codecId ))) {
+    qWarning() << "avcodec_find_encoder didn't find codec";
+    return 0;
+  }
+
+#if INTERNAL_FFMPEG
+    codecContext = stream->codec;
+#else
+  if (!( codecContext = avcodec_alloc_context3 ( codec ))) {
+    qWarning() << "avcodec_alloc_context3 failed";
+    return 0;
+  }
+#endif
+
   codecContext->codec_id = codecId;
   codecContext->codec_type = AVMEDIA_TYPE_VIDEO;
   codecContext->width = xSize;
   codecContext->height = ySize;
+#if INTERNAL_FFMPEG
   codecContext->time_base.num = fpsNumerator;
   codecContext->time_base.den = fpsDenominator;
+#else
+  codecContext->time_base = (AVRational) { fpsNumerator, fpsDenominator };
+#endif
   codecContext->gop_size = 0;
   codecContext->pix_fmt = storedPixelFormat;
+  codecContext->sample_aspect_ratio = (AVRational) { 1, 1 };
 
-  // Need to add this because setting it in the context is now deprecated
+#if INTERNAL_FFMPEG
+  // Need to add this because setting it in the context is was deprecated
+  // (and now seems to be undeprecated again)
   stream->time_base.num = fpsNumerator;
   stream->time_base.den = fpsDenominator;
+#endif
 
-  if ( formatContext->flags & AVFMT_GLOBALHEADER ) {
-    codecContext->flags |= CODEC_FLAG_GLOBAL_HEADER;
+  if ( formatContext->oformat->flags & AVFMT_GLOBALHEADER ) {
+      codecContext->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
   }
 
-  return stream;
-}
-
-
-int
-OutputFFMPEG::openVideo ( AVStream* stream )
-{
-  AVCodecContext* codecContext = stream->codec;
-  AVCodec* codec = avcodec_find_encoder ( codecContext->codec_id );
-  if ( !codec ) {
-    qWarning() << "codec not found" << codecContext->codec_id;
-    return -1;
+  if (( ret = avcodec_open2 ( codecContext, codec, 0 )) < 0 ) {
+    av_strerror( ret, errbuf, sizeof(errbuf));
+    qWarning() << "couldn't open codec, error:" << errbuf;
+    return 0;
   }
 
-  if ( avcodec_open2 ( codecContext, codec, 0 ) < 0 ) {
-    qWarning() << "couldn't open codec";
-    return -1;
+#if !INTERNAL_FFMPEG
+  if ( avcodec_parameters_from_context ( stream->codecpar,
+      codecContext ) < 0 ) {
+    qWarning() << "couldn't copy parameters";
+    return 0;
   }
+
+  stream->time_base = codecContext->time_base;
+#endif
 
   videoOutputBufferSize = 5 * xSize * ySize * bpp;
   videoOutputBuffer = ( uint8_t* ) av_malloc ( videoOutputBufferSize );
 
   if (!( picture = allocatePicture ( codecContext->pix_fmt,
       codecContext->width, codecContext->height ))) {
-    return -1;
+    return 0;
   }
 
-  return 0;
+  return stream;
 }
 
 
@@ -430,9 +494,7 @@ OutputFFMPEG::closeVideo ( void )
   }
 
   if ( picture ) {
-    av_free ( picture->data[0] );
-    av_free ( picture );
-    picture = 0;
+    av_frame_free ( &picture );
   }
 }
 
@@ -446,18 +508,16 @@ OutputFFMPEG::allocatePicture ( enum AVPixelFormat format, int width,
     qWarning() << "av_frame_alloc failed";
     return 0;
   }
-  frameSize = avpicture_get_size ( format, width, height );
-  uint8_t* pictureBuffer = ( uint8_t* ) av_malloc ( frameSize );
-  if ( !pictureBuffer ) {
-    qWarning() << "pictureBuffer av_malloc failed";
-    av_free ( picture );
-    return 0;
-  }
 
-  avpicture_fill (( AVPicture* ) picture, pictureBuffer, format, width,
-    height );
   picture->format = format;
   picture->width = width;
   picture->height = height;
+
+  frameSize = av_image_get_buffer_size ( format, width, height, 1 );
+
+  if ( av_frame_get_buffer ( picture, 1 ) < 0 ) {
+    qWarning() << "av_frame_get_buffer failed";
+    return 0;
+  }
   return picture;
 }

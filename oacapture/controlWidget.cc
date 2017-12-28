@@ -112,6 +112,7 @@ ControlWidget::ControlWidget ( QWidget* parent ) : QGroupBox ( parent )
   usingAbsoluteExposure = 0;
   ignoreExposureMenuChanges = 0;
   useExposureDropdown = 1;
+  theoreticalFPSNumerator = theoreticalFPSDenominator = 1;
 
   intervalBox = new QHBoxLayout;
   intervalBox->addWidget ( exposureLabel );
@@ -839,6 +840,9 @@ ControlWidget::configure ( void )
     if ( usingAbsoluteExposure ) {
       theoreticalFPSNumerator =
           config.CONTROL_VALUE ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
+      if ( !theoreticalFPSNumerator ) {
+        theoreticalFPSNumerator = 1;
+      }
       theoreticalFPSDenominator = 1000000;
       if ( theoreticalFPSNumerator && theoreticalFPSDenominator ) {
         while ( theoreticalFPSNumerator % 10 == 0 &&
