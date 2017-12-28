@@ -32,7 +32,7 @@
 #define	ORGANISATION_NAME_SETTINGS	"OpenAstro"
 
 #define MAJOR_VERSION			"1"
-#define	MINOR_VERSION			"3"
+#define	MINOR_VERSION			"4"
 #define	REVISION			"0"
 
 #define	COPYRIGHT_YEARS			"2015,2017"
