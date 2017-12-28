@@ -363,10 +363,13 @@ then
   FFMPEG_DIRS=""
   use_system_ffmpeg=yes
   AC_MSG_NOTICE([Using system FFmpeg libraries])
-else
-  AC_DEFINE([INTERNAL_FFMPEG],[1],[Using internal FFmpeg libraries])
 fi
 
+fi
+
+if test $use_system_ffmpeg = "no"
+then
+  AC_DEFINE([INTERNAL_FFMPEG],[1],[Using internal FFmpeg libraries])
 fi
 
 use_system_libusb=no
