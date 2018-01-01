@@ -2,7 +2,7 @@
  *
  * UVCcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -262,6 +262,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
             UVC_PU_WHITE_BALANCE_COMPONENT_CONTROL, 4,
             cameraInfo->componentBalance );
 
+/*
     case OA_CAM_CTRL_BIT_DEPTH:
       if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
         fprintf ( stderr, "%s: invalid control type %d where discrete "
@@ -291,6 +292,22 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
           }
         }
       }
+      return _doCameraConfig ( camera, command );
+      break;
+*/
+    case OA_CAM_CTRL_FRAME_FORMAT:
+      if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
+        fprintf ( stderr, "%s: invalid control type %d where discrete "
+            "expected\n", __FUNCTION__, valp->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val_s32 = valp->discrete;
+      if ( !cameraInfo->frameFormatMap[ val_s32 ]) {
+        return -OA_ERR_OUT_OF_RANGE;
+      }
+      cameraInfo->currentFrameFormat = val_s32;
+      cameraInfo->currentUVCFormat = cameraInfo->frameFormatMap[ val_s32 ];
+      cameraInfo->currentUVCFormatId = cameraInfo->frameFormatIdMap[ val_s32 ];
       return _doCameraConfig ( camera, command );
       break;
 
@@ -789,7 +806,7 @@ _doStart ( oaCamera* camera )
   // Need to pick appropriate resolution out of current frame format
   // entry and kick off streaming with that.
 
-  frame = cameraInfo->videoCurrent->frame_descs;
+  frame = cameraInfo->currentUVCFormat->frame_descs;
   matched = 0;
   do {
     if ( frame->wWidth == cameraInfo->xSize && frame->wHeight ==
@@ -809,27 +826,11 @@ _doStart ( oaCamera* camera )
   camera->features.frameRates = frame->bFrameIntervalType ? 1 : 0;
 //cameraInfo->frameInterval = frame->dwDefaultFrameInterval;
 
-  multiplier = 1;
-  switch ( cameraInfo->videoCurrentId ) {
-    case UVC_FRAME_FORMAT_RGB:
-    case UVC_FRAME_FORMAT_BGR:
-      multiplier = 3;
-      break;
-    case UVC_FRAME_FORMAT_GRAY16:
-      multiplier = 2;
-      break;
-    case UVC_FRAME_FORMAT_YUYV:
-    case UVC_FRAME_FORMAT_UYVY:
-      fprintf ( stderr, "libuvc: need to fix multiplier value for YUYV\n" );
-      break;
-    default:
-      break;
-  }
-
+  multiplier = oaFrameFormats[ cameraInfo->currentFrameFormat ].bytesPerPixel;
   cameraInfo->currentFrameLength = cameraInfo->xSize * cameraInfo->ySize *
       multiplier;
   res = uvc_get_stream_ctrl_format_size ( cameraInfo->uvcHandle,
-      &cameraInfo->streamControl, cameraInfo->videoCurrentId,
+      &cameraInfo->streamControl, cameraInfo->currentUVCFormatId,
       cameraInfo->xSize, cameraInfo->ySize,
       cameraInfo->frameRateDenominator / cameraInfo->frameRateNumerator );
 

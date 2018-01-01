@@ -2,7 +2,8 @@
  *
  * cameraWidget.cc -- class for the camera widget in the UI
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -336,7 +337,6 @@ CameraWidget::changeFrameFormat ( int menuOption )
 {
   int newFormat = inputFormatList[ menuOption ];
 
-qWarning() << "changed frame format to" << newFormat;
   if ( !state.camera->isInitialised()) {
     return;
   }

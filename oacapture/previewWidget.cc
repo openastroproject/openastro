@@ -2,7 +2,8 @@
  *
  * previewWidget.cc -- class for the preview window in the UI (and more)
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -679,7 +680,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
   // if we have a luminance/chrominance video format then we need to
   // unpack that first
 
-  if ( OA_IS_LUM_CHROM( self->videoFramePixelFormat )) {
+  if ( oaFrameFormats[ self->videoFramePixelFormat ].lumChrom ) {
     // this is going to make the flip quite ugly and means we need to
     // start using currentPreviewBuffer too
     currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :

@@ -2,7 +2,7 @@
  *
  * UVCgetState.c -- state querying for UVC cameras
  *
- * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -72,7 +72,7 @@ oaUVCCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
   uint32_t*		interval;
   int			i;
 
-  frame = cameraInfo->videoCurrent->frame_descs;
+  frame = cameraInfo->currentUVCFormat->frame_descs;
   do {
     if ( frame->wWidth == resX && frame->wHeight == resY ) {
       break;
@@ -121,44 +121,7 @@ oaUVCCameraGetFramePixelFormat ( oaCamera* camera, int depth )
 {
   UVC_STATE*	cameraInfo = camera->_private;
 
-  if ( !memcmp ( cameraInfo->videoCurrent->fourccFormat, "BY8 ", 4 )) {
-    // may not be at all, of course
-    return OA_PIX_FMT_GBRG8;
-  }
-
-  if ( !memcmp ( cameraInfo->videoCurrent->fourccFormat, "GRBG", 4 )) {
-    return OA_PIX_FMT_GRBG8;
-  }
-  if ( !memcmp ( cameraInfo->videoCurrent->fourccFormat, "GBRG", 4 )) {
-    return OA_PIX_FMT_GBRG8;
-  }
-  if ( !memcmp ( cameraInfo->videoCurrent->fourccFormat, "RGGB", 4 )) {
-    return OA_PIX_FMT_RGGB8;
-  }
-  if ( !memcmp ( cameraInfo->videoCurrent->fourccFormat, "BGGR", 4 )) {
-    return OA_PIX_FMT_BGGR8;
-  }
-
-  if ( !memcmp ( cameraInfo->videoCurrent->fourccFormat, "BA81", 4 )) {
-    return OA_PIX_FMT_BGGR8;
-  }
-
-  if ( !memcmp ( cameraInfo->videoCurrent->fourccFormat, "Y800", 4 )) {
-    return OA_PIX_FMT_GREY8;
-  }
-
-  if ( !memcmp ( cameraInfo->videoCurrent->fourccFormat, "Y16 ", 4 )) {
-    // this is a guess until someone can tell me definitively what it is
-    return OA_PIX_FMT_GREY16LE;
-  }
-
-  if ( !memcmp ( cameraInfo->videoCurrent->fourccFormat, "YUY2", 4 )) {
-    return OA_PIX_FMT_YUYV;
-  }
-
-  fprintf ( stderr, "%s can't handle pixel format %16s\n", __FUNCTION__,
-      cameraInfo->videoCurrent->guidFormat );
-  return OA_PIX_FMT_RGB24;
+  return cameraInfo->currentFrameFormat;
 }
 
 

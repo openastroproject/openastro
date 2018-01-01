@@ -2,7 +2,7 @@
  *
  * UVCstate.h -- UVC camera state header
  *
- * Copyright 2014,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2016,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -45,16 +45,13 @@ typedef struct UVC_STATE {
   uvc_device_handle_t*  uvcHandle;
   uvc_stream_ctrl_t	streamControl;
   // video mode settings
-  const uvc_format_desc_t* videoGrey;
-  const uvc_format_desc_t* videoGrey16;
-  const uvc_format_desc_t* videoRaw;
-  enum uvc_frame_format	videoGreyId;
-  enum uvc_frame_format	videoGrey16Id;
-  enum uvc_frame_format	videoRawId;
+  const uvc_format_desc_t* currentUVCFormat;
+  enum uvc_frame_format	currentUVCFormatId;
+  int			currentFrameFormat;
   int                   bytesPerPixel;
   int                   maxBytesPerPixel;
-  const uvc_format_desc_t* videoCurrent;
-  enum uvc_frame_format	videoCurrentId;
+  const uvc_format_desc_t* frameFormatMap[ OA_PIX_FMT_LAST_P1 ];
+  enum uvc_frame_format	frameFormatIdMap[ OA_PIX_FMT_LAST_P1 ];
   // buffering for image transfers
   struct UVCbuffer*     buffers;
   int                   configuredBuffers;

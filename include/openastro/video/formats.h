@@ -2,7 +2,7 @@
  *
  * oacam.h -- camera API (sub)header for frame formats
  *
- * Copyright 2014,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -102,6 +102,7 @@
 #define OA_PIX_FMT_YUV422P 		59
 #define OA_PIX_FMT_YUV420P		60
 #define OA_PIX_FMT_YUV410P		61
+#define OA_PIX_FMT_YUV422  		62
 #define OA_PIX_FMT_YUYV  		62
 #define OA_PIX_FMT_UYVY  		63
 #define OA_PIX_FMT_YUV420 		64

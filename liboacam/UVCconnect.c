@@ -2,7 +2,8 @@
  *
  * UVCconnect.c -- Initialise UVC cameras
  *
- * Copyright 2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -200,10 +201,9 @@ oaUVCInitCamera ( oaCameraDevice* device )
     perror ( "malloc COMMON_INFO failed" );
     return 0;
   }
+  OA_CLEAR ( *camera );
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
-  OA_CLEAR ( camera->controlType );
-  OA_CLEAR ( camera->features );
   camera->_private = cameraInfo;
   camera->_common = commonInfo;
 
@@ -859,18 +859,24 @@ oaUVCInitCamera ( oaCameraDevice* device )
 
   // Now process the format descriptions...
 
-  cameraInfo->videoGrey = cameraInfo->videoGrey16 = 0;
-  cameraInfo->videoCurrent = 0;
-  cameraInfo->videoCurrentId = 0;
-  cameraInfo->videoRaw = 0;
+  cameraInfo->currentUVCFormat = 0;
+  cameraInfo->currentUVCFormatId = 0;
+  cameraInfo->currentFrameFormat = 0;
   cameraInfo->bytesPerPixel = 0;
   cameraInfo->isColour = 0;
   camera->features.rawMode = camera->features.demosaicMode = 0;
   camera->features.hasReset = 1;
 
+  /*
+   * For the time being we know that libuvc knows about:
+   * YUY2, UYVY, Y800, Y16, BY8, BA81, GRBG, GBRG, RGGB, BGGR, MJPG
+   *
+   * BY8 is in fact GBRG and BA81 is BGGR
+   */
+
   formatDescs = uvc_get_format_descs ( uvcHandle );
   format = formatDescs;
-  cameraInfo->maxBytesPerPixel = 1;
+  cameraInfo->maxBytesPerPixel = cameraInfo->bytesPerPixel = 1;
   do {
     switch ( format->bDescriptorSubtype ) {
 
@@ -878,98 +884,157 @@ oaUVCInitCamera ( oaCameraDevice* device )
 
         if ( !memcmp ( format->fourccFormat, "BY8 ", 4 )) {
           camera->features.rawMode = 1;
-          cameraInfo->videoRaw = format;
-          cameraInfo->videoRawId = UVC_FRAME_FORMAT_BY8;
-          cameraInfo->videoCurrentId = UVC_FRAME_FORMAT_BY8;
-          cameraInfo->videoCurrent = format;
+          camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
+          cameraInfo->frameFormatMap[ OA_PIX_FMT_GBRG8 ] = format;
+          cameraInfo->frameFormatIdMap[ OA_PIX_FMT_GBRG8 ] =
+              UVC_FRAME_FORMAT_BY8;
+          if ( !cameraInfo->currentFrameFormat ) {
+            cameraInfo->currentUVCFormat = format;
+            cameraInfo->currentUVCFormatId = UVC_FRAME_FORMAT_BY8;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG8;
+          }
           cameraInfo->isColour = 1;
-          cameraInfo->bytesPerPixel = 1;
         }
 
         if ( !memcmp ( format->fourccFormat, "BA81", 4 )) {
           camera->features.rawMode = 1;
-          cameraInfo->videoRaw = format;
-          cameraInfo->videoRawId = UVC_FRAME_FORMAT_BA81;
-          cameraInfo->videoCurrentId = UVC_FRAME_FORMAT_BA81;
-          cameraInfo->videoCurrent = format;
+          camera->frameFormats[ OA_PIX_FMT_BGGR8 ] = 1;
+          cameraInfo->frameFormatMap[ OA_PIX_FMT_BGGR8 ] = format;
+          cameraInfo->frameFormatIdMap[ OA_PIX_FMT_BGGR8 ] =
+              UVC_FRAME_FORMAT_BA81;
+          if ( !cameraInfo->currentFrameFormat ) {
+            cameraInfo->currentUVCFormat = format;
+            cameraInfo->currentUVCFormatId = UVC_FRAME_FORMAT_BA81;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_BGGR8;
+          }
           cameraInfo->isColour = 1;
-          cameraInfo->bytesPerPixel = 1;
         }
 
         if ( !memcmp ( format->fourccFormat, "GRBG", 4 )) {
           camera->features.rawMode = 1;
-          cameraInfo->videoRaw = format;
-          cameraInfo->videoRawId = UVC_FRAME_FORMAT_SGRBG8;
-          cameraInfo->videoCurrentId = UVC_FRAME_FORMAT_SGRBG8;
-          cameraInfo->videoCurrent = format;
+          camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
+          cameraInfo->frameFormatMap[ OA_PIX_FMT_GRBG8 ] = format;
+          cameraInfo->frameFormatIdMap[ OA_PIX_FMT_GRBG8 ] =
+              UVC_FRAME_FORMAT_SGRBG8;
+          if ( !cameraInfo->currentFrameFormat ) {
+            cameraInfo->currentUVCFormat = format;
+            cameraInfo->currentUVCFormatId = UVC_FRAME_FORMAT_SGRBG8;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG8;
+          }
           cameraInfo->isColour = 1;
-          cameraInfo->bytesPerPixel = 1;
         }
 
         if ( !memcmp ( format->fourccFormat, "GBRG", 4 )) {
           camera->features.rawMode = 1;
-          cameraInfo->videoRaw = format;
-          cameraInfo->videoRawId = UVC_FRAME_FORMAT_SGBRG8;
-          cameraInfo->videoCurrentId = UVC_FRAME_FORMAT_SGBRG8;
-          cameraInfo->videoCurrent = format;
+          camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
+          cameraInfo->frameFormatMap[ OA_PIX_FMT_GBRG8 ] = format;
+          cameraInfo->frameFormatIdMap[ OA_PIX_FMT_GBRG8 ] =
+              UVC_FRAME_FORMAT_SGBRG8;
+          if ( !cameraInfo->currentFrameFormat ) {
+            cameraInfo->currentUVCFormat = format;
+            cameraInfo->currentUVCFormatId = UVC_FRAME_FORMAT_SGBRG8;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG8;
+          }
           cameraInfo->isColour = 1;
-          cameraInfo->bytesPerPixel = 1;
         }
 
         if ( !memcmp ( format->fourccFormat, "RGGB", 4 )) {
           camera->features.rawMode = 1;
-          cameraInfo->videoRaw = format;
-          cameraInfo->videoRawId= UVC_FRAME_FORMAT_SRGGB8;
-          cameraInfo->videoCurrentId = UVC_FRAME_FORMAT_SRGGB8;
-          cameraInfo->videoCurrent = format;
+          camera->frameFormats[ OA_PIX_FMT_RGGB8 ] = 1;
+          cameraInfo->frameFormatMap[ OA_PIX_FMT_RGGB8 ] = format;
+          cameraInfo->frameFormatIdMap[ OA_PIX_FMT_RGGB8 ] =
+              UVC_FRAME_FORMAT_SRGGB8;
+          if ( !cameraInfo->currentFrameFormat ) {
+            cameraInfo->currentUVCFormat = format;
+            cameraInfo->currentUVCFormatId = UVC_FRAME_FORMAT_SRGGB8;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_RGGB8;
+          }
           cameraInfo->isColour = 1;
-          cameraInfo->bytesPerPixel = 1;
         }
 
         if ( !memcmp ( format->fourccFormat, "BGGR", 4 )) {
           camera->features.rawMode = 1;
-          cameraInfo->videoRaw = format;
-          cameraInfo->videoRawId = UVC_FRAME_FORMAT_SBGGR8;
-          cameraInfo->videoCurrentId = UVC_FRAME_FORMAT_SBGGR8;
-          cameraInfo->videoCurrent = format;
+          camera->frameFormats[ OA_PIX_FMT_BGGR8 ] = 1;
+          cameraInfo->frameFormatMap[ OA_PIX_FMT_BGGR8 ] = format;
+          cameraInfo->frameFormatIdMap[ OA_PIX_FMT_BGGR8 ] =
+              UVC_FRAME_FORMAT_SBGGR8;
+          if ( !cameraInfo->currentFrameFormat ) {
+            cameraInfo->currentUVCFormat = format;
+            cameraInfo->currentUVCFormatId = UVC_FRAME_FORMAT_SBGGR8;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_BGGR8;
+          }
           cameraInfo->isColour = 1;
-          cameraInfo->bytesPerPixel = 1;
         }
 
         if ( !memcmp ( format->fourccFormat, "Y800", 4 )) {
-          cameraInfo->videoGrey = format;
-          cameraInfo->videoGreyId = UVC_FRAME_FORMAT_GRAY8;
-          if ( !cameraInfo->videoCurrent ) {
-            cameraInfo->videoCurrent = format;
-            cameraInfo->videoCurrentId = UVC_FRAME_FORMAT_GRAY8;
-            cameraInfo->bytesPerPixel = 1;
+          camera->frameFormats[ OA_PIX_FMT_GREY8 ] = 1;
+          cameraInfo->frameFormatMap[ OA_PIX_FMT_GREY8 ] = format;
+          cameraInfo->frameFormatIdMap[ OA_PIX_FMT_GREY8 ] =
+              UVC_FRAME_FORMAT_GRAY8;
+          if ( !cameraInfo->currentFrameFormat ) {
+            cameraInfo->currentUVCFormat = format;
+            cameraInfo->currentUVCFormatId = UVC_FRAME_FORMAT_GRAY8;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY8;
           }
         }
 
         if ( !memcmp ( format->fourccFormat, "Y16 ", 4 )) {
           cameraInfo->maxBytesPerPixel = 2;
-          cameraInfo->videoGrey16 = format;
-          cameraInfo->videoGrey16Id = UVC_FRAME_FORMAT_GRAY16;
-          if ( !cameraInfo->videoCurrent ) {
-            cameraInfo->videoCurrent = format;
-            cameraInfo->videoCurrentId = UVC_FRAME_FORMAT_GRAY16;
-            cameraInfo->bytesPerPixel = 2;
+          // this is a guess until someone can tell me definitively what it is
+          camera->frameFormats[ OA_PIX_FMT_GREY16LE ] = 1;
+          cameraInfo->frameFormatMap[ OA_PIX_FMT_GREY16LE ] = format;
+          cameraInfo->frameFormatIdMap[ OA_PIX_FMT_GREY16LE ] =
+              UVC_FRAME_FORMAT_GRAY16;
+          if ( !cameraInfo->currentFrameFormat ) {
+            cameraInfo->currentUVCFormat = format;
+            cameraInfo->currentUVCFormatId = UVC_FRAME_FORMAT_GRAY16;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY16LE;
           }
         }
         break;
 
-      case UVC_VS_FORMAT_UNCOMPRESSED:
-        // only use this if we don't have anything else
-        if ( !cameraInfo->videoCurrent ) {
-          // FIX ME
-          fprintf ( stderr, "Mishandling frame ids for UVC YUY2\n" );
-          if ( !memcmp ( format->fourccFormat, "YUY2", 4 )) {
-            cameraInfo->videoCurrent = format;
-            cameraInfo->isColour = 1;
-            cameraInfo->bytesPerPixel = 2;
-          }
+        if ( !cameraInfo->currentUVCFormatId ) {
+          fprintf ( stderr, "unrecognised frame format '%4s'\n",
+              format->fourccFormat );
         }
-        cameraInfo->maxBytesPerPixel = 2;
+
+      case UVC_VS_FORMAT_UNCOMPRESSED:
+
+        if ( !memcmp ( format->fourccFormat, "YUY2", 4 )) {
+          camera->frameFormats[ OA_PIX_FMT_YUYV ] = 1;
+          cameraInfo->frameFormatMap[ OA_PIX_FMT_YUYV ] = format;
+          cameraInfo->frameFormatIdMap[ OA_PIX_FMT_YUYV ] =
+              UVC_FRAME_FORMAT_YUYV;
+          if ( !cameraInfo->currentFrameFormat ) {
+            cameraInfo->currentUVCFormat = format;
+            cameraInfo->currentUVCFormatId = UVC_FRAME_FORMAT_YUYV;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_YUYV;
+          }
+          cameraInfo->isColour = 1;
+          cameraInfo->bytesPerPixel = 2;
+          cameraInfo->maxBytesPerPixel = 2;
+        }
+
+        if ( !memcmp ( format->fourccFormat, "UYVY", 4 )) {
+          camera->frameFormats[ OA_PIX_FMT_UYVY ] = 1;
+          cameraInfo->frameFormatMap[ OA_PIX_FMT_UYVY ] = format;
+          cameraInfo->frameFormatIdMap[ OA_PIX_FMT_UYVY ] =
+              UVC_FRAME_FORMAT_UYVY;
+          if ( !cameraInfo->currentFrameFormat ) {
+            cameraInfo->currentUVCFormat = format;
+            cameraInfo->currentUVCFormatId = UVC_FRAME_FORMAT_UYVY;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_UYVY;
+          }
+          cameraInfo->isColour = 1;
+          cameraInfo->bytesPerPixel = 2;
+          cameraInfo->maxBytesPerPixel = 2;
+        }
+
+        if ( !cameraInfo->currentFrameFormat ) {
+          fprintf ( stderr, "unrecognised uncompressed format '%4s'\n",
+              format->fourccFormat );
+        }
+
         break;
 
       default:
@@ -980,7 +1045,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
     format = format->next;
   } while ( format );
 
-  if ( !cameraInfo->videoCurrent ) {
+  if ( !cameraInfo->currentFrameFormat ) {
     fprintf ( stderr, "No suitable video format found on %s\n",
       camera->deviceName );
     uvc_close ( uvcHandle );
@@ -991,15 +1056,13 @@ oaUVCInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  if ( cameraInfo->videoGrey && cameraInfo->videoGrey16 ) {
-    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) = OA_CTRL_TYPE_DISCRETE;
-  }
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
 
   cameraInfo->frameSizes[1].numSizes = 0;
   cameraInfo->frameSizes[1].sizes = 0;
 
   cameraInfo->maxResolutionX = cameraInfo->maxResolutionY = 0;
-  frame = cameraInfo->videoCurrent->frame_descs;
+  frame = cameraInfo->currentUVCFormat->frame_descs;
   allFramesHaveFixedRates = 1;
   i = 0;
   do {
