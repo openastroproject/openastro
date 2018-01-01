@@ -27,7 +27,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/include
 lib_LTLIBRARIES = liboavideo.la
 
 liboavideo_la_SOURCES = \
-  oavideo.c yuv.c fits.c
+  oavideo.c yuv.c fits.c formats.c to8Bit.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

@@ -168,6 +168,14 @@ oaZWASICameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
       }
       break;
 
+    case OA_CAM_CTRL_FRAME_FORMAT:
+      if ( val->valueType != OA_CTRL_TYPE_DISCRETE ) {
+        fprintf ( stderr, "%s: invalid control type %d where discrete "
+            "expected\n", __FUNCTION__, val->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      break;
+
     case OA_CAM_CTRL_COOLER:
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",

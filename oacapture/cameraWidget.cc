@@ -40,23 +40,15 @@ extern "C" {
 
 CameraWidget::CameraWidget ( QWidget* parent ) : QGroupBox ( parent )
 {
-  sixteenBit = new QCheckBox ( tr ( "16-bit" ), this );
-  sixteenBit->setToolTip ( tr ( "Capture in 16-bit mode" ));
-  sixteenBit->setChecked ( config.sixteenBit );
-  connect ( sixteenBit, SIGNAL( stateChanged ( int )), this,
-      SLOT( set16Bit ( int )));
+  inputFormatLabel = new QLabel( tr ( "Frame Format" ));
+  inputFormatMenu = new QComboBox ( this );
+  inputFormatMenu->addItem ( tr ( oaFrameFormats[1].name ));
 
   binning2x2 = new QCheckBox ( tr ( "2x2 Binning" ), this );
   binning2x2->setToolTip ( tr ( "Enable 2x2 binning in camera" ));
   binning2x2->setChecked ( config.binning2x2 );
   connect ( binning2x2, SIGNAL( stateChanged ( int )), this,
       SLOT( setBinning ( int )));
-
-  rawMode = new QCheckBox ( tr ( "Raw mode" ), this );
-  rawMode->setToolTip ( tr ( "Enable raw mode for colour cameras" ));
-  rawMode->setChecked ( config.rawMode );
-  connect ( rawMode, SIGNAL( stateChanged ( int )), this,
-      SLOT( setRawMode ( int )));
 
   tempLabel = new QLabel();
   if ( config.tempsInC ) {
@@ -82,15 +74,15 @@ CameraWidget::CameraWidget ( QWidget* parent ) : QGroupBox ( parent )
   }
 
   grid = new QGridLayout();
-  grid->addWidget ( sixteenBit, 0, 0 );
-  grid->addWidget ( binning2x2, 1, 0 );
-  grid->addWidget ( rawMode, 2, 0 );
-  grid->addWidget ( tempLabel, 0, 1 );
-  grid->addWidget ( fpsMaxLabel, 1, 1 );
-  grid->addWidget ( fpsActualLabel, 2, 1 );
-  grid->addWidget ( tempValue, 0, 2 );
-  grid->addWidget ( fpsMaxValue, 1, 2 );
-  grid->addWidget ( fpsActualValue, 2, 2 );
+  grid->addWidget ( binning2x2, 0, 0 );
+  grid->addWidget ( inputFormatLabel, 1, 0 );
+  grid->addWidget ( inputFormatMenu, 1, 1 );
+  grid->addWidget ( tempLabel, 0, 2 );
+  grid->addWidget ( fpsMaxLabel, 1, 2 );
+  grid->addWidget ( fpsActualLabel, 2, 2 );
+  grid->addWidget ( tempValue, 0, 3 );
+  grid->addWidget ( fpsMaxValue, 1, 3 );
+  grid->addWidget ( fpsActualValue, 2, 3 );
   setLayout ( grid );
 }
 
@@ -106,10 +98,28 @@ CameraWidget::~CameraWidget()
 void
 CameraWidget::configure ( void )
 {
-  sixteenBit->setEnabled ( state.camera->has16Bit() ? 1 : 0 );
+  int format;
+  int numActions = 0;
+
+  if ( !inputFormatList.empty()) {
+    disconnect ( inputFormatMenu, SIGNAL( currentIndexChanged ( int )), 
+        this, SLOT( changeFrameFormat ( int )));
+  }
+  inputFormatMenu->clear();
+  inputFormatList.clear();
+
+  for ( format = 0; format < OA_PIX_FMT_LAST_P1; format++ ) {
+    if ( state.camera->hasFrameFormat ( format )) {
+      inputFormatMenu->addItem ( tr ( oaFrameFormats[ format ].name ));
+      inputFormatList.append ( format );
+      numActions++;
+    }
+  }
+
+  connect ( inputFormatMenu, SIGNAL( currentIndexChanged ( int )), 
+      this, SLOT( changeFrameFormat ( int )));
+
   binning2x2->setEnabled ( state.camera->hasBinning ( 2 ) ? 1 : 0 );
-  rawMode->setEnabled (( state.camera->hasRawMode() &&
-      state.camera->hasDemosaicMode() && state.camera->isColour()) ? 1 : 0 );
 }
 
 
@@ -157,6 +167,7 @@ CameraWidget::enableBinningControl ( int state )
 }
 
 
+/*
 void
 CameraWidget::set16Bit ( int newState )
 {
@@ -182,8 +193,10 @@ CameraWidget::set16Bit ( int newState )
   }
   return;
 }
+*/
 
 
+/*
 void
 CameraWidget::setRawMode ( int newState )
 {
@@ -198,7 +211,6 @@ CameraWidget::setRawMode ( int newState )
     state.camera->setRawMode ( config.rawMode );
     format = state.camera->videoFramePixelFormat ( 0 );
     state.previewWidget->setVideoFramePixelFormat ( format );
-/*
     if ( config.rawMode ) {
       switch ( format ) {
         case OA_PIX_FMT_RGGB8:
@@ -220,7 +232,6 @@ CameraWidget::setRawMode ( int newState )
     } else {
       state.captureWidget->enableMOVCapture ( QUICKTIME_OK( format ) ? 1 : 0 );
     }
-*/
     state.captureWidget->enableTIFFCapture (( !OA_ISBAYER( format ) ||
         ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
     state.captureWidget->enablePNGCapture (( !OA_ISBAYER( format ) ||
@@ -230,21 +241,22 @@ CameraWidget::setRawMode ( int newState )
         config.demosaicOutput )) ? 1 : 0 );
   }
 }
+*/
 
 
 void
 CameraWidget::updateFromConfig ( void )
 {
-  if ( sixteenBit->isEnabled()) {
-    sixteenBit->setChecked ( config.sixteenBit );
-  }
   if ( binning2x2->isEnabled()) {
     binning2x2->setChecked ( config.binning2x2 );
+  }
+  /*
+  if ( sixteenBit->isEnabled()) {
+    sixteenBit->setChecked ( config.sixteenBit );
   }
   if ( rawMode->isEnabled()) {
     rawMode->setChecked ( config.rawMode );
   }
-  /*
   if ( colourise->isEnabled()) {
     colourise->setChecked ( config.colourise );
   }
@@ -317,3 +329,38 @@ CameraWidget::clearFPSMaxValue ( void )
 {
   fpsMaxValue->setText ( "" );
 }
+
+
+void
+CameraWidget::changeFrameFormat ( int menuOption )
+{
+  int newFormat = inputFormatList[ menuOption ];
+
+qWarning() << "changed frame format to" << newFormat;
+  if ( !state.camera->isInitialised()) {
+    return;
+  }
+
+  state.camera->setFrameFormat ( newFormat );
+  state.previewWidget->setVideoFramePixelFormat ( newFormat );
+
+  if ( oaFrameFormats[ newFormat ].rawColour ) {
+    // FIX ME -- commented this out because I'm not sure it's right
+    // need to go through the code and check
+    // config.cfaPattern = oaFrameFormats[ newFormat ].cfaPattern;
+    if ( state.settingsWidget ) {
+      state.settingsWidget->updateCFASetting();
+    }
+  }
+  state.captureWidget->enableTIFFCapture (( !OA_ISBAYER( newFormat ) ||
+      ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
+  state.captureWidget->enablePNGCapture (( !OA_ISBAYER( newFormat ) ||
+      ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
+  state.captureWidget->enableMOVCapture (( QUICKTIME_OK( newFormat ) ||
+      ( OA_ISBAYER( newFormat ) && config.demosaic &&
+      config.demosaicOutput )) ? 1 : 0 );
+  return;
+}
+
+
+

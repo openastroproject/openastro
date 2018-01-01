@@ -37,7 +37,7 @@
 #include "Altairstate.h"
 
 
-static int	_processSetControl ( ALTAIRCAM_STATE*, OA_COMMAND* );
+static int	_processSetControl ( oaCamera*, OA_COMMAND* );
 static int	_processGetControl ( ALTAIRCAM_STATE*, OA_COMMAND* );
 static int	_processSetResolution ( ALTAIRCAM_STATE*, OA_COMMAND* );
 static int	_processSetROI ( oaCamera*, OA_COMMAND* );
@@ -46,8 +46,11 @@ static int	_processStreamingStop ( ALTAIRCAM_STATE*, OA_COMMAND* );
 static int	_doStart ( ALTAIRCAM_STATE* );
 static int	_doStop ( ALTAIRCAM_STATE* );
 static int	_setBinning ( ALTAIRCAM_STATE*, int );
+static int	_setFrameFormat ( ALTAIRCAM_STATE*, int );
+/*
 static int	_setColourMode ( ALTAIRCAM_STATE*, int );
 static int	_setBitDepth ( ALTAIRCAM_STATE*, int );
+*/
 
 
 void*
@@ -81,7 +84,7 @@ oacamAltaircontroller ( void* param )
       if ( command ) {
         switch ( command->commandType ) {
           case OA_CMD_CONTROL_SET:
-            resultCode = _processSetControl ( cameraInfo, command );
+            resultCode = _processSetControl ( camera, command );
             break;
           case OA_CMD_CONTROL_GET:
             resultCode = _processGetControl ( cameraInfo, command );
@@ -140,29 +143,37 @@ _AltairFrameCallback ( const void *frame, const BITMAPINFOHEADER*
     }
     nextBuffer = cameraInfo->nextBuffer;
 
-    // Now here's the fun...  In 12-bit (and presumably 10- and 14-bit)
-    // mode Altaircam cameras appear to return little-endian data, but
-    // right-aligned rather than left-aligned as many other cameras do.
-    // So if we have such an image we try to fix it here.
+    // Now here's the fun...
+    //
+    // In 12-bit (and presumably 10- and 14-bit) mode, mono Altair cameras
+    // appear to return little-endian data, but right-aligned rather than
+    // left-aligned as many other cameras do.  So if we have such an image we
+    // try to fix it here.
+    //
     // FIX ME -- I'm not sure this is the right place to be doing this.
     // Perhaps there should be a flag to tell the user whether the data is
     // left-or right-aligned and they can sort it out.
 
-    shiftBits = 0;
     if ( bitsPerPixel > 8 && bitsPerPixel < 16 ) {
-      shiftBits = 16 - bitsPerPixel;
-    }
+      if ( !cameraInfo->colour ) {
+        shiftBits = 0;
+        // FIX ME -- not sure this is safe
+        if ( bitsPerPixel > 8 && bitsPerPixel < 16 ) {
+          shiftBits = 16 - bitsPerPixel;
+        }
 
-    if ( shiftBits ) {
-      const uint16_t	*s = frame;
-      uint16_t		*t = cameraInfo->buffers[ nextBuffer ].start;
-      uint16_t		v;
-      unsigned int	i;
+        if ( shiftBits ) {
+          const uint16_t	*s = frame;
+          uint16_t		*t = cameraInfo->buffers[ nextBuffer ].start;
+          uint16_t		v;
+          unsigned int	i;
 
-      for ( i = 0; i < dataLength; i += 2 ) {
-        v = *s++;
-        v <<= shiftBits;
-        *t++ = v;
+          for ( i = 0; i < dataLength; i += 2 ) {
+            v = *s++;
+            v <<= shiftBits;
+            *t++ = v;
+          }
+        }
       }
     } else {
       ( void ) memcpy ( cameraInfo->buffers[ nextBuffer ].start, frame,
@@ -190,8 +201,9 @@ _AltairFrameCallback ( const void *frame, const BITMAPINFOHEADER*
 
 
 static int
-_processSetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
+_processSetControl ( oaCamera* camera, OA_COMMAND* command )
 {
+  ALTAIRCAM_STATE*	cameraInfo = camera->_private;
   oaControlValue	*valp = command->commandData;
   int			control = command->controlId, val;
 
@@ -461,6 +473,19 @@ _processSetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
       return OA_ERR_NONE;
       break;
 
+    case OA_CAM_CTRL_FRAME_FORMAT:
+      if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
+        fprintf ( stderr, "%s: invalid control type %d where discrete "
+            "expected\n", __FUNCTION__, valp->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val = valp->discrete;
+      if ( !camera->frameFormats[ val ] ) {
+        return -OA_ERR_OUT_OF_RANGE;
+      }
+      return _setFrameFormat ( cameraInfo, val );
+      break;
+/*
     case OA_CAM_CTRL_COLOUR_MODE:
       if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
         fprintf ( stderr, "%s: invalid control type %d where discrete "
@@ -483,7 +508,7 @@ _processSetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
       val = valp->discrete;
       return _setBitDepth ( cameraInfo, val );
       break;
-
+*/
     case OA_CAM_CTRL_LED_STATE:
     case OA_CAM_CTRL_LED_PERIOD:
       if ( control == OA_CAM_CTRL_LED_STATE ) {
@@ -681,18 +706,21 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
       break;
 
     case OA_CAM_CTRL_BINNING:
+      // FIX ME
       fprintf ( stderr, "%s: Need to code binning control for Altaircam\n",
           __FUNCTION__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
 
     case OA_CAM_CTRL_COLOUR_MODE:
+      // FIX ME
       fprintf ( stderr, "%s: Need to code colour mode control for Altaircam\n",
           __FUNCTION__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
 
     case OA_CAM_CTRL_BIT_DEPTH:
+      // FIX ME
       fprintf ( stderr, "%s: Need to code bit depth control for Altaircam\n",
           __FUNCTION__ );
       return -OA_ERR_INVALID_CONTROL;
@@ -911,6 +939,64 @@ _setBinning ( ALTAIRCAM_STATE* cameraInfo, int binMode )
 
 
 static int
+_setFrameFormat ( ALTAIRCAM_STATE* cameraInfo, int format )
+{
+  int           restart = 0;
+  int           raw = 0, bitspp;
+
+  // Only need to do this if we're dealing with a colour camera
+
+  if ( !oaFrameFormats[ format ].monochrome ) {
+
+    // FIX ME -- could make this more effcient by doing nothing here unless
+    // we need to change it
+
+    if ( cameraInfo->isStreaming ) {
+      restart = 1;
+      _doStop ( cameraInfo );
+    }
+
+    raw = oaFrameFormats[ format ].rawColour ? 1 : 0;
+    if ((( p_Altaircam_put_Option )( cameraInfo->handle, TOUPCAM_OPTION_RAW,
+        raw  )) < 0 ) {
+      fprintf ( stderr, "Altaircam_put_Option ( raw, %d ) failed\n", raw );
+      return -OA_ERR_CAMERA_IO;
+    }
+
+    if ((( p_Altaircam_put_Option )( cameraInfo->handle, TOUPCAM_OPTION_RGB48,
+        format == OA_PIX_FMT_RGB48LE ? 1 : 0 )) < 0 ) {
+      fprintf ( stderr, "Altaircam_put_Option ( raw, %d ) failed\n", raw );
+      return -OA_ERR_CAMERA_IO;
+    }
+    if ( restart ) {
+      _doStart ( cameraInfo );
+    }
+  }
+
+  // FIX ME -- don't do this if we don't need to
+  // And now change the bit depth
+
+  bitspp = oaFrameFormats[ format ].bitsPerPixel;
+  if ((( p_Altaircam_put_Option )( cameraInfo->handle, TOUPCAM_OPTION_BITDEPTH,
+      ( bitspp > 8 ) ? 1 : 0  )) < 0 ) {
+    fprintf ( stderr, "Altaircam_put_Option ( depth, %d ) failed\n",
+        bitspp > 8 ? 1 : 0 );
+    return -OA_ERR_CAMERA_IO;
+  }
+
+  cameraInfo->currentVideoFormat = format;
+  cameraInfo->currentBitsPerPixel = bitspp;
+  // This converts from float, but should be ok for these cameras
+  cameraInfo->currentBytesPerPixel = oaFrameFormats[ format ].bytesPerPixel;
+  cameraInfo->imageBufferLength = cameraInfo->currentXSize *
+      cameraInfo->currentYSize * cameraInfo->currentBytesPerPixel;
+
+  return OA_ERR_NONE;
+}
+
+
+/*
+static int
 _setColourMode ( ALTAIRCAM_STATE* cameraInfo, int mode )
 {
   int		restart = 0;
@@ -1052,3 +1138,4 @@ _setBitDepth ( ALTAIRCAM_STATE* cameraInfo, int depth )
 
   return OA_ERR_NONE;
 }
+*/

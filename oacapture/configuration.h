@@ -46,9 +46,7 @@ typedef struct {
 
 typedef struct {
   QString       profileName;
-  int           sixteenBit;
   int           binning2x2;
-  int           rawMode;
   int           colourise;
   int           useROI;
   unsigned int  imageSizeX;

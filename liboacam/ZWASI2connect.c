@@ -77,6 +77,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     perror ( "malloc COMMON_INFO failed" );
     return 0;
   }
+  OA_CLEAR ( *camera );
   OA_CLEAR ( *commonInfo );
   OA_CLEAR ( *cameraInfo );
   camera->_private = cameraInfo;
@@ -547,80 +548,82 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   // Ok, now we need to find out what frame formats are supported and
   // which one we want to use
 
-  cameraInfo->videoRGB24 = cameraInfo->videoGrey16 = 0;
-  cameraInfo->videoGrey = 0;
-  cameraInfo->videoCurrent = -1;
+  cameraInfo->currentMode = -1;
+
   // The mono ASI120MM will do RGB24 as a greyscale RGB image if we ask it
   // to, but that's rather wasteful, so we only support this for colour
   // cameras
-  if ( camInfo.IsColorCam ) {
-    int have16Bit = 0;
-    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COLOUR_MODE ) = OA_CTRL_TYPE_DISCRETE;
-    cameraInfo->colour = 1;
-    switch ( camInfo.BayerPattern ) {
-      case ASI_BAYER_RG:
-        cameraInfo->mosaic8 = OA_PIX_FMT_RGGB8;
-        cameraInfo->mosaic16 = OA_PIX_FMT_RGGB16LE;
-        break;
-      case ASI_BAYER_BG:
-        cameraInfo->mosaic8 = OA_PIX_FMT_BGGR8;
-        cameraInfo->mosaic16 = OA_PIX_FMT_BGGR16LE;
-        break;
-      case ASI_BAYER_GR:
-        cameraInfo->mosaic8 = OA_PIX_FMT_GRBG8;
-        cameraInfo->mosaic16 = OA_PIX_FMT_GRBG16LE;
-        break;
-      case ASI_BAYER_GB:
-        cameraInfo->mosaic8 = OA_PIX_FMT_GBRG8;
-        cameraInfo->mosaic16 = OA_PIX_FMT_GBRG16LE;
-        break;
-    }
-    i = 0;
-    while (( f = camInfo.SupportedVideoFormat[ i ]) != ASI_IMG_END ) {
-      if ( ASI_IMG_RGB24 == f ) {
-        cameraInfo->videoCurrent = ASI_IMG_RGB24;
-        cameraInfo->videoRGB24 = 1;
-        camera->features.demosaicMode = 1;
-      }
-      if ( ASI_IMG_RAW8 == f ) {
-        camera->features.rawMode = 1;
-      }
-      if ( ASI_IMG_RAW16 == f ) {
-        have16Bit = 1;
-      }
-      i++;
-    }
-    if (( cameraInfo->videoRGB24 || camera->features.rawMode ) && have16Bit ) {
-      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) = OA_CTRL_TYPE_DISCRETE;
-    }
-  } else {
-    cameraInfo->colour = 0;
-    i = 0;
-    while (( f = camInfo.SupportedVideoFormat[ i ]) != ASI_IMG_END ) {
-      if ( ASI_IMG_RAW8 == f ) {
-        cameraInfo->videoCurrent = ASI_IMG_RAW8;
-        cameraInfo->videoGrey = 1;
-      }
-      if ( ASI_IMG_RAW16 == f ) {
-        if ( cameraInfo->videoCurrent < 0 ) {
-          cameraInfo->videoCurrent = ASI_IMG_RAW16;
+
+  cameraInfo->colour = camInfo.IsColorCam ? 1 : 0;
+  cameraInfo->maxBitDepth = 8;
+
+  i = 0;
+  while (( f = camInfo.SupportedVideoFormat[ i ]) != ASI_IMG_END ) {
+    switch ( f ) {
+      case ASI_IMG_RGB24:
+        if ( cameraInfo->colour ) {
+          camera->frameFormats[ OA_PIX_FMT_BGR24 ] = 1;
+          camera->features.demosaicMode = 1;
+          cameraInfo->currentMode = f;
+          cameraInfo->currentFormat = OA_PIX_FMT_BGR24;
+          cameraInfo->maxBitDepth =
+              oaFrameFormats[ OA_PIX_FMT_BGR24 ].bitsPerPixel;
         }
-        cameraInfo->videoGrey16 = 1;
-      }
-      if ( ASI_IMG_Y8 == f ) {
-        if ( cameraInfo->videoCurrent < 0 ) {
-          cameraInfo->videoCurrent = ASI_IMG_Y8;
+        break;
+      case ASI_IMG_Y8:
+      case ASI_IMG_RAW8:
+        if ( cameraInfo->colour ) {
+          switch ( camInfo.BayerPattern ) {
+            case ASI_BAYER_RG:
+              camera->frameFormats[ OA_PIX_FMT_RGGB8 ] = 1;
+              break;
+            case ASI_BAYER_BG:
+              camera->frameFormats[ OA_PIX_FMT_BGGR8 ] = 1;
+              break;
+            case ASI_BAYER_GR:
+              camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
+              break;
+            case ASI_BAYER_GB:
+              camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
+              break;
+          }
+          camera->features.rawMode = 1;
+        } else {
+          camera->frameFormats[ OA_PIX_FMT_GREY8 ] = 1;
+          cameraInfo->greyscaleMode = f;
+          cameraInfo->currentMode = f;
+          cameraInfo->currentFormat = OA_PIX_FMT_GREY8;
         }
-        cameraInfo->videoGrey = 1;
-      }
-      i++;
+        break;
+      case ASI_IMG_RAW16:
+        if ( cameraInfo->colour ) {
+          switch ( camInfo.BayerPattern ) {
+            case ASI_BAYER_RG:
+              camera->frameFormats[ OA_PIX_FMT_RGGB16LE ] = 1;
+              break;
+            case ASI_BAYER_BG:
+              camera->frameFormats[ OA_PIX_FMT_BGGR16LE ] = 1;
+              break;
+            case ASI_BAYER_GR:
+              camera->frameFormats[ OA_PIX_FMT_GRBG16LE ] = 1;
+              break;
+            case ASI_BAYER_GB:
+              camera->frameFormats[ OA_PIX_FMT_GBRG16LE ] = 1;
+              break;
+          }
+          camera->features.rawMode = 1;
+        } else {
+          camera->frameFormats[ OA_PIX_FMT_GREY16LE ] = 1;
+        }
+        if ( cameraInfo->maxBitDepth < 16 ) {
+          cameraInfo->maxBitDepth = 16;
+        }
+        break;
     }
-    if ( cameraInfo->videoGrey16 && cameraInfo->videoGrey ) {
-      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) = OA_CTRL_TYPE_DISCRETE;
-    }
+    i++;
   }
 
-  if ( -1 == cameraInfo->videoCurrent ) {
+  if ( -1 == cameraInfo->currentMode ) {
     fprintf ( stderr, "No suitable video format found on camera %d\n",
         cameraInfo->index );
     free (( void* ) camera->_common );
@@ -629,25 +632,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  // This sets up a finite state machine to handle switching between 8-bit
-  // RGB, 8-bit raw and 16-bit raw nicely.  See the controller code for
-  // more details
-  if ( cameraInfo->colour ) {
-    switch ( cameraInfo->videoCurrent ) {
-      case ASI_IMG_RAW16:
-        cameraInfo->FSMState = 1;
-        cameraInfo->currentBitDepth = 16;
-        break;
-      case ASI_IMG_RAW8:
-        cameraInfo->FSMState = 3;
-        cameraInfo->currentBitDepth = 8;
-        break;
-      case ASI_IMG_RGB24:
-      default:
-        cameraInfo->currentBitDepth = 8;
-        cameraInfo->FSMState = 0;
-    }
-  }
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
   cameraInfo->binMode = OA_BIN_MODE_NONE;
 
   for ( i = 1; i <= 4; i++ ) {
@@ -1310,14 +1295,13 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   cameraInfo->configuredBuffers = 0;
 
   ASISetROIFormat ( cameraInfo->cameraId, cameraInfo->xSize,
-      cameraInfo->ySize, cameraInfo->binMode, cameraInfo->videoCurrent );
+      cameraInfo->ySize, cameraInfo->binMode, cameraInfo->currentMode );
 
   // The largest buffer size we should need
   // RGB colour is 3 bytes per pixel, mono one for 8-bit, two for 16-bit,
   // RAW is one for 8-bit, 2 for 16-bit.  We assume that if the BIT_DEPTH
   // control is supported them 16-bit is supported.
-  multiplier = ( ASI_IMG_RGB24 == cameraInfo->videoCurrent ) ? 3 :
-      ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) ? 2 : 1 );
+  multiplier = cameraInfo->maxBitDepth / 8;
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY * multiplier;
   cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct ZWASIbuffer ));

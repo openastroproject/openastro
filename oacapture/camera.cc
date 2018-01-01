@@ -123,6 +123,17 @@ Camera::unpackControlValue ( oaControlValue *cp )
 
 
 int
+Camera::hasFrameFormat ( int format )
+{
+  if ( !initialised ) {
+    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    return 0;
+  }
+
+  return cameraContext->frameFormats[ format ];
+}
+
+int
 Camera::has16Bit ( void )
 {
   oaControlValue v;
@@ -574,6 +585,25 @@ Camera::setRawMode ( int enabled )
   ret = cameraFuncs.setControl ( cameraContext, OA_CAM_CTRL_COLOUR_MODE,
       &v, 0 );
   framePixelFormat = cameraFuncs.getFramePixelFormat ( cameraContext, 0 );
+  return ret;
+}
+
+
+
+int
+Camera::setFrameFormat ( int format )
+{
+  int ret;
+  oaControlValue v;
+
+  if ( !initialised ) {
+    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    return -1;
+  }
+
+  populateControlValue ( &v, OA_CAM_CTRL_FRAME_FORMAT, format );
+  ret = cameraFuncs.setControl ( cameraContext, OA_CAM_CTRL_FRAME_FORMAT,
+      &v, 0 );
   return ret;
 }
 

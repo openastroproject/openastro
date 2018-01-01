@@ -37,7 +37,7 @@
 #include "Touptekstate.h"
 
 
-static int	_processSetControl ( TOUPTEK_STATE*, OA_COMMAND* );
+static int	_processSetControl ( oaCamera*, OA_COMMAND* );
 static int	_processGetControl ( TOUPTEK_STATE*, OA_COMMAND* );
 static int	_processSetResolution ( TOUPTEK_STATE*, OA_COMMAND* );
 static int	_processSetROI ( oaCamera*, OA_COMMAND* );
@@ -46,8 +46,11 @@ static int	_processStreamingStop ( TOUPTEK_STATE*, OA_COMMAND* );
 static int	_doStart ( TOUPTEK_STATE* );
 static int	_doStop ( TOUPTEK_STATE* );
 static int	_setBinning ( TOUPTEK_STATE*, int );
+static int	_setFrameFormat ( TOUPTEK_STATE*, int );
+/*
 static int	_setColourMode ( TOUPTEK_STATE*, int );
 static int	_setBitDepth ( TOUPTEK_STATE*, int );
+*/
 
 
 void*
@@ -81,7 +84,7 @@ oacamTouptekcontroller ( void* param )
       if ( command ) {
         switch ( command->commandType ) {
           case OA_CMD_CONTROL_SET:
-            resultCode = _processSetControl ( cameraInfo, command );
+            resultCode = _processSetControl ( camera, command );
             break;
           case OA_CMD_CONTROL_GET:
             resultCode = _processGetControl ( cameraInfo, command );
@@ -140,29 +143,37 @@ _TouptekFrameCallback ( const void *frame, const BITMAPINFOHEADER*
     }
     nextBuffer = cameraInfo->nextBuffer;
 
-    // Now here's the fun...  In 12-bit (and presumably 10- and 14-bit)
-    // mode Touptek cameras appear to return little-endian data, but
-    // right-aligned rather than left-aligned as many other cameras do.
-    // So if we have such an image we try to fix it here.
+    // Now here's the fun...
+    //
+    // In 12-bit (and presumably 10- and 14-bit) mode, mono Touptek cameras
+    // appear to return little-endian data, but right-aligned rather than
+    // left-aligned as many other cameras do.  So if we have such an image we
+    // try to fix it here.
+    //
     // FIX ME -- I'm not sure this is the right place to be doing this.
     // Perhaps there should be a flag to tell the user whether the data is
     // left-or right-aligned and they can sort it out.
 
-    shiftBits = 0;
     if ( bitsPerPixel > 8 && bitsPerPixel < 16 ) {
-      shiftBits = 16 - bitsPerPixel;
-    }
+      if ( !cameraInfo->colour ) {
+        shiftBits = 0;
+        // FIX ME -- not sure this is safe
+        if ( bitsPerPixel > 8 && bitsPerPixel < 16 ) {
+          shiftBits = 16 - bitsPerPixel;
+        }
 
-    if ( shiftBits ) {
-      const uint16_t	*s = frame;
-      uint16_t		*t = cameraInfo->buffers[ nextBuffer ].start;
-      uint16_t		v;
-      unsigned int	i;
+        if ( shiftBits ) {
+          const uint16_t	*s = frame;
+          uint16_t		*t = cameraInfo->buffers[ nextBuffer ].start;
+          uint16_t		v;
+          unsigned int	i;
 
-      for ( i = 0; i < dataLength; i += 2 ) {
-        v = *s++;
-        v <<= shiftBits;
-        *t++ = v;
+          for ( i = 0; i < dataLength; i += 2 ) {
+            v = *s++;
+            v <<= shiftBits;
+            *t++ = v;
+          }
+        }
       }
     } else {
       ( void ) memcpy ( cameraInfo->buffers[ nextBuffer ].start, frame,
@@ -190,8 +201,9 @@ _TouptekFrameCallback ( const void *frame, const BITMAPINFOHEADER*
 
 
 static int
-_processSetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
+_processSetControl ( oaCamera* camera, OA_COMMAND* command )
 {
+  TOUPTEK_STATE*	cameraInfo = camera->_private;
   oaControlValue	*valp = command->commandData;
   int			control = command->controlId, val;
 
@@ -286,7 +298,7 @@ _processSetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = ( valp->boolean == OA_EXPOSURE_MANUAL ) ? 0 : 1;
-      if ((( p_Toupcam_put_AutoExpoEnable )( cameraInfo->handle, val )) < 0 ) {
+      if ((( p_Toupcam_put_AutoExpoEnable )( cameraInfo->handle, val )) < 0) {
         fprintf ( stderr, "Toupcam_put_AutoExpoEnable ( %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
       }
@@ -461,6 +473,19 @@ _processSetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
       return OA_ERR_NONE;
       break;
 
+    case OA_CAM_CTRL_FRAME_FORMAT:
+      if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
+        fprintf ( stderr, "%s: invalid control type %d where discrete "
+            "expected\n", __FUNCTION__, valp->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val = valp->discrete;
+      if ( !camera->frameFormats[ val ] ) {
+        return -OA_ERR_OUT_OF_RANGE;
+      }
+      return _setFrameFormat ( cameraInfo, val );
+      break;
+/*
     case OA_CAM_CTRL_COLOUR_MODE:
       if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
         fprintf ( stderr, "%s: invalid control type %d where discrete "
@@ -483,7 +508,7 @@ _processSetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
       val = valp->discrete;
       return _setBitDepth ( cameraInfo, val );
       break;
-
+*/
     case OA_CAM_CTRL_LED_STATE:
     case OA_CAM_CTRL_LED_PERIOD:
       if ( control == OA_CAM_CTRL_LED_STATE ) {
@@ -521,8 +546,8 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 {
   oaControlValue	*valp = command->commandData;
   int			control = command->controlId;
-  uint32_t		val_u32;
   int32_t		val_s32;
+  uint32_t		val_u32;
   unsigned short	val_u16;
   short			val_s16;
 
@@ -530,7 +555,8 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_BRIGHTNESS:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( p_Toupcam_get_Brightness )( cameraInfo->handle, &val_s32 )) < 0 ) {
+      if ((( p_Toupcam_get_Brightness )( cameraInfo->handle,
+          &val_s32 )) < 0 ) {
         fprintf ( stderr, "Toupcam_get_Brightness failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -601,7 +627,8 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_GAIN:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( p_Toupcam_get_ExpoAGain )( cameraInfo->handle, &val_u16 )) < 0 ) {
+      if ((( p_Toupcam_get_ExpoAGain )( cameraInfo->handle,
+          &val_u16 )) < 0 ) {
         fprintf ( stderr, "Toupcam_get_ExpoAGain failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -631,7 +658,8 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_SATURATION:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( p_Toupcam_get_Saturation )( cameraInfo->handle, &val_s32 )) < 0 ) {
+      if ((( p_Toupcam_get_Saturation )( cameraInfo->handle,
+          &val_s32 )) < 0 ){
         fprintf ( stderr, "Toupcam_get_Saturation failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -678,19 +706,22 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
       break;
 
     case OA_CAM_CTRL_BINNING:
-      fprintf ( stderr, "%s: Need to code binning control for Touptek\n",
+      // FIX ME
+      fprintf ( stderr, "%s: Need to code binning control for Toupcam\n",
           __FUNCTION__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
 
     case OA_CAM_CTRL_COLOUR_MODE:
-      fprintf ( stderr, "%s: Need to code colour mode control for Touptek\n",
+      // FIX ME
+      fprintf ( stderr, "%s: Need to code colour mode control for Toupcam\n",
           __FUNCTION__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
 
     case OA_CAM_CTRL_BIT_DEPTH:
-      fprintf ( stderr, "%s: Need to code bit depth control for Touptek\n",
+      // FIX ME
+      fprintf ( stderr, "%s: Need to code bit depth control for Toupcam\n",
           __FUNCTION__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
@@ -737,12 +768,12 @@ _processSetResolution ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
   // Reset the ROI
 
   if ((( p_Toupcam_put_Roi )( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
-    fprintf ( stderr, "Can't clear Touptek ROI\n" );
+    fprintf ( stderr, "Can't clear Toupcam ROI\n" );
     return -OA_ERR_CAMERA_IO;
   }
 
-  if (((  p_Toupcam_put_Size )( cameraInfo->handle, size->x, size->y )) < 0 ) {
-    fprintf ( stderr, "Can't set Touptek frame size %dx%d\n", size->x,
+  if ((( p_Toupcam_put_Size )( cameraInfo->handle, size->x, size->y )) < 0 ) {
+    fprintf ( stderr, "Can't set Toupcam frame size %dx%d\n", size->x,
       size->y );
     return -OA_ERR_CAMERA_IO;
   }
@@ -784,9 +815,9 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
   offsetX = (( cameraInfo->currentXResolution - x ) / 2 ) & ~1;
   offsetY = (( cameraInfo->currentYResolution - y ) / 2 ) & ~1;
 
-  if ((( p_Toupcam_put_Roi )( cameraInfo->handle, offsetX, offsetY,
-      x, y )) < 0 ) {
-    fprintf ( stderr, "Can't set Touptek ROI ( %d, %d, %d, %d )\n",
+  if ((( p_Toupcam_put_Roi )( cameraInfo->handle, offsetX, offsetY, x,
+      y )) < 0 ) {
+    fprintf ( stderr, "Can't set Toupcam ROI ( %d, %d, %d, %d )\n",
         offsetX, offsetY, x, y );
     return -OA_ERR_CAMERA_IO;
   }
@@ -826,8 +857,8 @@ _doStart ( TOUPTEK_STATE* cameraInfo )
 
   if (( ret = ( p_Toupcam_StartPushMode )( cameraInfo->handle,
       _TouptekFrameCallback, cameraInfo )) < 0 ) {
-    fprintf ( stderr, "%s: Toupcam_StartPushMode failed: 0x%x\n", __FUNCTION__,
-        ret );
+    fprintf ( stderr, "%s: Toupcam_StartPushMode failed: 0x%x\n",
+        __FUNCTION__, ret );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -879,7 +910,7 @@ _setBinning ( TOUPTEK_STATE* cameraInfo, int binMode )
   // Reset the ROI
 
   if ((( p_Toupcam_put_Roi )( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
-    fprintf ( stderr, "Can't clear Touptek ROI\n" );
+    fprintf ( stderr, "Can't clear Toupcam ROI\n" );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -891,7 +922,7 @@ _setBinning ( TOUPTEK_STATE* cameraInfo, int binMode )
   x = cameraInfo->frameSizes[ binMode ].sizes[0].x;
   y = cameraInfo->frameSizes[ binMode ].sizes[0].y;
   if ((( p_Toupcam_put_Size )( cameraInfo->handle, x, y )) < 0 ) {
-    fprintf ( stderr, "Can't set Touptek frame size\n" );
+    fprintf ( stderr, "Can't set Toupcam frame size\n" );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -907,6 +938,64 @@ _setBinning ( TOUPTEK_STATE* cameraInfo, int binMode )
 }
 
 
+static int
+_setFrameFormat ( TOUPTEK_STATE* cameraInfo, int format )
+{
+  int           restart = 0;
+  int           raw = 0, bitspp;
+
+  // Only need to do this if we're dealing with a colour camera
+
+  if ( !oaFrameFormats[ format ].monochrome ) {
+
+    // FIX ME -- could make this more effcient by doing nothing here unless
+    // we need to change it
+
+    if ( cameraInfo->isStreaming ) {
+      restart = 1;
+      _doStop ( cameraInfo );
+    }
+
+    raw = oaFrameFormats[ format ].rawColour ? 1 : 0;
+    if ((( p_Toupcam_put_Option )( cameraInfo->handle, TOUPCAM_OPTION_RAW,
+        raw  )) < 0 ) {
+      fprintf ( stderr, "Toupcam_put_Option ( raw, %d ) failed\n", raw );
+      return -OA_ERR_CAMERA_IO;
+    }
+
+    if ((( p_Toupcam_put_Option )( cameraInfo->handle, TOUPCAM_OPTION_RGB48,
+        format == OA_PIX_FMT_RGB48LE ? 1 : 0 )) < 0 ) {
+      fprintf ( stderr, "Toupcam_put_Option ( raw, %d ) failed\n", raw );
+      return -OA_ERR_CAMERA_IO;
+    }
+    if ( restart ) {
+      _doStart ( cameraInfo );
+    }
+  }
+
+  // FIX ME -- don't do this if we don't need to
+  // And now change the bit depth
+
+  bitspp = oaFrameFormats[ format ].bitsPerPixel;
+  if ((( p_Toupcam_put_Option )( cameraInfo->handle, TOUPCAM_OPTION_BITDEPTH,
+      ( bitspp > 8 ) ? 1 : 0  )) < 0 ) {
+    fprintf ( stderr, "Toupcam_put_Option ( depth, %d ) failed\n",
+        bitspp > 8 ? 1 : 0 );
+    return -OA_ERR_CAMERA_IO;
+  }
+
+  cameraInfo->currentVideoFormat = format;
+  cameraInfo->currentBitsPerPixel = bitspp;
+  // This converts from float, but should be ok for these cameras
+  cameraInfo->currentBytesPerPixel = oaFrameFormats[ format ].bytesPerPixel;
+  cameraInfo->imageBufferLength = cameraInfo->currentXSize *
+      cameraInfo->currentYSize * cameraInfo->currentBytesPerPixel;
+
+  return OA_ERR_NONE;
+}
+
+
+/*
 static int
 _setColourMode ( TOUPTEK_STATE* cameraInfo, int mode )
 {
@@ -1049,3 +1138,4 @@ _setBitDepth ( TOUPTEK_STATE* cameraInfo, int depth )
 
   return OA_ERR_NONE;
 }
+*/

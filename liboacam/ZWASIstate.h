@@ -43,15 +43,12 @@ typedef struct ZWASI_STATE {
   int			colour;
   long			cameraId;
   int			usb3Cam;
-  int			mosaic8;
-  int			mosaic16;
   int			binModes[16];
   // video mode settings
-  int			videoRGB24;
-  int			videoGrey16;
-  int			videoGrey;
-  int32_t		videoCurrent;
-  uint32_t		FSMState;
+  int32_t		currentFormat;
+  int32_t		currentMode;
+  int32_t		maxBitDepth;
+  int32_t		greyscaleMode;
   // buffering for image transfers
   struct ZWASIbuffer*	buffers;
   int			configuredBuffers;

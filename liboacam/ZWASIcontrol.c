@@ -120,6 +120,15 @@ oaZWASICameraReadControl ( oaCamera* camera, int control,
       val->discrete = OA_COLOUR_MODE_NONRAW;
       break;
 
+    case OA_CAM_CTRL_COLOUR_MODE:
+      val->valueType = OA_CTRL_TYPE_DISCRETE;
+      if ( IMG_RAW16 == cameraInfo->videoCurrent || IMG_RAW8 ==
+          cameraInfo->videoCurrent ) {
+        val->discrete = OA_COLOUR_MODE_RAW;
+      }
+      val->discrete = OA_COLOUR_MODE_NONRAW;
+      break;
+
     case OA_CAM_CTRL_TEMPERATURE:
     {
       val->valueType = OA_CTRL_TYPE_READONLY;
@@ -264,7 +273,7 @@ oaZWASICameraTestControl ( oaCamera* camera, int control,
 
     default:
       // If we reach here it's because we don't recognise the control
-      fprintf ( stderr, "Unrecognised control %d in oaZWASICameraSetControl\n",
+      fprintf ( stderr, "Unrecognised control %d in oaZWASICameraTestControl\n",
           control );
       return -OA_ERR_INVALID_CONTROL;
       break;

@@ -72,7 +72,7 @@ PreviewWidget::PreviewWidget ( QWidget* parent ) : QFrame ( parent )
   previewImageBuffer[0] = writeImageBuffer[0] = 0;
   previewImageBuffer[1] = writeImageBuffer[1] = 0;
   expectedSize = config.imageSizeX * config.imageSizeY *
-      OA_BYTES_PER_PIXEL( videoFramePixelFormat );
+      oaFrameFormats[ videoFramePixelFormat ].bytesPerPixel;
   demosaic = config.demosaic;
 
   int r = config.currentColouriseColour.red();
@@ -125,7 +125,7 @@ PreviewWidget::updatePreviewSize ( void )
   int zoomFactor = state.zoomWidget->getZoomFactor();
   recalculateDimensions ( zoomFactor );
   expectedSize = config.imageSizeX * config.imageSizeY *
-      OA_BYTES_PER_PIXEL( videoFramePixelFormat );
+      oaFrameFormats[ videoFramePixelFormat ].bytesPerPixel;
   int newBufferLength = config.imageSizeX * config.imageSizeY * 3;
   if ( newBufferLength > previewBufferLength ) {
     if (!( previewImageBuffer[0] = realloc ( previewImageBuffer[0],
@@ -328,7 +328,7 @@ PreviewWidget::setVideoFramePixelFormat ( int format )
 {
   videoFramePixelFormat = format;
   expectedSize = config.imageSizeX * config.imageSizeY *
-      OA_BYTES_PER_PIXEL( videoFramePixelFormat );
+      oaFrameFormats[ videoFramePixelFormat ].bytesPerPixel;
 }
 
 
@@ -593,21 +593,6 @@ PreviewWidget::processFlip24BitColour ( uint8_t* imageData, int length )
 
 
 void
-PreviewWidget::convert16To8Bit ( void* imageData, int length, int format )
-{
-  uint8_t* t = ( uint8_t* ) imageData;
-  uint8_t* s = ( uint8_t* ) imageData;
-
-  if ( OA_ISLITTLE_ENDIAN( format )) {
-    s++;
-  }
-  for ( int i = 0; i < length; i += 2, s += 2 ) {
-    *t++ = *s;
-  }
-}
-
-
-void
 PreviewWidget::setMonoPalette ( QColor colour )
 {
   unsigned int r = colour.red();
@@ -650,8 +635,8 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
 
   // don't do anything if the length is not as expected
   if ( length != self->expectedSize ) {
-    // qWarning() << "size mismatch.  have:" << length << " expected: "
-    //    << self->expectedSize;
+    qWarning() << "size mismatch.  have:" << length << " expected: "
+       << self->expectedSize;
     return 0;
   }
 
@@ -673,6 +658,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
       return 0;
     }
   }
+
   if ( !self->writeImageBuffer[0] ||
       self->writeBufferLength < maxLength ) {
     self->writeBufferLength = maxLength;
@@ -727,20 +713,21 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
   }
 
   int reducedGreyscaleBitDepth = 0;
-  if ( OA_PIX_FMT_GREY16BE == previewPixelFormat ||
-      OA_PIX_FMT_GREY16LE == previewPixelFormat ||
-      OA_ISBAYER16 ( previewPixelFormat )) {
+
+  if (( !oaFrameFormats[ previewPixelFormat ].fullColour &&
+      oaFrameFormats[ previewPixelFormat ].bytesPerPixel > 1 ) ||
+      ( oaFrameFormats[ previewPixelFormat ].fullColour &&
+      oaFrameFormats[ previewPixelFormat ].bytesPerPixel > 3 )) {
     currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :
         !currentPreviewBuffer;
     ( void ) memcpy ( self->previewImageBuffer[ currentPreviewBuffer ],
         previewBuffer, length );
-    self->convert16To8Bit ( self->previewImageBuffer[ currentPreviewBuffer ],
-        length, previewPixelFormat );
+    // Do this reduction "in place"
+    self->reduceTo8Bit ( self->previewImageBuffer[ currentPreviewBuffer ],
+        self->previewImageBuffer[ currentPreviewBuffer ],
+        config.imageSizeX, config.imageSizeY, previewPixelFormat );
     previewBuffer = self->previewImageBuffer [ currentPreviewBuffer ];
-    if (  OA_PIX_FMT_GREY16BE == previewPixelFormat ||
-        OA_PIX_FMT_GREY16LE == previewPixelFormat ) {
-      reducedGreyscaleBitDepth = 1;
-    }
+    reducedGreyscaleBitDepth = oaFrameFormats[ previewPixelFormat ].monochrome;
   }
 
   ( void ) gettimeofday ( &t, 0 );
@@ -748,10 +735,9 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
       ( unsigned long ) t.tv_usec / 1000;
 
   int cfaPattern = config.cfaPattern;
-  if ( OA_ISBAYER ( previewPixelFormat )) {
-    if ( OA_DEMOSAIC_AUTO == cfaPattern ) {
-      cfaPattern = self->formatToCfaPattern ( previewPixelFormat );
-    }
+  if ( OA_DEMOSAIC_AUTO == cfaPattern &&
+      oaFrameFormats[ previewPixelFormat ].rawColour ) {
+    cfaPattern = oaFrameFormats[ previewPixelFormat ].cfaPattern;
   }
 
   if ( self->previewEnabled ) {
@@ -760,7 +746,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
       doDisplay = 1;
 
       if ( self->demosaic && config.demosaicPreview ) {
-        if ( OA_ISBAYER ( previewPixelFormat )) {
+        if ( oaFrameFormats[ previewPixelFormat ].rawColour ) {
           currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :
               !currentPreviewBuffer;
           // Use the demosaicking to copy the data to the previewImageBuffer
@@ -780,8 +766,8 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
         int fmt = previewPixelFormat;
 
         if ( previewIsDemosaicked ) {
-          fmt = OA_ISBAYER16 ( fmt )  ? OA_PIX_FMT_RGB48BE :
-              OA_PIX_FMT_RGB24;
+          // preview should be singe byte per colour/pixel at this point
+          fmt = OA_PIX_FMT_RGB24;
         }
         // This call should be thread-safe
         state->focusOverlay->addScore ( oaFocusScore ( previewBuffer,
@@ -791,9 +777,16 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
       QImage* newImage;
       QImage* swappedImage = 0;
 
+      // At this point, one way or another we should have an 8-bit image
+      // for the preview
+
+      // First deal with anything that's mono, including untouched raw
+      // colour
+
       if ( OA_PIX_FMT_GREY8 == self->videoFramePixelFormat ||
-           ( OA_ISBAYER ( previewPixelFormat ) && ( !self->demosaic ||
-           !config.demosaicPreview )) || reducedGreyscaleBitDepth ) {
+           ( oaFrameFormats[ previewPixelFormat ].rawColour &&
+           ( !self->demosaic || !config.demosaicPreview )) ||
+           reducedGreyscaleBitDepth ) {
         newImage = new QImage (( const uint8_t* ) previewBuffer,
             config.imageSizeX, config.imageSizeY, config.imageSizeX,
             QImage::Format_Indexed8 );
@@ -805,6 +798,8 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
         }
         swappedImage = newImage;
       } else {
+        // and full colour (should just be RGB24 or BGR24 at this point?)
+        // here
         // Need the stride size here or QImage appears to "tear" the
         // right hand edge of the image when the X dimension is an odd
         // number of pixels
@@ -829,6 +824,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
           self->currentZoomY );
 
         if ( config.showFocusAid ) {
+          // FIX ME -- eh?
         }
 
         pthread_mutex_lock ( &self->imageMutex );
@@ -1033,4 +1029,61 @@ PreviewWidget::formatToCfaPattern ( int format )
   }
   qWarning() << "Invalid format in" << __FUNCTION__;
   return 0;
+}
+
+
+void
+PreviewWidget::reduceTo8Bit ( void* sourceData, void* targetData, int xSize,
+    int ySize, int format )
+{
+  int	outputFormat = 0;
+
+  if ( oaFrameFormats[ format ].monochrome ) {
+    outputFormat = OA_PIX_FMT_GREY8;
+  } else {
+    if ( oaFrameFormats[ format ].rawColour &&
+        !oaFrameFormats[ format ].packed ) {
+      switch ( oaFrameFormats[ format ].cfaPattern ) {
+        case OA_DEMOSAIC_RGGB:
+          outputFormat = OA_PIX_FMT_RGGB8;
+          break;
+        case OA_DEMOSAIC_BGGR:
+          outputFormat = OA_PIX_FMT_BGGR8;
+          break;
+        case OA_DEMOSAIC_GRBG:
+          outputFormat = OA_PIX_FMT_GRBG8;
+          break;
+        case OA_DEMOSAIC_GBRG:
+          outputFormat = OA_PIX_FMT_GBRG8;
+          break;
+      }
+    } else {
+      switch ( format ) {
+        case OA_PIX_FMT_RGB30BE:
+        case OA_PIX_FMT_RGB30LE:
+        case OA_PIX_FMT_RGB36BE:
+        case OA_PIX_FMT_RGB36LE:
+        case OA_PIX_FMT_RGB42BE:
+        case OA_PIX_FMT_RGB42LE:
+        case OA_PIX_FMT_RGB48BE:
+        case OA_PIX_FMT_RGB48LE:
+          outputFormat = OA_PIX_FMT_RGB24;
+          break;
+        case OA_PIX_FMT_BGR48BE:
+        case OA_PIX_FMT_BGR48LE:
+          outputFormat = OA_PIX_FMT_BGR24;
+          break;
+      }
+    }
+  }
+
+  if ( outputFormat ) {
+    if ( oaconvert ( sourceData, targetData, xSize, ySize, format,
+        outputFormat ) < 0 ) {
+      qWarning() << "Unable to convert format" << format << "to format" <<
+          outputFormat;
+    }
+  } else {
+      qWarning() << "Can't handle 8-bit reduction of format" << format;
+  }
 }

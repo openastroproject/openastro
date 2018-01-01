@@ -158,9 +158,7 @@ ProfileSettings::addEntry ( void )
   } while ( found );
 
   p.profileName = newName;
-  p.sixteenBit = config.sixteenBit;
   p.binning2x2 = config.binning2x2;
-  p.rawMode = config.rawMode;
   p.colourise = config.colourise;
   p.useROI = config.useROI;
   p.imageSizeX = config.imageSizeX;

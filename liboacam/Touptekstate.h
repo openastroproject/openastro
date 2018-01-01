@@ -35,17 +35,13 @@ struct Touptekbuffer {
   size_t length;
 };
 
-typedef struct Touptek_STATE {
+typedef struct TOUPTEK_STATE {
   int			initialised;
 
   // connection handle
   HToupCam		handle;
   // video mode settings
-  int			videoRGB24;
-  int			videoGrey;
-  int			videoGrey16;
-  int			videoRaw;
-  int			bytesPerPixel;
+  int			maxBytesPerPixel;
   int			currentBytesPerPixel;
   int			currentVideoFormat;
   // buffering for image transfers
@@ -62,7 +58,6 @@ typedef struct Touptek_STATE {
   int			maxResolutionX;
   int			maxResolutionY;
   int			colour;
-  int			cfaPattern;
   int32_t		exposureMin;
   int32_t		exposureMax;
   int32_t		gainMin;
@@ -75,7 +70,6 @@ typedef struct Touptek_STATE {
   int32_t		ledPeriod;
   // image settings
   FRAMESIZES		frameSizes[ OA_MAX_BINNING+1 ];
-  // control values
   // thread management
   pthread_t		controllerThread;
   pthread_mutex_t	commandQueueMutex;

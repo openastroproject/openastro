@@ -2,7 +2,7 @@
  *
  * ZWASIcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -39,13 +39,12 @@
 #include "ZWASIstate.h"
 
 
-static int	_processSetControl ( ZWASI_STATE*, OA_COMMAND* );
+static int	_processSetControl ( oaCamera*, OA_COMMAND* );
 static int	_processSetResolution ( ZWASI_STATE*, OA_COMMAND* );
 static int	_processStreamingStart ( ZWASI_STATE*, OA_COMMAND* );
 static int	_processStreamingStop ( ZWASI_STATE*, OA_COMMAND* );
 
 static void	_doFrameReconfiguration ( ZWASI_STATE* );
-static int32_t	_doStateMachine ( ZWASI_STATE*, unsigned int );
 
 
 void*
@@ -82,7 +81,7 @@ oacamZWASI2controller ( void* param )
       if ( command ) {
         switch ( command->commandType ) {
           case OA_CMD_CONTROL_SET:
-            resultCode = _processSetControl ( cameraInfo, command );
+            resultCode = _processSetControl ( camera, command );
             break;
           case OA_CMD_RESOLUTION_SET:
             resultCode = _processSetResolution ( cameraInfo, command );
@@ -176,8 +175,9 @@ oacamZWASI2controller ( void* param )
 
 
 static int
-_processSetControl ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
+_processSetControl ( oaCamera* camera, OA_COMMAND* command )
 {
+  ZWASI_STATE*		cameraInfo = camera->_private;
   oaControlValue	*val = command->commandData;
 
   switch ( command->controlId ) {
@@ -245,9 +245,9 @@ _processSetControl ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
         if ( val->discrete < OA_BIN_MODE_2x2 &&
             8 == cameraInfo->currentBitDepth ) {
           if ( 3 == cameraInfo->FSMState ) {
-            cameraInfo->videoCurrent = ASI_IMG_RAW8;
+            cameraInfo->currentMode = ASI_IMG_RAW8;
           } else {
-            cameraInfo->videoCurrent = ASI_IMG_RGB24;
+            cameraInfo->currentMode = ASI_IMG_RGB24;
           }
         }
       }
@@ -278,40 +278,37 @@ _processSetControl ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
       break;
     }
 
-    case OA_CAM_CTRL_BIT_DEPTH:
-      if ( 16 == val->discrete || 12 == val->discrete ) {
-        cameraInfo->currentBitDepth = 16;
-        if ( cameraInfo->colour ) {
-          cameraInfo->videoCurrent = _doStateMachine ( cameraInfo,
-              OA_CAM_CTRL_BIT_DEPTH );
-        } else {
-          cameraInfo->videoCurrent = ASI_IMG_RAW16;
-        }
-      } else {
-        if ( 8 == val->discrete ) {
-          cameraInfo->currentBitDepth = 8;
-          if ( cameraInfo->colour ) {
-            cameraInfo->videoCurrent = _doStateMachine ( cameraInfo,
-              OA_CAM_CTRL_BIT_DEPTH );
-          } else {
-            cameraInfo->videoCurrent = ASI_IMG_RAW8;
-          }
-        }
+    case OA_CAM_CTRL_FRAME_FORMAT:
+    {
+      int format = val->discrete;
+
+      switch ( format ) {
+        case OA_PIX_FMT_BGR24:
+          cameraInfo->currentMode = ASI_IMG_RGB24;
+          break;
+        case OA_PIX_FMT_RGGB8:
+        case OA_PIX_FMT_BGGR8:
+        case OA_PIX_FMT_GRBG8:
+        case OA_PIX_FMT_GBRG8:
+          cameraInfo->currentMode = ASI_IMG_RAW8;
+          break;
+        case OA_PIX_FMT_GREY8:
+          cameraInfo->currentMode = cameraInfo->greyscaleMode;
+          break;
+        case OA_PIX_FMT_RGGB16LE:
+        case OA_PIX_FMT_BGGR16LE:
+        case OA_PIX_FMT_GRBG16LE:
+        case OA_PIX_FMT_GBRG16LE:
+        case OA_PIX_FMT_GREY16LE:
+          cameraInfo->currentMode = ASI_IMG_RAW16;
+          break;
       }
+
+      cameraInfo->currentFormat = format;
+      cameraInfo->currentBitDepth = oaFrameFormats[ format ].bitsPerPixel;
       _doFrameReconfiguration ( cameraInfo );
       break;
-
-    case OA_CAM_CTRL_COLOUR_MODE:
-      cameraInfo->videoCurrent = _doStateMachine ( cameraInfo,
-            OA_CAM_CTRL_COLOUR_MODE );
-      if ( cameraInfo->videoCurrent == ASI_IMG_RAW16 ) {
-        cameraInfo->currentBitDepth = 16;
-      } else {
-        cameraInfo->currentBitDepth = 8;
-      }
-      _doFrameReconfiguration ( cameraInfo );
-      break;
-
+    }
     case OA_CAM_CTRL_COOLER:
       ASISetControlValue ( cameraInfo->cameraId, ASI_COOLER_ON,
           val->boolean, 0 );
@@ -451,7 +448,7 @@ _doFrameReconfiguration ( ZWASI_STATE* cameraInfo )
     actualY = cameraInfo->maxResolutionY / cameraInfo->binMode;
   }
   ASISetROIFormat ( cameraInfo->cameraId, cameraInfo->xSize,
-      cameraInfo->ySize, cameraInfo->binMode, cameraInfo->videoCurrent );
+      cameraInfo->ySize, cameraInfo->binMode, cameraInfo->currentMode );
   if ( OA_BIN_MODE_NONE == cameraInfo->binMode &&
       ( cameraInfo->xSize != cameraInfo->maxResolutionX ||
       cameraInfo->ySize != cameraInfo->maxResolutionY )) {
@@ -462,8 +459,8 @@ _doFrameReconfiguration ( ZWASI_STATE* cameraInfo )
 
   // RGB colour is 3 bytes per pixel, mono one for 8-bit, two for 16-bit,
   // RAW is one for 8-bit, 2 for 16-bit
-  multiplier = ( ASI_IMG_RGB24 == cameraInfo->videoCurrent ) ? 3 :
-      ( ASI_IMG_RAW16 == cameraInfo->videoCurrent ) ? 2 : 1;
+  multiplier = ( ASI_IMG_RGB24 == cameraInfo->currentMode ) ? 3 :
+      ( ASI_IMG_RAW16 == cameraInfo->currentMode ) ? 2 : 1;
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
   cameraInfo->imageBufferLength = actualX * actualY * multiplier;
   if ( restartStreaming ) {
@@ -472,97 +469,6 @@ _doFrameReconfiguration ( ZWASI_STATE* cameraInfo )
     cameraInfo->isStreaming = 1;
   }
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
-}
-
-
-static int32_t
-_doStateMachine ( ZWASI_STATE* cameraInfo, unsigned int control )
-{
-  int32_t	newMode = 0;
-
-  /*
-   * Switching between 8-bit and 16-bit modes combined with raw colour
-   * and RGB colour is messy because there's no 16-bit RGB mode, so to
-   * return to the most sensible state when a box is checked/unchecked
-   * we need to know how we got into the state we're in now.  The neat
-   * solution to this appears to be a finite state machine, as initialised
-   * when the camera was connected.  The states are thus:
-   *
-   * state 0 (RGB24): 16-bit on goes to state 1, raw mode goes to state 3
-   * state 1 (RAW16): 16-bit off goes to state 0, raw goes to state 2
-   * state 2 (RAW16): 16-bit off goes to state 3, raw off goes to state 1
-   * state 3 (RAW8) : 16-bit on goes to state 4, raw off goes to state 0
-   * state 4 (RAW16): 16-bit off goes to state 3, raw off goes to state 5
-   * state 5 (RAW16): 16-bit off goes to state 0, raw on goes to state 4
-   *
-   * The state machine means that we don't actually need to know how
-   * a control was changed to get the next result, merely to know which
-   * control has been changed.
-   */
-
-  switch ( cameraInfo->FSMState ) {
-    case 0:
-      if ( OA_CAM_CTRL_BIT_DEPTH == control ) {
-        cameraInfo->FSMState = 1;
-        newMode = ASI_IMG_RAW16;
-      } else { // raw
-        cameraInfo->FSMState = 3;
-        newMode = ASI_IMG_RAW8;
-      }
-      break;
-
-    case 1:
-      if ( OA_CAM_CTRL_BIT_DEPTH == control ) {
-        cameraInfo->FSMState = 0;
-        newMode = ASI_IMG_RGB24;
-      } else { // raw
-        cameraInfo->FSMState = 2;
-        newMode = ASI_IMG_RAW16;
-      }
-      break;
-
-    case 2:
-      if ( OA_CAM_CTRL_BIT_DEPTH == control ) {
-        cameraInfo->FSMState = 3;
-        newMode = ASI_IMG_RAW8;
-      } else { // raw
-        cameraInfo->FSMState = 1;
-        newMode = ASI_IMG_RAW16;
-      }
-      break;
-
-    case 3:
-      if ( OA_CAM_CTRL_BIT_DEPTH == control ) {
-        cameraInfo->FSMState = 4;
-        newMode = ASI_IMG_RAW16;
-      } else { // raw
-        cameraInfo->FSMState = 0;
-        newMode = ASI_IMG_RGB24;
-      }
-      break;
-
-    case 4:
-      if ( OA_CAM_CTRL_BIT_DEPTH == control ) {
-        cameraInfo->FSMState = 3;
-        newMode = ASI_IMG_RAW8;
-      } else { // raw
-        cameraInfo->FSMState = 5;
-        newMode = ASI_IMG_RAW16;
-      }
-      break;
-
-    case 5:
-      if ( OA_CAM_CTRL_BIT_DEPTH == control ) {
-        cameraInfo->FSMState = 0;
-        newMode = ASI_IMG_RGB24;
-      } else { // raw
-        cameraInfo->FSMState = 4;
-        newMode = ASI_IMG_RAW16;
-      }
-      break;
-  }
-
-  return newMode;
 }
 
 

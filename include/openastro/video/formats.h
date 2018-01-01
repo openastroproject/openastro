@@ -52,15 +52,66 @@
 #define OA_PIX_FMT_BGR48BE		20
 #define OA_PIX_FMT_BGR48LE		21
 
-#define OA_PIX_FMT_YUV444P 		22
-#define OA_PIX_FMT_YUV422P 		23
-#define OA_PIX_FMT_YUV420P		24
-#define OA_PIX_FMT_YUV410P		25
-#define OA_PIX_FMT_YUYV  		27
-#define OA_PIX_FMT_UYVY  		28
-#define OA_PIX_FMT_YUV420 		29
-#define OA_PIX_FMT_YUV411 		30
-#define OA_PIX_FMT_YUV410 		31
+#define OA_PIX_FMT_RGB30BE		22
+#define OA_PIX_FMT_RGB30LE		23
+#define OA_PIX_FMT_RGB36BE		24
+#define OA_PIX_FMT_RGB36LE		25
+#define OA_PIX_FMT_RGB42BE		26
+#define OA_PIX_FMT_RGB42LE		27
+#define OA_PIX_FMT_GREY10BE		28
+#define OA_PIX_FMT_GRAY10BE		28
+#define OA_PIX_FMT_GREY10LE		29
+#define OA_PIX_FMT_GRAY10LE		29
+#define OA_PIX_FMT_GREY12BE		30
+#define OA_PIX_FMT_GRAY12BE		30
+#define OA_PIX_FMT_GREY12LE		31
+#define OA_PIX_FMT_GRAY12LE		31
+#define OA_PIX_FMT_GREY14BE		32
+#define OA_PIX_FMT_GRAY14BE		32
+#define OA_PIX_FMT_GREY14LE		33
+#define OA_PIX_FMT_GRAY14LE		33
+
+#define OA_PIX_FMT_BGGR10LE             34
+#define OA_PIX_FMT_BGGR10BE             35
+#define OA_PIX_FMT_RGGB10LE             36
+#define OA_PIX_FMT_RGGB10BE             37
+#define OA_PIX_FMT_GBRG10LE             38
+#define OA_PIX_FMT_GBRG10BE             39
+#define OA_PIX_FMT_GRBG10LE             40
+#define OA_PIX_FMT_GRBG10BE             41
+
+#define OA_PIX_FMT_BGGR12LE             42
+#define OA_PIX_FMT_BGGR12BE             43
+#define OA_PIX_FMT_RGGB12LE             44
+#define OA_PIX_FMT_RGGB12BE             45
+#define OA_PIX_FMT_GBRG12LE             46
+#define OA_PIX_FMT_GBRG12BE             47
+#define OA_PIX_FMT_GRBG12LE             48
+#define OA_PIX_FMT_GRBG12BE             49
+
+#define OA_PIX_FMT_BGGR14LE             50
+#define OA_PIX_FMT_BGGR14BE             51
+#define OA_PIX_FMT_RGGB14LE             52
+#define OA_PIX_FMT_RGGB14BE             53
+#define OA_PIX_FMT_GBRG14LE             54
+#define OA_PIX_FMT_GBRG14BE             55
+#define OA_PIX_FMT_GRBG14LE             56
+#define OA_PIX_FMT_GRBG14BE             57
+
+#define OA_PIX_FMT_YUV444P 		58
+#define OA_PIX_FMT_YUV422P 		59
+#define OA_PIX_FMT_YUV420P		60
+#define OA_PIX_FMT_YUV410P		61
+#define OA_PIX_FMT_YUYV  		62
+#define OA_PIX_FMT_UYVY  		63
+#define OA_PIX_FMT_YUV420 		64
+#define OA_PIX_FMT_YUV411 		65
+#define OA_PIX_FMT_YUV410 		66
+
+// Adding more frame formats here requires the oaFrameFormats table
+// updating in liboavideo/formats.c
+
+#define OA_PIX_FMT_LAST_P1		OA_PIX_FMT_YUV410+1
 
 #define OA_ISGREYSCALE(x) \
     (( x == OA_PIX_FMT_GREY8 ) || ( x == OA_PIX_FMT_GREY16BE ) || \
@@ -116,5 +167,22 @@
   (( x == OA_PIX_FMT_BGGR16BE ) || ( x == OA_PIX_FMT_RGGB16BE ) || \
   ( x == OA_PIX_FMT_GBRG16BE ) || ( x == OA_PIX_FMT_GRBG16BE )) \
   ?  OA_PIX_FMT_RGB48BE : 0 )
+
+typedef struct {
+  const char*	name;
+  const char*	simpleName;
+  float		bytesPerPixel;
+  unsigned int	bitsPerPixel;
+  unsigned int	cfaPattern;
+  unsigned int	littleEndian : 1;
+  unsigned int	monochrome : 1;
+  unsigned int	rawColour : 1;
+  unsigned int	fullColour : 1;
+  unsigned int	lumChrom : 1;
+  unsigned int	lossless : 1;
+  unsigned int	packed : 1;
+} frameFormatInfo;
+
+extern frameFormatInfo oaFrameFormats[ OA_PIX_FMT_LAST_P1 ];
 
 #endif	/* OPENASTRO_CAMERA_FORMATS_H */

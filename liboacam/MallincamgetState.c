@@ -82,3 +82,19 @@ fprintf ( stderr, "%s: check >8-bit RGB byte order\n", __FUNCTION__ );
 fprintf ( stderr, "%s: check >8-bit byte order for video format %d\n", __FUNCTION__, cameraInfo->currentVideoFormat );
   return OA_PIX_FMT_RGB24;
 }
+
+
+int
+oaMallincamCameraGetControlDiscreteSet ( oaCamera* camera, int control,
+    int32_t* count, int64_t** values )
+{
+  static int64_t  ledModeValues[3] = { 1, 2, 3 };
+
+  if ( control != OA_CAM_CTRL_LED_STATE ) {
+    return -OA_ERR_INVALID_CONTROL;
+  }
+
+  *count = 3;
+  *values = ledModeValues;
+  return OA_ERR_NONE;
+}

@@ -114,8 +114,8 @@ oaZWASI2CameraReadControl ( oaCamera* camera, int control,
 
     case OA_CAM_CTRL_COLOUR_MODE:
       val->valueType = OA_CTRL_TYPE_DISCRETE;
-      if ( ASI_IMG_RAW16 == cameraInfo->videoCurrent || ASI_IMG_RAW8 ==
-          cameraInfo->videoCurrent ) {
+      if ( ASI_IMG_RAW16 == cameraInfo->currentMode || ASI_IMG_RAW8 ==
+          cameraInfo->currentMode ) {
         val->discrete = OA_COLOUR_MODE_RAW;
       }
       val->discrete = OA_COLOUR_MODE_NONRAW;

@@ -1224,9 +1224,7 @@ CaptureWidget::reloadProfiles ( void )
 void
 CaptureWidget::updateSettingsFromProfile ( void )
 {
-  config.sixteenBit = config.profiles[ config.profileOption ].sixteenBit;
   config.binning2x2 = config.profiles[ config.profileOption ].binning2x2;
-  config.rawMode = config.profiles[ config.profileOption ].rawMode;
   config.colourise = config.profiles[ config.profileOption ].colourise;
   config.useROI = config.profiles[ config.profileOption ].useROI;
   config.imageSizeX = config.profiles[ config.profileOption ].imageSizeX;

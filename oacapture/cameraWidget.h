@@ -56,10 +56,11 @@ class CameraWidget : public QGroupBox
     void                clearFPSMaxValue ( void );
 
   private:
-    QCheckBox*		sixteenBit;
     QCheckBox*		binning2x2;
-    QCheckBox*		rawMode;
     QGridLayout*	grid;
+    QComboBox*		inputFormatMenu;
+    QLabel*		inputFormatLabel;
+    QList<int>		inputFormatList;
     QLabel*             tempLabel;
     QLabel*             fpsMaxLabel;
     QLabel*             fpsActualLabel;
@@ -70,8 +71,11 @@ class CameraWidget : public QGroupBox
 
   public slots:
     void		setBinning ( int );
+    void		changeFrameFormat ( int );
+/*
     void		set16Bit ( int );
     void		setRawMode ( int );
+*/
     void                setActualFrameRate ( double );
     void                setTemperature ( void );
 };

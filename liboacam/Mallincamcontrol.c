@@ -345,3 +345,27 @@ oaMallincamCameraStopStreaming ( oaCamera* camera )
 
   return retval;
 }
+
+
+const char*
+oaMallincamCameraGetMenuString ( oaCamera* camera, int control, int index )
+{
+  if ( OA_CAM_CTRL_LED_STATE == control ) {
+
+    switch ( index ) {
+      case 1:
+        return "On";
+        break;
+      case 2:
+        return "Flash";
+        break;
+      case 3:
+        return "Off";
+        break;
+    }
+    return "Invalid index";
+  }
+
+  fprintf ( stderr, "%s: control not implemented\n", __FUNCTION__ );
+  return "";
+}

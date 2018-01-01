@@ -88,10 +88,9 @@ oaMallincamInitCamera ( oaCameraDevice* device )
     perror ( "malloc COMMON_INFO failed" );
     return 0;
   }
+  OA_CLEAR ( *camera );
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
-  OA_CLEAR ( camera->controlType );
-  OA_CLEAR ( camera->features );
   camera->_private = cameraInfo;
   camera->_common = commonInfo;
 
@@ -182,8 +181,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
-    OA_CTRL_TYPE_INT32;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = OA_CTRL_TYPE_INT32;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = min;
   commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = max;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
@@ -318,22 +316,105 @@ oaMallincamInitCamera ( oaCameraDevice* device )
     }
   }
 
+  // There doesn't appear to be a way to tell if any of these cameras
+  // have LEDs or not, so assume there's just one in all cases
+
+/*
+ * Commented out because I can't find a camera this does actually work on
+ *
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_LED_STATE ) = OA_CTRL_TYPE_DISC_MENU;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_LED_STATE ) = 1;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_LED_STATE ) = 3;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_LED_STATE ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_LED_STATE ) =
+      cameraInfo->ledState = 2;
+
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_LED_PERIOD ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_LED_PERIOD ) = 500;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_LED_PERIOD ) = 0xffff;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_LED_PERIOD ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_LED_PERIOD ) =
+      cameraInfo->ledState = 500;
+*/
+
   /*
+   * Removed because libmallincam doesn't appear to support put_Roi
+   *
   if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_ROI_HARDWARE ) {
     camera->features.ROI = 1;
   }
    */
 
+  cameraInfo->maxBitDepth = p_Mallincam_get_MaxBitDepth ( handle );
+  if ( cameraInfo->colour ) {
+    camera->frameFormats[ OA_PIX_FMT_RGB24 ] = 1;
+  } else {
+    camera->frameFormats[ OA_PIX_FMT_GREY8 ] = 1;
+  }
+
+  // According to the documentation I have there are only two options for
+  // setting bit depth: 8-bit or maximum depth (which we already know), so
+  // I'm not sure what use these flags are.
+  // For the time being I'll try to do some sort of sanity check here
+
+  if ( cameraInfo->maxBitDepth > 8 ) {
+    if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH10 ) {
+      if ( 10 == cameraInfo->maxBitDepth ) {
+        cameraInfo->maxBitDepth = 10;
+        camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB30LE :
+            OA_PIX_FMT_GREY10LE ] = 1;
+      } else {
+        fprintf ( stderr, "Camera claims 10-bit is available, but only %d"
+            "-bit is available\n", cameraInfo->maxBitDepth );
+      }
+    }
+    if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH12 ) {
+      if ( 12 == cameraInfo->maxBitDepth ) {
+        cameraInfo->maxBitDepth = 12;
+        camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB36LE :
+            OA_PIX_FMT_GREY12LE ] = 1;
+      } else {
+        fprintf ( stderr, "Camera claims 12-bit is available, but only %d"
+            "-bit is available\n", cameraInfo->maxBitDepth );
+      }
+    }
+    if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH14 ) {
+      if ( 14 == cameraInfo->maxBitDepth ) {
+        cameraInfo->maxBitDepth = 14;
+        camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB42LE :
+            OA_PIX_FMT_GREY14LE ] = 1;
+      } else {
+        fprintf ( stderr, "Camera claims 14-bit is available, but only %d"
+            "-bit is available\n", cameraInfo->maxBitDepth );
+      }
+    }
+    if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH16 ) {
+      if ( 16 == cameraInfo->maxBitDepth ) {
+        cameraInfo->maxBitDepth = 16;
+        camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB48LE :
+            OA_PIX_FMT_GREY16LE ] = 1;
+      } else {
+        fprintf ( stderr, "Camera claims 16-bit is available, but only %d"
+            "-bit is available\n", cameraInfo->maxBitDepth );
+      }
+    }
+  }
+
   // force camera into 8-bit mode
 
-  if ((( p_Mallincam_put_Option )( handle, TOUPCAM_OPTION_BITDEPTH, 0 )) < 0 ) {
-    fprintf ( stderr, "Mallincam_put_Option ( bitdepth, 0 ) returns error\n" );
-    ( p_Mallincam_Close )( handle );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
-    return 0;
+  if ( cameraInfo->maxBitDepth > 8 ) {
+    if ((( p_Mallincam_put_Option )( handle,
+        TOUPCAM_OPTION_BITDEPTH, 0 )) < 0 ) {
+      fprintf ( stderr,
+          "Mallincam_put_Option ( bitdepth, 0 ) returns error\n" );
+      ( p_Mallincam_Close )( handle );
+      free (( void* ) commonInfo );
+      free (( void* ) cameraInfo );
+      free (( void* ) camera );
+      return 0;
+    }
   }
+
   // FIX ME -- this may not be right
   cameraInfo->currentBitsPerPixel = 8;
 
@@ -342,42 +423,21 @@ oaMallincamInitCamera ( oaCameraDevice* device )
     fprintf ( stderr, "bin/skip mode supported but not handled\n" );
   }
 
-  // The docs aren't clear, so I'm assuming that raw mode is available for
-  // all colour cameras
-
-  cameraInfo->videoRaw = cameraInfo->videoRGB24 = cameraInfo->colour;
-  cameraInfo->videoGrey = !cameraInfo->colour;
-  cameraInfo->currentBytesPerPixel = cameraInfo->bytesPerPixel =
+  cameraInfo->currentBytesPerPixel = cameraInfo->maxBytesPerPixel =
       cameraInfo->colour ? 3 : 1;
-
-  cameraInfo->maxBitDepth = 8;
-  if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH10 ) {
-    cameraInfo->maxBitDepth = 10;
-  }
-  if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH12 ) {
-    cameraInfo->maxBitDepth = 12;
-  }
-  if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH14 ) {
-    cameraInfo->maxBitDepth = 14;
-  }
-  if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH16 ) {
-    cameraInfo->maxBitDepth = 16;
-  }
 
   if ( cameraInfo->maxBitDepth > 8 ) {
     if ( cameraInfo->colour ) {
-      fprintf ( stderr, "Check up on RGB48 camera input\n" );
-      cameraInfo->bytesPerPixel = 6; // RGB48
+      cameraInfo->maxBytesPerPixel = 6; // RGB48
     } else {
-      cameraInfo->bytesPerPixel = 2;
-      cameraInfo->videoGrey16 = 1;
+      cameraInfo->maxBytesPerPixel = 2;
     }
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) = OA_CTRL_TYPE_DISCRETE;
   }
 
   if ( cameraInfo->colour ) {
-    camera->features.rawMode = camera->features.demosaicMode = 1;
-    cameraInfo->currentVideoFormat = OA_PIX_FMT_RGB24;
+    int found = 0;
+
     if ((( p_Mallincam_get_RawFormat )( handle, &fourcc, &depth )) < 0 ) {
       fprintf ( stderr, "get_RawFormat returns error\n" );
       ( p_Mallincam_Close )( handle );
@@ -387,30 +447,96 @@ oaMallincamInitCamera ( oaCameraDevice* device )
       return 0;
     }
 
+    // The docs aren't clear, so I'm assuming that raw mode is available for
+    // all colour cameras
+    camera->features.rawMode = camera->features.demosaicMode = 1;
+    cameraInfo->currentVideoFormat = OA_PIX_FMT_RGB24;
+
     // Some weird stuff appears to be going on here.  When I enable raw
     // mode, the image flips vertically from its non-raw version.  That
     // has the effect of changing the claimed raw image format, so we need
     // to account for that here.
 
     if (( MAKEFOURCC('G', 'B', 'R', 'G')) == fourcc ) {
-      cameraInfo->cfaPattern = OA_PIX_FMT_GRBG8;
+      camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB30LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_GRBG10LE ] = 1;
+      }
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB36LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_GRBG12LE ] = 1;
+      }
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB42LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_GRBG14LE ] = 1;
+      }
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB48LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_GRBG16LE ] = 1;
+      }
+      found = 1;
     }
     if (( MAKEFOURCC('G', 'R', 'B', 'G')) == fourcc ) {
-      cameraInfo->cfaPattern = OA_PIX_FMT_GBRG8;
+      camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB30LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_GBRG10LE ] = 1;
+      }
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB36LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_GBRG12LE ] = 1;
+      }
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB42LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_GBRG14LE ] = 1;
+      }
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB48LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_GBRG16LE ] = 1;
+      }
+      found = 1;
     }
     if (( MAKEFOURCC('R', 'G', 'G', 'B')) == fourcc ) {
-      cameraInfo->cfaPattern = OA_PIX_FMT_BGGR8;
+      camera->frameFormats[ OA_PIX_FMT_BGGR8 ] = 1;
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB30LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_BGGR10LE ] = 1;
+      }
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB36LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_BGGR12LE ] = 1;
+      }
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB42LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_BGGR14LE ] = 1;
+      }
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB48LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_BGGR16LE ] = 1;
+      }
+      found = 1;
     }
     if (( MAKEFOURCC('B', 'G', 'G', 'R')) == fourcc ) {
-      cameraInfo->cfaPattern = OA_PIX_FMT_RGGB8;
+      camera->frameFormats[ OA_PIX_FMT_RGGB8 ] = 1;
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB30LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_RGGB10LE ] = 1;
+      }
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB36LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_RGGB12LE ] = 1;
+      }
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB42LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_RGGB14LE ] = 1;
+      }
+      if ( camera->frameFormats[ OA_PIX_FMT_RGB48LE ] ) {
+        camera->frameFormats[ OA_PIX_FMT_RGGB16LE ] = 1;
+      }
+      found = 1;
     }
-    if ( !cameraInfo->cfaPattern ) {
+    if ( !found ) {
       fprintf ( stderr, "raw format '%08x' not supported\n", fourcc );
       camera->features.rawMode = 0;
     }
   } else {
     cameraInfo->currentVideoFormat = OA_PIX_FMT_GREY8;
   }
+
+  // Have to do this last otherise it messes up the raw stuff above
+  if ( cameraInfo->maxBitDepth > 8 ) {
+    if ( cameraInfo->colour ) {
+      camera->frameFormats[ OA_PIX_FMT_RGB48LE ] = 1;
+    }
+  }
+
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
 
   if (( numStillResolutions = devList[ devInfo->devIndex ].model->still )) {
     for ( i = 0; i < numStillResolutions; i++ ) {
@@ -426,7 +552,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
     }
   }
 
-  // Mallintek cameras appear to mean "bin mode" when they talk about
+  // Mallincam cameras appear to mean "bin mode" when they talk about
   // different resolutions -- that is, the framing of the image remains
   // the same.  It is not ROI.
 
@@ -493,7 +619,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
 
   cameraInfo->buffers = 0;
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
-      cameraInfo->maxResolutionY * cameraInfo->bytesPerPixel;
+      cameraInfo->maxResolutionY * cameraInfo->maxBytesPerPixel;
   cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof (
       struct Mallincambuffer ));
   for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
@@ -565,20 +691,27 @@ _MallincamInitFunctionPointers ( oaCamera* camera )
   camera->funcs.readControl = oaMallincamCameraReadControl;
   camera->funcs.testControl = oaMallincamCameraTestControl;
   camera->funcs.getControlRange = oaMallincamCameraGetControlRange;
+  camera->funcs.getControlDiscreteSet = oaMallincamCameraGetControlDiscreteSet;
 
   camera->funcs.startStreaming = oaMallincamCameraStartStreaming;
   camera->funcs.stopStreaming = oaMallincamCameraStopStreaming;
   camera->funcs.isStreaming = oaMallincamCameraIsStreaming;
 
   camera->funcs.setResolution = oaMallincamCameraSetResolution;
-  // camera->funcs.setROI = oaMallincamCameraSetROI;
-  // camera->funcs.testROISize = oaMallincamCameraTestROISize;
+  /*
+   * No support for ROI
+   *
+  camera->funcs.setROI = oaMallincamCameraSetROI;
+  camera->funcs.testROISize = oaMallincamCameraTestROISize;
+   */
 
   camera->funcs.hasAuto = oacamHasAuto;
   // camera->funcs.isAuto = _isAuto;
 
   camera->funcs.enumerateFrameSizes = oaMallincamCameraGetFrameSizes;
   camera->funcs.getFramePixelFormat = oaMallincamCameraGetFramePixelFormat;
+
+  camera->funcs.getMenuString = oaMallincamCameraGetMenuString;
 }
 
 

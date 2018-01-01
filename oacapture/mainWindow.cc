@@ -292,9 +292,7 @@ MainWindow::readConfig ( void )
     config.flipY = 0;
     config.demosaic = 0;
 
-    config.sixteenBit = 0;
     config.binning2x2 = 0;
-    config.rawMode = 0;
     config.colourise = 0;
 
     config.useROI = 0;
@@ -407,14 +405,10 @@ MainWindow::readConfig ( void )
     config.flipY = settings.value ( "options/flipY", 0 ).toInt();
     config.demosaic = settings.value ( "options/demosaic", 0 ).toInt();
 
-    config.sixteenBit = settings.value ( "camera/sixteenBit", 0 ).toInt();
     config.binning2x2 = settings.value ( "camera/binning2x2", 0 ).toInt();
-    config.rawMode = settings.value ( "camera/raw", 0 ).toInt();
     config.colourise = settings.value ( "camera/colourise", 0 ).toInt();
     // FIX ME -- reset these temporarily.  needs fixing properly
-    config.sixteenBit = 0;
     config.binning2x2 = 0;
-    config.rawMode = 0;
     config.colourise = 0;
 
     config.useROI = settings.value ( "image/useROI", 0 ).toInt();
@@ -606,9 +600,7 @@ MainWindow::readConfig ( void )
         settings.setArrayIndex ( i );
         PROFILE p;
         p.profileName = settings.value ( "name", "" ).toString();
-        p.sixteenBit = settings.value ( "sixteenBit", 0 ).toInt();
         p.binning2x2 = settings.value ( "binning2x2", 0 ).toInt();
-        p.rawMode = settings.value ( "raw", 0 ).toInt();
         p.colourise = settings.value ( "colourise", 0 ).toInt();
         p.useROI = settings.value ( "useROI", 0 ).toInt();
         p.imageSizeX = settings.value ( "imageSizeX", 0 ).toInt();
@@ -722,9 +714,7 @@ MainWindow::readConfig ( void )
 
       PROFILE p;
       p.profileName = "default";
-      p.sixteenBit = config.sixteenBit;
       p.binning2x2 = config.binning2x2;
-      p.rawMode = config.rawMode;
       p.colourise = config.colourise;
       p.useROI = config.useROI;
       p.imageSizeX = config.imageSizeX;
@@ -951,9 +941,7 @@ MainWindow::writeConfig ( void )
   settings.setValue ( "options/flipY", config.flipY );
   settings.setValue ( "options/demosaic", config.demosaic );
 
-  settings.setValue ( "camera/sixteenBit", config.sixteenBit );
   settings.setValue ( "camera/binning2x2", config.binning2x2 );
-  settings.setValue ( "camera/raw", config.rawMode );
   settings.setValue ( "camera/colourise", config.colourise );
 
   settings.setValue ( "image/useROI", config.useROI );
@@ -1031,9 +1019,7 @@ MainWindow::writeConfig ( void )
     for ( int i = 0; i < config.numProfiles; i++ ) {
       settings.setArrayIndex ( i );
       settings.setValue ( "name", config.profiles[i].profileName );
-      settings.setValue ( "sixteenBit", config.profiles[i].sixteenBit );
       settings.setValue ( "binning2x2", config.profiles[i].binning2x2 );
-      settings.setValue ( "raw", config.profiles[i].rawMode );
       settings.setValue ( "colourise", config.profiles[i].colourise );
       settings.setValue ( "useROI", config.profiles[i].useROI );
       settings.setValue ( "imageSizeX", config.profiles[i].imageSizeX );
@@ -1457,10 +1443,6 @@ MainWindow::connectCamera ( int deviceIndex )
   }
   state.histogramOn = 0;
   doDisconnectCam();
-  config.sixteenBit = 0;
-  config.rawMode = 0;
-  SET_PROFILE_CONFIG( sixteenBit, 0 );
-  SET_PROFILE_CONFIG( rawMode, 0 );
 
   for ( attempt = 0, ret = 1; ret == 1 && attempt < 2; attempt++ ) {
     if (( ret = state.camera->initialise ( cameraDevs[ deviceIndex ] ))) {

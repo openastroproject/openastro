@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * ZWASI2getState.c -- state querying for ZW ASI cameras API v2
+ * to8Bit.h -- conversion to 8-bit header
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2017 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -24,21 +24,10 @@
  *
  *****************************************************************************/
 
-#include <oa_common.h>
-#include <openastro/camera.h>
+#ifndef OPENASTRO_VIDEO_ENDIAN_H
+#define OPENASTRO_VIDEO_ENDIAN_H
 
-#include <ASICamera2.h>
+extern void	oaBigEndian16BitTo8Bit ( void*, void*, unsigned int );
+extern void	oaLittleEndian16BitTo8Bit ( void*, void*, unsigned int );
 
-#include "oacamprivate.h"
-#include "ZWASIoacam.h"
-#include "ZWASI2oacam.h"
-#include "ZWASIstate.h"
-
-
-int
-oaZWASI2CameraGetFramePixelFormat ( oaCamera *camera, int depth )
-{
-  ZWASI_STATE*		cameraInfo = camera->_private;
-
-  return cameraInfo->currentFormat;
-}
+#endif	/* OPENASTRO_VIDEO_ENDIAN_H */

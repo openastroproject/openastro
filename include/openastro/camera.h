@@ -126,6 +126,7 @@ typedef struct oaCamera {
   char				deviceName[OA_MAX_NAME_LEN+1];
   oaCameraFuncs			funcs;
   uint8_t			controlType[OA_CAM_CTRL_MODIFIERS_P1][OA_CAM_CTRL_LAST_P1];
+  uint8_t			frameFormats[ OA_PIX_FMT_LAST_P1 ];
   oaCameraFeatures		features;
   void*				_common;
   void*				_private;

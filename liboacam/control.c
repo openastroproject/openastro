@@ -147,7 +147,8 @@ const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
   "Digital Gain",
   "Digital Gain (Red)",
   "Digital Gain (Green)",	// 110
-  "Digital Gain (Blue)"
+  "Digital Gain (Blue)",
+  "Frame Format"
 };
 
 const char* oaCameraPresetAWBLabel[ OA_AWB_PRESET_LAST_P1 ] = {

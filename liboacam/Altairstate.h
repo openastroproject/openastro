@@ -41,11 +41,7 @@ typedef struct Altaircam_STATE {
   // connection handle
   HToupCam		handle;
   // video mode settings
-  int			videoRGB24;
-  int			videoGrey;
-  int			videoGrey16;
-  int			videoRaw;
-  int			bytesPerPixel;
+  int			maxBytesPerPixel;
   int			currentBytesPerPixel;
   int			currentVideoFormat;
   // buffering for image transfers
@@ -62,7 +58,6 @@ typedef struct Altaircam_STATE {
   int			maxResolutionX;
   int			maxResolutionY;
   int			colour;
-  int			cfaPattern;
   int32_t		exposureMin;
   int32_t		exposureMax;
   int32_t		gainMin;

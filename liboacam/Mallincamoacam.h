@@ -42,6 +42,8 @@ extern int		oaMallincamCameraReadControl ( oaCamera*, int,
 				oaControlValue* );
 extern int		oaMallincamCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
+extern int              oaMallincamCameraGetControlDiscreteSet ( oaCamera*, int,
+                                int32_t*, int64_t** );
 
 extern int		oaMallincamCameraStartStreaming ( oaCamera*,
 				void* (*)(void*, void*, int), void* );
@@ -58,6 +60,8 @@ extern void*		oacamMallincamcallbackHandler ( void* );
 
 extern const FRAMESIZES* oaMallincamCameraGetFrameSizes ( oaCamera* );
 extern int		oaMallincamCameraGetFramePixelFormat ( oaCamera*, int );
+
+extern const char*      oaMallincamCameraGetMenuString ( oaCamera*, int, int );
 
 
 extern const char*	( *p_Mallincam_Version )();
@@ -180,8 +184,11 @@ extern HRESULT		( *p_Mallincam_put_Option )( HToupCam, unsigned,
 			    unsigned );
 extern HRESULT		( *p_Mallincam_get_Roi )( HToupCam, unsigned*,
 			    unsigned* );
+/*
+ * Not present in libmallincam
 extern HRESULT		( *p_Mallincam_put_Roi )( HToupCam, unsigned, unsigned,
                             unsigned, unsigned );
+ */
 extern HRESULT		( *p_Mallincam_ST4PlusGuide )( HToupCam, unsigned,
 			    unsigned );
 extern HRESULT		( *p_Mallincam_ST4PlusGuideState )( HToupCam );

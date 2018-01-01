@@ -143,8 +143,9 @@
 #define OA_CAM_CTRL_DIGITAL_GAIN_RED		109
 #define OA_CAM_CTRL_DIGITAL_GAIN_GREEN		110
 #define OA_CAM_CTRL_DIGITAL_GAIN_BLUE		111
+#define OA_CAM_CTRL_FRAME_FORMAT		112
 // Adding more items here may require updating liboacam/control.c
-#define	OA_CAM_CTRL_LAST_P1		OA_CAM_CTRL_DIGITAL_GAIN_BLUE+1
+#define	OA_CAM_CTRL_LAST_P1		OA_CAM_CTRL_FRAME_FORMAT+1
 
 // Adding more here will need camera.h and oacamprivate.h changing to make
 // the array bigger and require the the OA_CAM_CTRL_MODIFIER define
