@@ -622,7 +622,7 @@ _processGetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
 
   if ( OA_CAM_CTRL_TEMPERATURE == control || OA_CAM_CTRL_TEMP_SETPOINT ==
       control ) {
-    int32_t setpoint, current;
+    uint32_t setpoint, current;
     if ( dc1394_feature_temperature_get_value ( cameraInfo->iidcHandle,
         &setpoint, &current ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_feature_get_temperature failed\n",
