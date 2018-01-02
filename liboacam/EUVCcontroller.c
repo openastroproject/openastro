@@ -579,6 +579,12 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       break;
     }
 
+    case OA_CAM_CTRL_FRAME_FORMAT:
+      // Only the one mode is supported per camera, so silently ignore
+      // this
+      return OA_ERR_NONE;
+      break;
+
     default:
       fprintf ( stderr, "Unrecognised control %d in %s\n", control,
           __FUNCTION__ );

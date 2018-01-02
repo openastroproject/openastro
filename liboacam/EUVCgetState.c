@@ -85,23 +85,5 @@ oaEUVCCameraGetFramePixelFormat ( oaCamera *camera, int depth )
 {
   EUVC_STATE*           cameraInfo = camera->_private;
 
-  // I'm really not sure what these values should be so I'm just
-  // guessing really
-
-  switch ( cameraInfo->colourFormats ) {
-    case 0x03:
-      return OA_PIX_FMT_GRBG8;
-      break;
-    case 0x04:
-      return OA_PIX_FMT_RGGB8;
-      break;
-    case 0x05:
-      return OA_PIX_FMT_BGGR8;
-      break;
-    case 0x06:
-      return OA_PIX_FMT_GBRG8;
-      break;
-  }
-
-  return OA_PIX_FMT_GREY8;
+  return cameraInfo->frameFormat;
 }

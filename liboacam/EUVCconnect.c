@@ -234,10 +234,9 @@ oaEUVCInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
+  OA_CLEAR ( *camera );
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
-  OA_CLEAR ( camera->controlType );
-  OA_CLEAR ( camera->features );
   camera->_private = cameraInfo;
   camera->_common = commonInfo;
 
@@ -1017,18 +1016,54 @@ oaEUVCInitCamera ( oaCameraDevice* device )
     free (( void* ) camera );
     return 0;
   }
-  if ( puCaps & EUVC_PU_CAPABILITY_COLOUR_FORMAT ) {
-    if (( colourFormats = getEUVCControl ( cameraInfo,
-        EUVC_PU_COLOR_FORMAT, 2, EUVC_GET_CUR )) < 0 ) {
-      fprintf ( stderr, "unable to get colour formats\n" );
-      libusb_free_config_descriptor ( deviceConfig );
-      libusb_exit ( cameraInfo->usbContext );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
-      return 0;
+
+  if ( cameraInfo->isColour ) {
+    if ( puCaps & EUVC_PU_CAPABILITY_COLOUR_FORMAT ) {
+      if (( colourFormats = getEUVCControl ( cameraInfo,
+          EUVC_PU_COLOR_FORMAT, 2, EUVC_GET_CUR )) < 0 ) {
+        fprintf ( stderr, "unable to get colour formats\n" );
+        libusb_free_config_descriptor ( deviceConfig );
+        libusb_exit ( cameraInfo->usbContext );
+        free (( void* ) commonInfo );
+        free (( void* ) cameraInfo );
+        free (( void* ) camera );
+        return 0;
+      }
+      cameraInfo->colourFormats = colourFormats;
     }
-    cameraInfo->colourFormats = colourFormats;
+    switch ( colourFormats ) {
+      case 0x03:
+        camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
+        cameraInfo->frameFormat = OA_PIX_FMT_GRBG8;
+        break;
+      case 0x04:
+        fprintf ( stderr, "Guessing at RGGB8 for colour format %d\n",
+            colourFormats );
+        camera->frameFormats[ OA_PIX_FMT_RGGB8 ] = 1;
+        cameraInfo->frameFormat = OA_PIX_FMT_RGGB8;
+        break;
+      case 0x05:
+        fprintf ( stderr, "Guessing at BGGR8 for colour format %d\n",
+            colourFormats );
+        camera->frameFormats[ OA_PIX_FMT_BGGR8 ] = 1;
+        cameraInfo->frameFormat = OA_PIX_FMT_BGGR8;
+        break;
+      case 0x06:
+        fprintf ( stderr, "Guessing at GBRG8 for colour format %d\n",
+            colourFormats );
+        camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
+        cameraInfo->frameFormat = OA_PIX_FMT_GBRG8;
+        break;
+      default:
+        fprintf ( stderr, "Unknown colour format %d, assuming mono8\n",
+            colourFormats );
+        camera->frameFormats[ OA_PIX_FMT_GREY8 ] = 1;
+        cameraInfo->frameFormat = OA_PIX_FMT_GREY8;
+        break;
+    }
+  } else {
+    camera->frameFormats[ OA_PIX_FMT_GREY8 ] = 1;
+    cameraInfo->frameFormat = OA_PIX_FMT_GREY8;
   }
 
   // Finally, if we have a pixel clock we're going to use that to set the

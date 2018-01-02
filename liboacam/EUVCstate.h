@@ -71,6 +71,7 @@ typedef struct EUVC_STATE {
   unsigned char*	transferBuffers[ EUVC_NUM_TRANSFER_BUFS ];
   // camera status
   unsigned int          isColour;
+  unsigned int          frameFormat;
   uint64_t		droppedFrames;
   struct libusb_transfer* statusTransfer;
   uint8_t		statusBuffer[32];
