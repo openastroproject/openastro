@@ -2,7 +2,8 @@
  *
  * IIDCconnect.c -- Initialise IEEE1394/IIDC cameras
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -122,10 +123,9 @@ oaIIDCInitCamera ( oaCameraDevice* device )
     perror ( "malloc COMMON_INFO failed" );
     return 0;
   }
+  OA_CLEAR ( *camera );
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
-  OA_CLEAR ( camera->controlType );
-  OA_CLEAR ( camera->features );
   camera->_private = cameraInfo;
   camera->_common = commonInfo;
 
@@ -577,11 +577,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
   // There are problems here if not all colour modes are supported in
   // all resolutions
 
-  cameraInfo->videoRGB24 = 0;
-  cameraInfo->videoGrey16 = 0;
-  cameraInfo->videoGrey = 0;
-  cameraInfo->mosaicFormat = 0;
-  cameraInfo->videoCurrent = 0;
+  cameraInfo->currentIIDCMode = 0;
   cameraInfo->currentCodec = 0;
 
   camera->features.rawMode = camera->features.demosaicMode = 0;
@@ -602,7 +598,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
     }
   }
 
-  if ( !cameraInfo->videoCurrent ) {
+  if ( !cameraInfo->currentIIDCMode ) {
     fprintf ( stderr, "%s: No suitable video format found", __FUNCTION__ );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
@@ -610,9 +606,11 @@ oaIIDCInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
+
   if ( !cameraInfo->haveFormat7 ) {
     if ( dc1394_video_get_supported_framerates ( iidcCam,
-        cameraInfo->videoCurrent, &framerates ) != DC1394_SUCCESS ) {
+        cameraInfo->currentIIDCMode, &framerates ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_video_get_supported_framerates failed\n",
          __FUNCTION__ );
     }
@@ -684,7 +682,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
   }
 
   /*
-  if ( dc1394_video_set_mode ( iidcCam, cameraInfo->videoCurrent ) !=
+  if ( dc1394_video_set_mode ( iidcCam, cameraInfo->currentIIDCMode ) !=
       DC1394_SUCCESS ) {
     fprintf ( stderr, "%s: dc1394_video_set_mode failed\n", __FUNCTION__ );
     free ( commonInfo );
@@ -749,7 +747,7 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
   dc1394format7modeset_t	modeList;
   dc1394color_coding_t		coding;
   unsigned int			i, j, addResolution;
-  unsigned int			numResolutions, preferredFound;
+  unsigned int			numResolutions, rawModeFound, rgbModeFound;
   IIDC_STATE*			cameraInfo;
 
   if ( dc1394_format7_get_modeset ( iidcCam, &modeList ) != DC1394_SUCCESS ) {
@@ -758,7 +756,8 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
     return -OA_ERR_CAMERA_IO;
   }
 
-  numResolutions = preferredFound = 0;
+  numResolutions = 0;
+  rawModeFound = rgbModeFound = 0;
   cameraInfo = camera->_private;
 
   for ( i = 0; i < DC1394_VIDEO_MODE_FORMAT7_NUM; i++ ) {
@@ -769,62 +768,121 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
 
         switch ( coding ) {
           case DC1394_COLOR_CODING_MONO8:
-            if ( !cameraInfo->videoRGB24 ) {
-              preferredFound = 1;
-              cameraInfo->videoCurrent = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
+            if ( !rawModeFound && !rgbModeFound ) {
+              cameraInfo->currentIIDCMode = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
               cameraInfo->currentCodec = coding;
+              cameraInfo->currentFrameFormat = ( cameraInfo->isTISColour ) ?
+                  OA_PIX_FMT_GBRG8 : OA_PIX_FMT_GREY8;
             }
-            // TIS colour cameras apparently offer MONO8 instead of
-            // RAW8
             if ( cameraInfo->isTISColour ) {
-              camera->features.rawMode = 1;
-              cameraInfo->videoRaw = 1;
+              // TIS colour cameras apparently offer MONO8 instead of RAW8
+              camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
+              rawModeFound = 1;
             } else {
-              cameraInfo->videoGrey = 1;
+              camera->frameFormats[ OA_PIX_FMT_GREY8 ] = 1;
             }
             addResolution = 1;
             break;
 
+          case DC1394_COLOR_CODING_YUV411:
+            if ( !rgbModeFound ) {
+              cameraInfo->currentIIDCMode = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
+              cameraInfo->currentCodec = coding;
+              cameraInfo->currentFrameFormat = OA_PIX_FMT_YUV411;
+            }
+            // 411 is not planar.  If we have planar then YUV411P is required
+            camera->frameFormats[ OA_PIX_FMT_YUV411 ] = 1;
+            addResolution = 1;
+            break;
+
+
+          case DC1394_COLOR_CODING_YUV422:
+            if ( !rgbModeFound ) {
+              cameraInfo->currentIIDCMode = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
+              cameraInfo->currentCodec = coding;
+              cameraInfo->currentFrameFormat = OA_PIX_FMT_YUYV;
+            }
+            // YUYV is not planar.  If we have planar then YUV422P is required
+            camera->frameFormats[ OA_PIX_FMT_YUYV ] = 1;
+            addResolution = 1;
+            break;
+
+          case DC1394_COLOR_CODING_YUV444:
+            if ( !rgbModeFound ) {
+              cameraInfo->currentIIDCMode = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
+              cameraInfo->currentCodec = coding;
+              cameraInfo->currentFrameFormat = OA_PIX_FMT_YUV444;
+            }
+            // 444 is not planar.  If we have planar then YUV444P is required
+            camera->frameFormats[ OA_PIX_FMT_YUV444 ] = 1;
+            addResolution = 1;
+            break;
+
           case DC1394_COLOR_CODING_RGB8:
-            preferredFound = 1;
-            cameraInfo->videoCurrent = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
+            cameraInfo->currentIIDCMode = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
             cameraInfo->currentCodec = coding;
-            cameraInfo->videoRGB24 = 1;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_RGB24;
+            rgbModeFound = 1;
+            camera->frameFormats[ OA_PIX_FMT_RGB24 ] = 1;
             camera->features.demosaicMode = 1;
             addResolution = 1;
             break;
 
           case DC1394_COLOR_CODING_MONO16:
-            if ( !preferredFound ) {
-              preferredFound = 1;
-              cameraInfo->videoCurrent = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
+            if ( !rawModeFound && !rgbModeFound &&
+                !camera->frameFormats[ OA_PIX_FMT_GREY8 ]) {
+              cameraInfo->currentIIDCMode = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
               cameraInfo->currentCodec = coding;
+              cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY16LE;
             }
-            cameraInfo->videoGrey16 = 1;
+            // little endian is a guess here
+            camera->frameFormats[ OA_PIX_FMT_GREY16LE ] = 1;
+            addResolution = 1;
+            break;
+
+          case DC1394_COLOR_CODING_RGB16:
+            if ( !rgbModeFound ) {
+              cameraInfo->currentIIDCMode = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
+              cameraInfo->currentCodec = coding;
+              cameraInfo->currentFrameFormat = OA_PIX_FMT_RGB48LE;
+              rgbModeFound = 1;
+            }
+            // another little-endian guess
+            camera->frameFormats[ OA_PIX_FMT_RGB48LE ] = 1;
+            camera->features.demosaicMode = 1;
             addResolution = 1;
             break;
 
           case DC1394_COLOR_CODING_RAW8:
-            if ( !preferredFound ) {
-              preferredFound = 1;
-              cameraInfo->videoCurrent = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
+            if ( !rgbModeFound ) {
+              cameraInfo->currentIIDCMode = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
               cameraInfo->currentCodec = coding;
+              cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG8;
             }
+            // This is also a guess.  Could be GRBG, RGGB or BGGR
+            camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
             camera->features.rawMode = 1;
+            rawModeFound = 1;
             addResolution = 1;
             break;
 
-          case DC1394_COLOR_CODING_YUV422:
-            if ( !preferredFound ) {
-              cameraInfo->videoCurrent = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
+          case DC1394_COLOR_CODING_RAW16:
+            if ( !rgbModeFound && !rawModeFound ) {
+              cameraInfo->currentIIDCMode = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
               cameraInfo->currentCodec = coding;
-              addResolution = 1;
+              cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG16LE;
             }
+            // This is also a guess.  Could be GRBG, RGGB or BGGR, and could
+            // be big-endian
+            camera->frameFormats[ OA_PIX_FMT_GBRG16LE ] = 1;
+            camera->features.rawMode = 1;
+            rawModeFound = 1;
+            addResolution = 1;
             break;
 
           default:
-            fprintf ( stderr, "%s: unhandled video coding %d\n", __FUNCTION__,
-                coding );
+            fprintf ( stderr, "%s: unhandled format7 video coding %d\n",
+                __FUNCTION__, coding );
             break;
         }
       }
@@ -874,11 +932,13 @@ static int
 _processNonFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
     dc1394video_modes_t videoModes )
 {
-  unsigned int          i, j, found, numResolutions, preferredFound;
+  unsigned int          i, j, found, numResolutions;
+  unsigned int          rawModeFound, rgbModeFound;
   dc1394color_coding_t  codec;
   IIDC_STATE*		cameraInfo;
 
-  numResolutions = preferredFound = 0;
+  numResolutions = 0;
+  rawModeFound = rgbModeFound = 0;
   cameraInfo = camera->_private;
 
   for ( i = 0; i < videoModes.num; i++ ) {
@@ -922,57 +982,111 @@ _processNonFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
 
     switch ( codec ) {
       case DC1394_COLOR_CODING_MONO8:
-        if ( !cameraInfo->videoRGB24 ) {
-          preferredFound = 1;
-          cameraInfo->videoCurrent = videoModes.modes[i];
+        if ( !rawModeFound && !rgbModeFound ) {
+          cameraInfo->currentIIDCMode = videoModes.modes[i];
           cameraInfo->currentCodec = codec;
+          cameraInfo->currentFrameFormat = ( cameraInfo->isTISColour ) ?
+              OA_PIX_FMT_GBRG8 : OA_PIX_FMT_GREY8;
         }
-        // TIS colour cameras apparently offer MONO8 instead of
-        // RAW8
         if ( cameraInfo->isTISColour ) {
-          camera->features.rawMode = 1;
-          cameraInfo->videoRaw = 1;
+          // TIS colour cameras apparently offer MONO8 instead of RAW8
+          camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
+          rawModeFound = 1;
         } else {
-          cameraInfo->videoGrey = 1;
+          camera->frameFormats[ OA_PIX_FMT_GREY8 ] = 1;
         }
         break;
 
+      case DC1394_COLOR_CODING_YUV411:
+        if ( !rgbModeFound ) {
+          cameraInfo->currentIIDCMode = videoModes.modes[i];
+          cameraInfo->currentCodec = codec;
+          cameraInfo->currentFrameFormat = OA_PIX_FMT_YUV411;
+        }
+        // 411 is not planar.  If we have planar then YUV411P is required
+        camera->frameFormats[ OA_PIX_FMT_YUV411 ] = 1;
+        break;
+
+
+      case DC1394_COLOR_CODING_YUV422:
+        if ( !rgbModeFound ) {
+          cameraInfo->currentIIDCMode = videoModes.modes[i];
+          cameraInfo->currentCodec = codec;
+          cameraInfo->currentFrameFormat = OA_PIX_FMT_YUYV;
+        }
+        // YUYV is not planar.  If we have planar then YUV422P is required
+        camera->frameFormats[ OA_PIX_FMT_YUYV ] = 1;
+        break;
+
+      case DC1394_COLOR_CODING_YUV444:
+        if ( !rgbModeFound ) {
+          cameraInfo->currentIIDCMode = videoModes.modes[i];
+          cameraInfo->currentCodec = codec;
+          cameraInfo->currentFrameFormat = OA_PIX_FMT_YUV444;
+        }
+        // 444 is not planar.  If we have planar then YUV444P is required
+        camera->frameFormats[ OA_PIX_FMT_YUV444 ] = 1;
+        break;
+
       case DC1394_COLOR_CODING_RGB8:
-        preferredFound = 1;
-        cameraInfo->videoCurrent = videoModes.modes[i];
+        cameraInfo->currentIIDCMode = videoModes.modes[i];
         cameraInfo->currentCodec = codec;
-        cameraInfo->videoRGB24 = 1;
+        rgbModeFound = 1;
+        camera->frameFormats[ OA_PIX_FMT_RGB24 ] = 1;
         camera->features.demosaicMode = 1;
         break;
 
       case DC1394_COLOR_CODING_MONO16:
-        if ( !preferredFound ) {
-          preferredFound = 1;
-          cameraInfo->videoCurrent = videoModes.modes[i];
+        if ( !rawModeFound && !rgbModeFound &&
+            !camera->frameFormats[ OA_PIX_FMT_GREY8 ]) {
+          cameraInfo->currentIIDCMode = videoModes.modes[i];
           cameraInfo->currentCodec = codec;
+          cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY16LE;
         }
-        cameraInfo->videoGrey16 = 1;
+        // little endian is a guess here
+        camera->frameFormats[ OA_PIX_FMT_GREY16LE ] = 1;
+        break;
+
+      case DC1394_COLOR_CODING_RGB16:
+        if ( !rgbModeFound ) {
+          cameraInfo->currentIIDCMode = videoModes.modes[i];
+          cameraInfo->currentCodec = codec;
+          cameraInfo->currentFrameFormat = OA_PIX_FMT_RGB48LE;
+          rgbModeFound = 1;
+        }
+        // another little-endian guess
+        camera->frameFormats[ OA_PIX_FMT_RGB48LE ] = 1;
+        camera->features.demosaicMode = 1;
         break;
 
       case DC1394_COLOR_CODING_RAW8:
-        if ( !preferredFound ) {
-          preferredFound = 1;
-          cameraInfo->videoCurrent = videoModes.modes[i];
+        if ( !rgbModeFound ) {
+          cameraInfo->currentIIDCMode = videoModes.modes[i];
           cameraInfo->currentCodec = codec;
+          cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG8;
         }
+        // This is also a guess.  Could be GRBG, RGGB or BGGR
+        camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
         camera->features.rawMode = 1;
+        rawModeFound = 1;
         break;
 
-      case DC1394_COLOR_CODING_YUV422:
-        if ( !preferredFound ) {
-          cameraInfo->videoCurrent = videoModes.modes[i];
+      case DC1394_COLOR_CODING_RAW16:
+        if ( !rgbModeFound && !rawModeFound ) {
+          cameraInfo->currentIIDCMode = videoModes.modes[i];
           cameraInfo->currentCodec = codec;
+          cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG16LE;
         }
+        // This is also a guess.  Could be GRBG, RGGB or BGGR, and could
+        // be big-endian
+        camera->frameFormats[ OA_PIX_FMT_GBRG16LE ] = 1;
+        camera->features.rawMode = 1;
+        rawModeFound = 1;
         break;
 
       default:
-        fprintf ( stderr, "%s: unhandled video codec %d\n", __FUNCTION__,
-            codec );
+        fprintf ( stderr, "%s: unhandled non-format7 video codec %d\n",
+            __FUNCTION__, codec );
         break;
     }
   }

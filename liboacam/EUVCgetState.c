@@ -2,7 +2,7 @@
  *
  * EUVCgetState.c -- state querying for EUVC cameras
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *

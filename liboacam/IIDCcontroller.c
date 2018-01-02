@@ -2,7 +2,7 @@
  *
  * IIDCcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -399,7 +399,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     return OA_ERR_NONE;
   }
 
-  if ( OA_CAM_CTRL_TRIGGER_ENABLE ) {
+  if ( OA_CAM_CTRL_TRIGGER_ENABLE == control ) {
     if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where boolean expected "
           "for OA_CAM_CTRL_TRIGGER_ENABLE\n", __FUNCTION__, val->valueType );
@@ -415,7 +415,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     return OA_ERR_NONE;
   }
 
-  if ( OA_CAM_CTRL_TRIGGER_MODE ) {
+  if ( OA_CAM_CTRL_TRIGGER_MODE == control ) {
     if ( OA_CTRL_TYPE_MENU != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where boolean expected "
           "for OA_CAM_CTRL_TRIGGER_MENU\n", __FUNCTION__, val->valueType );
@@ -431,7 +431,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     return OA_ERR_NONE;
   }
 
-  if ( OA_CAM_CTRL_TRIGGER_POLARITY ) {
+  if ( OA_CAM_CTRL_TRIGGER_POLARITY == control ) {
     if ( OA_CTRL_TYPE_MENU != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where boolean expected "
           "for OA_CAM_CTRL_TRIGGER_POLARITY\n", __FUNCTION__, val->valueType );
@@ -448,7 +448,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     return OA_ERR_NONE;
   }
 
-  if ( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) {
+  if ( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE == control ) {
     if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where boolean expected "
           "for OA_CAM_CTRL_TRIGGER_DELAY_ENABLE\n", __FUNCTION__,
@@ -481,6 +481,50 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
+  }
+
+  if ( OA_CAM_CTRL_FRAME_FORMAT == control ) {
+    uint32_t format;
+    if ( OA_CTRL_TYPE_DISCRETE != val->valueType ) {
+      fprintf ( stderr, "%s: invalid control type %d where discrete expected "
+          "for OA_CAM_CTRL_FRAME_FORMAT\n", __FUNCTION__, val->valueType );
+      return -OA_ERR_INVALID_CONTROL_TYPE;
+    }
+    format = val->discrete;
+    switch ( format ) {
+      case OA_PIX_FMT_GREY8:
+        cameraInfo->currentCodec = DC1394_COLOR_CODING_MONO8;
+        break;
+      case OA_PIX_FMT_YUV411:
+        cameraInfo->currentCodec = DC1394_COLOR_CODING_YUV411;
+        break;
+      case OA_PIX_FMT_YUYV:
+        cameraInfo->currentCodec = DC1394_COLOR_CODING_YUV422;
+        break;
+      case OA_PIX_FMT_YUV444:
+        cameraInfo->currentCodec = DC1394_COLOR_CODING_YUV444;
+        break;
+      case OA_PIX_FMT_RGB24:
+        cameraInfo->currentCodec = DC1394_COLOR_CODING_RGB8;
+        break;
+      case OA_PIX_FMT_GREY16LE:
+        cameraInfo->currentCodec = DC1394_COLOR_CODING_MONO16;
+        break;
+      case OA_PIX_FMT_RGB48LE:
+        cameraInfo->currentCodec = DC1394_COLOR_CODING_RGB16;
+        break;
+      case OA_PIX_FMT_GBRG8:
+        if ( cameraInfo->isTISColour ) {
+          cameraInfo->currentCodec = DC1394_COLOR_CODING_MONO8;
+        } else {
+          cameraInfo->currentCodec = DC1394_COLOR_CODING_RAW8;
+        }
+        break;
+      case OA_PIX_FMT_GBRG16LE:
+        cameraInfo->currentCodec = DC1394_COLOR_CODING_RAW16;
+        break;
+    }
+    return _doCameraConfig ( cameraInfo );
   }
 
   fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );

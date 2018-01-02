@@ -102,12 +102,13 @@
 #define OA_PIX_FMT_YUV422P 		59
 #define OA_PIX_FMT_YUV420P		60
 #define OA_PIX_FMT_YUV410P		61
-#define OA_PIX_FMT_YUV422  		62
-#define OA_PIX_FMT_YUYV  		62
-#define OA_PIX_FMT_UYVY  		63
-#define OA_PIX_FMT_YUV420 		64
-#define OA_PIX_FMT_YUV411 		65
-#define OA_PIX_FMT_YUV410 		66
+#define OA_PIX_FMT_YUV444  		62
+#define OA_PIX_FMT_YUV422  		63
+#define OA_PIX_FMT_YUYV  		63
+#define OA_PIX_FMT_UYVY  		64
+#define OA_PIX_FMT_YUV420 		65
+#define OA_PIX_FMT_YUV411 		66
+#define OA_PIX_FMT_YUV410 		67
 
 // Adding more frame formats here requires the oaFrameFormats table
 // updating in liboavideo/formats.c

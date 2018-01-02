@@ -2,7 +2,8 @@
  *
  * IIDCgetState.c -- state querying for IEEE1394/IIDC cameras
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -72,7 +73,7 @@ oaIIDCCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
   unsigned int		i, matched;
 
   if ( dc1394_video_get_supported_framerates ( cameraInfo->iidcHandle,
-      cameraInfo->videoCurrent, &framerates ) != DC1394_SUCCESS ) {
+      cameraInfo->currentIIDCMode, &framerates ) != DC1394_SUCCESS ) {
     fprintf ( stderr, "%s: dc1394_video_get_supported_framerates failed\n",
          __FUNCTION__ );
     return 0;
@@ -158,53 +159,8 @@ int
 oaIIDCCameraGetFramePixelFormat ( oaCamera* camera, int depth )
 {
   IIDC_STATE*		cameraInfo = camera->_private;
-  dc1394color_coding_t  codec;
 
-  if ( dc1394_get_color_coding_from_video_mode ( cameraInfo->iidcHandle,
-      cameraInfo->videoCurrent, &codec ) == DC1394_SUCCESS ) {
-
-    switch ( codec ) {
-      case DC1394_COLOR_CODING_MONO8:
-        // Need to fake up the correct response for a TIS colour camera
-        // here
-        if ( cameraInfo->isTISColour ) {
-          return OA_PIX_FMT_GBRG8;
-        } else {
-          return OA_PIX_FMT_GREY8;
-        }
-        break;
-
-      case DC1394_COLOR_CODING_MONO16:
-        return OA_PIX_FMT_GREY16LE; // FIX ME -- guessing.  Could be BE
-        break;
-
-      case DC1394_COLOR_CODING_RGB8:
-        return OA_PIX_FMT_RGB24;
-        break;
-
-      case DC1394_COLOR_CODING_RAW8:
-        // FIX ME -- may not be at all, of course
-        // There is a way to tell this, but at the moment it only appears
-        // to be on a frame-by-frame basis rather than when the camera is
-        // configured
-        return OA_PIX_FMT_GBRG8;
-        break;
-
-      case DC1394_COLOR_CODING_YUV422:
-        // normally this would be OA_PIX_FMT_YUYV, but by definition IIDC
-        // cameras use UYVY for YUV422
-        return OA_PIX_FMT_UYVY;
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  fprintf ( stderr, "%s: dc1394_get_color_coding_from_video_mode failed\n",
-      __FUNCTION__ );
-    
-  return OA_PIX_FMT_RGB24;
+  return cameraInfo->currentFrameFormat;
 }
 
 #endif /* HAVE_LIBDC1394 */

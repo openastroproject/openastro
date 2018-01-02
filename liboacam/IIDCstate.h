@@ -2,7 +2,7 @@
  *
  * IIDCstate.h -- IEEE1394/IIDC camera state header
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -35,13 +35,9 @@ typedef struct IIDC_STATE {
   // libdc1394 connection data
   dc1394camera_t*	iidcHandle;
   // video mode settings
-  int			videoRGB24;
-  int			videoGrey;
-  int			videoGrey16;
-  int			videoRaw;
-  unsigned int		videoCurrent;
+  unsigned int		currentFrameFormat;
+  dc1394video_mode_t	currentIIDCMode;
   dc1394color_coding_t	currentCodec;
-  int			mosaicFormat;
   // buffering for image transfers
   int			configuredBuffers;
   int			nextBuffer;

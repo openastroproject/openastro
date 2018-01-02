@@ -2,7 +2,7 @@
  *
  * formats.c -- Frame formats we know about
  *
- * Copyright 2017 James Fidell (james@openastroproject.org)
+ * Copyright 2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -838,6 +838,19 @@ frameFormatInfo oaFrameFormats[] = {
     .lumChrom		= 1,
     .lossless		= 0,
     .packed		= 0
+  }, {  // OA_PIX_FMT_YUV444
+    .name               = "YUV444",
+    .simpleName         = "24bpp luminance/chrominance",
+    .bytesPerPixel      = 3,
+    .bitsPerPixel       = 24,
+    .cfaPattern         = 0,
+    .littleEndian       = 0,
+    .monochrome         = 0,
+    .rawColour          = 0,
+    .fullColour         = 0,
+    .lumChrom           = 1,
+    .lossless           = 1,
+    .packed             = 1
   }, {  // OA_PIX_FMT_YUYV
     .name		= "YUYV",
     .simpleName		= "16bpp luminance/chrominance",
