@@ -346,9 +346,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
                 menuItem.index = m;
                 if ( !v4l2ioctl ( cameraInfo->fd, VIDIOC_QUERYMENU,
                     &menuItem )) {
-                  if ( strstr ( menuItem.name, "manual" ) ||
-                        strstr ( menuItem.name, "Manual" ) ||
-                        strstr ( menuItem.name, "MANUAL")) {
+                  if ( strstr (( const char* ) menuItem.name, "manual" ) ||
+                        strstr (( const char* ) menuItem.name, "Manual" ) ||
+                        strstr (( const char* ) menuItem.name, "MANUAL")) {
                     foundManual++;
                     manualValue = m;
                   }
