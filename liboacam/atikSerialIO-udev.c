@@ -2,7 +2,7 @@
  *
  * atikSerialIO-udev.c -- Atik serial camera IO routines (libudev)
  *
- * Copyright 2014,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2016,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -56,7 +56,7 @@ _atikUdevSerialCamRead ( AtikSerial_STATE* cameraInfo,
 {
   int fd = cameraInfo->fd;
   int len = 0;
-  char *p = buffer;
+  unsigned char *p = buffer;
 
   do {
     if ( read ( fd, p, 1 ) != 1 ) {
@@ -76,7 +76,7 @@ _atikUdevSerialCamReadToZero ( AtikSerial_STATE* cameraInfo,
     unsigned char* buffer, unsigned int max )
 {
   int fd = cameraInfo->fd;
-  char *p = buffer;
+  unsigned char *p = buffer;
   int done = 0;
   unsigned int len = 0;
 
