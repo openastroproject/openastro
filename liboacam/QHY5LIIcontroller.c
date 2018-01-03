@@ -2,7 +2,7 @@
  *
  * QHY5LIIcontroller.c -- Main camera controller thread
  *
- * Copyright 2015, 2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -221,20 +221,46 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
         cameraInfo->currentBitDepth = val_s32;
         if ( cameraInfo->isColour ) {
           if ( 8 == val_s32 ) {
-            cameraInfo->videoCurrent = OA_PIX_FMT_GRBG8;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG8;
           } else {
-            cameraInfo->videoCurrent = OA_PIX_FMT_GRBG16BE;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG16BE;
           }
         } else {
           if ( 8 == val_s32 ) {
-            cameraInfo->videoCurrent = OA_PIX_FMT_GREY8;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY8;
           } else {
-            cameraInfo->videoCurrent = OA_PIX_FMT_GREY16BE;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY16BE;
           }
         }
         oaQHY5LIISetAllControls ( cameraInfo );
       }
       break;
+
+    case OA_CAM_CTRL_FRAME_FORMAT:
+    {
+      int format;
+
+      if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
+        fprintf ( stderr, "%s: invalid control type %d where discrete "
+            "expected\n", __FUNCTION__, valp->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      format = valp->discrete;
+      
+      if ( cameraInfo->isColour && ( format == OA_PIX_FMT_GRBG8 ||
+          format == OA_PIX_FMT_GRBG16BE )) {
+        cameraInfo->currentFrameFormat = format;
+        cameraInfo->currentBitDepth = oaFrameFormats[ format ].bitsPerPixel;
+      } else {
+        if ( !cameraInfo->isColour && ( format == OA_PIX_FMT_GREY8 ||
+            format == OA_PIX_FMT_GREY16BE )) {
+          cameraInfo->currentFrameFormat = format;
+          cameraInfo->currentBitDepth = oaFrameFormats[ format ].bitsPerPixel;
+        }
+      }
+      oaQHY5LIISetAllControls ( cameraInfo );
+      break;
+    }
 
     case OA_CAM_CTRL_HIGHSPEED:
       if ( valp->valueType != OA_CTRL_TYPE_BOOLEAN ) {
@@ -425,6 +451,9 @@ _doSetBitDepth ( QHY_STATE* cameraInfo, unsigned int depth )
 
   buf = ( depth <= 8 ) ? 0 : 1;
   _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xcd, 0, 0, &buf, 1, 0 );
+  cameraInfo->frameSize = cameraInfo->xSize * cameraInfo->ySize *
+      (( depth <= 8 ) ? 1 : 2 );
+  cameraInfo->captureLength = cameraInfo->frameSize + QHY5LII_EOF_LEN;
   return OA_ERR_NONE;
 }
 

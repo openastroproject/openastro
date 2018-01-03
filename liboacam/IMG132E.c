@@ -2,7 +2,7 @@
  *
  * IMG132E.c -- IMG132E camera interface
  *
- * Copyright 2017 James Fidell (james@openastroproject.org)
+ * Copyright 2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -61,13 +61,12 @@ _IMG132EInitCamera ( oaCamera* camera )
 
   oacamDebugMsg ( DEBUG_CAM_INIT, "IMG132E: init: %s ()\n", __FUNCTION__ );
 
-  OA_CLEAR ( camera->controlType );
-  OA_CLEAR ( camera->features );
   _IMG132EInitFunctionPointers ( camera );
 
-  cameraInfo->videoCurrent = OA_PIX_FMT_BGGR8;
+  cameraInfo->currentFrameFormat = OA_PIX_FMT_BGGR8;
+  camera->frameFormats [ OA_PIX_FMT_BGGR8 ] = 1;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
 
-  cameraInfo->videoRGB24 = cameraInfo->videoGrey16 = 0;
   cameraInfo->currentBitDepth = 8;
   cameraInfo->longExposureMode = 0;
 

@@ -2,7 +2,7 @@
  *
  * IMG132Econtroller.c -- Main camera controller thread
  *
- * Copyright 2017 James Fidell (james@openastroproject.org)
+ * Copyright 2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -220,6 +220,10 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
       }
       cameraInfo->currentGreenBalance = val_s32;
       _doSetColourBalance ( cameraInfo );
+      break;
+
+    case OA_CAM_CTRL_FRAME_FORMAT:
+      // nothing to do here as there's only one format
       break;
 
     default:

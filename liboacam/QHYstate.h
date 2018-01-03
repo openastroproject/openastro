@@ -2,7 +2,8 @@
  *
  * QHYstate.h -- QHY camera state header
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -47,10 +48,7 @@ typedef struct QHY_STATE {
   libusb_device_handle* usbHandle;
   unsigned int		transferPadding;
   // video mode settings
-  int                   videoRGB24;
-  int                   videoGrey;
-  int                   videoGrey16;
-  unsigned int          videoCurrent;
+  unsigned int          currentFrameFormat;
   // buffering for image transfers
   struct QHYbuffer*     buffers;
   unsigned int          imageBufferLength;

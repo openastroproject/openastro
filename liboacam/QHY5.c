@@ -2,7 +2,8 @@
  *
  * QHY5.c -- QHY5 camera interface
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -56,8 +57,6 @@ _QHY5InitCamera ( oaCamera* camera )
   QHY_STATE*	cameraInfo = camera->_private;
   COMMON_INFO*	commonInfo = camera->_common;
 
-  OA_CLEAR ( camera->controlType );
-  OA_CLEAR ( camera->features );
   _QHY5InitFunctionPointers ( camera );
 
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_INT32;
@@ -81,9 +80,9 @@ _QHY5InitCamera ( oaCamera* camera )
   cameraInfo->maxResolutionX = QHY5_IMAGE_WIDTH;
   cameraInfo->maxResolutionY = QHY5_IMAGE_HEIGHT;
 
-  cameraInfo->videoRGB24 = cameraInfo->videoGrey16 = 0;
-  cameraInfo->videoGrey = 1;
-  cameraInfo->videoCurrent = OA_PIX_FMT_GREY8;
+  cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY8;
+  camera->frameFormats[ OA_PIX_FMT_GREY8 ] = 1;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
 
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
@@ -237,10 +236,9 @@ oaQHY5CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 static int
 oaQHY5CameraGetFramePixelFormat ( oaCamera* camera, int depth )
 {
-  if ( depth > 0 && depth != 8 ) {
-    return -OA_ERR_INVALID_BIT_DEPTH;
-  }
-  return OA_PIX_FMT_GREY8;
+  QHY_STATE*	cameraInfo = camera->_private;
+
+  return cameraInfo->currentFrameFormat;
 }
 
 

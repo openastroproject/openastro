@@ -2,7 +2,7 @@
  *
  * QHY6.c -- QHY6 camera interface
  *
- * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -87,9 +87,9 @@ _QHY6InitCamera ( oaCamera* camera )
   cameraInfo->maxResolutionX = QHY6_SENSOR_WIDTH;
   cameraInfo->maxResolutionY = QHY6_SENSOR_HEIGHT;
 
-  cameraInfo->videoRGB24 = cameraInfo->videoGrey = 0;
-  cameraInfo->videoGrey16 = 1;
-  cameraInfo->videoCurrent = OA_PIX_FMT_GREY16BE;
+  cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY16BE;
+  camera->frameFormats[ OA_PIX_FMT_GREY16BE ] = 1;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
 
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
@@ -286,10 +286,9 @@ oaQHY6CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 static int
 oaQHY6CameraGetFramePixelFormat ( oaCamera* camera, int depth )
 {
-  if ( depth > 0 && depth != 16 ) {
-    return -OA_ERR_INVALID_BIT_DEPTH;
-  }
-  return OA_PIX_FMT_GREY16BE;
+  QHY_STATE*	cameraInfo = camera->_private;
+
+  return cameraInfo->currentFrameFormat;
 }
 
 

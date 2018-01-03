@@ -2,7 +2,7 @@
  *
  * QHY5IIcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -194,6 +194,10 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_DROPPED_RESET:
       // droppedFrames could be mutexed, but it's not the end of the world
       cameraInfo->droppedFrames = 0;
+      break;
+
+    case OA_CAM_CTRL_FRAME_FORMAT:
+      // Nothing to be done here
       break;
 
     default:

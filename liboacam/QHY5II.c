@@ -2,7 +2,8 @@
  *
  * QHY5II.c -- QHY5II camera interface
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -61,14 +62,12 @@ _QHY5IIInitCamera ( oaCamera* camera )
 
   oacamDebugMsg ( DEBUG_CAM_INIT, "QHY5-II: init: %s ()\n", __FUNCTION__ );
 
-  OA_CLEAR ( camera->controlType );
-  OA_CLEAR ( camera->features );
   _QHY5IIInitFunctionPointers ( camera );
 
-  cameraInfo->videoGrey = 1;
-  cameraInfo->videoCurrent = OA_PIX_FMT_GREY8;
+  cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY8;
+  camera->frameFormats[ OA_PIX_FMT_GREY8 ] = 1;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
 
-  cameraInfo->videoRGB24 = cameraInfo->videoGrey16 = 0;
   cameraInfo->currentBitDepth = 8;
   cameraInfo->longExposureMode = 0;
 
@@ -338,20 +337,7 @@ oaQHY5IICameraGetFramePixelFormat ( oaCamera* camera, int depth )
 {
   QHY_STATE*	cameraInfo = camera->_private;
 
-  if ( 12 == depth || 16 == depth || ( 0 == depth &&
-      cameraInfo->currentBitDepth > 8 ) ) {
-    if ( cameraInfo->isColour ) {
-      return OA_PIX_FMT_GRBG16BE;
-    }
-    return OA_PIX_FMT_GREY16BE;
-  }
-  if ( 8 == depth || 0 == depth ) {
-    if ( cameraInfo->isColour ) {
-      return OA_PIX_FMT_GRBG8;
-    }
-    return OA_PIX_FMT_GREY8;
-  }
-  return -OA_ERR_INVALID_BIT_DEPTH;
+  return cameraInfo->currentFrameFormat;
 }
 
 
