@@ -30,7 +30,7 @@
 #include <openastro/demosaic.h>
 
 
-frameFormatInfo oaFrameFormats[] = {
+frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
   {  // 0 is nothing
     .name               = "unused",
     .simpleName         = "unused",
@@ -399,7 +399,7 @@ frameFormatInfo oaFrameFormats[] = {
   }, {  // OA_PIX_FMT_GREY10BE
     .name		= "MONO10BE",
     .simpleName		= "10bpp monochrome",
-    .bytesPerPixel	= 2,
+    .bytesPerPixel	= 1.25,
     .bitsPerPixel	= 10,
     .cfaPattern		= 0,
     .littleEndian	= 0,
@@ -408,11 +408,11 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GREY10LE
     .name		= "MONO10LE",
     .simpleName		= "10bpp monochrome",
-    .bytesPerPixel	= 2,
+    .bytesPerPixel	= 1.25,
     .bitsPerPixel	= 10,
     .cfaPattern		= 0,
     .littleEndian	= 1,
@@ -421,11 +421,11 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GREY12BE
     .name		= "MONO12BE",
     .simpleName		= "12bpp monochrome",
-    .bytesPerPixel	= 2,
+    .bytesPerPixel	= 1.5,
     .bitsPerPixel	= 12,
     .cfaPattern		= 0,
     .littleEndian	= 0,
@@ -434,11 +434,11 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GREY12LE
     .name		= "MONO12LE",
     .simpleName		= "12bpp monochrome",
-    .bytesPerPixel	= 2,
+    .bytesPerPixel	= 1.5,
     .bitsPerPixel	= 12,
     .cfaPattern		= 0,
     .littleEndian	= 1,
@@ -447,11 +447,11 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GREY14BE
     .name		= "MONO14BE",
     .simpleName		= "14bpp colour",
-    .bytesPerPixel	= 2,
+    .bytesPerPixel	= 1.75,
     .bitsPerPixel	= 14,
     .cfaPattern		= 0,
     .littleEndian	= 0,
@@ -460,11 +460,11 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GREY14LE
     .name		= "MONO14LE",
     .simpleName		= "14bpp colour",
-    .bytesPerPixel	= 2,
+    .bytesPerPixel	= 1.75,
     .bitsPerPixel	= 14,
     .cfaPattern		= 0,
     .littleEndian	= 1,
@@ -473,7 +473,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_BGGR10LE
     .name		= "BGGR10LE",
     .simpleName		= "10bpp raw colour",
@@ -486,7 +486,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_BGGR10BE
     .name		= "BGGR10BE",
     .simpleName		= "10bpp raw colour",
@@ -499,7 +499,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_RGGB10LE
     .name		= "RGGB10LE",
     .simpleName		= "10bpp raw colour",
@@ -512,7 +512,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_RGGB10BE
     .name		= "RGGB10BE",
     .simpleName		= "10bpp raw colour",
@@ -525,7 +525,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GBRG10LE
     .name		= "GBRG10LE",
     .simpleName		= "10bpp raw colour",
@@ -538,7 +538,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GBRG10BE
     .name		= "GBRG10BE",
     .simpleName		= "10bpp raw colour",
@@ -551,7 +551,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GRBG10LE
     .name		= "GRBG10LE",
     .simpleName		= "10bpp raw colour",
@@ -564,7 +564,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GRBG10BE
     .name		= "GRBG10BE",
     .simpleName		= "10bpp colour",
@@ -577,7 +577,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_BGGR12LE
     .name		= "BGGR12LE",
     .simpleName		= "12bpp raw colour",
@@ -590,7 +590,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_BGGR12BE
     .name		= "BGGR12BE",
     .simpleName		= "12bpp raw colour",
@@ -603,7 +603,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_RGGB12LE
     .name		= "RGGB12LE",
     .simpleName		= "12bpp raw colour",
@@ -616,7 +616,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_RGGB12BE
     .name		= "RGGB12BE",
     .simpleName		= "12bpp raw colour",
@@ -629,7 +629,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GBRG12LE
     .name		= "GBRG12LE",
     .simpleName		= "12bpp raw colour",
@@ -642,7 +642,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GBRG12BE
     .name		= "GBRG12BE",
     .simpleName		= "12bpp raw colour",
@@ -655,7 +655,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GRBG12LE
     .name		= "GRBG12LE",
     .simpleName		= "12bpp raw colour",
@@ -668,7 +668,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GRBG12BE
     .name		= "GRBG12BE",
     .simpleName		= "12bpp colour",
@@ -681,7 +681,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_BGGR14LE
     .name		= "BGGR14LE",
     .simpleName		= "14bpp raw colour",
@@ -694,7 +694,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_BGGR14BE
     .name		= "BGGR14BE",
     .simpleName		= "14bpp raw colour",
@@ -707,7 +707,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_RGGB14LE
     .name		= "RGGB14LE",
     .simpleName		= "14bpp raw colour",
@@ -720,7 +720,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_RGGB14BE
     .name		= "RGGB14BE",
     .simpleName		= "14bpp raw colour",
@@ -733,7 +733,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GBRG14LE
     .name		= "GBRG14LE",
     .simpleName		= "14bpp raw colour",
@@ -746,7 +746,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GBRG14BE
     .name		= "GBRG14BE",
     .simpleName		= "14bpp raw colour",
@@ -759,7 +759,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GRBG14LE
     .name		= "GRBG14LE",
     .simpleName		= "14bpp raw colour",
@@ -772,7 +772,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_GRBG14BE
     .name		= "GRBG14BE",
     .simpleName		= "14bpp colour",
@@ -785,7 +785,7 @@ frameFormatInfo oaFrameFormats[] = {
     .fullColour		= 0,
     .lumChrom		= 0,
     .lossless		= 1,
-    .packed		= 0
+    .packed		= 1
   }, {  // OA_PIX_FMT_YUV444P
     .name		= "YUV444P",
     .simpleName		= "24bpp luminance/chrominance",
@@ -916,5 +916,83 @@ frameFormatInfo oaFrameFormats[] = {
     .lumChrom		= 1,
     .lossless		= 0,
     .packed		= 1
+  }, {  // OA_PIX_FMT_GREY10_16BE
+    .name		= "MONO10/16BE",
+    .simpleName		= "10bpp monochrome",
+    .bytesPerPixel	= 2,
+    .bitsPerPixel	= 10,
+    .cfaPattern		= 0,
+    .littleEndian	= 0,
+    .monochrome		= 1,
+    .rawColour		= 0,
+    .fullColour		= 0,
+    .lumChrom		= 0,
+    .lossless		= 1,
+    .packed		= 0
+  }, {  // OA_PIX_FMT_GREY10_16LE
+    .name		= "MONO10/16LE",
+    .simpleName		= "10bpp monochrome",
+    .bytesPerPixel	= 2,
+    .bitsPerPixel	= 10,
+    .cfaPattern		= 0,
+    .littleEndian	= 1,
+    .monochrome		= 1,
+    .rawColour		= 0,
+    .fullColour		= 0,
+    .lumChrom		= 0,
+    .lossless		= 1,
+    .packed		= 0
+  }, {  // OA_PIX_FMT_GREY12_16BE
+    .name		= "MONO12/16BE",
+    .simpleName		= "12bpp monochrome",
+    .bytesPerPixel	= 2,
+    .bitsPerPixel	= 12,
+    .cfaPattern		= 0,
+    .littleEndian	= 0,
+    .monochrome		= 1,
+    .rawColour		= 0,
+    .fullColour		= 0,
+    .lumChrom		= 0,
+    .lossless		= 1,
+    .packed		= 0
+  }, {  // OA_PIX_FMT_GREY12_16LE
+    .name		= "MONO12/16LE",
+    .simpleName		= "12bpp monochrome",
+    .bytesPerPixel	= 2,
+    .bitsPerPixel	= 12,
+    .cfaPattern		= 0,
+    .littleEndian	= 1,
+    .monochrome		= 1,
+    .rawColour		= 0,
+    .fullColour		= 0,
+    .lumChrom		= 0,
+    .lossless		= 1,
+    .packed		= 0
+  }, {  // OA_PIX_FMT_GREY14_16BE
+    .name		= "MONO14/16BE",
+    .simpleName		= "14bpp colour",
+    .bytesPerPixel	= 2,
+    .bitsPerPixel	= 14,
+    .cfaPattern		= 0,
+    .littleEndian	= 0,
+    .monochrome		= 1,
+    .rawColour		= 0,
+    .fullColour		= 0,
+    .lumChrom		= 0,
+    .lossless		= 1,
+    .packed		= 0
+  }, {  // OA_PIX_FMT_GREY14_16LE
+    .name		= "MONO14/16LE",
+    .simpleName		= "14bpp colour",
+    .bytesPerPixel	= 2,
+    .bitsPerPixel	= 14,
+    .cfaPattern		= 0,
+    .littleEndian	= 1,
+    .monochrome		= 1,
+    .rawColour		= 0,
+    .fullColour		= 0,
+    .lumChrom		= 0,
+    .lossless		= 1,
+    .packed		= 0
   }
 };

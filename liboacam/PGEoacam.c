@@ -2,7 +2,7 @@
  *
  * PGEoacam.c -- main entrypoint for Point Grey Gig-E Cameras
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -32,6 +32,7 @@
 #endif
 #endif
 #include <openastro/camera.h>
+#include <openastro/demosaic.h>
 #include <flycapture/C/FlyCapture2_C.h>
 
 #include "oacamprivate.h"
@@ -416,16 +417,16 @@ oaPGEGetCameras ( CAMERA_LIST* deviceList, int flags )
     if ((( _private->colour = devList[i].isColorCamera ) ? 1 : 0 )) {
       switch ( devList[i].bayerTileFormat ) {
         case FC2_BT_RGGB:
-          _private->cfaPattern = OA_PIX_FMT_RGGB8;
+          _private->cfaPattern = OA_DEMOSAIC_RGGB;
           break;
         case FC2_BT_GRBG:
-          _private->cfaPattern = OA_PIX_FMT_GRBG8;
+          _private->cfaPattern = OA_DEMOSAIC_GRBG;
           break;
         case FC2_BT_GBRG:
-          _private->cfaPattern = OA_PIX_FMT_GBRG8;
+          _private->cfaPattern = OA_DEMOSAIC_GBRG;
           break;
         case FC2_BT_BGGR:
-          _private->cfaPattern = OA_PIX_FMT_BGGR8;
+          _private->cfaPattern = OA_DEMOSAIC_BGGR;
           break;
         default:
           break;

@@ -2,7 +2,7 @@
  *
  * to8Bit.c -- conversion to 8-bit frame formats
  *
- * Copyright 2017 James Fidell (james@openastroproject.org)
+ * Copyright 2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -53,4 +53,23 @@ void
 oaLittleEndian16BitTo8Bit ( void* source, void* target, unsigned int length )
 {
   copyAlternate ( source, 1, target, length );
+}
+
+
+void
+oaPackedGrey12ToGrey8 ( void* source, void* target, unsigned int length )
+{
+  uint8_t*	s = source;
+  uint8_t*	t = target;
+  unsigned int	l = 0;
+
+  // This may not be very nice if the image width is not even
+
+  while ( length-- ) {
+    if ( l % 3 != 1 ) {
+      *t++ = *s;
+    }
+    s++;
+    l++;
+  }
 }

@@ -2,7 +2,7 @@
  *
  * oavideo.c -- main oavideo library entrypoint
  *
- * Copyright 2014,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -42,9 +42,9 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
   // I wonder if this might be better off table-driven in the end
 
   switch ( sourceFormat ) {
-    case OA_PIX_FMT_GREY10BE:
-    case OA_PIX_FMT_GREY12BE:
-    case OA_PIX_FMT_GREY14BE:
+    case OA_PIX_FMT_GREY10_16BE:
+    case OA_PIX_FMT_GREY12_16BE:
+    case OA_PIX_FMT_GREY14_16BE:
     case OA_PIX_FMT_GREY16BE:
       length = 2 * xSize * ySize;
       if ( OA_PIX_FMT_GREY8 == targetFormat ) {
@@ -52,9 +52,9 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
         result = 0;
       }
       break;
-    case OA_PIX_FMT_GREY10LE:
-    case OA_PIX_FMT_GREY12LE:
-    case OA_PIX_FMT_GREY14LE:
+    case OA_PIX_FMT_GREY10_16LE:
+    case OA_PIX_FMT_GREY12_16LE:
+    case OA_PIX_FMT_GREY14_16LE:
     case OA_PIX_FMT_GREY16LE:
       length = 2 * xSize * ySize;
       if ( OA_PIX_FMT_GREY8 == targetFormat ) {
@@ -62,6 +62,15 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
         result = 0;
       }
       break;
+    case OA_PIX_FMT_GREY12BE:
+    case OA_PIX_FMT_GREY12LE:
+      length = xSize * ySize * 3 / 2;
+      if ( OA_PIX_FMT_GREY8 == targetFormat ) {
+        oaPackedGrey12ToGrey8 ( source, target, length );
+        result = 0;
+      }
+      break;
+
     case OA_PIX_FMT_BGGR10BE:
     case OA_PIX_FMT_BGGR12BE:
     case OA_PIX_FMT_BGGR14BE:

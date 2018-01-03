@@ -2,7 +2,7 @@
  *
  * PGEcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -54,6 +54,7 @@ static int	_processStreamingStop ( PGE_STATE*, OA_COMMAND* );
 static int	_doStart ( PGE_STATE* );
 static int	_doStop ( PGE_STATE* );
 static int	_doBitDepth ( PGE_STATE*, int );
+static int	_doFrameFormat ( PGE_STATE*, int );
 static int	_doBinning ( PGE_STATE*, int );
 //static int	_processSetFrameInterval ( PGE_STATE*, OA_COMMAND* );
 
@@ -363,11 +364,20 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
 
   if ( OA_CAM_CTRL_BIT_DEPTH == control ) {
     if ( OA_CTRL_TYPE_DISCRETE != val->valueType ) {
-      fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+      fprintf ( stderr, "%s: invalid control type %d where discrete expected\n",
           __FUNCTION__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     return _doBitDepth ( cameraInfo, val->discrete );
+  }
+
+  if ( OA_CAM_CTRL_FRAME_FORMAT == control ) {
+    if ( OA_CTRL_TYPE_DISCRETE != val->valueType ) {
+      fprintf ( stderr, "%s: invalid control type %d where discrete expected\n",
+          __FUNCTION__, val->valueType );
+      return -OA_ERR_INVALID_CONTROL_TYPE;
+    }
+    return _doFrameFormat ( cameraInfo, val->discrete );
   }
 
   fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
@@ -671,6 +681,8 @@ _processStreamingStart ( PGE_STATE* cameraInfo, OA_COMMAND* command )
       cameraInfo->currentBytesPerPixel = 1;
       break;
     case FC2_PIXEL_FORMAT_MONO12:
+      cameraInfo->currentBytesPerPixel = 1.5;
+      break;
     case FC2_PIXEL_FORMAT_MONO16:
       cameraInfo->currentBytesPerPixel = 2;
       break;
@@ -1190,3 +1202,105 @@ _doBinning ( PGE_STATE* cameraInfo, int binMode )
 
   return OA_ERR_NONE;
 }
+
+
+static int
+_doFrameFormat ( PGE_STATE* cameraInfo, int format )
+{
+  fc2GigEImageSettings	settings;
+  int			restart;
+
+  if (( *p_fc2GetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
+      FC2_ERROR_OK ) {
+    fprintf ( stderr, "Can't get PGE image settings\n" );
+    return -OA_ERR_CAMERA_IO;
+  }
+
+  switch ( format ) {
+    case OA_PIX_FMT_GREY8:
+      settings.pixelFormat = FC2_PIXEL_FORMAT_MONO8;
+      break;
+    case OA_PIX_FMT_YUV411:
+      settings.pixelFormat = FC2_PIXEL_FORMAT_411YUV8;
+      break;
+    case OA_PIX_FMT_YUV422:
+      settings.pixelFormat = FC2_PIXEL_FORMAT_422YUV8;
+      break;
+    case OA_PIX_FMT_YUV444:
+      settings.pixelFormat = FC2_PIXEL_FORMAT_444YUV8;
+      break;
+    case OA_PIX_FMT_RGB24:
+      settings.pixelFormat = FC2_PIXEL_FORMAT_RGB8;
+      break;
+    case OA_PIX_FMT_GREY16BE:
+    case OA_PIX_FMT_GREY16LE:
+      settings.pixelFormat = FC2_PIXEL_FORMAT_MONO16;
+      break;
+    case OA_PIX_FMT_RGB48BE:
+    case OA_PIX_FMT_RGB48LE:
+      settings.pixelFormat = FC2_PIXEL_FORMAT_RGB16;
+      break;
+    case OA_PIX_FMT_RGGB8:
+    case OA_PIX_FMT_BGGR8:
+    case OA_PIX_FMT_GRBG8:
+    case OA_PIX_FMT_GBRG8:
+      settings.pixelFormat = FC2_PIXEL_FORMAT_RAW8;
+      break;
+    case OA_PIX_FMT_RGGB16BE:
+    case OA_PIX_FMT_RGGB16LE:
+    case OA_PIX_FMT_BGGR16BE:
+    case OA_PIX_FMT_BGGR16LE:
+    case OA_PIX_FMT_GRBG16BE:
+    case OA_PIX_FMT_GRBG16LE:
+    case OA_PIX_FMT_GBRG16BE:
+    case OA_PIX_FMT_GBRG16LE:
+      settings.pixelFormat = FC2_PIXEL_FORMAT_RAW16;
+      break;
+    case OA_PIX_FMT_GREY12BE:
+    case OA_PIX_FMT_GREY12LE:
+      settings.pixelFormat = FC2_PIXEL_FORMAT_MONO12;
+      break;
+    case OA_PIX_FMT_RGGB12BE:
+    case OA_PIX_FMT_RGGB12LE:
+    case OA_PIX_FMT_BGGR12BE:
+    case OA_PIX_FMT_BGGR12LE:
+    case OA_PIX_FMT_GRBG12BE:
+    case OA_PIX_FMT_GRBG12LE:
+    case OA_PIX_FMT_GBRG12BE:
+    case OA_PIX_FMT_GBRG12LE:
+      settings.pixelFormat = FC2_PIXEL_FORMAT_RAW12;
+      break;
+    case OA_PIX_FMT_BGR24:
+      settings.pixelFormat = FC2_PIXEL_FORMAT_BGR;
+      break;
+    case OA_PIX_FMT_BGR48BE:
+    case OA_PIX_FMT_BGR48LE:
+      settings.pixelFormat = FC2_PIXEL_FORMAT_BGR16;
+      break;
+  }
+
+  if ( cameraInfo->isStreaming ) {
+    restart = 1;
+    _doStop ( cameraInfo );
+  }
+
+  if (( *p_fc2SetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
+      FC2_ERROR_OK ) {
+    fprintf ( stderr, "Can't set PGE image settings\n" );
+    return -OA_ERR_CAMERA_IO;
+  }
+
+  cameraInfo->currentVideoFormat = settings.pixelFormat;
+  cameraInfo->currentFrameFormat = format;
+  cameraInfo->currentBytesPerPixel = oaFrameFormats[ format ].bytesPerPixel;
+  cameraInfo->imageBufferLength = cameraInfo->xSize * cameraInfo->ySize *
+    cameraInfo->currentBytesPerPixel;
+
+  if ( restart ) {
+    _doStart ( cameraInfo );
+  }
+
+  return OA_ERR_NONE;
+}
+
+

@@ -2,7 +2,7 @@
  *
  * to8Bit.h -- conversion to 8-bit header
  *
- * Copyright 2017 James Fidell (james@openastroproject.org)
+ * Copyright 2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -29,5 +29,7 @@
 
 extern void	oaBigEndian16BitTo8Bit ( void*, void*, unsigned int );
 extern void	oaLittleEndian16BitTo8Bit ( void*, void*, unsigned int );
+extern void	oaPackedGrey12ToGrey8 ( void*, void*, unsigned int );
+
 
 #endif	/* OPENASTRO_VIDEO_ENDIAN_H */

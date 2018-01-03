@@ -2,7 +2,7 @@
  *
  * PGEstate.h -- Point Grey Gig-E camera state header
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -40,12 +40,7 @@ typedef struct PGE_STATE {
   // libdc1394 connection data
   fc2Context*		pgeContext;
   // video mode settings
-  int			videoRGB24;
-  int			videoGrey;
-  int			videoGrey16;
-  int			videoGrey12;
-  int			videoRaw;
-  int			bytesPerPixel;
+  int			maxBytesPerPixel;
   unsigned int		pixelFormats;
   int			bigEndian;
   unsigned int		availableBinModes;
@@ -70,8 +65,9 @@ typedef struct PGE_STATE {
   int			frameRateNumerator;
   int			frameRateDenominator;
   fc2PixelFormat	currentVideoFormat;
+  int			currentFrameFormat;
   int			currentMode;
-  int			currentBytesPerPixel;
+  float			currentBytesPerPixel;
   unsigned int		binMode;
   // control values
   int64_t		currentAbsoluteExposure;

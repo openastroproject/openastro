@@ -677,15 +677,29 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
 
   previewPixelFormat = writePixelFormat = self->videoFramePixelFormat;
 
-  // if we have a luminance/chrominance video format then we need to
-  // unpack that first
+  // if we have a luminance/chrominance or packed mono/raw colour frame
+  // format then we need to unpack that first
 
-  if ( oaFrameFormats[ self->videoFramePixelFormat ].lumChrom ) {
+  if ( oaFrameFormats[ self->videoFramePixelFormat ].lumChrom ||
+      oaFrameFormats[ self->videoFramePixelFormat ].packed ) {
     // this is going to make the flip quite ugly and means we need to
     // start using currentPreviewBuffer too
     currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :
         !currentPreviewBuffer;
-    previewPixelFormat = OA_PIX_FMT_RGB24;
+    // Convert luminance/chrominance and packed raw colour to RGB.
+    // Packed mono should become GREY8.  We're only converting for
+    // preview here, so nothing needs to be more than 8 bits wide
+    if ( oaFrameFormats[ self->videoFramePixelFormat ].lumChrom ||
+        oaFrameFormats[ self->videoFramePixelFormat ].rawColour ) {
+      previewPixelFormat = OA_PIX_FMT_RGB24;
+    } else {
+      if ( oaFrameFormats[ self->videoFramePixelFormat ].monochrome ) {
+        previewPixelFormat = OA_PIX_FMT_GREY8;
+      } else {
+        qWarning() << "Don't know how to unpack frame format" <<
+            self->videoFramePixelFormat;
+      }
+    }
     ( void ) oaconvert ( previewBuffer,
         self->previewImageBuffer[ currentPreviewBuffer ], config.imageSizeX,
         config.imageSizeY, self->videoFramePixelFormat, previewPixelFormat );
@@ -784,14 +798,14 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
       // First deal with anything that's mono, including untouched raw
       // colour
 
-      if ( OA_PIX_FMT_GREY8 == self->videoFramePixelFormat ||
+      if ( OA_PIX_FMT_GREY8 == previewPixelFormat ||
            ( oaFrameFormats[ previewPixelFormat ].rawColour &&
            ( !self->demosaic || !config.demosaicPreview )) ||
            reducedGreyscaleBitDepth ) {
         newImage = new QImage (( const uint8_t* ) previewBuffer,
             config.imageSizeX, config.imageSizeY, config.imageSizeX,
             QImage::Format_Indexed8 );
-        if (( OA_PIX_FMT_GREY8 == self->videoFramePixelFormat ||
+        if (( OA_PIX_FMT_GREY8 == previewPixelFormat ||
             reducedGreyscaleBitDepth ) && config.colourise ) {
           newImage->setColorTable ( self->falseColourTable );
         } else {

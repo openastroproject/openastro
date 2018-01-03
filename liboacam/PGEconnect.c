@@ -2,7 +2,7 @@
  *
  * PGEconnect.c -- Initialise Point Grey Gig-E cameras
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -30,6 +30,7 @@
 #include <pthread.h>
 #include <openastro/camera.h>
 #include <openastro/util.h>
+#include <openastro/demosaic.h>
 
 #include "unimplemented.h"
 #include "oacamprivate.h"
@@ -117,9 +118,8 @@ oaPGEInitCamera ( oaCameraDevice* device )
   BOOL				supported;
   uint16_t			mask16;
   unsigned int			numberOfSources, numberOfModes;
-  unsigned int			dataFormat;
-  int				ret, checkDataFormat = 0;
-  int				numBinModes, maxBinMode;
+  unsigned int			dataFormat, format;
+  int				ret, numBinModes, maxBinMode;
 
   if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
     perror ( "malloc oaCamera failed" );
@@ -137,10 +137,9 @@ oaPGEInitCamera ( oaCameraDevice* device )
     perror ( "malloc COMMON_INFO failed" );
     return 0;
   }
+  OA_CLEAR ( *camera );
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
-  OA_CLEAR ( camera->controlType );
-  OA_CLEAR ( camera->features );
   camera->_private = cameraInfo;
   camera->_common = commonInfo;
 
@@ -818,10 +817,6 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   // There are problems here if not all colour modes are supported in
   // all resolutions
 
-  cameraInfo->videoRGB24 = 0;
-  cameraInfo->videoRaw = 0;
-  cameraInfo->videoGrey16 = 0;
-  cameraInfo->videoGrey = 0;
   cameraInfo->currentVideoFormat = 0;
   cameraInfo->currentMode = 0;
 
@@ -1012,6 +1007,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
   cameraInfo->currentMode = firstMode;
   cameraInfo->currentVideoFormat = settings.pixelFormat;
+  cameraInfo->currentFrameFormat = 0;
 
   // Endianness for 12- and 16-bit images can apparently be
   // forced to little-endian as follows:
@@ -1026,101 +1022,236 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   // perhaps we just need to cope with whatever mode the camera claims to
   // be in
 
-  int depthMask = 0;
-  if ( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_MONO8 ) {
-    cameraInfo->videoGrey = 1;
-    cameraInfo->bytesPerPixel = 1;
-    depthMask |= 1;
-  }
-  if ( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_MONO16 ) {
-    cameraInfo->videoGrey16 = 1;
-    cameraInfo->bytesPerPixel = 2;
-    checkDataFormat = 1;
-    depthMask |= 2;
-  }
-  if ( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_MONO12 ) {
-    cameraInfo->videoGrey12 = 1;
-    cameraInfo->bytesPerPixel = 2;
-    checkDataFormat = 1;
-    depthMask |= 2;
-  }
-  if ( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_BGR ) {
-    cameraInfo->videoRGB24 = 1;
-    cameraInfo->bytesPerPixel = 3;
-    depthMask |= 1;
-  }
-  if ( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_RGB ) {
-    cameraInfo->videoRGB24 = 1;
-    cameraInfo->bytesPerPixel = 3;
-    depthMask |= 1;
-  }
-  if ( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_RAW8 ) {
-    cameraInfo->videoRaw = 1;
-    camera->features.rawMode = 1;
-    cameraInfo->bytesPerPixel = 1;
-    depthMask |= 1;
-  }
-  if ( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_RAW16 ) {
-    cameraInfo->videoRaw = 1;
-    camera->features.rawMode = 1;
-    cameraInfo->bytesPerPixel = 2;
-    checkDataFormat = 1;
-    depthMask |= 2;
+  if ( camInfo.iidcVer >= 132 ) {
+    if (( *p_fc2ReadRegister )( pgeContext, FC2_REG_DATA_DEPTH,
+        &dataFormat ) != FC2_ERROR_OK ) {
+      fprintf ( stderr, "Can't read PGE register 0x%04x\n",
+          FC2_REG_DATA_DEPTH );
+      ( *p_fc2DestroyContext )( pgeContext );
+      free (( void* ) commonInfo );
+      free (( void* ) cameraInfo );
+      free (( void* ) camera );
+      return 0;
+    }
+    // FIX ME
+    // This is allegedly the other way around, but only this way works
+    // for me
+    cameraInfo->bigEndian = (( dataFormat >> 16 ) & 0x80 ) ? 0 : 1;
+  } else {
+    if (( *p_fc2ReadRegister )( pgeContext, FC2_REG_IMAGE_DATA_FORMAT,
+        &dataFormat ) != FC2_ERROR_OK ) {
+      fprintf ( stderr, "Can't read PGE register 0x%04x\n",
+          FC2_REG_IMAGE_DATA_FORMAT );
+      ( *p_fc2DestroyContext )( pgeContext );
+      free (( void* ) commonInfo );
+      free (( void* ) cameraInfo );
+      free (( void* ) camera );
+      return 0;
+    }
+    if (( dataFormat & 0x80000000 ) == 0 ) {
+      fprintf ( stderr, "Image Data Format register unsupported\n" );
+    }
+    cameraInfo->bigEndian = ( dataFormat & 0xff ) ? 1 : 0;
   }
 
-  if ( imageInfo.pixelFormatBitField & ~( FC2_PIXEL_FORMAT_MONO8 |
-      FC2_PIXEL_FORMAT_MONO16 | FC2_PIXEL_FORMAT_MONO12 |
-      FC2_PIXEL_FORMAT_BGR | FC2_PIXEL_FORMAT_RGB |
-      FC2_PIXEL_FORMAT_RAW8 | FC2_PIXEL_FORMAT_RAW16 )) {
+  cameraInfo->maxBytesPerPixel = 0;
+  if (( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_MONO8 ) ==
+      FC2_PIXEL_FORMAT_MONO8 ) {
+    camera->frameFormats[ OA_PIX_FMT_GREY8 ] = 1;
+    if ( cameraInfo->maxBytesPerPixel < 1 ) {
+      cameraInfo->maxBytesPerPixel = 1;
+    }
+    if ( cameraInfo->currentVideoFormat == FC2_PIXEL_FORMAT_MONO8 ) {
+      cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY8;
+    }
+  }
+  if (( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_411YUV8 ) ==
+      FC2_PIXEL_FORMAT_411YUV8 ) {
+    camera->frameFormats[ OA_PIX_FMT_YUV411 ] = 1;
+    if ( cameraInfo->maxBytesPerPixel < 2 ) {
+      cameraInfo->maxBytesPerPixel = 2;
+    }
+    if ( cameraInfo->currentVideoFormat == FC2_PIXEL_FORMAT_411YUV8 ) {
+      cameraInfo->currentFrameFormat = OA_PIX_FMT_YUV411;
+    }
+  }
+  if (( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_422YUV8 ) ==
+      FC2_PIXEL_FORMAT_422YUV8 ) {
+    camera->frameFormats[ OA_PIX_FMT_YUV422 ] = 1;
+    if ( cameraInfo->maxBytesPerPixel < 2 ) {
+      cameraInfo->maxBytesPerPixel = 2;
+    }
+    if ( cameraInfo->currentVideoFormat == FC2_PIXEL_FORMAT_422YUV8 ) {
+      cameraInfo->currentFrameFormat = OA_PIX_FMT_YUV422;
+    }
+  }
+  if (( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_444YUV8 ) ==
+      FC2_PIXEL_FORMAT_444YUV8 ) {
+    camera->frameFormats[ OA_PIX_FMT_YUV444 ] = 1;
+    if ( cameraInfo->maxBytesPerPixel < 3 ) {
+      cameraInfo->maxBytesPerPixel = 3;
+    }
+    if ( cameraInfo->currentVideoFormat == FC2_PIXEL_FORMAT_444YUV8 ) {
+      cameraInfo->currentFrameFormat = OA_PIX_FMT_YUV444;
+    }
+  }
+  if (( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_RGB8 ) ==
+      FC2_PIXEL_FORMAT_RGB8 ) {
+    camera->frameFormats[ OA_PIX_FMT_RGB24 ] = 1;
+    if ( cameraInfo->maxBytesPerPixel < 3 ) {
+      cameraInfo->maxBytesPerPixel = 3;
+    }
+    if ( cameraInfo->currentVideoFormat == FC2_PIXEL_FORMAT_RGB8 ) {
+      cameraInfo->currentFrameFormat = OA_PIX_FMT_RGB24;
+    }
+  }
+  if (( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_MONO16 ) ==
+      FC2_PIXEL_FORMAT_MONO16 ) {
+    format = cameraInfo->bigEndian ? OA_PIX_FMT_GREY16BE : OA_PIX_FMT_GREY16LE;
+    camera->frameFormats[ format ] = 1;
+    if ( cameraInfo->maxBytesPerPixel < 2 ) {
+      cameraInfo->maxBytesPerPixel = 2;
+    }
+    if ( cameraInfo->currentVideoFormat == FC2_PIXEL_FORMAT_MONO16 ) {
+      cameraInfo->currentFrameFormat = format;
+    }
+  }
+  if (( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_RGB16 ) ==
+      FC2_PIXEL_FORMAT_RGB16 ) {
+    format = cameraInfo->bigEndian ? OA_PIX_FMT_RGB48BE : OA_PIX_FMT_RGB48LE;
+    camera->frameFormats[ format ] = 1;
+    if ( cameraInfo->maxBytesPerPixel < 6 ) {
+      cameraInfo->maxBytesPerPixel = 6;
+    }
+    if ( cameraInfo->currentVideoFormat == FC2_PIXEL_FORMAT_RGB16 ) {
+      cameraInfo->currentFrameFormat = format;
+    }
+  }
+  if (( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_RAW8 ) ==
+      FC2_PIXEL_FORMAT_RAW8 ) {
+    switch ( cameraInfo->cfaPattern ) {
+      case OA_DEMOSAIC_RGGB:
+        format = OA_PIX_FMT_RGGB8;
+        break;
+      case OA_DEMOSAIC_BGGR:
+        format = OA_PIX_FMT_BGGR8;
+        break;
+      case OA_DEMOSAIC_GRBG:
+        format = OA_PIX_FMT_GRBG8;
+        break;
+      case OA_DEMOSAIC_GBRG:
+        format = OA_PIX_FMT_GBRG8;
+        break;
+    }
+    camera->frameFormats[ format ] = 1;
+    camera->features.rawMode = 1;
+    if ( cameraInfo->maxBytesPerPixel < 1 ) {
+      cameraInfo->maxBytesPerPixel = 1;
+    }
+    if ( cameraInfo->currentVideoFormat == FC2_PIXEL_FORMAT_RAW8 ) {
+      cameraInfo->currentFrameFormat = format;
+    }
+  }
+  if (( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_RAW16 ) ==
+      FC2_PIXEL_FORMAT_RAW16 ) {
+    switch ( cameraInfo->cfaPattern ) {
+      case OA_DEMOSAIC_RGGB:
+        format = cameraInfo->bigEndian ? OA_PIX_FMT_RGGB16BE :
+            OA_PIX_FMT_RGGB16LE;
+        break;
+      case OA_DEMOSAIC_BGGR:
+        format = cameraInfo->bigEndian ? OA_PIX_FMT_BGGR16BE :
+            OA_PIX_FMT_BGGR16LE;
+        break;
+      case OA_DEMOSAIC_GRBG:
+        format = cameraInfo->bigEndian ? OA_PIX_FMT_GRBG16BE :
+            OA_PIX_FMT_GRBG16LE;
+        break;
+      case OA_DEMOSAIC_GBRG:
+        format = cameraInfo->bigEndian ? OA_PIX_FMT_GBRG16BE :
+            OA_PIX_FMT_GBRG16LE;
+        break;
+    }
+    camera->frameFormats[ format ] = 1;
+    camera->features.rawMode = 1;
+    if ( cameraInfo->maxBytesPerPixel < 2 ) {
+      cameraInfo->maxBytesPerPixel = 2;
+    }
+    if ( cameraInfo->currentVideoFormat == FC2_PIXEL_FORMAT_RAW16 ) {
+      cameraInfo->currentFrameFormat = format;
+    }
+  }
+  if (( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_MONO12 ) ==
+      FC2_PIXEL_FORMAT_MONO12 ) {
+    camera->frameFormats[ cameraInfo->bigEndian ? OA_PIX_FMT_GREY12BE :
+        OA_PIX_FMT_GREY12LE ] = 1;
+    if ( cameraInfo->maxBytesPerPixel < 2 ) {
+      cameraInfo->maxBytesPerPixel = 2;
+    }
+  }
+  if (( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_RAW12 ) ==
+      FC2_PIXEL_FORMAT_RAW12 ) {
+    switch ( cameraInfo->cfaPattern ) {
+      case OA_DEMOSAIC_RGGB:
+        format = cameraInfo->bigEndian ? OA_PIX_FMT_RGGB12BE : 
+            OA_PIX_FMT_RGGB12LE;
+        break;
+      case OA_DEMOSAIC_BGGR:
+        format = cameraInfo->bigEndian ? OA_PIX_FMT_BGGR12BE :
+            OA_PIX_FMT_BGGR12LE;
+        break;
+      case OA_DEMOSAIC_GRBG:
+        format = cameraInfo->bigEndian ? OA_PIX_FMT_GRBG12BE :
+            OA_PIX_FMT_GRBG12LE;
+        break;
+      case OA_DEMOSAIC_GBRG:
+        format = cameraInfo->bigEndian ? OA_PIX_FMT_GBRG12BE :
+            OA_PIX_FMT_GBRG12LE;
+        break;
+    }
+    camera->frameFormats[ format ] = 1;
+    camera->features.rawMode = 1;
+    if ( cameraInfo->maxBytesPerPixel < 2 ) {
+      cameraInfo->maxBytesPerPixel = 2;
+    }
+    if ( cameraInfo->currentVideoFormat == FC2_PIXEL_FORMAT_RAW12 ) {
+      cameraInfo->currentFrameFormat = format;
+    }
+  }
+  if (( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_BGR ) ==
+      FC2_PIXEL_FORMAT_BGR ) {
+    camera->frameFormats[ OA_PIX_FMT_BGR24 ] = 1;
+    if ( cameraInfo->maxBytesPerPixel < 3 ) {
+      cameraInfo->maxBytesPerPixel = 3;
+    }
+    if ( cameraInfo->currentVideoFormat == FC2_PIXEL_FORMAT_BGR ) {
+      cameraInfo->currentFrameFormat = OA_PIX_FMT_BGR24;
+    }
+  }
+  if (( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_BGR16 ) ==
+      FC2_PIXEL_FORMAT_BGR16 ) {
+    format = cameraInfo->bigEndian ? OA_PIX_FMT_BGR48BE : OA_PIX_FMT_BGR48LE;
+    camera->frameFormats[ format ] = 1;
+    if ( cameraInfo->maxBytesPerPixel < 6 ) {
+      cameraInfo->maxBytesPerPixel = 6;
+    }
+    if ( cameraInfo->currentVideoFormat == FC2_PIXEL_FORMAT_BGR16 ) {
+      cameraInfo->currentFrameFormat = format;
+    }
+  }
+
+  if ( !cameraInfo->maxBytesPerPixel ) {
     fprintf ( stderr, "Unsupported pixel formats exist: 0x%04x\n",
         imageInfo.pixelFormatBitField );
   }
 
-  if ( checkDataFormat ) {
-    if ( camInfo.iidcVer >= 132 ) {
-      if (( *p_fc2ReadRegister )( pgeContext, FC2_REG_DATA_DEPTH,
-          &dataFormat ) != FC2_ERROR_OK ) {
-        fprintf ( stderr, "Can't read PGE register 0x%04x\n",
-            FC2_REG_DATA_DEPTH );
-        ( *p_fc2DestroyContext )( pgeContext );
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
-        return 0;
-      }
-      // FIX ME
-      // This is allegedly the other way around, but only this way works
-      // for me
-      cameraInfo->bigEndian = (( dataFormat >> 16 ) & 0x80 ) ? 0 : 1;
-    } else {
-      if (( *p_fc2ReadRegister )( pgeContext, FC2_REG_IMAGE_DATA_FORMAT,
-          &dataFormat ) != FC2_ERROR_OK ) {
-        fprintf ( stderr, "Can't read PGE register 0x%04x\n",
-            FC2_REG_IMAGE_DATA_FORMAT );
-        ( *p_fc2DestroyContext )( pgeContext );
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
-        return 0;
-      }
-      if (( dataFormat & 0x80000000 ) == 0 ) {
-        fprintf ( stderr, "Image Data Format register unsupported\n" );
-      }
-      cameraInfo->bigEndian = ( dataFormat & 0xff ) ? 1 : 0;
-    }
-
-    // depthMask is only relevant here, where we're checking the data format
-    // because we have multiple options for bytes per pixel
-    if ( depthMask == 3 ) {
-      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) = OA_CTRL_TYPE_DISCRETE;
-    }
-  }
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
 
   // The largest buffer size we should need
 
   cameraInfo->buffers = 0;
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
-      cameraInfo->maxResolutionY * cameraInfo->bytesPerPixel;
+      cameraInfo->maxResolutionY * cameraInfo->maxBytesPerPixel;
   cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct PGEbuffer ));
   for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
     void* m = malloc ( cameraInfo->imageBufferLength );
