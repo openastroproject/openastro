@@ -2,7 +2,7 @@
  *
  * SXgetState.c -- state querying for Starlight Xpress cameras
  *
- * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -76,12 +76,5 @@ oaSXCameraGetFramePixelFormat ( oaCamera *camera, int depth )
 {
   SX_STATE*	cameraInfo = camera->_private;
 
-  if ( depth <= 0 ) {
-    return cameraInfo->videoCurrent;
-  } else {
-    if ( depth > 8 ) {
-      return OA_PIX_FMT_GRBG16LE;
-    }
-  }
-  return OA_PIX_FMT_GREY8;
+  return cameraInfo->currentFrameFormat;
 }

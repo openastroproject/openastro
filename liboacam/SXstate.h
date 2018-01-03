@@ -2,7 +2,7 @@
  *
  * SXstate.h -- Starlight Xpress state header
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -46,9 +46,7 @@ typedef struct SX_STATE {
   libusb_context*       usbContext;
   libusb_device_handle* usbHandle;
   // video mode settings
-  int                   videoGrey16;
-  int                   videoGrey;
-  unsigned int          videoCurrent;
+  unsigned int          currentFrameFormat;
   uint32_t		horizontalFrontPorch;
   uint32_t		horizontalBackPorch;
   uint32_t		verticalFrontPorch;

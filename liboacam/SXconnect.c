@@ -2,7 +2,7 @@
  *
  * SXconnect.c -- Initialise Starlight Xpress cameras
  *
- * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -89,10 +89,9 @@ oaSXInitCamera ( oaCameraDevice* device )
   }
 
 
+  OA_CLEAR ( *camera );
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
-  OA_CLEAR ( camera->controlType );
-  OA_CLEAR ( camera->features );
   camera->_private = cameraInfo;
   camera->_common = commonInfo;
 
@@ -280,15 +279,23 @@ oaSXInitCamera ( oaCameraDevice* device )
   cameraInfo->isColour = devInfo->colour;
 
   if ( cameraInfo->bitDepth <= 8 ) {
-    cameraInfo->videoCurrent = OA_PIX_FMT_GREY8;
-    cameraInfo->videoGrey = 1;
-    cameraInfo->videoGrey16 = 0;
     cameraInfo->bytesPerPixel = 1;
+    if ( cameraInfo->isColour ) {
+      cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG8;
+      camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
+    } else {
+      cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY8;
+      camera->frameFormats[ OA_PIX_FMT_GREY8 ] = 1;
+    }
   } else {
-    cameraInfo->videoCurrent = OA_PIX_FMT_GREY16LE;
-    cameraInfo->videoGrey16 = 1;
-    cameraInfo->videoGrey = 0;
     cameraInfo->bytesPerPixel = 2;
+    if ( cameraInfo->isColour ) {
+      cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG16LE;
+      camera->frameFormats[ OA_PIX_FMT_GRBG16LE ] = 1;
+    } else {
+      cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY16LE;
+      camera->frameFormats[ OA_PIX_FMT_GREY16LE ] = 1;
+    }
   }
   cameraInfo->binMode = cameraInfo->requestedBinMode = OA_BIN_MODE_NONE;
 
