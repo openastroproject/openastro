@@ -101,26 +101,27 @@
 #define OA_PIX_FMT_YUV444P 		58
 #define OA_PIX_FMT_YUV422P 		59
 #define OA_PIX_FMT_YUV420P		60
-#define OA_PIX_FMT_YUV410P		61
-#define OA_PIX_FMT_YUV444  		62
-#define OA_PIX_FMT_YUV422  		63
-#define OA_PIX_FMT_YUYV  		63
-#define OA_PIX_FMT_UYVY  		64
-#define OA_PIX_FMT_YUV420 		65
-#define OA_PIX_FMT_YUV411 		66
-#define OA_PIX_FMT_YUV410 		67
+#define OA_PIX_FMT_YUV411P		61
+#define OA_PIX_FMT_YUV410P		62
+#define OA_PIX_FMT_YUV444  		63
+#define OA_PIX_FMT_YUV422  		64
+#define OA_PIX_FMT_YUYV  		OA_PIX_FMT_YUV422
+#define OA_PIX_FMT_UYVY  		65
+#define OA_PIX_FMT_YUV420 		66
+#define OA_PIX_FMT_YUV411 		67
+#define OA_PIX_FMT_YUV410 		68
 
-#define OA_PIX_FMT_GREY10_16BE          68
+#define OA_PIX_FMT_GREY10_16BE          69
 #define OA_PIX_FMT_GRAY10_16BE          OA_PIX_FMT_GREY10_16BE
-#define OA_PIX_FMT_GREY10_16LE          69
+#define OA_PIX_FMT_GREY10_16LE          70
 #define OA_PIX_FMT_GRAY10_16LE          OA_PIX_FMT_GREY10_16LE
-#define OA_PIX_FMT_GREY12_16BE          70
+#define OA_PIX_FMT_GREY12_16BE          71
 #define OA_PIX_FMT_GRAY12_16BE          OA_PIX_FMT_GREY12_16BE
-#define OA_PIX_FMT_GREY12_16LE          71
+#define OA_PIX_FMT_GREY12_16LE          72
 #define OA_PIX_FMT_GRAY12_16LE          OA_PIX_FMT_GREY12_16LE
-#define OA_PIX_FMT_GREY14_16BE          72
+#define OA_PIX_FMT_GREY14_16BE          73
 #define OA_PIX_FMT_GRAY14_16BE          OA_PIX_FMT_GREY14_16BE
-#define OA_PIX_FMT_GREY14_16LE          73
+#define OA_PIX_FMT_GREY14_16LE          74
 #define OA_PIX_FMT_GRAY14_16LE          OA_PIX_FMT_GREY14_16LE
 
 // Adding more frame formats here requires the oaFrameFormats table

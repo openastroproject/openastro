@@ -636,8 +636,8 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
 
   // don't do anything if the length is not as expected
   if ( length != self->expectedSize ) {
-    qWarning() << "size mismatch.  have:" << length << " expected: "
-       << self->expectedSize;
+    // qWarning() << "size mismatch.  have:" << length << " expected: "
+    //    << self->expectedSize;
     return 0;
   }
 

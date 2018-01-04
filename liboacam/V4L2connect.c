@@ -2,7 +2,8 @@
  *
  * V4L2connect.c -- Initialise V4L2 cameras
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -97,6 +98,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     perror ( "malloc V4L2_STATE failed" );
     return 0;
   }
+  OA_CLEAR ( *camera );
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
   camera->_private = cameraInfo;
@@ -110,6 +112,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   devInfo = device->_private;
 
   cameraInfo->colourDxK = 0;
+  cameraInfo->monoDMK = 0;
   // FIX ME -- find out how to get the USB IDs for these cameras so that
   // can be used to identify them
   // I don't have all these cameras to test, but I'm guessing for the time
@@ -130,6 +133,12 @@ oaV4L2InitCamera ( oaCameraDevice* device )
       !strncmp ( camera->deviceName, "DBx 41", 6 )) {
     cameraInfo->colourDxK = 1;
   }
+  if ( !strncmp ( camera->deviceName, "DMK 21", 6 ) ||
+      !strncmp ( camera->deviceName, "DMK 31", 6 ) ||
+      !strncmp ( camera->deviceName, "DMK 41", 6 )) {
+    cameraInfo->monoDMK = 1;
+  }
+
   if ( v4l2isSPC900 ( device )) {
     cameraInfo->isSPC900 = 1;
   }
@@ -1336,11 +1345,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   // Ok, now we need to find out what frame formats are supported and
   // which one we want to use
 
-  cameraInfo->videoRGB24 = cameraInfo->videoYUYV = 0;
-  cameraInfo->videoGrey16 = cameraInfo->videoYUV420 = 0;
-  cameraInfo->videoGrey = 0;
-  cameraInfo->mosaicFormat = 0;
-  cameraInfo->videoCurrent = 0;
+  cameraInfo->currentFrameFormat = 0;
+  cameraInfo->currentV4L2Format = 0;
 
   camera->features.rawMode = camera->features.demosaicMode = 0;
   camera->features.hasReset = 1;
@@ -1349,9 +1355,6 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     camera->features.pixelSizeY = 5600;
   }
 
-  int bestGreyscale = 0;
-  int haveNonEmulatedColour = 0;
-  int preferredFound = 0;
   for ( id = 0;; id++ ) {
     OA_CLEAR ( formatDesc );
     formatDesc.index = id;
@@ -1364,123 +1367,281 @@ oaV4L2InitCamera ( oaCameraDevice* device )
       break;
     }
 
-    // The DxK[234]1 cameras have to be handled separately here as they
-    // don't actually appear to allow all the format options to be set that
-    // they claim to support and lie about the CFA layout (it is GBRG).
+    // formats that are emulated in software are probably best avoided, but
+    // allowing them for full colour frames makes life easier for the time
+    // being
+
+    if (( formatDesc.flags & V4L2_FMT_FLAG_EMULATED ) &&
+        formatDesc.pixelformat != V4L2_PIX_FMT_RGB24 &&
+        formatDesc.pixelformat != V4L2_PIX_FMT_BGR24 ) {
+      continue;
+    }
+
+    // The DMK cameras appear to claim they can do RGB24/BGR24 and then
+    // refuse to set that mode when requested, which is a bit of a pain
+    // I wonder if it's actually an emulated mode?
+    if ( cameraInfo->monoDMK ) {
+      if ( formatDesc.pixelformat == V4L2_PIX_FMT_RGB24 ||
+          formatDesc.pixelformat == V4L2_PIX_FMT_BGR24 ) {
+        continue;
+      }
+    }
+
+    // The DxK[234]1 colour cameras have to be handled separately here as
+    // they don't actually appear to allow all the format options to be set
+    // that they claim to support and lie about the CFA layout (it is GBRG).
     if ( cameraInfo->colourDxK ) {
       switch ( formatDesc.pixelformat ) {
         case V4L2_PIX_FMT_SBGGR8:
-          cameraInfo->videoCurrent = V4L2_PIX_FMT_SBGGR8;
-          cameraInfo->mosaicFormat = formatDesc.pixelformat;
+          cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+          cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG8;
+          camera->frameFormats [ OA_PIX_FMT_GBRG8 ] = 1;
           camera->features.rawMode = 1;
-          preferredFound = 1;
-          if (!( formatDesc.flags & V4L2_FMT_FLAG_EMULATED )) {
-            haveNonEmulatedColour = 1;
-          }
           break;
+
         default:
           break;
       }
+      continue;
 
     } else {
 
+fprintf ( stderr, "found V4L2 format '%s': (%c%c%c%c)\n",
+            formatDesc.description, formatDesc.pixelformat & 0xff,
+            ( formatDesc.pixelformat >> 8 ) & 0xff,
+            ( formatDesc.pixelformat >> 16 ) & 0xff,
+            ( formatDesc.pixelformat >> 24 ) & 0xff );
       switch ( formatDesc.pixelformat ) {
 
         case V4L2_PIX_FMT_RGB24:
-          cameraInfo->videoCurrent = V4L2_PIX_FMT_RGB24;
-          cameraInfo->videoRGB24 = 1;
+          cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+          cameraInfo->currentFrameFormat = OA_PIX_FMT_RGB24;
+          camera->frameFormats [ OA_PIX_FMT_RGB24 ] = 1;
           camera->features.demosaicMode = 1;
-          preferredFound = 1;
-          if (!( formatDesc.flags & V4L2_FMT_FLAG_EMULATED )) {
-            haveNonEmulatedColour = 1;
-          }
           break;
 
-        case V4L2_PIX_FMT_SBGGR8:
-        case V4L2_PIX_FMT_SRGGB8:
-        case V4L2_PIX_FMT_SGBRG8:
-        case V4L2_PIX_FMT_SGRBG8:
-          if ( !preferredFound ) {
-            cameraInfo->videoCurrent = formatDesc.pixelformat;
-            cameraInfo->mosaicFormat = formatDesc.pixelformat;
-            camera->features.rawMode = 1;
-            preferredFound = 1;
-            if (!( formatDesc.flags & V4L2_FMT_FLAG_EMULATED )) {
-              haveNonEmulatedColour = 1;
-            }
-          }
-          break;
-
-        case V4L2_PIX_FMT_YUV420:
-          if ( !preferredFound ) {
-            cameraInfo->videoCurrent = V4L2_PIX_FMT_YUV420;
-            cameraInfo->videoYUV420 = 1;
-            camera->features.demosaicMode = 1;
-            preferredFound = 1;
-            if (!( formatDesc.flags & V4L2_FMT_FLAG_EMULATED )) {
-              haveNonEmulatedColour = 1;
-            }
-          }
-          break;
-
-        case V4L2_PIX_FMT_YUYV:
-          if ( !preferredFound ) {
-            cameraInfo->videoCurrent = V4L2_PIX_FMT_YUYV;
-            cameraInfo->videoYUYV = 1;
-            camera->features.demosaicMode = 1;
-            preferredFound = 1;
-            if (!( formatDesc.flags & V4L2_FMT_FLAG_EMULATED )) {
-              haveNonEmulatedColour = 1;
-            }
-          }
-          break;
-
-        case V4L2_PIX_FMT_Y16:
-          bestGreyscale = V4L2_PIX_FMT_Y16;
-          if ( !preferredFound ) {
-            cameraInfo->videoCurrent = V4L2_PIX_FMT_Y16;
-            cameraInfo->videoGrey16 = 1;
-            preferredFound = 1;
-          }
+        case V4L2_PIX_FMT_BGR24:
+          cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+          cameraInfo->currentFrameFormat = OA_PIX_FMT_BGR24;
+          camera->frameFormats [ OA_PIX_FMT_BGR24 ] = 1;
+          camera->features.demosaicMode = 1;
           break;
 
         case V4L2_PIX_FMT_GREY:
-          if ( !bestGreyscale ) {
-            bestGreyscale = V4L2_PIX_FMT_GREY;
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY8;
           }
-          if ( !cameraInfo->videoCurrent ) {
-            cameraInfo->videoCurrent = V4L2_PIX_FMT_GREY;
-            cameraInfo->videoGrey = 1;
-            preferredFound = 1;
-          }
+          camera->frameFormats [ OA_PIX_FMT_GREY8 ] = 1;
           break;
+
+        case V4L2_PIX_FMT_Y10:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY10LE;
+          }
+          camera->frameFormats [ OA_PIX_FMT_GREY10LE ] = 1;
+          break;
+
+        case V4L2_PIX_FMT_Y12:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY12LE;
+          }
+          camera->frameFormats [ OA_PIX_FMT_GREY12LE ] = 1;
+          break;
+
+        case V4L2_PIX_FMT_Y16:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY16LE;
+          }
+          camera->frameFormats [ OA_PIX_FMT_GREY16LE ] = 1;
+          break;
+
+        case V4L2_PIX_FMT_Y16_BE:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY16BE;
+          }
+          camera->frameFormats [ OA_PIX_FMT_GREY16BE ] = 1;
+          break;
+
+        case V4L2_PIX_FMT_YUYV:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_YUYV;
+          }
+          camera->frameFormats [ OA_PIX_FMT_YUYV ] = 1;
+          break;
+
+        case V4L2_PIX_FMT_UYVY:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_UYVY;
+          }
+          camera->frameFormats [ OA_PIX_FMT_UYVY ] = 1;
+          break;
+
+        case V4L2_PIX_FMT_YUV422P:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_YUV422P;
+          }
+          camera->frameFormats [ OA_PIX_FMT_YUV422P ] = 1;
+          break;
+
+        case V4L2_PIX_FMT_YUV411P:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_YUV411P;
+          }
+          camera->frameFormats [ OA_PIX_FMT_YUV411P ] = 1;
+          break;
+
+        case V4L2_PIX_FMT_YUV444:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_YUV444;
+          }
+          camera->frameFormats [ OA_PIX_FMT_YUV444 ] = 1;
+          break;
+
+        case V4L2_PIX_FMT_YUV410:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_YUV410;
+          }
+          camera->frameFormats [ OA_PIX_FMT_YUV410 ] = 1;
+          break;
+
+        case V4L2_PIX_FMT_YUV420:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_YUV420;
+          }
+          camera->frameFormats [ OA_PIX_FMT_YUV420 ] = 1;
+          break;
+
+        case V4L2_PIX_FMT_SBGGR8:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_BGGR8;
+          }
+          camera->frameFormats [ OA_PIX_FMT_BGGR8 ] = 1;
+          camera->features.rawMode = 1;
+          break;
+
+        case V4L2_PIX_FMT_SRGGB8:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_RGGB8;
+          }
+          camera->frameFormats [ OA_PIX_FMT_RGGB8 ] = 1;
+          camera->features.rawMode = 1;
+          break;
+
+        case V4L2_PIX_FMT_SGBRG8:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG8;
+          }
+          camera->frameFormats [ OA_PIX_FMT_GBRG8 ] = 1;
+          camera->features.rawMode = 1;
+          break;
+
+        case V4L2_PIX_FMT_SGRBG8:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG8;
+          }
+          camera->frameFormats [ OA_PIX_FMT_GRBG8 ] = 1;
+          camera->features.rawMode = 1;
+          break;
+
+        case V4L2_PIX_FMT_SBGGR10:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_BGGR10LE;
+          }
+          camera->frameFormats [ OA_PIX_FMT_BGGR10LE ] = 1;
+          camera->features.rawMode = 1;
+          break;
+
+        case V4L2_PIX_FMT_SRGGB10:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_RGGB10LE;
+          }
+          camera->frameFormats [ OA_PIX_FMT_RGGB10LE ] = 1;
+          camera->features.rawMode = 1;
+          break;
+    
+        case V4L2_PIX_FMT_SGBRG10:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG10LE;
+          }
+          camera->frameFormats [ OA_PIX_FMT_GBRG10LE ] = 1;
+          camera->features.rawMode = 1;
+          break;
+
+        case V4L2_PIX_FMT_SGRBG10:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG10LE;
+          }
+          camera->frameFormats [ OA_PIX_FMT_GRBG10LE ] = 1;
+          camera->features.rawMode = 1;
+          break;
+
+        case V4L2_PIX_FMT_SBGGR12:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_BGGR12LE;
+          }
+          camera->frameFormats [ OA_PIX_FMT_BGGR12LE ] = 1;
+          camera->features.rawMode = 1;
+          break;
+
+        case V4L2_PIX_FMT_SRGGB12:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_RGGB12LE;
+          }
+          camera->frameFormats [ OA_PIX_FMT_RGGB12LE ] = 1;
+          camera->features.rawMode = 1;
+          break;
+
+        case V4L2_PIX_FMT_SGBRG12:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG12LE;
+          }
+          camera->frameFormats [ OA_PIX_FMT_GBRG12LE ] = 1;
+          camera->features.rawMode = 1;
+          break;
+
+        case V4L2_PIX_FMT_SGRBG12:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG12LE;
+          }
+          camera->frameFormats [ OA_PIX_FMT_GRBG12LE ] = 1;
+          camera->features.rawMode = 1;
+          break;
+
+        default:
+          fprintf ( stderr, "Unhandled V4L2 format '%s': (%c%c%c%c)\n",
+            formatDesc.description, formatDesc.pixelformat & 0xff,
+            ( formatDesc.pixelformat >> 8 ) & 0xff,
+            ( formatDesc.pixelformat >> 16 ) & 0xff,
+            ( formatDesc.pixelformat >> 24 ) & 0xff );
       }
     }
   }
 
-  // if the only colour modes are emulated then we look for a suitable
-  // greyscale mode
-
-  // FIX ME -- this isn't going to work.  Try again.
-
-  if ( !haveNonEmulatedColour ) {
-    switch ( bestGreyscale ) {
-      case V4L2_PIX_FMT_Y16:
-        cameraInfo->videoCurrent = V4L2_PIX_FMT_Y16;
-        cameraInfo->videoGrey16 = 1;
-        cameraInfo->videoGrey = 0;
-        cameraInfo->videoRGB24 = cameraInfo->videoYUYV = 0;
-        cameraInfo->videoYUV420 = 0;
-      case V4L2_PIX_FMT_GREY:
-        cameraInfo->videoCurrent = V4L2_PIX_FMT_GREY;
-        cameraInfo->videoGrey = 1;
-        cameraInfo->videoGrey16 = 0;
-        cameraInfo->videoRGB24 = cameraInfo->videoYUYV = 0;
-        cameraInfo->videoYUV420 = 0;
-    }
-  }
-
-  if ( !cameraInfo->videoCurrent ) {
+  if ( !cameraInfo->currentV4L2Format ) {
     fprintf ( stderr, "No suitable video format found on %s",
         camera->deviceName );
     v4l2_close ( cameraInfo->fd );
@@ -1490,6 +1651,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     return 0;
   }
 
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
+
   // Put the camera into the current video mode.  Ignore the frame size
   // for now.  That will have to be sorted later by the caller
 
@@ -1497,7 +1660,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   format.fmt.pix.width = 1;
   format.fmt.pix.height = 1;
-  format.fmt.pix.pixelformat = cameraInfo->videoCurrent;
+  format.fmt.pix.pixelformat = cameraInfo->currentV4L2Format;
   format.fmt.pix.field = V4L2_FIELD_NONE;
   if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_S_FMT, &format )) {
     perror ( "VIDIOC_S_FMT xioctl failed" );
@@ -1508,7 +1671,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  if ( format.fmt.pix.pixelformat != cameraInfo->videoCurrent ) {
+  if ( format.fmt.pix.pixelformat != cameraInfo->currentV4L2Format ) {
     fprintf ( stderr, "Can't set required video format in %s.\n",
         __FUNCTION__);
     v4l2_close ( cameraInfo->fd );
@@ -1525,7 +1688,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   while ( 1 ) {
     OA_CLEAR ( fsize );
     fsize.index = j;
-    fsize.pixel_format = cameraInfo->videoCurrent;
+    fsize.pixel_format = cameraInfo->currentV4L2Format;
     if ( -1 == v4l2ioctl ( cameraInfo->fd, VIDIOC_ENUM_FRAMESIZES, &fsize )) {
       if ( EINVAL == errno) {
         break;

@@ -77,7 +77,7 @@ oaV4L2CameraGetFrameRates ( oaCamera* camera, int resX, int resY )
   do {
     OA_CLEAR( fint );
     fint.index = k;
-    fint.pixel_format = cameraInfo->videoCurrent;
+    fint.pixel_format = cameraInfo->currentV4L2Format;
     fint.width = resX;
     fint.height = resY;
     if ( -1 == v4l2ioctl ( cameraInfo->fd, VIDIOC_ENUM_FRAMEINTERVALS,
@@ -118,30 +118,7 @@ oaV4L2CameraGetFramePixelFormat ( oaCamera* camera, int depth )
     return OA_PIX_FMT_GBRG8;
   }
 
-  switch ( cameraInfo->videoCurrent ) {
-    case V4L2_PIX_FMT_RGB24:
-      return OA_PIX_FMT_RGB24;
-      break;
-    case V4L2_PIX_FMT_GREY:
-      return OA_PIX_FMT_GREY8;
-      break;
-    case V4L2_PIX_FMT_SBGGR8:
-      return OA_PIX_FMT_BGGR8;
-    case V4L2_PIX_FMT_SRGGB8:
-      return OA_PIX_FMT_RGGB8;
-    case V4L2_PIX_FMT_SGRBG8:
-      return OA_PIX_FMT_GRBG8;
-    case V4L2_PIX_FMT_SGBRG8:
-      return OA_PIX_FMT_GBRG8;
-    case V4L2_PIX_FMT_YUV420:
-    case V4L2_PIX_FMT_YUYV:
-    case V4L2_PIX_FMT_Y16:
-    default:
-      fprintf ( stderr, "%s: can't handle pixel format %d\n", __FUNCTION__,
-          cameraInfo->videoCurrent );
-      return OA_PIX_FMT_RGB24;
-      break;
-  }
+  return cameraInfo->currentFrameFormat;
 }
 
 

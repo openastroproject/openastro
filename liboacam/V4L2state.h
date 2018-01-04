@@ -2,7 +2,7 @@
  *
  * V4L2state.h -- V4L2 camera state header
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -42,14 +42,8 @@ typedef struct V4L2_STATE {
   char			devicePath[ PATH_MAX+1];
   int			fd;
   // video mode settings
-  int			videoYUV420;
-  int			videoRGB24;
-  int			videoYUYV;
-  int			videoGrey16;
-  int			videoGrey;
-  uint32_t		videoCurrent;
-  // mosaic format, for those cameras that do raw mode
-  int			mosaicFormat;
+  uint32_t		currentFrameFormat;
+  uint32_t		currentV4L2Format;
   // buffering for image transfers
   struct buffer*	buffers;
   unsigned int  	configuredBuffers;
@@ -58,6 +52,7 @@ typedef struct V4L2_STATE {
   struct v4l2_buffer	currentFrame[ OA_CAM_BUFFERS ];
   // camera status
   int			colourDxK;
+  int			monoDMK;
   int			isSPC900;
   // have a manual setting for white balance
   uint32_t		haveWhiteBalanceManual;

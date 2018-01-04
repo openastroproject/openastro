@@ -2,7 +2,8 @@
  *
  * V4L2controller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -51,6 +52,8 @@ static int	_processSetResolution ( V4L2_STATE*, OA_COMMAND* );
 static int	_processStreamingStart ( V4L2_STATE*, OA_COMMAND* );
 static int	_processStreamingStop ( V4L2_STATE*, OA_COMMAND* );
 static int	_processSetFrameInterval ( V4L2_STATE*, OA_COMMAND* );
+static int	_processSetFrameFormat ( V4L2_STATE*, unsigned int,
+		    OA_COMMAND* );
 static int	_processGetMenuItem ( V4L2_STATE*, OA_COMMAND* );
 static int	_setUserControl ( int, int, int );
 static int	_getUserControl ( int, int );
@@ -266,6 +269,11 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
   // statement
 
   switch ( command->controlId ) {
+
+    case OA_CAM_CTRL_FRAME_FORMAT:
+      val_s32 = valp->discrete;
+      return _processSetFrameFormat ( cameraInfo, val_s32, command );
+      break;
 
     case OA_CAM_CTRL_BRIGHTNESS:
       val_s32 = valp->int32;
@@ -853,6 +861,113 @@ _processSetResolution ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
 
 
 static int
+_processSetFrameFormat ( V4L2_STATE* cameraInfo, unsigned int format,
+    OA_COMMAND* command )
+{
+  int           streaming;
+  unsigned int	v4l2Format = 0;
+
+  switch ( format ) {
+    case OA_PIX_FMT_RGB24:
+      v4l2Format = V4L2_PIX_FMT_RGB24;
+      break;
+    case OA_PIX_FMT_BGR24:
+      v4l2Format = V4L2_PIX_FMT_BGR24;
+      break;
+    case OA_PIX_FMT_GREY8:
+      v4l2Format = V4L2_PIX_FMT_GREY;
+      break;
+    case OA_PIX_FMT_GREY10LE:
+      v4l2Format = V4L2_PIX_FMT_Y10;
+      break;
+    case OA_PIX_FMT_GREY12LE:
+      v4l2Format = V4L2_PIX_FMT_Y12;
+      break;
+    case OA_PIX_FMT_GREY16LE:
+      v4l2Format = V4L2_PIX_FMT_Y16;
+      break;
+    case OA_PIX_FMT_GREY16BE:
+      v4l2Format = V4L2_PIX_FMT_Y16_BE;
+      break;
+    case OA_PIX_FMT_YUYV:
+      v4l2Format = V4L2_PIX_FMT_YUYV;
+      break;
+    case OA_PIX_FMT_UYVY:
+      v4l2Format = V4L2_PIX_FMT_UYVY;
+      break;
+    case OA_PIX_FMT_YUV422P:
+      v4l2Format = V4L2_PIX_FMT_YUV422P;
+      break;
+    case OA_PIX_FMT_YUV411P:
+      v4l2Format = V4L2_PIX_FMT_YUV411P;
+      break;
+    case OA_PIX_FMT_YUV444:
+      v4l2Format = V4L2_PIX_FMT_YUV444;
+      break;
+    case OA_PIX_FMT_YUV410:
+      v4l2Format = V4L2_PIX_FMT_YUV410;
+      break;
+    case OA_PIX_FMT_YUV420:
+      v4l2Format = V4L2_PIX_FMT_YUV420;
+      break;
+    case OA_PIX_FMT_BGGR8:
+      v4l2Format = V4L2_PIX_FMT_SBGGR8;
+      break;
+    case OA_PIX_FMT_RGGB8:
+      v4l2Format = V4L2_PIX_FMT_SRGGB8;
+      break;
+    case OA_PIX_FMT_GBRG8:
+      if ( cameraInfo->colourDxK ) {
+        v4l2Format = V4L2_PIX_FMT_SBGGR8;
+      } else {
+        v4l2Format = V4L2_PIX_FMT_SGBRG8;
+      }
+      break;
+    case OA_PIX_FMT_GRBG8:
+      v4l2Format = V4L2_PIX_FMT_SGRBG8;
+      break;
+    case OA_PIX_FMT_BGGR10LE:
+      v4l2Format = V4L2_PIX_FMT_SBGGR10;
+      break;
+    case OA_PIX_FMT_RGGB10LE:
+      v4l2Format = V4L2_PIX_FMT_SRGGB10;
+      break;
+    case OA_PIX_FMT_GBRG10LE:
+      v4l2Format = V4L2_PIX_FMT_SGBRG10;
+      break;
+    case OA_PIX_FMT_GRBG10LE:
+      v4l2Format = V4L2_PIX_FMT_SGRBG10;
+      break;
+    case OA_PIX_FMT_BGGR12LE:
+      v4l2Format = V4L2_PIX_FMT_SBGGR12;
+      break;
+    case OA_PIX_FMT_RGGB12LE:
+      v4l2Format = V4L2_PIX_FMT_SRGGB12;
+      break;
+    case OA_PIX_FMT_GBRG12LE:
+      v4l2Format = V4L2_PIX_FMT_SGBRG12;
+      break;
+    case OA_PIX_FMT_GRBG12LE:
+      v4l2Format = V4L2_PIX_FMT_SGRBG12;
+      break;
+  }
+
+  if ( v4l2Format ) {
+    pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+    cameraInfo->currentV4L2Format = v4l2Format;
+    cameraInfo->currentFrameFormat = format;
+    streaming = cameraInfo->isStreaming;
+    pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+    if ( streaming ) {
+      return _doCameraConfig ( cameraInfo, command );
+    }
+    return OA_ERR_NONE;
+  }
+  return -OA_ERR_OUT_OF_RANGE;
+}
+
+
+static int
 _processSetFrameInterval ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
 {
   FRAMERATE*	rate = command->commandData;
@@ -1046,17 +1161,19 @@ _doStart ( V4L2_STATE* cameraInfo )
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   fmt.fmt.pix.width = cameraInfo->xSize;
   fmt.fmt.pix.height = cameraInfo->ySize;
-  fmt.fmt.pix.pixelformat = cameraInfo->videoCurrent;
+  fmt.fmt.pix.pixelformat = cameraInfo->currentV4L2Format;
   fmt.fmt.pix.field = V4L2_FIELD_NONE;
   if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_S_FMT, &fmt )) {
     perror ( "VIDIOC_S_FMT v4l2ioctl failed" );
     return -OA_ERR_CAMERA_IO;
   }
 
-  if ( fmt.fmt.pix.pixelformat != cameraInfo->videoCurrent ) {
+  if ( fmt.fmt.pix.pixelformat != cameraInfo->currentV4L2Format ) {
     fprintf ( stderr, "Can't get expected video format: %c%c%c%c\n",
-        cameraInfo->videoCurrent & 0xff, cameraInfo->videoCurrent >> 8 & 0xff,
-        cameraInfo->videoCurrent >> 16 & 0xff, cameraInfo->videoCurrent >> 24 );
+        cameraInfo->currentV4L2Format & 0xff,
+        cameraInfo->currentV4L2Format >> 8 & 0xff,
+        cameraInfo->currentV4L2Format >> 16 & 0xff,
+        cameraInfo->currentV4L2Format >> 24 );
     return -OA_ERR_CAMERA_IO;
   }
 
