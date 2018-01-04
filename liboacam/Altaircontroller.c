@@ -2,7 +2,7 @@
  *
  * Altaircontroller.c -- Main camera controller thread
  *
- * Copyright 2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -486,19 +486,6 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       return _setFrameFormat ( cameraInfo, val );
       break;
 /*
-    case OA_CAM_CTRL_COLOUR_MODE:
-      if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
-        fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __FUNCTION__, valp->valueType );
-        return -OA_ERR_INVALID_CONTROL_TYPE;
-      }
-      val = valp->discrete;
-      if ( OA_COLOUR_MODE_RAW != val && OA_COLOUR_MODE_NONRAW != val ) {
-        return -OA_ERR_OUT_OF_RANGE;
-      }
-      return _setColourMode ( cameraInfo, val );
-      break;
-
     case OA_CAM_CTRL_BIT_DEPTH:
       if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
         fprintf ( stderr, "%s: invalid control type %d where discrete "
@@ -708,13 +695,6 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_BINNING:
       // FIX ME
       fprintf ( stderr, "%s: Need to code binning control for Altaircam\n",
-          __FUNCTION__ );
-      return -OA_ERR_INVALID_CONTROL;
-      break;
-
-    case OA_CAM_CTRL_COLOUR_MODE:
-      // FIX ME
-      fprintf ( stderr, "%s: Need to code colour mode control for Altaircam\n",
           __FUNCTION__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
@@ -996,46 +976,6 @@ _setFrameFormat ( ALTAIRCAM_STATE* cameraInfo, int format )
 
 
 /*
-static int
-_setColourMode ( ALTAIRCAM_STATE* cameraInfo, int mode )
-{
-  int		restart = 0;
-
-  if ( cameraInfo->isStreaming ) {
-    restart = 1;
-    _doStop ( cameraInfo );
-  }
-
-  if ((( p_Altaircam_put_Option )( cameraInfo->handle,
-      TOUPCAM_OPTION_RAW, OA_COLOUR_MODE_RAW == mode ? 1 : 0  )) < 0 ) {
-    fprintf ( stderr, "Altaircam_put_Option ( raw, %d ) failed\n", mode );
-    return -OA_ERR_CAMERA_IO;
-  }
-
-  if ( OA_COLOUR_MODE_RAW == mode ) {
-    if ( cameraInfo->currentVideoFormat == OA_PIX_FMT_RGB24 ) {
-      cameraInfo->currentVideoFormat = cameraInfo->cfaPattern;
-      cameraInfo->currentBitsPerPixel = 8;
-    } else {
-fprintf ( stderr, "don't know how to handle raw for current video mode\n" );
-    }
-  } else {
-    if ( cameraInfo->currentVideoFormat == cameraInfo->cfaPattern ) {
-      cameraInfo->currentVideoFormat = OA_PIX_FMT_RGB24;
-      cameraInfo->currentBitsPerPixel = 24;
-    } else {
-fprintf ( stderr, "don't know how to handle nonraw for current video mode\n" );
-    }
-  }
-
-  if ( restart ) {
-    _doStart ( cameraInfo );
-  }
-
-  return OA_ERR_NONE;
-}
-
-
 static int
 _setBitDepth ( ALTAIRCAM_STATE* cameraInfo, int depth )
 {

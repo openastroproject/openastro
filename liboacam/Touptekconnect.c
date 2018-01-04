@@ -2,7 +2,7 @@
  *
  * Touptekconnect.c -- Initialise Touptek cameras
  *
- * Copyright 2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -288,8 +288,6 @@ oaTouptekInitCamera ( oaCameraDevice* device )
     commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BRIGHTNESS ) = TOUPCAM_BRIGHTNESS_MAX;
     commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BRIGHTNESS ) = 1;
     commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) = TOUPCAM_BRIGHTNESS_DEF;
-
-    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COLOUR_MODE ) = OA_CTRL_TYPE_DISCRETE;
 
     // force the camera out of raw mode
     if ((( p_Toupcam_put_Option )( handle, TOUPCAM_OPTION_RAW, 0 )) < 0 ) {

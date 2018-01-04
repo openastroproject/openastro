@@ -2,7 +2,7 @@
  *
  * oldQHY6.c -- Old QHY6 camera interface
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -465,7 +465,6 @@ testControl ( oaCamera* camera, int control, oaControlValue* val )
 #endif
 
     case OA_CAM_CTRL_BIT_DEPTH:
-    case OA_CAM_CTRL_COLOUR_MODE:
       return -OA_ERR_INVALID_CONTROL;
       break;
 

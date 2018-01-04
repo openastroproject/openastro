@@ -3,7 +3,7 @@
  * ZWASIcommonControl.c -- control functions for ZW ASI cameras common to
  *                         v1 and v2 interfaces
  *
- * Copyright 2017 James Fidell (james@openastroproject.org)
+ * Copyright 2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -152,18 +152,6 @@ oaZWASICameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       if ( 16 != val->discrete && 12 != val->discrete && 8 != val->discrete ) {
-        return -OA_ERR_OUT_OF_RANGE;
-      }
-      break;
-
-    case OA_CAM_CTRL_COLOUR_MODE:
-      if ( val->valueType != OA_CTRL_TYPE_DISCRETE ) {
-        fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __FUNCTION__, val->valueType );
-        return -OA_ERR_INVALID_CONTROL_TYPE;
-      }
-      if ( OA_COLOUR_MODE_RAW != val->discrete && OA_COLOUR_MODE_NONRAW !=
-          val->discrete ) {
         return -OA_ERR_OUT_OF_RANGE;
       }
       break;

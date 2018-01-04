@@ -2,7 +2,8 @@
  *
  * oacam-controls.h -- camera API (sub)header for camera controls
  *
- * Copyright 2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -74,8 +75,8 @@
 #define	OA_CAM_CTRL_HIGHSPEED			41
 #define	OA_CAM_CTRL_LOWNOISE			42
 #define	OA_CAM_CTRL_PIXELCLOCK			43
-#define	OA_CAM_CTRL_COLOUR_MODE			44
-#define	OA_CAM_CTRL_COLOR_MODE			OA_CAM_CTRL_COLOUR_MODE
+//Redundant
+//#define	OA_CAM_CTRL_COLOUR_MODE			44
 #define	OA_CAM_CTRL_ROLLING_SHUTTER		45
 #define	OA_CAM_CTRL_SHUTTER			46
 #define	OA_CAM_CTRL_SIGNAL_BOOST		47
@@ -174,12 +175,6 @@
 
 #define OA_CAM_CTRL_AUTO_TYPE(x)	controlType[OA_CAM_CTRL_MODIFIER_AUTO][OA_CAM_CTRL_MODE_BASE(x)]
 
-
-
-#define OA_COLOUR_MODE_RAW		1
-#define OA_COLOUR_MODE_NONRAW		2
-#define OA_COLOR_MODE_RAW		OA_COLOUR_MODE_RAW
-#define OA_COLOR_MODE_NONRAW		OA_COLOUR_MODE_NONRAW
 
 // white balance ranges
 

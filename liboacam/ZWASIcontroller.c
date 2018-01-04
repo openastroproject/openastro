@@ -2,7 +2,7 @@
  *
  * ZWASIcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -277,17 +277,6 @@ _processSetControl ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
             cameraInfo->videoCurrent = IMG_RAW8;
           }
         }
-      }
-      _doFrameReconfiguration ( cameraInfo );
-      break;
-
-    case OA_CAM_CTRL_COLOUR_MODE:
-      cameraInfo->videoCurrent = _doStateMachine ( cameraInfo,
-            OA_CAM_CTRL_COLOUR_MODE );
-      if ( cameraInfo->videoCurrent == IMG_RAW16 ) {
-        cameraInfo->currentBitDepth = 16;
-      } else {
-        cameraInfo->currentBitDepth = 8;
       }
       _doFrameReconfiguration ( cameraInfo );
       break;

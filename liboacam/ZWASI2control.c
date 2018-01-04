@@ -2,7 +2,7 @@
  *
  * ZWASI2control.c -- control functions for ZW ASI cameras, APIv2
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -110,15 +110,6 @@ oaZWASI2CameraReadControl ( oaCamera* camera, int control,
     case OA_CAM_CTRL_BIT_DEPTH:
       val->valueType = OA_CTRL_TYPE_DISCRETE;
       val->discrete = cameraInfo->currentBitDepth;
-      break;
-
-    case OA_CAM_CTRL_COLOUR_MODE:
-      val->valueType = OA_CTRL_TYPE_DISCRETE;
-      if ( ASI_IMG_RAW16 == cameraInfo->currentMode || ASI_IMG_RAW8 ==
-          cameraInfo->currentMode ) {
-        val->discrete = OA_COLOUR_MODE_RAW;
-      }
-      val->discrete = OA_COLOUR_MODE_NONRAW;
       break;
 
     case OA_CAM_CTRL_TEMPERATURE:
@@ -249,15 +240,6 @@ oaZWASI2CameraTestControl ( oaCamera* camera, int control,
         }
       }
       if ( 8 == val_s32 ) {
-        return OA_ERR_NONE;
-      }
-      break;
-
-    case OA_CAM_CTRL_COLOUR_MODE:
-      val_s32 = val->discrete;
-      if (( camera->features.rawMode && OA_COLOUR_MODE_RAW == val_s32 ) ||
-          ( camera->features.demosaicMode && OA_COLOUR_MODE_NONRAW ==
-          val_s32 )) {
         return OA_ERR_NONE;
       }
       break;

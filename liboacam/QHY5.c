@@ -217,7 +217,6 @@ oaQHY5CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 
     case OA_CAM_CTRL_BINNING:
     case OA_CAM_CTRL_BIT_DEPTH:
-    case OA_CAM_CTRL_COLOUR_MODE:
       return -OA_ERR_INVALID_CONTROL;
       break;
 

@@ -2,7 +2,8 @@
  *
  * camera.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -88,7 +89,6 @@ class Camera : public QObject
     int			setFrameInterval ( int, int );
     float		getTemperature ( void );
     int			setBitDepth ( int );
-    int			setRawMode ( int );
     int			setFrameFormat ( int );
     int			testROISize ( unsigned int, unsigned int,
 				unsigned int*, unsigned int* );

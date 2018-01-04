@@ -2,7 +2,8 @@
  *
  * ZWASIconnect.c -- Initialise ZW ASI cameras
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -623,7 +624,6 @@ oaZWASIInitCamera ( oaCameraDevice* device )
   // to, but that's rather wasteful, so we only support this for colour
   // cameras
   if ( isColorCam()) {
-    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COLOUR_MODE ) = OA_CTRL_TYPE_DISCRETE;
     cameraInfo->colour = 1;
     if ( isImgTypeSupported ( IMG_RGB24 )) {
       cameraInfo->videoCurrent = IMG_RGB24;

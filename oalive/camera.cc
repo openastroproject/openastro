@@ -2,7 +2,8 @@
  *
  * camera.cc -- camera interface class
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -553,26 +554,6 @@ Camera::setBitDepth ( int depth )
 
   populateControlValue ( &v, OA_CAM_CTRL_BIT_DEPTH, depth );
   ret = cameraFuncs.setControl ( cameraContext, OA_CAM_CTRL_BIT_DEPTH, &v, 0 );
-  framePixelFormat = cameraFuncs.getFramePixelFormat ( cameraContext, 0 );
-  return ret;
-}
-
-
-int
-Camera::setRawMode ( int enabled )
-{
-  int ret;
-  oaControlValue v;
-
-  if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
-    return -1;
-  }
-
-  populateControlValue ( &v, OA_CAM_CTRL_COLOUR_MODE,
-      enabled ? OA_COLOUR_MODE_RAW : OA_COLOUR_MODE_NONRAW );
-  ret = cameraFuncs.setControl ( cameraContext, OA_CAM_CTRL_COLOUR_MODE,
-      &v, 0 );
   framePixelFormat = cameraFuncs.getFramePixelFormat ( cameraContext, 0 );
   return ret;
 }
