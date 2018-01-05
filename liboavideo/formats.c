@@ -396,8 +396,8 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .lumChrom		= 0,
     .lossless		= 1,
     .packed		= 0
-  }, {  // OA_PIX_FMT_GREY10BE
-    .name		= "MONO10BE",
+  }, {  // OA_PIX_FMT_GREY10
+    .name		= "MONO10",
     .simpleName		= "10bpp monochrome",
     .bytesPerPixel	= 1.25,
     .bitsPerPixel	= 10,
@@ -409,21 +409,8 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .lumChrom		= 0,
     .lossless		= 1,
     .packed		= 1
-  }, {  // OA_PIX_FMT_GREY10LE
-    .name		= "MONO10LE",
-    .simpleName		= "10bpp monochrome",
-    .bytesPerPixel	= 1.25,
-    .bitsPerPixel	= 10,
-    .cfaPattern		= 0,
-    .littleEndian	= 1,
-    .monochrome		= 1,
-    .rawColour		= 0,
-    .fullColour		= 0,
-    .lumChrom		= 0,
-    .lossless		= 1,
-    .packed		= 1
-  }, {  // OA_PIX_FMT_GREY12BE
-    .name		= "MONO12BE",
+  }, {  // OA_PIX_FMT_GREY12
+    .name		= "MONO12",
     .simpleName		= "12bpp monochrome",
     .bytesPerPixel	= 1.5,
     .bitsPerPixel	= 12,
@@ -435,39 +422,13 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .lumChrom		= 0,
     .lossless		= 1,
     .packed		= 1
-  }, {  // OA_PIX_FMT_GREY12LE
-    .name		= "MONO12LE",
-    .simpleName		= "12bpp monochrome",
-    .bytesPerPixel	= 1.5,
-    .bitsPerPixel	= 12,
-    .cfaPattern		= 0,
-    .littleEndian	= 1,
-    .monochrome		= 1,
-    .rawColour		= 0,
-    .fullColour		= 0,
-    .lumChrom		= 0,
-    .lossless		= 1,
-    .packed		= 1
-  }, {  // OA_PIX_FMT_GREY14BE
-    .name		= "MONO14BE",
-    .simpleName		= "14bpp colour",
+  }, {  // OA_PIX_FMT_GREY14
+    .name		= "MONO14",
+    .simpleName		= "14bpp monochrome",
     .bytesPerPixel	= 1.75,
     .bitsPerPixel	= 14,
     .cfaPattern		= 0,
     .littleEndian	= 0,
-    .monochrome		= 1,
-    .rawColour		= 0,
-    .fullColour		= 0,
-    .lumChrom		= 0,
-    .lossless		= 1,
-    .packed		= 1
-  }, {  // OA_PIX_FMT_GREY14LE
-    .name		= "MONO14LE",
-    .simpleName		= "14bpp colour",
-    .bytesPerPixel	= 1.75,
-    .bitsPerPixel	= 14,
-    .cfaPattern		= 0,
-    .littleEndian	= 1,
     .monochrome		= 1,
     .rawColour		= 0,
     .fullColour		= 0,

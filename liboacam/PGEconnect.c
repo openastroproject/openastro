@@ -1183,8 +1183,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   }
   if (( imageInfo.pixelFormatBitField & FC2_PIXEL_FORMAT_MONO12 ) ==
       FC2_PIXEL_FORMAT_MONO12 ) {
-    camera->frameFormats[ cameraInfo->bigEndian ? OA_PIX_FMT_GREY12BE :
-        OA_PIX_FMT_GREY12LE ] = 1;
+    camera->frameFormats[ OA_PIX_FMT_GREY12 ] = 1;
     if ( cameraInfo->maxBytesPerPixel < 2 ) {
       cameraInfo->maxBytesPerPixel = 2;
     }

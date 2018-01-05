@@ -62,8 +62,7 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
         result = 0;
       }
       break;
-    case OA_PIX_FMT_GREY12BE:
-    case OA_PIX_FMT_GREY12LE:
+    case OA_PIX_FMT_GREY12:
       length = xSize * ySize * 3 / 2;
       if ( OA_PIX_FMT_GREY8 == targetFormat ) {
         oaPackedGrey12ToGrey8 ( source, target, length );
