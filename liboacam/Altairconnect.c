@@ -356,7 +356,7 @@ oaAltairInitCamera ( oaCameraDevice* device )
       if ( 10 == cameraInfo->maxBitDepth ) {
         cameraInfo->maxBitDepth = 10;
         camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB30LE :
-            OA_PIX_FMT_GREY10 ] = 1;
+            OA_PIX_FMT_GREY10_16LE ] = 1;
       } else {
         fprintf ( stderr, "Camera claims 10-bit is available, but only %d"
             "-bit is available\n", cameraInfo->maxBitDepth );
@@ -366,7 +366,7 @@ oaAltairInitCamera ( oaCameraDevice* device )
       if ( 12 == cameraInfo->maxBitDepth ) {
         cameraInfo->maxBitDepth = 12;
         camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB36LE :
-            OA_PIX_FMT_GREY12 ] = 1;
+            OA_PIX_FMT_GREY12_16LE ] = 1;
       } else {
         fprintf ( stderr, "Camera claims 12-bit is available, but only %d"
             "-bit is available\n", cameraInfo->maxBitDepth );
@@ -376,7 +376,7 @@ oaAltairInitCamera ( oaCameraDevice* device )
       if ( 14 == cameraInfo->maxBitDepth ) {
         cameraInfo->maxBitDepth = 14;
         camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB42LE :
-            OA_PIX_FMT_GREY14 ] = 1;
+            OA_PIX_FMT_GREY14_16LE ] = 1;
       } else {
         fprintf ( stderr, "Camera claims 14-bit is available, but only %d"
             "-bit is available\n", cameraInfo->maxBitDepth );

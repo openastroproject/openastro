@@ -42,7 +42,7 @@ typedef struct Mallincam_STATE {
   HToupCam		handle;
   // video mode settings
   int			maxBytesPerPixel;
-  int			currentBytesPerPixel;
+  float			currentBytesPerPixel;
   int			currentVideoFormat;
   // buffering for image transfers
   struct Mallincambuffer*	buffers;

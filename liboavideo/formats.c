@@ -630,6 +630,19 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .lumChrom		= 1,
     .lossless		= 0,
     .packed		= 0
+  }, {  // OA_PIX_FMT_YUV411P
+    .name               = "YUV411P",
+    .simpleName         = "10bpp luminance/chrominance",
+    .bytesPerPixel      = 1.25,
+    .bitsPerPixel       = 10,
+    .cfaPattern         = 0,
+    .littleEndian       = 0,
+    .monochrome         = 0,
+    .rawColour          = 0,
+    .fullColour         = 0,
+    .lumChrom           = 1,
+    .lossless           = 0,
+    .packed             = 0
   }, {  // OA_PIX_FMT_YUV410P
     .name		= "YUV410P",
     .simpleName		= "10bpp luminance/chrominance",
