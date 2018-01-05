@@ -826,9 +826,9 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
         config.imageSizeY, self->videoFramePixelFormat, viewPixelFormat );
     viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
   } else {
-    if ( OA_ISBAYER( self->videoFramePixelFormat )) {
+    if ( oaFrameFormats[ self->videoFramePixelFormat ].rawColour ) {
       int cfaPattern = config.cfaPattern;
-      if ( OA_ISBAYER ( viewPixelFormat )) {
+      if ( oaFrameFormats[ viewPixelFormat ].rawColour ) {
         if ( OA_DEMOSAIC_AUTO == cfaPattern ) {
           cfaPattern = oaFrameFormats[ viewPixelFormat ].cfaPattern;
         }
@@ -934,7 +934,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
       ( unsigned long ) t.tv_usec / 1000;
 
   int cfaPattern = config.cfaPattern;
-  if ( OA_ISBAYER ( previewPixelFormat )) {
+  if ( oaFrameFormats[ previewPixelFormat ].rawColour ) {
     if ( OA_DEMOSAIC_AUTO == cfaPattern ) {
       cfaPattern = oaFrameFormats[ previewPixelFormat ].cfaPattern;
     }
@@ -979,7 +979,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
       doDisplay = 1;
 
       if ( self->demosaic && config.demosaicPreview ) {
-        if ( OA_ISBAYER ( previewPixelFormat )) {
+        if ( oaFrameFormats[ previewPixelFormat ].rawColour ) {
           currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :
               !currentPreviewBuffer;
           // Use the demosaicking to copy the data to the previewImageBuffer
@@ -1010,8 +1010,9 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
       QImage* swappedImage = 0;
 
       if ( OA_PIX_FMT_GREY8 == self->videoFramePixelFormat ||
-           ( OA_ISBAYER ( previewPixelFormat ) && ( !self->demosaic ||
-           !config.demosaicPreview )) || reducedGreyscaleBitDepth ) {
+           ( oaFrameFormats[ previewPixelFormat ].rawColour &&
+           ( !self->demosaic || !config.demosaicPreview )) ||
+           reducedGreyscaleBitDepth ) {
         newImage = new QImage (( const uint8_t* ) previewBuffer,
             config.imageSizeX, config.imageSizeY, config.imageSizeX,
             QImage::Format_Indexed8 );
@@ -1072,7 +1073,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
         self->setNewFirstFrameTime = 0;
       }
       state->lastFrameTime = now;
-      if ( config.demosaicOutput && OA_ISBAYER ( writePixelFormat )) {
+      if ( config.demosaicOutput &&
+          oaFrameFormats[ writePixelFormat ].rawColour ) {
         if ( writeDemosaicPreviewBuffer ) {
           writeBuffer = previewBuffer;
         } else {

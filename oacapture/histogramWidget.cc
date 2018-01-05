@@ -2,7 +2,7 @@
  *
  * histogramWidget.cc -- class for the histogram display
  *
- * Copyright 2013,2014,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -84,7 +84,7 @@ HistogramWidget::process ( void* imageData, unsigned int width,
   if ( OA_PIX_FMT_RGB24 == format || OA_PIX_FMT_BGR24 == format ) {
     _processRGBHistogram ( imageData, width, height, length, format );
   } else {
-    if ( OA_ISBAYER ( format ) && config.rawRGBHistogram ) {
+    if ( oaFrameFormats[ format ].rawColour && config.rawRGBHistogram ) {
       _processMosaicHistogram ( imageData, width, height, length, format );
     } else {
       _processGreyscaleHistogram ( imageData, width, height, length, format );

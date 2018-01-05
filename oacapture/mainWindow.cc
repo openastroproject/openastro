@@ -1534,12 +1534,14 @@ MainWindow::connectCamera ( int deviceIndex )
   oldHistogramState = -1;
 
   format = state.camera->videoFramePixelFormat();
-  state.captureWidget->enableTIFFCapture (( !OA_ISBAYER( format ) ||
+  state.captureWidget->enableTIFFCapture (
+      ( !oaFrameFormats[ format ].rawColour ||
       ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
-  state.captureWidget->enablePNGCapture (( !OA_ISBAYER( format ) ||
+  state.captureWidget->enablePNGCapture (
+      ( !oaFrameFormats[ format ].rawColour  ||
       ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
   state.captureWidget->enableMOVCapture (( QUICKTIME_OK( format ) || 
-      ( OA_ISBAYER( format ) && config.demosaic &&
+      ( oaFrameFormats[ format ].rawColour && config.demosaic &&
       config.demosaicOutput )) ? 1 : 0 );
 }
 
@@ -1983,7 +1985,7 @@ MainWindow::mosaicFlipWarning ( void )
 {
   int format = state.camera->videoFramePixelFormat();
 
-  if ( OA_ISBAYER ( format )) {
+  if ( oaFrameFormats[ format ].rawColour ) {
     QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
         tr ( "Flipping a raw camera image may "
         "require a different colour mask to be used for demosaicking " ));
@@ -2001,12 +2003,14 @@ MainWindow::enableDemosaic ( void )
   state.previewWidget->enableDemosaic ( demosaicState );
   if ( state.camera->isInitialised()) {
     format = state.camera->videoFramePixelFormat();
-    state.captureWidget->enableTIFFCapture (( !OA_ISBAYER( format ) ||
+    state.captureWidget->enableTIFFCapture (
+        ( !oaFrameFormats[ format ].rawColour ||
         ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
-    state.captureWidget->enablePNGCapture (( !OA_ISBAYER( format ) ||
+    state.captureWidget->enablePNGCapture (
+        ( !oaFrameFormats[ format ].rawColour ||
         ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
     state.captureWidget->enableMOVCapture (( QUICKTIME_OK( format ) || 
-        ( OA_ISBAYER( format ) && config.demosaic &&
+        ( oaFrameFormats[ format ].rawColour && config.demosaic &&
         config.demosaicOutput )) ? 1 : 0 );
   }
 }

@@ -2,7 +2,7 @@
  *
  * controlsWidget.cc -- the tab block for the controls
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -411,7 +411,7 @@ ControlsWidget::openOutputFiles ( void )
   int			format;
 
   format = state.camera->videoFramePixelFormat();
-  if ( OA_ISBAYER ( format )) {
+  if ( oaFrameFormats[ format ].rawColour ) {
     format = OA_DEMOSAIC_FMT ( format );
   }
 

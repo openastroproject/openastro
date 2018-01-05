@@ -157,12 +157,14 @@ DemosaicSettings::storeSettings ( void )
   }
   if ( state.camera->isInitialised()) {
     int format = state.camera->videoFramePixelFormat();
-    state.captureWidget->enableTIFFCapture (( !OA_ISBAYER( format ) ||
+    state.captureWidget->enableTIFFCapture (
+        ( !oaFrameFormats[ format ].rawColour ||
         ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
-    state.captureWidget->enablePNGCapture (( !OA_ISBAYER( format ) ||
+    state.captureWidget->enablePNGCapture (
+        ( !oaFrameFormats[ format ].rawColour ||
         ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
     state.captureWidget->enableMOVCapture (( QUICKTIME_OK( format ) || 
-        ( OA_ISBAYER( format ) && config.demosaic &&
+        ( oaFrameFormats[ format ].rawColour && config.demosaic &&
         config.demosaicOutput )) ? 1 : 0 );
   }
 }

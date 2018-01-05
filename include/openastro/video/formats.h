@@ -138,14 +138,6 @@
     ( x == OA_PIX_FMT_GBRG16LE ) || ( x == OA_PIX_FMT_GRBG16LE ) || \
     ( x == OA_PIX_FMT_GREY16LE ))
 
-#define OA_ISBAYER(x) \
-    (( x == OA_PIX_FMT_BGGR8 ) || ( x == OA_PIX_FMT_RGGB8 ) || \
-    ( x == OA_PIX_FMT_GBRG8 ) || ( x == OA_PIX_FMT_GRBG8 ) || \
-    ( x == OA_PIX_FMT_BGGR16LE ) || ( x == OA_PIX_FMT_BGGR16BE ) || \
-    ( x == OA_PIX_FMT_RGGB16LE ) || ( x == OA_PIX_FMT_RGGB16BE ) || \
-    ( x == OA_PIX_FMT_GBRG16LE ) || ( x == OA_PIX_FMT_GBRG16BE ) || \
-    ( x == OA_PIX_FMT_GRBG16LE ) || ( x == OA_PIX_FMT_GRBG16BE ))
-
 #define OA_ISBAYER8(x) \
     (( x == OA_PIX_FMT_BGGR8 ) || ( x == OA_PIX_FMT_RGGB8 ) || \
     ( x == OA_PIX_FMT_GBRG8 ) || ( x == OA_PIX_FMT_GRBG8 ))

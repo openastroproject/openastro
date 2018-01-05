@@ -2,7 +2,8 @@
  *
  * outputFITS.cc -- FITS output class
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -461,7 +462,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 
   fits_write_key_dbl ( fptr, "EXPTIME", expTime / 1000000.0, -10, "", &status );
 
-  if ( OA_ISBAYER ( imageFormat )) {
+  if ( oaFrameFormats[ imageFormat ].rawColour ) {
     long xoff = 0, yoff = 0;
     // "Bayer" format is GRBG, so all the other formats are offset in some
     // manner from that

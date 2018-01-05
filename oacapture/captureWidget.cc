@@ -518,7 +518,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
   }
 
   format = state.camera->videoFramePixelFormat();
-  if ( OA_ISBAYER ( format ) && config.demosaicOutput ) {
+  if ( oaFrameFormats[ format ].rawColour && config.demosaicOutput ) {
     format = OA_DEMOSAIC_FMT ( format );
   }
 

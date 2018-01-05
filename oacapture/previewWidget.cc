@@ -867,7 +867,8 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
         self->setNewFirstFrameTime = 0;
       }
       state->lastFrameTime = now;
-      if ( config.demosaicOutput && OA_ISBAYER ( writePixelFormat )) {
+      if ( config.demosaicOutput &&
+          oaFrameFormats[ writePixelFormat ].rawColour ) {
         if ( writeDemosaicPreviewBuffer ) {
           writeBuffer = previewBuffer;
         } else {
