@@ -139,23 +139,6 @@
     ( x == OA_PIX_FMT_GBRG16LE ) || ( x == OA_PIX_FMT_GBRG16BE ) || \
     ( x == OA_PIX_FMT_GRBG16LE ) || ( x == OA_PIX_FMT_GRBG16BE ))
 
-#define OA_BYTES_PER_PIXEL(x) \
-    ((( x == OA_PIX_FMT_BGGR16LE ) || ( x == OA_PIX_FMT_BGGR16BE ) || \
-    ( x == OA_PIX_FMT_RGGB16LE ) || ( x == OA_PIX_FMT_RGGB16BE ) || \
-    ( x == OA_PIX_FMT_GBRG16LE ) || ( x == OA_PIX_FMT_GBRG16BE ) || \
-    ( x == OA_PIX_FMT_GRBG16LE ) || ( x == OA_PIX_FMT_GRBG16BE ) || \
-    ( x == OA_PIX_FMT_GREY16BE ) || ( x == OA_PIX_FMT_GREY16LE ) || \
-    ( x == OA_PIX_FMT_YUYV ) || ( x == OA_PIX_FMT_YUV422P ) || \
-    ( x == OA_PIX_FMT_UYVY )) ? 2 : \
-    (( x == OA_PIX_FMT_RGB24 ) || ( x == OA_PIX_FMT_BGR24 ) || \
-    ( x == OA_PIX_FMT_YUV444P )) ? 3 : \
-    ( x == OA_PIX_FMT_YUV411 ) ? ( 4.0/6.0) : \
-    (( x == OA_PIX_FMT_RGB48BE ) || ( x == OA_PIX_FMT_RGB48LE ) || \
-    ( x == OA_PIX_FMT_BGR48BE ) || ( x == OA_PIX_FMT_BGR48LE )) ? 6 : 1 )
-
-#define OA_IS_LUM_CHROM(x) \
-  ( x >= OA_PIX_FMT_YUV444P && x <= OA_PIX_FMT_YUV410 )
-
 #define OA_DEMOSAIC_FMT(x) \
   ((( x == OA_PIX_FMT_BGGR8 ) || ( x == OA_PIX_FMT_RGGB8 ) || \
   ( x == OA_PIX_FMT_GBRG8 ) || ( x == OA_PIX_FMT_GRBG8 )) \

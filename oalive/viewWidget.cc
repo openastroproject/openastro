@@ -85,7 +85,7 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
   previewImageBuffer[0] = writeImageBuffer[0] = 0;
   previewImageBuffer[1] = writeImageBuffer[1] = 0;
   expectedSize = config.imageSizeX * config.imageSizeY *
-      OA_BYTES_PER_PIXEL( videoFramePixelFormat );
+      oaFrameFormats[ videoFramePixelFormat ].bytesPerPixel;
 #else
   stackBufferLength = viewBufferLength = 0;
   viewImageBuffer[0] = writeImageBuffer[0] = stackBuffer[0] = 0;
@@ -170,7 +170,7 @@ ViewWidget::updateFrameSize ( void )
 #endif
   recalculateDimensions ( zoomFactor );
   expectedSize = config.imageSizeX * config.imageSizeY *
-      OA_BYTES_PER_PIXEL( videoFramePixelFormat );
+      oaFrameFormats[ videoFramePixelFormat ].bytesPerPixel;
   int newBufferLength = config.imageSizeX * config.imageSizeY * 3;
 #ifdef OACAPTURE
   if ( newBufferLength > previewBufferLength ) {
@@ -408,7 +408,7 @@ ViewWidget::setVideoFramePixelFormat ( int format )
 {
   videoFramePixelFormat = format;
   expectedSize = config.imageSizeX * config.imageSizeY *
-      OA_BYTES_PER_PIXEL( videoFramePixelFormat );
+      oaFrameFormats[ videoFramePixelFormat ].bytesPerPixel;
 }
 
 
@@ -805,7 +805,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
   // if we have a luminance/chrominance video format then we need to
   // unpack that first
 
-  if ( OA_IS_LUM_CHROM( self->videoFramePixelFormat )) {
+  if ( oaFrameFormats[ self->videoFramePixelFormat ].lumChrom ) {
     // this is going to make the flip quite ugly and means we need to
 #ifdef OACAPTURE
     // start using currentPreviewBuffer too
@@ -943,7 +943,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
   if ( state->stackingMethod != OA_STACK_NONE ) {
     self->totalFrames++;
     const int viewFrameLength = config.imageSizeX * config.imageSizeY *
-        OA_BYTES_PER_PIXEL( viewPixelFormat );
+        oaFrameFormats[ viewPixelFormat ].bytesPerPixel;
     switch ( state->stackingMethod ) {
       case OA_STACK_SUM:
         if ( -1 == self->currentStackBuffer && OA_STACK_NONE !=

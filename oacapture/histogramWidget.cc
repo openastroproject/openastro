@@ -244,7 +244,7 @@ HistogramWidget::_processGreyscaleHistogram ( void* imageData,
   maxIntensity = 0;
   bzero ( grey, sizeof( int ) * 256 );
 
-  if ( 2 == OA_BYTES_PER_PIXEL( format )) {
+  if ( 2 == oaFrameFormats[ format ].bytesPerPixel ) {
     step *= 2;
     fullIntensity = 0xffff;
     if ( oaFrameFormats[ format ].littleEndian ) {
