@@ -1406,11 +1406,6 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
     } else {
 
-fprintf ( stderr, "found V4L2 format '%s': (%c%c%c%c)\n",
-            formatDesc.description, formatDesc.pixelformat & 0xff,
-            ( formatDesc.pixelformat >> 8 ) & 0xff,
-            ( formatDesc.pixelformat >> 16 ) & 0xff,
-            ( formatDesc.pixelformat >> 24 ) & 0xff );
       switch ( formatDesc.pixelformat ) {
 
         case V4L2_PIX_FMT_RGB24:
