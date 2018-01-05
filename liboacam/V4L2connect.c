@@ -1557,72 +1557,72 @@ oaV4L2InitCamera ( oaCameraDevice* device )
         case V4L2_PIX_FMT_SBGGR10:
           if ( !cameraInfo->currentV4L2Format ) {
             cameraInfo->currentV4L2Format = formatDesc.pixelformat;
-            cameraInfo->currentFrameFormat = OA_PIX_FMT_BGGR10LE;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_BGGR10;
           }
-          camera->frameFormats [ OA_PIX_FMT_BGGR10LE ] = 1;
+          camera->frameFormats [ OA_PIX_FMT_BGGR10 ] = 1;
           camera->features.rawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SRGGB10:
           if ( !cameraInfo->currentV4L2Format ) {
             cameraInfo->currentV4L2Format = formatDesc.pixelformat;
-            cameraInfo->currentFrameFormat = OA_PIX_FMT_RGGB10LE;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_RGGB10;
           }
-          camera->frameFormats [ OA_PIX_FMT_RGGB10LE ] = 1;
+          camera->frameFormats [ OA_PIX_FMT_RGGB10 ] = 1;
           camera->features.rawMode = 1;
           break;
     
         case V4L2_PIX_FMT_SGBRG10:
           if ( !cameraInfo->currentV4L2Format ) {
             cameraInfo->currentV4L2Format = formatDesc.pixelformat;
-            cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG10LE;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG10;
           }
-          camera->frameFormats [ OA_PIX_FMT_GBRG10LE ] = 1;
+          camera->frameFormats [ OA_PIX_FMT_GBRG10 ] = 1;
           camera->features.rawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SGRBG10:
           if ( !cameraInfo->currentV4L2Format ) {
             cameraInfo->currentV4L2Format = formatDesc.pixelformat;
-            cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG10LE;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG10;
           }
-          camera->frameFormats [ OA_PIX_FMT_GRBG10LE ] = 1;
+          camera->frameFormats [ OA_PIX_FMT_GRBG10 ] = 1;
           camera->features.rawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SBGGR12:
           if ( !cameraInfo->currentV4L2Format ) {
             cameraInfo->currentV4L2Format = formatDesc.pixelformat;
-            cameraInfo->currentFrameFormat = OA_PIX_FMT_BGGR12LE;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_BGGR12;
           }
-          camera->frameFormats [ OA_PIX_FMT_BGGR12LE ] = 1;
+          camera->frameFormats [ OA_PIX_FMT_BGGR12 ] = 1;
           camera->features.rawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SRGGB12:
           if ( !cameraInfo->currentV4L2Format ) {
             cameraInfo->currentV4L2Format = formatDesc.pixelformat;
-            cameraInfo->currentFrameFormat = OA_PIX_FMT_RGGB12LE;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_RGGB12;
           }
-          camera->frameFormats [ OA_PIX_FMT_RGGB12LE ] = 1;
+          camera->frameFormats [ OA_PIX_FMT_RGGB12 ] = 1;
           camera->features.rawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SGBRG12:
           if ( !cameraInfo->currentV4L2Format ) {
             cameraInfo->currentV4L2Format = formatDesc.pixelformat;
-            cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG12LE;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG12;
           }
-          camera->frameFormats [ OA_PIX_FMT_GBRG12LE ] = 1;
+          camera->frameFormats [ OA_PIX_FMT_GBRG12 ] = 1;
           camera->features.rawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SGRBG12:
           if ( !cameraInfo->currentV4L2Format ) {
             cameraInfo->currentV4L2Format = formatDesc.pixelformat;
-            cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG12LE;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG12;
           }
-          camera->frameFormats [ OA_PIX_FMT_GRBG12LE ] = 1;
+          camera->frameFormats [ OA_PIX_FMT_GRBG12 ] = 1;
           camera->features.rawMode = 1;
           break;
 

@@ -70,9 +70,6 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
       }
       break;
 
-    case OA_PIX_FMT_BGGR10BE:
-    case OA_PIX_FMT_BGGR12BE:
-    case OA_PIX_FMT_BGGR14BE:
     case OA_PIX_FMT_BGGR16BE:
       length = 2 * xSize * ySize;
       if ( OA_PIX_FMT_BGGR8 == targetFormat ) {
@@ -80,9 +77,6 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
         result = 0;
       }
       break;
-    case OA_PIX_FMT_RGGB10BE:
-    case OA_PIX_FMT_RGGB12BE:
-    case OA_PIX_FMT_RGGB14BE:
     case OA_PIX_FMT_RGGB16BE:
       length = 2 * xSize * ySize;
       if ( OA_PIX_FMT_RGGB8 == targetFormat ) {
@@ -90,9 +84,6 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
         result = 0;
       }
       break;
-    case OA_PIX_FMT_GRBG10BE:
-    case OA_PIX_FMT_GRBG12BE:
-    case OA_PIX_FMT_GRBG14BE:
     case OA_PIX_FMT_GRBG16BE:
       length = 2 * xSize * ySize;
       if ( OA_PIX_FMT_GRBG8 == targetFormat ) {
@@ -100,9 +91,6 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
         result = 0;
       }
       break;
-    case OA_PIX_FMT_GBRG10BE:
-    case OA_PIX_FMT_GBRG12BE:
-    case OA_PIX_FMT_GBRG14BE:
     case OA_PIX_FMT_GBRG16BE:
       length = 2 * xSize * ySize;
       if ( OA_PIX_FMT_GBRG8 == targetFormat ) {
@@ -110,9 +98,6 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
         result = 0;
       }
       break;
-    case OA_PIX_FMT_BGGR10LE:
-    case OA_PIX_FMT_BGGR12LE:
-    case OA_PIX_FMT_BGGR14LE:
     case OA_PIX_FMT_BGGR16LE:
       length = 2 * xSize * ySize;
       if ( OA_PIX_FMT_BGGR8 == targetFormat ) {
@@ -120,9 +105,6 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
         result = 0;
       }
       break;
-    case OA_PIX_FMT_RGGB10LE:
-    case OA_PIX_FMT_RGGB12LE:
-    case OA_PIX_FMT_RGGB14LE:
     case OA_PIX_FMT_RGGB16LE:
       length = 2 * xSize * ySize;
       if ( OA_PIX_FMT_RGGB8 == targetFormat ) {
@@ -130,9 +112,6 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
         result = 0;
       }
       break;
-    case OA_PIX_FMT_GRBG10LE:
-    case OA_PIX_FMT_GRBG12LE:
-    case OA_PIX_FMT_GRBG14LE:
     case OA_PIX_FMT_GRBG16LE:
       length = 2 * xSize * ySize;
       if ( OA_PIX_FMT_GRBG8 == targetFormat ) {
@@ -140,9 +119,6 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
         result = 0;
       }
       break;
-    case OA_PIX_FMT_GBRG10LE:
-    case OA_PIX_FMT_GBRG12LE:
-    case OA_PIX_FMT_GBRG14LE:
     case OA_PIX_FMT_GBRG16LE:
       length = 2 * xSize * ySize;
       if ( OA_PIX_FMT_GBRG8 == targetFormat ) {
@@ -206,6 +182,20 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
         result = 0;
       }
       break;
+    case OA_PIX_FMT_BGGR10:
+    case OA_PIX_FMT_BGGR12:
+    case OA_PIX_FMT_BGGR14:
+    case OA_PIX_FMT_RGGB10:
+    case OA_PIX_FMT_RGGB12:
+    case OA_PIX_FMT_RGGB14:
+    case OA_PIX_FMT_GRBG10:
+    case OA_PIX_FMT_GRBG12:
+    case OA_PIX_FMT_GRBG14:
+    case OA_PIX_FMT_GBRG10:
+    case OA_PIX_FMT_GBRG12:
+    case OA_PIX_FMT_GBRG14:
+      fprintf ( stderr, "unhandled format %d in %s\n", sourceFormat,
+          __FUNCTION__ );
   }
 
   return result;

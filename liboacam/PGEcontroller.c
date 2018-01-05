@@ -1138,14 +1138,10 @@ _doFrameFormat ( PGE_STATE* cameraInfo, int format )
     case OA_PIX_FMT_GREY12:
       settings.pixelFormat = FC2_PIXEL_FORMAT_MONO12;
       break;
-    case OA_PIX_FMT_RGGB12BE:
-    case OA_PIX_FMT_RGGB12LE:
-    case OA_PIX_FMT_BGGR12BE:
-    case OA_PIX_FMT_BGGR12LE:
-    case OA_PIX_FMT_GRBG12BE:
-    case OA_PIX_FMT_GRBG12LE:
-    case OA_PIX_FMT_GBRG12BE:
-    case OA_PIX_FMT_GBRG12LE:
+    case OA_PIX_FMT_RGGB12:
+    case OA_PIX_FMT_BGGR12:
+    case OA_PIX_FMT_GRBG12:
+    case OA_PIX_FMT_GBRG12:
       settings.pixelFormat = FC2_PIXEL_FORMAT_RAW12;
       break;
     case OA_PIX_FMT_BGR24:

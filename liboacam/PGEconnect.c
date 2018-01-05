@@ -1192,20 +1192,16 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       FC2_PIXEL_FORMAT_RAW12 ) {
     switch ( cameraInfo->cfaPattern ) {
       case OA_DEMOSAIC_RGGB:
-        format = cameraInfo->bigEndian ? OA_PIX_FMT_RGGB12BE : 
-            OA_PIX_FMT_RGGB12LE;
+        format = OA_PIX_FMT_RGGB12;
         break;
       case OA_DEMOSAIC_BGGR:
-        format = cameraInfo->bigEndian ? OA_PIX_FMT_BGGR12BE :
-            OA_PIX_FMT_BGGR12LE;
+        format = OA_PIX_FMT_BGGR12;
         break;
       case OA_DEMOSAIC_GRBG:
-        format = cameraInfo->bigEndian ? OA_PIX_FMT_GRBG12BE :
-            OA_PIX_FMT_GRBG12LE;
+        format = OA_PIX_FMT_GRBG12;
         break;
       case OA_DEMOSAIC_GBRG:
-        format = cameraInfo->bigEndian ? OA_PIX_FMT_GBRG12BE :
-            OA_PIX_FMT_GBRG12LE;
+        format = OA_PIX_FMT_GBRG12;
         break;
     }
     camera->frameFormats[ format ] = 1;

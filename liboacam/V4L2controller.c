@@ -926,28 +926,28 @@ _processSetFrameFormat ( V4L2_STATE* cameraInfo, unsigned int format,
     case OA_PIX_FMT_GRBG8:
       v4l2Format = V4L2_PIX_FMT_SGRBG8;
       break;
-    case OA_PIX_FMT_BGGR10LE:
+    case OA_PIX_FMT_BGGR10:
       v4l2Format = V4L2_PIX_FMT_SBGGR10;
       break;
-    case OA_PIX_FMT_RGGB10LE:
+    case OA_PIX_FMT_RGGB10:
       v4l2Format = V4L2_PIX_FMT_SRGGB10;
       break;
-    case OA_PIX_FMT_GBRG10LE:
+    case OA_PIX_FMT_GBRG10:
       v4l2Format = V4L2_PIX_FMT_SGBRG10;
       break;
-    case OA_PIX_FMT_GRBG10LE:
+    case OA_PIX_FMT_GRBG10:
       v4l2Format = V4L2_PIX_FMT_SGRBG10;
       break;
-    case OA_PIX_FMT_BGGR12LE:
+    case OA_PIX_FMT_BGGR12:
       v4l2Format = V4L2_PIX_FMT_SBGGR12;
       break;
-    case OA_PIX_FMT_RGGB12LE:
+    case OA_PIX_FMT_RGGB12:
       v4l2Format = V4L2_PIX_FMT_SRGGB12;
       break;
-    case OA_PIX_FMT_GBRG12LE:
+    case OA_PIX_FMT_GBRG12:
       v4l2Format = V4L2_PIX_FMT_SGBRG12;
       break;
-    case OA_PIX_FMT_GRBG12LE:
+    case OA_PIX_FMT_GRBG12:
       v4l2Format = V4L2_PIX_FMT_SGRBG12;
       break;
   }
