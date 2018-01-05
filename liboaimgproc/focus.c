@@ -87,7 +87,7 @@ oaFocusScore ( void* source, void* target, int xSize, int ySize,
       return -OA_ERR_MEM_ALLOC;
     }
     t = workspace1;
-    if ( OA_ISLITTLE_ENDIAN ( frameFormat )) {
+    if ( oaFrameFormats[ frameFormat ].littleEndian ) {
       s++;
     }
     for ( i = 0; i < length; i++ ) {

@@ -247,7 +247,7 @@ HistogramWidget::_processGreyscaleHistogram ( void* imageData,
   if ( 2 == OA_BYTES_PER_PIXEL( format )) {
     step *= 2;
     fullIntensity = 0xffff;
-    if ( OA_ISLITTLE_ENDIAN ( format )) {
+    if ( oaFrameFormats[ format ].littleEndian ) {
       int b1, b2;
       for ( i = 0; i < length; i += step ) {
         b1 = *(( uint8_t* ) imageData + i );
@@ -423,7 +423,7 @@ HistogramWidget::_processMosaicHistogram ( void* imageData,
     colour = pattern[ 2 * ( y % 2 ) + ( x % 2 )];
 
     if ( OA_ISBAYER16( format )) {
-      if ( OA_ISLITTLE_ENDIAN ( format )) {
+      if ( oaFrameFormats[ format ].littleEndian ) {
         int b1, b2;
         b1 = *(( uint8_t* ) imageData + i );
         b2 = *(( uint8_t* ) imageData + i + 1 );
