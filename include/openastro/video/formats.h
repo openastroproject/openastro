@@ -129,10 +129,6 @@
 
 #define OA_PIX_FMT_LAST_P1		OA_PIX_FMT_GREY14_16LE+1
 
-#define OA_ISGREYSCALE(x) \
-    (( x == OA_PIX_FMT_GREY8 ) || ( x == OA_PIX_FMT_GREY16BE ) || \
-    ( x == OA_PIX_FMT_GREY16LE ))
-
 #define OA_ISLITTLE_ENDIAN(x) \
     (( x == OA_PIX_FMT_BGGR16LE ) || ( x == OA_PIX_FMT_RGGB16LE ) || \
     ( x == OA_PIX_FMT_GBRG16LE ) || ( x == OA_PIX_FMT_GRBG16LE ) || \
