@@ -74,7 +74,6 @@ class Camera : public QObject
     const FRAMERATES*	frameRates ( int, int );
     void		delayFrameRateChanges ( void );
     int			videoFramePixelFormat ( void );
-    int			videoFramePixelFormat ( int );
 
     void		populateControlValue ( oaControlValue*, uint32_t,
 				int64_t );

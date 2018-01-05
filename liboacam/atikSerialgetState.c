@@ -2,7 +2,8 @@
  *
  * atikSerialgetState.c -- state querying for Atik serial cameras
  *
- * Copyright 2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -81,11 +82,10 @@ oaAtikSerialCameraGetFrameSizes ( oaCamera* camera )
 
 
 int
-oaAtikSerialCameraGetFramePixelFormat ( oaCamera *camera, int depth )
+oaAtikSerialCameraGetFramePixelFormat ( oaCamera *camera )
 {
   AtikSerial_STATE*	cameraInfo = camera->_private;
 
-  // bit depth is irrelevant -- there can be only one
   if ( cameraInfo->colour ) {
     return OA_PIX_FMT_RGGB16LE;
   }

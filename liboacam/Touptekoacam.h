@@ -2,7 +2,7 @@
  *
  * Touptekoacam.h -- header for Touptek camera API
  *
- * Copyright 2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -59,7 +59,7 @@ extern void*		oacamTouptekcontroller ( void* );
 extern void*		oacamTouptekcallbackHandler ( void* );
 
 extern const FRAMESIZES* oaTouptekCameraGetFrameSizes ( oaCamera* );
-extern int		oaTouptekCameraGetFramePixelFormat ( oaCamera*, int );
+extern int		oaTouptekCameraGetFramePixelFormat ( oaCamera* );
 
 extern const char*      oaTouptekCameraGetMenuString ( oaCamera*, int, int );
 

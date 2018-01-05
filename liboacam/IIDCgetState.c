@@ -156,7 +156,7 @@ oaIIDCCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
 
 
 int
-oaIIDCCameraGetFramePixelFormat ( oaCamera* camera, int depth )
+oaIIDCCameraGetFramePixelFormat ( oaCamera* camera )
 {
   IIDC_STATE*		cameraInfo = camera->_private;
 

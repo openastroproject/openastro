@@ -72,7 +72,7 @@ oaSXCameraGetFrameSizes ( oaCamera* camera )
 
 
 int
-oaSXCameraGetFramePixelFormat ( oaCamera *camera, int depth )
+oaSXCameraGetFramePixelFormat ( oaCamera *camera )
 {
   SX_STATE*	cameraInfo = camera->_private;
 

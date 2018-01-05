@@ -2,7 +2,7 @@
  *
  * Altairoacam.h -- header for Altair camera API
  *
- * Copyright 2016, 2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -59,7 +59,7 @@ extern void*		oacamAltaircontroller ( void* );
 extern void*		oacamAltaircallbackHandler ( void* );
 
 extern const FRAMESIZES* oaAltairCameraGetFrameSizes ( oaCamera* );
-extern int		oaAltairCameraGetFramePixelFormat ( oaCamera*, int );
+extern int		oaAltairCameraGetFramePixelFormat ( oaCamera* );
 
 extern const char*      oaAltairCameraGetMenuString ( oaCamera*, int, int );
 

@@ -2,7 +2,8 @@
  *
  * V4L2oacam.h -- header for V4L2 camera API
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -61,7 +62,7 @@ extern void*		oacamV4L2callbackHandler ( void* );
 extern const FRAMESIZES* oaV4L2CameraGetFrameSizes ( oaCamera* );
 extern const FRAMERATES* oaV4L2CameraGetFrameRates ( oaCamera*, int, int );
 extern int		oaV4L2CameraSetFrameInterval ( oaCamera*, int, int );
-extern int              oaV4L2CameraGetFramePixelFormat ( oaCamera*, int );
+extern int              oaV4L2CameraGetFramePixelFormat ( oaCamera* );
 
 extern int              oaV4L2CameraGetAutoWBManualSetting ( oaCamera* );
 

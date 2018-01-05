@@ -266,6 +266,7 @@ CameraWidget::changeFrameFormat ( int menuOption )
 
   state.camera->setFrameFormat ( newFormat );
   state.previewWidget->setVideoFramePixelFormat ( newFormat );
+  config.frameFormat = newFormat;
 
   if ( oaFrameFormats[ newFormat ].rawColour ) {
     // FIX ME -- commented this out because I'm not sure it's right

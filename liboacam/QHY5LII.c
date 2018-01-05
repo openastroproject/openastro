@@ -43,7 +43,7 @@
 static void		_QHY5LIIInitFunctionPointers ( oaCamera* );
 void*			_qhy5liiEventHandler ( void* );
 
-static int		oaQHY5LIICameraGetFramePixelFormat ( oaCamera*, int );
+static int		oaQHY5LIICameraGetFramePixelFormat ( oaCamera* );
 static const FRAMESIZES* oaQHY5LIICameraGetFrameSizes ( oaCamera* );
 static int		oaQHY5LIICloseCamera ( oaCamera* );
 
@@ -354,7 +354,7 @@ _qhy5liiEventHandler ( void* param )
     
 
 static int
-oaQHY5LIICameraGetFramePixelFormat ( oaCamera* camera, int depth )
+oaQHY5LIICameraGetFramePixelFormat ( oaCamera* camera )
 {
   QHY_STATE*	cameraInfo = camera->_private;
 

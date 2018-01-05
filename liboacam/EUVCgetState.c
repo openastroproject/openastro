@@ -81,7 +81,7 @@ oaEUVCCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
 
 
 int
-oaEUVCCameraGetFramePixelFormat ( oaCamera *camera, int depth )
+oaEUVCCameraGetFramePixelFormat ( oaCamera *camera )
 {
   EUVC_STATE*           cameraInfo = camera->_private;
 

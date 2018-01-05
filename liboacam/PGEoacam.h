@@ -2,7 +2,7 @@
  *
  * PGEoacam.h -- header for Point Grey Gig-E camera API
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -58,7 +58,7 @@ extern void*		oacamPGEcallbackHandler ( void* );
 extern const FRAMESIZES* oaPGECameraGetFrameSizes ( oaCamera* );
 extern const FRAMERATES* oaPGECameraGetFrameRates ( oaCamera*, int, int );
 extern int		oaPGECameraSetFrameInterval ( oaCamera*, int, int );
-extern int		oaPGECameraGetFramePixelFormat ( oaCamera*, int );
+extern int		oaPGECameraGetFramePixelFormat ( oaCamera* );
 
 extern const char*	oaPGECameraGetMenuString ( oaCamera*, int, int );
 

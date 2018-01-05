@@ -401,7 +401,7 @@ Camera::initialise ( oaCameraDevice* device )
 
   if (( cameraContext = device->initCamera ( device ))) {
     initialised = 1;
-    framePixelFormat = cameraFuncs.getFramePixelFormat ( cameraContext, 0 );
+    framePixelFormat = cameraFuncs.getFramePixelFormat ( cameraContext );
     return 0;
   }
   return -1;
@@ -517,17 +517,6 @@ int
 Camera::videoFramePixelFormat ( void )
 {
   return framePixelFormat;
-}
-
-
-int
-Camera::videoFramePixelFormat ( int depth )
-{
-  if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
-    return -1;
-  }
-  return cameraFuncs.getFramePixelFormat ( cameraContext, depth );
 }
 
 

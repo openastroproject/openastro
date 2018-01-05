@@ -2,7 +2,8 @@
  *
  * demosaicSettings.cc -- class for the demosaic settings in the settings UI
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -164,7 +165,7 @@ DemosaicSettings::storeSettings ( void )
   }
 #ifdef OACAPTURE
   if ( state.camera->isInitialised()) {
-    int format = state.camera->videoFramePixelFormat ( 0 );
+    int format = state.camera->videoFramePixelFormat();
     state.captureWidget->enableTIFFCapture (( !OA_ISBAYER( format ) ||
         ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
     state.captureWidget->enablePNGCapture (( !OA_ISBAYER( format ) ||

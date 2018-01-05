@@ -2,7 +2,7 @@
  *
  * unimplemented.c -- catch-all for unimplemented camera functions
  *
- * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -200,7 +200,7 @@ _enumerateFrameRates ( oaCamera* camera, int x, int y )
 
 
 static int
-_getFramePixelFormat ( oaCamera* camera, int d )
+_getFramePixelFormat ( oaCamera* camera )
 {
   fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
       camera->deviceName );

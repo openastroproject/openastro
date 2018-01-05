@@ -53,7 +53,6 @@ static int	_processStreamingStart ( PGE_STATE*, OA_COMMAND* );
 static int	_processStreamingStop ( PGE_STATE*, OA_COMMAND* );
 static int	_doStart ( PGE_STATE* );
 static int	_doStop ( PGE_STATE* );
-static int	_doBitDepth ( PGE_STATE*, int );
 static int	_doFrameFormat ( PGE_STATE*, int );
 static int	_doBinning ( PGE_STATE*, int );
 //static int	_processSetFrameInterval ( PGE_STATE*, OA_COMMAND* );

@@ -2,7 +2,7 @@
  *
  * ZWASI2getState.c -- state querying for ZW ASI cameras API v2
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -36,7 +36,7 @@
 
 
 int
-oaZWASI2CameraGetFramePixelFormat ( oaCamera *camera, int depth )
+oaZWASI2CameraGetFramePixelFormat ( oaCamera *camera )
 {
   ZWASI_STATE*		cameraInfo = camera->_private;
 

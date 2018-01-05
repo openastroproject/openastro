@@ -2,7 +2,8 @@
  *
  * IIDCoacam.h -- header for IEE1394/IIDC camera API
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -53,7 +54,7 @@ extern void*		oacamIIDCcallbackHandler ( void* );
 extern const FRAMESIZES* oaIIDCCameraGetFrameSizes ( oaCamera* );
 extern const FRAMERATES* oaIIDCCameraGetFrameRates ( oaCamera*, int, int );
 extern int		oaIIDCCameraSetFrameInterval ( oaCamera*, int, int );
-extern int		oaIIDCCameraGetFramePixelFormat ( oaCamera*, int );
+extern int		oaIIDCCameraGetFramePixelFormat ( oaCamera* );
 
 extern const char*	oaIIDCCameraGetMenuString ( oaCamera*, int, int );
 

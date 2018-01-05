@@ -2,7 +2,7 @@
  *
  * ZWASI2oacam.h -- header for ZW ASI camera API v2
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -40,6 +40,6 @@ extern int		oaZWASI2CameraGetControlRange ( oaCamera*, int,
 
 extern void*		oacamZWASI2controller ( void* );
 
-extern int		oaZWASI2CameraGetFramePixelFormat ( oaCamera*, int );
+extern int		oaZWASI2CameraGetFramePixelFormat ( oaCamera* );
 
 #endif	/* ZWASI2_OACAM_H */

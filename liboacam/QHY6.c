@@ -40,7 +40,7 @@
 
 
 static void	_QHY6InitFunctionPointers ( oaCamera* );
-static int      oaQHY6CameraGetFramePixelFormat ( oaCamera*, int );
+static int      oaQHY6CameraGetFramePixelFormat ( oaCamera* );
 static const FRAMESIZES* oaQHY6CameraGetFrameSizes ( oaCamera* );
 static int      closeCamera ( oaCamera* );
 
@@ -279,7 +279,7 @@ oaQHY6CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 
 
 static int
-oaQHY6CameraGetFramePixelFormat ( oaCamera* camera, int depth )
+oaQHY6CameraGetFramePixelFormat ( oaCamera* camera )
 {
   QHY_STATE*	cameraInfo = camera->_private;
 

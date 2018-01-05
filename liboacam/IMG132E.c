@@ -42,7 +42,7 @@
 static void		_IMG132EInitFunctionPointers ( oaCamera* );
 void*			_img132eEventHandler ( void* );
 
-static int		oaIMG132ECameraGetFramePixelFormat ( oaCamera*, int );
+static int		oaIMG132ECameraGetFramePixelFormat ( oaCamera* );
 static const FRAMESIZES* oaIMG132ECameraGetFrameSizes ( oaCamera* );
 static int		oaIMG132ECloseCamera ( oaCamera* );
 
@@ -324,7 +324,7 @@ _img132eEventHandler ( void* param )
 
 
 static int
-oaIMG132ECameraGetFramePixelFormat ( oaCamera* camera, int depth )
+oaIMG132ECameraGetFramePixelFormat ( oaCamera* camera )
 {
   return OA_PIX_FMT_BGGR8;
 }

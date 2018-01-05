@@ -2,7 +2,7 @@
  *
  * Mallincamoacam.h -- header for Mallincam camera API
  *
- * Copyright 2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -59,7 +59,7 @@ extern void*		oacamMallincamcontroller ( void* );
 extern void*		oacamMallincamcallbackHandler ( void* );
 
 extern const FRAMESIZES* oaMallincamCameraGetFrameSizes ( oaCamera* );
-extern int		oaMallincamCameraGetFramePixelFormat ( oaCamera*, int );
+extern int		oaMallincamCameraGetFramePixelFormat ( oaCamera* );
 
 extern const char*      oaMallincamCameraGetMenuString ( oaCamera*, int, int );
 

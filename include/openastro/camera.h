@@ -2,7 +2,8 @@
  *
  * camera.h -- camera API header
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -106,7 +107,7 @@ typedef struct oaCameraFuncs {
 
   const FRAMESIZES* ( *enumerateFrameSizes )( struct oaCamera* );
   const FRAMERATES* ( *enumerateFrameRates )( struct oaCamera*, int, int );
-  int              ( *getFramePixelFormat )( struct oaCamera*, int );
+  int              ( *getFramePixelFormat )( struct oaCamera* );
   int              ( *testROISize )( struct oaCamera*, unsigned int,
                        unsigned int, unsigned int*, unsigned int* );
 

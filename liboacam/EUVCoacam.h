@@ -2,7 +2,8 @@
  *
  * EUVCoacam.h -- header for EUVC camera API
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -54,7 +55,7 @@ extern void*		oacamEUVCcontroller ( void* );
 extern void*		oacamEUVCcallbackHandler ( void* );
 
 extern const FRAMESIZES* oaEUVCCameraGetFrameSizes ( oaCamera* );
-extern int		oaEUVCCameraGetFramePixelFormat ( oaCamera*, int );
+extern int		oaEUVCCameraGetFramePixelFormat ( oaCamera* );
 extern const FRAMERATES* oaEUVCCameraGetFrameRates ( oaCamera*, int, int );
 extern int              oaEUVCCameraSetFrameInterval ( oaCamera*, int, int );
 

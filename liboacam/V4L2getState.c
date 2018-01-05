@@ -2,7 +2,8 @@
  *
  * V4L2getState.c -- state querying for V4L2 cameras
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017,2018
+ *    James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -109,7 +110,7 @@ oaV4L2CameraGetFrameRates ( oaCamera* camera, int resX, int resY )
 
 
 int
-oaV4L2CameraGetFramePixelFormat ( oaCamera* camera, int depth )
+oaV4L2CameraGetFramePixelFormat ( oaCamera* camera )
 {
   V4L2_STATE*		cameraInfo = camera->_private;
 

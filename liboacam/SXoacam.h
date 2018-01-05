@@ -2,7 +2,7 @@
  *
  * SXoacam.h -- header for Starlight Xpress camera API
  *
- * Copyright 2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -51,7 +51,7 @@ extern void*		oacamSXcontroller ( void* );
 extern void*		oacamSXcallbackHandler ( void* );
 
 extern const FRAMESIZES* oaSXCameraGetFrameSizes ( oaCamera* );
-extern int		oaSXCameraGetFramePixelFormat ( oaCamera*, int );
+extern int		oaSXCameraGetFramePixelFormat ( oaCamera* );
 
 extern int		_SXsetTimer ( SX_STATE*, unsigned int );
 

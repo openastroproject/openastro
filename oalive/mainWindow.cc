@@ -2,7 +2,8 @@
  *
  * mainWindow.cc -- the main controlling window class
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -2281,7 +2282,7 @@ MainWindow::enableDemosaic ( void )
   config.demosaic = demosaicState;
   state.previewWidget->enableDemosaic ( demosaicState );
   if ( state.camera->isInitialised()) {
-    format = state.camera->videoFramePixelFormat ( 0 );
+    format = state.camera->videoFramePixelFormat();
     state.captureWidget->enableTIFFCapture (( !OA_ISBAYER( format ) ||
         ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
     state.captureWidget->enablePNGCapture (( !OA_ISBAYER( format ) ||

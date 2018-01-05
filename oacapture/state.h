@@ -2,7 +2,8 @@
  *
  * state.h -- global application state datastructures
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -86,7 +87,7 @@ typedef struct
 
   unsigned long		firstFrameTime;
   unsigned long		lastFrameTime;
-  double			currentFPS;
+  double		currentFPS;
 
   int			preferredExposureControl;
 

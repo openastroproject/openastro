@@ -2,7 +2,7 @@
  *
  * TouptekgetState.c -- state querying for Touptek cameras
  *
- * Copyright 2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -61,26 +61,11 @@ oaTouptekCameraGetFrameSizes ( oaCamera* camera )
 
 
 int
-oaTouptekCameraGetFramePixelFormat ( oaCamera* camera, int depth )
+oaTouptekCameraGetFramePixelFormat ( oaCamera* camera )
 {
   TOUPTEK_STATE*	cameraInfo = camera->_private;
 
-  if ( !depth || depth == 8 ) {
-    return cameraInfo->currentVideoFormat;
-  }
-
-  switch ( cameraInfo->currentVideoFormat ) {
-    case OA_PIX_FMT_GREY8:
-fprintf ( stderr, "%s: check >8-bit mono byte order\n", __FUNCTION__ );
-      return OA_PIX_FMT_GREY16LE;
-
-    case OA_PIX_FMT_RGB24:
-fprintf ( stderr, "%s: check >8-bit RGB byte order\n", __FUNCTION__ );
-      return OA_PIX_FMT_RGB48LE;
-  }
-
-fprintf ( stderr, "%s: check >8-bit byte order for video format %d\n", __FUNCTION__, cameraInfo->currentVideoFormat );
-  return OA_PIX_FMT_RGB24;
+  return cameraInfo->currentVideoFormat;
 }
 
 

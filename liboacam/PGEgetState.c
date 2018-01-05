@@ -2,7 +2,7 @@
  *
  * PGEgetState.c -- state querying for Point Grey Gig-E cameras
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -171,7 +171,7 @@ fprintf ( stderr, "implement %s\n", __FUNCTION__ );
 
 
 int
-oaPGECameraGetFramePixelFormat ( oaCamera* camera, int depth )
+oaPGECameraGetFramePixelFormat ( oaCamera* camera )
 {
   PGE_STATE*		cameraInfo = camera->_private;
   fc2GigEImageSettings	settings;
@@ -209,11 +209,17 @@ oaPGECameraGetFramePixelFormat ( oaCamera* camera, int depth )
           settings.pixelFormat );
       break;
 
+    case FC2_PIXEL_FORMAT_411YUV8:
+      return OA_PIX_FMT_YUV411;
+
+    case FC2_PIXEL_FORMAT_422YUV8:
+      return OA_PIX_FMT_YUV422;
+
+    case FC2_PIXEL_FORMAT_444YUV8:
+      return OA_PIX_FMT_YUV444;
+
     case FC2_PIXEL_FORMAT_BGRU:
     case FC2_PIXEL_FORMAT_422YUV8_JPEG:
-    case FC2_PIXEL_FORMAT_411YUV8:
-    case FC2_PIXEL_FORMAT_422YUV8:
-    case FC2_PIXEL_FORMAT_444YUV8:
       fprintf ( stderr, "Unhandled colour format %d\n",
           settings.pixelFormat );
       break;

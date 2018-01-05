@@ -2,7 +2,8 @@
  *
  * atikSerialoacam.h -- header for Atik serial (FTDI-based) camera API
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -64,7 +65,7 @@ extern void*		oacamAtikSerialcontroller ( void* );
 extern void*		oacamAtikSerialcallbackHandler ( void* );
 
 extern const FRAMESIZES* oaAtikSerialCameraGetFrameSizes ( oaCamera* );
-extern int		oaAtikSerialCameraGetFramePixelFormat ( oaCamera*,int);
+extern int		oaAtikSerialCameraGetFramePixelFormat ( oaCamera* );
 
 #if HAVE_LIBUDEV
 extern int              _atikUdevSerialCamWrite ( AtikSerial_STATE*,
