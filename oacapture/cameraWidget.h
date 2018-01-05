@@ -2,7 +2,8 @@
  *
  * cameraWidget.h -- class declaration
  *
- * Copyright 2013,2014,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -72,10 +73,6 @@ class CameraWidget : public QGroupBox
   public slots:
     void		setBinning ( int );
     void		changeFrameFormat ( int );
-/*
-    void		set16Bit ( int );
-    void		setRawMode ( int );
-*/
     void                setActualFrameRate ( double );
     void                setTemperature ( void );
 };
