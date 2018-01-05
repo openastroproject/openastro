@@ -2,7 +2,8 @@
  *
  * previewWidget.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -140,7 +141,6 @@ class PreviewWidget : public QFrame
     void		mouseReleaseEvent ( QMouseEvent* );
     void		wheelEvent ( QWheelEvent* );
     void		recalculateDimensions ( int );
-    int			formatToCfaPattern ( int );
 
     QVector<QRgb>	greyscaleColourTable;
     QVector<QRgb>	falseColourTable;

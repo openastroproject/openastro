@@ -2,7 +2,8 @@
  *
  * previewWidget.cc -- class for the preview window in the UI (and more)
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -825,11 +826,11 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
         config.imageSizeY, self->videoFramePixelFormat, viewPixelFormat );
     viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
   } else {
-    if ( OA_ISBAYER(  self->videoFramePixelFormat )) {
+    if ( OA_ISBAYER( self->videoFramePixelFormat )) {
       int cfaPattern = config.cfaPattern;
       if ( OA_ISBAYER ( viewPixelFormat )) {
         if ( OA_DEMOSAIC_AUTO == cfaPattern ) {
-          cfaPattern = self->formatToCfaPattern ( viewPixelFormat );
+          cfaPattern = oaFrameFormats[ viewPixelFormat ].cfaPattern;
         }
       }
       currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
@@ -935,7 +936,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
   int cfaPattern = config.cfaPattern;
   if ( OA_ISBAYER ( previewPixelFormat )) {
     if ( OA_DEMOSAIC_AUTO == cfaPattern ) {
-      cfaPattern = self->formatToCfaPattern ( previewPixelFormat );
+      cfaPattern = oaFrameFormats[ previewPixelFormat ].cfaPattern;
     }
   }
 #else
@@ -1311,36 +1312,6 @@ if ( output && self->recordingInProgress ) {
   }
 #endif /* OACAPTURE */
 
-  return 0;
-}
-
-
-int
-ViewWidget::formatToCfaPattern ( int format )
-{
-  switch ( format ) {
-    case OA_PIX_FMT_BGGR8:
-    case OA_PIX_FMT_BGGR16LE:
-    case OA_PIX_FMT_BGGR16BE:
-      return OA_DEMOSAIC_BGGR;
-      break;
-    case OA_PIX_FMT_RGGB8:
-    case OA_PIX_FMT_RGGB16LE:
-    case OA_PIX_FMT_RGGB16BE:
-      return OA_DEMOSAIC_RGGB;
-      break;
-    case OA_PIX_FMT_GBRG8:
-    case OA_PIX_FMT_GBRG16LE:
-    case OA_PIX_FMT_GBRG16BE:
-      return OA_DEMOSAIC_GBRG;
-      break;
-    case OA_PIX_FMT_GRBG8:
-    case OA_PIX_FMT_GRBG16LE:
-    case OA_PIX_FMT_GRBG16BE:
-      return OA_DEMOSAIC_GRBG;
-      break;
-  }
-  qWarning() << "Invalid format in" << __FUNCTION__;
   return 0;
 }
 

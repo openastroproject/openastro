@@ -1017,36 +1017,6 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
 }
 
 
-int
-PreviewWidget::formatToCfaPattern ( int format )
-{
-  switch ( format ) {
-    case OA_PIX_FMT_BGGR8:
-    case OA_PIX_FMT_BGGR16LE:
-    case OA_PIX_FMT_BGGR16BE:
-      return OA_DEMOSAIC_BGGR;
-      break;
-    case OA_PIX_FMT_RGGB8:
-    case OA_PIX_FMT_RGGB16LE:
-    case OA_PIX_FMT_RGGB16BE:
-      return OA_DEMOSAIC_RGGB;
-      break;
-    case OA_PIX_FMT_GBRG8:
-    case OA_PIX_FMT_GBRG16LE:
-    case OA_PIX_FMT_GBRG16BE:
-      return OA_DEMOSAIC_GBRG;
-      break;
-    case OA_PIX_FMT_GRBG8:
-    case OA_PIX_FMT_GRBG16LE:
-    case OA_PIX_FMT_GRBG16BE:
-      return OA_DEMOSAIC_GRBG;
-      break;
-  }
-  qWarning() << "Invalid format in" << __FUNCTION__;
-  return 0;
-}
-
-
 void
 PreviewWidget::reduceTo8Bit ( void* sourceData, void* targetData, int xSize,
     int ySize, int format )

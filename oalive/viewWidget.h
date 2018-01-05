@@ -2,7 +2,7 @@
  *
  * viewWidget.h -- class declaration
  *
- * Copyright 2015, 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -143,7 +143,6 @@ class ViewWidget : public QFrame
     void		mouseReleaseEvent ( QMouseEvent* );
     void		wheelEvent ( QWheelEvent* );
     void		recalculateDimensions ( int );
-    int			formatToCfaPattern ( int );
     int			checkBuffers ( ViewWidget* );
 
     QVector<QRgb>	greyscaleColourTable;
