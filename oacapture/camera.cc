@@ -134,26 +134,6 @@ Camera::hasFrameFormat ( int format )
   return cameraContext->frameFormats[ format ];
 }
 
-int
-Camera::has16Bit ( void )
-{
-  oaControlValue v;
-
-  if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
-    return 0;
-  }
-  // FIX ME -- this assumes that we don't have a 16-bit mode if the bit
-  // depth can't be changed which may not be true at all.
-
-  if ( !cameraControls( OA_CAM_CTRL_BIT_DEPTH )) {
-    return 0;
-  }
-  populateControlValue ( &v, OA_CAM_CTRL_BIT_DEPTH, 16 );
-  return ( OA_ERR_NONE == cameraFuncs.testControl ( cameraContext,
-    OA_CAM_CTRL_BIT_DEPTH, &v )) ? 1 : 0;
-}
-
 
 int
 Camera::hasBinning ( int64_t factor )
@@ -549,24 +529,6 @@ int
 Camera::videoFramePixelFormat ( void )
 {
   return framePixelFormat;
-}
-
-
-int
-Camera::setBitDepth ( int depth )
-{
-  int ret;
-  oaControlValue v;
-
-  if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
-    return -1;
-  }
-
-  populateControlValue ( &v, OA_CAM_CTRL_BIT_DEPTH, depth );
-  ret = cameraFuncs.setControl ( cameraContext, OA_CAM_CTRL_BIT_DEPTH, &v, 0 );
-  framePixelFormat = cameraFuncs.getFramePixelFormat ( cameraContext, 0 );
-  return ret;
 }
 
 

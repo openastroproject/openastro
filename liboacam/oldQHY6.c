@@ -464,10 +464,6 @@ testControl ( oaCamera* camera, int control, oaControlValue* val )
       break;
 #endif
 
-    case OA_CAM_CTRL_BIT_DEPTH:
-      return -OA_ERR_INVALID_CONTROL;
-      break;
-
     default:
       fprintf ( stderr, "oldQHY6: %s not yet implemented for control %d\n",
           __FUNCTION__, control );

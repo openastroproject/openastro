@@ -485,17 +485,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       }
       return _setFrameFormat ( cameraInfo, val );
       break;
-/*
-    case OA_CAM_CTRL_BIT_DEPTH:
-      if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
-        fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __FUNCTION__, valp->valueType );
-        return -OA_ERR_INVALID_CONTROL_TYPE;
-      }
-      val = valp->discrete;
-      return _setBitDepth ( cameraInfo, val );
-      break;
-*/
+
     case OA_CAM_CTRL_LED_STATE:
     case OA_CAM_CTRL_LED_PERIOD:
       if ( control == OA_CAM_CTRL_LED_STATE ) {
@@ -695,13 +685,6 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_BINNING:
       // FIX ME
       fprintf ( stderr, "%s: Need to code binning control for Altaircam\n",
-          __FUNCTION__ );
-      return -OA_ERR_INVALID_CONTROL;
-      break;
-
-    case OA_CAM_CTRL_BIT_DEPTH:
-      // FIX ME
-      fprintf ( stderr, "%s: Need to code bit depth control for Altaircam\n",
           __FUNCTION__ );
       return -OA_ERR_INVALID_CONTROL;
       break;

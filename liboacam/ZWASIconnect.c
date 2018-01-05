@@ -652,10 +652,6 @@ oaZWASIInitCamera ( oaCameraDevice* device )
       cameraInfo->videoGrey = 1;
     }
   }
-  if (( isImgTypeSupported ( IMG_RGB24 ) || isImgTypeSupported ( IMG_RAW8 )) &&
-      isImgTypeSupported ( IMG_RAW16 )) {
-    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) = OA_CTRL_TYPE_DISCRETE;
-  }
 
   if ( -1 == cameraInfo->videoCurrent ) {
     fprintf ( stderr, "No suitable video format found on camera %d\n",
@@ -1203,10 +1199,9 @@ oaZWASIInitCamera ( oaCameraDevice* device )
 
   // The largest buffer size we should need
   // RGB colour is 3 bytes per pixel, mono one for 8-bit, two for 16-bit,
-  // RAW is one for 8-bit, 2 for 16-bit.  We assume that if the BIT_DEPTH
-  // control is supported them 16-bit is supported.
-  multiplier = ( IMG_RGB24 == cameraInfo->videoCurrent ) ? 3 :
-      ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) ? 2 : 1 );
+  // RAW is one for 8-bit, 2 for 16-bit.
+  
+  multiplier = ( IMG_RGB24 == cameraInfo->videoCurrent ) ? 3 : 1:
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY * multiplier;
   cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct ZWASIbuffer ));

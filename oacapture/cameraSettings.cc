@@ -2,7 +2,8 @@
  *
  * cameraSettings.cc -- class for the camera tab in the settings dialog
  *
- * Copyright 2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -218,7 +219,7 @@ CameraSettings::configure ( void )
             case OA_CTRL_TYPE_DISCRETE:
               // FIX ME -- these really ought to show
               // don't show these up as unhandled
-              if ( OA_CAM_CTRL_BIT_DEPTH == c || OA_CAM_CTRL_BINNING == c ) {
+              if ( OA_CAM_CTRL_BINNING == c ) {
                 added[mod][baseVal] = 1;
                 break;
               }

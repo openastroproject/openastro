@@ -210,32 +210,6 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
       _doSetExposure ( cameraInfo, val_s64 / 1000, 0 );
       break;
 
-    case OA_CAM_CTRL_BIT_DEPTH:
-      if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
-        fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __FUNCTION__, valp->valueType );
-        return -OA_ERR_INVALID_CONTROL_TYPE;
-      }
-      val_s32 = valp->discrete;
-      if ( 8 == val_s32 || 12 == val_s32 || 16 == val_s32 ) {
-        cameraInfo->currentBitDepth = val_s32;
-        if ( cameraInfo->isColour ) {
-          if ( 8 == val_s32 ) {
-            cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG8;
-          } else {
-            cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG16BE;
-          }
-        } else {
-          if ( 8 == val_s32 ) {
-            cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY8;
-          } else {
-            cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY16BE;
-          }
-        }
-        oaQHY5LIISetAllControls ( cameraInfo );
-      }
-      break;
-
     case OA_CAM_CTRL_FRAME_FORMAT:
     {
       int format;
@@ -781,11 +755,6 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_TEMPERATURE:
       valp->valueType = OA_CTRL_TYPE_READONLY;
       valp->readonly = _doReadTemperature ( cameraInfo );
-      break;
-
-    case OA_CAM_CTRL_BIT_DEPTH:
-      valp->valueType = OA_CTRL_TYPE_DISCRETE;
-      valp->discrete = cameraInfo->currentBitDepth;
       break;
 
     case OA_CAM_CTRL_DROPPED:

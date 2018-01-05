@@ -107,11 +107,6 @@ oaZWASICameraReadControl ( oaCamera* camera, int control,
       val->boolean = cameraInfo->currentVFlip;
       break;
 
-    case OA_CAM_CTRL_BIT_DEPTH:
-      val->valueType = OA_CTRL_TYPE_DISCRETE;
-      val->discrete = cameraInfo->currentBitDepth;
-      break;
-
     case OA_CAM_CTRL_TEMPERATURE:
     {
       val->valueType = OA_CTRL_TYPE_READONLY;
@@ -212,20 +207,6 @@ oaZWASICameraTestControl ( oaCamera* camera, int control,
     case OA_CAM_CTRL_BINNING:
       val_s32 = val->discrete;
       if ( isBinSupported ( val_s32 )) {
-        return OA_ERR_NONE;
-      }
-      break;
-
-    case OA_CAM_CTRL_BIT_DEPTH:
-      val_s32 = val->discrete;
-      // This may be a bit of an ugly assumption, but I think it
-      // should hold for the time being
-      if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH )) {
-        if ( 16 == val_s32 || 12 == val_s32 || 8 == val_s32 ) {
-          return OA_ERR_NONE;
-        }
-      }
-      if ( 8 == val_s32 ) {
         return OA_ERR_NONE;
       }
       break;

@@ -2,7 +2,7 @@
  *
  * UVCcontrol.c -- control functions for UVC cameras
  *
- * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -103,7 +103,6 @@ int
 oaUVCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 {
   uint32_t	val_u32;
-  int32_t	val_s32;
   int64_t	val_s64;
   COMMON_INFO*	commonInfo = camera->_common;
 
@@ -160,20 +159,6 @@ oaUVCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
       }
       return OA_ERR_NONE;
       break;     
-
-    case OA_CAM_CTRL_BIT_DEPTH:
-      val_s32 = val->discrete;
-      // This may be a bit of an ugly assumption, but I think it
-      // should hold for the time being
-      if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH )) {
-        if ( 16 == val_s32 || 12 == val_s32 || 8 == val_s32 ) {
-          return OA_ERR_NONE;
-        }
-      }
-      if ( 8 == val_s32 ) {
-        return OA_ERR_NONE;
-      }
-      break;
 
     case OA_CAM_CTRL_BINNING:
       return -OA_ERR_INVALID_CONTROL;

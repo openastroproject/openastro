@@ -2,7 +2,7 @@
  *
  * SXcontroller.c -- Main camera controller thread
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -262,11 +262,6 @@ _processGetControl ( SX_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_BINNING:
       val->valueType = OA_CTRL_TYPE_DISCRETE;
       val->discrete = cameraInfo->binMode;
-      break;
-
-    case OA_CAM_CTRL_BIT_DEPTH:
-      val->valueType = OA_CTRL_TYPE_DISCRETE;
-      val->discrete = 16;
       break;
 
     case OA_CAM_CTRL_TEMPERATURE:

@@ -2,7 +2,7 @@
  *
  * PGEcontrol.c -- control functions for Point Grey Gig-E cameras
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -171,19 +171,6 @@ oaPGECameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
       }
       return OA_ERR_NONE;
       break;     
-
-    case OA_CAM_CTRL_BIT_DEPTH:
-      if ( val->valueType != OA_CTRL_TYPE_DISCRETE ) {
-        fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __FUNCTION__, val->valueType );
-        return -OA_ERR_INVALID_CONTROL_TYPE;
-      }
-      // FIX ME -- this test should be better
-      if ( 16 != val->discrete && 12 != val->discrete && 8 != val->discrete ) {
-        return -OA_ERR_OUT_OF_RANGE;
-      }
-      return OA_ERR_NONE;
-      break;
 
     default:
       // If we reach here it's because we don't recognise the control

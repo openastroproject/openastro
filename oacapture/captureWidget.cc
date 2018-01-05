@@ -2,8 +2,8 @@
  *
  * captureWidget.cc -- class for the capture widget in the UI
  *
- * Copyright 2013,2014,2015,2016,2017
- * James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -1437,14 +1437,6 @@ CaptureWidget::writeSettings ( OutputHandler* out )
                     }
                     break;
 
-                  case OA_CAM_CTRL_BIT_DEPTH:
-                  {
-                    int fmt = state.camera->videoFramePixelFormat();
-                    int Bpp = OA_BYTES_PER_PIXEL( fmt );
-                    int bpp = Bpp * 8;
-                    settings << bpp << std::endl;
-                    break;
-                  }
                   default:
                     settings << tr ( "not recorded" ).toStdString().c_str() <<
                         std::endl;

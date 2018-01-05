@@ -167,7 +167,6 @@ _QHY5LIIInitCamera ( oaCamera* camera )
     cameraInfo->currentGreenBalance = 100;
   }
 
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) = OA_CTRL_TYPE_DISCRETE;
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED ) = OA_CTRL_TYPE_READONLY;
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED_RESET ) = OA_CTRL_TYPE_BUTTON;
@@ -404,13 +403,6 @@ oaQHY5LIICameraTestControl ( oaCamera* camera, int control,
           val_s64 <= commonInfo->OA_CAM_CTRL_MAX( control ) &&
           ( 0 == ( val_s64 - commonInfo->OA_CAM_CTRL_MIN( control )) %
           commonInfo->OA_CAM_CTRL_STEP( control ))) {
-        return OA_ERR_NONE;
-      }
-      break;
-
-    case OA_CAM_CTRL_BIT_DEPTH:
-      val_s32 = valp->discrete;
-      if ( 8 == val_s32 || 12 == val_s32 || 16 == val_s32 ) {
         return OA_ERR_NONE;
       }
       break;

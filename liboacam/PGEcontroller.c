@@ -362,15 +362,6 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
     return OA_ERR_NONE;
   }
 
-  if ( OA_CAM_CTRL_BIT_DEPTH == control ) {
-    if ( OA_CTRL_TYPE_DISCRETE != val->valueType ) {
-      fprintf ( stderr, "%s: invalid control type %d where discrete expected\n",
-          __FUNCTION__, val->valueType );
-      return -OA_ERR_INVALID_CONTROL_TYPE;
-    }
-    return _doBitDepth ( cameraInfo, val->discrete );
-  }
-
   if ( OA_CAM_CTRL_FRAME_FORMAT == control ) {
     if ( OA_CTRL_TYPE_DISCRETE != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where discrete expected\n",
@@ -1025,117 +1016,6 @@ _processSetStrobeControl ( PGE_STATE* cameraInfo, OA_COMMAND* command,
   }
 
   return -OA_ERR_NONE;
-}
-
-
-static int
-_doBitDepth ( PGE_STATE* cameraInfo, int bitDepth )
-{
-  fc2GigEImageSettings	settings;
-  int			bpp = 1, restart;
-
-  // Affected values here are MONO8, MONO16, MONO12, RAW8 and RAW16
-
-  // FIX ME -- handle MONO12 rather more nicely here
-
-  if (( *p_fc2GetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
-      FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get PGE image settings\n" );
-    return -OA_ERR_CAMERA_IO;
-  }
-
-  if ( 8 == bitDepth ) {
-    switch ( cameraInfo->currentVideoFormat ) {
-
-      case FC2_PIXEL_FORMAT_MONO16:
-      case FC2_PIXEL_FORMAT_MONO12:
-        if ( cameraInfo->pixelFormats & FC2_PIXEL_FORMAT_MONO8 ) {
-          settings.pixelFormat = FC2_PIXEL_FORMAT_MONO8;
-          bpp = 1;
-        } else {
-          fprintf ( stderr, "%s: no 8-bit mono format available\n",
-              __FUNCTION__ );
-          return -OA_ERR_OUT_OF_RANGE;
-        }
-        break;
-
-      case FC2_PIXEL_FORMAT_RAW16:
-        if ( cameraInfo->pixelFormats & FC2_PIXEL_FORMAT_RAW8 ) {
-          settings.pixelFormat = FC2_PIXEL_FORMAT_RAW8;
-          bpp = 1;
-        } else {
-          fprintf ( stderr, "%s: no 8-bit raw format available\n",
-              __FUNCTION__ );
-          return -OA_ERR_OUT_OF_RANGE;
-        }
-        break;
-
-      default:
-        fprintf ( stderr, "%s: can't handle switch to 8-bit from %d\n",
-            __FUNCTION__, cameraInfo->currentVideoFormat );
-        return -OA_ERR_OUT_OF_RANGE;
-        break;
-    }
-  }
-
-  if ( 16 == bitDepth ) {
-
-    switch ( cameraInfo->currentVideoFormat ) {
-      case FC2_PIXEL_FORMAT_MONO8:
-        if ( cameraInfo->pixelFormats & FC2_PIXEL_FORMAT_MONO16 ) {
-          settings.pixelFormat = FC2_PIXEL_FORMAT_MONO16;
-          bpp = 2;
-        } else {
-          if ( cameraInfo->pixelFormats & FC2_PIXEL_FORMAT_MONO12 ) {
-            settings.pixelFormat = FC2_PIXEL_FORMAT_MONO12;
-          bpp = 2;
-          } else {
-            fprintf ( stderr, "%s: no 16-bit mono format available\n",
-                __FUNCTION__ );
-            return -OA_ERR_OUT_OF_RANGE;
-          }
-        }
-        break;
-
-      case FC2_PIXEL_FORMAT_RAW8:
-        if ( cameraInfo->pixelFormats & FC2_PIXEL_FORMAT_RAW16 ) {
-          settings.pixelFormat = FC2_PIXEL_FORMAT_RAW16;
-          bpp = 2;
-        } else {
-          fprintf ( stderr, "%s: no 16-bit raw format available\n",
-              __FUNCTION__ );
-          return -OA_ERR_OUT_OF_RANGE;
-        }
-        break;
-
-      default:
-        fprintf ( stderr, "%s: can't handle switch to 16-bit from %d\n",
-            __FUNCTION__, cameraInfo->currentVideoFormat );
-        return -OA_ERR_OUT_OF_RANGE;
-        break;
-    }
-  }
-
-  if ( cameraInfo->isStreaming ) {
-    restart = 1;
-    _doStop ( cameraInfo );
-  }
-
-  if (( *p_fc2SetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
-      FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set PGE image settings\n" );
-    return -OA_ERR_CAMERA_IO;
-  }
-
-  cameraInfo->currentVideoFormat = settings.pixelFormat;
-  cameraInfo->currentBytesPerPixel = bpp;
-  cameraInfo->imageBufferLength = cameraInfo->xSize * cameraInfo->ySize * bpp;
-
-  if ( restart ) {
-    _doStart ( cameraInfo );
-  }
-
-  return OA_ERR_NONE;
 }
 
 

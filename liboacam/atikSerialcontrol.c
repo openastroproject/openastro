@@ -2,7 +2,8 @@
  *
  * atikSerialcontrol.c -- control functions for Atik serial cameras
  *
- * Copyright 2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -164,7 +165,6 @@ oaAtikSerialCameraTestControl ( oaCamera* camera, int control,
       return OA_ERR_NONE;
       break;     
 
-    case OA_CAM_CTRL_BIT_DEPTH:
     case OA_CAM_CTRL_BINNING:
       return -OA_ERR_INVALID_CONTROL;
       break;

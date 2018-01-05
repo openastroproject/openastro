@@ -258,29 +258,6 @@ _processSetControl ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
       SetMisc ( cameraInfo->currentHFlip, cameraInfo->currentVFlip );
       break;
 
-    case OA_CAM_CTRL_BIT_DEPTH:
-      if ( 16 == val->discrete || 12 == val->discrete ) {
-        cameraInfo->currentBitDepth = 16;
-        if ( cameraInfo->colour ) {
-          cameraInfo->videoCurrent = _doStateMachine ( cameraInfo,
-              OA_CAM_CTRL_BIT_DEPTH );
-        } else {
-          cameraInfo->videoCurrent = IMG_RAW16;
-        }
-      } else {
-        if ( 8 == val->discrete ) {
-          cameraInfo->currentBitDepth = 8;
-          if ( cameraInfo->colour ) {
-            cameraInfo->videoCurrent = _doStateMachine ( cameraInfo,
-              OA_CAM_CTRL_BIT_DEPTH );
-          } else {
-            cameraInfo->videoCurrent = IMG_RAW8;
-          }
-        }
-      }
-      _doFrameReconfiguration ( cameraInfo );
-      break;
-
     case OA_CAM_CTRL_COOLER:
       cameraInfo->coolerEnabled = val->boolean;
       setValue ( CONTROL_COOLER_ON, cameraInfo->coolerEnabled, 0 );
@@ -458,63 +435,33 @@ _doStateMachine ( ZWASI_STATE* cameraInfo, unsigned int control )
 
   switch ( cameraInfo->FSMState ) {
     case 0:
-      if ( OA_CAM_CTRL_BIT_DEPTH == control ) {
-        cameraInfo->FSMState = 1;
-        newMode = IMG_RAW16;
-      } else { // raw
         cameraInfo->FSMState = 3;
         newMode = IMG_RAW8;
-      }
       break;
 
     case 1:
-      if ( OA_CAM_CTRL_BIT_DEPTH == control ) {
-        cameraInfo->FSMState = 0;
-        newMode = IMG_RGB24;
-      } else { // raw
         cameraInfo->FSMState = 2;
         newMode = IMG_RAW16;
-      }
       break;
 
     case 2:
-      if ( OA_CAM_CTRL_BIT_DEPTH == control ) {
-        cameraInfo->FSMState = 3;
-        newMode = IMG_RAW8;
-      } else { // raw
         cameraInfo->FSMState = 1;
         newMode = IMG_RAW16;
-      }
       break;
 
     case 3:
-      if ( OA_CAM_CTRL_BIT_DEPTH == control ) {
-        cameraInfo->FSMState = 4;
-        newMode = IMG_RAW16;
-      } else { // raw
         cameraInfo->FSMState = 0;
         newMode = IMG_RGB24;
-      }
       break;
 
     case 4:
-      if ( OA_CAM_CTRL_BIT_DEPTH == control ) {
-        cameraInfo->FSMState = 3;
-        newMode = IMG_RAW8;
-      } else { // raw
         cameraInfo->FSMState = 5;
         newMode = IMG_RAW16;
-      }
       break;
 
     case 5:
-      if ( OA_CAM_CTRL_BIT_DEPTH == control ) {
-        cameraInfo->FSMState = 0;
-        newMode = IMG_RGB24;
-      } else { // raw
         cameraInfo->FSMState = 4;
         newMode = IMG_RAW16;
-      }
       break;
   }
 

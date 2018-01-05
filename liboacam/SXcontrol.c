@@ -2,7 +2,7 @@
  *
  * SXcontrol.c -- control functions for SX cameras
  *
- * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -159,7 +159,6 @@ oaSXCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
       return OA_ERR_NONE;
       break;     
 
-    case OA_CAM_CTRL_BIT_DEPTH:
     case OA_CAM_CTRL_BINNING:
       return -OA_ERR_INVALID_CONTROL;
       break;

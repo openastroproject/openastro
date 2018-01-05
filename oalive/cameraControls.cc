@@ -235,7 +235,7 @@ CameraControls::configure ( void )
 
           case OA_CTRL_TYPE_DISCRETE:
             // don't show these up as unhandled
-            if ( OA_CAM_CTRL_BIT_DEPTH == c || OA_CAM_CTRL_BINNING == c ) {
+            if ( OA_CAM_CTRL_BINNING == c ) {
               added[c] = 1;
               break;
             }

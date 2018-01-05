@@ -617,11 +617,6 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       val->discrete = cameraInfo->binMode;
       break;
 
-    case OA_CAM_CTRL_BIT_DEPTH:
-      val->valueType = OA_CTRL_TYPE_DISCRETE;
-      val->discrete = 16;
-      break;
-
     case OA_CAM_CTRL_DROPPED:
       val->valueType = OA_CTRL_TYPE_READONLY;
       val->readonly = cameraInfo->droppedFrames;

@@ -2,7 +2,7 @@
  *
  * Touptekcontrol.c -- control functions for Touptek cameras
  *
- * Copyright 2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -208,14 +208,6 @@ oaTouptekCameraTestControl ( oaCamera* camera, int control,
         return -OA_ERR_OUT_OF_RANGE;
       }
       return OA_ERR_NONE;
-      break;
-
-    case OA_CAM_CTRL_BIT_DEPTH:
-      val_s32 = valp->discrete;
-      if ( val_s32 == 8 || val_s32 == 16 ) {
-        return OA_ERR_NONE;
-      }
-      return -OA_ERR_OUT_OF_RANGE;
       break;
   }
 

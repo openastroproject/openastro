@@ -262,39 +262,6 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
             UVC_PU_WHITE_BALANCE_COMPONENT_CONTROL, 4,
             cameraInfo->componentBalance );
 
-/*
-    case OA_CAM_CTRL_BIT_DEPTH:
-      if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
-        fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __FUNCTION__, valp->valueType );
-        return -OA_ERR_INVALID_CONTROL_TYPE;
-      }
-      val_s32 = valp->discrete;
-      // The two situations where this is currently valid that I know about
-      // are with a colour camera that supports 8-bit raw and Y16, or a mono
-      // camera that supports Y800 and Y16.
-      if (( cameraInfo->videoGrey || cameraInfo->videoRaw ) &&
-          cameraInfo->videoGrey16 ) {
-        if ( val_s32 == 12 || val_s32 == 16 ) {
-          cameraInfo->videoCurrent = cameraInfo->videoGrey16;
-          cameraInfo->videoCurrentId = cameraInfo->videoGrey16Id;
-        } else {
-          if ( val_s32 == 8 ) {
-            if ( cameraInfo->videoRaw ) {
-              cameraInfo->videoCurrent = cameraInfo->videoRaw;
-              cameraInfo->videoCurrentId = cameraInfo->videoRawId;
-            } else {
-              cameraInfo->videoCurrent = cameraInfo->videoGrey;
-              cameraInfo->videoCurrentId = cameraInfo->videoGreyId;
-            }
-          } else {
-            return -OA_ERR_OUT_OF_RANGE;
-          }
-        }
-      }
-      return _doCameraConfig ( camera, command );
-      break;
-*/
     case OA_CAM_CTRL_FRAME_FORMAT:
       if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
         fprintf ( stderr, "%s: invalid control type %d where discrete "

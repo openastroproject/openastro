@@ -2,7 +2,7 @@
  *
  * ZWASI2connect.c -- Initialise ZW ASI cameras APIv2
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -1299,8 +1299,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
   // The largest buffer size we should need
   // RGB colour is 3 bytes per pixel, mono one for 8-bit, two for 16-bit,
-  // RAW is one for 8-bit, 2 for 16-bit.  We assume that if the BIT_DEPTH
-  // control is supported them 16-bit is supported.
+  // RAW is one for 8-bit, 2 for 16-bit.
   multiplier = cameraInfo->maxBitDepth / 8;
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY * multiplier;

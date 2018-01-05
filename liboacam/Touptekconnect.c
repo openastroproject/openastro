@@ -426,7 +426,6 @@ oaTouptekInitCamera ( oaCameraDevice* device )
     } else {
       cameraInfo->maxBytesPerPixel = 2;
     }
-    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BIT_DEPTH ) = OA_CTRL_TYPE_DISCRETE;
   }
 
   if ( cameraInfo->colour ) {
