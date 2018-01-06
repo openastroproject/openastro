@@ -269,9 +269,6 @@ CameraWidget::changeFrameFormat ( int menuOption )
   config.frameFormat = newFormat;
 
   if ( oaFrameFormats[ newFormat ].rawColour ) {
-    // FIX ME -- commented this out because I'm not sure it's right
-    // need to go through the code and check
-    // config.cfaPattern = oaFrameFormats[ newFormat ].cfaPattern;
     if ( state.settingsWidget ) {
       state.settingsWidget->updateCFASetting();
     }
