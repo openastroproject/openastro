@@ -2,7 +2,7 @@
  *
  * outputAVI.cc -- AVI output class
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -55,7 +55,13 @@ OutputAVI::OutputAVI ( int x, int y, int n, int d, int fmt ) :
     case OA_PIX_FMT_GBRG16BE:
     case OA_PIX_FMT_GRBG16LE:
     case OA_PIX_FMT_GRBG16BE:
+    case OA_PIX_FMT_YUV444P:
+    case OA_PIX_FMT_YUV422P:
+    case OA_PIX_FMT_YUV420P:
+    case OA_PIX_FMT_YUV411P:
+    case OA_PIX_FMT_YUV410P:
     case OA_PIX_FMT_YUYV:
+    case OA_PIX_FMT_UYVY:
       videoCodec = AV_CODEC_ID_RAWVIDEO;
       break;
   }

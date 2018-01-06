@@ -2,7 +2,8 @@
  *
  * outputFFMPEG.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -65,7 +66,7 @@ class OutputFFMPEG : public OutputHandler
     uint8_t*		videoOutputBuffer;
     int			xSize;
     int			ySize;
-    int			bpp;
+    float		bpp;
     int			fpsNumerator;
     int			fpsDenominator;
 };

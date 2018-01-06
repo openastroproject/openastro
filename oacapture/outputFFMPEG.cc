@@ -2,7 +2,8 @@
  *
  * outputFFMPEG.cc -- FFMPEG output class
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -125,8 +126,32 @@ OutputFFMPEG::OutputFFMPEG ( int x, int y, int n, int d, int fmt ) :
       actualPixelFormat = storedPixelFormat = AV_PIX_FMT_BAYER_GRBG16BE;
       bpp = 2;
       break;
+    case OA_PIX_FMT_YUV444P:
+      actualPixelFormat = storedPixelFormat = AV_PIX_FMT_YUV444P;
+      bpp = 2;
+      break;
+    case OA_PIX_FMT_YUV422P:
+      actualPixelFormat = storedPixelFormat = AV_PIX_FMT_YUV422P;
+      bpp = 2;
+      break;
+    case OA_PIX_FMT_YUV420P:
+      actualPixelFormat = storedPixelFormat = AV_PIX_FMT_YUV420P;
+      bpp = 1.5;
+      break;
+    case OA_PIX_FMT_YUV411P:
+      actualPixelFormat = storedPixelFormat = AV_PIX_FMT_YUV411P;
+      bpp = 1.5;
+      break;
+    case OA_PIX_FMT_YUV410P:
+      actualPixelFormat = storedPixelFormat = AV_PIX_FMT_YUV410P;
+      bpp = 1.25;
+      break;
     case OA_PIX_FMT_YUYV:
       actualPixelFormat = storedPixelFormat = AV_PIX_FMT_YUYV422;
+      bpp = 2;
+      break;
+    case OA_PIX_FMT_UYVY:
+      actualPixelFormat = storedPixelFormat = AV_PIX_FMT_UYVY422;
       bpp = 2;
       break;
   }
