@@ -351,10 +351,13 @@ oaAltairInitCamera ( oaCameraDevice* device )
   // I'm not sure what use these flags are.
   // For the time being I'll try to do some sort of sanity check here
 
+  // FIX ME -- This looks to be broken for colour cameras.  In testing I
+  // still only see a 24-bit colour frame.  For now I'm disabling it for
+  // colour cameras.
+  if ( !cameraInfo->colour ) {
   if ( cameraInfo->maxBitDepth > 8 ) {
     if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH10 ) {
       if ( 10 == cameraInfo->maxBitDepth ) {
-        cameraInfo->maxBitDepth = 10;
         camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB30LE :
             OA_PIX_FMT_GREY10_16LE ] = 1;
       } else {
@@ -364,7 +367,6 @@ oaAltairInitCamera ( oaCameraDevice* device )
     }
     if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH12 ) {
       if ( 12 == cameraInfo->maxBitDepth ) {
-        cameraInfo->maxBitDepth = 12;
         camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB36LE :
             OA_PIX_FMT_GREY12_16LE ] = 1;
       } else {
@@ -374,7 +376,6 @@ oaAltairInitCamera ( oaCameraDevice* device )
     }
     if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH14 ) {
       if ( 14 == cameraInfo->maxBitDepth ) {
-        cameraInfo->maxBitDepth = 14;
         camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB42LE :
             OA_PIX_FMT_GREY14_16LE ] = 1;
       } else {
@@ -384,7 +385,6 @@ oaAltairInitCamera ( oaCameraDevice* device )
     }
     if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH16 ) {
       if ( 16 == cameraInfo->maxBitDepth ) {
-        cameraInfo->maxBitDepth = 16;
         camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB48LE :
             OA_PIX_FMT_GREY16LE ] = 1;
       } else {
@@ -392,6 +392,7 @@ oaAltairInitCamera ( oaCameraDevice* device )
             "-bit is available\n", cameraInfo->maxBitDepth );
       }
     }
+  }
   }
 
   // force camera into 8-bit mode
@@ -452,64 +453,64 @@ oaAltairInitCamera ( oaCameraDevice* device )
 
     if (( MAKEFOURCC('G', 'B', 'R', 'G')) == fourcc ) {
       camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB30LE ] ) {
+      if ( cameraInfo->maxBitDepth == 10 ) {
         camera->frameFormats[ OA_PIX_FMT_GRBG10_16LE ] = 1;
       }
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB36LE ] ) {
+      if ( cameraInfo->maxBitDepth == 12 ) {
         camera->frameFormats[ OA_PIX_FMT_GRBG12_16LE ] = 1;
       }
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB42LE ] ) {
+      if ( cameraInfo->maxBitDepth == 14 ) {
         camera->frameFormats[ OA_PIX_FMT_GRBG14_16LE ] = 1;
       }
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB48LE ] ) {
+      if ( cameraInfo->maxBitDepth == 16 ) {
         camera->frameFormats[ OA_PIX_FMT_GRBG16LE ] = 1;
       }
       found = 1;
     }
     if (( MAKEFOURCC('G', 'R', 'B', 'G')) == fourcc ) {
       camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB30LE ] ) {
+      if ( cameraInfo->maxBitDepth == 10 ) {
         camera->frameFormats[ OA_PIX_FMT_GBRG10_16LE ] = 1;
       }
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB36LE ] ) {
+      if ( cameraInfo->maxBitDepth == 12 ) {
         camera->frameFormats[ OA_PIX_FMT_GBRG12_16LE ] = 1;
       }
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB42LE ] ) {
+      if ( cameraInfo->maxBitDepth == 14 ) {
         camera->frameFormats[ OA_PIX_FMT_GBRG14_16LE ] = 1;
       }
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB48LE ] ) {
+      if ( cameraInfo->maxBitDepth == 16 ) {
         camera->frameFormats[ OA_PIX_FMT_GBRG16LE ] = 1;
       }
       found = 1;
     }
     if (( MAKEFOURCC('R', 'G', 'G', 'B')) == fourcc ) {
       camera->frameFormats[ OA_PIX_FMT_BGGR8 ] = 1;
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB30LE ] ) {
+      if ( cameraInfo->maxBitDepth == 10 ) {
         camera->frameFormats[ OA_PIX_FMT_BGGR10_16LE ] = 1;
       }
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB36LE ] ) {
+      if ( cameraInfo->maxBitDepth == 12 ) {
         camera->frameFormats[ OA_PIX_FMT_BGGR12_16LE ] = 1;
       }
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB42LE ] ) {
+      if ( cameraInfo->maxBitDepth == 14 ) {
         camera->frameFormats[ OA_PIX_FMT_BGGR14_16LE ] = 1;
       }
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB48LE ] ) {
+      if ( cameraInfo->maxBitDepth == 16 ) {
         camera->frameFormats[ OA_PIX_FMT_BGGR16LE ] = 1;
       }
       found = 1;
     }
     if (( MAKEFOURCC('B', 'G', 'G', 'R')) == fourcc ) {
       camera->frameFormats[ OA_PIX_FMT_RGGB8 ] = 1;
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB30LE ] ) {
+      if ( cameraInfo->maxBitDepth == 10 ) {
         camera->frameFormats[ OA_PIX_FMT_RGGB10_16LE ] = 1;
       }
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB36LE ] ) {
+      if ( cameraInfo->maxBitDepth == 12 ) {
         camera->frameFormats[ OA_PIX_FMT_RGGB12_16LE ] = 1;
       }
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB42LE ] ) {
+      if ( cameraInfo->maxBitDepth == 14 ) {
         camera->frameFormats[ OA_PIX_FMT_RGGB14_16LE ] = 1;
       }
-      if ( camera->frameFormats[ OA_PIX_FMT_RGB48LE ] ) {
+      if ( cameraInfo->maxBitDepth == 16 ) {
         camera->frameFormats[ OA_PIX_FMT_RGGB16LE ] = 1;
       }
       found = 1;
@@ -522,12 +523,16 @@ oaAltairInitCamera ( oaCameraDevice* device )
     cameraInfo->currentVideoFormat = OA_PIX_FMT_GREY8;
   }
 
+  /*
+   * FIX ME -- Commenting this out because it causes the Altair driver to crash
+   *
   // Have to do this last otherise it messes up the raw stuff above
   if ( cameraInfo->maxBitDepth > 8 ) {
     if ( cameraInfo->colour ) {
       camera->frameFormats[ OA_PIX_FMT_RGB48LE ] = 1;
     }
   }
+   */
 
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
 
