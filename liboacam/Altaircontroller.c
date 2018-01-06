@@ -145,7 +145,7 @@ _AltairFrameCallback ( const void *frame, const BITMAPINFOHEADER*
 
     // Now here's the fun...
     //
-    // In 12-bit (and presumably 10- and 14-bit) mode, mono Altair cameras
+    // In 12-bit (and presumably 10- and 14-bit) mode, Altair cameras
     // appear to return little-endian data, but right-aligned rather than
     // left-aligned as many other cameras do.  So if we have such an image we
     // try to fix it here.
@@ -155,24 +155,18 @@ _AltairFrameCallback ( const void *frame, const BITMAPINFOHEADER*
     // left-or right-aligned and they can sort it out.
 
     if ( bitsPerPixel > 8 && bitsPerPixel < 16 ) {
-      if ( !cameraInfo->colour ) {
-        shiftBits = 0;
-        // FIX ME -- not sure this is safe
-        if ( bitsPerPixel > 8 && bitsPerPixel < 16 ) {
-          shiftBits = 16 - bitsPerPixel;
-        }
+      shiftBits = 16 - bitsPerPixel;
 
-        if ( shiftBits ) {
-          const uint16_t	*s = frame;
-          uint16_t		*t = cameraInfo->buffers[ nextBuffer ].start;
-          uint16_t		v;
-          unsigned int	i;
+      if ( shiftBits ) {
+        const uint16_t	*s = frame;
+        uint16_t	*t = cameraInfo->buffers[ nextBuffer ].start;
+        uint16_t	v;
+        unsigned int	i;
 
-          for ( i = 0; i < dataLength; i += 2 ) {
-            v = *s++;
-            v <<= shiftBits;
-            *t++ = v;
-          }
+        for ( i = 0; i < dataLength; i += 2 ) {
+          v = *s++;
+          v <<= shiftBits;
+          *t++ = v;
         }
       }
     } else {

@@ -622,13 +622,12 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
   struct timeval	t;
   int			doDisplay = 0;
   int			doHistogram = 0;
-  int			previewPixelFormat, writePixelFormat;
+  unsigned int		previewPixelFormat, writePixelFormat;
   // write straight from the data if possible
   void*			previewBuffer = imageData;
   void*			writeBuffer = imageData;
   int			currentPreviewBuffer = -1;
   int			writeDemosaicPreviewBuffer = 0;
-  int			previewIsDemosaicked = 0;
   int			maxLength;
   const char*		timestamp;
   char			commentStr[64];
@@ -727,8 +726,6 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
     }
   }
 
-  int reducedGreyscaleBitDepth = 0;
-
   if (( !oaFrameFormats[ previewPixelFormat ].fullColour &&
       oaFrameFormats[ previewPixelFormat ].bytesPerPixel > 1 ) ||
       ( oaFrameFormats[ previewPixelFormat ].fullColour &&
@@ -738,11 +735,11 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
     ( void ) memcpy ( self->previewImageBuffer[ currentPreviewBuffer ],
         previewBuffer, length );
     // Do this reduction "in place"
-    self->reduceTo8Bit ( self->previewImageBuffer[ currentPreviewBuffer ],
+    previewPixelFormat = self->reduceTo8Bit (
+        self->previewImageBuffer[ currentPreviewBuffer ],
         self->previewImageBuffer[ currentPreviewBuffer ],
         config.imageSizeX, config.imageSizeY, previewPixelFormat );
     previewBuffer = self->previewImageBuffer [ currentPreviewBuffer ];
-    reducedGreyscaleBitDepth = oaFrameFormats[ previewPixelFormat ].monochrome;
   }
 
   ( void ) gettimeofday ( &t, 0 );
@@ -772,21 +769,15 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
           if ( config.demosaicOutput && previewBuffer == writeBuffer ) {
             writeDemosaicPreviewBuffer = 1;
           }
-          previewIsDemosaicked = 1;
+          previewPixelFormat = OA_DEMOSAIC_FMT ( previewPixelFormat );
           previewBuffer = self->previewImageBuffer [ currentPreviewBuffer ];
         }
       }
 
       if ( config.showFocusAid ) {
-        int fmt = previewPixelFormat;
-
-        if ( previewIsDemosaicked ) {
-          // preview should be singe byte per colour/pixel at this point
-          fmt = OA_PIX_FMT_RGB24;
-        }
         // This call should be thread-safe
         state->focusOverlay->addScore ( oaFocusScore ( previewBuffer,
-            0, config.imageSizeX, config.imageSizeY, fmt ));
+            0, config.imageSizeX, config.imageSizeY, previewPixelFormat ));
       }
 
       QImage* newImage;
@@ -800,13 +791,11 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
 
       if ( OA_PIX_FMT_GREY8 == previewPixelFormat ||
            ( oaFrameFormats[ previewPixelFormat ].rawColour &&
-           ( !self->demosaic || !config.demosaicPreview )) ||
-           reducedGreyscaleBitDepth ) {
+           ( !self->demosaic || !config.demosaicPreview ))) {
         newImage = new QImage (( const uint8_t* ) previewBuffer,
             config.imageSizeX, config.imageSizeY, config.imageSizeX,
             QImage::Format_Indexed8 );
-        if (( OA_PIX_FMT_GREY8 == previewPixelFormat ||
-            reducedGreyscaleBitDepth ) && config.colourise ) {
+        if ( OA_PIX_FMT_GREY8 == previewPixelFormat && config.colourise ) {
           newImage->setColorTable ( self->falseColourTable );
         } else {
           newImage->setColorTable ( self->greyscaleColourTable );
@@ -1018,7 +1007,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
 }
 
 
-void
+unsigned int
 PreviewWidget::reduceTo8Bit ( void* sourceData, void* targetData, int xSize,
     int ySize, int format )
 {
@@ -1072,4 +1061,6 @@ PreviewWidget::reduceTo8Bit ( void* sourceData, void* targetData, int xSize,
   } else {
       qWarning() << "Can't handle 8-bit reduction of format" << format;
   }
+
+  return outputFormat;
 }

@@ -104,10 +104,35 @@
 #define OA_PIX_FMT_GREY14_16LE          59
 #define OA_PIX_FMT_GRAY14_16LE          OA_PIX_FMT_GREY14_16LE
 
+#define OA_PIX_FMT_BGGR10_16BE          60
+#define OA_PIX_FMT_BGGR10_16LE          61
+#define OA_PIX_FMT_RGGB10_16BE          62
+#define OA_PIX_FMT_RGGB10_16LE          63
+#define OA_PIX_FMT_GBRG10_16BE          64
+#define OA_PIX_FMT_GBRG10_16LE          65
+#define OA_PIX_FMT_GRBG10_16BE          66
+#define OA_PIX_FMT_GRBG10_16LE          67
+#define OA_PIX_FMT_BGGR12_16BE          68
+#define OA_PIX_FMT_BGGR12_16LE          69
+#define OA_PIX_FMT_RGGB12_16BE          70
+#define OA_PIX_FMT_RGGB12_16LE          71
+#define OA_PIX_FMT_GBRG12_16BE          72
+#define OA_PIX_FMT_GBRG12_16LE          73
+#define OA_PIX_FMT_GRBG12_16BE          74
+#define OA_PIX_FMT_GRBG12_16LE          75
+#define OA_PIX_FMT_BGGR14_16BE          76
+#define OA_PIX_FMT_BGGR14_16LE          77
+#define OA_PIX_FMT_RGGB14_16BE          78
+#define OA_PIX_FMT_RGGB14_16LE          79
+#define OA_PIX_FMT_GBRG14_16BE          80
+#define OA_PIX_FMT_GBRG14_16LE          81
+#define OA_PIX_FMT_GRBG14_16BE          82
+#define OA_PIX_FMT_GRBG14_16LE          83
+
 // Adding more frame formats here requires the oaFrameFormats table
 // updating in liboavideo/formats.c
 
-#define OA_PIX_FMT_LAST_P1		OA_PIX_FMT_GREY14_16LE+1
+#define OA_PIX_FMT_LAST_P1		OA_PIX_FMT_GRBG14_16LE+1
 
 #define OA_ISBAYER8(x) \
     (( x == OA_PIX_FMT_BGGR8 ) || ( x == OA_PIX_FMT_RGGB8 ) || \

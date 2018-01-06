@@ -453,13 +453,13 @@ oaAltairInitCamera ( oaCameraDevice* device )
     if (( MAKEFOURCC('G', 'B', 'R', 'G')) == fourcc ) {
       camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
       if ( camera->frameFormats[ OA_PIX_FMT_RGB30LE ] ) {
-        camera->frameFormats[ OA_PIX_FMT_GRBG10 ] = 1;
+        camera->frameFormats[ OA_PIX_FMT_GRBG10_16LE ] = 1;
       }
       if ( camera->frameFormats[ OA_PIX_FMT_RGB36LE ] ) {
-        camera->frameFormats[ OA_PIX_FMT_GRBG12 ] = 1;
+        camera->frameFormats[ OA_PIX_FMT_GRBG12_16LE ] = 1;
       }
       if ( camera->frameFormats[ OA_PIX_FMT_RGB42LE ] ) {
-        camera->frameFormats[ OA_PIX_FMT_GRBG14 ] = 1;
+        camera->frameFormats[ OA_PIX_FMT_GRBG14_16LE ] = 1;
       }
       if ( camera->frameFormats[ OA_PIX_FMT_RGB48LE ] ) {
         camera->frameFormats[ OA_PIX_FMT_GRBG16LE ] = 1;
@@ -469,13 +469,13 @@ oaAltairInitCamera ( oaCameraDevice* device )
     if (( MAKEFOURCC('G', 'R', 'B', 'G')) == fourcc ) {
       camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
       if ( camera->frameFormats[ OA_PIX_FMT_RGB30LE ] ) {
-        camera->frameFormats[ OA_PIX_FMT_GBRG10 ] = 1;
+        camera->frameFormats[ OA_PIX_FMT_GBRG10_16LE ] = 1;
       }
       if ( camera->frameFormats[ OA_PIX_FMT_RGB36LE ] ) {
-        camera->frameFormats[ OA_PIX_FMT_GBRG12 ] = 1;
+        camera->frameFormats[ OA_PIX_FMT_GBRG12_16LE ] = 1;
       }
       if ( camera->frameFormats[ OA_PIX_FMT_RGB42LE ] ) {
-        camera->frameFormats[ OA_PIX_FMT_GBRG14 ] = 1;
+        camera->frameFormats[ OA_PIX_FMT_GBRG14_16LE ] = 1;
       }
       if ( camera->frameFormats[ OA_PIX_FMT_RGB48LE ] ) {
         camera->frameFormats[ OA_PIX_FMT_GBRG16LE ] = 1;
@@ -485,13 +485,13 @@ oaAltairInitCamera ( oaCameraDevice* device )
     if (( MAKEFOURCC('R', 'G', 'G', 'B')) == fourcc ) {
       camera->frameFormats[ OA_PIX_FMT_BGGR8 ] = 1;
       if ( camera->frameFormats[ OA_PIX_FMT_RGB30LE ] ) {
-        camera->frameFormats[ OA_PIX_FMT_BGGR10 ] = 1;
+        camera->frameFormats[ OA_PIX_FMT_BGGR10_16LE ] = 1;
       }
       if ( camera->frameFormats[ OA_PIX_FMT_RGB36LE ] ) {
-        camera->frameFormats[ OA_PIX_FMT_BGGR12 ] = 1;
+        camera->frameFormats[ OA_PIX_FMT_BGGR12_16LE ] = 1;
       }
       if ( camera->frameFormats[ OA_PIX_FMT_RGB42LE ] ) {
-        camera->frameFormats[ OA_PIX_FMT_BGGR14 ] = 1;
+        camera->frameFormats[ OA_PIX_FMT_BGGR14_16LE ] = 1;
       }
       if ( camera->frameFormats[ OA_PIX_FMT_RGB48LE ] ) {
         camera->frameFormats[ OA_PIX_FMT_BGGR16LE ] = 1;
@@ -501,13 +501,13 @@ oaAltairInitCamera ( oaCameraDevice* device )
     if (( MAKEFOURCC('B', 'G', 'G', 'R')) == fourcc ) {
       camera->frameFormats[ OA_PIX_FMT_RGGB8 ] = 1;
       if ( camera->frameFormats[ OA_PIX_FMT_RGB30LE ] ) {
-        camera->frameFormats[ OA_PIX_FMT_RGGB10 ] = 1;
+        camera->frameFormats[ OA_PIX_FMT_RGGB10_16LE ] = 1;
       }
       if ( camera->frameFormats[ OA_PIX_FMT_RGB36LE ] ) {
-        camera->frameFormats[ OA_PIX_FMT_RGGB12 ] = 1;
+        camera->frameFormats[ OA_PIX_FMT_RGGB12_16LE ] = 1;
       }
       if ( camera->frameFormats[ OA_PIX_FMT_RGB42LE ] ) {
-        camera->frameFormats[ OA_PIX_FMT_RGGB14 ] = 1;
+        camera->frameFormats[ OA_PIX_FMT_RGGB14_16LE ] = 1;
       }
       if ( camera->frameFormats[ OA_PIX_FMT_RGB48LE ] ) {
         camera->frameFormats[ OA_PIX_FMT_RGGB16LE ] = 1;
