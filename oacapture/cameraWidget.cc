@@ -101,6 +101,7 @@ CameraWidget::configure ( void )
 {
   int format;
   int numActions = 0;
+  int foundConfiguredFormat = 0;
 
   if ( !inputFormatList.empty()) {
     disconnect ( inputFormatMenu, SIGNAL( currentIndexChanged ( int )), 
@@ -113,8 +114,15 @@ CameraWidget::configure ( void )
     if ( state.camera->hasFrameFormat ( format )) {
       inputFormatMenu->addItem ( tr ( oaFrameFormats[ format ].name ));
       inputFormatList.append ( format );
+      if ( format == config.inputFrameFormat ) {
+        inputFormatMenu->setCurrentIndex ( numActions );
+        foundConfiguredFormat = 1;
+      }
       numActions++;
     }
+  }
+  if ( !foundConfiguredFormat ) {
+    config.inputFrameFormat = OA_PIX_FMT_RGB24;
   }
 
   connect ( inputFormatMenu, SIGNAL( currentIndexChanged ( int )), 
@@ -266,7 +274,7 @@ CameraWidget::changeFrameFormat ( int menuOption )
 
   state.camera->setFrameFormat ( newFormat );
   state.previewWidget->setVideoFramePixelFormat ( newFormat );
-  config.frameFormat = newFormat;
+  config.inputFrameFormat = newFormat;
 
   if ( oaFrameFormats[ newFormat ].rawColour ) {
     if ( state.settingsWidget ) {

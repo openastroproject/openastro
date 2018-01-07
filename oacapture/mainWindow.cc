@@ -295,6 +295,7 @@ MainWindow::readConfig ( void )
 
     config.binning2x2 = 0;
     config.colourise = 0;
+    config.inputFrameFormat = OA_PIX_FMT_RGB24;
 
     config.useROI = 0;
     config.imageSizeX = 0;
@@ -411,6 +412,8 @@ MainWindow::readConfig ( void )
     // FIX ME -- reset these temporarily.  needs fixing properly
     config.binning2x2 = 0;
     config.colourise = 0;
+    config.inputFrameFormat = settings.value ( "camera/inputFrameFormat",
+        OA_PIX_FMT_RGB24 ).toInt();
 
     config.useROI = settings.value ( "image/useROI", 0 ).toInt();
     config.imageSizeX = settings.value ( "image/imageSizeX", 0 ).toInt();
@@ -944,6 +947,7 @@ MainWindow::writeConfig ( void )
 
   settings.setValue ( "camera/binning2x2", config.binning2x2 );
   settings.setValue ( "camera/colourise", config.colourise );
+  settings.setValue ( "camera/inputFrameFormat", config.inputFrameFormat );
 
   settings.setValue ( "image/useROI", config.useROI );
   settings.setValue ( "image/imageSizeX", config.imageSizeX );

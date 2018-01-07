@@ -101,7 +101,7 @@ typedef struct
   int			demosaic;
 
   // camera config
-  unsigned int		frameFormat;
+  unsigned int		inputFrameFormat;
   int			binning2x2;
   int			colourise;
   QColor		currentColouriseColour;
