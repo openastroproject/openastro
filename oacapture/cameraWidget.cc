@@ -100,7 +100,7 @@ void
 CameraWidget::configure ( void )
 {
   int format;
-  int numActions = 0;
+  int numActions = 0, currentAction = 0;
   int foundConfiguredFormat = 0;
 
   if ( !inputFormatList.empty()) {
@@ -110,12 +110,13 @@ CameraWidget::configure ( void )
   inputFormatMenu->clear();
   inputFormatList.clear();
 
-  for ( format = 0; format < OA_PIX_FMT_LAST_P1; format++ ) {
+  for ( format = 1; format < OA_PIX_FMT_LAST_P1; format++ ) {
     if ( state.camera->hasFrameFormat ( format )) {
       inputFormatMenu->addItem ( tr ( oaFrameFormats[ format ].name ));
       inputFormatList.append ( format );
       if ( format == config.inputFrameFormat ) {
-        inputFormatMenu->setCurrentIndex ( numActions );
+        currentAction = numActions;
+        inputFormatMenu->setCurrentIndex ( currentAction );
         foundConfiguredFormat = 1;
       }
       numActions++;
@@ -123,11 +124,16 @@ CameraWidget::configure ( void )
   }
   if ( !foundConfiguredFormat ) {
     config.inputFrameFormat = OA_PIX_FMT_RGB24;
+    currentAction = 0;
   }
 
   connect ( inputFormatMenu, SIGNAL( currentIndexChanged ( int )), 
       this, SLOT( changeFrameFormat ( int )));
 
+  changeFrameFormat ( currentAction );
+  if ( config.forceInputFrameFormat ) {
+    updateForceFrameFormat ( 0, config.forceInputFrameFormat );
+  }
   binning2x2->setEnabled ( state.camera->hasBinning ( 2 ) ? 1 : 0 );
 }
 
@@ -294,4 +300,65 @@ CameraWidget::changeFrameFormat ( int menuOption )
 }
 
 
+void
+CameraWidget::updateForceFrameFormat ( unsigned int oldFormat,
+    unsigned int newFormat )
+{
+  unsigned int n;
 
+  if ( oldFormat == 0 ) {
+    // We didn't previously have a forced format set.  Disable the menu.
+    // If the new format is not in the menu already, add it at the start.
+    // Set the current index to the relevant option.
+
+    inputFormatMenu->setEnabled ( 0 );
+    disconnect ( inputFormatMenu, SIGNAL( currentIndexChanged ( int )), 
+        this, SLOT( changeFrameFormat ( int )));
+    if ( state.camera->hasFrameFormat ( newFormat )) {
+      n = inputFormatList.indexOf ( newFormat );
+      inputFormatMenu->setCurrentIndex ( n );
+    } else {
+      inputFormatMenu->insertItem ( 0, tr ( oaFrameFormats[ newFormat ].name ));
+      inputFormatMenu->setCurrentIndex ( 0 );
+    }
+  }
+
+  if ( newFormat == 0 ) {
+    // forced format has been disabled.  Enable the menu.  If the old
+    // format isn't supported by the camera, delete it from the menu.
+
+    if ( !state.camera->hasFrameFormat ( oldFormat )) {
+      inputFormatMenu->removeItem ( 0 );
+    }
+    inputFormatMenu->setEnabled ( 1 );
+    connect ( inputFormatMenu, SIGNAL( currentIndexChanged ( int )), 
+        this, SLOT( changeFrameFormat ( int )));
+  }
+
+  if ( oldFormat && newFormat ) {
+    // just the forced format has been changed.  Menu should be disabled,
+    // so leave that.  If the old format is not supported by the camera
+    // then delete it from the menu.  If the new format is not supported
+    // by the camera, add it to the menu.  Set the correct menu option.
+
+    if ( !state.camera->hasFrameFormat ( oldFormat )) {
+      inputFormatMenu->removeItem ( 0 );
+    }
+    if ( state.camera->hasFrameFormat ( newFormat )) {
+      n = inputFormatList.indexOf ( newFormat );
+      inputFormatMenu->setCurrentIndex ( n );
+    } else {
+      inputFormatMenu->insertItem ( 0, tr ( oaFrameFormats[ newFormat ].name ));
+      inputFormatMenu->setCurrentIndex ( 0 );
+    }
+  }
+
+  // And now set preview pixel format
+
+  if ( newFormat ) {
+    state.previewWidget->setVideoFramePixelFormat ( newFormat );
+  } else {
+    state.previewWidget->setVideoFramePixelFormat (
+        inputFormatList[ inputFormatMenu->currentIndex()]);
+  }
+}

@@ -52,7 +52,7 @@ CameraSettings::CameraSettings ( QWidget* parent ) : QWidget ( parent )
 void
 CameraSettings::configure ( void )
 {
-  unsigned int c, baseVal, mod, frameRateIndex;
+  unsigned int c, baseVal, mod, frameRateIndex, format;
   int added[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
   int numSliders = 0, numCheckboxes = 0, numMenus = 0, numButtons = 0;
   int numSliderCheckboxes = 0, numUnhandled = 0;
@@ -83,6 +83,11 @@ CameraSettings::configure ( void )
       controlButton[mod][baseVal] = 0;
       controlMenu[mod][baseVal] = 0;
       added[mod][baseVal] = 0;
+
+      // Ignore the frame format control
+      if ( baseVal == OA_CAM_CTRL_FRAME_FORMAT ) {
+        continue;
+      }
 
       if ( state.camera->Camera::isInitialised()) {
         controlType[mod][baseVal] = state.camera->hasControl ( c );
@@ -491,6 +496,25 @@ CameraSettings::configure ( void )
     unhandledGrid->setColumnStretch ( addedTodo, 1 );
   }
 
+  forceFrameFormat = new QCheckBox ( tr ( "Force Input Frame Format" ), this );
+  forceFrameFormat->setChecked ( config.forceInputFrameFormat );
+
+  selectedFrameFormat = new QComboBox ( this );
+  for ( format = 1; format < OA_PIX_FMT_LAST_P1; format++ ) {
+    selectedFrameFormat->addItem ( tr ( oaFrameFormats[ format ].name ));
+  }
+  if ( config.forceInputFrameFormat ) {
+    selectedFrameFormat->setCurrentIndex ( config.forceInputFrameFormat - 1 );
+  }
+  frameHBoxLayout = new QHBoxLayout();
+  frameHBoxLayout->addWidget ( forceFrameFormat );
+  frameHBoxLayout->addWidget ( selectedFrameFormat );
+  frameHBoxLayout->addStretch ( 1 );
+  connect ( forceFrameFormat, SIGNAL( stateChanged ( int )), this,
+      SLOT( forceFrameFormatChanged ( int )));
+  connect ( selectedFrameFormat, SIGNAL( currentIndexChanged ( int )), this,
+      SLOT( selectedFrameFormatChanged ( int )));
+
   // Add all the bits to the layout
 
   layout = new QVBoxLayout ( this );
@@ -503,6 +527,8 @@ CameraSettings::configure ( void )
   layout->addLayout ( menuGrid );
   layout->addStretch ( 1 );
   layout->addLayout ( unhandledGrid );
+  layout->addStretch ( 1 );
+  layout->addLayout ( frameHBoxLayout );
   layout->addStretch ( 2 );
 
   setLayout ( layout );
@@ -825,4 +851,34 @@ CameraSettings::reconfigureControl ( int control )
       control )]->setValue ( val );
   controlSpinbox[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
       control )]->setValue ( val );
+}
+
+
+void
+CameraSettings::forceFrameFormatChanged ( int newState )
+{
+  unsigned int oldState = 0;
+
+  oldState = config.forceInputFrameFormat;
+  if ( newState == Qt::Unchecked ) {
+    config.forceInputFrameFormat = 0;
+  } else {
+    config.forceInputFrameFormat = selectedFrameFormat->currentIndex() + 1;
+  }
+  state.cameraWidget->updateForceFrameFormat ( oldState,
+      config.forceInputFrameFormat );
+}
+
+
+void
+CameraSettings::selectedFrameFormatChanged ( int newIndex )
+{
+  unsigned int oldState = 0;
+
+  if ( config.forceInputFrameFormat ) {
+    oldState = config.forceInputFrameFormat;
+    config.forceInputFrameFormat = newIndex + 1;
+    state.cameraWidget->updateForceFrameFormat ( oldState,
+        config.forceInputFrameFormat );
+  }
 }

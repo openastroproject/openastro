@@ -102,6 +102,7 @@ typedef struct
 
   // camera config
   unsigned int		inputFrameFormat;
+  unsigned int		forceInputFrameFormat;
   int			binning2x2;
   int			colourise;
   QColor		currentColouriseColour;

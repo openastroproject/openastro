@@ -80,6 +80,9 @@ class CameraSettings : public QWidget
     QLabel*		frameRateLabel;
     QSlider*		frameRateSlider;
     QComboBox*		frameRateMenu;
+    QCheckBox*		forceFrameFormat;
+    QComboBox*		selectedFrameFormat;
+    QHBoxLayout*	frameHBoxLayout;
 
   public slots:
     void		updateSliderControl ( int );
@@ -87,4 +90,6 @@ class CameraSettings : public QWidget
     void		buttonPushed ( int );
     void		menuChanged ( int );
     void		frameRateChanged ( void );
+    void		forceFrameFormatChanged ( int );
+    void		selectedFrameFormatChanged ( int );
 };
