@@ -30,6 +30,8 @@ extern "C" {
 #include <png.h>
 };
 
+#include <openastro/demosaic.h>
+
 #include "outputHandler.h"
 #include "outputPNG.h"
 #include "configuration.h"
@@ -414,27 +416,19 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     // "Bayer" format is GRBG, so all the other formats are offset in some
     // manner from that
     switch ( imageFormat ) {
-      case OA_PIX_FMT_BGGR8:
-      case OA_PIX_FMT_BGGR16LE:
-      case OA_PIX_FMT_BGGR16BE:
+      case OA_DEMOSAIC_BGGR:
         xoff = ( char* ) "0";
         yoff = ( char* ) "1";
         break;
-      case OA_PIX_FMT_RGGB8:
-      case OA_PIX_FMT_RGGB16LE:
-      case OA_PIX_FMT_RGGB16BE:
+      case OA_DEMOSAIC_RGGB:
         xoff = ( char* ) "1";
         yoff = ( char* ) "0";
         break;
-      case OA_PIX_FMT_GBRG8:
-      case OA_PIX_FMT_GBRG16LE:
-      case OA_PIX_FMT_GBRG16BE:
+      case OA_DEMOSAIC_GBRG:
         xoff = ( char* ) "1";
         yoff = ( char* ) "1";
         break;
-      case OA_PIX_FMT_GRBG8:
-      case OA_PIX_FMT_GRBG16LE:
-      case OA_PIX_FMT_GRBG16BE:
+      case OA_DEMOSAIC_GRBG:
         xoff = ( char* ) "0";
         yoff = ( char* ) "0";
         break;

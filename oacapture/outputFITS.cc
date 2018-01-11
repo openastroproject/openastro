@@ -37,6 +37,8 @@ extern "C" {
 #endif
 }
 
+#include <openastro/demosaic.h>
+
 #include "outputHandler.h"
 #include "outputFITS.h"
 #include "configuration.h"
@@ -466,30 +468,18 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     long xoff = 0, yoff = 0;
     // "Bayer" format is GRBG, so all the other formats are offset in some
     // manner from that
-    switch ( imageFormat ) {
-      case OA_PIX_FMT_BGGR8:
-      case OA_PIX_FMT_BGGR16LE:
-      case OA_PIX_FMT_BGGR16BE:
+    switch ( oaFrameFormats[ imageFormat ].cfaPattern ) {
+      case OA_DEMOSAIC_BGGR:
         xoff = 0;
         yoff = 1;
         break;
-      case OA_PIX_FMT_RGGB8:
-      case OA_PIX_FMT_RGGB16LE:
-      case OA_PIX_FMT_RGGB16BE:
+      case OA_DEMOSAIC_RGGB:
         xoff = 1;
         yoff = 0;
         break;
-      case OA_PIX_FMT_GBRG8:
-      case OA_PIX_FMT_GBRG16LE:
-      case OA_PIX_FMT_GBRG16BE:
+      case OA_DEMOSAIC_GBRG:
         xoff = 1;
         yoff = 1;
-        break;
-      case OA_PIX_FMT_GRBG8:
-      case OA_PIX_FMT_GRBG16LE:
-      case OA_PIX_FMT_GRBG16BE:
-        xoff = 0;
-        yoff = 0;
         break;
     }
     fits_write_key_str ( fptr, "BAYERPAT", "TRUE", "", &status );
