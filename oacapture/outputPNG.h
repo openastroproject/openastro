@@ -2,7 +2,7 @@
  *
  * outputPNG.h -- class declaration
  *
- * Copyright 2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -55,4 +55,5 @@ class OutputPNG : public OutputHandler
     png_structp		pngPtr;
     png_infop		infoPtr;
     png_bytep*		rowPointers;
+    unsigned		imageFormat;
 };

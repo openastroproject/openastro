@@ -2,7 +2,7 @@
  *
  * outputPNG.cc -- PNG output class
  *
- * Copyright 2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -34,6 +34,7 @@ extern "C" {
 #include "outputPNG.h"
 #include "configuration.h"
 #include "state.h"
+#include "targets.h"
 
 
 OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt ) :
@@ -53,6 +54,7 @@ OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt ) :
   colour = 0;
   writeBuffer = 0;
   rowPointers = 0;
+  imageFormat = fmt;
 
   switch ( fmt ) {
 
@@ -169,12 +171,15 @@ int
 OutputPNG::addFrame ( void* frame, const char* timestampStr,
     int64_t expTime, const char* commentStr )
 {
-  int            i;
-  FILE*          handle;
-  void*          buffer = frame;
-  unsigned char* s;
-  unsigned char* t;
-  unsigned int   pngTransforms;
+  int			i;
+  FILE*			handle;
+  void*			buffer = frame;
+  unsigned char*	s;
+  unsigned char*	t;
+  unsigned int		pngTransforms;
+  png_text		pngComments[ 30 ];
+  int			numComments = 0;
+  char			stringBuffs[30][ PNG_KEYWORD_MAX_LENGTH + 1 ];
 
   filenameRoot = getNewFilename();
   fullSaveFilePath = filenameRoot + ".png";
@@ -215,6 +220,261 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   if ( pixelDepth > 8 && reverseByteOrder ) {
     pngTransforms |= PNG_TRANSFORM_SWAP_ENDIAN;
   }
+
+  // FIX ME -- perhaps the majority of these comments should be set up in
+  // the constructor and just the ones that can change per frame handled
+  // here?
+
+  pngComments[ numComments ].key = ( char* ) "DATE-OBS";
+  if ( timestampStr ) {
+    pngComments[ numComments ].text = ( char* ) timestampStr;
+    numComments++;
+  } else {
+    QDateTime now = QDateTime::currentDateTimeUtc();
+    // QString dateStr = now.toString ( Qt::ISODate );
+    QString dateStr = now.toString ( "yyyy-MM-ddThh:mm:ss.zzz" );
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        dateStr.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  pngComments[ numComments ].key = ( char* ) "OBSERVER";
+  if ( config.fitsObserver != "" ) {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        config.fitsObserver.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  pngComments[ numComments ].key = ( char* ) "OBJECT";
+  stringBuffs[ numComments ][0] = 0;
+  int currentTargetId = state.captureWidget->getCurrentTargetId();
+  if ( currentTargetId > 0 && currentTargetId != TGT_UNKNOWN ) {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        targetList[ currentTargetId ], PNG_KEYWORD_MAX_LENGTH+1 );
+  } else {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        config.fitsObject.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
+  }
+  if ( stringBuffs[ numComments ][0]) {
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  pngComments[ numComments ].key = ( char* ) "TELESCOP";
+  if ( config.fitsTelescope != "" ) {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        config.fitsTelescope.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  pngComments[ numComments ].key = ( char* ) "INSTRUME";
+  if ( config.fitsInstrument != "" ) {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        config.fitsInstrument.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  pngComments[ numComments ].key = ( char* ) "COMMENT1";
+  if ( config.fitsComment != "" ) {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        config.fitsComment.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  pngComments[ numComments ].key = ( char* ) "COMMENT2";
+  if ( commentStr && *commentStr ) {
+    ( void ) strncpy ( stringBuffs[ numComments ], commentStr,
+        PNG_KEYWORD_MAX_LENGTH+1 );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+  
+  pngComments[ numComments ].key = ( char* ) "FOCALLEN";
+  if ( config.fitsFocalLength != "" ) {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        config.fitsFocalLength.toStdString().c_str(),
+        PNG_KEYWORD_MAX_LENGTH+1 );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  pngComments[ numComments ].key = ( char* ) "APTDIA";
+  if ( config.fitsApertureDia != "" ) {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        config.fitsApertureDia.toStdString().c_str(),
+        PNG_KEYWORD_MAX_LENGTH+1 );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  } 
+
+  pngComments[ numComments ].key = ( char* ) "APTAREA";
+  if ( config.fitsApertureArea != "" ) {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        config.fitsApertureArea.toStdString().c_str(),
+        PNG_KEYWORD_MAX_LENGTH+1 );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  pngComments[ numComments ].key = ( char* ) "XPIXSZ";
+  if ( config.fitsPixelSizeX != "" ) {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        config.fitsPixelSizeX.toStdString().c_str(),
+        PNG_KEYWORD_MAX_LENGTH+1 );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  pngComments[ numComments ].key = ( char* ) "YPIXSZ";
+  if ( config.fitsPixelSizeY != "" ) {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        config.fitsPixelSizeY.toStdString().c_str(),
+        PNG_KEYWORD_MAX_LENGTH+1 );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  pngComments[ numComments ].key = ( char* ) "XORGSUBF";
+  if ( config.fitsSubframeOriginX != "" ) {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        config.fitsSubframeOriginX.toStdString().c_str(),
+        PNG_KEYWORD_MAX_LENGTH+1 );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  pngComments[ numComments ].key = ( char* ) "YORGSUBF";
+  if ( config.fitsSubframeOriginY != "" ) {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        config.fitsSubframeOriginY.toStdString().c_str(),
+        PNG_KEYWORD_MAX_LENGTH+1 );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  pngComments[ numComments ].key = ( char* ) "FILTER";
+  QString currentFilter = state.captureWidget->getCurrentFilterName();
+  if ( config.fitsFilter != "" ) {
+    currentFilter = config.fitsFilter;
+  }
+  if ( currentFilter != "" ) {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        currentFilter.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  stringBuffs[ numComments ][0] = 0;
+  pngComments[ numComments ].key = ( char* ) "SITELAT";
+  if ( state.gpsValid ) {
+    ( void ) sprintf ( stringBuffs[ numComments ], "%g", state.latitude );
+  }
+  if ( !stringBuffs[ numComments ][0] && config.fitsSiteLatitude != "" ) {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        config.fitsSiteLatitude.toStdString().c_str(),
+        PNG_KEYWORD_MAX_LENGTH+1 );
+  }
+  if ( stringBuffs[ numComments ][0] ) {
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  stringBuffs[ numComments ][0] = 0;
+  pngComments[ numComments ].key = ( char* ) "SITELONG";
+  if ( state.gpsValid ) {
+    ( void ) sprintf ( stringBuffs[ numComments ], "%g", state.longitude );
+  }
+  if ( !stringBuffs[ numComments ][0] && config.fitsSiteLongitude != "" ) {
+    ( void ) strncpy ( stringBuffs[ numComments ],
+        config.fitsSiteLatitude.toStdString().c_str(),
+        PNG_KEYWORD_MAX_LENGTH+1 );
+  }
+  if ( stringBuffs[ numComments ][0] ) {
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  pngComments[ numComments ].key = ( char* ) "SWCREATE";
+  pngComments[ numComments ].text = ( char* ) APPLICATION_NAME " " VERSION_STR;
+  numComments++;
+
+  pngComments[ numComments ].key = ( char* ) "EXPTIME";
+  ( void ) sprintf ( stringBuffs[ numComments ], "%g", expTime / 1000000.0 );
+  pngComments[ numComments ].text = stringBuffs[ numComments ];
+  numComments++;
+
+  if ( oaFrameFormats[ imageFormat ].rawColour ) {
+    char* xoff;
+    char* yoff;
+    // "Bayer" format is GRBG, so all the other formats are offset in some
+    // manner from that
+    switch ( imageFormat ) {
+      case OA_PIX_FMT_BGGR8:
+      case OA_PIX_FMT_BGGR16LE:
+      case OA_PIX_FMT_BGGR16BE:
+        xoff = ( char* ) "0";
+        yoff = ( char* ) "1";
+        break;
+      case OA_PIX_FMT_RGGB8:
+      case OA_PIX_FMT_RGGB16LE:
+      case OA_PIX_FMT_RGGB16BE:
+        xoff = ( char* ) "1";
+        yoff = ( char* ) "0";
+        break;
+      case OA_PIX_FMT_GBRG8:
+      case OA_PIX_FMT_GBRG16LE:
+      case OA_PIX_FMT_GBRG16BE:
+        xoff = ( char* ) "1";
+        yoff = ( char* ) "1";
+        break;
+      case OA_PIX_FMT_GRBG8:
+      case OA_PIX_FMT_GRBG16LE:
+      case OA_PIX_FMT_GRBG16BE:
+        xoff = ( char* ) "0";
+        yoff = ( char* ) "0";
+        break;
+    }
+
+    pngComments[ numComments ].key = ( char* ) "BAYERPAT";
+    pngComments[ numComments ].text = ( char* ) "TRUE";
+    numComments++;
+    pngComments[ numComments ].key = ( char* ) "XBAYROFF";
+    pngComments[ numComments ].text = xoff;
+    numComments++;
+    pngComments[ numComments ].key = ( char* ) "YBAYROFF";
+    pngComments[ numComments ].text = yoff;
+    numComments++;
+  }
+
+  pngComments[ numComments ].key = ( char* ) "CCD-TEMP";
+  if ( state.cameraTempValid ) {
+    ( void ) sprintf ( stringBuffs[ numComments ], "%g", state.cameraTemp );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+
+  if ( state.binningValid ) {
+    pngComments[ numComments ].key = ( char* ) "XBINNING";
+    ( void ) sprintf ( stringBuffs[ numComments ], "%d", state.binModeX );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+    pngComments[ numComments ].key = ( char* ) "YBINNING";
+    ( void ) sprintf ( stringBuffs[ numComments ], "%d", state.binModeY );
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
+  for ( i = 0; i < numComments; i++ ) {
+    pngComments[i].compression = PNG_TEXT_COMPRESSION_NONE;
+  }
+
+  png_set_text ( pngPtr, infoPtr, pngComments, numComments );
 
   // swap R and B if we need to
   // I've done this in for separate loops to avoid tests inside the loops
