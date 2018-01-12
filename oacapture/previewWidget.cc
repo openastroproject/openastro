@@ -406,11 +406,16 @@ PreviewWidget::processFlip ( void* imageData, int length, int format )
   // fake up a format for mosaic frames here as properly flipping a
   // mosaicked frame would be quite hairy
 
-  if ( OA_ISBAYER8 ( format )) {
-    assumedFormat = OA_PIX_FMT_GREY8;
-  } else {
-    if ( OA_ISBAYER16 ( format )) {
-      assumedFormat = OA_PIX_FMT_GREY16BE;
+  if ( oaFrameFormats[ format ].rawColour ) {
+    if ( oaFrameFormats[ format ].bitsPerPixel == 8 ) {
+      assumedFormat = OA_PIX_FMT_GREY8;
+    } else {
+      if ( oaFrameFormats[ format ].bitsPerPixel == 16 ) {
+        assumedFormat = OA_PIX_FMT_GREY16BE;
+      } else {
+        qWarning() << __FUNCTION__ << "No flipping idea how to handle format"
+            << format;
+      }
     }
   }
 

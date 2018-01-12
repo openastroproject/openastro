@@ -364,11 +364,7 @@ HistogramWidget::_processMosaicHistogram ( void* imageData,
   char colour;
   const char* pattern = "    ";
 
-  if ( OA_ISBAYER8( format )) {
-    bytesPerPixel = 1;
-  } else {
-    bytesPerPixel = 2;
-  }
+  bytesPerPixel = oaFrameFormats[ format ].bytesPerPixel;
   bytesPerLine = width * bytesPerPixel;
   colours = 3;
   step = length / 10000;
@@ -387,9 +383,7 @@ HistogramWidget::_processMosaicHistogram ( void* imageData,
   bzero ( green, sizeof( int ) * 256 );
   bzero ( blue, sizeof( int ) * 256 );
 
-  if ( OA_ISBAYER16( format )) {
-    fullIntensity = 0xffff;
-  }
+  fullIntensity = ( 1 << oaFrameFormats[ format ].bitsPerPixel ) - 1;
 
   int intensity;
   for ( i = 0; i < length; i += step ) {
@@ -422,7 +416,7 @@ HistogramWidget::_processMosaicHistogram ( void* imageData,
     }
     colour = pattern[ 2 * ( y % 2 ) + ( x % 2 )];
 
-    if ( OA_ISBAYER16( format )) {
+    if ( oaFrameFormats[ format ].bitsPerPixel == 16 ) {
       if ( oaFrameFormats[ format ].littleEndian ) {
         int b1, b2;
         b1 = *(( uint8_t* ) imageData + i );
@@ -435,7 +429,12 @@ HistogramWidget::_processMosaicHistogram ( void* imageData,
         intensity = ( b1 << 8 ) + b2;
       }
     } else {
-      intensity = *(( uint8_t* ) imageData + i );
+      if ( oaFrameFormats[ format ].bitsPerPixel == 8 ) {
+        intensity = *(( uint8_t* ) imageData + i );
+      } else {
+        qWarning() << __FUNCTION__ << "can't handle bit depth" <<
+            oaFrameFormats[ format ].bitsPerPixel;
+      }
     }
 
     switch ( colour ) {

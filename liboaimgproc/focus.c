@@ -51,61 +51,69 @@ oaFocusScore ( void* source, void* target, int xSize, int ySize,
   numPixels = xSize * ySize;
   workspace1 = workspace2 = 0;
 
-  switch ( frameFormat ) {
-    case OA_PIX_FMT_RGGB8:
-    case OA_PIX_FMT_RGGB16LE:
-    case OA_PIX_FMT_RGGB16BE:
-      cfaPattern = OA_DEMOSAIC_RGGB;
-      new8BitFormat = OA_PIX_FMT_RGGB8;
-      break;
-    case OA_PIX_FMT_BGGR8:
-    case OA_PIX_FMT_BGGR16LE:
-    case OA_PIX_FMT_BGGR16BE:
-      cfaPattern = OA_DEMOSAIC_BGGR;
-      new8BitFormat = OA_PIX_FMT_BGGR8;
-      break;
-    case OA_PIX_FMT_GRBG8:
-    case OA_PIX_FMT_GRBG16LE:
-    case OA_PIX_FMT_GRBG16BE:
-      cfaPattern = OA_DEMOSAIC_GRBG;
-      new8BitFormat = OA_PIX_FMT_GRBG8;
-      break;
-    case OA_PIX_FMT_GBRG8:
-    case OA_PIX_FMT_GBRG16LE:
-    case OA_PIX_FMT_GBRG16BE:
-      cfaPattern = OA_DEMOSAIC_GBRG;
-      new8BitFormat = OA_PIX_FMT_GBRG8;
-      break;
-  }
+  if ( oaFrameFormats[ frameFormat ].rawColour ) {
+    switch ( frameFormat ) {
+      case OA_PIX_FMT_RGGB8:
+      case OA_PIX_FMT_RGGB16LE:
+      case OA_PIX_FMT_RGGB16BE:
+        cfaPattern = OA_DEMOSAIC_RGGB;
+        new8BitFormat = OA_PIX_FMT_RGGB8;
+        break;
+      case OA_PIX_FMT_BGGR8:
+      case OA_PIX_FMT_BGGR16LE:
+      case OA_PIX_FMT_BGGR16BE:
+        cfaPattern = OA_DEMOSAIC_BGGR;
+        new8BitFormat = OA_PIX_FMT_BGGR8;
+        break;
+      case OA_PIX_FMT_GRBG8:
+      case OA_PIX_FMT_GRBG16LE:
+      case OA_PIX_FMT_GRBG16BE:
+        cfaPattern = OA_DEMOSAIC_GRBG;
+        new8BitFormat = OA_PIX_FMT_GRBG8;
+        break;
+      case OA_PIX_FMT_GBRG8:
+      case OA_PIX_FMT_GBRG16LE:
+      case OA_PIX_FMT_GBRG16BE:
+        cfaPattern = OA_DEMOSAIC_GBRG;
+        new8BitFormat = OA_PIX_FMT_GBRG8;
+        break;
+      default:
+        fprintf ( stderr, "%s can't handle format %d\n", __FUNCTION__,
+            frameFormat );
+        // FIX ME --return meaningful error code
+        return -1;
+        break;
+    }
 
-  if ( OA_ISBAYER16 ( frameFormat )) {
-    int i, length = xSize * ySize;
-    uint8_t* s = currentSource;
-    uint8_t* t;
+    if ( oaFrameFormats[ frameFormat ].bitsPerPixel == 16 ) {
+      int i, length = xSize * ySize;
+      uint8_t* s = currentSource;
+      uint8_t* t;
 
-    if (!( workspace1 = malloc ( xSize * ySize ))) {
-      return -OA_ERR_MEM_ALLOC;
+      if (!( workspace1 = malloc ( xSize * ySize ))) {
+        return -OA_ERR_MEM_ALLOC;
+      }
+      t = workspace1;
+      if ( oaFrameFormats[ frameFormat ].littleEndian ) {
+        s++;
+      }
+      for ( i = 0; i < length; i++ ) {
+        *t++ = *s++;
+        s++;
+      }
+      currentSource = workspace1;
+      frameFormat = new8BitFormat;
     }
-    t = workspace1;
-    if ( oaFrameFormats[ frameFormat ].littleEndian ) {
-      s++;
-    }
-    for ( i = 0; i < length; i++ ) {
-      *t++ = *s++;
-      s++;
-    }
-    currentSource = workspace1;
-    frameFormat = new8BitFormat;
-  }
 
-  if ( OA_ISBAYER8 ( frameFormat )) {
-    if (!( workspace2 = malloc ( xSize * ySize * 3 ))) {
-      return -OA_ERR_MEM_ALLOC;
+    if ( oaFrameFormats[ frameFormat ].bitsPerPixel == 8 ) {
+      if (!( workspace2 = malloc ( xSize * ySize * 3 ))) {
+        return -OA_ERR_MEM_ALLOC;
+      }
+      oademosaic ( currentSource, workspace2, xSize, ySize, 8,
+          cfaPattern, OA_DEMOSAIC_NEAREST_NEIGHBOUR );
+      currentSource = workspace2;
+      frameFormat = OA_PIX_FMT_RGB24;
     }
-    oademosaic ( currentSource, workspace2, xSize, ySize, 8,
-        cfaPattern, OA_DEMOSAIC_NEAREST_NEIGHBOUR );
-    currentSource = workspace2;
-    frameFormat = OA_PIX_FMT_RGB24;
   }
 
   if ( OA_PIX_FMT_RGB24 == frameFormat || OA_PIX_FMT_BGR24 == frameFormat ) {

@@ -489,11 +489,16 @@ ViewWidget::processFlip ( void* imageData, int length, int format )
   // fake up a format for mosaic frames here as properly flipping a
   // mosaicked frame would be quite hairy
 
-  if ( OA_ISBAYER8 ( format )) {
-    assumedFormat = OA_PIX_FMT_GREY8;
-  } else {
-    if ( OA_ISBAYER16 ( format )) {
-      assumedFormat = OA_PIX_FMT_GREY16BE;
+  if ( oaFrameFormats[ format ].rawColour ) {
+    if ( oaFrameFormats[ format ].bitsPerPixel == 8 ) {
+      assumedFormat = OA_PIX_FMT_GREY8;
+    } else {
+      if ( oaFrameFormats[ format ].bitsPerPixel == 16 ) {
+        assumedFormat = OA_PIX_FMT_GREY16BE;
+      } else {
+        qWarning() << __FUNCTION__ << "No flipping idea how to handle format"
+            << format;
+      }
     }
   }
 
@@ -897,7 +902,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
 #ifdef OACAPTURE
   if ( OA_PIX_FMT_GREY16BE == previewPixelFormat ||
       OA_PIX_FMT_GREY16LE == previewPixelFormat ||
-      OA_ISBAYER16 ( previewPixelFormat )) {
+      ( oaFrameFormats[ previewPixelFormat ].rawColour &&
+      oaFrameFormats[ previewPixelFormat ].bitsPerPixel == 16 )) {
     currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :
         !currentPreviewBuffer;
     ( void ) memcpy ( self->previewImageBuffer[ currentPreviewBuffer ],
@@ -913,7 +919,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
 #else
   if ( OA_PIX_FMT_GREY16BE == viewPixelFormat ||
       OA_PIX_FMT_GREY16LE == viewPixelFormat ||
-      OA_ISBAYER16 ( viewPixelFormat )) {
+      ( oaFrameFormats[ viewPixelFormat ].rawColour &&
+      oaFrameFormats[ viewPixelFormat ].bitsPerPixel == 16 )) {
     currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
         !currentViewBuffer;
     ( void ) memcpy ( self->viewImageBuffer[ currentViewBuffer ],
@@ -999,8 +1006,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
         int fmt = previewPixelFormat;
 
         if ( previewIsDemosaicked ) {
-          fmt = OA_ISBAYER16 ( fmt )  ? OA_PIX_FMT_RGB48BE :
-              OA_PIX_FMT_RGB24;
+          fmt = OA_DEMOSAIC_FMT( fmt );
         }
         state->focusOverlay->addScore ( oaFocusScore ( previewBuffer,
             0, config.imageSizeX, config.imageSizeY, fmt ));
@@ -1216,8 +1222,7 @@ if ( output && self->recordingInProgress ) {
       int fmt = viewPixelFormat;
 
       if ( viewIsDemosaicked ) {
-        fmt = OA_ISBAYER16 ( fmt ) ? OA_PIX_FMT_RGB48BE :
-            OA_PIX_FMT_RGB24;
+        fmt = OA_DEMOSAIC_FMT( fmt );
       }
       state->focusOverlay->addScore ( oaFocusScore ( viewBuffer,
           0, config.imageSizeX, config.imageSizeY, fmt ));
