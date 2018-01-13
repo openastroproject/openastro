@@ -1454,6 +1454,11 @@ CaptureWidget::writeSettings ( OutputHandler* out )
       }
     }
 
+    settings << tr ( "Input Frame Format: " ).toStdString().c_str() <<
+        oaFrameFormats[ config.inputFrameFormat ].name << " (" << tr (
+        oaFrameFormats[ config.inputFrameFormat ].simpleName ).toStdString().
+        c_str() << ")" << std::endl;
+
     settings << tr ( "Image size: " ).toStdString().c_str() <<
         config.imageSizeX << "x" << config.imageSizeY << std::endl;
 

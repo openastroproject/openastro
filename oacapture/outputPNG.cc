@@ -295,7 +295,14 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }
-  
+
+  pngComments[ numComments ].key = ( char* ) "FORMATIN";
+  snprintf ( stringBuffs[ numComments ], PNG_KEYWORD_MAX_LENGTH+1, "%s (%s)",
+      oaFrameFormats[ imageFormat ].name,
+      oaFrameFormats[ imageFormat ].simpleName );
+  pngComments[ numComments ].text = stringBuffs[ numComments ];
+  numComments++;
+
   pngComments[ numComments ].key = ( char* ) "FOCALLEN";
   if ( config.fitsFocalLength != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],

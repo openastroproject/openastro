@@ -387,6 +387,11 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     fits_write_comment ( fptr, commentStr, &status );
   }
 
+  snprintf ( stringBuff, FLEN_VALUE, "Input Frame Format: %s (%s)",
+      oaFrameFormats[ imageFormat ].name,
+      oaFrameFormats[ imageFormat ].simpleName );
+  fits_write_comment ( fptr, stringBuff, &status );
+
   if ( config.fitsFocalLength != "" ) {
     fits_write_key_lng ( fptr, "FOCALLEN", config.fitsFocalLength.toInt(),
         "", &status );
