@@ -200,7 +200,11 @@ GeneralSettings::storeSettings ( void )
     config.reticleStyle = RETICLE_TRAMLINES;
   }
   config.tempsInC = degCButton->isChecked();
+#ifdef OACAPTURE
+  state.cameraWidget->resetTemperatureLabel();
+#else
   state.mainWindow->resetTemperatureLabel();
+#endif
   config.saveCaptureSettings = saveCaptureSettings->isChecked() ? 1 : 0;
   config.connectSoleCamera = connectSole->isChecked() ? 1 : 0;
 
@@ -236,6 +240,6 @@ GeneralSettings::showRestartWarning ( void )
         "selections to make the controls dockable or appear on the right." );
   }
 
-  QMessageBox::warning ( this, APPLICATION_NAME, msg1 + msg2 );
+  QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME, msg1 + msg2 );
   state.settingsWidget->dataChanged();
 }

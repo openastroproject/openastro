@@ -2,7 +2,7 @@
  *
  * profileSettings.cc -- class for profile settings tab in the settings UI
  *
- * Copyright 2013,2014,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -159,7 +159,6 @@ ProfileSettings::addEntry ( void )
   } while ( found );
 
   p.profileName = newName;
-  p.sixteenBit = config.sixteenBit;
   p.binning2x2 = config.binning2x2;
 #ifdef OACAPTURE
   p.rawMode = config.rawMode;

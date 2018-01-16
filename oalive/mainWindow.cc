@@ -333,12 +333,10 @@ MainWindow::readConfig ( void )
     config.flipX = 0;
     config.flipY = 0;
     config.demosaic = 0;
-    config.rawMode = 0;
 #endif
     config.showReticle = 0;
     config.showFocusAid = 0;
 
-    config.sixteenBit = 0;
     config.binning2x2 = 0;
     config.colourise = 0;
 
@@ -476,18 +474,10 @@ MainWindow::readConfig ( void )
     config.demosaic = settings.value ( "options/demosaic", 0 ).toInt();
 #endif
 
-    config.sixteenBit = settings.value ( "camera/sixteenBit", 0 ).toInt();
     config.binning2x2 = settings.value ( "camera/binning2x2", 0 ).toInt();
-#ifdef OACAPTURE
-    config.rawMode = settings.value ( "camera/raw", 0 ).toInt();
-#endif
     config.colourise = settings.value ( "camera/colourise", 0 ).toInt();
     // FIX ME -- reset these temporarily.  needs fixing properly
-    config.sixteenBit = 0;
     config.binning2x2 = 0;
-#ifdef OACAPTURE
-    config.rawMode = 0;
-#endif
     config.colourise = 0;
 
     config.useROI = settings.value ( "image/useROI", 0 ).toInt();
@@ -704,11 +694,7 @@ MainWindow::readConfig ( void )
         settings.setArrayIndex ( i );
         PROFILE p;
         p.profileName = settings.value ( "name", "" ).toString();
-        p.sixteenBit = settings.value ( "sixteenBit", 0 ).toInt();
         p.binning2x2 = settings.value ( "binning2x2", 0 ).toInt();
-#ifdef OACAPTURE
-        p.rawMode = settings.value ( "raw", 0 ).toInt();
-#endif
         p.colourise = settings.value ( "colourise", 0 ).toInt();
         p.useROI = settings.value ( "useROI", 0 ).toInt();
         p.imageSizeX = settings.value ( "imageSizeX", 0 ).toInt();
@@ -797,11 +783,7 @@ MainWindow::readConfig ( void )
 
       PROFILE p;
       p.profileName = "default";
-      p.sixteenBit = config.sixteenBit;
       p.binning2x2 = config.binning2x2;
-#ifdef OACAPTURE
-      p.rawMode = config.rawMode;
-#endif
       p.colourise = config.colourise;
       p.useROI = config.useROI;
       p.imageSizeX = config.imageSizeX;
@@ -1045,12 +1027,11 @@ MainWindow::writeConfig ( void )
   settings.setValue ( "options/showFocusAid", config.showFocusAid );
   settings.setValue ( "options/demosaic", config.demosaic );
 
-  settings.setValue ( "camera/sixteenBit", config.sixteenBit );
   settings.setValue ( "camera/binning2x2", config.binning2x2 );
-#ifdef OACAPTURE
-  settings.setValue ( "camera/raw", config.rawMode );
-#endif
   settings.setValue ( "camera/colourise", config.colourise );
+  settings.setValue ( "camera/inputFrameFormat", config.inputFrameFormat );
+  settings.setValue ( "camera/forceInputFrameFormat",
+      config.forceInputFrameFormat );
 
   settings.setValue ( "image/useROI", config.useROI );
   settings.setValue ( "image/imageSizeX", config.imageSizeX );
@@ -1143,11 +1124,7 @@ MainWindow::writeConfig ( void )
     for ( int i = 0; i < config.numProfiles; i++ ) {
       settings.setArrayIndex ( i );
       settings.setValue ( "name", config.profiles[i].profileName );
-      settings.setValue ( "sixteenBit", config.profiles[i].sixteenBit );
       settings.setValue ( "binning2x2", config.profiles[i].binning2x2 );
-#ifdef OACAPTURE
-      settings.setValue ( "raw", config.profiles[i].rawMode );
-#endif
       settings.setValue ( "colourise", config.profiles[i].colourise );
       settings.setValue ( "useROI", config.profiles[i].useROI );
       settings.setValue ( "imageSizeX", config.profiles[i].imageSizeX );
@@ -1631,10 +1608,6 @@ MainWindow::connectCamera ( int deviceIndex )
   state.histogramOn = 0;
 #endif
   doDisconnectCam();
-  config.sixteenBit = 0;
-#ifdef OACAPTURE
-  config.rawMode = 0;
-#endif
 
   for ( attempt = 0, ret = 1; ret == 1 && attempt < 2; attempt++ ) {
     if (( ret = state.camera->initialise ( cameraDevs[ deviceIndex ] ))) {
@@ -1656,16 +1629,16 @@ MainWindow::connectCamera ( int deviceIndex )
           if ( haveCamera && connectedCameras == 1 ) {
             continue;
           }
-          QMessageBox::warning ( this, APPLICATION_NAME,
+          QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
               tr ( "The firmware has loaded, but a rescan is required "
               "and the camera must be selected again." ));
         } else {
-          QMessageBox::warning ( this, APPLICATION_NAME,
+          QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
               tr ( "The firmware has loaded, but a rescan is required "
               "and the camera must be selected again." ));
         }
       } else {
-        QMessageBox::warning ( this, APPLICATION_NAME,
+        QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
             tr ( "Unable to connect camera" ));
       }
 #ifdef OACAPTURE
@@ -1781,7 +1754,7 @@ MainWindow::disconnectCamera ( void )
   state.captureWidget->enableProfileSelect ( 0 );
 #endif
   doDisconnectCam();
-  statusLine->showMessage ( tr ( "Camera disconnected" ));
+  statusLine->showMessage ( tr ( "Camera disconnected" ), 5000 );
 }
 
 
@@ -1817,7 +1790,7 @@ MainWindow::connectFilterWheel ( int deviceIndex )
 {
   doDisconnectFilterWheel();
   if ( state.filterWheel->initialise ( filterWheelDevs[ deviceIndex ] )) {
-    QMessageBox::warning ( this, APPLICATION_NAME,
+    QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
         tr ( "Unable to connect filter wheel" ));
     return;
   }
@@ -1855,7 +1828,7 @@ MainWindow::disconnectFilterWheel ( void )
 {
   doDisconnectFilterWheel();
   statusLine->removeWidget ( wheelStatus );
-  statusLine->showMessage ( tr ( "Filter wheel disconnected" ));
+  statusLine->showMessage ( tr ( "Filter wheel disconnected" ), 5000 );
 }
 
 
@@ -1865,7 +1838,7 @@ MainWindow::warmResetFilterWheel ( void )
   if ( state.filterWheel && state.filterWheel->isInitialised()) {
     state.filterWheel->warmReset();
   }
-  statusLine->showMessage ( tr ( "Filter wheel reset" ));
+  statusLine->showMessage ( tr ( "Filter wheel reset" ), 5000 );
 }
 
 
@@ -1875,7 +1848,7 @@ MainWindow::coldResetFilterWheel ( void )
   if ( state.filterWheel && state.filterWheel->isInitialised()) {
     state.filterWheel->coldReset();
   }
-  statusLine->showMessage ( tr ( "Filter wheel reset" ));
+  statusLine->showMessage ( tr ( "Filter wheel reset" ), 5000 );
 }
 
 
@@ -1905,7 +1878,7 @@ MainWindow::connectTimer ( int deviceIndex )
 {
   doDisconnectTimer();
   if ( state.timer->initialise ( timerDevs[ deviceIndex ] )) {
-    QMessageBox::warning ( this, APPLICATION_NAME,
+    QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
         tr ( "Unable to connect timer" ));
     return;
   }
@@ -1937,7 +1910,7 @@ MainWindow::disconnectTimer ( void )
   state.gpsValid = 0;
   doDisconnectTimer();
   statusLine->removeWidget ( timerStatus );
-  statusLine->showMessage ( tr ( "Timer disconnected" ));
+  statusLine->showMessage ( tr ( "Timer disconnected" ), 5000 );
 }
 
 
@@ -2269,8 +2242,9 @@ MainWindow::mosaicFlipWarning ( void )
   int format = state.camera->videoFramePixelFormat();
 
   if ( oaFrameFormats[ format ].rawColour ) {
-    QMessageBox::warning ( this, APPLICATION_NAME,
-        tr ( "Flipping a raw camera image may require a different colour mask to be used for demosaicking " ));
+    QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+        tr ( "Flipping a raw camera image may "
+        "require a different colour mask to be used for demosaicking " ));
   }
 }
 
@@ -2302,7 +2276,7 @@ MainWindow::enableDemosaic ( void )
 void
 MainWindow::aboutDialog ( void )
 {
-  QMessageBox::about ( this, tr ( "About " APPLICATION_NAME ),
+  QMessageBox::about ( TOP_WIDGET, tr ( "About " APPLICATION_NAME ),
       tr ( "<h2>" APPLICATION_NAME " " VERSION_STR "</h2>"
       "<p>Copyright &copy; " COPYRIGHT_YEARS " " AUTHOR_NAME "<br/>"
       "&lt;" AUTHOR_EMAIL "&gt;</p>"
@@ -2780,16 +2754,27 @@ MainWindow::createViewWindow()
 
   // These figures are a bit arbitrary, but give a size that should work
   // initially on small displays
-  QRect rec = QApplication::desktop()->availableGeometry();
+  QRect rec = QApplication::desktop()->availableGeometry (
+      QApplication::desktop()->primaryScreen());
   height = rec.height();
   width = rec.width();
-  height *= 2.0/3.0;
-  width *= 2.0/3.0;
-  if ( minHeight > height ) {
-    minHeight = height;
-  }
-  if ( minWidth > width ) {
-    minWidth = width;
+  if ( height < 1024 || width < 1280 ) {
+    if ( height < 600 || width < 800 ) {
+      minWidth = 640;
+      minHeight = 480;
+    } else {
+      minWidth = 800;
+      minHeight = 600;
+    }
+  } else {
+    height *= 2.0/3.0;
+    width *= 2.0/3.0;
+    if ( minHeight > height ) {
+      minHeight = height;
+    }
+    if ( minWidth > width ) {
+      minWidth = width;
+    }
   }
 
 #ifdef OACAPTURE
@@ -3129,6 +3114,6 @@ MainWindow::reveal ( void )
 void
 MainWindow::frameWriteFailedPopup ( void )
 {
-  QMessageBox::warning ( this, APPLICATION_NAME,
+  QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
       tr ( "Error saving captured frame" ));
 }

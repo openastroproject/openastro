@@ -2,7 +2,7 @@
  *
  * outputPNG.h -- class declaration
  *
- * Copyright 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -36,7 +36,7 @@ class OutputPNG : public OutputHandler
     			OutputPNG ( int, int, int, int, int, QString );
     			~OutputPNG();
     int			openOutput ( void );
-    int			addFrame ( void*, const char*, int64_t );
+    int			addFrame ( void*, const char*, int64_t, const char* );
     void		closeOutput ( void );
     int			outputExists ( void );
     int			outputWritable ( void );
@@ -55,4 +55,5 @@ class OutputPNG : public OutputHandler
     png_structp		pngPtr;
     png_infop		infoPtr;
     png_bytep*		rowPointers;
+    unsigned		imageFormat;
 };

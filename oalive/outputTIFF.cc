@@ -2,7 +2,8 @@
  *
  * outputTIFF.cc -- TIFF output class
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -36,8 +37,13 @@ extern "C" {
 #include "state.h"
 
 
+#ifdef OACAPTURE
+OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt ) :
+    OutputHandler ( x, y, n, d )
+#else
 OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
     QString fileTemplate ) : OutputHandler ( x, y, n, d, fileTemplate )
+#endif
 {
   uint16_t byteOrderTest = 0x1234;
   uint8_t* firstByte;
@@ -168,7 +174,8 @@ OutputTIFF::openOutput ( void )
 
 
 int
-OutputTIFF::addFrame ( void* frame, const char* timestampStr, int64_t expTime )
+OutputTIFF::addFrame ( void* frame, const char* timestampStr, int64_t expTime,
+    const char* commentStr )
 {
   int            ret, i;
   TIFF*          handle;
@@ -200,6 +207,14 @@ OutputTIFF::addFrame ( void* frame, const char* timestampStr, int64_t expTime )
     TIFFSetField ( handle, TIFFTAG_SAMPLESPERPIXEL, 1 );
   }
   TIFFSetField ( handle, TIFFTAG_BITSPERSAMPLE, pixelDepth );
+
+  TIFFSetField ( handle, TIFFTAG_SOFTWARE, APPLICATION_NAME " " VERSION_STR );
+  if ( timestampStr && *timestampStr ) {
+    TIFFSetField ( handle, TIFFTAG_DATETIME, timestampStr );
+  }
+  if ( commentStr && *commentStr ) {
+    TIFFSetField ( handle, TIFFTAG_IMAGEDESCRIPTION, commentStr );
+  }
 
   // swap byte orders if we need to
   // swap R and B if we need to

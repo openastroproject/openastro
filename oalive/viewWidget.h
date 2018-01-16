@@ -137,7 +137,7 @@ class ViewWidget : public QFrame
     void		processFlip8Bit ( uint8_t*, int );
     void		processFlip16Bit ( uint8_t*, int );
     void		processFlip24BitColour ( uint8_t*, int );
-    void		convert16To8Bit ( void*, int, int );
+    unsigned int	reduceTo8Bit ( void*, void*, int, int, int );
     void		mousePressEvent ( QMouseEvent* );
     void		mouseMoveEvent ( QMouseEvent* );
     void		mouseReleaseEvent ( QMouseEvent* );

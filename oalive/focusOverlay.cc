@@ -38,6 +38,10 @@ FocusOverlay::FocusOverlay ( QWidget* parent ) : QWidget ( parent )
   setMinimumSize ( 512, 220 );
   startOfBuffer = endOfBuffer = -1;
 
+  currentMaximum = -1;
+  currentMinimum = 0x7fffffff;
+  currentRange = 1;
+
   connect ( this, SIGNAL( updateFocus ( void )),
       this, SLOT( update ( void )));
 }
@@ -49,6 +53,7 @@ FocusOverlay::paintEvent ( QPaintEvent* event )
   QPainter	painter ( this );
   int		numVals;
   int		i, n, x, c, y;
+  float		val;
 
   if ( startOfBuffer == -1 ) {
     return;
@@ -57,8 +62,9 @@ FocusOverlay::paintEvent ( QPaintEvent* event )
   numVals = ( endOfBuffer - startOfBuffer + 256 ) % 256 + 1;
   x = 512 - numVals * 2;
   for ( i = 0, n = startOfBuffer; i < numVals; i++ ) {
-    c = values[n] / 99.0 * 255.0;
-    y = 220 - values[n] * 2;
+    val = ( values[n] - currentMinimum ) / currentRange;
+    c = val * 255.0;
+    y = 220 - val * 200;
     painter.setPen ( QColor ( 255 - c, c, 0 ));
     painter.drawLine ( x, y, x + 1, y );
     n = ( n + 1 ) % 256;
@@ -70,9 +76,16 @@ FocusOverlay::paintEvent ( QPaintEvent* event )
 void
 FocusOverlay::addScore ( int score )
 {
-  if ( score > 99 ) {
-    score = 99;
+  if ( score > currentMaximum ) {
+    currentMaximum = score;
   }
+  if ( score < currentMinimum ) {
+    currentMinimum = score;
+  }
+  if (( currentRange = currentMaximum - currentMinimum ) < 1 ) {
+    currentRange = 1;
+  }
+
   if ( startOfBuffer == -1 ) {
     startOfBuffer = endOfBuffer = 0;
     values[ 0 ] = score;
@@ -84,4 +97,14 @@ FocusOverlay::addScore ( int score )
     }
   }
   // emit updateFocus();
+}
+
+
+void
+FocusOverlay::reset ( void )
+{
+  startOfBuffer = endOfBuffer = -1;
+
+  currentMaximum = -1;
+  currentMinimum = 0x7fffffff;
 }

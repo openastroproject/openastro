@@ -2,7 +2,8 @@
  *
  * settingsWidget.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -69,6 +70,8 @@ class SettingsWidget : public QWidget
     void		setSlotCount ( int );
     void		updateFrameRate ( int );
     void		reconfigureControl ( int );
+    QWidget*		getTabset ( void );
+
 
   private:
     GeneralSettings*	general;

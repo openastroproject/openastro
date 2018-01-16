@@ -37,6 +37,8 @@ extern "C" {
 #endif
 }
 
+#include <openastro/demosaic.h>
+
 #include "outputHandler.h"
 #include "outputFITS.h"
 #include "configuration.h"
@@ -44,8 +46,13 @@ extern "C" {
 #include "targets.h"
 
 
+#ifdef OACAPTURE
+OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt ) :
+    OutputHandler ( x, y, n, d )
+#else
 OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
     QString fileTemplate ) : OutputHandler ( x, y, n, d, fileTemplate )
+#endif
 {
   uint16_t byteOrderTest = 0x1234;
   uint8_t* firstByte;
@@ -232,7 +239,7 @@ OutputFITS::openOutput ( void )
 
 int
 OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
-    int64_t expTime )
+    int64_t expTime, const char* commentStr )
 {
   unsigned char* s;
   unsigned char* t;
@@ -351,7 +358,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   }
 
   stringBuff[0] = 0;
-  int currentTargetId = 0;
+  int currentTargetId = TGT_UNKNOWN;
 #ifdef OACAPTURE
   currentTargetId = state.captureWidget->getCurrentTargetId();
 #endif
@@ -383,6 +390,15 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
         config.fitsComment.toStdString().c_str(), FLEN_VALUE+1 );
     fits_write_comment ( fptr, cString, &status );
   }
+
+  if ( commentStr && *commentStr ) {
+    fits_write_comment ( fptr, commentStr, &status );
+  }
+
+  snprintf ( stringBuff, FLEN_VALUE, "Input Frame Format: %s (%s)",
+      oaFrameFormats[ imageFormat ].name,
+      oaFrameFormats[ imageFormat ].simpleName );
+  fits_write_comment ( fptr, stringBuff, &status );
 
   if ( config.fitsFocalLength != "" ) {
     fits_write_key_lng ( fptr, "FOCALLEN", config.fitsFocalLength.toInt(),
@@ -419,10 +435,8 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
         "", &status );
   }
 
-  QString currentFilter;
 #ifdef OACAPTURE
-  currentFilter = state.captureWidget->getCurrentFilterName();
-#endif
+  QString currentFilter = state.captureWidget->getCurrentFilterName();
   if ( config.fitsFilter != "" ) {
     currentFilter = config.fitsFilter;
   }
@@ -431,6 +445,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
         currentFilter.toStdString().c_str(), FLEN_VALUE+1 );
     fits_write_key_str ( fptr, "FILTER", cString, "", &status );
   }
+#endif
 
 #ifdef OACAPTURE
   stringBuff[0] = 0;
@@ -456,7 +471,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   if ( stringBuff[0] ) {
     fits_write_key_str ( fptr, "SITELONG", cString, "", &status );
   }
-#endif /* OACAPTURE */
+#endif
 
   fits_write_key_str ( fptr, "SWCREATE", APPLICATION_NAME " " VERSION_STR, "",
       &status );
@@ -470,30 +485,18 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     long xoff = 0, yoff = 0;
     // "Bayer" format is GRBG, so all the other formats are offset in some
     // manner from that
-    switch ( imageFormat ) {
-      case OA_PIX_FMT_BGGR8:
-      case OA_PIX_FMT_BGGR16LE:
-      case OA_PIX_FMT_BGGR16BE:
+    switch ( oaFrameFormats[ imageFormat ].cfaPattern ) {
+      case OA_DEMOSAIC_BGGR:
         xoff = 0;
         yoff = 1;
         break;
-      case OA_PIX_FMT_RGGB8:
-      case OA_PIX_FMT_RGGB16LE:
-      case OA_PIX_FMT_RGGB16BE:
+      case OA_DEMOSAIC_RGGB:
         xoff = 1;
         yoff = 0;
         break;
-      case OA_PIX_FMT_GBRG8:
-      case OA_PIX_FMT_GBRG16LE:
-      case OA_PIX_FMT_GBRG16BE:
+      case OA_DEMOSAIC_GBRG:
         xoff = 1;
         yoff = 1;
-        break;
-      case OA_PIX_FMT_GRBG8:
-      case OA_PIX_FMT_GRBG16LE:
-      case OA_PIX_FMT_GRBG16BE:
-        xoff = 0;
-        yoff = 0;
         break;
     }
     fits_write_key_str ( fptr, "BAYERPAT", "TRUE", "", &status );

@@ -2,7 +2,7 @@
  *
  * outputHandler.cc -- output hander (mostly) virtual class
  *
- * Copyright 2013,2014,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -32,8 +32,12 @@
 #include "state.h"
 
 
+#ifdef OACAPTURE
+OutputHandler::OutputHandler ( int x, int y, int n, int d )
+#else
 OutputHandler::OutputHandler ( int x, int y, int n, int d,
     QString fileTemplate )
+#endif
 {
   Q_UNUSED( x );
   Q_UNUSED( y );
@@ -93,13 +97,18 @@ OutputHandler::generateFilename ( void )
   unsigned int exposure;
   index = QString("%1").arg ( state.captureIndex, config.indexDigits, 10,
       QChar('0'));
+#ifdef OACAPTURE
+  gain = QString("%1").arg ( state.controlWidget->getCurrentGain());
+  exposure = state.controlWidget->getCurrentExposure();
+#else
   gain = QString("%1").arg ( state.cameraControls->getCurrentGain());
   exposure = state.cameraControls->getCurrentExposure();
+#endif
   exposureMs = QString("%1").arg ( exposure / 1000 );
   exposureS = QString("%1").arg (( int ) ( exposure / 1000000 ));
 
 #ifdef OACAPTURE
-  filename = config.frameFileNameTemplate;
+  filename = config.fileNameTemplate;
 #else
   filename = filenameTemplate;
 #endif

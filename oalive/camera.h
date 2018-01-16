@@ -54,6 +54,7 @@ class Camera : public QObject
     void		stop ( void );
     void		releaseImageData ( void );
 
+    int			hasFrameFormat ( int );
     int			hasRawMode ( void );
     int			hasDemosaicMode ( void );
     int			hasBinning ( int64_t );
@@ -85,6 +86,7 @@ class Camera : public QObject
     int			setROI ( int, int );
     int			setFrameInterval ( int, int );
     float		getTemperature ( void );
+    int			setFrameFormat ( int );
     int			testROISize ( unsigned int, unsigned int,
 				unsigned int*, unsigned int* );
 

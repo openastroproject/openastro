@@ -46,7 +46,6 @@ typedef struct {
 
 typedef struct {
   QString       profileName;
-  int           sixteenBit;
   int           binning2x2;
   int           colourise;
   int           useROI;
@@ -90,9 +89,9 @@ typedef struct
   int			demosaic;
 
   // camera config
-  int			sixteenBit;
+  unsigned int		inputFrameFormat;
+  unsigned int		forceInputFrameFormat;
   int			binning2x2;
-  int			rawMode;
 
   // image config
   int			useROI;

@@ -682,21 +682,6 @@ ViewWidget::processFlip24BitColour ( uint8_t* imageData, int length )
 
 
 void
-ViewWidget::convert16To8Bit ( void* imageData, int length, int format )
-{
-  uint8_t* t = ( uint8_t* ) imageData;
-  uint8_t* s = ( uint8_t* ) imageData;
-
-  if ( oaFrameFormats[ format ].littleEndian ) {
-    s++;
-  }
-  for ( int i = 0; i < length; i += 2, s += 2 ) {
-    *t++ = *s;
-  }
-}
-
-
-void
 ViewWidget::setMonoPalette ( QColor colour )
 {
   unsigned int r = colour.red();
@@ -745,7 +730,6 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
   int			writeDemosaicPreviewBuffer = 0;
   int			previewIsDemosaicked = 0;
   int			maxLength;
-  const char*		timestamp;
 #else
   void*			viewBuffer = imageData;
   int			currentViewBuffer = -1;
@@ -754,6 +738,9 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
   OutputHandler*	output;
 #endif
   void*			writeBuffer = imageData;
+  const char*		timestamp;
+  char			commentStr[ 64 ];
+  char*			comment;
 
   // don't do anything if the length is not as expected
   if ( length != self->expectedSize ) {
@@ -807,77 +794,75 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
 
 #endif
 
-  // if we have a luminance/chrominance video format then we need to
-  // unpack that first
+  // if we have a luminance/chrominance or packed mono/raw colour frame
+  // format then we need to unpack that first
 
-  if ( oaFrameFormats[ self->videoFramePixelFormat ].lumChrom ) {
+  if ( oaFrameFormats[ self->videoFramePixelFormat ].lumChrom ||
+      oaFrameFormats[ self->videoFramePixelFormat ].packed ) {
     // this is going to make the flip quite ugly and means we need to
 #ifdef OACAPTURE
     // start using currentPreviewBuffer too
     currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :
         !currentPreviewBuffer;
-    previewPixelFormat = OA_PIX_FMT_RGB24;
+    // Convert luminance/chrominance and packed raw colour to RGB.
+    // Packed mono should become GREY8.  We're only converting for
+    // preview here, so nothing needs to be more than 8 bits wide
+    if ( oaFrameFormats[ self->videoFramePixelFormat ].lumChrom ||
+        oaFrameFormats[ self->videoFramePixelFormat ].rawColour ) {
+      previewPixelFormat = OA_PIX_FMT_RGB24;
+    } else {
+      if ( oaFrameFormats[ self->videoFramePixelFormat ].monochrome ) {
+        previewPixelFormat = OA_PIX_FMT_GREY8;
+      } else {
+        qWarning() << "Don't know how to unpack frame format" <<
+            self->videoFramePixelFormat;
+      }
+    }
     ( void ) oaconvert ( previewBuffer,
         self->previewImageBuffer[ currentPreviewBuffer ], config.imageSizeX,
         config.imageSizeY, self->videoFramePixelFormat, previewPixelFormat );
     previewBuffer = self->previewImageBuffer [ currentPreviewBuffer ];
-#else
-    // start using currentViewBuffer too
-    currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
-        !currentViewBuffer;
-    viewPixelFormat = OA_PIX_FMT_RGB24;
-    ( void ) oaconvert ( viewBuffer,
-        self->viewImageBuffer[ currentViewBuffer ], config.imageSizeX,
-        config.imageSizeY, self->videoFramePixelFormat, viewPixelFormat );
-    viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
-  } else {
-    if ( oaFrameFormats[ self->videoFramePixelFormat ].rawColour ) {
-      int cfaPattern = config.cfaPattern;
-      if ( oaFrameFormats[ viewPixelFormat ].rawColour ) {
-        if ( OA_DEMOSAIC_AUTO == cfaPattern ) {
-          cfaPattern = oaFrameFormats[ viewPixelFormat ].cfaPattern;
-        }
-      }
-      currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
-          !currentViewBuffer;
-      // Use the demosaicking to copy the data to the viewImageBuffer
-      ( void ) oademosaic ( viewBuffer,
-          self->viewImageBuffer[ currentViewBuffer ],
-          config.imageSizeX, config.imageSizeY, 8, cfaPattern,
-          config.demosaicMethod );
-      if ( viewBuffer == writeBuffer ) {
-        // commented to stop unused error writeDemosaicViewBuffer = 1;
-      }
-      viewIsDemosaicked = 1;
-      viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
-      viewPixelFormat = OA_PIX_FMT_RGB24;
-    }
-  }
-#endif /* OACAPTURE */
 
-#ifdef OACAPTURE
     // we can flip the preview image here if required, but not the
-#else
-  // Hopefully at this point we have the original frame in the write
-  // buffer and RGB or mono in the view buffer (which may be the same
-  // as the write buffer
-#endif
-
-  /*
-   * FIX ME -- handle a manual flip here if required
-   *
-    // we can flip the view image here if required, but not the
     // image that is going to be written out.
     // FIX ME -- work this out some time
 
     if ( self->flipX || self->flipY ) {
-#ifdef OACAPTURE
       self->processFlip ( previewBuffer, length, previewPixelFormat );
-#else
-      self->processFlip ( viewBuffer, length, viewPixelFormat );
-#endif
     }
+#else /* OACAPTURE */
+    // start using currentViewBuffer too
+    currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
+        !currentViewBuffer;
+    // Convert luminance/chrominance and packed raw colour to RGB.
+    // Packed mono should become GREY8.  We're only converting for
+    // preview here, so nothing needs to be more than 8 bits wide
+    if ( oaFrameFormats[ self->videoFramePixelFormat ].lumChrom ||
+        oaFrameFormats[ self->videoFramePixelFormat ].rawColour ) {
+      viewPixelFormat = OA_PIX_FMT_RGB24;
+    } else {
+      if ( oaFrameFormats[ self->videoFramePixelFormat ].monochrome ) {
+        viewPixelFormat = OA_PIX_FMT_GREY8;
+      } else {
+        qWarning() << "Don't know how to unpack frame format" <<
+            self->videoFramePixelFormat;
+      }
+    }
+    ( void ) oaconvert ( viewBuffer,
+        self->viewImageBuffer[ currentViewBuffer ], config.imageSizeX,
+        config.imageSizeY, self->videoFramePixelFormat, viewPixelFormat );
+    viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
+
+    // we can flip the preview image here if required, but not the
+    // image that is going to be written out.
+    // FIX ME -- work this out some time
+
+    if ( self->flipX || self->flipY ) {
+      self->processFlip ( viewBuffer, length, viewPixelFormat );
+    }
+#endif	/* OACAPTURE */
   } else {
+#ifdef OACAPTURE
     // do a vertical/horizontal flip if required
     if ( self->flipX || self->flipY ) {
       // this is going to make a mess for data we intend to demosaic.
@@ -885,53 +870,58 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
       ( void ) memcpy ( self->writeImageBuffer[0], writeBuffer, length );
       self->processFlip ( self->writeImageBuffer[0], length,
           writePixelFormat );
-      // both view and write will come from this buffer for the
+      // both preview and write will come from this buffer for the
       // time being.  This may change later on
-#ifdef OACAPTURE
       previewBuffer = self->writeImageBuffer[0];
-#else
-      viewBuffer = self->writeImageBuffer[0];
-#endif
       writeBuffer = self->writeImageBuffer[0];
     }
+#else	/* OACAPTURE */
+    // do a vertical/horizontal flip if required
+    if ( self->flipX || self->flipY ) {
+      // this is going to make a mess for data we intend to demosaic.
+      // the user will have to deal with that
+      ( void ) memcpy ( self->writeImageBuffer[0], writeBuffer, length );
+      self->processFlip ( self->writeImageBuffer[0], length,
+          writePixelFormat );
+      // both preview and write will come from this buffer for the
+      // time being.  This may change later on
+      viewBuffer = self->writeImageBuffer[0];
+      writeBuffer = self->writeImageBuffer[0];
+    }
+#endif	/* OACAPTURE */
   }
-#endif
-   */
 
-  int reducedGreyscaleBitDepth = 0;
 #ifdef OACAPTURE
-  if ( OA_PIX_FMT_GREY16BE == previewPixelFormat ||
-      OA_PIX_FMT_GREY16LE == previewPixelFormat ||
-      ( oaFrameFormats[ previewPixelFormat ].rawColour &&
-      oaFrameFormats[ previewPixelFormat ].bitsPerPixel == 16 )) {
+  if (( !oaFrameFormats[ previewPixelFormat ].fullColour &&
+      oaFrameFormats[ previewPixelFormat ].bytesPerPixel > 1 ) ||
+      ( oaFrameFormats[ previewPixelFormat ].fullColour &&
+      oaFrameFormats[ previewPixelFormat ].bytesPerPixel > 3 )) {
     currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :
         !currentPreviewBuffer;
     ( void ) memcpy ( self->previewImageBuffer[ currentPreviewBuffer ],
         previewBuffer, length );
-    self->convert16To8Bit ( self->previewImageBuffer[ currentPreviewBuffer ],
-        length, previewPixelFormat );
+    // Do this reduction "in place"
+    previewPixelFormat = self->reduceTo8Bit (
+        self->previewImageBuffer[ currentPreviewBuffer ],
+        self->previewImageBuffer[ currentPreviewBuffer ],
+        config.imageSizeX, config.imageSizeY, previewPixelFormat );
     previewBuffer = self->previewImageBuffer [ currentPreviewBuffer ];
-    if (  OA_PIX_FMT_GREY16BE == previewPixelFormat ||
-        OA_PIX_FMT_GREY16LE == previewPixelFormat ) {
-      reducedGreyscaleBitDepth = 1;
-    }
   }
 #else
-  if ( OA_PIX_FMT_GREY16BE == viewPixelFormat ||
-      OA_PIX_FMT_GREY16LE == viewPixelFormat ||
-      ( oaFrameFormats[ viewPixelFormat ].rawColour &&
-      oaFrameFormats[ viewPixelFormat ].bitsPerPixel == 16 )) {
+  if (( !oaFrameFormats[ viewPixelFormat ].fullColour &&
+      oaFrameFormats[ viewPixelFormat ].bytesPerPixel > 1 ) ||
+      ( oaFrameFormats[ viewPixelFormat ].fullColour &&
+      oaFrameFormats[ viewPixelFormat ].bytesPerPixel > 3 )) {
     currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
         !currentViewBuffer;
     ( void ) memcpy ( self->viewImageBuffer[ currentViewBuffer ],
         viewBuffer, length );
-    self->convert16To8Bit ( self->viewImageBuffer[ currentViewBuffer ],
-        length, viewPixelFormat );
+    // Do this reduction "in place"
+    viewPixelFormat = self->reduceTo8Bit (
+        self->viewImageBuffer[ currentViewBuffer ],
+        self->viewImageBuffer[ currentViewBuffer ],
+        config.imageSizeX, config.imageSizeY, viewPixelFormat );
     viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
-    if (  OA_PIX_FMT_GREY16BE == viewPixelFormat ||
-        OA_PIX_FMT_GREY16LE == viewPixelFormat ) {
-      reducedGreyscaleBitDepth = 1;
-    }
   }
 #endif /* OACAPTURE */
 
@@ -997,17 +987,13 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
           if ( config.demosaicOutput && previewBuffer == writeBuffer ) {
             writeDemosaicPreviewBuffer = 1;
           }
-          previewIsDemosaicked = 1;
+          previewPixelFormat = OA_DEMOSAIC_FMT ( previewPixelFormat );
           previewBuffer = self->previewImageBuffer [ currentPreviewBuffer ];
         }
       }
 
       if ( config.showFocusAid ) {
-        int fmt = previewPixelFormat;
-
-        if ( previewIsDemosaicked ) {
-          fmt = OA_DEMOSAIC_FMT( fmt );
-        }
+        // This call should be thread-safe
         state->focusOverlay->addScore ( oaFocusScore ( previewBuffer,
             0, config.imageSizeX, config.imageSizeY, fmt ));
       }
@@ -1103,7 +1089,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
         timestamp = 0;
       }
       if ( output->addFrame ( writeBuffer, timestamp,
-          state->controlWidget->getCurrentExposure()) < 0 ) {
+          // This call should be thread-safe
+          state->controlWidget->getCurrentExposure(), comment ) < 0 ) {
         self->recordingInProgress = 0;
         self->manualStop = 0;
         state->autorunEnabled = 0;
@@ -1214,36 +1201,45 @@ if ( output && self->recordingInProgress ) {
   unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
       ( unsigned long ) t.tv_usec / 1000;
 
+  int cfaPattern = config.cfaPattern;
+  if ( OA_DEMOSAIC_AUTO == cfaPattern &&
+      oaFrameFormats[ viewPixelFormat ].rawColour ) {
+    cfaPattern = oaFrameFormats[ viewPixelFormat ].cfaPattern;
+  }
+
   if (( self->lastDisplayUpdateTime + self->frameDisplayInterval ) < now ) {
     self->lastDisplayUpdateTime = now;
     doDisplay = 1;
 
     if ( config.showFocusAid ) {
-      int fmt = viewPixelFormat;
-
-      if ( viewIsDemosaicked ) {
-        fmt = OA_DEMOSAIC_FMT( fmt );
-      }
       state->focusOverlay->addScore ( oaFocusScore ( viewBuffer,
-          0, config.imageSizeX, config.imageSizeY, fmt ));
+          0, config.imageSizeX, config.imageSizeY, viewPixelFormat ));
     }
 
     QImage* newImage;
     QImage* swappedImage = 0;
 
+    // At this point, one way or another we should have an 8-bit image
+    // for the preview
+
+    // First deal with anything that's mono, including untouched raw
+    // colour
+
     if ( OA_PIX_FMT_GREY8 == self->videoFramePixelFormat ||
-        reducedGreyscaleBitDepth ) {
+         ( oaFrameFormats[ viewPixelFormat ].rawColour &&
+         !self->demosaic )) {
       newImage = new QImage (( const uint8_t* ) viewBuffer,
           config.imageSizeX, config.imageSizeY, config.imageSizeX,
           QImage::Format_Indexed8 );
-      if (( OA_PIX_FMT_GREY8 == self->videoFramePixelFormat ||
-          reducedGreyscaleBitDepth ) && config.colourise ) {
+      if ( OA_PIX_FMT_GREY8 == viewPixelFormat && config.colourise ) {
         newImage->setColorTable ( self->falseColourTable );
       } else {
         newImage->setColorTable ( self->greyscaleColourTable );
       }
       swappedImage = newImage;
     } else {
+      // and full colour (should just be RGB24 or BGR24 at this point?)
+      // here
       // Need the stride size here or QImage appears to "tear" the
       // right hand edge of the image when the X dimension is an odd
       // number of pixels
@@ -1268,6 +1264,7 @@ if ( output && self->recordingInProgress ) {
         self->currentZoomY );
 
       if ( config.showFocusAid ) {
+        // FIX ME -- eh?
       }
 
       pthread_mutex_lock ( &self->imageMutex );
@@ -1286,7 +1283,10 @@ if ( output && self->recordingInProgress ) {
 
   output = state->controlsWidget->getProcessedOutputHandler();
   if ( output ) {
-    output->addFrame ( viewBuffer, 0, 0 );
+    timestamp = 0;
+    comment = 0;
+    output->addFrame ( viewBuffer, timestamp,
+        state->cameraControls->getCurrentExposure(), comment );
   }
   state->captureIndex++;
 
@@ -1402,4 +1402,63 @@ ViewWidget::restart()
     memset ( averageBuffer, 0, averageBufferLength );
   }
   totalFrames = 0;
+}
+
+
+unsigned int
+ViewWidget::reduceTo8Bit ( void* sourceData, void* targetData, int xSize,
+    int ySize, int format )
+{
+  int   outputFormat = 0;
+
+  if ( oaFrameFormats[ format ].monochrome ) {
+    outputFormat = OA_PIX_FMT_GREY8;
+  } else {
+    if ( oaFrameFormats[ format ].rawColour &&
+        !oaFrameFormats[ format ].packed ) {
+      switch ( oaFrameFormats[ format ].cfaPattern ) {
+        case OA_DEMOSAIC_RGGB:
+          outputFormat = OA_PIX_FMT_RGGB8;
+          break;
+        case OA_DEMOSAIC_BGGR:
+          outputFormat = OA_PIX_FMT_BGGR8;
+          break;
+        case OA_DEMOSAIC_GRBG:
+          outputFormat = OA_PIX_FMT_GRBG8;
+          break;
+        case OA_DEMOSAIC_GBRG:
+          outputFormat = OA_PIX_FMT_GBRG8;
+          break;
+      }
+    } else {
+      switch ( format ) {
+        case OA_PIX_FMT_RGB30BE:
+        case OA_PIX_FMT_RGB30LE:
+        case OA_PIX_FMT_RGB36BE:
+        case OA_PIX_FMT_RGB36LE:
+        case OA_PIX_FMT_RGB42BE:
+        case OA_PIX_FMT_RGB42LE:
+        case OA_PIX_FMT_RGB48BE:
+        case OA_PIX_FMT_RGB48LE:
+          outputFormat = OA_PIX_FMT_RGB24;
+          break;
+        case OA_PIX_FMT_BGR48BE:
+        case OA_PIX_FMT_BGR48LE:
+          outputFormat = OA_PIX_FMT_BGR24;
+          break;
+      }
+    }
+  }
+
+  if ( outputFormat ) {
+    if ( oaconvert ( sourceData, targetData, xSize, ySize, format,
+        outputFormat ) < 0 ) {
+      qWarning() << "Unable to convert format" << format << "to format" <<
+          outputFormat;
+    }
+  } else {
+      qWarning() << "Can't handle 8-bit reduction of format" << format;
+  }
+
+  return outputFormat;
 }

@@ -2,7 +2,8 @@
  *
  * outputHandler.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -37,12 +38,17 @@
 class OutputHandler
 {
   public:
+#ifdef OACAPTURE
+    			OutputHandler ( int, int, int, int );
+#else
     			OutputHandler ( int, int, int, int, QString );
+#endif
     virtual		~OutputHandler() {};
     unsigned int	getFrameCount ( void );
 
     virtual int		openOutput() = 0;
-    virtual int		addFrame ( void*, const char*, int64_t ) = 0;
+    virtual int		addFrame ( void*, const char*, int64_t,
+                            const char* ) = 0;
     virtual void	closeOutput() = 0;
     virtual int		outputExists ( void ) = 0;
     virtual int		outputWritable ( void ) = 0;
