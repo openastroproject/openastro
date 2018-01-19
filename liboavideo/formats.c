@@ -286,7 +286,7 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .planar		= 0
   }, {  // OA_PIX_FMT_RGB48BE
     .name		= "RGB48BE",
-    .simpleName		= "16bpp colour",
+    .simpleName		= "48bpp colour",
     .bytesPerPixel	= 6,
     .bitsPerPixel	= 48,
     .cfaPattern		= 0,
@@ -300,7 +300,7 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .planar		= 0
   }, {  // OA_PIX_FMT_RGB48LE
     .name		= "RGB48LE",
-    .simpleName		= "16bpp colour",
+    .simpleName		= "48bpp colour",
     .bytesPerPixel	= 6,
     .bitsPerPixel	= 48,
     .cfaPattern		= 0,
@@ -314,7 +314,7 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .planar		= 0
   }, {  // OA_PIX_FMT_BGR48BE
     .name		= "BGR48BE",
-    .simpleName		= "16bpp colour",
+    .simpleName		= "48bpp colour",
     .bytesPerPixel	= 6,
     .bitsPerPixel	= 48,
     .cfaPattern		= 0,
@@ -328,7 +328,7 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .planar		= 0
   }, {  // OA_PIX_FMT_BGR48LE
     .name		= "BGR48LE",
-    .simpleName		= "16bpp colour",
+    .simpleName		= "48bpp colour",
     .bytesPerPixel	= 6,
     .bitsPerPixel	= 48,
     .cfaPattern		= 0,
