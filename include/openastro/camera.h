@@ -168,6 +168,7 @@ extern void		oaSetRootPath ( const char* );
 #define	OA_BIN_MODE_2x2			2
 #define	OA_BIN_MODE_3x3			3
 #define	OA_BIN_MODE_4x4			4
+#define OA_BIN_MODE_MULTIPLIER(x)	(x)
 
 // Values for cameraInterface
 

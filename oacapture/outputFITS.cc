@@ -242,6 +242,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   fitsfile* fptr;
   void* outputBuffer = frame;
   char stringBuff[FLEN_VALUE+1];
+  float pixelSize = 0;
   // Hack to get around older versions of library using char* rather
   // than const char*
 #if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
@@ -407,15 +408,38 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
         "", &status );
   }
 
+  /*
+   * XPIXSZ and YPIXSZ are supposed to take account of binning.  If the
+   * defaults are set then we'll assume the user knows what they're doing,
+   * otherwise we deal with it ourselves
+   */
+  
   if ( config.fitsPixelSizeX != "" ) {
-    fits_write_key_dbl ( fptr, "XPIXSZ", config.fitsPixelSizeX.toFloat(),
-        -5, "", &status );
+    pixelSize = config.fitsPixelSizeX.toFloat();
+  } else {
+    int binMultiplier = 1;
+    if ( state.binningValid ) {
+      binMultiplier = OA_BIN_MODE_MULTIPLIER ( state.binModeX  );
+    }
+    pixelSize = state.camera->pixelSizeX() * binMultiplier / 1000.0;
+  }
+  if ( pixelSize ) {
+    fits_write_key_dbl ( fptr, "XPIXSZ", pixelSize, -5, "", &status );
   }
 
   if ( config.fitsPixelSizeY != "" ) {
-    fits_write_key_dbl ( fptr, "YPIXSZ", config.fitsPixelSizeY.toFloat(),
-        -5, "", &status );
+    pixelSize = config.fitsPixelSizeY.toFloat();
+  } else {
+    int binMultiplier = 1;
+    if ( state.binningValid ) {
+      binMultiplier = OA_BIN_MODE_MULTIPLIER ( state.binModeY  );
+    }
+    pixelSize = state.camera->pixelSizeY() * binMultiplier / 1000.0;
   }
+  if ( pixelSize ) {
+    fits_write_key_dbl ( fptr, "YPIXSZ", pixelSize, -5, "", &status );
+  }
+
 
   if ( config.fitsSubframeOriginX != "" ) {
     fits_write_key_lng ( fptr, "XORGSUBF", config.fitsSubframeOriginX.toInt(),

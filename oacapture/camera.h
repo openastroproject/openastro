@@ -66,6 +66,8 @@ class Camera : public QObject
     int			hasFrameRateSupport ( void );
     int			isColour ( void );
     int			isInitialised ( void );
+    int			pixelSizeX ( void );
+    int			pixelSizeY ( void );
 
     void		controlRange ( int, int64_t*, int64_t*, int64_t*,
                             int64_t* );

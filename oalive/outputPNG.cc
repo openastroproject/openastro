@@ -339,19 +339,41 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   }
 
   pngComments[ numComments ].key = ( char* ) "XPIXSZ";
+  stringBuffs[ numComments ][0] = 0;
   if ( config.fitsPixelSizeX != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
         config.fitsPixelSizeX.toStdString().c_str(),
         PNG_KEYWORD_MAX_LENGTH+1 );
+  } else {
+    int binMultiplier = 1;
+    if ( state.binningValid ) {
+      binMultiplier = OA_BIN_MODE_MULTIPLIER ( state.binModeX  );
+    }
+    ( void ) snprintf ( stringBuffs[ numComments ],
+        PNG_KEYWORD_MAX_LENGTH, "%f", state.camera->pixelSizeX() *
+        binMultiplier / 1000.0 );
+  }
+  if ( stringBuffs[ numComments ][0] ) {
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }
 
   pngComments[ numComments ].key = ( char* ) "YPIXSZ";
+  stringBuffs[ numComments ][0] = 0;
   if ( config.fitsPixelSizeY != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
         config.fitsPixelSizeY.toStdString().c_str(),
         PNG_KEYWORD_MAX_LENGTH+1 );
+  } else {
+    int binMultiplier = 1;
+    if ( state.binningValid ) {
+      binMultiplier = OA_BIN_MODE_MULTIPLIER ( state.binModeY  );
+    }
+    ( void ) snprintf ( stringBuffs[ numComments ],
+        PNG_KEYWORD_MAX_LENGTH, "%f", state.camera->pixelSizeY() *
+        binMultiplier / 1000.0 );
+  }
+  if ( stringBuffs[ numComments ][0] ) {
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }
