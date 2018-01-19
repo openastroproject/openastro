@@ -44,6 +44,8 @@ CameraWidget::CameraWidget ( QWidget* parent ) : QGroupBox ( parent )
   inputFormatLabel = new QLabel( tr ( "Frame Format" ));
   inputFormatMenu = new QComboBox ( this );
   inputFormatMenu->addItem ( tr ( oaFrameFormats[1].name ));
+  inputFormatMenu->setItemData ( 0, tr ( oaFrameFormats[1].simpleName ),
+      Qt::ToolTipRole );
 
   binning2x2 = new QCheckBox ( tr ( "2x2 Binning" ), this );
   binning2x2->setToolTip ( tr ( "Enable 2x2 binning in camera" ));
@@ -113,6 +115,8 @@ CameraWidget::configure ( void )
   for ( format = 1; format < OA_PIX_FMT_LAST_P1; format++ ) {
     if ( state.camera->hasFrameFormat ( format )) {
       inputFormatMenu->addItem ( tr ( oaFrameFormats[ format ].name ));
+      inputFormatMenu->setItemData ( numActions,
+          tr ( oaFrameFormats[ format ].simpleName ), Qt::ToolTipRole );
       inputFormatList.append ( format );
       if ( format == config.inputFrameFormat ) {
         currentAction = numActions;
