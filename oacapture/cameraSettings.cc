@@ -502,6 +502,8 @@ CameraSettings::configure ( void )
   selectedFrameFormat = new QComboBox ( this );
   for ( format = 1; format < OA_PIX_FMT_LAST_P1; format++ ) {
     selectedFrameFormat->addItem ( tr ( oaFrameFormats[ format ].name ));
+    selectedFrameFormat->setItemData ( format - 1,
+          tr ( oaFrameFormats[ format ].simpleName ), Qt::ToolTipRole );
   }
   if ( config.forceInputFrameFormat ) {
     selectedFrameFormat->setCurrentIndex ( config.forceInputFrameFormat - 1 );
