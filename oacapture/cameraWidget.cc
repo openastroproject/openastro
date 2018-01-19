@@ -323,6 +323,8 @@ CameraWidget::updateForceFrameFormat ( unsigned int oldFormat,
       inputFormatMenu->setCurrentIndex ( n );
     } else {
       inputFormatMenu->insertItem ( 0, tr ( oaFrameFormats[ newFormat ].name ));
+      inputFormatMenu->setItemData ( 0,
+          tr ( oaFrameFormats[ newFormat ].simpleName ), Qt::ToolTipRole );
       inputFormatMenu->setCurrentIndex ( 0 );
     }
   }
