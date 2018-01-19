@@ -907,7 +907,7 @@ _processSetFrameFormat ( V4L2_STATE* cameraInfo, unsigned int format,
     case OA_PIX_FMT_YUV410:
       v4l2Format = V4L2_PIX_FMT_YUV410;
       break;
-    case OA_PIX_FMT_YUV420:
+    case OA_PIX_FMT_YUV420P:
       v4l2Format = V4L2_PIX_FMT_YUV420;
       break;
     case OA_PIX_FMT_BGGR8:
@@ -949,6 +949,10 @@ _processSetFrameFormat ( V4L2_STATE* cameraInfo, unsigned int format,
       break;
     case OA_PIX_FMT_GRBG12:
       v4l2Format = V4L2_PIX_FMT_SGRBG12;
+      break;
+    default:
+      fprintf ( stderr, "unhandled frame format '%s'\n",
+          oaFrameFormats[ format ].name );
       break;
   }
 

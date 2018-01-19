@@ -184,7 +184,7 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
       break;
     case OA_PIX_FMT_YUV420P:
       if ( OA_PIX_FMT_RGB24 == targetFormat ) {
-        oaYUV422PtoRGB888 ( source, target, xSize, ySize );
+        oaYUV420PtoRGB888 ( source, target, xSize, ySize );
         result = 0;
       }
       break;
@@ -204,6 +204,9 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
       if ( OA_PIX_FMT_RGB24 == targetFormat ) {
         oaYUV411toRGB888 ( source, target, xSize, ySize );
         result = 0;
+      } else {
+        fprintf ( stderr, "unknown target format for YUV411: %d\n",
+            targetFormat );
       }
       break;
     case OA_PIX_FMT_BGGR10:
@@ -218,6 +221,7 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
     case OA_PIX_FMT_GBRG10:
     case OA_PIX_FMT_GBRG12:
     case OA_PIX_FMT_GBRG14:
+    default:
       fprintf ( stderr, "unhandled format %d in %s\n", sourceFormat,
           __FUNCTION__ );
   }

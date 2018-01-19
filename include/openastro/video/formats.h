@@ -78,7 +78,7 @@
 #define OA_PIX_FMT_GBRG14               41
 #define OA_PIX_FMT_GRBG14               42
 
-#define OA_PIX_FMT_YUV444P 		43
+#define OA_PIX_FMT_YUV444P 		43	/* here, P is for planar */
 #define OA_PIX_FMT_YUV422P 		44
 #define OA_PIX_FMT_YUV420P		45
 #define OA_PIX_FMT_YUV411P		46
@@ -158,6 +158,7 @@ typedef struct {
   unsigned int	lumChrom : 1;
   unsigned int	lossless : 1;
   unsigned int	packed : 1;
+  unsigned int	planar : 1;
 } frameFormatInfo;
 
 extern frameFormatInfo oaFrameFormats[ OA_PIX_FMT_LAST_P1 ];

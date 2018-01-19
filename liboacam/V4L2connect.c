@@ -1511,11 +1511,13 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           break;
 
         case V4L2_PIX_FMT_YUV420:
+          // YUV420 is a planar format as far as V4L2 is concerned, and may
+          // be as far as everyone is concerned.
           if ( !cameraInfo->currentV4L2Format ) {
             cameraInfo->currentV4L2Format = formatDesc.pixelformat;
-            cameraInfo->currentFrameFormat = OA_PIX_FMT_YUV420;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_YUV420P;
           }
-          camera->frameFormats [ OA_PIX_FMT_YUV420 ] = 1;
+          camera->frameFormats [ OA_PIX_FMT_YUV420P ] = 1;
           break;
 
         case V4L2_PIX_FMT_SBGGR8:
