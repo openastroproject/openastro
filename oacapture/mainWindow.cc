@@ -2534,6 +2534,8 @@ MainWindow::createPreviewWindow()
       splitter->addWidget ( previewScroller );
     }
   }
+
+  state.previewWidget->setDisplayFPS ( config.displayFPS );
 }
 
 
