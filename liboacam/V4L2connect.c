@@ -1628,6 +1628,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           camera->features.rawMode = 1;
           break;
 
+#ifdef V4L2_PIX_FMT_PWC1
+        case V4L2_PIX_FMT_PWC1:
+#ifdef V4L2_PIX_FMT_PWC2
+        case V4L2_PIX_FMT_PWC2:
+#endif
+          // silently ignore this one because we're never going to make
+          // use of it
+          break;
+#endif
+
         default:
           fprintf ( stderr, "Unhandled V4L2 format '%s': (%c%c%c%c)\n",
             formatDesc.description, formatDesc.pixelformat & 0xff,
