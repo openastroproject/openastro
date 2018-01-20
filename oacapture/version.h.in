@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * version.h -- version strings
+ * version.h.in -- version strings
  *
  * Copyright 2013,2014,2015,2016,2017,2018
  *     James Fidell (james@openastroproject.org)

@@ -1,8 +1,9 @@
 #!/bin/bash
 #
-# build-oacapture-dmg.sh -- Build a DMG install file on OSX from built binaries
+# build-oacapture-dmg.sh.in -- Build a DMG install file from built binaries
 #
-# Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+# Copyright 2013,2014,2015,2016,2018
+#     James Fidell (james@openastroproject.org)
 #
 # License:
 #

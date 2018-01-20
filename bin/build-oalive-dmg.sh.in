@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# build-oalive-dmg.sh -- Build a DMG install file on OSX from built binaries
+# build-oalive-dmg.sh.in -- Build a DMG install file from built binaries
 #
-# Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+# Copyright 2013,2014,2015,2018 James Fidell (james@openastroproject.org)
 #
 # License:
 #
