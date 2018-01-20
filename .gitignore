@@ -116,3 +116,11 @@ ui_*.h
 /ext/ffmpeg/libswscale/libswscale.a
 /oacapture/oacapture
 /oalive/oalive
+/bin/build-oacapture-dmg.sh
+/bin/build-oalive-dmg.sh
+/oacapture/version.h
+/oalive/version.h
+/packagers/deb/build.sh
+/packagers/deb/clean.sh
+/packagers/deb/debfiles/changelog
+/packagers/rpm/oacapture.spec
