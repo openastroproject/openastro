@@ -2,7 +2,7 @@
  *
  * version.h -- version strings
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -31,11 +31,11 @@
 // just for name of settings directory
 #define	ORGANISATION_NAME_SETTINGS	"OpenAstro"
 
-#define MAJOR_VERSION			"1"
-#define	MINOR_VERSION			"4"
-#define	REVISION			"0"
+#define MAJOR_VERSION			"##MAJOR_VERSION##"
+#define	MINOR_VERSION			"##MINOR_VERSION##"
+#define	REVISION			"##REVISION##"
 
-#define	COPYRIGHT_YEARS			"2015,2017"
+#define	COPYRIGHT_YEARS			"2015,2017,2018"
 #define	AUTHOR_NAME			"James Fidell"
 #define AUTHOR_EMAIL			"james@openastroproject.org"
 

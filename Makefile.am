@@ -28,7 +28,7 @@ ACLOCAL_AMFLAGS=-I m4
 WARN_SUBDIRS = liboacam liboademosaic liboaSER liboavideo liboafilterwheel \
                liboaPTR liboaimgproc liboautil oacapture oalive
 
-NOWARN_SUBDIRS = ext lib udev
+NOWARN_SUBDIRS = ext lib udev bin packagers
 
 SUBDIRS = $(NOWARN_SUBDIRS) $(WARN_SUBDIRS)
 

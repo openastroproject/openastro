@@ -90,4 +90,12 @@ qrc_%.cc: %.qrc
 	@RCC@ -o $@ $<
 
 mostlyclean-local:
-	-rm -rf moc_*.cc qrc_*.cc
+	-rm -rf moc_*.cc qrc_*.cc version.h
+
+version.h: version.h.in
+	-rm -f $@
+	maj=`cat $(top_srcdir)/version | cut -d. -f1`; \
+	min=`cat $(top_srcdir)/version | cut -d. -f2`; \
+	rev=`cat $(top_srcdir)/version | cut -d. -f3`; \
+	sed -e "s/##MAJOR_VERSION##/$$maj/g" -e "s/##MINOR_VERSION##/$$min/g" \
+		-e "s/##REVISION##/$$rev/g" >$@ $<

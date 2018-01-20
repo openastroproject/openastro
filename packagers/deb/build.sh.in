@@ -3,7 +3,7 @@
 export DEBEMAIL=james@openastro.org
 export DEBFULLNAME="James Fidell"
 
-version=`cat version`
+version="##FULL_VERSION##"
 
 srcdir=oacapture-$version
 debdir=debian
