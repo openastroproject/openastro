@@ -1,8 +1,7 @@
 #
-# Makefile.am -- liboacam Makefile template
+# Makefile.am -- liboacam Toupcam Makefile template
 #
-# Copyright 2013,2014,2015,2016,2017,2018
-#     James Fidell (james@openastroproject.org)
+# Copyright 2018 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -26,58 +25,16 @@
 AM_CPPFLAGS = \
   -I$(top_srcdir)/include \
   -I$(top_srcdir)/ext/libusb \
-  -I$(top_srcdir)/ext/libASICamera/include \
   -I$(top_srcdir)/ext/libtoupcam/include \
-  -I./euvc -I./iidc -I./pwc -I./qhy -I./sx -I./altair -I./atik -I./mallincam \
-  -I./ptgrey -I./toupcam -I./uvc -I./v4l2 -I./zwo \
+  -I$(top_srcdir)/liboacam \
+  $(LIBUSB_CFLAGS) $(LIBTOUPCAM_CFLAGS) \
   $(DYNLIB_EXTN_CFLAGS)
 
-lib_LTLIBRARIES = liboacam.la
+noinst_LTLIBRARIES = libtoupcam.la
 
-if LIBASI_COMMON_COND
-ZWODIR	= zwo
-ZWOLIB	= $(ZWODIR)/libzwo.la
-endif
-
-if LIBV4L2_COND
-V4L2DIR	= v4l2
-V4L2LIB	= $(V4L2DIR)/libv4l2.la
-endif
-
-if LIBFLYCAPTURE2_COND
-PGEDIR	= ptgrey
-PGELIB	= $(PGEDIR)/libptgrey.la
-endif
-
-if ATIK_COND
-ATIKDIR	= atik
-ATIKLIB	= $(ATIKDIR)/libatik.la
-endif
-
-if LIBTOUPCAM_COND
-TOUPCAMDIR = toupcam
-TOUPCAMLIB = $(TOUPCAMDIR)/libtoupcam.la
-endif
-
-if LIBMALLINCAM_COND
-MALLINCAMDIR	= mallincam
-MALLINCAMLIB	= $(MALLINCAMDIR)/libmallincam.la
-endif
-
-if LIBALTAIRCAM_COND
-ALTAIRDIR= altair
-ALTAIRLIB= $(ALTAIRDIR)/libaltair.la
-endif
-
-SUBDIRS	= euvc iidc pwc qhy sx uvc $(ALTAIRDIR) $(ATIKDIR) $(MALLINCAMDIR) \
-  $(PGEDIR) $(TOUPCAMDIR) $(V4L2DIR) $(ZWODIR) .
-
-liboacam_la_SOURCES = \
-  control.c debug.c oacam.c unimplemented.c utils.c
-
-liboacam_la_LIBADD = euvc/libeuvc.la iidc/libiidc.la pwc/libpwc.la \
-  qhy/libqhy.la sx/libsx.la uvc/libuvc.la $(ALTAIRLIB) $(ATIKLIB) \
-  $(MALLINCAMLIB) $(PGELIB) $(TOUPCAMLIB) $(V4L2LIB) $(ZWOLIB)
+libtoupcam_la_SOURCES = TOUPCAMSRC = Touptekoacam.c Touptekconnect.c \
+  Touptekcallback.c Touptekcontrol.c Touptekcontroller.c TouptekgetState.c \
+  Touptekroi.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

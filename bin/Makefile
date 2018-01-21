@@ -503,9 +503,9 @@ uninstall-am:
 all: $(HELPERS)
 
 %.sh: %.sh.in
-	rm -f $@
+	-rm -f $@
 	sed -e "s/##FULL_VERSION##/`cat $(top_srcdir)/version`/g" >$@ $<
-	chmod +x $<
+	chmod +x $@
 
 install:
 
