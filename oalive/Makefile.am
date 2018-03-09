@@ -38,7 +38,7 @@ MOC_CPPFLAGS = -I$(top_srcdir)/include $(MOC_CFLAGS) $(APP_PATH_CFLAGS) \
   -DTRANSLATE_DIR=\"${datadir}/$(bin_PROGRAMS)/\"
 
 bin_PROGRAMS = oalive
-BUILT_SOURCES = 
+BUILT_SOURCES = version.h
 oalive_SOURCES = advancedSettings.cc camera.cc controlsWidget.cc \
   captureSettings.cc demosaicSettings.cc filterSettings.cc filterWheel.cc \
   fitsSettings.cc focusOverlay.cc generalSettings.cc oalive.cc outputFITS.cc \
@@ -93,9 +93,10 @@ mostlyclean-local:
 	-rm -rf moc_*.cc qrc_*.cc version.h
 
 version.h: version.h.in
-	-rm -f $@
+	-rm -f $@.tmp
 	maj=`cat $(top_srcdir)/version | cut -d. -f1`; \
 	min=`cat $(top_srcdir)/version | cut -d. -f2`; \
 	rev=`cat $(top_srcdir)/version | cut -d. -f3`; \
 	sed -e "s/##MAJOR_VERSION##/$$maj/g" -e "s/##MINOR_VERSION##/$$min/g" \
-		-e "s/##REVISION##/$$rev/g" >$@ $<
+		-e "s/##REVISION##/$$rev/g" >$@.tmp $<
+	cmp -s $@.tmp $@ || ( rm -f $@ && mv $@.tmp $@ )
