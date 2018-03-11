@@ -154,9 +154,8 @@ HRESULT		( *p_Mallincam_write_EEPROM )( HToupCam, unsigned,
 HRESULT		( *p_Mallincam_get_Option )( HToupCam, unsigned, unsigned* );
 HRESULT		( *p_Mallincam_put_Option )( HToupCam, unsigned, unsigned );
 HRESULT		( *p_Mallincam_get_Roi )( HToupCam, unsigned*, unsigned* );
-// This one doesn't exist in libmallincam, even thought get_Roi does
-//HRESULT		( *p_Mallincam_put_Roi )( HToupCam, unsigned, unsigned,
-//		    unsigned, unsigned );
+HRESULT		( *p_Mallincam_put_Roi )( HToupCam, unsigned, unsigned,
+		    unsigned, unsigned );
 HRESULT		( *p_Mallincam_ST4PlusGuide )( HToupCam, unsigned, unsigned );
 HRESULT		( *p_Mallincam_ST4PlusGuideState )( HToupCam );
 double		( *p_Mallincam_calc_ClarityFactor )( const void*, int,
@@ -167,21 +166,43 @@ void		( *p_Mallincam_HotPlug )( PTOUPCAM_HOTPLUG, void* );
 
 // These are apparently obsolete
 //
-// Mallincam_get_RoiMode
-// Mallincam_put_RoiMode
-// Mallincam_get_VignetAmountInt
-// Mallincam_get_VignetEnable
-// Mallincam_get_VignetMidPointInt
-// Mallincam_put_VignetAmountInt
-// Mallincam_put_VignetEnable
-// Mallincam_put_VignetMidPointInt
+// Toupcam_get_RoiMode
+// Toupcamm_put_RoiMode
+// Toupcamm_get_VignetAmountInt
+// Toupcamm_get_VignetEnable
+// Toupcamm_get_VignetMidPointInt
+// Toupcamm_put_VignetAmountInt
+// Toupcamm_put_VignetEnable
+// Toupcamm_put_VignetMidPointInt
 
 // And these are not documented as far as I can see
-// Mallincam_get_FanMaxSpeed
-// Mallincam_get_Field
-// Mallincam_get_PixelSize
-// Mallincam_read_UART
-// Mallincam_write_UART
+// Toupcam_AbbOnePush
+// Toupcam_EnumV2
+// Toupcam_FfcOnePush
+// Toupcam_get_ABBAuxRect
+// Toupcam_get_BlackBalance
+// Toupcam_get_FanMaxSpeed
+// Toupcam_get_Field
+// Toupcam_get_FpgaVersion
+// Toupcam_get_FrameRate
+// Toupcam_get_PixelSize
+// Toupcam_get_Revision
+// Toupcam_InitOcl
+// Toupcam_IoControl
+// Toupcam_PullImageWithRowPitch
+// Toupcam_PullStillImageWithRowPitch
+// Toupcam_put_ABBAuxRect
+// Toupcam_put_BlackBalance
+// Toupcam_put_ColorMatrix
+// Toupcam_put_Curve
+// Toupcam_put_Demosaic
+// Toupcam_put_InitWBGain
+// Toupcam_put_Linear
+// Toupcam_read_UART
+// Toupcam_StartOclWithSharedTexture
+// Toupcam_StartPushMode
+// Toupcam_write_UART
+
 
 static void*		_getDLSym ( void*, const char* );
 
@@ -672,12 +693,12 @@ oaMallincamGetCameras ( CAMERA_LIST* deviceList, int flags )
     return 0;
   }
 
-  /*
+  // We don't worry if this one is missing.  Not all versions of the
+  // mallincam libraries support it
   if (!( *( void** )( &p_Mallincam_put_Roi ) = _getDLSym ( libHandle,
       "Toupcam_put_Roi" ))) {
-    return 0;
+    fprintf ( stderr, "libmallincam.so does not support put_Roi\n" );
   }
-   */
 
   /*
   if (!( *( void** )( &p_Mallincam_put_RoiMode ) = _getDLSym ( libHandle,

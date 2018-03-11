@@ -184,11 +184,8 @@ extern HRESULT		( *p_Mallincam_put_Option )( HToupCam, unsigned,
 			    unsigned );
 extern HRESULT		( *p_Mallincam_get_Roi )( HToupCam, unsigned*,
 			    unsigned* );
-/*
- * Not present in libmallincam
 extern HRESULT		( *p_Mallincam_put_Roi )( HToupCam, unsigned, unsigned,
                             unsigned, unsigned );
- */
 extern HRESULT		( *p_Mallincam_ST4PlusGuide )( HToupCam, unsigned,
 			    unsigned );
 extern HRESULT		( *p_Mallincam_ST4PlusGuideState )( HToupCam );

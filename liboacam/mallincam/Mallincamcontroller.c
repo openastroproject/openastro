@@ -40,10 +40,7 @@
 static int	_processSetControl ( oaCamera*, OA_COMMAND* );
 static int	_processGetControl ( MALLINCAM_STATE*, OA_COMMAND* );
 static int	_processSetResolution ( MALLINCAM_STATE*, OA_COMMAND* );
-/*
- * libmallincam doesn't support put_Roi
 static int	_processSetROI ( oaCamera*, OA_COMMAND* );
- */
 static int	_processStreamingStart ( MALLINCAM_STATE*, OA_COMMAND* );
 static int	_processStreamingStop ( MALLINCAM_STATE*, OA_COMMAND* );
 static int	_doStart ( MALLINCAM_STATE* );
@@ -95,13 +92,9 @@ oacamMallincamcontroller ( void* param )
           case OA_CMD_RESOLUTION_SET:
             resultCode = _processSetResolution ( cameraInfo, command );
             break;
-          /*
-           * libmallincam doesn't support put_Roi
-           *
           case OA_CMD_ROI_SET:
             resultCode = _processSetROI ( camera, command );
             break;
-           */
           case OA_CMD_START:
             resultCode = _processStreamingStart ( cameraInfo, command );
             break;
@@ -731,14 +724,12 @@ _processSetResolution ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
 
   // Reset the ROI
 
-  /*
-   * This doesn't appear to exist in the Mallincam library
-   *
-  if ((( p_Mallincam_put_Roi )( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
-    fprintf ( stderr, "Can't clear Mallincam ROI\n" );
-    return -OA_ERR_CAMERA_IO;
+  if ( p_Mallincam_put_Roi ) {
+    if ((( p_Mallincam_put_Roi )( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
+      fprintf ( stderr, "Can't clear Mallincam ROI\n" );
+      return -OA_ERR_CAMERA_IO;
+    }
   }
-   */
 
   if ((( p_Mallincam_put_Size )( cameraInfo->handle, size->x, size->y )) < 0 ) {
     fprintf ( stderr, "Can't set Mallincam frame size %dx%d\n", size->x,
@@ -759,9 +750,6 @@ _processSetResolution ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
 }
 
 
-/*
- * Disabled due to lack of the put_Roi function
- *
 static int
 _processSetROI ( oaCamera* camera, OA_COMMAND* command )
 {
@@ -786,11 +774,13 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
   offsetX = (( cameraInfo->currentXResolution - x ) / 2 ) & ~1;
   offsetY = (( cameraInfo->currentYResolution - y ) / 2 ) & ~1;
 
-  if ((( p_Mallincam_put_Roi )( cameraInfo->handle, offsetX, offsetY, x,
-      y )) < 0 ) {
-    fprintf ( stderr, "Can't set Mallincam ROI ( %d, %d, %d, %d )\n",
-        offsetX, offsetY, x, y );
-    return -OA_ERR_CAMERA_IO;
+  if ( p_Mallincam_put_Roi ) {
+    if ((( p_Mallincam_put_Roi )( cameraInfo->handle, offsetX, offsetY, x,
+        y )) < 0 ) {
+      fprintf ( stderr, "Can't set Mallincam ROI ( %d, %d, %d, %d )\n",
+          offsetX, offsetY, x, y );
+      return -OA_ERR_CAMERA_IO;
+    }
   }
 
   cameraInfo->currentXSize = x;
@@ -800,7 +790,6 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
 
   return OA_ERR_NONE;
 }
- */
 
 
 static int
@@ -881,14 +870,12 @@ _setBinning ( MALLINCAM_STATE* cameraInfo, int binMode )
 
   // Reset the ROI
 
-  /*
-   * Not present in libmallincam
-   *
-  if ((( p_Mallincam_put_Roi )( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
-    fprintf ( stderr, "Can't clear Mallincam ROI\n" );
-    return -OA_ERR_CAMERA_IO;
+  if ( p_Mallincam_put_Roi ) {
+    if ((( p_Mallincam_put_Roi )( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
+      fprintf ( stderr, "Can't clear Mallincam ROI\n" );
+      return -OA_ERR_CAMERA_IO;
+    }
   }
-   */
 
   if ( cameraInfo->isStreaming ) {
     restart = 1;

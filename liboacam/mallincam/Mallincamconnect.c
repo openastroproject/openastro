@@ -335,13 +335,9 @@ oaMallincamInitCamera ( oaCameraDevice* device )
       cameraInfo->ledState = 500;
 */
 
-  /*
-   * Removed because libmallincam doesn't appear to support put_Roi
-   *
   if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_ROI_HARDWARE ) {
     camera->features.ROI = 1;
   }
-   */
 
   cameraInfo->maxBitDepth = p_Mallincam_get_MaxBitDepth ( handle );
   if ( cameraInfo->colour ) {
