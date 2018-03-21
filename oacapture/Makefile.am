@@ -100,7 +100,7 @@ qrc_%.cc: %.qrc
 mostlyclean-local:
 	-rm -rf moc_*.cc qrc_*.cc version.h
 
-version.h: version.h.in
+version.h: version.h.in $(top_srcdir)/version
 	-rm -f $@.tmp
 	maj=`cat $(top_srcdir)/version | cut -d. -f1`; \
 	min=`cat $(top_srcdir)/version | cut -d. -f2`; \
