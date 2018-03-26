@@ -396,6 +396,9 @@ then
   # ])
     build_libusb=yes
   fi
+else
+  # we'll always have this, because we use a local copy
+  AC_DEFINE([HAVE_LIBUSB],[1],[Have libusb-1.0 library])
 fi
 
 use_system_dc1394=no
@@ -430,6 +433,9 @@ then
       AC_MSG_WARN([No suitable version of system dc1394 library found.  Using internal version.])
   # ])
   fi
+else
+  # we'll always have this, because we use a local copy
+  AC_DEFINE([HAVE_LIBDC1394],[1],[Have dc1394 library])
 fi
 
 use_system_libuvc=no
@@ -465,6 +471,9 @@ then
       AC_DEFINE([HAVE_LIBUVC],[1],[Have libuvc library])
   # ])
   fi
+else
+  # we'll always have this, because we use a local copy
+  AC_DEFINE([HAVE_LIBUVC],[1],[Have libuvc library])
 fi
 
 use_system_libhidapi=no
@@ -501,6 +510,9 @@ then
       AC_MSG_WARN([No suitable version of system libhidapi-libusb library found.  Using internal version.])
   # ])
   fi
+else
+  # we'll always have this, because we use a local copy
+  AC_DEFINE([HAVE_LIBHIDAPI],[1],[Have libhidapi-libusb library])
 fi
 
 if `$PKG_CONFIG --exists libftdi1`; then
@@ -604,6 +616,9 @@ then
       AC_MSG_WARN([No suitable version of system libasicamera2 found.  Using internal version.])
     ])
   fi
+else
+  # we'll always have this, because we use a local copy
+  AC_DEFINE([HAVE_LIBASI2],[1],[Have libasicamera2])
 fi
 
 AC_CHECK_LIB([m],[exp10],[
