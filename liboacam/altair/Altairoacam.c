@@ -224,31 +224,25 @@ oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
   oaCameraDevice*       dev;
   DEVICE_INFO*		_private;
   int                   ret, oalib, prefix;
-  char			libraryPath[ PATH_MAX+1 ];
-#ifdef DYNLIB_EXT_DYLIB
-  const char*		libName = "MacOS/libaltaircam.dylib";
-#else
-  const char*		libName = "libaltaircam.so.1";
-#endif
   static void*		libHandle = 0;
 
-  *libraryPath = 0;
-  if ( installPathRoot ) {
-    ( void ) strncpy ( libraryPath, installPathRoot, PATH_MAX );
-    ( void ) strncat ( libraryPath, "/", PATH_MAX );
-  }
-  ( void ) strncat ( libraryPath, libName, PATH_MAX );
+  // On Linux, the only place we're going to look for this library is
+  // in the default installation directory for the AltairCapture application
+  // which is /usr/local/AltairCapture.
+  // 
+  // On MacOS we just try /Applications/AltairCapture.app/Contents/MacOS
+
+#if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
+  const char*		libName = "/Applications/AltairCapture.app/Contents/"
+                            "MacOS/libaltaircam.dylib";
+#else
+  const char*		libName = "/usr/local/AltairCapture/libaltaircam.so";
+#endif
 
   if ( !libHandle ) {
-    if (!( libHandle = dlopen ( libraryPath, RTLD_LAZY ))) {
-#ifndef DYNLIB_EXT_DYLIB
-      // We can try the library installed with the Altair binaries directly,
-      // just to see if it is there
-      if (!( libHandle = dlopen ( "/usr/local/AltairCapture/libaltaircam.so",
-          RTLD_LAZY )))
-#endif
-        // fprintf ( stderr, "can't load %s\n", libraryPath );
-        return 0;
+    if (!( libHandle = dlopen ( libName, RTLD_LAZY ))) {
+      // fprintf ( stderr, "can't load %s\n", libraryPath );
+      return 0;
     }
   }
 
