@@ -2,7 +2,7 @@
  *
  * Touptekoacam.c -- main entrypoint for Touptek cameras
  *
- * Copyright 2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -195,31 +195,39 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
   DEVICE_INFO*		_private;
   int                   ret;
   char			libraryPath[ PATH_MAX+1 ];
-#ifdef DYNLIB_EXT_DYLIB
-  const char*		libName = "MacOS/libtoupcam.dylib";
-#else
-  const char*		libName = "libtoupcam.so.1";
-#endif
-
   static void*		libHandle = 0;
 
-  *libraryPath = 0;
-  if ( installPathRoot ) {
-    ( void ) strncpy ( libraryPath, installPathRoot, PATH_MAX );
-    ( void ) strncat ( libraryPath, "/", PATH_MAX );
-  }
-  ( void ) strncat ( libraryPath, libName, PATH_MAX );
+  // On Linux the toupcam library may well be in the standard system
+  // library structure, but if the Toupcam application is installed we
+  // should prefer that version.
+  //
+  // On MacOS we should also prefer the version in the Toupcam application
+  // directory which appears to be a little different from Altair and Mallincam
+  // in /Applications/ToupLite.app/Contents/Frameworks/libtoupcam.dylib
+  // but if that fails check for a version shipped with oacapture
 
   if ( !libHandle ) {
-    if (!( libHandle = dlopen ( libraryPath, RTLD_LAZY ))) {
-#ifndef DYNLIB_EXT_DYLIB
-      // We can try the library installed with the Touptek binaries directly,
-      // just to see if it is there
-      if (!( libHandle = dlopen ( "/usr/local/ToupLite/libtoupcam.so",
-          RTLD_LAZY )))
+#if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
+    ( void ) strcpy ( libraryPath,
+        "/Applications/ToupLite.app/Contents/Frameworks/libtoupcam.dylib" );
+#else
+    ( void ) strcpy ( libraryPath, "/usr/local/ToupLite/libtoupcam.so" );
 #endif
+    if (!( libHandle = dlopen ( libraryPath, RTLD_LAZY ))) {
+      // fprintf ( stderr, "can't load %s\n", libraryPath );
+#if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
+      *libraryPath = 0;
+      if ( installPathRoot ) {
+        ( void ) strncpy ( libraryPath, installPathRoot, PATH_MAX );
+      }
+      ( void ) strncat ( libraryPath, "Frameworks/libtoupcam.dylib", PATH_MAX );
+#else
+      ( void ) strcpy ( libraryPath, "libtoupcam.so.1" );
+#endif
+      if (!( libHandle = dlopen ( libraryPath, RTLD_LAZY ))) {
         // fprintf ( stderr, "can't load %s\n", libraryPath );
         return 0;
+      }
     }
   }
 
