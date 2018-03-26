@@ -2,7 +2,7 @@
  *
  * common.h -- common liboacam header bits
  *
- * Copyright 2014 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -55,6 +55,10 @@ extern int errno;
 
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
+
+#if defined(__APPLE__) && defined(__MACH__)
+#include <TargetConditionals.h>
 #endif
 
 #endif /* OA_COMMON_H */
