@@ -267,7 +267,7 @@ MainWindow::readConfig ( void )
   QSettings	plistSettings ( ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
   QSettings*	settings = &iniSettings;
 #else
-  QSettings	settings = new QSettings ( ORGANISATION_NAME_SETTINGS,
+  QSettings*	settings = new QSettings ( ORGANISATION_NAME_SETTINGS,
                     APPLICATION_NAME );
 #endif
   const char*		defaultDir = "";
@@ -934,8 +934,13 @@ MainWindow::writeConfig ( void )
     return;
   }
 
+#if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
   QSettings settings ( QSettings::IniFormat, QSettings::UserScope,
                             ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
+#else
+  QSettings settings ( ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
+#endif
+
   settings.clear();
 
   settings.setValue ( "saveSettings", config.saveSettings );
