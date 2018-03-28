@@ -518,7 +518,7 @@ ControlWidget::configure ( void )
         selectableControlSlider[ config.selectableControl[i]] ) {
       selectableControlSlider[ config.selectableControl[i]]->setEnabled ( 1 );
       selectableControlSpinbox[ config.selectableControl[i]]->setEnabled ( 1 );
-      uint32_t autoControl;
+      int32_t autoControl;
       if (( autoControl = oaGetAutoForControl ( config.selectableControl[i]))) {
         if ( selectableControlCheckbox[ config.selectableControl[i]] &&
             autoControl >= 0 && state.camera->hasControl ( autoControl ) ==
