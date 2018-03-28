@@ -30,7 +30,7 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/ext/libtoupcam/include \
   $(LIBUSB_CFLAGS) $(LIBUVC_CFLAGS) \
   -I./euvc -I./iidc -I./pwc -I./qhy -I./sx -I./altair -I./atik -I./mallincam \
-  -I./ptgrey -I./toupcam -I./uvc -I./v4l2 -I./zwo \
+  -I./flycap2 -I./toupcam -I./uvc -I./v4l2 -I./zwo \
   $(DYNLIB_EXTN_CFLAGS)
 
 lib_LTLIBRARIES = liboacam.la
@@ -46,8 +46,8 @@ V4L2LIB	= $(V4L2DIR)/libv4l2.la
 endif
 
 if LIBFLYCAPTURE2_COND
-PGEDIR	= ptgrey
-PGELIB	= $(PGEDIR)/libptgrey.la
+FC2DIR	= flycap2
+FC2LIB	= $(FC2DIR)/libflycap2.la
 endif
 
 if ATIK_COND
@@ -71,14 +71,14 @@ ALTAIRLIB= $(ALTAIRDIR)/libaltair.la
 endif
 
 SUBDIRS	= euvc iidc pwc qhy sx uvc $(ALTAIRDIR) $(ATIKDIR) $(MALLINCAMDIR) \
-  $(PGEDIR) $(TOUPCAMDIR) $(V4L2DIR) $(ZWODIR) .
+  $(FC2DIR) $(TOUPCAMDIR) $(V4L2DIR) $(ZWODIR) .
 
 liboacam_la_SOURCES = \
   control.c debug.c oacam.c unimplemented.c utils.c
 
 liboacam_la_LIBADD = euvc/libeuvc.la iidc/libiidc.la pwc/libpwc.la \
   qhy/libqhy.la sx/libsx.la uvc/libuvc.la $(ALTAIRLIB) $(ATIKLIB) \
-  $(MALLINCAMLIB) $(PGELIB) $(TOUPCAMLIB) $(V4L2LIB) $(ZWOLIB)
+  $(MALLINCAMLIB) $(FC2LIB) $(TOUPCAMLIB) $(V4L2LIB) $(ZWOLIB)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

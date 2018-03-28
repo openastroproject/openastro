@@ -1,5 +1,5 @@
 #
-# Makefile.am -- liboacam Point Grey Makefile template
+# Makefile.am -- liboacam Point Grey Flycapture Makefile template
 #
 # Copyright 2018 James Fidell (james@openastroproject.org)
 #
@@ -27,10 +27,10 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/liboacam \
   $(DYNLIB_EXTN_CFLAGS)
 
-noinst_LTLIBRARIES = libptgrey.la
+noinst_LTLIBRARIES = libflycap2.la
 
-libptgrey_la_SOURCES = PGEoacam.c PGEconnect.c PGEgetState.c PGEcontrol.c \
-  PGEcontroller.c PGEcallback.c PGEroi.c
+libflycap2_la_SOURCES = FC2oacam.c FC2connect.c FC2getState.c FC2control.c \
+  FC2controller.c FC2callback.c FC2roi.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

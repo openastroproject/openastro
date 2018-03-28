@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * PGEoacam.c -- main entrypoint for Point Grey Gig-E Cameras
+ * FC2oacam.c -- main entrypoint for Point Grey Gig-E Cameras
  *
  * Copyright 2015,2016,2018 James Fidell (james@openastroproject.org)
  *
@@ -37,7 +37,7 @@
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
-#include "PGEoacam.h"
+#include "FC2oacam.h"
 
 // Pointers to libflycapture functions so we can use them via libdl.
 
@@ -96,7 +96,7 @@ static void*		_getDLSym ( void*, const char* );
  */
 
 int
-oaPGEGetCameras ( CAMERA_LIST* deviceList, int flags )
+oaFC2GetCameras ( CAMERA_LIST* deviceList, int flags )
 {
   fc2Context		pgeContext;
   fc2CameraInfo*	devList;
@@ -281,7 +281,7 @@ oaPGEGetCameras ( CAMERA_LIST* deviceList, int flags )
 #endif /* HAVE_LIBDL */
 
   if (( *p_fc2CreateGigEContext )( &pgeContext ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get PGE context\n" );
+    fprintf ( stderr, "Can't get FC2 context\n" );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
@@ -297,7 +297,7 @@ oaPGEGetCameras ( CAMERA_LIST* deviceList, int flags )
     ret = ( *p_fc2DiscoverGigECameras )( pgeContext, devList, &numCameras );
     if ( ret != FC2_ERROR_OK && ret != FC2_ERROR_BUFFER_TOO_SMALL ) {
       ( *p_fc2DestroyContext )( pgeContext );
-      fprintf ( stderr, "Can't enumerate PGE devices\n" );
+      fprintf ( stderr, "Can't enumerate FC2 devices\n" );
       free (( void* ) devList );
       return -OA_ERR_SYSTEM_ERROR;
     }
@@ -405,14 +405,14 @@ oaPGEGetCameras ( CAMERA_LIST* deviceList, int flags )
     }
 
     _oaInitCameraDeviceFunctionPointers ( dev );
-    dev->interface = OA_CAM_IF_PGE;
+    dev->interface = OA_CAM_IF_FC2;
     ( void ) snprintf ( dev->deviceName, OA_MAX_NAME_LEN+1,
         "%s (%d.%d.%d.%d)", devList[i].modelName,
         devList[i].ipAddress.octets[0], devList[i].ipAddress.octets[1],
         devList[i].ipAddress.octets[2], devList[i].ipAddress.octets[3] );
     memcpy (( void* ) &_private->pgeGuid, ( void* ) &guid, sizeof ( guid ));
     dev->_private = _private;
-    dev->initCamera = oaPGEInitCamera;
+    dev->initCamera = oaFC2InitCamera;
     dev->hasLoadableFirmware = 0;
     if ((( _private->colour = devList[i].isColorCamera ) ? 1 : 0 )) {
       switch ( devList[i].bayerTileFormat ) {

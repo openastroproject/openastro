@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * PGEgetState.c -- state querying for Point Grey Gig-E cameras
+ * FC2getState.c -- state querying for Point Grey Gig-E cameras
  *
  * Copyright 2015,2016,2018 James Fidell (james@openastroproject.org)
  *
@@ -30,12 +30,12 @@
 #include <openastro/camera.h>
 
 #include "oacamprivate.h"
-#include "PGEoacam.h"
-#include "PGEstate.h"
+#include "FC2oacam.h"
+#include "FC2state.h"
 
 
 int
-oaPGECameraGetControlRange ( oaCamera* camera, int control, int64_t* min,
+oaFC2CameraGetControlRange ( oaCamera* camera, int control, int64_t* min,
     int64_t* max, int64_t* step, int64_t* def )
 {
   COMMON_INFO*	commonInfo = camera->_common;
@@ -53,10 +53,10 @@ oaPGECameraGetControlRange ( oaCamera* camera, int control, int64_t* min,
 
 
 int
-oaPGECameraGetControlDiscreteSet ( oaCamera* camera, int control,
+oaFC2CameraGetControlDiscreteSet ( oaCamera* camera, int control,
     int32_t* count, int64_t** values )
 {
-  PGE_STATE*	cameraInfo = camera->_private;
+  FC2_STATE*	cameraInfo = camera->_private;
 
   if ( control != OA_CAM_CTRL_TRIGGER_MODE ) {
     return -OA_ERR_INVALID_CONTROL;
@@ -69,19 +69,19 @@ oaPGECameraGetControlDiscreteSet ( oaCamera* camera, int control,
 
 
 const FRAMESIZES*
-oaPGECameraGetFrameSizes ( oaCamera* camera )
+oaFC2CameraGetFrameSizes ( oaCamera* camera )
 {
-  PGE_STATE*	cameraInfo = camera->_private;
+  FC2_STATE*	cameraInfo = camera->_private;
 
   return &cameraInfo->frameSizes[ cameraInfo->binMode ];
 }
 
 
 const FRAMERATES*
-oaPGECameraGetFrameRates ( oaCamera* camera, int resX, int resY )
+oaFC2CameraGetFrameRates ( oaCamera* camera, int resX, int resY )
 {
 fprintf ( stderr, "implement %s\n", __FUNCTION__ );
-  PGE_STATE*		cameraInfo = camera->_private;
+  FC2_STATE*		cameraInfo = camera->_private;
 /*
   dc1394framerates_t    framerates;
   int			numRates, numerator, denominator;
@@ -171,9 +171,9 @@ fprintf ( stderr, "implement %s\n", __FUNCTION__ );
 
 
 int
-oaPGECameraGetFramePixelFormat ( oaCamera* camera )
+oaFC2CameraGetFramePixelFormat ( oaCamera* camera )
 {
-  PGE_STATE*		cameraInfo = camera->_private;
+  FC2_STATE*		cameraInfo = camera->_private;
   fc2GigEImageSettings	settings;
 
   if (( *p_fc2GetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=

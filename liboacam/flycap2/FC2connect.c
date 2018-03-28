@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * PGEconnect.c -- Initialise Point Grey Gig-E cameras
+ * FC2connect.c -- Initialise Point Grey Gig-E cameras
  *
  * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
@@ -34,12 +34,12 @@
 
 #include "unimplemented.h"
 #include "oacamprivate.h"
-#include "PGEoacam.h"
-#include "PGE.h"
-#include "PGEstate.h"
+#include "FC2oacam.h"
+#include "FC2.h"
+#include "FC2state.h"
 
 
-static void _PGEInitFunctionPointers ( oaCamera* );
+static void _FC2InitFunctionPointers ( oaCamera* );
 
 struct pgeCtrl pgeControls[] = {
   { FC2_BRIGHTNESS, OA_CAM_CTRL_BRIGHTNESS,
@@ -72,7 +72,7 @@ struct pgeCtrl pgeControls[] = {
   { FC2_TEMPERATURE, OA_CAM_CTRL_TEMPERATURE, 0 },
 };
 
-unsigned int numPGEControls = sizeof ( pgeControls ) /
+unsigned int numFC2Controls = sizeof ( pgeControls ) /
     sizeof ( struct pgeCtrl );
 
 struct pgeFrameRate pgeFrameRates[] = {
@@ -86,7 +86,7 @@ struct pgeFrameRate pgeFrameRates[] = {
   { FC2_FRAMERATE_240, 1, 240 }
 };
 
-unsigned int numPGEFrameRates = sizeof ( pgeFrameRates ) /
+unsigned int numFC2FrameRates = sizeof ( pgeFrameRates ) /
     sizeof ( struct pgeFrameRate );
 
 /**
@@ -94,10 +94,10 @@ unsigned int numPGEFrameRates = sizeof ( pgeFrameRates ) /
  */
 
 oaCamera*
-oaPGEInitCamera ( oaCameraDevice* device )
+oaFC2InitCamera ( oaCameraDevice* device )
 {
   oaCamera*			camera;
-  PGE_STATE*			cameraInfo;
+  FC2_STATE*			cameraInfo;
   COMMON_INFO*			commonInfo;
   fc2Context			pgeContext;
   DEVICE_INFO*			devInfo;
@@ -126,9 +126,9 @@ oaPGEInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  if (!( cameraInfo = ( PGE_STATE* ) malloc ( sizeof ( PGE_STATE )))) {
+  if (!( cameraInfo = ( FC2_STATE* ) malloc ( sizeof ( FC2_STATE )))) {
     free (( void* ) camera );
-    perror ( "malloc PGE_STATE failed" );
+    perror ( "malloc FC2_STATE failed" );
     return 0;
   }
   if (!( commonInfo = ( COMMON_INFO* ) malloc ( sizeof ( COMMON_INFO )))) {
@@ -144,14 +144,14 @@ oaPGEInitCamera ( oaCameraDevice* device )
   camera->_common = commonInfo;
 
   _oaInitCameraFunctionPointers ( camera );
-  _PGEInitFunctionPointers ( camera );
+  _FC2InitFunctionPointers ( camera );
 
   ( void ) strcpy ( camera->deviceName, device->deviceName );
   cameraInfo->initialised = 0;
   devInfo = device->_private;
 
   if (( *p_fc2CreateGigEContext )( &pgeContext ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get PGE context\n" );
+    fprintf ( stderr, "Can't get FC2 context\n" );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
@@ -159,7 +159,7 @@ oaPGEInitCamera ( oaCameraDevice* device )
   }
 
   if (( *p_fc2Connect )( pgeContext, &devInfo->pgeGuid ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't connect to PGE GUID\n" );
+    fprintf ( stderr, "Can't connect to FC2 GUID\n" );
     ( *p_fc2DestroyContext )( pgeContext );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
@@ -168,7 +168,7 @@ oaPGEInitCamera ( oaCameraDevice* device )
   }
 
   if (( *p_fc2GetCameraInfo )( pgeContext, &camInfo ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get camera info for PGE camera\n" );
+    fprintf ( stderr, "Can't get camera info for FC2 camera\n" );
     ( *p_fc2DestroyContext )( pgeContext );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
@@ -268,7 +268,7 @@ oaPGEInitCamera ( oaCameraDevice* device )
         return 0;
       }
     } else {
-      fprintf ( stderr, "PGE frame rate exists, but cannot be turned off\n" );
+      fprintf ( stderr, "FC2 frame rate exists, but cannot be turned off\n" );
     }
   }
 
@@ -279,7 +279,7 @@ oaPGEInitCamera ( oaCameraDevice* device )
     propertyInfo.type = i;
     if (( *p_fc2GetPropertyInfo )( pgeContext, &propertyInfo ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get property info %d for PGE GUID\n", i );
+      fprintf ( stderr, "Can't get property info %d for FC2 GUID\n", i );
       ( *p_fc2DestroyContext )( pgeContext );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
@@ -292,7 +292,7 @@ oaPGEInitCamera ( oaCameraDevice* device )
     OA_CLEAR ( property );
     property.type = i;
     if (( *p_fc2GetProperty )( pgeContext, &property ) != FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get property %d for PGE GUID\n", i );
+      fprintf ( stderr, "Can't get property %d for FC2 GUID\n", i );
       ( *p_fc2DestroyContext )( pgeContext );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
@@ -449,7 +449,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         break;
 
       case FC2_FRAME_RATE:
-        fprintf ( stderr, "Need to set up frame rates for PGE camera\n" );
+        fprintf ( stderr, "Need to set up frame rates for FC2 camera\n" );
         break;
 
       case FC2_TEMPERATURE:
@@ -464,7 +464,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         break;
 
       default:
-        fprintf ( stderr, "%s: unknown PGE control %d\n", __FUNCTION__,
+        fprintf ( stderr, "%s: unknown FC2 control %d\n", __FUNCTION__,
             i + FC2_BRIGHTNESS );
         break;
     }
@@ -474,7 +474,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
   if (( p_fc2GetTriggerModeInfo )( pgeContext, &triggerInfo ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get trigger mode info %d for PGE GUID\n", i );
+    fprintf ( stderr, "Can't get trigger mode info %d for FC2 GUID\n", i );
     ( *p_fc2DestroyContext )( pgeContext );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
@@ -610,7 +610,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       triggerMode.source = cameraInfo->triggerGPIO;
       if (( ret = ( *p_fc2GetTriggerMode )( pgeContext, &triggerMode )) !=
           FC2_ERROR_OK ) {
-        fprintf ( stderr, "Can't get trigger mode for PGE GUID\n" );
+        fprintf ( stderr, "Can't get trigger mode for FC2 GUID\n" );
         ( *p_fc2DestroyContext )( pgeContext );
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
@@ -632,7 +632,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
       if (( ret = ( *p_fc2GetTriggerDelayInfo )( pgeContext, &delayInfo )) !=
           FC2_ERROR_OK ) {
-        fprintf ( stderr, "Can't get trigger delay info for PGE GUID\n" );
+        fprintf ( stderr, "Can't get trigger delay info for FC2 GUID\n" );
         ( *p_fc2DestroyContext )( pgeContext );
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
@@ -660,7 +660,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       if ( delayInfo.present ) {
         if (( ret = ( *p_fc2GetTriggerDelay )( pgeContext, &triggerDelay )) !=
             FC2_ERROR_OK ) {
-          fprintf ( stderr, "Can't get trigger delay for PGE GUID\n" );
+          fprintf ( stderr, "Can't get trigger delay for FC2 GUID\n" );
           ( *p_fc2DestroyContext )( pgeContext );
           free (( void* ) commonInfo );
           free (( void* ) cameraInfo );
@@ -715,7 +715,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         FC2_ERROR_OK ) {
       // not an error if this isn't a strobe line
       if ( ret != FC2_ERROR_INVALID_PARAMETER ) {
-        fprintf ( stderr, "Can't get strobe mode info for PGE GUID\n" );
+        fprintf ( stderr, "Can't get strobe mode info for FC2 GUID\n" );
         ( *p_fc2DestroyContext )( pgeContext );
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
@@ -793,7 +793,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     strobeControl.source = cameraInfo->strobeGPIO;
     if (( ret = ( *p_fc2GetStrobe )( pgeContext, &strobeControl )) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get strobe control for PGE GUID\n" );
+      fprintf ( stderr, "Can't get strobe control for FC2 GUID\n" );
       ( *p_fc2DestroyContext )( pgeContext );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
@@ -846,7 +846,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
     if (( *p_fc2QueryGigEImagingMode )( pgeContext, mode, &supported ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get mode info %d for PGE GUID\n", i );
+      fprintf ( stderr, "Can't get mode info %d for FC2 GUID\n", i );
       ( *p_fc2DestroyContext )( pgeContext );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
@@ -855,7 +855,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     }
     if ( supported ) {
       if (( *p_fc2SetGigEImagingMode )( pgeContext, mode ) != FC2_ERROR_OK ) {
-        fprintf ( stderr, "Can't set mode %d for PGE GUID\n", mode );
+        fprintf ( stderr, "Can't set mode %d for FC2 GUID\n", mode );
         ( *p_fc2DestroyContext )( pgeContext );
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
@@ -864,7 +864,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       }
       if (( *p_fc2GetGigEImageSettingsInfo )( pgeContext, &imageInfo ) !=
           FC2_ERROR_OK ) {
-        fprintf ( stderr, "Can't get image info %d for PGE GUID\n", i );
+        fprintf ( stderr, "Can't get image info %d for FC2 GUID\n", i );
         ( *p_fc2DestroyContext )( pgeContext );
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
@@ -962,7 +962,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   // Put the camera into a known state
   // FIX ME -- probably should just handle whatever is already set?
   if (( *p_fc2SetGigEImagingMode )( pgeContext, firstMode ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set mode %d for PGE GUID\n", i );
+    fprintf ( stderr, "Can't set mode %d for FC2 GUID\n", i );
     // FIX ME -- free frame data
     ( *p_fc2DestroyContext )( pgeContext );
     free (( void* ) commonInfo );
@@ -972,7 +972,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   }
   if (( *p_fc2GetGigEImageSettings )( pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get settings %d for PGE GUID\n", i );
+    fprintf ( stderr, "Can't get settings %d for FC2 GUID\n", i );
     ( *p_fc2DestroyContext )( pgeContext );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
@@ -988,7 +988,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   }
   if (( *p_fc2SetGigEImageSettings )( pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set settings %d for PGE GUID\n", i );
+    fprintf ( stderr, "Can't set settings %d for FC2 GUID\n", i );
     ( *p_fc2DestroyContext )( pgeContext );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
@@ -997,7 +997,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   }
   if (( *p_fc2SetGigEImageBinningSettings )( pgeContext, 1, 1 ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set binmode 1 for PGE GUID\n" );
+    fprintf ( stderr, "Can't set binmode 1 for FC2 GUID\n" );
     ( *p_fc2DestroyContext )( pgeContext );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
@@ -1025,7 +1025,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   if ( camInfo.iidcVer >= 132 ) {
     if (( *p_fc2ReadRegister )( pgeContext, FC2_REG_DATA_DEPTH,
         &dataFormat ) != FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't read PGE register 0x%04x\n",
+      fprintf ( stderr, "Can't read FC2 register 0x%04x\n",
           FC2_REG_DATA_DEPTH );
       ( *p_fc2DestroyContext )( pgeContext );
       free (( void* ) commonInfo );
@@ -1040,7 +1040,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   } else {
     if (( *p_fc2ReadRegister )( pgeContext, FC2_REG_IMAGE_DATA_FORMAT,
         &dataFormat ) != FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't read PGE register 0x%04x\n",
+      fprintf ( stderr, "Can't read FC2 register 0x%04x\n",
           FC2_REG_IMAGE_DATA_FORMAT );
       ( *p_fc2DestroyContext )( pgeContext );
       free (( void* ) commonInfo );
@@ -1247,7 +1247,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   cameraInfo->buffers = 0;
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY * cameraInfo->maxBytesPerPixel;
-  cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct PGEbuffer ));
+  cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct FC2buffer ));
   for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
     void* m = malloc ( cameraInfo->imageBufferLength );
     if ( m ) {
@@ -1278,7 +1278,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   cameraInfo->buffersFree = OA_CAM_BUFFERS;
 
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
-      oacamPGEcontroller, ( void* ) camera )) {
+      oacamFC2controller, ( void* ) camera )) {
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -1287,7 +1287,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     return 0;
   }
   if ( pthread_create ( &( cameraInfo->callbackThread ), 0,
-      oacamPGEcallbackHandler, ( void* ) camera )) {
+      oacamFC2callbackHandler, ( void* ) camera )) {
 
     void* dummy;
     cameraInfo->stopControllerThread = 1;
@@ -1308,43 +1308,43 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
 
 static void
-_PGEInitFunctionPointers ( oaCamera* camera )
+_FC2InitFunctionPointers ( oaCamera* camera )
 {
-  camera->funcs.initCamera = oaPGEInitCamera;
-  camera->funcs.closeCamera = oaPGECloseCamera;
+  camera->funcs.initCamera = oaFC2InitCamera;
+  camera->funcs.closeCamera = oaFC2CloseCamera;
 
-  camera->funcs.setControl = oaPGECameraSetControl;
-  camera->funcs.readControl = oaPGECameraReadControl;
-  camera->funcs.testControl = oaPGECameraTestControl;
-  camera->funcs.getControlRange = oaPGECameraGetControlRange;
-  camera->funcs.getControlDiscreteSet = oaPGECameraGetControlDiscreteSet;
+  camera->funcs.setControl = oaFC2CameraSetControl;
+  camera->funcs.readControl = oaFC2CameraReadControl;
+  camera->funcs.testControl = oaFC2CameraTestControl;
+  camera->funcs.getControlRange = oaFC2CameraGetControlRange;
+  camera->funcs.getControlDiscreteSet = oaFC2CameraGetControlDiscreteSet;
 
-  camera->funcs.startStreaming = oaPGECameraStartStreaming;
-  camera->funcs.stopStreaming = oaPGECameraStopStreaming;
-  camera->funcs.isStreaming = oaPGECameraIsStreaming;
+  camera->funcs.startStreaming = oaFC2CameraStartStreaming;
+  camera->funcs.stopStreaming = oaFC2CameraStopStreaming;
+  camera->funcs.isStreaming = oaFC2CameraIsStreaming;
 
-  camera->funcs.setResolution = oaPGECameraSetResolution;
-  camera->funcs.setROI = oaPGECameraSetROI;
-  camera->funcs.testROISize = oaPGECameraTestROISize;
+  camera->funcs.setResolution = oaFC2CameraSetResolution;
+  camera->funcs.setROI = oaFC2CameraSetROI;
+  camera->funcs.testROISize = oaFC2CameraTestROISize;
 
   camera->funcs.hasAuto = oacamHasAuto;
   // camera->funcs.isAuto = _isAuto;
 
-  camera->funcs.enumerateFrameSizes = oaPGECameraGetFrameSizes;
-  camera->funcs.getFramePixelFormat = oaPGECameraGetFramePixelFormat;
+  camera->funcs.enumerateFrameSizes = oaFC2CameraGetFrameSizes;
+  camera->funcs.getFramePixelFormat = oaFC2CameraGetFramePixelFormat;
 
-  camera->funcs.enumerateFrameRates = oaPGECameraGetFrameRates;
-  camera->funcs.setFrameInterval = oaPGECameraSetFrameInterval;
+  camera->funcs.enumerateFrameRates = oaFC2CameraGetFrameRates;
+  camera->funcs.setFrameInterval = oaFC2CameraSetFrameInterval;
 
-  camera->funcs.getMenuString = oaPGECameraGetMenuString;
+  camera->funcs.getMenuString = oaFC2CameraGetMenuString;
 }
 
 
 int
-oaPGECloseCamera ( oaCamera* camera )
+oaFC2CloseCamera ( oaCamera* camera )
 {
   void*		dummy;
-  PGE_STATE*	cameraInfo;
+  FC2_STATE*	cameraInfo;
 
   if ( camera ) {
 

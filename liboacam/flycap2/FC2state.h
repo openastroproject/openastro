@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * PGEstate.h -- Point Grey Gig-E camera state header
+ * FC2state.h -- Point Grey Gig-E camera state header
  *
  * Copyright 2015,2016,2018 James Fidell (james@openastroproject.org)
  *
@@ -24,18 +24,18 @@
  *
  *****************************************************************************/
 
-#ifndef OA_PGE_STATE_H
-#define OA_PGE_STATE_H
+#ifndef OA_FC2_STATE_H
+#define OA_FC2_STATE_H
 
 #include <flycapture/C/FlyCapture2_C.h>
 #include <openastro/util.h>
 
-struct PGEbuffer {
+struct FC2buffer {
   void   *start;
   size_t length;
 };
 
-typedef struct PGE_STATE {
+typedef struct FC2_STATE {
   int			initialised;
   // libdc1394 connection data
   fc2Context*		pgeContext;
@@ -45,7 +45,7 @@ typedef struct PGE_STATE {
   int			bigEndian;
   unsigned int		availableBinModes;
   // buffering for image transfers
-  struct PGEbuffer*	buffers;
+  struct FC2buffer*	buffers;
   int			configuredBuffers;
   int			nextBuffer;
   int			buffersFree;
@@ -144,6 +144,6 @@ typedef struct PGE_STATE {
   void*                 p_fc2StartCaptureCallback;
   void*                 p_fc2StopCapture;
 
-} PGE_STATE;
+} FC2_STATE;
 
-#endif	/* OA_PGE_STATE_H */
+#endif	/* OA_FC2_STATE_H */

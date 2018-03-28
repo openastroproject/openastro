@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * PGEcallback.c -- Thread for handling callbacks to user code
+ * FC2callback.c -- Thread for handling callbacks to user code
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -32,16 +32,16 @@
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
-#include "PGE.h"
-#include "PGEoacam.h"
-#include "PGEstate.h"
+#include "FC2.h"
+#include "FC2oacam.h"
+#include "FC2state.h"
 
 
 void*
-oacamPGEcallbackHandler ( void* param )
+oacamFC2callbackHandler ( void* param )
 {
   oaCamera*		camera = param;
-  PGE_STATE*		cameraInfo = camera->_private;
+  FC2_STATE*		cameraInfo = camera->_private;
   int			exitThread = 0;
   CALLBACK*		callback;
   void*			(*callbackFunc)( void*, void*, int);

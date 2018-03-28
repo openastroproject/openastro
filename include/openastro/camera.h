@@ -45,7 +45,7 @@ enum oaCameraInterfaceType {
   OA_CAM_IF_ATIK_SERIAL			= 8,
   OA_CAM_IF_ZWASI2			= 9,
   OA_CAM_IF_EUVC			= 10,
-  OA_CAM_IF_PGE				= 11,
+  OA_CAM_IF_FC2				= 11,
   OA_CAM_IF_TOUPCAM			= 12,
   OA_CAM_IF_MALLINCAM			= 13,
   OA_CAM_IF_ALTAIRCAM			= 14,

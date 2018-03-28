@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * PGEcontrol.c -- control functions for Point Grey Gig-E cameras
+ * FC2control.c -- control functions for Point Grey Gig-E cameras
  *
  * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
@@ -30,15 +30,15 @@
 #include <openastro/camera.h>
 
 #include "oacamprivate.h"
-#include "PGEoacam.h"
-#include "PGEstate.h"
+#include "FC2oacam.h"
+#include "FC2state.h"
 
 int
-oaPGECameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
+oaFC2CameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
   int dontWait )
 {
   OA_COMMAND	command;
-  PGE_STATE*	cameraInfo = camera->_private;
+  FC2_STATE*	cameraInfo = camera->_private;
   int		retval = OA_ERR_NONE;
 
   // Could do more validation here, but it's a bit messy to do here
@@ -67,10 +67,10 @@ oaPGECameraSetControl ( oaCamera* camera, int control, oaControlValue* val,
 
 
 int
-oaPGECameraReadControl ( oaCamera* camera, int control, oaControlValue* val )
+oaFC2CameraReadControl ( oaCamera* camera, int control, oaControlValue* val )
 {
   OA_COMMAND    command;
-  PGE_STATE*   cameraInfo = camera->_private;
+  FC2_STATE*   cameraInfo = camera->_private;
   int           retval;
 
   // Could do more validation here, but it's a bit messy to do here
@@ -97,7 +97,7 @@ oaPGECameraReadControl ( oaCamera* camera, int control, oaControlValue* val )
 
 
 int
-oaPGECameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
+oaFC2CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 {
   uint32_t	val_u32;
   int64_t	val_s64;
@@ -186,12 +186,12 @@ oaPGECameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 
 
 int
-oaPGECameraSetFrameInterval ( oaCamera* camera, int numerator,
+oaFC2CameraSetFrameInterval ( oaCamera* camera, int numerator,
     int denominator )
 {
   FRAMERATE	r;
   OA_COMMAND	command;
-  PGE_STATE*	cameraInfo = camera->_private;
+  FC2_STATE*	cameraInfo = camera->_private;
   int		retval;
 
 fprintf ( stderr, "implement %s\n", __FUNCTION__ );
@@ -216,11 +216,11 @@ fprintf ( stderr, "implement %s\n", __FUNCTION__ );
 
 
 int
-oaPGECameraSetResolution ( oaCamera* camera, int x, int y )
+oaFC2CameraSetResolution ( oaCamera* camera, int x, int y )
 {
   FRAMESIZE	s;
   OA_COMMAND	command;
-  PGE_STATE*	cameraInfo = camera->_private;
+  FC2_STATE*	cameraInfo = camera->_private;
   int		retval;
 
   OA_CLEAR ( command );
@@ -244,11 +244,11 @@ oaPGECameraSetResolution ( oaCamera* camera, int x, int y )
 
 
 int
-oaPGECameraSetROI ( oaCamera* camera, int x, int y )
+oaFC2CameraSetROI ( oaCamera* camera, int x, int y )
 {
   FRAMESIZE	s;
   OA_COMMAND	command;
-  PGE_STATE*	cameraInfo = camera->_private;
+  FC2_STATE*	cameraInfo = camera->_private;
   int		retval;
 
   OA_CLEAR ( command );
@@ -272,15 +272,15 @@ oaPGECameraSetROI ( oaCamera* camera, int x, int y )
 
 
 int
-oaPGECameraStartStreaming ( oaCamera* camera,
+oaFC2CameraStartStreaming ( oaCamera* camera,
     void* (*callback)(void*, void*, int), void* callbackArg )
 {
   OA_COMMAND    command;
   CALLBACK      callbackData;
   int           retval;
-  PGE_STATE*  cameraInfo = camera->_private;
+  FC2_STATE*  cameraInfo = camera->_private;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "PGE: control: %s ( %p )\n",
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "FC2: control: %s ( %p )\n",
       __FUNCTION__, callback );
 
   OA_CLEAR ( command );
@@ -304,22 +304,22 @@ oaPGECameraStartStreaming ( oaCamera* camera,
 
 
 int
-oaPGECameraIsStreaming ( oaCamera* camera )
+oaFC2CameraIsStreaming ( oaCamera* camera )
 {
-  PGE_STATE*  cameraInfo = camera->_private;
+  FC2_STATE*  cameraInfo = camera->_private;
 
   return ( cameraInfo->isStreaming );
 }
 
 
 int
-oaPGECameraStopStreaming ( oaCamera* camera )
+oaFC2CameraStopStreaming ( oaCamera* camera )
 {
   OA_COMMAND    command;
   int           retval;
-  PGE_STATE*   cameraInfo = camera->_private;
+  FC2_STATE*   cameraInfo = camera->_private;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "PGE: control: %s()\n", __FUNCTION__ );
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "FC2: control: %s()\n", __FUNCTION__ );
 
   OA_CLEAR ( command );
   command.commandType = OA_CMD_STOP;
@@ -339,7 +339,7 @@ oaPGECameraStopStreaming ( oaCamera* camera )
 
 
 const char*
-oaPGECameraGetMenuString ( oaCamera* camera, int control, int index )
+oaFC2CameraGetMenuString ( oaCamera* camera, int control, int index )
 {
   if ( OA_CAM_CTRL_TRIGGER_POLARITY == control ||
       OA_CAM_CTRL_STROBE_POLARITY == control ) {

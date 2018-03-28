@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * PGEroi.c -- region of interest management for Point Grey GigE cameras
+ * FC2roi.c -- region of interest management for Point Grey GigE cameras
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -30,16 +30,16 @@
 #include <openastro/util.h>
 
 #include "oacamprivate.h"
-#include "PGE.h"
-#include "PGEstate.h"
-#include "PGEoacam.h"
+#include "FC2.h"
+#include "FC2state.h"
+#include "FC2oacam.h"
 
 
 int
-oaPGECameraTestROISize ( oaCamera* camera, unsigned int tryX,
+oaFC2CameraTestROISize ( oaCamera* camera, unsigned int tryX,
     unsigned int tryY, unsigned int* suggX, unsigned int* suggY )
 {
-  PGE_STATE*			cameraInfo = camera->_private;
+  FC2_STATE*			cameraInfo = camera->_private;
   fc2GigEImageSettingsInfo	imageInfo;
 
   if (( *p_fc2GetGigEImageSettingsInfo )( cameraInfo->pgeContext,

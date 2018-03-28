@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * PGE.h -- header for Point Grey camera config
+ * FC2.h -- header for Point Grey camera config
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -24,12 +24,12 @@
  *
  *****************************************************************************/
 
-#ifndef OA_PGE_H
-#define OA_PGE_H
+#ifndef OA_FC2_H
+#define OA_FC2_H
 
 struct modeInfo {
   uint8_t	mode;
   // possibly other stuff will need to go in here
 };
 
-#endif	/* OA_PGE_H */
+#endif	/* OA_FC2_H */

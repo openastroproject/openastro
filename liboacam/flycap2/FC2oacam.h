@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * PGEoacam.h -- header for Point Grey Gig-E camera API
+ * FC2oacam.h -- header for Point Grey Gig-E camera API
  *
  * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
@@ -24,43 +24,43 @@
  *
  *****************************************************************************/
 
-#ifndef OA_PGE_OACAM_H
-#define OA_PGE_OACAM_H
+#ifndef OA_FC2_OACAM_H
+#define OA_FC2_OACAM_H
 
-extern int		oaPGEGetCameras ( CAMERA_LIST*, int );
-extern oaCamera*	oaPGEInitCamera ( oaCameraDevice* );
-extern int		oaPGECloseCamera ( oaCamera* );
+extern int		oaFC2GetCameras ( CAMERA_LIST*, int );
+extern oaCamera*	oaFC2InitCamera ( oaCameraDevice* );
+extern int		oaFC2CloseCamera ( oaCamera* );
 
-extern int		oaPGECameraTestControl ( oaCamera*, int,
+extern int		oaFC2CameraTestControl ( oaCamera*, int,
 				oaControlValue* );
-extern int		oaPGECameraSetControl ( oaCamera*, int,
+extern int		oaFC2CameraSetControl ( oaCamera*, int,
 				oaControlValue*, int );
-extern int		oaPGECameraReadControl ( oaCamera*, int,
+extern int		oaFC2CameraReadControl ( oaCamera*, int,
 				oaControlValue* );
-extern int		oaPGECameraGetControlRange ( oaCamera*, int,
+extern int		oaFC2CameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
-extern int		oaPGECameraGetControlDiscreteSet ( oaCamera*, int,
+extern int		oaFC2CameraGetControlDiscreteSet ( oaCamera*, int,
 				int32_t*, int64_t** );
 
-extern int		oaPGECameraStartStreaming ( oaCamera*,
+extern int		oaFC2CameraStartStreaming ( oaCamera*,
 				void* (*)(void*, void*, int), void* );
-extern int		oaPGECameraStopStreaming ( oaCamera* );
-extern int		oaPGECameraIsStreaming ( oaCamera* );
+extern int		oaFC2CameraStopStreaming ( oaCamera* );
+extern int		oaFC2CameraIsStreaming ( oaCamera* );
 
-extern int		oaPGECameraSetResolution ( oaCamera*, int, int );
-extern int		oaPGECameraSetROI ( oaCamera*, int, int );
-extern int		oaPGECameraTestROISize ( oaCamera*, unsigned int,
+extern int		oaFC2CameraSetResolution ( oaCamera*, int, int );
+extern int		oaFC2CameraSetROI ( oaCamera*, int, int );
+extern int		oaFC2CameraTestROISize ( oaCamera*, unsigned int,
 			    unsigned int, unsigned int*, unsigned int* );
 
-extern void*		oacamPGEcontroller ( void* );
-extern void*		oacamPGEcallbackHandler ( void* );
+extern void*		oacamFC2controller ( void* );
+extern void*		oacamFC2callbackHandler ( void* );
 
-extern const FRAMESIZES* oaPGECameraGetFrameSizes ( oaCamera* );
-extern const FRAMERATES* oaPGECameraGetFrameRates ( oaCamera*, int, int );
-extern int		oaPGECameraSetFrameInterval ( oaCamera*, int, int );
-extern int		oaPGECameraGetFramePixelFormat ( oaCamera* );
+extern const FRAMESIZES* oaFC2CameraGetFrameSizes ( oaCamera* );
+extern const FRAMERATES* oaFC2CameraGetFrameRates ( oaCamera*, int, int );
+extern int		oaFC2CameraSetFrameInterval ( oaCamera*, int, int );
+extern int		oaFC2CameraGetFramePixelFormat ( oaCamera* );
 
-extern const char*	oaPGECameraGetMenuString ( oaCamera*, int, int );
+extern const char*	oaFC2CameraGetMenuString ( oaCamera*, int, int );
 
 struct pgeCtrl {
   fc2PropertyType	pgeControl;
@@ -69,7 +69,7 @@ struct pgeCtrl {
 };
 
 extern struct pgeCtrl pgeControls[];
-extern unsigned int numPGEControls;
+extern unsigned int numFC2Controls;
 
 struct pgeFrameRate {
   fc2FrameRate		pgeFrameRate;
@@ -78,7 +78,7 @@ struct pgeFrameRate {
 };
 
 extern struct pgeFrameRate pgeFrameRates[];
-extern unsigned int numPGEFrameRates;
+extern unsigned int numFC2FrameRates;
 
 
 #define		FC2_REG_DATA_DEPTH		0x0630
@@ -129,4 +129,4 @@ extern fc2Error       ( *p_fc2StartCaptureCallback )( fc2Context,
 extern fc2Error       ( *p_fc2StopCapture )( fc2Context );
 
 
-#endif	/* OA_PGE_OACAM_H */
+#endif	/* OA_FC2_OACAM_H */

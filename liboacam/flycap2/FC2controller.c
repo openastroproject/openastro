@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * PGEcontroller.c -- Main camera controller thread
+ * FC2controller.c -- Main camera controller thread
  *
  * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
@@ -34,35 +34,35 @@
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
-#include "PGE.h"
-#include "PGEoacam.h"
-#include "PGEstate.h"
+#include "FC2.h"
+#include "FC2oacam.h"
+#include "FC2state.h"
 
 
-static int	_processSetControl ( PGE_STATE*, OA_COMMAND* );
-static int	_processGetControl ( PGE_STATE*, OA_COMMAND* );
-static int	_processGetTriggerControl ( PGE_STATE*, OA_COMMAND* );
-static int	_processSetTriggerControl ( PGE_STATE*, OA_COMMAND*, int );
-static int	_processGetTriggerDelayControl ( PGE_STATE*, OA_COMMAND* );
-static int	_processSetTriggerDelayControl ( PGE_STATE*, OA_COMMAND*, int );
-static int	_processGetStrobeControl ( PGE_STATE*, OA_COMMAND* );
-static int	_processSetStrobeControl ( PGE_STATE*, OA_COMMAND*, int );
-static int	_processSetResolution ( PGE_STATE*, OA_COMMAND* );
+static int	_processSetControl ( FC2_STATE*, OA_COMMAND* );
+static int	_processGetControl ( FC2_STATE*, OA_COMMAND* );
+static int	_processGetTriggerControl ( FC2_STATE*, OA_COMMAND* );
+static int	_processSetTriggerControl ( FC2_STATE*, OA_COMMAND*, int );
+static int	_processGetTriggerDelayControl ( FC2_STATE*, OA_COMMAND* );
+static int	_processSetTriggerDelayControl ( FC2_STATE*, OA_COMMAND*, int );
+static int	_processGetStrobeControl ( FC2_STATE*, OA_COMMAND* );
+static int	_processSetStrobeControl ( FC2_STATE*, OA_COMMAND*, int );
+static int	_processSetResolution ( FC2_STATE*, OA_COMMAND* );
 static int	_processSetROI ( oaCamera*, OA_COMMAND* );
-static int	_processStreamingStart ( PGE_STATE*, OA_COMMAND* );
-static int	_processStreamingStop ( PGE_STATE*, OA_COMMAND* );
-static int	_doStart ( PGE_STATE* );
-static int	_doStop ( PGE_STATE* );
-static int	_doFrameFormat ( PGE_STATE*, int );
-static int	_doBinning ( PGE_STATE*, int );
-//static int	_processSetFrameInterval ( PGE_STATE*, OA_COMMAND* );
+static int	_processStreamingStart ( FC2_STATE*, OA_COMMAND* );
+static int	_processStreamingStop ( FC2_STATE*, OA_COMMAND* );
+static int	_doStart ( FC2_STATE* );
+static int	_doStop ( FC2_STATE* );
+static int	_doFrameFormat ( FC2_STATE*, int );
+static int	_doBinning ( FC2_STATE*, int );
+//static int	_processSetFrameInterval ( FC2_STATE*, OA_COMMAND* );
 
 
 void*
-oacamPGEcontroller ( void* param )
+oacamFC2controller ( void* param )
 {
   oaCamera*		camera = param;
-  PGE_STATE*		cameraInfo = camera->_private;
+  FC2_STATE*		cameraInfo = camera->_private;
   OA_COMMAND*		command;
   int			exitThread = 0;
   int			resultCode;
@@ -135,9 +135,9 @@ oacamPGEcontroller ( void* param )
 
 
 void
-_PGEFrameCallback ( fc2Image *frame, void *ptr )
+_FC2FrameCallback ( fc2Image *frame, void *ptr )
 {
-  PGE_STATE*    cameraInfo = ptr;
+  FC2_STATE*    cameraInfo = ptr;
   int           buffersFree, nextBuffer;
   unsigned int  dataLength;
 
@@ -173,7 +173,7 @@ _PGEFrameCallback ( fc2Image *frame, void *ptr )
 
 
 static int
-_processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
+_processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 {
   oaControlValue	*val = command->commandData;
   int			control = command->controlId;
@@ -191,7 +191,7 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
     return _doBinning ( cameraInfo, val->int32 );
   }
 
-  for ( i = 0, found = -1; found < 0 && i < numPGEControls; i++ ) {
+  for ( i = 0, found = -1; found < 0 && i < numFC2Controls; i++ ) {
     if ( pgeControls[i].oaControl == control ||
         pgeControls[i].oaAutoControl == control ||
         ( OA_CAM_CTRL_IS_ON_OFF( control ) && pgeControls[i].oaControl ==
@@ -265,7 +265,7 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
     property.type = pgeControl;
     if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get PGE property %d\n", pgeControl );
+      fprintf ( stderr, "Can't get FC2 property %d\n", pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
     if ( found == 2 ) {
@@ -275,7 +275,7 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
     }
     if (( *p_fc2SetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't set PGE property %d\n", pgeControl );
+      fprintf ( stderr, "Can't set FC2 property %d\n", pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -289,7 +289,7 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
     property.type = FC2_WHITE_BALANCE;
     if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get PGE white balance\n" );
+      fprintf ( stderr, "Can't get FC2 white balance\n" );
       return -OA_ERR_CAMERA_IO;
     }
     if ( OA_CAM_CTRL_BLUE_BALANCE == control ) {
@@ -301,7 +301,7 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
     }
     if (( *p_fc2SetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't set PGE white balance\n" );
+      fprintf ( stderr, "Can't set FC2 white balance\n" );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -324,14 +324,14 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
     property.type = pgeControl;
     if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get PGE property %d\n", pgeControl );
+      fprintf ( stderr, "Can't get FC2 property %d\n", pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
     property.absControl = 1;
     property.absValue = decval;
     if (( *p_fc2SetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't set PGE property %d\n", pgeControl );
+      fprintf ( stderr, "Can't set FC2 property %d\n", pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
     cameraInfo->currentAbsoluteExposure = val_s64;
@@ -349,13 +349,13 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
     property.type = pgeControl;
     if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get PGE property %d\n", pgeControl );
+      fprintf ( stderr, "Can't get FC2 property %d\n", pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
     property.valueA = val_u32;
     if (( *p_fc2SetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't set PGE property %d\n", pgeControl );
+      fprintf ( stderr, "Can't set FC2 property %d\n", pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -377,7 +377,7 @@ _processSetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
 
 
 static int
-_processGetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
+_processGetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 {
   int			found, pgeControl = 0;
   unsigned int		i;
@@ -411,7 +411,7 @@ _processGetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
     property.type = FC2_WHITE_BALANCE;
     if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get PGE white balance\n" );
+      fprintf ( stderr, "Can't get FC2 white balance\n" );
       return -OA_ERR_CAMERA_IO;
     }
     val->valueType = OA_CTRL_TYPE_INT32;
@@ -423,7 +423,7 @@ _processGetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
     return OA_ERR_NONE;
   }
 
-  for ( i = 0, found = 0; !found && i < numPGEControls; i++ ) {
+  for ( i = 0, found = 0; !found && i < numFC2Controls; i++ ) {
     if ( pgeControls[i].oaControl == control ||
         pgeControls[i].oaAutoControl == control ) {
       pgeControl = pgeControls[i].pgeControl;
@@ -439,7 +439,7 @@ _processGetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
       property.type = pgeControl;
       if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
           FC2_ERROR_OK ) {
-        fprintf ( stderr, "Can't get PGE control %d\n", pgeControl );
+        fprintf ( stderr, "Can't get FC2 control %d\n", pgeControl );
         return -OA_ERR_CAMERA_IO;
       }
       if ( !oaIsAuto ( control )) {
@@ -474,7 +474,7 @@ _processGetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
     property.type = FC2_SHUTTER;
     if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get PGE control %d\n", pgeControl );
+      fprintf ( stderr, "Can't get FC2 control %d\n", pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
     val->valueType = OA_CTRL_TYPE_INT64;
@@ -490,7 +490,7 @@ _processGetControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
 
 
 static int
-_processSetResolution ( PGE_STATE* cameraInfo, OA_COMMAND* command )
+_processSetResolution ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 {
   FRAMESIZE*			size = command->commandData;
   unsigned int			binMode, s, mode, restart = 0;
@@ -520,7 +520,7 @@ _processSetResolution ( PGE_STATE* cameraInfo, OA_COMMAND* command )
 
   if (( *p_fc2GetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get PGE image settings\n" );
+    fprintf ( stderr, "Can't get FC2 image settings\n" );
     return -OA_ERR_CAMERA_IO;
   }
   settings.width = size->x;
@@ -536,26 +536,26 @@ _processSetResolution ( PGE_STATE* cameraInfo, OA_COMMAND* command )
 /*
   if (( *p_fc2SetGigEImageBinningSettings )( cameraInfo->pgeContext, 1, 1 ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set mode %d for PGE GUID\n", mode );
+    fprintf ( stderr, "Can't set mode %d for FC2 GUID\n", mode );
     return -OA_ERR_CAMERA_IO;
   }
 */
 
   if (( *p_fc2SetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set PGE image settings\n" );
+    fprintf ( stderr, "Can't set FC2 image settings\n" );
     return -OA_ERR_CAMERA_IO;
   }
 
   if (( *p_fc2SetGigEImagingMode )( cameraInfo->pgeContext, mode ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set mode %d for PGE GUID\n", mode );
+    fprintf ( stderr, "Can't set mode %d for FC2 GUID\n", mode );
     return -OA_ERR_CAMERA_IO;
   }
 
   if (( *p_fc2SetGigEImageBinningSettings )( cameraInfo->pgeContext,
       cameraInfo->binMode, cameraInfo->binMode ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set mode %d for PGE GUID\n", mode );
+    fprintf ( stderr, "Can't set mode %d for FC2 GUID\n", mode );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -575,7 +575,7 @@ _processSetResolution ( PGE_STATE* cameraInfo, OA_COMMAND* command )
 static int
 _processSetROI ( oaCamera* camera, OA_COMMAND* command )
 {
-  PGE_STATE*			cameraInfo = camera->_private;
+  FC2_STATE*			cameraInfo = camera->_private;
   FRAMESIZE*			size = command->commandData;
   unsigned int			x, y;
   fc2GigEImageSettingsInfo	imageInfo;
@@ -634,7 +634,7 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
 
 /*
 static int
-_processSetFrameInterval ( PGE_STATE* cameraInfo, OA_COMMAND* command )
+_processSetFrameInterval ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 {
   FRAMERATE*                    rate = command->commandData;
 
@@ -647,7 +647,7 @@ fprintf ( stderr, "implement %s\n", __FUNCTION__ );
 
 
 static int
-_processStreamingStart ( PGE_STATE* cameraInfo, OA_COMMAND* command )
+_processStreamingStart ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 {
   CALLBACK*		cb = command->commandData;
   fc2GigEImageSettings  settings;
@@ -695,12 +695,12 @@ _processStreamingStart ( PGE_STATE* cameraInfo, OA_COMMAND* command )
 
 
 static int
-_doStart ( PGE_STATE* cameraInfo )
+_doStart ( FC2_STATE* cameraInfo )
 {
   int			ret;
 
   if (( ret = ( *p_fc2StartCaptureCallback )( cameraInfo->pgeContext,
-      _PGEFrameCallback, cameraInfo )) != FC2_ERROR_OK ) {
+      _FC2FrameCallback, cameraInfo )) != FC2_ERROR_OK ) {
     fprintf ( stderr, "%s: fc2StartCaptureCallback failed: %d\n", __FUNCTION__,
         ret );
     return -OA_ERR_CAMERA_IO;
@@ -715,7 +715,7 @@ _doStart ( PGE_STATE* cameraInfo )
 
 
 static int
-_processStreamingStop ( PGE_STATE* cameraInfo, OA_COMMAND* command )
+_processStreamingStop ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 {
   if ( !cameraInfo->isStreaming ) {
     return -OA_ERR_INVALID_COMMAND;
@@ -726,7 +726,7 @@ _processStreamingStop ( PGE_STATE* cameraInfo, OA_COMMAND* command )
 
 
 static int
-_doStop ( PGE_STATE* cameraInfo )
+_doStop ( FC2_STATE* cameraInfo )
 {
   int		ret;
 
@@ -746,7 +746,7 @@ _doStop ( PGE_STATE* cameraInfo )
 
 
 static int
-_processGetTriggerControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
+_processGetTriggerControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 {
   int			control = command->controlId;
   oaControlValue*	val = command->resultData;
@@ -782,7 +782,7 @@ _processGetTriggerControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
 
 
 static int
-_processSetTriggerControl ( PGE_STATE* cameraInfo, OA_COMMAND* command,
+_processSetTriggerControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
     int control )
 {
   oaControlValue	*val = command->commandData;
@@ -836,7 +836,7 @@ _processSetTriggerControl ( PGE_STATE* cameraInfo, OA_COMMAND* command,
 
     if (( *p_fc2SetTriggerMode )( cameraInfo->pgeContext, &triggerMode ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't set PGE trigger mode\n" );
+      fprintf ( stderr, "Can't set FC2 trigger mode\n" );
       return -OA_ERR_CAMERA_IO;
     }
   }
@@ -846,7 +846,7 @@ _processSetTriggerControl ( PGE_STATE* cameraInfo, OA_COMMAND* command,
 
 
 static int
-_processGetTriggerDelayControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
+_processGetTriggerDelayControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 {
   int			control = command->controlId;
   oaControlValue*	val = command->resultData;
@@ -872,7 +872,7 @@ _processGetTriggerDelayControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
 
 
 static int
-_processSetTriggerDelayControl ( PGE_STATE* cameraInfo, OA_COMMAND* command,
+_processSetTriggerDelayControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
     int control )
 {
   oaControlValue	*val = command->commandData;
@@ -907,7 +907,7 @@ _processSetTriggerDelayControl ( PGE_STATE* cameraInfo, OA_COMMAND* command,
 
     if (( *p_fc2SetTriggerDelay )( cameraInfo->pgeContext, &triggerDelay ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't set PGE trigger delay\n" );
+      fprintf ( stderr, "Can't set FC2 trigger delay\n" );
       return -OA_ERR_CAMERA_IO;
     }
   }
@@ -917,7 +917,7 @@ _processSetTriggerDelayControl ( PGE_STATE* cameraInfo, OA_COMMAND* command,
 
 
 static int
-_processGetStrobeControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
+_processGetStrobeControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 {
   int			control = command->controlId;
   oaControlValue*	val = command->resultData;
@@ -953,7 +953,7 @@ _processGetStrobeControl ( PGE_STATE* cameraInfo, OA_COMMAND* command )
 
 
 static int
-_processSetStrobeControl ( PGE_STATE* cameraInfo, OA_COMMAND* command,
+_processSetStrobeControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
     int control )
 {
   oaControlValue	*val = command->commandData;
@@ -1009,7 +1009,7 @@ _processSetStrobeControl ( PGE_STATE* cameraInfo, OA_COMMAND* command,
 
     if (( *p_fc2SetStrobe )( cameraInfo->pgeContext, &strobeControl ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't set PGE strobe control\n" );
+      fprintf ( stderr, "Can't set FC2 strobe control\n" );
       return -OA_ERR_CAMERA_IO;
     }
   }
@@ -1019,7 +1019,7 @@ _processSetStrobeControl ( PGE_STATE* cameraInfo, OA_COMMAND* command,
 
 
 static int
-_doBinning ( PGE_STATE* cameraInfo, int binMode )
+_doBinning ( FC2_STATE* cameraInfo, int binMode )
 {
   unsigned int			s, mode, restart = 0;
   unsigned int			oldX, oldY, newX, newY;
@@ -1084,14 +1084,14 @@ _doBinning ( PGE_STATE* cameraInfo, int binMode )
 
 
 static int
-_doFrameFormat ( PGE_STATE* cameraInfo, int format )
+_doFrameFormat ( FC2_STATE* cameraInfo, int format )
 {
   fc2GigEImageSettings	settings;
   int			restart;
 
   if (( *p_fc2GetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get PGE image settings\n" );
+    fprintf ( stderr, "Can't get FC2 image settings\n" );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -1160,7 +1160,7 @@ _doFrameFormat ( PGE_STATE* cameraInfo, int format )
 
   if (( *p_fc2SetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set PGE image settings\n" );
+    fprintf ( stderr, "Can't set FC2 image settings\n" );
     return -OA_ERR_CAMERA_IO;
   }
 

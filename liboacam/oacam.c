@@ -68,7 +68,7 @@
 #include "atikSerialoacam.h"
 #endif
 #if HAVE_LIBFLYCAPTURE2
-#include "PGEoacam.h"
+#include "FC2oacam.h"
 #endif
 #if HAVE_LIBTOUPCAM
 #include "Touptekoacam.h"
@@ -129,7 +129,7 @@ oaInterface	oaCameraInterfaces[] = {
 #endif
   { OA_CAM_IF_EUVC, "TIS EUVC", "EUVC", oaEUVCGetCameras, 0, OA_UDC_FLAG_NONE },
 #if HAVE_LIBFLYCAPTURE2
-  { OA_CAM_IF_PGE, "Point Grey Gig-E", "PGE", oaPGEGetCameras, 0,
+  { OA_CAM_IF_FC2, "Point Grey Flycapture2", "FC2", oaFC2GetCameras, 0,
       OA_UDC_FLAG_NONE },
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
