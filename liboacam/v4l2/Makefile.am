@@ -27,10 +27,10 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/liboacam \
   $(DYNLIB_EXTN_CFLAGS)
 
-noinst_LTLIBRARIES = libv4l2.la
+noinst_LTLIBRARIES = libvideo4linux.la
 
-libv4l2_la_SOURCES = V4L2oacam.c V4L2connect.c V4L2ioctl.c V4L2cameras.c \
-  V4L2getState.c V4L2controller.c V4L2callback.c V4L2control.c
+libvideo4linux_la_SOURCES = V4L2oacam.c V4L2connect.c V4L2ioctl.c \
+  V4L2cameras.c V4L2getState.c V4L2controller.c V4L2callback.c V4L2control.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

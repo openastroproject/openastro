@@ -42,7 +42,7 @@ endif
 
 if LIBV4L2_COND
 V4L2DIR	= v4l2
-V4L2LIB	= $(V4L2DIR)/libv4l2.la
+V4L2LIB	= $(V4L2DIR)/libvideo4linux.la
 endif
 
 if LIBFLYCAPTURE2_COND
