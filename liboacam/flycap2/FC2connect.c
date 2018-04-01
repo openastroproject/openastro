@@ -1142,6 +1142,10 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       case OA_DEMOSAIC_GBRG:
         format = OA_PIX_FMT_GBRG8;
         break;
+      default: // a random selection really.  Just ensures initialisation.
+        format = OA_PIX_FMT_RGGB8;
+        fprintf ( stderr, "Unrecognised CFA pattern.  Should not happen\n" );
+        break;
     }
     camera->frameFormats[ format ] = 1;
     camera->features.rawMode = 1;
@@ -1170,6 +1174,10 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       case OA_DEMOSAIC_GBRG:
         format = cameraInfo->bigEndian ? OA_PIX_FMT_GBRG16BE :
             OA_PIX_FMT_GBRG16LE;
+        break;
+      default: // a random selection really.  Just ensures initialisation.
+        format = OA_PIX_FMT_RGGB16LE;
+        fprintf ( stderr, "Unrecognised CFA pattern.  Should not happen\n" );
         break;
     }
     camera->frameFormats[ format ] = 1;
@@ -1202,6 +1210,10 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         break;
       case OA_DEMOSAIC_GBRG:
         format = OA_PIX_FMT_GBRG12;
+        break;
+      default: // a random selection really.  Just ensures initialisation.
+        format = OA_PIX_FMT_RGGB12;
+        fprintf ( stderr, "Unrecognised CFA pattern.  Should not happen\n" );
         break;
     }
     camera->frameFormats[ format ] = 1;
