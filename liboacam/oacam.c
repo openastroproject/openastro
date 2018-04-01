@@ -2,7 +2,8 @@
  *
  * oacam.c -- main camera library entrypoint
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -79,6 +80,9 @@
 #if HAVE_LIBALTAIRCAM
 #include "Altairoacam.h"
 #endif
+#if HAVE_LIBSPINNAKER
+#include "Spinoacam.h"
+#endif
 
 
 oaInterface	oaCameraInterfaces[] = {
@@ -148,6 +152,12 @@ oaInterface	oaCameraInterfaces[] = {
 #endif
 #if HAVE_LIBALTAIRCAM
   { OA_CAM_IF_ALTAIRCAM, "Altair", "AACAM", oaAltairGetCameras, 0,
+      OA_UDC_FLAG_NONE },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if HAVE_LIBSPINNAKER
+  { OA_CAM_IF_SPINNAKER, "Spinnaker", "SPIN", oaSpinGetCameras, 0,
       OA_UDC_FLAG_NONE },
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },

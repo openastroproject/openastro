@@ -116,6 +116,7 @@ have_v4l2=no
 have_udev=no
 have_ftdi1=no
 have_flycapture2=no
+have_spinnaker=no
 have_dl=no
 have_toupcam=yes
 have_mallincam=yes
@@ -640,9 +641,22 @@ AC_CHECK_LIB([flycapture-c],[fc2CreateGigEContext],[
   AC_DEFINE([HAVE_LIBFLYCAPTURE2],[1],[Have flycapture2-c library])
   have_flycapture2=yes
 ],[
-  AC_MSG_WARN([No flycapture2 library found.  Point Grey Gig-E cameras will not be supported])])
+  AC_MSG_WARN([No flycapture2 library found.  Point Grey Gig-E cameras will not be supported via this library])])
 
 if test "x$have_dl" == "xyes" -a "x$have_flycapture2" == "xyes"
+then
+  LDFLAGS="-rdynamic $LDFLAGS"
+fi
+
+spinnakerlib="-lSpinnaker_C "
+AC_CHECK_LIB([Spinnaker_C],[spinSystemGetInstance],[
+  LIBS="$spinnakerlib$LIBS"
+  AC_DEFINE([HAVE_LIBSPINNAKER],[1],[Have Spinnaker_C library])
+  have_spinnaker=yes
+],[
+  AC_MSG_WARN([No Spinnaker library found.  Point Grey cameras will not be supported via this library])])
+
+if test "x$have_dl" == "xyes" -a "x$have_flycapture2" == "xno" -a "x$have_spinnaker" == "xyes"
 then
   LDFLAGS="-rdynamic $LDFLAGS"
 fi
@@ -1112,6 +1126,7 @@ AM_CONDITIONAL([LIBUDEV_COND], [test "x$have_udev" == "xyes"])
 AM_CONDITIONAL([LIBFTDI_COND], [test "x$have_ftdi1" == "xyes"])
 AM_CONDITIONAL([ATIK_COND], [test "x$have_ftdi1" == "xyes" -o "x$have_udev" == "xyes"])
 AM_CONDITIONAL([LIBFLYCAPTURE2_COND], [test "x$have_flycapture2" == "xyes"])
+AM_CONDITIONAL([LIBSPINNAKER_COND], [test "x$have_spinnaker" == "xyes"])
 AM_CONDITIONAL([LIBDL_COND], [test "x$have_dl" == "xyes"])
 AM_CONDITIONAL([LIBTOUPCAM_COND], [test "x$have_toupcam" == "xyes"])
 AM_CONDITIONAL([LIBMALLINCAM_COND], [test "x$have_mallincam" == "xyes"])
@@ -1122,5 +1137,5 @@ AM_CONDITIONAL([BUILD_LIBUSB_COND], [test "x$build_libusb" == "xyes"])
 AM_CONDITIONAL([LIBHIDAPI_COND], [test "x$use_system_libhidapi" == "xno"])
 AM_CONDITIONAL([INT_LIBUVC_COND], [test "x$internal_uvc" == "xyes"])
 
-AC_CONFIG_FILES([Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/pwc/Makefile liboacam/qhy/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboaimgproc/Makefile liboaPTR/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile])
+AC_CONFIG_FILES([Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/qhy/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboaimgproc/Makefile liboaPTR/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile])
 AC_OUTPUT
