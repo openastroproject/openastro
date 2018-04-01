@@ -385,7 +385,7 @@ HistogramWidget::_processMosaicHistogram ( void* imageData,
 
   fullIntensity = ( 1 << oaFrameFormats[ format ].bitsPerPixel ) - 1;
 
-  int intensity;
+  int intensity = 0;
   for ( i = 0; i < length; i += step ) {
     x = ( i % bytesPerLine ) / bytesPerPixel;
     y = i / bytesPerLine;

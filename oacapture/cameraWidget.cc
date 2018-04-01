@@ -101,7 +101,7 @@ CameraWidget::~CameraWidget()
 void
 CameraWidget::configure ( void )
 {
-  int format;
+  unsigned int format;
   int numActions = 0, currentAction = 0;
   int foundConfiguredFormat = 0;
 

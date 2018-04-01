@@ -730,16 +730,15 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
   int			writeDemosaicPreviewBuffer = 0;
   int			previewIsDemosaicked = 0;
   int			maxLength;
+  char			commentStr[ 64 ];
 #else
   void*			viewBuffer = imageData;
   int			currentViewBuffer = -1;
-  int			viewIsDemosaicked = 0;
   int			ret;
   OutputHandler*	output;
 #endif
   void*			writeBuffer = imageData;
   const char*		timestamp;
-  char			commentStr[ 64 ];
   char*			comment;
 
   // don't do anything if the length is not as expected

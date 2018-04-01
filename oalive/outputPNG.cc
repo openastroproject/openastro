@@ -473,6 +473,10 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
         xoff = ( char* ) "0";
         yoff = ( char* ) "0";
         break;
+      default: // clearly this shouldn't ever happen
+        xoff = ( char* ) "0";
+        yoff = ( char* ) "0";
+        break;
     }
 
     pngComments[ numComments ].key = ( char* ) "BAYERPAT";
