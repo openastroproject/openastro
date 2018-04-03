@@ -63,6 +63,13 @@ SPINNAKERC_API	( *p_spinNodeMapGetNode )( spinNodeMapHandle, const char*,
 SPINNAKERC_API	( *p_spinNodeIsAvailable )( spinNodeHandle, bool8_t* );
 SPINNAKERC_API	( *p_spinNodeIsReadable )( spinNodeHandle, bool8_t* );
 SPINNAKERC_API	( *p_spinStringGetValue )( spinNodeHandle, char*, size_t* );
+SPINNAKERC_API	( *p_spinIntegerGetValue )( spinNodeHandle, uint64_t* );
+SPINNAKERC_API	( *p_spinEnumerationEntryGetEnumValue )( spinNodeHandle,
+			size_t* );
+SPINNAKERC_API	( *p_spinEnumerationEntryGetIntValue )( spinNodeHandle,
+			uint64_t* );
+SPINNAKERC_API	( *p_spinEnumerationGetCurrentEntry )( spinNodeHandle,
+			spinNodeHandle* );
 SPINNAKERC_API	( *p_spinInterfaceGetCameras )( spinInterface, spinCameraList );
 SPINNAKERC_API	( *p_spinCameraListGet )( spinCameraList, size_t, spinCamera* );
 SPINNAKERC_API	( *p_spinCameraGetTLDeviceNodeMap )( spinCamera,
@@ -105,10 +112,25 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
   size_t		vendorNameLen = SPINNAKER_MAX_BUFF_LEN;
   char			modelName[ SPINNAKER_MAX_BUFF_LEN ];
   size_t		modelNameLen = SPINNAKER_MAX_BUFF_LEN;
+  spinNodeHandle	deviceIdHandle = 0;
+  bool8_t		deviceIdAvailable = False;
+  bool8_t		deviceIdReadable = False;
+  char			deviceId[ SPINNAKER_MAX_BUFF_LEN ];
+  size_t		deviceIdLen = SPINNAKER_MAX_BUFF_LEN;
+  spinNodeHandle        deviceTypeHandle = 0;
+  spinNodeHandle        currentEntryHandle = 0;
+  bool8_t               deviceTypeAvailable = False;
+  bool8_t               deviceTypeReadable = False;
+  // size_t		deviceType;
+  uint64_t		deviceType;
+  spinNodeHandle        ipAddrHandle = 0;
+  bool8_t               ipAddrAvailable = False;
+  bool8_t               ipAddrReadable = False;
+  uint64_t		ipAddr;
   unsigned int		i, j, numFound;
   oaCameraDevice*       devices;
   DEVICE_INFO*		_private;
-  int			ret;
+  int			ret, err;
 
 
 #if HAVE_LIBDL
@@ -198,6 +220,22 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
       "spinStringGetValue" ))) {
     return 0;
   }
+  if (!( *( void** )( &p_spinIntegerGetValue ) = _getDLSym ( libHandle,
+      "spinIntegerGetValue" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinEnumerationEntryGetEnumValue ) = _getDLSym (
+      libHandle, "spinEnumerationEntryGetEnumValue" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinEnumerationEntryGetIntValue ) = _getDLSym (
+      libHandle, "spinEnumerationEntryGetIntValue" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinEnumerationGetCurrentEntry ) = _getDLSym (
+      libHandle, "spinEnumerationGetCurrentEntry" ))) {
+    return 0;
+  }
   if (!( *( void** )( &p_spinInterfaceGetCameras ) = _getDLSym ( libHandle,
       "spinInterfaceGetCameras" ))) {
     return 0;
@@ -236,6 +274,10 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
   p_spinNodeIsAvailable = spinNodeIsAvailable;
   p_spinNodeIsReadable = spinNodeIsReadable;
   p_spinStringGetValue = spinStringGetValue;
+  p_spinIntegerGetValue = spinIntegerGetValue;
+  p_spinEnumerationEntryGetEnumValue = spinEnumerationEntryGetEnumValue;
+  p_spinEnumerationEntryGetIntValue = spinEnumerationEntryGetIntValue;
+  p_spinEnumerationGetCurrentEntry = spinEnumerationGetCurrentEntry;
   p_spinInterfaceGetCameras = spinInterfaceGetCameras;
   p_spinCameraListGet = spinCameraListGet;
   p_spinCameraGetTLDeviceNodeMap = spinCameraGetTLDeviceNodeMap;
@@ -493,19 +535,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
             return -OA_ERR_SYSTEM_ERROR;
           }
           if ( vendorNameReadable ) {
-            if (( *p_spinNodeMapGetNode )( cameraNodeMapHandle,
-                "DeviceModelName", &modelNameHandle ) !=
-                SPINNAKER_ERR_SUCCESS ) {
-              fprintf ( stderr, "Can't get Spinnaker camera model node\n" );
-              ( void ) ( *p_spinCameraRelease )( cameraHandle );
-              ( void ) ( *p_spinCameraListClear )( cameraListHandle );
-              ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
-              ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
-              ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
-              ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
-              return -OA_ERR_SYSTEM_ERROR;
-            }
-
             if (( *p_spinStringGetValue )( vendorNameHandle, vendorName,
                 &vendorNameLen ) != SPINNAKER_ERR_SUCCESS ) {
               fprintf ( stderr, "Can't get Spinnaker vendor name string\n" );
@@ -522,6 +551,19 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
           }
         } else {
           ( void ) strcpy ( vendorName, "vendor unavailable" );
+        }
+
+        if (( *p_spinNodeMapGetNode )( cameraNodeMapHandle,
+            "DeviceModelName", &modelNameHandle ) !=
+            SPINNAKER_ERR_SUCCESS ) {
+          fprintf ( stderr, "Can't get Spinnaker camera model node\n" );
+          ( void ) ( *p_spinCameraRelease )( cameraHandle );
+          ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+          ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+          ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+          ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+          ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+          return -OA_ERR_SYSTEM_ERROR;
         }
 
         if (( *p_spinNodeIsAvailable )( modelNameHandle, &modelNameAvailable )
@@ -571,32 +613,222 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
           ( void ) strcpy ( modelName, "model unavailable" );
         }
 
-        _oaInitCameraDeviceFunctionPointers ( &devices[ numFound ]);
-        devices[ numFound ].interface = OA_CAM_IF_SPINNAKER;
-/*
-        memcpy (( void* ) &_private->pgeGuid, ( void* ) &guid, sizeof ( guid ));
-*/
-        devices[ numFound ]._private = &_private[ numFound ];
-        devices[ numFound ].initCamera = oaSpinInitCamera;
-        devices[ numFound ].hasLoadableFirmware = 0;
-        if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
-          free (( void* ) devices );
-          free (( void* ) _private );
-          _oaFreeCameraDeviceList ( deviceList );
+        if (( *p_spinNodeMapGetNode )( cameraNodeMapHandle, "DeviceID",
+            &deviceIdHandle ) != SPINNAKER_ERR_SUCCESS ) {
+          fprintf ( stderr, "Can't get Spinnaker camera id node\n" );
           ( void ) ( *p_spinCameraRelease )( cameraHandle );
           ( void ) ( *p_spinCameraListClear )( cameraListHandle );
           ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
           ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
           ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
           ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
-          return ret;
+          return -OA_ERR_SYSTEM_ERROR;
         }
-        deviceList->cameraList[ deviceList->numCameras++ ] =
-            &devices[ numFound ];
-        numFound++;
 
-        fprintf ( stderr, "Interface: %s, Camera: %s %s\n", ifaceName,
-            vendorName, modelName );
+        *deviceId = 0;
+        if (( *p_spinNodeIsAvailable )( deviceIdHandle,
+            &deviceIdAvailable ) != SPINNAKER_ERR_SUCCESS ) {
+          fprintf ( stderr,
+              "Can't get Spinnaker camera id availability\n" );
+          ( void ) ( *p_spinCameraRelease )( cameraHandle );
+          ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+          ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+          ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+          ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+          ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+          return -OA_ERR_SYSTEM_ERROR;
+        }
+
+        if ( deviceIdAvailable ) {
+          if (( *p_spinNodeIsReadable )( deviceIdHandle,
+              &deviceIdReadable ) != SPINNAKER_ERR_SUCCESS ) {
+            fprintf ( stderr, "Can't get Spinnaker camera id readability\n" );
+            ( void ) ( *p_spinCameraRelease )( cameraHandle );
+            ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+            ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+            ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+            ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+            ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+            return -OA_ERR_SYSTEM_ERROR;
+          }
+          if ( deviceIdReadable ) {
+            if (( *p_spinStringGetValue )( deviceIdHandle, deviceId,
+                &deviceIdLen ) != SPINNAKER_ERR_SUCCESS ) {
+              fprintf ( stderr, "Can't get Spinnaker camera id string\n" );
+              ( void ) ( *p_spinCameraRelease )( cameraHandle );
+              ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+              ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+              ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+              ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+              ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+              return -OA_ERR_SYSTEM_ERROR;
+            }
+          }
+        }
+
+        if (( *p_spinNodeMapGetNode )( cameraNodeMapHandle, "DeviceType",
+            &deviceTypeHandle ) != SPINNAKER_ERR_SUCCESS ) {
+          fprintf ( stderr, "Can't get Spinnaker camera type node\n" );
+          ( void ) ( *p_spinCameraRelease )( cameraHandle );
+          ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+          ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+          ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+          ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+          ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+          return -OA_ERR_SYSTEM_ERROR;
+        }
+
+        if (( *p_spinNodeIsAvailable )( deviceTypeHandle,
+            &deviceTypeAvailable ) != SPINNAKER_ERR_SUCCESS ) {
+          fprintf ( stderr,
+              "Can't get Spinnaker camera type availability\n" );
+          ( void ) ( *p_spinCameraRelease )( cameraHandle );
+          ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+          ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+          ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+          ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+          ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+          return -OA_ERR_SYSTEM_ERROR;
+        }
+
+        if ( deviceTypeAvailable ) {
+          if (( *p_spinNodeIsReadable )( deviceTypeHandle,
+              &deviceTypeReadable ) != SPINNAKER_ERR_SUCCESS ) {
+            fprintf ( stderr, "Can't get Spinnaker camera type readability\n" );
+            ( void ) ( *p_spinCameraRelease )( cameraHandle );
+            ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+            ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+            ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+            ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+            ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+            return -OA_ERR_SYSTEM_ERROR;
+          }
+          if ( deviceTypeReadable ) {
+            if (( *p_spinEnumerationGetCurrentEntry )( deviceTypeHandle,
+              &currentEntryHandle ) != SPINNAKER_ERR_SUCCESS ) {
+              fprintf ( stderr,
+                  "Can't get Spinnaker enumeration current value\n" );
+              ( void ) ( *p_spinCameraRelease )( cameraHandle );
+              ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+              ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+              ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+              ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+              ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+              return -OA_ERR_SYSTEM_ERROR;
+            }
+
+            // Not entirely sure why this works when ...GetEnumValue doesn't
+            // as I'd have thought it's the enum value I want to check in the
+            // "if" condition below.  The Enum function throws an error (-1009)
+            // though.
+            if (( *p_spinEnumerationEntryGetIntValue )( currentEntryHandle,
+                &deviceType ) != SPINNAKER_ERR_SUCCESS ) {
+              fprintf ( stderr, "Can't get Spinnaker camera type value\n" );
+              ( void ) ( *p_spinCameraRelease )( cameraHandle );
+              ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+              ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+              ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+              ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+              ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+              return -OA_ERR_SYSTEM_ERROR;
+            }
+          }
+        }
+
+        if ( deviceType == DeviceType_GEV ) {
+          if (( *p_spinNodeMapGetNode )( cameraNodeMapHandle,
+             "GevDeviceIPAddress", &ipAddrHandle ) != SPINNAKER_ERR_SUCCESS ) {
+            fprintf ( stderr, "Can't get Spinnaker camera address node\n" );
+            ( void ) ( *p_spinCameraRelease )( cameraHandle );
+            ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+            ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+            ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+            ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+            ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+            return -OA_ERR_SYSTEM_ERROR;
+          }
+
+          if (( *p_spinNodeIsAvailable )( ipAddrHandle, &ipAddrAvailable )
+              != SPINNAKER_ERR_SUCCESS ) {
+            fprintf ( stderr,
+                "Can't get Spinnaker camera address availability\n" );
+            ( void ) ( *p_spinCameraRelease )( cameraHandle );
+            ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+            ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+            ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+            ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+            ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+            return -OA_ERR_SYSTEM_ERROR;
+          }
+
+          if ( ipAddrAvailable ) {
+            if (( *p_spinNodeIsReadable )( ipAddrHandle, &ipAddrReadable ) !=
+                SPINNAKER_ERR_SUCCESS ) {
+              fprintf ( stderr,
+                  "Can't get Spinnaker camera address readability\n" );
+              ( void ) ( *p_spinCameraRelease )( cameraHandle );
+              ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+              ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+              ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+              ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+              ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+              return -OA_ERR_SYSTEM_ERROR;
+            }
+            if ( ipAddrReadable ) {
+              if (( *p_spinIntegerGetValue )( ipAddrHandle, &ipAddr ) !=
+                  SPINNAKER_ERR_SUCCESS ) {
+                fprintf ( stderr,
+                    "Can't get Spinnaker camera address value\n" );
+                ( void ) ( *p_spinCameraRelease )( cameraHandle );
+                ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+                ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+                ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+                ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+                ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+                return -OA_ERR_SYSTEM_ERROR;
+              }
+            }
+          }
+        }
+
+        if ( *deviceId ) {
+          _oaInitCameraDeviceFunctionPointers ( &devices[ numFound ]);
+          devices[ numFound ].interface = OA_CAM_IF_SPINNAKER;
+          if ( deviceType == DeviceType_GEV ) {
+            ( void ) snprintf ( devices[ numFound ].deviceName,
+                OA_MAX_NAME_LEN+1, "%s %s (%ld.%ld.%ld.%ld)", vendorName,
+                modelName, ipAddr >> 24, ( ipAddr >> 16 ) & 0xff,
+                ( ipAddr >> 8 ) & 0xff, ipAddr & 0xff );
+          } else {
+            ( void ) snprintf ( devices[ numFound ].deviceName,
+                OA_MAX_NAME_LEN+1, "%s %s", vendorName, modelName );
+          }
+
+          ( void ) strcpy ( _private[ numFound ].deviceId, deviceId );
+          _private[ numFound ].ipAddress = ipAddr;
+
+          devices[ numFound ]._private = &_private[ numFound ];
+          devices[ numFound ].initCamera = oaSpinInitCamera;
+          devices[ numFound ].hasLoadableFirmware = 0;
+          if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
+            free (( void* ) devices );
+            free (( void* ) _private );
+            _oaFreeCameraDeviceList ( deviceList );
+            ( void ) ( *p_spinCameraRelease )( cameraHandle );
+            ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+            ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+            ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+            ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+            ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+            return ret;
+          }
+          deviceList->cameraList[ deviceList->numCameras++ ] =
+              &devices[ numFound ];
+          numFound++;
+
+          fprintf ( stderr, "Interface: %s, Camera: %s %s\n", ifaceName,
+              vendorName, modelName );
+        }
  
         if (( *p_spinCameraRelease )( cameraHandle ) !=
             SPINNAKER_ERR_SUCCESS ) {

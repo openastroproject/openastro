@@ -91,6 +91,11 @@ extern SPINNAKERC_API	( *p_spinNodeIsAvailable )( spinNodeHandle, bool8_t* );
 extern SPINNAKERC_API	( *p_spinNodeIsReadable )( spinNodeHandle, bool8_t* );
 extern SPINNAKERC_API	( *p_spinStringGetValue )( spinNodeHandle, char*,
 				size_t* );
+extern SPINNAKERC_API	( *p_spinIntegerGetValue )( spinNodeHandle, uint64_t* );
+extern SPINNAKERC_API	( *p_spinEnumerationEntryGetEnumValue )(
+				spinNodeHandle, size_t* );
+extern SPINNAKERC_API	( *p_spinEnumerationGetCurrentEntry )(
+				spinNodeHandle, spinNodeHandle* );
 extern SPINNAKERC_API	( *p_spinInterfaceGetCameras )( spinInterface,
 				spinCameraList );
 extern SPINNAKERC_API	( *p_spinCameraListGet )( spinCameraList, size_t,

@@ -55,12 +55,16 @@ typedef struct {
   unsigned short        productId;
   unsigned long         misc;
   uint64_t              guid;
+  uint64_t              ipAddress;
   uint8_t               unit;
   unsigned int          colour;
   unsigned int          cfaPattern;
   char                  sysPath[ PATH_MAX+1 ];
 #ifdef HAVE_LIBFLYCAPTURE2
   fc2PGRGuid		pgeGuid;
+#endif
+#ifdef HAVE_LIBSPINNAKER
+  char			deviceId[ 256 ]; // FIX ME -- magic no.
 #endif
 #ifdef HAVE_LIBTOUPCAM
   char			toupcamId[65];

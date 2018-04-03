@@ -37,6 +37,8 @@ struct Spinbuffer {
 
 typedef struct SPINNAKER_STATE {
   int			initialised;
+  uint64_t		deviceId;
+  uint64_t		ipAddress;
 
   // thread management
   pthread_t		controllerThread;
@@ -79,6 +81,9 @@ typedef struct SPINNAKER_STATE {
   void*			p_spinNodeIsAvailable;
   void*			p_spinNodeIsReadable;
   void*			p_spinStringGetValue;
+  void*			p_spinIntegerGetValue;
+  void*			p_spinEnumerationEntryGetEnumValue;
+  void*			p_spinEnumerationGetCurrentEntry;
   void*			p_spinInterfaceGetCameras;
   void*			p_spinCameraListGet;
   void*			p_spinCameraGetTLDeviceNodeMap;
