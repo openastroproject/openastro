@@ -75,6 +75,12 @@ SPINNAKERC_API	( *p_spinCameraListGet )( spinCameraList, size_t, spinCamera* );
 SPINNAKERC_API	( *p_spinCameraGetTLDeviceNodeMap )( spinCamera,
 			spinNodeMapHandle* );
 SPINNAKERC_API	( *p_spinCameraRelease )( spinCamera );
+SPINNAKERC_API	( *p_spinCameraGetNodeMap )( spinCamera, spinNodeMapHandle* );
+SPINNAKERC_API	( *p_spinCategoryGetNumFeatures )( spinNodeMapHandle, size_t* );
+SPINNAKERC_API	( *p_spinCategoryGetFeatureByIndex )( spinNodeMapHandle,
+			size_t, spinNodeMapHandle* );
+SPINNAKERC_API	( *p_spinNodeGetType )( spinNodeHandle, spinNodeType* );
+SPINNAKERC_API	( *p_spinNodeGetDisplayName )( spinNodeHandle, char*, size_t* );
 
 
 #if HAVE_LIBDL
@@ -102,14 +108,16 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
   size_t		ifaceNameLen = SPINNAKER_MAX_BUFF_LEN;
   spinCamera		cameraHandle;
   spinNodeMapHandle	cameraNodeMapHandle = 0;
+  /*
   spinNodeHandle	vendorNameHandle = 0;
   bool8_t		vendorNameAvailable = False;
   bool8_t		vendorNameReadable = False;
+  char			vendorName[ SPINNAKER_MAX_BUFF_LEN ];
+  size_t		vendorNameLen = SPINNAKER_MAX_BUFF_LEN;
+  */
   spinNodeHandle	modelNameHandle = 0;
   bool8_t		modelNameAvailable = False;
   bool8_t		modelNameReadable = False;
-  char			vendorName[ SPINNAKER_MAX_BUFF_LEN ];
-  size_t		vendorNameLen = SPINNAKER_MAX_BUFF_LEN;
   char			modelName[ SPINNAKER_MAX_BUFF_LEN ];
   size_t		modelNameLen = SPINNAKER_MAX_BUFF_LEN;
   spinNodeHandle	deviceIdHandle = 0;
@@ -252,6 +260,30 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
       "spinCameraRelease" ))) {
     return 0;
   }
+  if (!( *( void** )( &p_spinCameraGetNodeMap ) = _getDLSym ( libHandle,
+      "spinCameraGetNodeMap" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinCameraGetNodeMap ) = _getDLSym ( libHandle,
+      "spinCameraGetNodeMap" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinCategoryGetNumFeatures ) = _getDLSym ( libHandle,
+      "spinCategoryGetNumFeatures" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinCategoryGetFeatureByIndex ) = _getDLSym (
+      libHandle, "spinCategoryGetFeatureByIndex" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinNodeGetType ) = _getDLSym ( libHandle,
+      "spinNodeGetType" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinNodeGetDisplayName ) = _getDLSym ( libHandle,
+      "spinNodeGetDisplayName" ))) {
+    return 0;
+  }
 
 #else /* HAVE_LIBDL */
 
@@ -282,6 +314,11 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
   p_spinCameraListGet = spinCameraListGet;
   p_spinCameraGetTLDeviceNodeMap = spinCameraGetTLDeviceNodeMap;
   p_spinCameraRelease = spinCameraRelease;
+  p_spinCameraGetNodeMap = spinCameraGetNodeMap;
+  p_spinCategoryGetNumFeatures = spinCategoryGetNumFeatures;
+  p_spinCategoryGetFeatureByIndex = spinCategoryGetFeatureByIndex;
+  p_spinNodeGetType = spinNodeGetType;
+  p_spinNodeGetDisplayName = spinNodeGetDisplayName;
 
 #endif /* HAVE_LIBDL */
 
@@ -497,6 +534,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
           return -OA_ERR_SYSTEM_ERROR;
         }
 
+        /*
         if (( *p_spinNodeMapGetNode )( cameraNodeMapHandle, "DeviceVendorName",
             &vendorNameHandle ) != SPINNAKER_ERR_SUCCESS ) {
           fprintf ( stderr, "Can't get Spinnaker camera name node\n" );
@@ -552,6 +590,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
         } else {
           ( void ) strcpy ( vendorName, "vendor unavailable" );
         }
+        */
 
         if (( *p_spinNodeMapGetNode )( cameraNodeMapHandle,
             "DeviceModelName", &modelNameHandle ) !=
@@ -796,12 +835,12 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
           devices[ numFound ].interface = OA_CAM_IF_SPINNAKER;
           if ( deviceType == DeviceType_GEV ) {
             ( void ) snprintf ( devices[ numFound ].deviceName,
-                OA_MAX_NAME_LEN+1, "%s %s (%ld.%ld.%ld.%ld)", vendorName,
-                modelName, ipAddr >> 24, ( ipAddr >> 16 ) & 0xff,
-                ( ipAddr >> 8 ) & 0xff, ipAddr & 0xff );
+                OA_MAX_NAME_LEN+1, "%s (%ld.%ld.%ld.%ld)", modelName,
+                ipAddr >> 24, ( ipAddr >> 16 ) & 0xff, ( ipAddr >> 8 ) & 0xff,
+                ipAddr & 0xff );
           } else {
             ( void ) snprintf ( devices[ numFound ].deviceName,
-                OA_MAX_NAME_LEN+1, "%s %s", vendorName, modelName );
+                OA_MAX_NAME_LEN+1, "%s", modelName );
           }
 
           ( void ) strcpy ( _private[ numFound ].deviceId, deviceId );
@@ -826,8 +865,8 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
               &devices[ numFound ];
           numFound++;
 
-          fprintf ( stderr, "Interface: %s, Camera: %s %s\n", ifaceName,
-              vendorName, modelName );
+          fprintf ( stderr, "Interface: %s, Camera: %s\n", ifaceName,
+              modelName );
         }
  
         if (( *p_spinCameraRelease )( cameraHandle ) !=

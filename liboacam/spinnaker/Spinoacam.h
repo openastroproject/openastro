@@ -103,6 +103,15 @@ extern SPINNAKERC_API	( *p_spinCameraListGet )( spinCameraList, size_t,
 extern SPINNAKERC_API	( *p_spinCameraGetTLDeviceNodeMap )( spinCamera,
 				spinNodeMapHandle* );
 extern SPINNAKERC_API	( *p_spinCameraRelease )( spinCamera );
+extern SPINNAKERC_API	( *p_spinCameraGetNodeMap )( spinCamera,
+				spinNodeMapHandle* );
+extern SPINNAKERC_API	( *p_spinCategoryGetNumFeatures )( spinNodeMapHandle,
+				size_t* );
+extern SPINNAKERC_API	( *p_spinCategoryGetFeatureByIndex )( spinNodeMapHandle,
+				size_t, spinNodeMapHandle* );
+extern SPINNAKERC_API	( *p_spinNodeGetType )( spinNodeHandle, spinNodeType* );
+extern SPINNAKERC_API	( *p_spinNodeGetDisplayName )( spinNodeHandle, char*,
+				size_t* );
 
 #define SPINNAKER_MAX_BUFF_LEN	256
 
