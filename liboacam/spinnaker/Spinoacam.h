@@ -112,6 +112,8 @@ extern SPINNAKERC_API	( *p_spinCategoryGetFeatureByIndex )( spinNodeMapHandle,
 extern SPINNAKERC_API	( *p_spinNodeGetType )( spinNodeHandle, spinNodeType* );
 extern SPINNAKERC_API	( *p_spinNodeGetDisplayName )( spinNodeHandle, char*,
 				size_t* );
+extern SPINNAKERC_API	( *p_spinCameraInit )( spinCamera );
+extern SPINNAKERC_API	( *p_spinCameraDeInit )( spinCamera );
 
 #define SPINNAKER_MAX_BUFF_LEN	256
 

@@ -40,6 +40,10 @@
 
 static void	_spinInitFunctionPointers ( oaCamera* );
 static int	_processCameraEntry ( spinCamera, oaCamera* );
+static int	_processAnalogueControls ( spinNodeHandle, oaCamera* );
+static int	_processDeviceControls ( spinNodeHandle, oaCamera* );
+static int	_processAquisitionControls ( spinNodeHandle, oaCamera* );
+static int	_processFormatControls ( spinNodeHandle, oaCamera* );
 
 oaCamera*
 oaSpinInitCamera ( oaCameraDevice* device )
@@ -171,7 +175,8 @@ oaSpinInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  for ( i = 0; i < numInterfaces; i++ ) {
+  found = 0;
+  for ( i = 0; i < numInterfaces && !found; i++ ) {
     if (( *p_spinInterfaceListGet )( ifaceListHandle, i, &ifaceHandle ) !=
         SPINNAKER_ERR_SUCCESS ) {
       fprintf ( stderr, "Can't get Spinnaker interface from list\n" );
@@ -208,7 +213,6 @@ oaSpinInitCamera ( oaCameraDevice* device )
       return 0;
     }
 
-    found = 0;
     if ( numCameras ) {
       for ( j = 0; j < numCameras && !found; j++ ) {
         if (( *p_spinCameraListGet )( cameraListHandle, j, &cameraHandle ) !=
@@ -287,6 +291,17 @@ oaSpinInitCamera ( oaCameraDevice* device )
 
             if ( !strcmp ( deviceId, devInfo->deviceId )) {
               found = 1;
+fprintf ( stderr, "matched camera entry\n" );
+              if ( _processCameraEntry ( cameraHandle, camera ) < 0 ) {
+                fprintf ( stderr, "Failed to process camera nodemap\n" );
+                ( void ) ( *p_spinCameraRelease )( cameraHandle );
+                ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+                ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+                ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+                ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+                ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+                return 0;
+              }
             }
           }
         }
@@ -345,11 +360,8 @@ oaSpinInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  if ( _processCameraEntry ( cameraHandle, camera ) < 0 ) {
-    fprintf ( stderr, "Failed to process camera nodemap\n" );
-    ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
-    return 0;
-  }
+  // Don't want to do this here, eventually
+  ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
 
   return 0;
 }
@@ -360,74 +372,226 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 {
   spinNodeMapHandle	cameraNodeMapHandle = 0;
   spinNodeHandle	rootHandle = 0;
-  spinNodeHandle	featureHandle = 0;
+  spinNodeHandle	categoryHandle = 0;
   spinNodeType		nodeType;
-  char			featureName[ SPINNAKER_MAX_BUFF_LEN ];
-  size_t		featureNameLen = SPINNAKER_MAX_BUFF_LEN;
-  size_t		numFeatures;
-  int			i;
+  char			categoryName[ SPINNAKER_MAX_BUFF_LEN ];
+  size_t		categoryNameLen;
+  size_t		numCategories;
+  int			i, ret;
   bool8_t		available, readable;
+  int			err;
 
-  if (( *p_spinCameraGetNodeMap )( cameraHandle, &cameraNodeMapHandle ) !=
+fprintf ( stderr, "processing camera entry\n" );
+  if (( *p_spinCameraInit )( cameraHandle ) != SPINNAKER_ERR_SUCCESS ) {
+    fprintf ( stderr, "Can't initialise Spinnaker camera\n" );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if (( err = ( *p_spinCameraGetNodeMap )( cameraHandle, &cameraNodeMapHandle )) !=
       SPINNAKER_ERR_SUCCESS ) {
-    fprintf ( stderr, "Can't get Spinnaker camera nodemap\n" );
+    fprintf ( stderr, "Can't get Spinnaker camera nodemap: err %d\n", err );
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
   if (( *p_spinNodeMapGetNode )( cameraNodeMapHandle, "Root", &rootHandle ) !=
       SPINNAKER_ERR_SUCCESS ) {
     fprintf ( stderr, "Can't get Spinnaker camera root nodemap\n" );
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
-  if (( *p_spinCategoryGetNumFeatures )( rootHandle, &numFeatures ) !=
+  if (( *p_spinCategoryGetNumFeatures )( rootHandle, &numCategories ) !=
       SPINNAKER_ERR_SUCCESS ) {
-    fprintf ( stderr, "Can't get Spinnaker number of root features\n" );
+    fprintf ( stderr, "Can't get Spinnaker number of root categories\n" );
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
     return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  for ( i = 0; i < numCategories; i++ ) {
+    if (( *p_spinCategoryGetFeatureByIndex )( rootHandle, i, &categoryHandle )
+        != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker category handle\n" );
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    available = readable = False;
+    if (( *p_spinNodeIsAvailable )( categoryHandle, &available ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker category available\n" );
+      ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if ( available ) {
+      if (( *p_spinNodeIsReadable )( categoryHandle, &readable ) !=
+          SPINNAKER_ERR_SUCCESS ) {
+        fprintf ( stderr, "Can't get Spinnaker category readable\n" );
+        ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+    } else {
+      fprintf ( stderr, "unavailable Spinnaker category\n" );
+      continue;
+    }
+    if ( !readable ) {
+      fprintf ( stderr, "unreadable Spinnaker category\n" );
+      continue;
+    }
+
+    if (( *p_spinNodeGetType )( categoryHandle, &nodeType ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker category node type\n" );
+      ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    categoryNameLen = SPINNAKER_MAX_BUFF_LEN;
+    if (( *p_spinNodeGetDisplayName )( categoryHandle, categoryName,
+        &categoryNameLen ) != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker category name\n" );
+      ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    if ( nodeType == CategoryNode ) {
+      if ( !strcmp ( "Analog Control", categoryName )) {
+        if (( ret = _processAnalogueControls ( categoryHandle, camera )) < 0 ) {
+          ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+          return ret;
+        }
+      }
+      if ( !strcmp ( "Device Control", categoryName )) {
+        if (( ret = _processDeviceControls ( categoryHandle, camera )) < 0 ) {
+          ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+          return ret;
+        }
+      }
+      if ( !strcmp ( "Acquisition Control", categoryName )) {
+        if (( ret = _processAquisitionControls ( categoryHandle, camera ))
+            < 0 ) {
+          ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+          return ret;
+        }
+      }
+      if ( !strcmp ( "Image Format Control", categoryName )) {
+        if (( ret = _processFormatControls ( categoryHandle, camera )) < 0 ) {
+          ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+          return ret;
+        }
+      }
+      if ( !strcmp ( "User Set Control", categoryName ) ||
+          !strcmp ( "Digital I/O Control", categoryName ) ||
+          !strcmp ( "LUT Control", categoryName ) ||
+          !strcmp ( "Transport Layer Control", categoryName ) ||
+          !strcmp ( "Chunk Data Control", categoryName ) ||
+          !strcmp ( "Event Control", categoryName )) {
+        // For the time being we ignore these
+        continue;
+      }
+    } else {
+      fprintf ( stderr, "Unhandled Spinnaker camera node '%s', type %d\n",
+          categoryName, nodeType );
+    }
+  }
+
+  // Won't eventually want to do this here
+  ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+
+  return -OA_ERR_SYSTEM_ERROR;
+}
+
+
+static int
+_processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
+{
+  spinNodeHandle	featureHandle = 0;
+  spinNodeType		nodeType;
+  char			featureName[ SPINNAKER_MAX_BUFF_LEN ];
+  size_t		featureNameLen;
+  size_t		numFeatures;
+  int			i, ret;
+  bool8_t		available, readable;
+
+  if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    fprintf ( stderr, "Can't get Spinnaker number of analogue features\n" );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if ( numFeatures < 1 ) {
+    fprintf ( stderr, "number of analogue features: %ld\n", numFeatures );
+    return OA_ERR_NONE;
   }
 
   for ( i = 0; i < numFeatures; i++ ) {
-    if (( *p_spinCategoryGetFeatureByIndex )( rootHandle, i, &featureHandle ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-      fprintf ( stderr, "Can't get Spinnaker feature handle\n" );
+    if (( *p_spinCategoryGetFeatureByIndex )( categoryHandle, i,
+        &featureHandle ) != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker analogue feature handle\n" );
       return -OA_ERR_SYSTEM_ERROR;
     }
 
     available = readable = False;
     if (( *p_spinNodeIsAvailable )( featureHandle, &available ) !=
         SPINNAKER_ERR_SUCCESS ) {
-      fprintf ( stderr, "Can't get Spinnaker feature available\n" );
+      fprintf ( stderr, "Can't get Spinnaker analogue feature available\n" );
       return -OA_ERR_SYSTEM_ERROR;
     }
     if ( available ) {
       if (( *p_spinNodeIsReadable )( featureHandle, &readable ) !=
           SPINNAKER_ERR_SUCCESS ) {
-        fprintf ( stderr, "Can't get Spinnaker feature readable\n" );
+        fprintf ( stderr, "Can't get Spinnaker analogue feature readable\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
     } else {
-      fprintf ( stderr, "unavailable Spinnaker feature\n" );
+      // No real benefit in showing this.  It seems to be normal behaviour
+      // to have unavailable feature nodes
+      // fprintf ( stderr, "unavailable Spinnaker analogue feature %d\n", i );
       continue;
     }
     if ( !readable ) {
-      fprintf ( stderr, "unreadable Spinnaker feature\n" );
+      fprintf ( stderr, "unreadable Spinnaker analogue feature %d\n", i );
       continue;
     }
 
     if (( *p_spinNodeGetType )( featureHandle, &nodeType ) !=
         SPINNAKER_ERR_SUCCESS ) {
-      fprintf ( stderr, "Can't get Spinnaker feature node type\n" );
+      fprintf ( stderr, "Can't get Spinnaker analogue feature node type\n" );
       return -OA_ERR_SYSTEM_ERROR;
     }
 
+    featureNameLen = SPINNAKER_MAX_BUFF_LEN;
     if (( *p_spinNodeGetDisplayName )( featureHandle, featureName,
         &featureNameLen ) != SPINNAKER_ERR_SUCCESS ) {
-      fprintf ( stderr, "Can't get Spinnaker feature readable\n" );
-      return -OA_ERR_SYSTEM_ERROR;
+      fprintf ( stderr, "Can't get Spinnaker analogue feature %d name\n", i );
+      ( void ) strcpy ( featureName, "unknown" );
     }
+
+    fprintf ( stderr, "feature '%s', type %d found\n", featureName, nodeType );
   }
 
-  return -OA_ERR_SYSTEM_ERROR;
+  return -OA_ERR_NONE;
+}
+
+
+static int
+_processDeviceControls ( spinNodeHandle featureHandle, oaCamera* camera )
+{
+  return -OA_ERR_NONE;
+}
+
+
+static int
+_processAquisitionControls ( spinNodeHandle featureHandle, oaCamera* camera )
+{
+  return -OA_ERR_NONE;
+}
+
+
+static int
+_processFormatControls ( spinNodeHandle featureHandle, oaCamera* camera )
+{
+  return -OA_ERR_NONE;
 }
 
 
