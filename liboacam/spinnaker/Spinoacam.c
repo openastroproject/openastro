@@ -62,6 +62,7 @@ SPINNAKERC_API	( *p_spinNodeMapGetNode )( spinNodeMapHandle, const char*,
 			spinNodeHandle* );
 SPINNAKERC_API	( *p_spinNodeIsAvailable )( spinNodeHandle, bool8_t* );
 SPINNAKERC_API	( *p_spinNodeIsReadable )( spinNodeHandle, bool8_t* );
+SPINNAKERC_API	( *p_spinNodeIsWritable )( spinNodeHandle, bool8_t* );
 SPINNAKERC_API	( *p_spinStringGetValue )( spinNodeHandle, char*, size_t* );
 SPINNAKERC_API	( *p_spinIntegerGetValue )( spinNodeHandle, uint64_t* );
 SPINNAKERC_API	( *p_spinEnumerationEntryGetEnumValue )( spinNodeHandle,
@@ -83,6 +84,11 @@ SPINNAKERC_API	( *p_spinNodeGetType )( spinNodeHandle, spinNodeType* );
 SPINNAKERC_API	( *p_spinNodeGetDisplayName )( spinNodeHandle, char*, size_t* );
 SPINNAKERC_API	( *p_spinCameraInit )( spinCamera );
 SPINNAKERC_API	( *p_spinCameraDeInit )( spinCamera );
+SPINNAKERC_API	( *p_spinCameraGetGuiXml )( spinCamera, char*, size_t* );
+SPINNAKERC_API	( *p_spinEnumerationGetNumEntries )( spinNodeHandle, size_t* );
+SPINNAKERC_API	( *p_spinEnumerationGetEntryByIndex )( spinNodeHandle, size_t,
+			spinNodeHandle* );
+SPINNAKERC_API	( *p_spinNodeToString )( spinNodeHandle, char*, size_t* );
 
 
 #if HAVE_LIBDL
@@ -226,6 +232,10 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
       "spinNodeIsReadable" ))) {
     return 0;
   }
+  if (!( *( void** )( &p_spinNodeIsWritable ) = _getDLSym ( libHandle,
+      "spinNodeIsWritable" ))) {
+    return 0;
+  }
   if (!( *( void** )( &p_spinStringGetValue ) = _getDLSym ( libHandle,
       "spinStringGetValue" ))) {
     return 0;
@@ -294,6 +304,22 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
       "spinCameraDeInit" ))) {
     return 0;
   }
+  if (!( *( void** )( &p_spinCameraGetGuiXml ) = _getDLSym ( libHandle,
+      "spinCameraGetGuiXml" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinEnumerationGetNumEntries ) = _getDLSym ( libHandle,
+      "spinEnumerationGetNumEntries" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinEnumerationGetEntryByIndex ) = _getDLSym (
+      libHandle, "spinEnumerationGetEntryByIndex" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinNodeToString ) = _getDLSym ( libHandle,
+      "spinNodeToString" ))) {
+    return 0;
+  }
 
 #else /* HAVE_LIBDL */
 
@@ -315,6 +341,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
   p_spinNodeMapGetNode = spinNodeMapGetNode;
   p_spinNodeIsAvailable = spinNodeIsAvailable;
   p_spinNodeIsReadable = spinNodeIsReadable;
+  p_spinNodeIsWritable = spinNodeIsWritable;
   p_spinStringGetValue = spinStringGetValue;
   p_spinIntegerGetValue = spinIntegerGetValue;
   p_spinEnumerationEntryGetEnumValue = spinEnumerationEntryGetEnumValue;
@@ -331,6 +358,10 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
   p_spinNodeGetDisplayName = spinNodeGetDisplayName;
   p_spinCameraInit = spinCameraInit;
   p_spinCameraDeInit = spinCameraDeInit;
+  p_spinCameraGetGuiXml = spinCameraGetGuiXml;
+  p_spinEnumerationGetNumEntries = spinEnumerationGetNumEntries;
+  p_spinEnumerationGetEntryByIndex = spinEnumerationGetEntryByIndex;
+  p_spinNodeToString = spinNodeToString;
 
 #endif /* HAVE_LIBDL */
 

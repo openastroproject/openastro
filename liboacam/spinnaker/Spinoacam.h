@@ -89,6 +89,7 @@ extern SPINNAKERC_API	( *p_spinNodeMapGetNode )( spinNodeMapHandle,
 				const char*, spinNodeHandle* );
 extern SPINNAKERC_API	( *p_spinNodeIsAvailable )( spinNodeHandle, bool8_t* );
 extern SPINNAKERC_API	( *p_spinNodeIsReadable )( spinNodeHandle, bool8_t* );
+extern SPINNAKERC_API	( *p_spinNodeIsWritable )( spinNodeHandle, bool8_t* );
 extern SPINNAKERC_API	( *p_spinStringGetValue )( spinNodeHandle, char*,
 				size_t* );
 extern SPINNAKERC_API	( *p_spinIntegerGetValue )( spinNodeHandle, uint64_t* );
@@ -114,6 +115,14 @@ extern SPINNAKERC_API	( *p_spinNodeGetDisplayName )( spinNodeHandle, char*,
 				size_t* );
 extern SPINNAKERC_API	( *p_spinCameraInit )( spinCamera );
 extern SPINNAKERC_API	( *p_spinCameraDeInit )( spinCamera );
+extern SPINNAKERC_API	( *p_spinCameraGetGuiXml )( spinCamera, char*,
+				size_t* );
+extern SPINNAKERC_API	( *p_spinEnumerationGetNumEntries )( spinNodeHandle,
+				size_t* );
+extern SPINNAKERC_API	( *p_spinEnumerationGetEntryByIndex )( spinNodeHandle,
+				size_t, spinNodeHandle* );
+extern SPINNAKERC_API	( *p_spinNodeToString )( spinNodeHandle, char*,
+				size_t* );
 
 #define SPINNAKER_MAX_BUFF_LEN	256
 

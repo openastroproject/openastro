@@ -44,6 +44,8 @@ static int	_processAnalogueControls ( spinNodeHandle, oaCamera* );
 static int	_processDeviceControls ( spinNodeHandle, oaCamera* );
 static int	_processAquisitionControls ( spinNodeHandle, oaCamera* );
 static int	_processFormatControls ( spinNodeHandle, oaCamera* );
+static void	_showStringNode ( spinNodeHandle );
+static void	_showEnumerationNode ( spinNodeHandle );
 
 oaCamera*
 oaSpinInitCamera ( oaCameraDevice* device )
@@ -387,8 +389,8 @@ fprintf ( stderr, "processing camera entry\n" );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
-  if (( err = ( *p_spinCameraGetNodeMap )( cameraHandle, &cameraNodeMapHandle )) !=
-      SPINNAKER_ERR_SUCCESS ) {
+  if (( err = ( *p_spinCameraGetNodeMap )( cameraHandle,
+      &cameraNodeMapHandle )) != SPINNAKER_ERR_SUCCESS ) {
     fprintf ( stderr, "Can't get Spinnaker camera nodemap: err %d\n", err );
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
     return -OA_ERR_SYSTEM_ERROR;
@@ -511,7 +513,7 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
   size_t		featureNameLen;
   size_t		numFeatures;
   int			i, ret;
-  bool8_t		available, readable;
+  bool8_t		available, readable, writeable;
 
   if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
       SPINNAKER_ERR_SUCCESS ) {
@@ -531,7 +533,7 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
       return -OA_ERR_SYSTEM_ERROR;
     }
 
-    available = readable = False;
+    available = readable = writeable = False;
     if (( *p_spinNodeIsAvailable )( featureHandle, &available ) !=
         SPINNAKER_ERR_SUCCESS ) {
       fprintf ( stderr, "Can't get Spinnaker analogue feature available\n" );
@@ -543,14 +545,19 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
         fprintf ( stderr, "Can't get Spinnaker analogue feature readable\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
+      if (( *p_spinNodeIsWritable )( featureHandle, &writeable ) !=
+          SPINNAKER_ERR_SUCCESS ) {
+        fprintf ( stderr, "Can't get Spinnaker analogue feature writeable\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
     } else {
       // No real benefit in showing this.  It seems to be normal behaviour
       // to have unavailable feature nodes
       // fprintf ( stderr, "unavailable Spinnaker analogue feature %d\n", i );
       continue;
     }
-    if ( !readable ) {
-      fprintf ( stderr, "unreadable Spinnaker analogue feature %d\n", i );
+    if ( !readable && !writeable ) {
+      fprintf ( stderr, "inaccessible Spinnaker analogue feature %d\n", i );
       continue;
     }
 
@@ -567,7 +574,23 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
       ( void ) strcpy ( featureName, "unknown" );
     }
 
-    fprintf ( stderr, "feature '%s', type %d found\n", featureName, nodeType );
+    fprintf ( stderr, "analogue feature %d '%s', type %d found\n", i,
+        featureName, nodeType );
+
+    // It's not clear if features are always numbered in the same order for
+    // all cameras, but the fact that feature numbers are skipped suggests
+    // that might be so
+
+    switch ( nodeType ) {
+      case StringNode:
+        _showStringNode ( featureHandle );
+        break;
+      case EnumerationNode:
+        _showEnumerationNode ( featureHandle );
+        break;
+      default:
+        break;
+    }
   }
 
   return -OA_ERR_NONE;
@@ -575,23 +598,337 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 
 
 static int
-_processDeviceControls ( spinNodeHandle featureHandle, oaCamera* camera )
+_processDeviceControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 {
+  spinNodeHandle	featureHandle = 0;
+  spinNodeType		nodeType;
+  char			featureName[ SPINNAKER_MAX_BUFF_LEN ];
+  size_t		featureNameLen;
+  size_t		numFeatures;
+  int			i, ret;
+  bool8_t		available, readable, writeable;
+
+  if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    fprintf ( stderr, "Can't get Spinnaker number of device features\n" );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if ( numFeatures < 1 ) {
+    fprintf ( stderr, "number of device features: %ld\n", numFeatures );
+    return OA_ERR_NONE;
+  }
+
+  for ( i = 0; i < numFeatures; i++ ) {
+    if (( *p_spinCategoryGetFeatureByIndex )( categoryHandle, i,
+        &featureHandle ) != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker device feature handle\n" );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    available = readable = writeable = False;
+    if (( *p_spinNodeIsAvailable )( featureHandle, &available ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker device feature available\n" );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if ( available ) {
+      if (( *p_spinNodeIsReadable )( featureHandle, &readable ) !=
+          SPINNAKER_ERR_SUCCESS ) {
+        fprintf ( stderr, "Can't get Spinnaker device feature readable\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      if (( *p_spinNodeIsWritable )( featureHandle, &writeable ) !=
+          SPINNAKER_ERR_SUCCESS ) {
+        fprintf ( stderr, "Can't get Spinnaker device feature writeable\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+    } else {
+      // No real benefit in showing this.  It seems to be normal behaviour
+      // to have unavailable device feature nodes
+      // fprintf ( stderr, "unavailable Spinnaker device feature %d\n", i );
+      continue;
+    }
+    if ( !readable && !writeable ) {
+      fprintf ( stderr, "inaccessible Spinnaker device feature %d\n", i );
+      continue;
+    }
+
+    if (( *p_spinNodeGetType )( featureHandle, &nodeType ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker device feature node type\n" );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    featureNameLen = SPINNAKER_MAX_BUFF_LEN;
+    if (( *p_spinNodeGetDisplayName )( featureHandle, featureName,
+        &featureNameLen ) != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker device feature %d name\n", i );
+      ( void ) strcpy ( featureName, "unknown" );
+    }
+
+    fprintf ( stderr, "device feature %d '%s', type %d found\n", i,
+        featureName, nodeType );
+
+    // It's not clear if features are always numbered in the same order for
+    // all cameras, but the fact that feature numbers are skipped suggests
+    // that might be so
+
+    switch ( nodeType ) {
+      case StringNode:
+        _showStringNode ( featureHandle );
+        break;
+      case EnumerationNode:
+        _showEnumerationNode ( featureHandle );
+        break;
+      default:
+        break;
+    }
+  }
+
   return -OA_ERR_NONE;
 }
 
 
 static int
-_processAquisitionControls ( spinNodeHandle featureHandle, oaCamera* camera )
+_processAquisitionControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 {
+  spinNodeHandle	featureHandle = 0;
+  spinNodeType		nodeType;
+  char			featureName[ SPINNAKER_MAX_BUFF_LEN ];
+  size_t		featureNameLen;
+  size_t		numFeatures;
+  int			i, ret;
+  bool8_t		available, readable, writeable;
+
+  if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    fprintf ( stderr, "Can't get Spinnaker number of aquisition features\n" );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if ( numFeatures < 1 ) {
+    fprintf ( stderr, "number of aquisition features: %ld\n", numFeatures );
+    return OA_ERR_NONE;
+  }
+
+  for ( i = 0; i < numFeatures; i++ ) {
+    if (( *p_spinCategoryGetFeatureByIndex )( categoryHandle, i,
+        &featureHandle ) != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker aquisition feature handle\n" );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    available = readable = writeable = False;
+    if (( *p_spinNodeIsAvailable )( featureHandle, &available ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker aquisition feature available\n" );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if ( available ) {
+      if (( *p_spinNodeIsReadable )( featureHandle, &readable ) !=
+          SPINNAKER_ERR_SUCCESS ) {
+        fprintf ( stderr, "Can't get Spinnaker aquisition feature readable\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      if (( *p_spinNodeIsWritable )( featureHandle, &writeable ) !=
+          SPINNAKER_ERR_SUCCESS ) {
+        fprintf ( stderr, "Can't get Spinnaker aquisition feature writeable\n"
+            );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+    } else {
+      // No real benefit in showing this.  It seems to be normal behaviour
+      // to have unavailable feature nodes
+      // fprintf ( stderr, "unavailable Spinnaker aquisition feature %d\n", i );
+      continue;
+    }
+    if ( !readable && !writeable ) {
+      fprintf ( stderr, "inaccessible Spinnaker aquisition feature %d\n", i );
+      continue;
+    }
+
+    if (( *p_spinNodeGetType )( featureHandle, &nodeType ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker aquisition feature node type\n" );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    featureNameLen = SPINNAKER_MAX_BUFF_LEN;
+    if (( *p_spinNodeGetDisplayName )( featureHandle, featureName,
+        &featureNameLen ) != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker aquisition feature %d name\n", i );
+      ( void ) strcpy ( featureName, "unknown" );
+    }
+
+    fprintf ( stderr, "acquisition feature %d '%s', type %d found\n", i,
+        featureName, nodeType );
+
+    // It's not clear if features are always numbered in the same order for
+    // all cameras, but the fact that feature numbers are skipped suggests
+    // that might be so
+
+    switch ( nodeType ) {
+      case StringNode:
+        _showStringNode ( featureHandle );
+        break;
+      case EnumerationNode:
+        _showEnumerationNode ( featureHandle );
+        break;
+      default:
+        break;
+    }
+  }
+
   return -OA_ERR_NONE;
 }
 
 
 static int
-_processFormatControls ( spinNodeHandle featureHandle, oaCamera* camera )
+_processFormatControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 {
+  spinNodeHandle	featureHandle = 0;
+  spinNodeType		nodeType;
+  char			featureName[ SPINNAKER_MAX_BUFF_LEN ];
+  size_t		featureNameLen;
+  size_t		numFeatures;
+  int			i, ret;
+  bool8_t		available, readable, writeable;
+
+  if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    fprintf ( stderr, "Can't get Spinnaker number of format features\n" );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if ( numFeatures < 1 ) {
+    fprintf ( stderr, "number of format features: %ld\n", numFeatures );
+    return OA_ERR_NONE;
+  }
+
+  for ( i = 0; i < numFeatures; i++ ) {
+    if (( *p_spinCategoryGetFeatureByIndex )( categoryHandle, i,
+        &featureHandle ) != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker format feature handle\n" );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    available = readable = False;
+    if (( *p_spinNodeIsAvailable )( featureHandle, &available ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker format feature available\n" );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if ( available ) {
+      if (( *p_spinNodeIsReadable )( featureHandle, &readable ) !=
+          SPINNAKER_ERR_SUCCESS ) {
+        fprintf ( stderr, "Can't get Spinnaker format feature readable\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      if (( *p_spinNodeIsWritable )( featureHandle, &writeable ) !=
+          SPINNAKER_ERR_SUCCESS ) {
+        fprintf ( stderr, "Can't get Spinnaker format feature writeable\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+    } else {
+      // No real benefit in showing this.  It seems to be normal behaviour
+      // to have unavailable feature nodes
+      // fprintf ( stderr, "unavailable Spinnaker format feature %d\n", i );
+      continue;
+    }
+    if ( !readable && !writeable ) {
+      fprintf ( stderr, "inaccessible Spinnaker format feature %d\n", i );
+      continue;
+    }
+
+    if (( *p_spinNodeGetType )( featureHandle, &nodeType ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker format feature node type\n" );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    featureNameLen = SPINNAKER_MAX_BUFF_LEN;
+    if (( *p_spinNodeGetDisplayName )( featureHandle, featureName,
+        &featureNameLen ) != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker format feature %d name\n", i );
+      ( void ) strcpy ( featureName, "unknown" );
+    }
+
+    fprintf ( stderr, "format feature %d '%s', type %d found\n", i,
+        featureName, nodeType );
+
+    // It's not clear if features are always numbered in the same order for
+    // all cameras, but the fact that feature numbers are skipped suggests
+    // that might be so
+
+    switch ( nodeType ) {
+      case StringNode:
+        _showStringNode ( featureHandle );
+        break;
+      case EnumerationNode:
+        _showEnumerationNode ( featureHandle );
+        break;
+      default:
+        break;
+    }
+  }
+
   return -OA_ERR_NONE;
+}
+
+
+static void
+_showStringNode ( spinNodeHandle stringNode )
+{
+  char                  string[ SPINNAKER_MAX_BUFF_LEN ];
+  size_t                stringLen = SPINNAKER_MAX_BUFF_LEN;
+
+  if (( *p_spinNodeToString )( stringNode, string, &stringLen )
+      != SPINNAKER_ERR_SUCCESS ) {
+    fprintf ( stderr, "Can't get Spinnaker string value\n" );
+    return;
+  }
+
+  fprintf ( stderr, "  [%s]\n", string );
+  return;
+}
+
+
+static void
+_showEnumerationNode ( spinNodeHandle enumNode )
+{
+  size_t		numEntries;
+  int			i;
+  spinNodeHandle	entryHandle;
+  char			entryName[ SPINNAKER_MAX_BUFF_LEN ];
+  size_t		entryNameLen;
+
+  fprintf ( stderr, "  " );
+  if (( *p_spinEnumerationGetNumEntries )( enumNode, &numEntries ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    fprintf ( stderr, "Can't get Spinnaker number of enum node entries\n" );
+    return;
+  }
+
+  for ( i = 0; i < numEntries; i++ ) {
+    if (( *p_spinEnumerationGetEntryByIndex )( enumNode, i, &entryHandle )
+        != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker enum handle\n" );
+      return;
+    }
+
+    entryNameLen = SPINNAKER_MAX_BUFF_LEN;
+    if (( *p_spinNodeGetDisplayName )( entryHandle, entryName, &entryNameLen )
+        != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker enum name\n" );
+      return;
+    }
+
+    fprintf ( stderr, "[%s] ", entryName );
+  }
+
+  fprintf ( stderr, "\n" );
+  return;
 }
 
 
