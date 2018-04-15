@@ -64,7 +64,6 @@ SPINNAKERC_API	( *p_spinNodeIsAvailable )( spinNodeHandle, bool8_t* );
 SPINNAKERC_API	( *p_spinNodeIsReadable )( spinNodeHandle, bool8_t* );
 SPINNAKERC_API	( *p_spinNodeIsWritable )( spinNodeHandle, bool8_t* );
 SPINNAKERC_API	( *p_spinStringGetValue )( spinNodeHandle, char*, size_t* );
-SPINNAKERC_API	( *p_spinIntegerGetValue )( spinNodeHandle, uint64_t* );
 SPINNAKERC_API	( *p_spinEnumerationEntryGetEnumValue )( spinNodeHandle,
 			size_t* );
 SPINNAKERC_API	( *p_spinEnumerationEntryGetIntValue )( spinNodeHandle,
@@ -88,7 +87,13 @@ SPINNAKERC_API	( *p_spinCameraGetGuiXml )( spinCamera, char*, size_t* );
 SPINNAKERC_API	( *p_spinEnumerationGetNumEntries )( spinNodeHandle, size_t* );
 SPINNAKERC_API	( *p_spinEnumerationGetEntryByIndex )( spinNodeHandle, size_t,
 			spinNodeHandle* );
+SPINNAKERC_API	( *p_spinEnumerationGetCurrentEntry )( spinNodeHandle,
+			spinNodeHandle* );
 SPINNAKERC_API	( *p_spinNodeToString )( spinNodeHandle, char*, size_t* );
+SPINNAKERC_API	( *p_spinIntegerGetMin )( spinNodeHandle, int64_t* );
+SPINNAKERC_API	( *p_spinIntegerGetMax )( spinNodeHandle, int64_t* );
+SPINNAKERC_API	( *p_spinIntegerGetInc )( spinNodeHandle, int64_t* );
+SPINNAKERC_API	( *p_spinIntegerGetValue )( spinNodeHandle, int64_t* );
 
 
 #if HAVE_LIBDL
@@ -240,10 +245,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
       "spinStringGetValue" ))) {
     return 0;
   }
-  if (!( *( void** )( &p_spinIntegerGetValue ) = _getDLSym ( libHandle,
-      "spinIntegerGetValue" ))) {
-    return 0;
-  }
   if (!( *( void** )( &p_spinEnumerationEntryGetEnumValue ) = _getDLSym (
       libHandle, "spinEnumerationEntryGetEnumValue" ))) {
     return 0;
@@ -316,8 +317,28 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
       libHandle, "spinEnumerationGetEntryByIndex" ))) {
     return 0;
   }
+  if (!( *( void** )( &p_spinEnumerationGetCurrentEntry ) = _getDLSym (
+      libHandle, "spinEnumerationGetCurrentEntry" ))) {
+    return 0;
+  }
   if (!( *( void** )( &p_spinNodeToString ) = _getDLSym ( libHandle,
       "spinNodeToString" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinIntegerGetMin ) = _getDLSym ( libHandle,
+      "spinIntegerGetMin" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinIntegerGetMax ) = _getDLSym ( libHandle,
+      "spinIntegerGetMax" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinIntegerGetInc ) = _getDLSym ( libHandle,
+      "spinIntegerGetInc" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinIntegerGetValue ) = _getDLSym ( libHandle,
+      "spinIntegerGetValue" ))) {
     return 0;
   }
 
@@ -361,7 +382,12 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
   p_spinCameraGetGuiXml = spinCameraGetGuiXml;
   p_spinEnumerationGetNumEntries = spinEnumerationGetNumEntries;
   p_spinEnumerationGetEntryByIndex = spinEnumerationGetEntryByIndex;
+  p_spinEnumerationGetCurrentEntry = spinEnumerationGetCurrentEntry;
   p_spinNodeToString = spinNodeToString;
+  p_spinIntegerGetMin = spinIntegerGetMin;
+  p_spinIntegerGetMax = spinIntegerGetMax;
+  p_spinIntegerGetInc = spinIntegerGetInc;
+  p_spinIntegerGetValue = spinIntegerGetValue;
 
 #endif /* HAVE_LIBDL */
 

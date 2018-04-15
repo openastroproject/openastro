@@ -44,6 +44,7 @@ static int	_processAnalogueControls ( spinNodeHandle, oaCamera* );
 static int	_processDeviceControls ( spinNodeHandle, oaCamera* );
 static int	_processAquisitionControls ( spinNodeHandle, oaCamera* );
 static int	_processFormatControls ( spinNodeHandle, oaCamera* );
+static void	_showIntegerNode ( spinNodeHandle );
 static void	_showStringNode ( spinNodeHandle );
 static void	_showEnumerationNode ( spinNodeHandle );
 
@@ -383,7 +384,6 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
   bool8_t		available, readable;
   int			err;
 
-fprintf ( stderr, "processing camera entry\n" );
   if (( *p_spinCameraInit )( cameraHandle ) != SPINNAKER_ERR_SUCCESS ) {
     fprintf ( stderr, "Can't initialise Spinnaker camera\n" );
     return -OA_ERR_SYSTEM_ERROR;
@@ -574,14 +574,22 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
       ( void ) strcpy ( featureName, "unknown" );
     }
 
-    fprintf ( stderr, "analogue feature %d '%s', type %d found\n", i,
-        featureName, nodeType );
+    fprintf ( stderr, "analogue feature %d '%s', type %d [%s] found\n", i,
+        featureName, nodeType, readable ? ( writeable ? "RW" : "RO" ) :
+        ( writeable ? "WO" : "??" ));
 
     // It's not clear if features are always numbered in the same order for
     // all cameras, but the fact that feature numbers are skipped suggests
     // that might be so
 
     switch ( nodeType ) {
+      case IntegerNode:
+        _showIntegerNode ( featureHandle );
+        break;
+      case BooleanNode:
+        break;
+      case FloatNode:
+        break;
       case StringNode:
         _showStringNode ( featureHandle );
         break;
@@ -667,14 +675,22 @@ _processDeviceControls ( spinNodeHandle categoryHandle, oaCamera* camera )
       ( void ) strcpy ( featureName, "unknown" );
     }
 
-    fprintf ( stderr, "device feature %d '%s', type %d found\n", i,
-        featureName, nodeType );
+    fprintf ( stderr, "device feature %d '%s', type %d [%s] found\n", i,
+        featureName, nodeType, readable ? ( writeable ? "RW" : "RO" ) :
+        ( writeable ? "WO" : "??" ));
 
     // It's not clear if features are always numbered in the same order for
     // all cameras, but the fact that feature numbers are skipped suggests
     // that might be so
 
     switch ( nodeType ) {
+      case IntegerNode:
+        _showIntegerNode ( featureHandle );
+        break;
+      case BooleanNode:
+        break;
+      case FloatNode:
+        break;
       case StringNode:
         _showStringNode ( featureHandle );
         break;
@@ -761,14 +777,22 @@ _processAquisitionControls ( spinNodeHandle categoryHandle, oaCamera* camera )
       ( void ) strcpy ( featureName, "unknown" );
     }
 
-    fprintf ( stderr, "acquisition feature %d '%s', type %d found\n", i,
-        featureName, nodeType );
+    fprintf ( stderr, "acquisition feature %d '%s', type %d [%s] found\n", i,
+        featureName, nodeType, readable ? ( writeable ? "RW" : "RO" ) :
+        ( writeable ? "WO" : "??" ));
 
     // It's not clear if features are always numbered in the same order for
     // all cameras, but the fact that feature numbers are skipped suggests
     // that might be so
 
     switch ( nodeType ) {
+      case IntegerNode:
+        _showIntegerNode ( featureHandle );
+        break;
+      case BooleanNode:
+        break;
+      case FloatNode:
+        break;
       case StringNode:
         _showStringNode ( featureHandle );
         break;
@@ -854,14 +878,22 @@ _processFormatControls ( spinNodeHandle categoryHandle, oaCamera* camera )
       ( void ) strcpy ( featureName, "unknown" );
     }
 
-    fprintf ( stderr, "format feature %d '%s', type %d found\n", i,
-        featureName, nodeType );
+    fprintf ( stderr, "format feature %d '%s', type %d [%s] found\n", i,
+        featureName, nodeType, readable ? ( writeable ? "RW" : "RO" ) :
+        ( writeable ? "WO" : "??" ));
 
     // It's not clear if features are always numbered in the same order for
     // all cameras, but the fact that feature numbers are skipped suggests
     // that might be so
 
     switch ( nodeType ) {
+      case IntegerNode:
+        _showIntegerNode ( featureHandle );
+        break;
+      case BooleanNode:
+        break;
+      case FloatNode:
+        break;
       case StringNode:
         _showStringNode ( featureHandle );
         break;
@@ -874,6 +906,33 @@ _processFormatControls ( spinNodeHandle categoryHandle, oaCamera* camera )
   }
 
   return -OA_ERR_NONE;
+}
+
+
+static void
+_showIntegerNode ( spinNodeHandle intNode )
+{
+  int64_t	min, max, step, curr;
+
+  if (( *p_spinIntegerGetMin )( intNode, &min ) != SPINNAKER_ERR_SUCCESS ) {
+    fprintf ( stderr, "Can't get Spinnaker int min value\n" );
+    return;
+  }
+  if (( *p_spinIntegerGetMax )( intNode, &max ) != SPINNAKER_ERR_SUCCESS ) {
+    fprintf ( stderr, "Can't get Spinnaker int max value\n" );
+    return;
+  }
+  if (( *p_spinIntegerGetInc )( intNode, &step ) != SPINNAKER_ERR_SUCCESS ) {
+    fprintf ( stderr, "Can't get Spinnaker int inc value\n" );
+    return;
+  }
+  if (( *p_spinIntegerGetValue )( intNode, &curr ) != SPINNAKER_ERR_SUCCESS ) {
+    fprintf ( stderr, "Can't get Spinnaker int current value\n" );
+    return;
+  }
+
+  fprintf ( stderr, "  [%ld:%ld]/[%ld] := %ld\n", min, max, step, curr );
+  return;
 }
 
 
@@ -899,9 +958,11 @@ _showEnumerationNode ( spinNodeHandle enumNode )
 {
   size_t		numEntries;
   int			i;
-  spinNodeHandle	entryHandle;
+  spinNodeHandle	entryHandle, currentHandle;
   char			entryName[ SPINNAKER_MAX_BUFF_LEN ];
   size_t		entryNameLen;
+  char			value[ SPINNAKER_MAX_BUFF_LEN ];
+  size_t		valueLen;
 
   fprintf ( stderr, "  " );
   if (( *p_spinEnumerationGetNumEntries )( enumNode, &numEntries ) !=
@@ -927,7 +988,18 @@ _showEnumerationNode ( spinNodeHandle enumNode )
     fprintf ( stderr, "[%s] ", entryName );
   }
 
-  fprintf ( stderr, "\n" );
+  if (( *p_spinEnumerationGetCurrentEntry )( enumNode, &currentHandle ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    fprintf ( stderr, "\nCan't get Spinnaker enum current value\n" );
+    return;
+  }
+  valueLen = SPINNAKER_MAX_BUFF_LEN;
+  if (( *p_spinNodeToString )( currentHandle, value, &valueLen ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    fprintf ( stderr, "\nCan't get Spinnaker enum value as string\n" );
+    return;
+  }
+  fprintf ( stderr, ":= %s\n", value );
   return;
 }
 
