@@ -155,7 +155,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
   unsigned int		i, j, numFound;
   oaCameraDevice*       devices;
   DEVICE_INFO*		_private;
-  int			ret, err;
+  int			ret;
 
 
 #if HAVE_LIBDL

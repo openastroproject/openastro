@@ -36,6 +36,7 @@
 #include "oacamprivate.h"
 #include "Spinoacam.h"
 #include "Spinstate.h"
+#include "Spinstrings.h"
 
 
 static void	_spinInitFunctionPointers ( oaCamera* );
@@ -296,7 +297,6 @@ oaSpinInitCamera ( oaCameraDevice* device )
 
             if ( !strcmp ( deviceId, devInfo->deviceId )) {
               found = 1;
-fprintf ( stderr, "matched camera entry\n" );
               if ( _processCameraEntry ( cameraHandle, camera ) < 0 ) {
                 fprintf ( stderr, "Failed to process camera nodemap\n" );
                 ( void ) ( *p_spinCameraRelease )( cameraHandle );
@@ -382,9 +382,10 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
   char			categoryName[ SPINNAKER_MAX_BUFF_LEN ];
   size_t		categoryNameLen;
   size_t		numCategories;
-  int			i, ret;
+  int			ret;
   bool8_t		available, readable;
   int			err;
+  unsigned int		i;
 
   if (( *p_spinCameraInit )( cameraHandle ) != SPINNAKER_ERR_SUCCESS ) {
     fprintf ( stderr, "Can't initialise Spinnaker camera\n" );
@@ -514,8 +515,10 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
   char			featureName[ SPINNAKER_MAX_BUFF_LEN ];
   size_t		featureNameLen;
   size_t		numFeatures;
-  int			i, ret;
   bool8_t		available, readable, writeable;
+  unsigned int		i, j;
+  int			featureId;
+  COMMON_INFO*		commonInfo = camera->_common;
 
   if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
       SPINNAKER_ERR_SUCCESS ) {
@@ -580,10 +583,6 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
         featureName, nodeType, readable ? ( writeable ? "RW" : "RO" ) :
         ( writeable ? "WO" : "??" ));
 
-    // It's not clear if features are always numbered in the same order for
-    // all cameras, but the fact that feature numbers are skipped suggests
-    // that might be so
-
     switch ( nodeType ) {
       case IntegerNode:
         _showIntegerNode ( featureHandle, writeable );
@@ -607,6 +606,60 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
         fprintf ( stderr, "  unhandled node type\n" );
         break;
     }
+
+    // It's not clear if features are always numbered in the same order for
+    // all cameras, but the fact that feature numbers are skipped suggests
+    // that might be so.  In case it isn't, do things the hard way :(
+
+    for ( j = 0, featureId = -1; j < ANALOGUE_MAX_FEATURES && featureId < 0;
+        j++ ) {
+      if ( !strcmp ( featureName, analogueFeatures[ j ] )) {
+        featureId = j;
+      }
+    }
+
+    if ( featureId >= 0 ) {
+      switch ( featureId ) {
+        case ANALOGUE_GAIN_SELECTOR: // enumeration
+          // Ignore this for the time being.  I have no useful test cases
+          // to try it with
+          break;
+
+        case ANALOGUE_GAIN_AUTO: // boolean
+        {
+          bool8_t	curr;
+
+          camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_GAIN ) =
+              OA_CTRL_TYPE_BOOLEAN;
+          commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_GAIN ) = 0;
+          commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_GAIN ) = 1;
+          commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_GAIN ) = 1;
+          if (( *p_spinBooleanGetValue )( featureHandle, &curr ) !=
+              SPINNAKER_ERR_SUCCESS ) {
+            fprintf ( stderr, "Can't get Spinnaker bool current value\n" );
+            return -OA_ERR_SYSTEM_ERROR;
+          }
+          commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_GAIN ) = curr ? 1 : 0;
+          break;
+        }
+
+        case ANALOGUE_GAIN: // float
+        {
+          // Can't get the actual min/max values available if we have auto
+          // gain unless auto gain is turned off.  Assume we'll already have
+          // seen auto gain before this if it exists
+
+          break;
+        }
+
+        default:
+          fprintf ( stderr, "Unhandled analogue feature '%s'\n", featureName );
+          break;
+      }
+    } else {
+      fprintf ( stderr, "Unrecognised analogue feature %d, '%s'\n", i,
+          featureName );
+    }
   }
 
   return -OA_ERR_NONE;
@@ -621,7 +674,7 @@ _processDeviceControls ( spinNodeHandle categoryHandle, oaCamera* camera )
   char			featureName[ SPINNAKER_MAX_BUFF_LEN ];
   size_t		featureNameLen;
   size_t		numFeatures;
-  int			i, ret;
+  unsigned int		i;
   bool8_t		available, readable, writeable;
 
   if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
@@ -728,7 +781,7 @@ _processAquisitionControls ( spinNodeHandle categoryHandle, oaCamera* camera )
   char			featureName[ SPINNAKER_MAX_BUFF_LEN ];
   size_t		featureNameLen;
   size_t		numFeatures;
-  int			i, ret;
+  unsigned int		i;
   bool8_t		available, readable, writeable;
 
   if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
@@ -836,7 +889,7 @@ _processFormatControls ( spinNodeHandle categoryHandle, oaCamera* camera )
   char			featureName[ SPINNAKER_MAX_BUFF_LEN ];
   size_t		featureNameLen;
   size_t		numFeatures;
-  int			i, ret;
+  unsigned int		i;
   bool8_t		available, readable, writeable;
 
   if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
@@ -1034,7 +1087,7 @@ static void
 _showEnumerationNode ( spinNodeHandle enumNode )
 {
   size_t		numEntries;
-  int			i;
+  unsigned int		i;
   spinNodeHandle	entryHandle, currentHandle;
   char			entryName[ SPINNAKER_MAX_BUFF_LEN ];
   size_t		entryNameLen;

@@ -29,8 +29,8 @@ AM_CPPFLAGS = \
 
 noinst_LTLIBRARIES = libspinnaker.la
 
-libspinnaker_la_SOURCES = Spinoacam.c Spinconnect.c #SpingetState.c \
-  Spincontrol.c Spincontroller.c Spincallback.c Spinroi.c
+libspinnaker_la_SOURCES = Spinoacam.c Spinconnect.c Spinstrings.c \
+  #SpingetState.c Spincontrol.c Spincontroller.c Spincallback.c Spinroi.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
