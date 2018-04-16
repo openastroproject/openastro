@@ -94,6 +94,10 @@ SPINNAKERC_API	( *p_spinIntegerGetMin )( spinNodeHandle, int64_t* );
 SPINNAKERC_API	( *p_spinIntegerGetMax )( spinNodeHandle, int64_t* );
 SPINNAKERC_API	( *p_spinIntegerGetInc )( spinNodeHandle, int64_t* );
 SPINNAKERC_API	( *p_spinIntegerGetValue )( spinNodeHandle, int64_t* );
+SPINNAKERC_API	( *p_spinBooleanGetValue )( spinNodeHandle, bool8_t* );
+SPINNAKERC_API	( *p_spinFloatGetMin )( spinNodeHandle, double* );
+SPINNAKERC_API	( *p_spinFloatGetMax )( spinNodeHandle, double* );
+SPINNAKERC_API	( *p_spinFloatGetValue )( spinNodeHandle, double* );
 
 
 #if HAVE_LIBDL
@@ -341,6 +345,23 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
       "spinIntegerGetValue" ))) {
     return 0;
   }
+  if (!( *( void** )( &p_spinBooleanGetValue ) = _getDLSym ( libHandle,
+      "spinBooleanGetValue" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinFloatGetMin ) = _getDLSym ( libHandle,
+      "spinFloatGetMin" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinFloatGetMax ) = _getDLSym ( libHandle,
+      "spinFloatGetMax" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinFloatGetValue ) = _getDLSym ( libHandle,
+      "spinFloatGetValue" ))) {
+    return 0;
+  }
+
 
 #else /* HAVE_LIBDL */
 
@@ -364,7 +385,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
   p_spinNodeIsReadable = spinNodeIsReadable;
   p_spinNodeIsWritable = spinNodeIsWritable;
   p_spinStringGetValue = spinStringGetValue;
-  p_spinIntegerGetValue = spinIntegerGetValue;
   p_spinEnumerationEntryGetEnumValue = spinEnumerationEntryGetEnumValue;
   p_spinEnumerationEntryGetIntValue = spinEnumerationEntryGetIntValue;
   p_spinEnumerationGetCurrentEntry = spinEnumerationGetCurrentEntry;
@@ -388,6 +408,10 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
   p_spinIntegerGetMax = spinIntegerGetMax;
   p_spinIntegerGetInc = spinIntegerGetInc;
   p_spinIntegerGetValue = spinIntegerGetValue;
+  p_spinBooleanGetValue = spinBooleanGetValue;
+  p_spinFloatGetMin = spinFloatGetMin;
+  p_spinFloatGetMax = spinFloatGetMax;
+  p_spinFloatGetValue = spinFloatGetValue;
 
 #endif /* HAVE_LIBDL */
 

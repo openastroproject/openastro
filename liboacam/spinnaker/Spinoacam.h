@@ -128,6 +128,10 @@ extern SPINNAKERC_API	( *p_spinIntegerGetMin )( spinNodeHandle, int64_t* );
 extern SPINNAKERC_API	( *p_spinIntegerGetMax )( spinNodeHandle, int64_t* );
 extern SPINNAKERC_API	( *p_spinIntegerGetInc )( spinNodeHandle, int64_t* );
 extern SPINNAKERC_API	( *p_spinIntegerGetValue )( spinNodeHandle, int64_t* );
+extern SPINNAKERC_API	( *p_spinBooleanGetValue )( spinNodeHandle, bool8_t* );
+extern SPINNAKERC_API	( *p_spinFloatGetMin )( spinNodeHandle, double* );
+extern SPINNAKERC_API	( *p_spinFloatGetMax )( spinNodeHandle, double* );
+extern SPINNAKERC_API	( *p_spinFloatGetValue )( spinNodeHandle, double* );
 
 #define SPINNAKER_MAX_BUFF_LEN	256
 

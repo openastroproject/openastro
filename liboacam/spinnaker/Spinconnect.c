@@ -44,7 +44,9 @@ static int	_processAnalogueControls ( spinNodeHandle, oaCamera* );
 static int	_processDeviceControls ( spinNodeHandle, oaCamera* );
 static int	_processAquisitionControls ( spinNodeHandle, oaCamera* );
 static int	_processFormatControls ( spinNodeHandle, oaCamera* );
-static void	_showIntegerNode ( spinNodeHandle );
+static void	_showIntegerNode ( spinNodeHandle, bool8_t );
+static void	_showBooleanNode ( spinNodeHandle );
+static void	_showFloatNode ( spinNodeHandle, bool8_t );
 static void	_showStringNode ( spinNodeHandle );
 static void	_showEnumerationNode ( spinNodeHandle );
 
@@ -584,11 +586,16 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 
     switch ( nodeType ) {
       case IntegerNode:
-        _showIntegerNode ( featureHandle );
+        _showIntegerNode ( featureHandle, writeable );
         break;
       case BooleanNode:
+        _showBooleanNode ( featureHandle );
         break;
       case FloatNode:
+        _showFloatNode ( featureHandle, writeable );
+        break;
+      case CommandNode:
+        fprintf ( stderr, "  [command]\n" );
         break;
       case StringNode:
         _showStringNode ( featureHandle );
@@ -597,6 +604,7 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
         _showEnumerationNode ( featureHandle );
         break;
       default:
+        fprintf ( stderr, "  unhandled node type\n" );
         break;
     }
   }
@@ -685,11 +693,16 @@ _processDeviceControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 
     switch ( nodeType ) {
       case IntegerNode:
-        _showIntegerNode ( featureHandle );
+        _showIntegerNode ( featureHandle, writeable );
         break;
       case BooleanNode:
+        _showBooleanNode ( featureHandle );
         break;
       case FloatNode:
+        _showFloatNode ( featureHandle, writeable );
+        break;
+      case CommandNode:
+        fprintf ( stderr, "  [command]\n" );
         break;
       case StringNode:
         _showStringNode ( featureHandle );
@@ -698,6 +711,7 @@ _processDeviceControls ( spinNodeHandle categoryHandle, oaCamera* camera )
         _showEnumerationNode ( featureHandle );
         break;
       default:
+        fprintf ( stderr, "  unhandled node type\n" );
         break;
     }
   }
@@ -787,11 +801,16 @@ _processAquisitionControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 
     switch ( nodeType ) {
       case IntegerNode:
-        _showIntegerNode ( featureHandle );
+        _showIntegerNode ( featureHandle, writeable );
         break;
       case BooleanNode:
+        _showBooleanNode ( featureHandle );
         break;
       case FloatNode:
+        _showFloatNode ( featureHandle, writeable );
+        break;
+      case CommandNode:
+        fprintf ( stderr, "  [command]\n" );
         break;
       case StringNode:
         _showStringNode ( featureHandle );
@@ -800,6 +819,7 @@ _processAquisitionControls ( spinNodeHandle categoryHandle, oaCamera* camera )
         _showEnumerationNode ( featureHandle );
         break;
       default:
+        fprintf ( stderr, "  unhandled node type\n" );
         break;
     }
   }
@@ -888,11 +908,16 @@ _processFormatControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 
     switch ( nodeType ) {
       case IntegerNode:
-        _showIntegerNode ( featureHandle );
+        _showIntegerNode ( featureHandle, writeable );
         break;
       case BooleanNode:
+        _showBooleanNode ( featureHandle );
         break;
       case FloatNode:
+        _showFloatNode ( featureHandle, writeable );
+        break;
+      case CommandNode:
+        fprintf ( stderr, "  [command]\n" );
         break;
       case StringNode:
         _showStringNode ( featureHandle );
@@ -901,6 +926,7 @@ _processFormatControls ( spinNodeHandle categoryHandle, oaCamera* camera )
         _showEnumerationNode ( featureHandle );
         break;
       default:
+        fprintf ( stderr, "  unhandled node type\n" );
         break;
     }
   }
@@ -910,28 +936,79 @@ _processFormatControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 
 
 static void
-_showIntegerNode ( spinNodeHandle intNode )
+_showIntegerNode ( spinNodeHandle intNode, bool8_t writeable )
 {
   int64_t	min, max, step, curr;
 
-  if (( *p_spinIntegerGetMin )( intNode, &min ) != SPINNAKER_ERR_SUCCESS ) {
-    fprintf ( stderr, "Can't get Spinnaker int min value\n" );
-    return;
-  }
-  if (( *p_spinIntegerGetMax )( intNode, &max ) != SPINNAKER_ERR_SUCCESS ) {
-    fprintf ( stderr, "Can't get Spinnaker int max value\n" );
-    return;
-  }
-  if (( *p_spinIntegerGetInc )( intNode, &step ) != SPINNAKER_ERR_SUCCESS ) {
-    fprintf ( stderr, "Can't get Spinnaker int inc value\n" );
-    return;
-  }
   if (( *p_spinIntegerGetValue )( intNode, &curr ) != SPINNAKER_ERR_SUCCESS ) {
     fprintf ( stderr, "Can't get Spinnaker int current value\n" );
     return;
   }
+  if ( writeable ) {
+    if (( *p_spinIntegerGetMin )( intNode, &min ) != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker int min value\n" );
+      return;
+    }
+    if (( *p_spinIntegerGetMax )( intNode, &max ) != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker int max value\n" );
+      return;
+    }
+    if (( *p_spinIntegerGetInc )( intNode, &step ) != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker int inc value\n" );
+      return;
+    }
 
-  fprintf ( stderr, "  [%ld:%ld]/[%ld] := %ld\n", min, max, step, curr );
+    fprintf ( stderr, "  [%ld:%ld]/[%ld] := %ld\n", min, max, step, curr );
+
+  } else {
+    fprintf ( stderr, "  [readonly] := %ld\n", curr );
+  }
+
+  return;
+}
+
+
+static void
+_showBooleanNode ( spinNodeHandle boolNode )
+{
+  bool8_t	curr;
+
+  if (( *p_spinBooleanGetValue )( boolNode, &curr ) != SPINNAKER_ERR_SUCCESS ) {
+    fprintf ( stderr, "Can't get Spinnaker bool current value\n" );
+    return;
+  }
+
+  fprintf ( stderr, "  [boolean] := %s\n", curr ? "true" : "false" );
+  return;
+}
+
+
+static void
+_showFloatNode ( spinNodeHandle floatNode, bool8_t writeable )
+{
+  double       min, max, curr;
+
+  if (( *p_spinFloatGetValue )( floatNode, &curr ) != SPINNAKER_ERR_SUCCESS ) {
+    fprintf ( stderr, "Can't get Spinnaker float current value\n" );
+    return;
+  }
+
+  if ( writeable ) {
+    if (( *p_spinFloatGetMin )( floatNode, &min ) != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker float min value\n" );
+      return;
+    }
+    if (( *p_spinFloatGetMax )( floatNode, &max ) != SPINNAKER_ERR_SUCCESS ) {
+      fprintf ( stderr, "Can't get Spinnaker float max value\n" );
+      return;
+    }
+
+    fprintf ( stderr, "  [%f:%f] := %f\n", min, max, curr );
+
+  } else {
+    fprintf ( stderr, "  [readonly] := %f\n", curr );
+  }
+  
   return;
 }
 
