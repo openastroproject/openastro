@@ -90,7 +90,6 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/oacapture.desktop
 %files
 /usr/bin/oacapture
 /lib/udev/rules.d/*
-/lib/firmware/qhy/*
 /usr/share/applications/oacapture.desktop
 /usr/share/icons/hicolor/*/apps/*
 

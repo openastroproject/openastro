@@ -1,7 +1,7 @@
 #
 # Makefile.am -- udev rules Makefile template
 #
-# Copyright 2017 James Fidell (james@openastroproject.org)
+# Copyright 2017,2018 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -29,7 +29,7 @@ RULESFILES = 70-altair-cameras.rules 70-atik.rules 70-celestron-camera.rules \
 	70-iidc-cameras.rules 70-opticstar-cameras.rules \
 	70-starlight-xpress.rules 70-tis-cameras-euvc.rules \
 	70-tis-cameras.rules 70-tis-cameras-uvc.rules \
-	70-touptek-cameras.rules 70-xagyl-ftdi.rules 85-qhy-cameras.rules
+	70-touptek-cameras.rules 70-xagyl-ftdi.rules
 
 udevrulesdir = ${sysconfdir}/../lib/udev/rules.d
 udevrules_DATA = $(RULESFILES)

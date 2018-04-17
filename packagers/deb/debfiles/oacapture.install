@@ -1,6 +1,5 @@
 usr/bin/*
 lib/udev/rules.d/*
-lib/firmware/qhy/*
 usr/share/pixmaps/oacapture.xpm
 usr/share/applications/oacapture.desktop
 usr/share/icons/hicolor/16x16/apps/oacapture.png

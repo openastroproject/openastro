@@ -21,14 +21,14 @@
 # along with the Open Astro Project.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-#SUBDIRS = bin docs include lib liboafilterwheel udev
+#SUBDIRS = bin docs include liboafilterwheel udev
 
 ACLOCAL_AMFLAGS=-I m4
 
 WARN_SUBDIRS = liboacam liboademosaic liboaSER liboavideo liboafilterwheel \
                liboaPTR liboaimgproc liboautil oacapture oalive
 
-NOWARN_SUBDIRS = ext lib udev bin packagers
+NOWARN_SUBDIRS = ext udev bin packagers
 
 SUBDIRS = $(NOWARN_SUBDIRS) $(WARN_SUBDIRS)
 
