@@ -34,14 +34,24 @@
 #include "ZWASI.h"
 #include "ZWASI2oacam.h"
 
-static const char *cameraNames[] = {
-  "ZWO ASI130MM", "ZWO ASI120MM", "ZWO ASI120MC", "ZWO ASI035MM",
-  "ZWO ASI035MC", "ZWO ASI030MC", "ZWO ASI034MC", "ZWO ASI120MM-S",
-  "ZWO ASI120MC-S", "ZWO ASI174MM", "ZWO ASI174MC", "ZWO ASI178MM",
-  "ZWO ASI178MC", "ZWO ASI185MC", "ZWO ASI224MC", "ZWO ASI1600MM",
-  "ZWO ASI1600MC", "ZWO ASI290MM", "ZWO ASI290MC", "ZWO ASI294MC",
-  "ZWO ASI395MC", "ZWO ASI071MC", "ZWO ASI094MC", "ZWO ASI128MC",
-  "ZWO ASI183MM", "ZWOASI183MC"
+static const char *cameraNames[ ZWO_NUM_CAMERAS ] = {
+  "ZWO ASI030MC", "ZWO ASI031MC", "ZWO ASI031MM", "ZWO ASI034MC",
+  "ZWO ASI035MC", "ZWO ASI035MM", "ZWO ASI071MC-Cool", "ZWO ASI071MC Pro",
+  "ZWO ASI094MC-Cool", "ZWO ASI094MC Pro", "ZWO ASI120MC", "ZWO ASI120MC-S",
+  "ZWO ASI120MC-SC", "ZWO ASI120MM", "ZWO ASI120MM Mini", "ZWO ASI120MM-S",
+  "ZWO ASI120MM-SC", "ZWO ASI128MC-Cool", "ZWO ASI128MC Pro", "ZWO ASI130MM",
+  "ZWO ASI136MC", "ZWO ASI174MC", "ZWO ASI174MC-Cool", "ZWO ASI174MM",
+  "ZWO ASI174MM-Cool", "ZWO ASI174MM Mini", "ZWO ASI178MC",
+  "ZWO ASI178MC-Cool", "ZWO ASI178MC-Pro", "ZWO ASI178MM", "ZWO ASI178MM-Cool",
+  "ZWO ASI178MM-Pro", "ZWO ASI183MC", "ZWO ASI183MC-Cool", "ZWO ASI183MC Pro",
+  "ZWO ASI183MM", "ZWO ASI183MM Pro", "ZWO ASI185MC", "ZWO ASI185MC-Cool",
+  "ZWO ASI224MC", "ZWO ASI224MC-Cool", "ZWO ASI226MC", "ZWO ASI2400MC Pro",
+  "ZWO ASI2400MM Pro", "ZWO ASI252MC", "ZWO ASI252MM", "ZWO ASI290MC",
+  "ZWO ASI290MC-Cool", "ZWO ASI290MM", "ZWO ASI290MM-Cool",
+  "ZWO ASI290MM Mini", "ZWO ASI294MC", "ZWO ASI294MC-Cool", "ZWO ASI294MC Pro",
+  "ZWO ASI385MC", "ZWO ASI385MC-Cool", "ZWO ASI1600GT", "ZWO ASI1600MC",
+  "ZWO ASI1600MC-Cool", "ZWO ASI1600MC Pro", "ZWO ASI1600MM",
+  "ZWO ASI1600MM-Cool", "ZWO ASI1600MM Pro"
 };
 
 /**
@@ -60,6 +70,12 @@ oaZWASI2GetCameras ( CAMERA_LIST* deviceList, int flags )
   unsigned int		typesFound[ ZWO_NUM_CAMERAS + 1 ];
   int			j, cameraType, found;
 
+int numPids = ASIGetProductIDs ( 0 );
+int pids[100];
+ASIGetProductIDs( pids );
+for ( i = 0; i < numPids; i++ ) {
+fprintf ( stderr, "pid %d: %04x\n", i, pids[i] );
+}
   if (( numFound = ASIGetNumOfConnectedCameras()) < 1 ) {
     return 0;
   }
@@ -73,12 +89,7 @@ oaZWASI2GetCameras ( CAMERA_LIST* deviceList, int flags )
     currName = camInfo.Name;
     found = 0;
     for ( j = 0; !found && j < ZWO_NUM_CAMERAS; j++ ) {
-      // only check the length of the string so we don't need to handle
-      // names with eg. " COOL" appended
-      int l = strlen ( cameraNames[j] );
-      if ( !strncmp ( currName, cameraNames[j], l ) &&
-          ( currName[l] == 0 || currName[l] == ' ' ||
-            !strncasecmp ( currName + l, "-Cool", 5 ))) {
+      if ( !strcmp ( currName, cameraNames[j] )) {
         found = 1;
         cameraType = j;
       }

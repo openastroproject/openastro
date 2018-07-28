@@ -707,10 +707,10 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
     case ZWOCAM_ASI120MM_S:
     case ZWOCAM_ASI120MC_S:
-      cameraInfo->usb3Cam = 1;
-      /* fallthrough */
-
+    case ZWOCAM_ASI120MM_SC:
+    case ZWOCAM_ASI120MC_SC:
     case ZWOCAM_ASI120MM:
+    case ZWOCAM_ASI120MM_MINI:
     case ZWOCAM_ASI120MC:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           18, sizeof ( FRAMESIZE )))) {
@@ -867,7 +867,9 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
     case ZWOCAM_ASI174MM:
     case ZWOCAM_ASI174MC:
-      cameraInfo->usb3Cam = 1;
+    case ZWOCAM_ASI174MM_COOL:
+    case ZWOCAM_ASI174MC_COOL:
+    case ZWOCAM_ASI174MM_MINI:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           3, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -904,7 +906,10 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
     case ZWOCAM_ASI178MM:
     case ZWOCAM_ASI178MC:
-      cameraInfo->usb3Cam = 1;
+    case ZWOCAM_ASI178MM_PRO:
+    case ZWOCAM_ASI178MC_PRO:
+    case ZWOCAM_ASI178MM_COOL:
+    case ZWOCAM_ASI178MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           7, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -948,7 +953,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       break;
 
     case ZWOCAM_ASI185MC:
-      cameraInfo->usb3Cam = 1;
+    case ZWOCAM_ASI185MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           6, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -990,7 +995,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       break;
 
     case ZWOCAM_ASI224MC:
-      cameraInfo->usb3Cam = 1;
+    case ZWOCAM_ASI224MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           5, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -1031,7 +1036,9 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
     case ZWOCAM_ASI290MM:
     case ZWOCAM_ASI290MC:
-      cameraInfo->usb3Cam = 1;
+    case ZWOCAM_ASI290MM_COOL:
+    case ZWOCAM_ASI290MC_COOL:
+    case ZWOCAM_ASI290MM_MINI:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           5, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -1070,7 +1077,10 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
     case ZWOCAM_ASI1600MM:
     case ZWOCAM_ASI1600MC:
-      cameraInfo->usb3Cam = 1;
+    case ZWOCAM_ASI1600MM_PRO:
+    case ZWOCAM_ASI1600MC_PRO:
+    case ZWOCAM_ASI1600MM_COOL:
+    case ZWOCAM_ASI1600MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           5, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -1100,7 +1110,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       break;
 
     case ZWOCAM_ASI294MC:
-      cameraInfo->usb3Cam = 1;
+    case ZWOCAM_ASI294MC_PRO:
+    case ZWOCAM_ASI294MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           1, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -1120,7 +1131,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       break;
 
     case ZWOCAM_ASI385MC:
-      cameraInfo->usb3Cam = 1;
+    case ZWOCAM_ASI385MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           1, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -1139,8 +1150,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
       break;
 
-    case ZWOCAM_ASI071MC:
-      cameraInfo->usb3Cam = 1;
+    case ZWOCAM_ASI071MC_PRO:
+    case ZWOCAM_ASI071MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           5, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -1167,8 +1178,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
       break;
 
-    case ZWOCAM_ASI094MC:
-      cameraInfo->usb3Cam = 1;
+    case ZWOCAM_ASI094MC_PRO:
+    case ZWOCAM_ASI094MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           5, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -1195,8 +1206,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
       break;
 
-    case ZWOCAM_ASI128MC:
-      cameraInfo->usb3Cam = 1;
+    case ZWOCAM_ASI128MC_PRO:
+    case ZWOCAM_ASI128MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           5, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -1225,7 +1236,9 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
     case ZWOCAM_ASI183MM:
     case ZWOCAM_ASI183MC:
-      cameraInfo->usb3Cam = 1;
+    case ZWOCAM_ASI183MM_PRO:
+    case ZWOCAM_ASI183MC_PRO:
+    case ZWOCAM_ASI183MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           6, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -1257,7 +1270,6 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     default:
       fprintf ( stderr, "unknown camera type %d. Using limited resolutions\n",
           cameraInfo->cameraType );
-      cameraInfo->usb3Cam = camInfo.IsUSB3Camera ? 1 : 0;
       if (!( cameraInfo->frameSizes[1].sizes =
           ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -1289,6 +1301,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       break;
   }
 
+  cameraInfo->usb3Cam = camInfo.IsUSB3Camera ? 1 : 0;
   cameraInfo->xSize = cameraInfo->maxResolutionX;
   cameraInfo->ySize = cameraInfo->maxResolutionY;
   cameraInfo->buffers = 0;
