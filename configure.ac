@@ -612,8 +612,10 @@ then
     AC_CHECK_LIB([ASICamera2],[ASIGetNumOfConnectedCameras],[
       LIBS="-lASICamera2 $LIBS"
       AC_DEFINE([HAVE_LIBASI2],[1],[Have libasicamera2])
-      have_libasicamera=yes
+      have_libasicamera2=yes
     ],[
+      AC_DEFINE([HAVE_LIBASI2],[1],[Have libasicamera2])
+      have_libasicamera2=yes
       AC_MSG_WARN([No suitable version of system libasicamera2 found.  Using internal version.])
     ])
   fi
