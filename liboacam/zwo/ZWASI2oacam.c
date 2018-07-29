@@ -70,12 +70,6 @@ oaZWASI2GetCameras ( CAMERA_LIST* deviceList, int flags )
   unsigned int		typesFound[ ZWO_NUM_CAMERAS + 1 ];
   int			j, cameraType, found;
 
-int numPids = ASIGetProductIDs ( 0 );
-int pids[100];
-ASIGetProductIDs( pids );
-for ( i = 0; i < numPids; i++ ) {
-fprintf ( stderr, "pid %d: %04x\n", i, pids[i] );
-}
   if (( numFound = ASIGetNumOfConnectedCameras()) < 1 ) {
     return 0;
   }
