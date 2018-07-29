@@ -1040,7 +1040,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI290MC_COOL:
     case ZWOCAM_ASI290MM_MINI:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
-          5, sizeof ( FRAMESIZE )))) {
+          4, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
         free (( void* ) camera->_common );
         free (( void* ) camera->_private );
@@ -1082,7 +1082,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI1600MM_COOL:
     case ZWOCAM_ASI1600MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
-          5, sizeof ( FRAMESIZE )))) {
+          6, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
         free (( void* ) camera->_common );
         free (( void* ) camera->_private );
