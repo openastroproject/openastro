@@ -90,4 +90,7 @@ typedef struct OA_CONTROL_VALUE {
 #define	OA_DEVICE_FILTERWHEEL	2
 #define	OA_DEVICE_PTR		3
 
+#define OA_MAX_NAME_LEN		80
+#define OA_MAX_DEVICES		32
+
 #endif	/* OPENASTRO_H */

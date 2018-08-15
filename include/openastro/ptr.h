@@ -2,7 +2,7 @@
  *
  * ptr.h -- PTR API header
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -57,9 +57,6 @@ typedef struct oaPTRFuncs {
   int			( *readTimestamp )( struct oaPTR*, int, oaTimerStamp* );
   int			( *readGPS )( struct oaPTR*, double* );
 } oaPTRFuncs;
-
-#define OA_MAX_NAME_LEN			60
-#define OA_MAX_DEVICES			32
 
 typedef struct oaPTR {
   char			deviceName[OA_MAX_NAME_LEN+1];

@@ -2,7 +2,7 @@
  *
  * filterwheel.h -- Filter Wheel API header
  *
- * Copyright 2014 James Fidell (james@openastroproject.org)
+ * Copyright 2014, 2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -59,9 +59,6 @@ typedef struct oaFilterWheelFuncs {
   int			( *getControlRange )( struct oaFilterWheel*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
 } oaFilterWheelFuncs;
-
-#define OA_MAX_NAME_LEN			60
-#define OA_MAX_DEVICES			32
 
 typedef struct oaFilterWheel {
   enum oaFilterWheelInterfaceType  interface;

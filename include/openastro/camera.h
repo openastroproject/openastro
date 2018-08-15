@@ -119,8 +119,6 @@ typedef struct oaCameraFuncs {
 
 } oaCameraFuncs;
 
-#define OA_MAX_NAME_LEN			60
-
 typedef struct oaCamera {
   enum oaCameraInterfaceType	interface;
   unsigned char			cameraInterface;
