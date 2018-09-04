@@ -2,7 +2,7 @@
  *
  * xagylfw-ftdi.c -- Find Xagyl filter wheels using libftdi
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -227,8 +227,7 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
         if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
           libusb_free_device_list ( devlist, 1 );
           libusb_exit ( ctx );
-          free (( void* ) wheel );
-          _oaFreeFilterWheelDeviceList ( deviceList );
+          ( void ) free (( void* ) wheel );
           return -OA_ERR_MEM_ALLOC;
         }
 
@@ -261,9 +260,8 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
           _private->productId = desc.idProduct;
           wheel->initFilterWheel = oaXagylInitFilterWheel;
           if (( ret = _oaCheckFilterWheelArraySize ( deviceList )) < 0 ) {
-            free (( void* ) wheel );
-            free (( void* ) _private );
-            _oaFreeFilterWheelDeviceList ( deviceList );
+            ( void ) free (( void* ) wheel );
+            ( void ) free (( void* ) _private );
             return ret;
           }
           deviceList->wheelList[ deviceList->numFilterWheels++ ] = wheel;

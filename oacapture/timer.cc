@@ -2,7 +2,7 @@
  *
  * timer.cc -- timer device interface class
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -122,6 +122,13 @@ int
 Timer::listConnected ( oaTimerDevice*** devs )
 {
   return ( oaGetPTRDevices ( devs ));
+}
+
+
+void
+Timer::releaseInfo ( oaTimerDevice** devs )
+{
+  return ( oaReleasePTRDevices ( devs ));
 }
 
 

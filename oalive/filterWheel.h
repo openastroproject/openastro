@@ -2,7 +2,7 @@
  *
  * filterwheel.h -- class declaration
  *
- * Copyright 2014,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2016,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -46,6 +46,7 @@ class FilterWheel // : public QObject
     			FilterWheel();
     			~FilterWheel();
     int			listConnected ( oaFilterWheelDevice*** );
+    void    releaseInfo ( oaFilterWheelDevice** );
     int			initialise ( oaFilterWheelDevice* );
     void		disconnect ( void );
     void		warmReset ( void );

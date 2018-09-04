@@ -2,7 +2,7 @@
  *
  * ptr-udev.c -- Find PTR devices using (Linux) udev
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -284,15 +284,13 @@ oaPTREnumerate ( PTR_LIST* deviceList )
             udev_device_unref ( dev );
             udev_enumerate_unref ( enumerate );
             udev_unref ( udev );
-            _oaFreePTRDeviceList ( deviceList );
             return -OA_ERR_MEM_ALLOC;
           }
           if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
             udev_device_unref ( dev );
             udev_enumerate_unref ( enumerate );
             udev_unref ( udev );
-            free (( void* ) ptr );
-            _oaFreePTRDeviceList ( deviceList );
+            ( void ) free (( void* ) ptr );
             return -OA_ERR_MEM_ALLOC;
           }
           _oaInitPTRDeviceFunctionPointers ( ptr );
@@ -307,9 +305,8 @@ oaPTREnumerate ( PTR_LIST* deviceList )
           ptr->init = oaPTRInit;
           ( void ) strncpy ( _private->sysPath, deviceNode, PATH_MAX );
           if (( ret = _oaCheckPTRArraySize ( deviceList )) < 0 ) {
-            free (( void* ) ptr );
-            free (( void* ) _private );
-            _oaFreePTRDeviceList ( deviceList );
+            ( void ) free (( void* ) ptr );
+            ( void ) free (( void* ) _private );
             udev_device_unref ( dev );
             udev_enumerate_unref ( enumerate );
             udev_unref ( udev );

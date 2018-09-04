@@ -298,14 +298,14 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, int flags )
     if ( ret != FC2_ERROR_OK && ret != FC2_ERROR_BUFFER_TOO_SMALL ) {
       ( *p_fc2DestroyContext )( pgeContext );
       fprintf ( stderr, "Can't enumerate FC2 devices\n" );
-      free (( void* ) devList );
+      ( void ) free (( void* ) devList );
       return -OA_ERR_SYSTEM_ERROR;
     }
   } while ( ret != FC2_ERROR_OK );
 
   if ( !numCameras ) {
     ( *p_fc2DestroyContext )( pgeContext );
-    free (( void* ) devList );
+    ( void ) free (( void* ) devList );
     return 0;
   }
 
@@ -330,7 +330,7 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, int flags )
     if (( *p_fc2GetCameraFromIPAddress )( pgeContext, devList[i].ipAddress,
         &guid ) != FC2_ERROR_OK ) {
       ( *p_fc2DestroyContext )( pgeContext );
-      free (( void* ) devList );
+      ( void ) free (( void* ) devList );
       fprintf ( stderr, "Error fetching details for camera %d\n", i );
       return -OA_ERR_SYSTEM_ERROR;
     }
@@ -339,7 +339,7 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, int flags )
         &interfaceType ) != FC2_ERROR_OK ) {
       ( *p_fc2DestroyContext )( pgeContext );
       fprintf ( stderr, "Error getting interface type for camera %d\n", i );
-      free (( void* ) devList );
+      ( void ) free (( void* ) devList );
       return -OA_ERR_SYSTEM_ERROR;
     }
 
@@ -392,15 +392,14 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, int flags )
     if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
       _oaFreeCameraDeviceList ( deviceList );
       ( *p_fc2DestroyContext )( pgeContext );
-      free (( void* ) devList );
+      ( void ) free (( void* ) devList );
       return -OA_ERR_MEM_ALLOC;
     }
 
     if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
-      free (( void* ) dev );
-      _oaFreeCameraDeviceList ( deviceList );
+      ( void ) free (( void* ) dev );
       ( *p_fc2DestroyContext )( pgeContext );
-      free (( void* ) devList );
+      ( void ) free (( void* ) devList );
       return -OA_ERR_MEM_ALLOC;
     }
 
@@ -433,11 +432,10 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, int flags )
       }
     }
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
-      free (( void* ) dev );
-      free (( void* ) _private );
-      _oaFreeCameraDeviceList ( deviceList );
+      ( void ) free (( void* ) dev );
+      ( void ) free (( void* ) _private );
       ( *p_fc2DestroyContext )( pgeContext );
-      free (( void* ) devList );
+      ( void ) free (( void* ) devList );
       return ret;
     }
     deviceList->cameraList[ deviceList->numCameras++ ] = dev;
@@ -445,7 +443,7 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, int flags )
   }
 
   ( *p_fc2DestroyContext )( pgeContext );
-  free (( void* ) devList );
+  ( void ) free (( void* ) devList );
   return numFound;
 }
 

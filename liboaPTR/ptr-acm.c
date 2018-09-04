@@ -2,7 +2,7 @@
  *
  * ptr-udev.c -- Find PTR devices using ACM interface
  *
- * Copyright 2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *

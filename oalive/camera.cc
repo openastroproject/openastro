@@ -339,6 +339,13 @@ Camera::listConnected ( oaCameraDevice*** devs )
 }
 
 
+void
+Camera::releaseInfo ( oaCameraDevice** devs )
+{
+  return ( oaReleaseCameras ( devs ));
+}
+
+
 // FIX ME -- handling of the return code here is really scabby.  Do it
 // properly at some point
 

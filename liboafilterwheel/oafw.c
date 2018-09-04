@@ -2,7 +2,7 @@
  *
  * oafw.c -- main filter wheel library entrypoint
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -56,11 +56,12 @@ oaInterface	oaFilterWheelInterfaces[] = {
 };
   
 
+FILTERWHEEL_LIST	list;
+
 int
 oaGetFilterWheels( oaFilterWheelDevice*** deviceList )
 {
   int			i, err;
-  FILTERWHEEL_LIST	list;
 
   list.wheelList = 0;
   list.numFilterWheels = list.maxFilterWheels = 0;
@@ -68,6 +69,9 @@ oaGetFilterWheels( oaFilterWheelDevice*** deviceList )
   for ( i = 0; i < OA_FW_IF_COUNT; i++ ) {
     if ( oaFilterWheelInterfaces[i].interfaceType ) {
       if (( err = oaFilterWheelInterfaces[i].enumerate ( &list )) < 0 ) {
+        _oaFreeFilterWheelDeviceList ( &list );
+        list.numFilterWheels = 0;
+        list.wheelList = 0;
         return err;
       }
     }
@@ -75,6 +79,20 @@ oaGetFilterWheels( oaFilterWheelDevice*** deviceList )
 
   *deviceList = list.wheelList;
   return list.numFilterWheels;
+}
+
+
+void
+oaReleaseFilterWheels ( oaFilterWheelDevice** deviceList )
+{
+  // This is a bit cack-handed because we don't know from the data
+  // passed in how many cameras were found last time so we have to
+  // consult a static global instead.
+
+  _oaFreeFilterWheelDeviceList ( &list );
+  list.numFilterWheels = 0;
+  list.wheelList = 0;
+  return;
 }
 
 

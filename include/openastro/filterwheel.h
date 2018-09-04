@@ -81,6 +81,7 @@ typedef struct oaFilterWheelDevice {
 
 
 extern int		oaGetFilterWheels ( oaFilterWheelDevice*** );
+extern void		oaReleaseFilterWheels ( oaFilterWheelDevice** );
 extern unsigned		oaGetFilterWheelAPIVersion ( void );
 extern const char*	oaGetFilterWheelAPIVersionStr ( void );
 extern void		oaSetFilterWheelDebugLevel ( int );

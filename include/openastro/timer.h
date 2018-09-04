@@ -2,7 +2,7 @@
  *
  * timer.h -- Timer API header
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -44,6 +44,7 @@ typedef oaPTR oaTimer;
 typedef oaPTRDevice oaTimerDevice;
 
 extern int		oaGetTimerDevices ( oaTimerDevice*** );
+extern int		oaReleaseTimerDevices ( oaTimerDevice** );
 extern unsigned		oaGetTimerAPIVersion ( void );
 extern const char*	oaGetTimerAPIVersionStr ( void );
 extern void		oaSetTimerDebugLevel ( int );

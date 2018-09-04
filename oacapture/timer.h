@@ -2,7 +2,7 @@
  *
  * timer.h -- class declaration
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -47,6 +47,7 @@ class Timer // : public QObject
     			Timer();
     			~Timer();
     int			listConnected ( oaTimerDevice*** );
+    void		releaseInfo ( oaTimerDevice** );
     int			initialise ( oaTimerDevice* );
     void		disconnect ( void );
     void		reset ( void );

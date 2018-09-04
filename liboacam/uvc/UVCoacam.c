@@ -87,7 +87,7 @@ oaUVCGetCameras ( CAMERA_LIST* deviceList, int flags )
     }
 
     if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
-      free ( dev );
+      ( void ) free (( void* ) dev );
       uvc_free_device_descriptor ( desc );
       uvc_free_device_list ( devlist, 1 );
       uvc_exit ( ctx );
@@ -111,12 +111,11 @@ oaUVCGetCameras ( CAMERA_LIST* deviceList, int flags )
     dev->initCamera = oaUVCInitCamera;
     dev->hasLoadableFirmware = 0;
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
-      free ( dev );
-      free ( _private );
+      ( void ) free (( void* ) dev );
+      ( void ) free (( void* ) _private );
       uvc_free_device_descriptor ( desc );
       uvc_free_device_list ( devlist, 1 );
       uvc_exit ( ctx );
-      _oaFreeCameraDeviceList ( deviceList );
       return ret;
     }
     deviceList->cameraList[ deviceList->numCameras++ ] = dev;

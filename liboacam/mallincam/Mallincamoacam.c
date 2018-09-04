@@ -2,7 +2,7 @@
  *
  * Mallincamoacam.c -- main entrypoint for Mallincam cameras
  *
- * Copyright 2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -828,7 +828,7 @@ oaMallincamGetCameras ( CAMERA_LIST* deviceList, int flags )
     }
 
     if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
-      free (( void* ) dev );
+      ( void ) free (( void* ) dev );
       return -OA_ERR_MEM_ALLOC;
     }
 
@@ -842,8 +842,8 @@ oaMallincamGetCameras ( CAMERA_LIST* deviceList, int flags )
     dev->initCamera = oaMallincamInitCamera;
     dev->hasLoadableFirmware = 0;
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
-      free (( void* ) dev );
-      free (( void* ) _private );
+      ( void ) free (( void* ) dev );
+      ( void ) free (( void* ) _private );
       return ret;
     }
     deviceList->cameraList[ deviceList->numCameras++ ] = dev;

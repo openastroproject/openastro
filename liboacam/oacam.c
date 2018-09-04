@@ -88,77 +88,170 @@
 oaInterface	oaCameraInterfaces[] = {
   { 0, "", "", 0, OA_UDC_FLAG_NONE },
 #if HAVE_LIBV4L2
-  { OA_CAM_IF_V4L2, "Linux V4L2", "V4L2", oaV4L2GetCameras, 0,
-      OA_UDC_FLAG_NONE },
+  {
+    OA_CAM_IF_V4L2,
+    "Linux V4L2",
+    "V4L2",
+    oaV4L2GetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
 #ifdef	OA_PWC_DRIVER_SUPPORT
-  { OA_CAM_IF_PWC, "Philips", "PWC", oaPWCGetCameras, 0, OA_UDC_FLAG_NONE },
+  {
+    OA_CAM_IF_PWC,
+    "Philips",
+    "PWC",
+    oaPWCGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
 #if HAVE_LIBASI
-  { OA_CAM_IF_ZWASI, "ZW Optical ASI", "ZWASI", oaZWASIGetCameras, 0,
-      OA_UDC_FLAG_NONE },
+  {
+    OA_CAM_IF_ZWASI,
+    "ZW Optical ASI",
+    "ZWASI",
+    oaZWASIGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
-  { OA_CAM_IF_QHY, "QHYCCD", "QHY", oaQHYGetCameras, 0, OA_UDC_FLAG_NONE },
+  {
+    OA_CAM_IF_QHY,
+    "QHYCCD",
+    "QHY",
+    oaQHYGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
 #if HAVE_LIBDC1394
-  { OA_CAM_IF_IIDC, "IIDC/DCAM", "IIDC", oaIIDCGetCameras, 0,
-      OA_UDC_FLAG_NONE },
+  {
+    OA_CAM_IF_IIDC,
+    "IIDC/DCAM",
+    "IIDC",
+    oaIIDCGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
 #if HAVE_LIBUVC
-  { OA_CAM_IF_UVC, "Userspace UVC", "UVC", oaUVCGetCameras, 0,
-      OA_UDC_FLAG_NONE },
+  {
+    OA_CAM_IF_UVC,
+    "Userspace UVC",
+    "UVC",
+    oaUVCGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
-  { OA_CAM_IF_SX, "Starlight Xpress", "SX", oaSXGetCameras, 0,
-      OA_UDC_FLAG_NONE },
+  {
+    OA_CAM_IF_SX,
+    "Starlight Xpress",
+    "SX",
+    oaSXGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
 #if HAVE_LIBUDEV || HAVE_LIBFTDI
-  { OA_CAM_IF_ATIK_SERIAL, "Atik Serial", "Atik", oaAtikSerialGetCameras, 0,
-      OA_UDC_FLAG_NONE },
+  {
+    OA_CAM_IF_ATIK_SERIAL,
+    "Atik Serial",
+    "Atik",
+    oaAtikSerialGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
 #if HAVE_LIBASI2
-  { OA_CAM_IF_ZWASI2, "ZW Optical ASI v2", "ZWASI2", oaZWASI2GetCameras, 0,
-      OA_UDC_FLAG_NONE },
+  {
+    OA_CAM_IF_ZWASI2,
+    "ZW Optical ASI v2",
+    "ZWASI2",
+    oaZWASI2GetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
-  { OA_CAM_IF_EUVC, "TIS EUVC", "EUVC", oaEUVCGetCameras, 0, OA_UDC_FLAG_NONE },
+  {
+    OA_CAM_IF_EUVC,
+    "TIS EUVC",
+    "EUVC",
+    oaEUVCGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
 #if HAVE_LIBFLYCAPTURE2
-  { OA_CAM_IF_FC2, "Point Grey Flycapture2", "FC2", oaFC2GetCameras, 0,
-      OA_UDC_FLAG_NONE },
+  {
+    OA_CAM_IF_FC2,
+    "Point Grey Flycapture2",
+    "FC2",
+    oaFC2GetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
 #if HAVE_LIBTOUPCAM
-  { OA_CAM_IF_TOUPCAM, "Touptek", "TTEK", oaTouptekGetCameras, 0,
-      OA_UDC_FLAG_NONE },
+  {
+    OA_CAM_IF_TOUPCAM,
+    "Touptek",
+    "TTEK",
+    oaTouptekGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
 #if HAVE_LIBMALLINCAM
-  { OA_CAM_IF_MALLINCAM, "Mallincam", "MCAM", oaMallincamGetCameras, 0,
-      OA_UDC_FLAG_NONE },
+  {
+    OA_CAM_IF_MALLINCAM,
+    "Mallincam",
+    "MCAM",
+    oaMallincamGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
 #if HAVE_LIBALTAIRCAM
-  { OA_CAM_IF_ALTAIRCAM, "Altair", "AACAM", oaAltairGetCameras, 0,
-      OA_UDC_FLAG_NONE },
+  {
+    OA_CAM_IF_ALTAIRCAM,
+    "Altair",
+    "AACAM",
+    oaAltairGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
 #if HAVE_LIBSPINNAKER
-  { OA_CAM_IF_SPINNAKER, "Spinnaker", "SPIN", oaSpinGetCameras, 0,
-      OA_UDC_FLAG_NONE },
+  {
+    OA_CAM_IF_SPINNAKER,
+    "Spinnaker",
+    "SPIN",
+    oaSpinGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
@@ -166,13 +259,13 @@ oaInterface	oaCameraInterfaces[] = {
 };
 
 
-char*	installPathRoot = 0;
+char*               installPathRoot = 0;
+static CAMERA_LIST	list;
 
 int
 oaGetCameras( oaCameraDevice*** deviceList )
 {
   int           i, err;
-  CAMERA_LIST	list;
 
   list.cameraList = 0;
   list.numCameras = list.maxCameras = 0;
@@ -181,6 +274,9 @@ oaGetCameras( oaCameraDevice*** deviceList )
     if ( oaCameraInterfaces[i].interfaceType ) {
       if (( err = oaCameraInterfaces[i].enumerate ( &list,
           oaCameraInterfaces[i].flags )) < 0 ) {
+        _oaFreeCameraDeviceList ( &list );
+        list.numCameras = 0;
+        list.cameraList = 0;
         return err;
       }
     }
@@ -188,6 +284,20 @@ oaGetCameras( oaCameraDevice*** deviceList )
   
   *deviceList = list.cameraList;
   return list.numCameras;
+}
+
+
+void
+oaReleaseCameras ( oaCameraDevice** deviceList )
+{
+  // This is a bit cack-handed because we don't know from the data
+  // passed in how many cameras were found last time so we have to
+  // consult a static global instead.
+
+  _oaFreeCameraDeviceList ( &list );
+  list.numCameras = 0;
+  list.cameraList = 0;
+  return;
 }
 
 

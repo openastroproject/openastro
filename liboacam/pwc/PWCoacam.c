@@ -2,7 +2,8 @@
  *
  * PWCoacam.c -- main entrypoint for non V4L2 PWC camera
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -121,8 +122,7 @@ oaPWCGetCameras ( CAMERA_LIST* deviceList, int flags )
         return -OA_ERR_MEM_ALLOC;
       }
       if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
-        free ( dev );
-        _oaFreeCameraDeviceList ( deviceList );
+        ( void ) free (( void* ) dev );
         return -OA_ERR_MEM_ALLOC;
       }
       dev->interface = OA_CAM_IF_PWC;
@@ -133,11 +133,10 @@ oaPWCGetCameras ( CAMERA_LIST* deviceList, int flags )
       dev->initCamera = oaPWCInitCamera;
       dev->_private = _private;
       if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
-        free ( dev );
-        free ( _private );
+        ( void ) free (( void* ) dev );
+        ( void ) free (( void* ) _private );
         libusb_free_device_list ( devlist, 1 );
         libusb_exit ( ctx );
-        _oaFreeCameraDeviceList ( deviceList );
         return ret;
       }
       numFound++;

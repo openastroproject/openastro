@@ -2,7 +2,8 @@
  *
  * IIDCoacam.c -- main entrypoint for IEE1394/IIDC Cameras
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -79,15 +80,13 @@ oaIIDCGetCameras ( CAMERA_LIST* deviceList, int flags )
     device = dc1394_camera_new_unit ( iidcContext, guid, unit );
 
     if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
-      _oaFreeCameraDeviceList ( deviceList );
       dc1394_camera_free_list ( devlist );
       dc1394_free ( iidcContext );
       return -OA_ERR_MEM_ALLOC;
     }
 
     if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
-      free (( void* ) dev );
-      _oaFreeCameraDeviceList ( deviceList );
+      ( void ) free (( void* ) dev );
       dc1394_camera_free_list ( devlist );
       dc1394_free ( iidcContext );
       return -OA_ERR_MEM_ALLOC;
@@ -106,7 +105,6 @@ oaIIDCGetCameras ( CAMERA_LIST* deviceList, int flags )
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
       free (( void* ) dev );
       free (( void* ) _private );
-      _oaFreeCameraDeviceList ( deviceList );
       dc1394_camera_free_list ( devlist );
       dc1394_free ( iidcContext );
       return ret;

@@ -2,7 +2,7 @@
  *
  * EUVCoacam.c -- main entrypoint for TIS EUVC cameras
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -143,8 +143,7 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, int flags )
           return -OA_ERR_MEM_ALLOC;
         }
         if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
-          free ( dev );
-          _oaFreeCameraDeviceList ( deviceList );
+          ( void ) free (( void* ) dev );
           return -OA_ERR_MEM_ALLOC;
         }
 
@@ -161,9 +160,8 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, int flags )
         // store the device data here so we can use it later
         _private->misc = j;
         if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
-          free ( dev );
-          free ( _private );
-          _oaFreeCameraDeviceList ( deviceList );
+          ( void ) free (( void* ) dev );
+          ( void ) free (( void* ) _private );
           return ret;
         }
         deviceList->cameraList[ deviceList->numCameras++ ] = dev;

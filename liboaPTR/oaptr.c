@@ -39,12 +39,12 @@
 
 #include "ptr.h"
 
+PTR_LIST		list;
 
 int
 oaGetPTRDevices ( oaPTRDevice*** deviceList )
 {
   int			err;
-  PTR_LIST		list;
 
   list.ptrList = 0;
   list.numPTRDevices = list.maxPTRDevices = 0;
@@ -53,6 +53,9 @@ oaGetPTRDevices ( oaPTRDevice*** deviceList )
   // as I have no idea how to talk to the PTR on OSX for the time being
 #if HAVE_LIBUDEV
   if (( err = oaPTREnumerate ( &list )) < 0 ) {
+    _oaFreePTRDeviceList ( &list );
+    list.ptrList = 0;
+    list.numPTRDevices = 0;
     return err;
   }
 #else
@@ -61,6 +64,20 @@ oaGetPTRDevices ( oaPTRDevice*** deviceList )
 
   *deviceList = list.ptrList;
   return list.numPTRDevices;
+}
+
+
+void
+oaReleasePTRDevices ( oaPTRDevice** deviceList )
+{
+  // This is a bit cack-handed because we don't know from the data
+  // passed in how many cameras were found last time so we have to
+  // consult a static global instead.
+
+  _oaFreePTRDeviceList ( &list );
+  list.ptrList = 0;
+  list.numPTRDevices = 0;
+  return;
 }
 
 

@@ -2,7 +2,7 @@
  *
  * filterwheel.cc -- filter wheel interface class
  *
- * Copyright 2014 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -117,6 +117,13 @@ int
 FilterWheel::listConnected ( oaFilterWheelDevice*** devs )
 {
   return ( oaGetFilterWheels ( devs ));
+}
+
+
+void
+FilterWheel::releaseInfo ( oaFilterWheelDevice** devs )
+{
+  return ( oaReleaseFilterWheels ( devs ));
 }
 
 

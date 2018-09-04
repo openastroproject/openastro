@@ -816,7 +816,7 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
     }
 
     if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
-      free (( void* ) dev );
+      ( void ) free (( void* ) dev );
       return -OA_ERR_MEM_ALLOC;
     }
 
@@ -830,8 +830,8 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
     dev->initCamera = oaTouptekInitCamera;
     dev->hasLoadableFirmware = 0;
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
-      free (( void* ) dev );
-      free (( void* ) _private );
+      ( void ) free (( void* ) dev );
+      ( void ) free (( void* ) _private );
       return ret;
     }
     deviceList->cameraList[ deviceList->numCameras++ ] = dev;

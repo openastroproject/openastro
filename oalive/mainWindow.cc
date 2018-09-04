@@ -101,6 +101,8 @@ MainWindow::MainWindow()
   connectedTimers = timerMenuCreated = 0;
 #endif
   doingQuit = 0;
+  cameraDevs = 0;
+  filterWheelDevs = 0;
 #ifdef OACAPTURE
   state.histogramOn = 0;
   state.histogramWidget = 0;
@@ -2441,6 +2443,9 @@ MainWindow::doCameraMenu ( int replaceSingleItem )
     delete cameraSignalMapper;
   }
 
+  if ( cameraDevs ) {
+    state.camera->releaseInfo ( cameraDevs );
+  }
   numDevs = state.camera->listConnected ( &cameraDevs );
 
   if ( !replaceSingleItem ) {
@@ -2516,6 +2521,9 @@ MainWindow::doFilterWheelMenu ( int replaceSingleItem )
     delete filterWheelSignalMapper;
   }
 
+  if ( filterWheelDevs ) {
+    state.filterWheel->releaseInfo ( filterWheelDevs );
+  }
   numFilterWheels = state.filterWheel->listConnected ( &filterWheelDevs );
 
   if ( !replaceSingleItem ) {
@@ -2609,6 +2617,9 @@ MainWindow::doTimerMenu ( int replaceSingleItem )
     delete timerSignalMapper;
   }
 
+  if ( timerDevs ) {
+    state.timer->releaseInfo ( timerDevs );
+  }
   numTimers = state.timer->listConnected ( &timerDevs );
 
   if ( !replaceSingleItem ) {

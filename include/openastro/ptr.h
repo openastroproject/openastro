@@ -76,6 +76,7 @@ typedef struct oaPTRDevice {
 
 
 extern int		oaGetPTRDevices ( oaPTRDevice*** );
+extern void		oaReleasePTRDevices ( oaPTRDevice** );
 extern unsigned		oaGetPTRAPIVersion ( void );
 extern const char*	oaGetPTRAPIVersionStr ( void );
 extern void		oaSetPTRDebugLevel ( int );

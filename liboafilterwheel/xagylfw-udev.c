@@ -2,7 +2,7 @@
  *
  * xagylfw-udev.c -- Find Xagyl filter wheels using (Linux) udev
  *
- * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -180,15 +180,13 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
             udev_device_unref ( dev );
             udev_enumerate_unref ( enumerate );
             udev_unref ( udev );
-            _oaFreeFilterWheelDeviceList ( deviceList );
             return -OA_ERR_MEM_ALLOC;
           }
           if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
             udev_device_unref ( dev );
             udev_enumerate_unref ( enumerate );
             udev_unref ( udev );
-            free (( void* ) wheel );
-            _oaFreeFilterWheelDeviceList ( deviceList );
+            ( void ) free (( void* ) wheel );
             return -OA_ERR_MEM_ALLOC;
           }
           _oaInitFilterWheelDeviceFunctionPointers ( wheel );
@@ -238,9 +236,8 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
             wheel->initFilterWheel = oaXagylInitFilterWheel;
             ( void ) strncpy ( _private->sysPath, deviceNode, PATH_MAX );
             if (( ret = _oaCheckFilterWheelArraySize ( deviceList )) < 0 ) {
-              free (( void* ) wheel );
-              free (( void* ) _private );
-              _oaFreeFilterWheelDeviceList ( deviceList );
+              ( void ) free (( void* ) wheel );
+              ( void ) free (( void* ) _private );
 #ifdef XAGYL_READ_FOUND_WHEEL
               close ( fwDesc );
 #endif

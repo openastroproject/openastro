@@ -2,7 +2,7 @@
  *
  * utils.c -- random support functions for cameras
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -35,6 +35,9 @@ _oaFreeCameraDeviceList ( CAMERA_LIST* deviceList )
 {
   unsigned int		i;
 
+  // FIX ME -- free private data
+  // FIX ME -- don't free for spinnaker devices until getCameras code is
+  // fixed up
   for ( i = 0; i < deviceList->numCameras; i++ ) {
     free (( void* ) deviceList->cameraList[i] );
   }

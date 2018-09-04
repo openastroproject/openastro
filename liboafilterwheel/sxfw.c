@@ -2,7 +2,7 @@
  *
  * sxfw.c -- Control Starlight Xpress filter wheels
  *
- * Copyright 2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -60,14 +60,12 @@ oaSXGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
   while ( device ) {
 
     if (!( wheel = malloc ( sizeof ( oaFilterWheelDevice )))) {
-      _oaFreeFilterWheelDeviceList ( deviceList );
       hid_free_enumeration ( devlist );
       hid_exit();
       return -OA_ERR_MEM_ALLOC;
     }
     if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
-      free (( void* ) wheel );
-      _oaFreeFilterWheelDeviceList ( deviceList );
+      ( void ) free (( void* ) wheel );
       hid_free_enumeration ( devlist );
       hid_exit();
       return -OA_ERR_MEM_ALLOC;
@@ -86,11 +84,10 @@ oaSXGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
     wheel->_private = _private;
     wheel->initFilterWheel = oaSXInitFilterWheel;
     if (( ret = _oaCheckFilterWheelArraySize ( deviceList )) < 0 ) {
-      free (( void* ) wheel );
-      free (( void* ) _private );
+      ( void ) free (( void* ) wheel );
+      ( void ) free (( void* ) _private );
       hid_free_enumeration ( devlist );
       hid_exit();
-      _oaFreeFilterWheelDeviceList ( deviceList );
       return ret;
     }
     deviceList->wheelList[ deviceList->numFilterWheels++ ] = wheel;
