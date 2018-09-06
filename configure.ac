@@ -45,6 +45,7 @@ checkSystemLibasicamera=0
 checkSystemLibzwowheel=0
 useisystemInclude=0
 build_libusb=no
+zwoSupportedArch=1
 case $host in
   *-linux-*)
     checkQtForPIC=1
@@ -621,9 +622,6 @@ then
       AC_MSG_WARN([No suitable version of system libasicamera2 found.  Using internal version.])
     ])
   fi
-else
-  # we'll always have this, because we use a local copy
-  AC_DEFINE([HAVE_LIBASI2],[1],[Have libasicamera2])
 fi
 
 use_system_libzwowheel=no
@@ -656,13 +654,9 @@ then
       AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
       have_libzwowheel=yes
     ],[
-      AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
       AC_MSG_WARN([No system libEFWFilter found. Using internal version.])
     ])
   fi
-else
-  # we'll always have this, because we use a local copy
-  AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
 fi
 
 AC_CHECK_LIB([m],[exp10],[
@@ -998,6 +992,7 @@ FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"\$(bindir)/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/
 
 APP_PATH_CFLAGS=""
 DEFAULT_PATH_CFLAGS=""
+DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_SO"
 
 libudev_default=yes
 # work around broken autoconf
@@ -1057,48 +1052,29 @@ case $host in
     AC_CONFIG_LINKS([$extI/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv5/libEFWFilter.a])
     ;;
   *)
-    if test "x$use_system_libasicamera" == "xno"; then
-      LIBASI_LIBS=""
-      LIBASI_CFLAGS="-DHAVE_LIBASI=0"
-      AC_MSG_NOTICE([No compatible ASI library for architecture $host.])
-    fi
-    if test "x$use_system_libasicamera2" == "xno"; then
-      LIBASI2_LIBS=""
-      LIBASI2_CFLAGS="-DHAVE_LIBASI2=0"
-      AC_MSG_NOTICE([No compatible ASI2 library for architecture $host.  Support for ASI cameras not included])
-    fi
-    if test "x$use_system_libzwowheel" == "xno"; then
-      LIBZWOFW_LIBS=""
-      LIBZWOFW_CFLAGS="-DHAVE_LIBZWOFW=0"
-      AC_MSG_NOTICE([No compatible EFWFilter library for architecture $host.  Support for ZWO filter wheels not included])
-    fi
+    zwoSupportedArch=0
+    LIBASI2_CFLAGS="-DHAVE_LIBASI=0"
+    AC_MSG_NOTICE([No compatible ASI library for architecture $host.])
+    LIBASI2_CFLAGS="-DHAVE_LIBASI2=0"
+    AC_MSG_NOTICE([No compatible ASI2 library for architecture $host.  Support for ASI cameras not included])
+    LIBZWOFW_LIBS=""
+    LIBZWOFW_CFLAGS="-DHAVE_LIBZWOFW=0"
+    AC_MSG_NOTICE([No compatible EFWFilter library for architecture $host.  Support for ZWO filter wheels not included])
     ;;
 esac
 
-if test "x$use_system_libasicamera" == "xno"; then
-  if test -f ext/libASICamera/libASICamera.a
-  then
-    LIBASI_CFLAGS="-DHAVE_LIBASI=1"
-    DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_SO"
-    LIBASI_LIBS="\$(top_builddir)/ext/libASICamera/libASICamera.a"
-  fi
-fi
-if test "x$use_system_libasicamera2" == "xno"; then
-  if test -f ext/libASICamera/libASICamera2.a
-  then
+if test $zwoSupportedArch -eq 1
+then
+  if test "x$use_system_libasicamera2" == "xno"; then
     LIBASI2_CFLAGS="-DHAVE_LIBASI2=1"
-    DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_SO"
     LIBASI2_LIBS="\$(top_builddir)/ext/libASICamera/libASICamera2.a"
   fi
-fi
-if test "x$use_system_libzwowheel" == "xno"; then
-  if test -f ext/libEFWFilter/libEFWFilter.a
-  then
+  if test "x$use_system_libzwowheel" == "xno"; then
     LIBZWOFW_CFLAGS="-DHAVE_LIBZWOFW=1"
-    DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_SO"
     LIBZWOFW_LIBS="\$(top_builddir)/ext/libEFWFilter/libEFWFilter.a"
   fi
 fi
+
 if test "x$use_system_libuvc" == "xno"; then
   LIBUVC_CFLAGS="-I \$(top_srcdir)/ext/libuvc/include"
   LIBUVC_LIBS="\$(top_builddir)/ext/libuvc/src/libuvc.la"
@@ -1180,7 +1156,6 @@ AM_CONDITIONAL([LIBASI_COND], [test "x$LIBASI_LIBS" != "x"])
 AM_CONDITIONAL([LIBASI2_COND], [test "x$LIBASI2_LIBS" != "x"])
 AM_CONDITIONAL([LIBZWOFW_COND], [test "x$LIBZWOFW_LIBS" != "x"])
 AM_CONDITIONAL([LIBASI_COMMON_COND], [test "x$LIBASI_LIBS$LIBASI2_LIBS" != "x"])
-AM_CONDITIONAL([LIBZWOFW_COND], [test "x$LIBZWOFW_LIBS" != "x"])
 AM_CONDITIONAL([LIBV4L2_COND], [test "x$have_v4l2" == "xyes"])
 AM_CONDITIONAL([LIBDC1394_COND], [test "x$use_system_dc1394" == "xno"])
 AM_CONDITIONAL([LIBUDEV_COND], [test "x$have_udev" == "xyes"])
