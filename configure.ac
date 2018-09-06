@@ -42,6 +42,7 @@ checkSystemDC1394=1
 checkSystemLibuvc=0
 checkSystemLibhidapi=0
 checkSystemLibasicamera=0
+checkSystemLibzwowheel=0
 useisystemInclude=0
 build_libusb=no
 case $host in
@@ -52,6 +53,7 @@ case $host in
     checkSystemLibuvc=1
     checkSystemLibhidapi=1
     checkSystemLibasicamera=1
+    checkSystemLibzwowheel=1
     ;;
   *-apple-*)
     useisystemInclude=1
@@ -624,6 +626,45 @@ else
   AC_DEFINE([HAVE_LIBASI2],[1],[Have libasicamera2])
 fi
 
+use_system_libzwowheel=no
+if test $checkSystemLibzwowheel -eq 1
+then
+  if `$PKG_CONFIG --exists libzwowheel`; then
+    AC_MSG_NOTICE([Using system libEFWFilter library])
+    flags=`$PKG_CONFIG --cflags-only-I libzwowheel`
+    if test $useisystemInclude -eq 1; then
+      flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+    fi
+    LIBZWOFW_CFLAGS="$flags"
+    # can't use shared libEFWFilter if we're not using the system libusb
+    # because it will try to pull it in anyhow
+    if test "x$use_system_libusb" == "xyes"; then
+      LIBZWOFW_LDFLAGS="`$PKG_CONFIG --libs-only-L libzwowheel`"
+      LIBZWOFW_LIBS="`$PKG_CONFIG --libs-only-l libzwowheel`"
+    else
+      AC_MSG_NOTICE([Using static libEFWFilter to avoid system libusb])
+      LIBZWOFW_LDFLAGS=""
+      mylibdir="`$PKG_CONFIG --variable=libdir libzwowheel`"
+      LIBZWOFW_LIBS="$mylibdir/libEFWFilter.a"
+    fi
+    have_libzwowheel=yes
+    use_system_libzwowheel=yes
+    AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
+  else
+    AC_CHECK_LIB([EFWFilter],[EFWGetNum],[
+      LIBS="-lEFWFilter $LIBS"
+      AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
+      have_libzwowheel=yes
+    ],[
+      AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
+      AC_MSG_WARN([No system libEFWFilter found. Using internal version.])
+    ])
+  fi
+else
+  # we'll always have this, because we use a local copy
+  AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
+fi
+
 AC_CHECK_LIB([m],[exp10],[
   AC_DEFINE([HAVE_EXP10],[1],[Have exp10 function in libm])
 ],[
@@ -957,6 +998,83 @@ FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"\$(bindir)/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/
 
 APP_PATH_CFLAGS=""
 DEFAULT_PATH_CFLAGS=""
+
+libudev_default=yes
+# work around broken autoconf
+ext1=ext; ext2=ext; ext3=ext; ext4=ext; ext5=ext; ext6=ext
+ext7=ext; ext8=ext; ext9=ext; extA=ext; extB=ext; extC=ext
+extD=ext; extE=ext; extF=ext; extG=ext; extH=ext; extI=ext
+extJ=ext; extK=ext; extL=ext; extM=ext
+case $host in
+  x86_64-apple-*)
+    AC_CONFIG_LINKS([$ext1/libASICamera/libASICamera2.a:ext/libASICamera/mac/libASICamera2.a])
+    AC_CONFIG_LINKS([$ext2/libtoupcam/libtoupcam.dylib:ext/libtoupcam/mac64/libtoupcam.dylib])
+    AC_CONFIG_LINKS([$ext3/libaltaircam/libaltaircam.dylib:ext/libaltaircam/mac64/libaltaircam.dylib])
+    AC_CONFIG_LINKS([$ext4/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/mac/libEFWFilter.a])
+    OSX_FRAMEWORKS="-framework Carbon -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
+    FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
+    LIBHIDAPI_LIBS="\$(top_builddir)/ext/libhidapi/mac/libhidapi.la"
+    APP_PATH_CFLAGS="-DUSE_APP_PATH=1"
+    DEFAULT_PATH_CFLAGS="-DUSE_HOME_DEFAULT=1"
+    DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_DYLIB"
+    OSX_WARNINGS="-Qunused-arguments"
+    AC_DEFINE([USB_OVERFLOW_HANGS],[1],[USB overflow causes hang])
+    ;;
+  i?86-apple-*)
+    AC_CONFIG_LINKS([$ext5/libASICamera/libASICamera2.a:ext/libASICamera/mac/libASICamera2.a])
+    AC_CONFIG_LINKS([$ext6/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/mac/libEFWFilter.a])
+    OSX_FRAMEWORKS="-framework Carbon -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
+    FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
+    LIBHIDAPI_LIBS="\$(top_builddir)/ext/libhidapi/mac/libhidapi.la"
+    APP_PATH_CFLAGS="-DUSE_APP_PATH=1"
+    DEFAULT_PATH_CFLAGS="-DUSE_HOME_DEFAULT=1"
+    DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_DYLIB"
+    OSX_WARNINGS="-Qunused-arguments"
+    AC_DEFINE([USB_OVERFLOW_HANGS],[1],[USB overflow causes hang])
+    ;;
+  i?86-*-*)
+    AC_CONFIG_LINKS([$ext7/libASICamera/libASICamera2.a:ext/libASICamera/x86/libASICamera2.a])
+    AC_CONFIG_LINKS([$ext8/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/x86/libEFWFilter.a])
+    ;;
+  x86_64-*-*)
+    AC_CONFIG_LINKS([$ext9/libASICamera/libASICamera2.a:ext/libASICamera/x64/libASICamera2.a])
+    AC_CONFIG_LINKS([$extA/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/x64/libEFWFilter.a])
+    ;;
+  armv8l-*-*)
+    AC_CONFIG_LINKS([$extB/libASICamera/libASICamera2.a:ext/libASICamera/armv8/libASICamera2.a])
+    AC_CONFIG_LINKS([$extC/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv8/libEFWFilter.a])
+    ;;
+  armv7l-*-*)
+    AC_CONFIG_LINKS([$extD/libASICamera/libASICamera2.a:ext/libASICamera/armv7/libASICamera2.a])
+    AC_CONFIG_LINKS([$extE/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv7/libEFWFilter.a])
+    ;;
+  armv6l-*-*)
+    AC_CONFIG_LINKS([$extF/libASICamera/libASICamera2.a:ext/libASICamera/armv6/libASICamera2.a])
+    AC_CONFIG_LINKS([$extG/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv6/libEFWFilter.a])
+    ;;
+  armv5l-*-*)
+    AC_CONFIG_LINKS([$extH/libASICamera/libASICamera2.a:ext/libASICamera/armv5/libASICamera2.a])
+    AC_CONFIG_LINKS([$extI/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv5/libEFWFilter.a])
+    ;;
+  *)
+    if test "x$use_system_libasicamera" == "xno"; then
+      LIBASI_LIBS=""
+      LIBASI_CFLAGS="-DHAVE_LIBASI=0"
+      AC_MSG_NOTICE([No compatible ASI library for architecture $host.])
+    fi
+    if test "x$use_system_libasicamera2" == "xno"; then
+      LIBASI2_LIBS=""
+      LIBASI2_CFLAGS="-DHAVE_LIBASI2=0"
+      AC_MSG_NOTICE([No compatible ASI2 library for architecture $host.  Support for ASI cameras not included])
+    fi
+    if test "x$use_system_libzwowheel" == "xno"; then
+      LIBZWOFW_LIBS=""
+      LIBZWOFW_CFLAGS="-DHAVE_LIBZWOFW=0"
+      AC_MSG_NOTICE([No compatible EFWFilter library for architecture $host.  Support for ZWO filter wheels not included])
+    fi
+    ;;
+esac
+
 if test "x$use_system_libasicamera" == "xno"; then
   if test -f ext/libASICamera/libASICamera.a
   then
@@ -973,76 +1091,14 @@ if test "x$use_system_libasicamera2" == "xno"; then
     LIBASI2_LIBS="\$(top_builddir)/ext/libASICamera/libASICamera2.a"
   fi
 fi
-
-libudev_default=yes
-# work around broken autoconf
-ext1=ext; ext2=ext; ext3=ext; ext4=ext; ext5=ext; ext6=ext
-ext7=ext; ext8=ext; ext9=ext; extA=ext; extB=ext; extC=ext
-extD=ext; extE=ext; extF=ext; extG=ext; extH=ext; extI=ext
-extJ=ext; extK=ext; extL=ext; extM=ext
-case $host in
-  x86_64-apple-*)
-    AC_CONFIG_LINKS([$ext7/libASICamera/libASICamera2.a:ext/libASICamera/mac/libASICamera2.a])
-    AC_CONFIG_LINKS([$extH/libtoupcam/libtoupcam.dylib:ext/libtoupcam/mac64/libtoupcam.dylib])
-    AC_CONFIG_LINKS([$extI/libaltaircam/libaltaircam.dylib:ext/libaltaircam/mac64/libaltaircam.dylib])
-    OSX_FRAMEWORKS="-framework Carbon -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
-    FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
-    LIBHIDAPI_LIBS="\$(top_builddir)/ext/libhidapi/mac/libhidapi.la"
-    have_toupcam=yes
-    have_mallincam=yes
-    have_altaircam=yes
-    APP_PATH_CFLAGS="-DUSE_APP_PATH=1"
-    DEFAULT_PATH_CFLAGS="-DUSE_HOME_DEFAULT=1"
-    DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_DYLIB"
-    OSX_WARNINGS="-Qunused-arguments"
-    AC_DEFINE([USB_OVERFLOW_HANGS],[1],[USB overflow causes hang])
-    ;;
-  i?86-apple-*)
-    AC_CONFIG_LINKS([$ext8/libASICamera/libASICamera2.a:ext/libASICamera/mac/libASICamera2.a])
-    OSX_FRAMEWORKS="-framework Carbon -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
-    FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
-    LIBHIDAPI_LIBS="\$(top_builddir)/ext/libhidapi/mac/libhidapi.la"
-    APP_PATH_CFLAGS="-DUSE_APP_PATH=1"
-    DEFAULT_PATH_CFLAGS="-DUSE_HOME_DEFAULT=1"
-    DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_DYLIB"
-    OSX_WARNINGS="-Qunused-arguments"
-    AC_DEFINE([USB_OVERFLOW_HANGS],[1],[USB overflow causes hang])
-    ;;
-  i?86-*-*)
-    AC_CONFIG_LINKS([$ext9/libASICamera/libASICamera2.a:ext/libASICamera/x86/libASICamera2.a])
-    have_toupcam=yes
-    have_mallincam=yes
-    have_altaircam=yes
-    ;;
-  x86_64-*-*)
-    AC_CONFIG_LINKS([$extA/libASICamera/libASICamera2.a:ext/libASICamera/x64/libASICamera2.a])
-    ;;
-  armv7l-*-*)
-    AC_CONFIG_LINKS([$extE/libASICamera/libASICamera2.a:ext/libASICamera/armv7/libASICamera2.a])
-    have_toupcam=yes
-    have_mallincam=yes
-    have_altaircam=yes
-    ;;
-  armv6l-*-*)
-    AC_CONFIG_LINKS([$extB/libASICamera/libASICamera2.a:ext/libASICamera/armv6/libASICamera2.a])
-    ;;
-  armv5l-*-*)
-    AC_CONFIG_LINKS([$extC/libASICamera/libASICamera2.a:ext/libASICamera/armv5/libASICamera2.a])
-    ;;
-  *)
-    if test "x$use_system_libasicamera" == "xno"; then
-      LIBASI_LIBS=""
-      LIBASI_CFLAGS="-DHAVE_LIBASI=0"
-      AC_MSG_NOTICE([No compatible ASI library for architecture $host.])
-    fi
-    if test "x$use_system_libasicamera2" == "xno"; then
-      LIBASI2_LIBS=""
-      LIBASI2_CFLAGS="-DHAVE_LIBASI2=0"
-      AC_MSG_NOTICE([No compatible ASI2 library for architecture $host.  Support for ASI cameras not included])
-    fi
-    ;;
-esac
-
+if test "x$use_system_libzwowheel" == "xno"; then
+  if test -f ext/libEFWFilter/libEFWFilter.a
+  then
+    LIBZWOFW_CFLAGS="-DHAVE_LIBZWOFW=1"
+    DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_SO"
+    LIBZWOFW_LIBS="\$(top_builddir)/ext/libEFWFilter/libEFWFilter.a"
+  fi
+fi
 if test "x$use_system_libuvc" == "xno"; then
   LIBUVC_CFLAGS="-I \$(top_srcdir)/ext/libuvc/include"
   LIBUVC_LIBS="\$(top_builddir)/ext/libuvc/src/libuvc.la"
@@ -1092,9 +1148,9 @@ fi
 if test "x$have_toupcam" != "xno"
 then
   LIBTOUPCAM_CFLAGS="-I \$(top_srcdir)/ext/libtoupcam/include"
-  AC_DEFINE([HAVE_LIBTOUPCAM],[1],[Have Toupcam library])
-  AC_DEFINE([HAVE_LIBMALLINCAM],[1],[Have Mallincam library])
-  AC_DEFINE([HAVE_LIBALTAIRCAM],[1],[Have Altair camera library])
+  AC_DEFINE([HAVE_LIBTOUPCAM],[1],[Have Toupcam library support])
+  AC_DEFINE([HAVE_LIBMALLINCAM],[1],[Have Mallincam library support])
+  AC_DEFINE([HAVE_LIBALTAIRCAM],[1],[Have Altair camera library support])
 #],[
 #  AC_MSG_WARN([No toupcam library found.  Touptek cameras will not be supported])])
 fi
@@ -1112,6 +1168,7 @@ AC_SUBST(LIBASI_CFLAGS)
 AC_SUBST(LIBASI_LIBS)
 AC_SUBST(LIBASI2_CFLAGS)
 AC_SUBST(LIBASI2_LIBS)
+AC_SUBST(LIBZWOFW_LIBS)
 AC_SUBST(LIBFTDI_CFLAGS)
 AC_SUBST(LIBFTDI_LIBS)
 AC_SUBST(APP_PATH_CFLAGS)
@@ -1121,7 +1178,9 @@ AC_SUBST(MOC_CFLAGS)
 
 AM_CONDITIONAL([LIBASI_COND], [test "x$LIBASI_LIBS" != "x"])
 AM_CONDITIONAL([LIBASI2_COND], [test "x$LIBASI2_LIBS" != "x"])
+AM_CONDITIONAL([LIBZWOFW_COND], [test "x$LIBZWOFW_LIBS" != "x"])
 AM_CONDITIONAL([LIBASI_COMMON_COND], [test "x$LIBASI_LIBS$LIBASI2_LIBS" != "x"])
+AM_CONDITIONAL([LIBZWOFW_COND], [test "x$LIBZWOFW_LIBS" != "x"])
 AM_CONDITIONAL([LIBV4L2_COND], [test "x$have_v4l2" == "xyes"])
 AM_CONDITIONAL([LIBDC1394_COND], [test "x$use_system_dc1394" == "xno"])
 AM_CONDITIONAL([LIBUDEV_COND], [test "x$have_udev" == "xyes"])
@@ -1139,5 +1198,5 @@ AM_CONDITIONAL([BUILD_LIBUSB_COND], [test "x$build_libusb" == "xyes"])
 AM_CONDITIONAL([LIBHIDAPI_COND], [test "x$use_system_libhidapi" == "xno"])
 AM_CONDITIONAL([INT_LIBUVC_COND], [test "x$internal_uvc" == "xyes"])
 
-AC_CONFIG_FILES([Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/qhy/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboaimgproc/Makefile liboaPTR/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile])
+AC_CONFIG_FILES([Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/qhy/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboaimgproc/Makefile liboaPTR/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile])
 AC_OUTPUT

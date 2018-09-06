@@ -41,6 +41,7 @@
 
 #include "xagylfw.h"
 #include "sxfw.h"
+#include "zwofw.h"
 
 oaInterface	oaFilterWheelInterfaces[] = {
   { 0, "", "", 0, OA_UDC_FLAG_NONE },
@@ -52,6 +53,12 @@ oaInterface	oaFilterWheelInterfaces[] = {
 #endif
   { OA_FW_IF_SX, "Starlight Xpress", "SX", oaSXGetFilterWheels,
       OA_UDC_FLAG_NONE },
+#ifdef HAVE_LIBZWOFW
+  { OA_FW_IF_ZWO, "ZW Optical", "ZWO", oaZWOGetFilterWheels,
+      OA_UDC_FLAG_NONE },
+#else
+  { 0, "", "", 0, OA_UDC_FLAG_NONE },
+#endif
   { 0, "", "", 0, OA_UDC_FLAG_NONE }
 };
   

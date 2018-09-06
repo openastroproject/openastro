@@ -1,7 +1,7 @@
 #
-# Makefile.am -- liboafilterwheel Makefile template
+# Makefile.am -- liboafilterwheel Xagyl Makefile template
 #
-# Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
+# Copyright 2018 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -24,36 +24,27 @@
 
 AM_CPPFLAGS = \
   -I$(top_srcdir)/include \
-  -I$(top_srcdir)/ext/libEFWFilter/include \
+  -I$(top_srcdir)/liboafilterwheel \
   $(LIBHIDAPI_CFLAGS) \
-  $(LIBUSB_CFLAGS) \
-  -I./sx -I./xagyl -I./zwo \
-  $(DYNLIB_EXTN_CFLAGS)
-
-lib_LTLIBRARIES = liboafilterwheel.la
+  $(LIBUSB_CFLAGS)
 
 if LIBUDEV_COND
-XAGYLDIR = xagyl
-XAGYLLIB = $(XAGYLDIR)/libxagyl.la
-endif
+XAGYLSRC = xagylfw-udev.c xagylConnect-udev.c xagylIO-udev.c 
+  # xagylControl-udev.c
 
+else
 if LIBFTDI_COND
-XAGYLDIR = xagyl
-XAGYLLIB = $(XAGYLDIR)/libxagyl.la
+XAGYLSRC = xagylfw-ftdi.c xagylIO-ftdi.c xagylConnect-ftdi.c
+  # xagylControl-ftdi.c
+endif
 endif
 
-if LIBZWOFW_COND
-ZWODIR = zwo
-ZWOLIB = $(ZWODIR)/libzwo.la
-endif
 
-SUBDIRS = sx $(XAGYLDIR) $(ZWODIR)
+noinst_LTLIBRARIES = libxagyl.la
 
-liboafilterwheel_la_SOURCES = \
-	oafw.c debug.c unimplemented.c utils.c
-
-liboafilterwheel_la_LIBADD = \
-  sx/libsx.la $(XAGYLLIB) $(ZWOLIB)
+libxagyl_la_SOURCES = \
+	xagylControl.c xagylConfig.c xagylController.c xagylCallback.c \
+	$(XAGYLSRC)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

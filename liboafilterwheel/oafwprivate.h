@@ -34,6 +34,7 @@
 #include <libftdi1/ftdi.h>
 #endif
 #endif
+#include <hidapi.h>
 
 #include <openastro/controller.h>
 

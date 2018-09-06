@@ -1,7 +1,7 @@
 #
-# Makefile.am -- liboafilterwheel Makefile template
+# Makefile.am -- liboafilterwheel ZWO Makefile template
 #
-# Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
+# Copyright 2018 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -25,35 +25,16 @@
 AM_CPPFLAGS = \
   -I$(top_srcdir)/include \
   -I$(top_srcdir)/ext/libEFWFilter/include \
+  -I$(top_srcdir)/liboafilterwheel \
   $(LIBHIDAPI_CFLAGS) \
   $(LIBUSB_CFLAGS) \
-  -I./sx -I./xagyl -I./zwo \
+  $(LIBZWOFW_CFLAGS) \
   $(DYNLIB_EXTN_CFLAGS)
 
-lib_LTLIBRARIES = liboafilterwheel.la
+noinst_LTLIBRARIES = libzwo.la
 
-if LIBUDEV_COND
-XAGYLDIR = xagyl
-XAGYLLIB = $(XAGYLDIR)/libxagyl.la
-endif
-
-if LIBFTDI_COND
-XAGYLDIR = xagyl
-XAGYLLIB = $(XAGYLDIR)/libxagyl.la
-endif
-
-if LIBZWOFW_COND
-ZWODIR = zwo
-ZWOLIB = $(ZWODIR)/libzwo.la
-endif
-
-SUBDIRS = sx $(XAGYLDIR) $(ZWODIR)
-
-liboafilterwheel_la_SOURCES = \
-	oafw.c debug.c unimplemented.c utils.c
-
-liboafilterwheel_la_LIBADD = \
-  sx/libsx.la $(XAGYLLIB) $(ZWOLIB)
+libzwo_la_SOURCES = \
+	zwofw.c zwoConnect.c zwoControl.c zwoController.c zwoCallback.c zwoConfig.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
