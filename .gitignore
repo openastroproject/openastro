@@ -97,6 +97,7 @@ ui_*.h
 /ext/libusb/libusb/os/.dirstamp
 /ext/libASICamera/libASICamera.a
 /ext/libASICamera/libASICamera2.a
+/ext/libEFWFilter/libEFWFilter.a
 /ext/ffmpeg/.config
 /ext/ffmpeg/.version
 /ext/ffmpeg/config.asm
