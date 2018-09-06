@@ -56,22 +56,31 @@ oaZWOInitFilterWheel ( oaFilterWheelDevice* device )
   DEVICE_INFO*				devInfo;
   PRIVATE_INFO*				privateInfo;
   EFW_INFO            wheelInfo;
+  EFW_ERROR_CODE      err;
 
   devInfo = device->_private;
 
-  wheelInfo.ID = devInfo->devIndex;
-  EFWGetProperty ( wheelInfo.ID, &wheelInfo );
-
-  if ( EFWOpen ( devInfo->devIndex ) != EFW_SUCCESS ) {
-    perror ( "failed to open filter wheel" );
+  if (( err = EFWGetID ( devInfo->devIndex, &wheelInfo.ID )) != EFW_SUCCESS ) {
+    fprintf ( stderr, "%s: EFWGetID returns error %d\n", __FUNCTION__, err );
+    return 0;
+  }
+  if (( err = EFWOpen ( wheelInfo.ID )) != EFW_SUCCESS ) {
+    fprintf ( stderr, "%s: EFWOpen returns error %d\n", __FUNCTION__, err );
+    return 0;
+  }
+  if (( err = EFWGetProperty ( wheelInfo.ID, &wheelInfo )) != EFW_SUCCESS ) {
+    fprintf ( stderr, "%s: EFWGetProperty returns error %d\n",
+        __FUNCTION__, err );
     return 0;
   }
 
   if (!( wheel = ( oaFilterWheel* ) malloc ( sizeof ( oaFilterWheel )))) {
+    EFWClose ( wheelInfo.ID );
     perror ( "malloc oaFilterWheel failed" );
     return 0;
   }
   if (!( privateInfo = ( PRIVATE_INFO* ) malloc ( sizeof ( PRIVATE_INFO )))) {
+    EFWClose ( wheelInfo.ID );
     ( void ) free (( void* ) wheel );
     perror ( "malloc oaFilterWheel failed" );
     return 0;
@@ -95,7 +104,7 @@ oaZWOInitFilterWheel ( oaFilterWheelDevice* device )
   privateInfo->index = -1;
 
   wheel->interface = device->interface;
-  privateInfo->index = devInfo->devIndex;
+  privateInfo->index = wheelInfo.ID;
   privateInfo->wheelType = devInfo->devType;
   privateInfo->currentPosition = 1;
 
@@ -151,8 +160,7 @@ _zwoInitFunctionPointers ( oaFilterWheel* wheel )
 int
 _getNumSlots ( oaFilterWheel* wheel )
 {
-  fprintf ( stderr, "guessing at number of slots" );
-  return 5;
+  return wheel->numSlots;
 }
 
 

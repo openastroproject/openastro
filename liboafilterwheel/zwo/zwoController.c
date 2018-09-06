@@ -160,7 +160,7 @@ _oaZWOMoveTo ( PRIVATE_INFO* wheelInfo, int slot )
 {
   pthread_mutex_lock ( &wheelInfo->ioMutex );
   // FIX ME -- check for errors
-  EFWSetPosition ( wheelInfo->index, slot );
+  EFWSetPosition ( wheelInfo->index, slot - 1 );
   pthread_mutex_unlock ( &wheelInfo->ioMutex );
 
   return 0;

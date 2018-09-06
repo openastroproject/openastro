@@ -48,14 +48,27 @@ oaZWOGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
   oaFilterWheelDevice*  wheel;
   DEVICE_INFO*          _private;
   EFW_INFO              wheelInfo;
+  EFW_ERROR_CODE        err;
 
   if (( numFound = EFWGetNum()) < 1 ) {
     return 0;
   }
 
   for ( i = 0; i < numFound; i++ ) {
-    EFWGetID ( i, &wheelInfo.ID );
-    EFWGetProperty ( wheelInfo.ID, &wheelInfo );
+    if (( err = EFWGetID ( i, &wheelInfo.ID )) != EFW_SUCCESS ) {
+      fprintf ( stderr, "%s: EFWGetID returns error %d\n", __FUNCTION__, err );
+      return 0;
+    }
+    if (( err = EFWOpen ( wheelInfo.ID )) != EFW_SUCCESS ) {
+      fprintf ( stderr, "%s: EFWOpen returns error %d\n", __FUNCTION__, err );
+      return 0;
+    }
+    if (( err = EFWGetProperty ( wheelInfo.ID, &wheelInfo )) != EFW_SUCCESS ) {
+      fprintf ( stderr, "%s: EFWGetProperty returns error %d\n",
+          __FUNCTION__, err );
+      return 0;
+    }
+    EFWClose ( wheelInfo.ID );
 
     if (!( wheel = malloc ( sizeof ( oaFilterWheelDevice )))) {
       return -OA_ERR_MEM_ALLOC;
@@ -66,8 +79,8 @@ oaZWOGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
     }
     _oaInitFilterWheelDeviceFunctionPointers ( wheel );
     wheel->interface = OA_FW_IF_ZWO;
-    _private->devIndex = wheelInfo.ID;
     ( void ) strcpy ( wheel->deviceName, wheelInfo.Name );
+    _private->devIndex = i;
     wheel->_private = _private;
     wheel->initFilterWheel = oaZWOInitFilterWheel;
     if (( ret = _oaCheckFilterWheelArraySize ( deviceList )) < 0 ) {

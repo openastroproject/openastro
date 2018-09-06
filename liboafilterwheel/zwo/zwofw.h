@@ -2,7 +2,7 @@
  *
  * zwofw.h -- header for ZWO filter wheel API
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
