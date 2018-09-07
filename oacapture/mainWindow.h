@@ -2,7 +2,8 @@
  *
  * mainWindow.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -56,7 +57,7 @@ class MainWindow : public QMainWindow
   Q_OBJECT
 
   public:
-			MainWindow();
+			MainWindow ( QString );
 			~MainWindow();
     void		clearDroppedFrames ( void );
     void		setNightStyleSheet ( QWidget* );
@@ -64,10 +65,10 @@ class MainWindow : public QMainWindow
     void		destroyLayout ( QLayout* );
     void		setFlipX ( int );
     void		setFlipY ( int );
-    void		writeConfig ( void );
     void		configure ( void );
     void		createControlWidgets ( void );
     void		createPreviewWindow ( void );
+    void    updateConfig ( void );
 
   private:
     QMenu*		fileMenu;
@@ -97,8 +98,10 @@ class MainWindow : public QMainWindow
     QLabel*             timerStatus;
     QLabel*             wheelStatus;
     QLabel*             locationLabel;
+    QString    userConfigFile;
 
-    void		readConfig ( void );
+    void		readConfig ( QString );
+    void		writeConfig ( QString );
     void		createStatusBar ( void );
     void		createMenus ( void );
     void		doDisconnectCam ( void );

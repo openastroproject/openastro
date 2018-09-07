@@ -67,13 +67,14 @@ static const char* styleGroupBoxBorders =
   "}";
 
 
-MainWindow::MainWindow()
+MainWindow::MainWindow ( QString configFile )
 {
   QString qtVer;
   unsigned int qtMajorVersion;
   int i;
   bool ok;
 
+  userConfigFile = configFile;
   cameraSignalMapper = filterWheelSignalMapper = 0;
   timerSignalMapper = 0;
   timerStatus = wheelStatus = locationLabel = 0;
@@ -112,7 +113,7 @@ MainWindow::MainWindow()
     this->setStyleSheet ( styleGroupBoxBorders );
   }
 
-  readConfig();
+  readConfig ( configFile );
   createStatusBar();
   createMenus();
   setWindowTitle( APPLICATION_NAME " " VERSION_STR );
@@ -262,18 +263,24 @@ MainWindow::~MainWindow()
 
 
 void
-MainWindow::readConfig ( void )
+MainWindow::readConfig ( QString configFile )
 {
+  QSettings*  settings;
+  const char* defaultDir = "";
+
+  if ( configFile != "" ) {
+    settings = new QSettings ( configFile, QSettings::IniFormat );
+  } else {
 #if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
-  QSettings	iniSettings ( QSettings::IniFormat, QSettings::UserScope,
+    QSettings	iniSettings ( QSettings::IniFormat, QSettings::UserScope,
                 ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
-  QSettings	plistSettings ( ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
-  QSettings*	settings = &iniSettings;
+    QSettings	plistSettings ( ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
+    settings = &iniSettings;
 #else
-  QSettings*	settings = new QSettings ( ORGANISATION_NAME_SETTINGS,
-                    APPLICATION_NAME );
+    settings = new QSettings ( ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
 #endif
-  const char*		defaultDir = "";
+  }
+
 #if USE_HOME_DEFAULT
   struct passwd*	pwd;
 
@@ -284,11 +291,13 @@ MainWindow::readConfig ( void )
 #endif
   
 #if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
-  // The intention here is to allow a new ini-format file to override an
-  // old plist file, but to use the plist file if no other exists
-  if ( iniSettings.value ( "saveSettings", -1 ).toInt() == -1 ) {
-    if ( plistSettings.value ( "saveSettings", -1 ).toInt() != -1 ) {
-      settings = &plistSettings;
+  if ( configFile == "" ) {
+    // The intention here is to allow a new ini-format file to override an
+    // old plist file, but to use the plist file if no other exists
+    if ( iniSettings.value ( "saveSettings", -1 ).toInt() == -1 ) {
+      if ( plistSettings.value ( "saveSettings", -1 ).toInt() != -1 ) {
+        settings = &plistSettings;
+      }
     }
   }
 #endif
@@ -931,276 +940,287 @@ MainWindow::readConfig ( void )
 
 
 void
-MainWindow::writeConfig ( void )
+MainWindow::writeConfig ( QString configFile )
 {
+  QSettings*  settings;
+
   if ( !config.saveSettings ) {
     return;
   }
 
+  if ( configFile != "" ) {
+    settings = new QSettings ( configFile, QSettings::IniFormat );
+  } else {
 #if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
-  QSettings settings ( QSettings::IniFormat, QSettings::UserScope,
+    settings = new QSettings ( QSettings::IniFormat, QSettings::UserScope,
                             ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
 #else
-  QSettings settings ( ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
+    settings = new QSettings ( ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
 #endif
+  }
 
-  settings.clear();
+  settings->clear();
 
-  settings.setValue ( "saveSettings", config.saveSettings );
+  settings->setValue ( "saveSettings", config.saveSettings );
 
-  settings.setValue ( "configVersion", CONFIG_VERSION );
-  settings.setValue ( "geometry", geometry());
+  settings->setValue ( "configVersion", CONFIG_VERSION );
+  settings->setValue ( "geometry", geometry());
 
-  settings.setValue ( "tempsInCentigrade", config.tempsInC );
-  settings.setValue ( "connectSoleCamera", config.connectSoleCamera );
-  settings.setValue ( "dockableControls", config.dockableControls );
-  settings.setValue ( "controlsOnRight", config.controlsOnRight );
-  settings.setValue ( "separateControls", config.separateControls );
-  settings.setValue ( "saveCaptureSettings", config.saveCaptureSettings );
-  settings.setValue ( "windowsCompatibleAVI", config.windowsCompatibleAVI );
-  settings.setValue ( "useUtVideo", config.useUtVideo );
-  settings.setValue ( "indexDigits", config.indexDigits );
+  settings->setValue ( "tempsInCentigrade", config.tempsInC );
+  settings->setValue ( "connectSoleCamera", config.connectSoleCamera );
+  settings->setValue ( "dockableControls", config.dockableControls );
+  settings->setValue ( "controlsOnRight", config.controlsOnRight );
+  settings->setValue ( "separateControls", config.separateControls );
+  settings->setValue ( "saveCaptureSettings", config.saveCaptureSettings );
+  settings->setValue ( "windowsCompatibleAVI", config.windowsCompatibleAVI );
+  settings->setValue ( "useUtVideo", config.useUtVideo );
+  settings->setValue ( "indexDigits", config.indexDigits );
 
   // FIX ME -- how to handle this?
-  // settings.setValue ( "device/camera", -1 ).toInt();
+  // settings->setValue ( "device/camera", -1 ).toInt();
 
-  settings.setValue ( "options/showHistogram", config.showHistogram );
-  settings.setValue ( "options/autoAlign", config.autoAlign );
-  settings.setValue ( "options/showReticle", config.showReticle );
-  settings.setValue ( "options/cutout", config.cutout );
-  settings.setValue ( "options/showFocusAid", config.showFocusAid );
-  settings.setValue ( "options/darkFrame", config.darkFrame );
-  settings.setValue ( "options/flipX", config.flipX );
-  settings.setValue ( "options/flipY", config.flipY );
-  settings.setValue ( "options/demosaic", config.demosaic );
+  settings->setValue ( "options/showHistogram", config.showHistogram );
+  settings->setValue ( "options/autoAlign", config.autoAlign );
+  settings->setValue ( "options/showReticle", config.showReticle );
+  settings->setValue ( "options/cutout", config.cutout );
+  settings->setValue ( "options/showFocusAid", config.showFocusAid );
+  settings->setValue ( "options/darkFrame", config.darkFrame );
+  settings->setValue ( "options/flipX", config.flipX );
+  settings->setValue ( "options/flipY", config.flipY );
+  settings->setValue ( "options/demosaic", config.demosaic );
 
-  settings.setValue ( "camera/binning2x2", config.binning2x2 );
-  settings.setValue ( "camera/colourise", config.colourise );
-  settings.setValue ( "camera/inputFrameFormat", config.inputFrameFormat );
-  settings.setValue ( "camera/forceInputFrameFormat",
+  settings->setValue ( "camera/binning2x2", config.binning2x2 );
+  settings->setValue ( "camera/colourise", config.colourise );
+  settings->setValue ( "camera/inputFrameFormat", config.inputFrameFormat );
+  settings->setValue ( "camera/forceInputFrameFormat",
       config.forceInputFrameFormat );
 
-  settings.setValue ( "image/useROI", config.useROI );
-  settings.setValue ( "image/imageSizeX", config.imageSizeX );
-  settings.setValue ( "image/imageSizeY", config.imageSizeY );
+  settings->setValue ( "image/useROI", config.useROI );
+  settings->setValue ( "image/imageSizeX", config.imageSizeX );
+  settings->setValue ( "image/imageSizeY", config.imageSizeY );
 
-  settings.setValue ( "image/zoomButton1Option", config.zoomButton1Option );
-  settings.setValue ( "image/zoomButton2Option", config.zoomButton2Option );
-  settings.setValue ( "image/zoomButton3Option", config.zoomButton3Option );
-  settings.setValue ( "image/zoomValue", config.zoomValue );
+  settings->setValue ( "image/zoomButton1Option", config.zoomButton1Option );
+  settings->setValue ( "image/zoomButton2Option", config.zoomButton2Option );
+  settings->setValue ( "image/zoomButton3Option", config.zoomButton3Option );
+  settings->setValue ( "image/zoomValue", config.zoomValue );
 
-  settings.setValue ( "control/exposureMenuOption", config.exposureMenuOption );
-  settings.setValue ( "control/frameRateNumerator", config.frameRateNumerator );
-  settings.setValue ( "control/frameRateDenominator",
+  settings->setValue ( "control/exposureMenuOption",
+      config.exposureMenuOption );
+  settings->setValue ( "control/frameRateNumerator",
+      config.frameRateNumerator );
+  settings->setValue ( "control/frameRateDenominator",
       config.frameRateDenominator );
-  settings.setValue ( "control/selectableControl1",
+  settings->setValue ( "control/selectableControl1",
       config.selectableControl[0] );
-  settings.setValue ( "control/selectableControl2",
+  settings->setValue ( "control/selectableControl2",
       config.selectableControl[1] );
-  settings.setValue ( "control/intervalMenuOption",
+  settings->setValue ( "control/intervalMenuOption",
       config.intervalMenuOption );
 
-  settings.setValue ( "control/profileOption", config.profileOption );
-  settings.setValue ( "control/filterOption", config.filterOption );
-  settings.setValue ( "control/fileTypeOption", config.fileTypeOption );
-  settings.setValue ( "control/limitEnabled", config.limitEnabled );
-  settings.setValue ( "control/framesLimitValue", config.framesLimitValue );
-  settings.setValue ( "control/secondsLimitValue", config.secondsLimitValue );
-  settings.setValue ( "control/limitType", config.limitType );
-  settings.setValue ( "control/fileNameTemplate", config.fileNameTemplate );
-  settings.setValue ( "control/captureDirectory", config.captureDirectory );
+  settings->setValue ( "control/profileOption", config.profileOption );
+  settings->setValue ( "control/filterOption", config.filterOption );
+  settings->setValue ( "control/fileTypeOption", config.fileTypeOption );
+  settings->setValue ( "control/limitEnabled", config.limitEnabled );
+  settings->setValue ( "control/framesLimitValue", config.framesLimitValue );
+  settings->setValue ( "control/secondsLimitValue", config.secondsLimitValue );
+  settings->setValue ( "control/limitType", config.limitType );
+  settings->setValue ( "control/fileNameTemplate", config.fileNameTemplate );
+  settings->setValue ( "control/captureDirectory", config.captureDirectory );
 
-  settings.setValue ( "autorun/count", config.autorunCount );
-  settings.setValue ( "autorun/delay", config.autorunDelay );
-  settings.setValue ( "autorun/filterPrompt", config.promptForFilterChange );
-  settings.setValue ( "autorun/interFilterDelay",
+  settings->setValue ( "autorun/count", config.autorunCount );
+  settings->setValue ( "autorun/delay", config.autorunDelay );
+  settings->setValue ( "autorun/filterPrompt", config.promptForFilterChange );
+  settings->setValue ( "autorun/interFilterDelay",
       config.interFilterDelay );
 
-  settings.setValue ( "display/preview", config.preview );
-  settings.setValue ( "display/nightMode", config.nightMode );
-  settings.setValue ( "display/displayFPS", config.displayFPS );
+  settings->setValue ( "display/preview", config.preview );
+  settings->setValue ( "display/nightMode", config.nightMode );
+  settings->setValue ( "display/displayFPS", config.displayFPS );
 
-  settings.setValue ( "histogram/split", config.splitHistogram );
-  settings.setValue ( "histogram/onTop", config.histogramOnTop );
-  settings.setValue ( "histogram/rawRGB", config.rawRGBHistogram );
+  settings->setValue ( "histogram/split", config.splitHistogram );
+  settings->setValue ( "histogram/onTop", config.histogramOnTop );
+  settings->setValue ( "histogram/rawRGB", config.rawRGBHistogram );
 
-  settings.setValue ( "demosaic/preview", config.demosaicPreview );
-  settings.setValue ( "demosaic/output", config.demosaicOutput );
-  settings.setValue ( "demosaic/method", config.demosaicMethod );
-  settings.setValue ( "demosaic/cfaPattern", config.cfaPattern );
+  settings->setValue ( "demosaic/preview", config.demosaicPreview );
+  settings->setValue ( "demosaic/output", config.demosaicOutput );
+  settings->setValue ( "demosaic/method", config.demosaicMethod );
+  settings->setValue ( "demosaic/cfaPattern", config.cfaPattern );
 
-  settings.setValue ( "reticle/style", config.reticleStyle );
+  settings->setValue ( "reticle/style", config.reticleStyle );
 
-  settings.beginWriteArray ( "controls" );
+  settings->beginWriteArray ( "controls" );
   for ( int i = 1; i < OA_CAM_CTRL_LAST_P1; i++ ) {
-    settings.setArrayIndex ( i-1 );
+    settings->setArrayIndex ( i-1 );
     // don't particularly like this cast, but it seems to be the only way
     // to do it
-    settings.setValue ( "controlValue",
+    settings->setValue ( "controlValue",
         ( qlonglong ) config.controlValues[i] );
   }
-  settings.endArray();
+  settings->endArray();
 
-  settings.beginWriteArray ( "filters" );
+  settings->beginWriteArray ( "filters" );
   if ( config.numFilters ) {
     for ( int i = 0; i < config.numFilters; i++ ) {
-      settings.setArrayIndex ( i );
-      settings.setValue ( "name", config.filters[i].filterName );
+      settings->setArrayIndex ( i );
+      settings->setValue ( "name", config.filters[i].filterName );
     }
   }
-  settings.endArray();
+  settings->endArray();
 
-  settings.beginWriteArray ( "profiles" );
+  settings->beginWriteArray ( "profiles" );
   if ( config.numProfiles ) {
     for ( int i = 0; i < config.numProfiles; i++ ) {
-      settings.setArrayIndex ( i );
-      settings.setValue ( "name", config.profiles[i].profileName );
-      settings.setValue ( "binning2x2", config.profiles[i].binning2x2 );
-      settings.setValue ( "colourise", config.profiles[i].colourise );
-      settings.setValue ( "useROI", config.profiles[i].useROI );
-      settings.setValue ( "imageSizeX", config.profiles[i].imageSizeX );
-      settings.setValue ( "imageSizeY", config.profiles[i].imageSizeY );
+      settings->setArrayIndex ( i );
+      settings->setValue ( "name", config.profiles[i].profileName );
+      settings->setValue ( "binning2x2", config.profiles[i].binning2x2 );
+      settings->setValue ( "colourise", config.profiles[i].colourise );
+      settings->setValue ( "useROI", config.profiles[i].useROI );
+      settings->setValue ( "imageSizeX", config.profiles[i].imageSizeX );
+      settings->setValue ( "imageSizeY", config.profiles[i].imageSizeY );
 
       if ( config.numFilters &&
           !config.profiles[ i ].filterProfiles.isEmpty()) {
-        settings.beginWriteArray ( "filters" );
+        settings->beginWriteArray ( "filters" );
         for ( int j = 0; j < config.numFilters; j++ ) {
-          settings.setArrayIndex ( j );
-          settings.setValue ( "intervalMenuOption",
+          settings->setArrayIndex ( j );
+          settings->setValue ( "intervalMenuOption",
               config.profiles[ i ].filterProfiles[ j ].intervalMenuOption );
-          settings.beginWriteArray ( "controls" );
+          settings->beginWriteArray ( "controls" );
           for ( int k = 1; k < OA_CAM_CTRL_LAST_P1; k++ ) {
-            settings.setArrayIndex ( k );
-            settings.beginWriteArray ( "modifiers" );
+            settings->setArrayIndex ( k );
+            settings->beginWriteArray ( "modifiers" );
             for ( int l = 0; l < OA_CAM_CTRL_MODIFIERS_P1; l++ ) {
-              settings.setArrayIndex ( l );
-              settings.setValue ( "controlValue",
+              settings->setArrayIndex ( l );
+              settings->setValue ( "controlValue",
                   config.profiles[ i ].filterProfiles[ j ].controls[ l ][ k ]);
             }
-            settings.endArray();
+            settings->endArray();
           }
-          settings.endArray();
+          settings->endArray();
         }
-        settings.endArray();
+        settings->endArray();
       }
-      settings.setValue ( "frameRateNumerator",
+      settings->setValue ( "frameRateNumerator",
           config.profiles[i].frameRateNumerator );
-      settings.setValue ( "frameRateDenominator",
+      settings->setValue ( "frameRateDenominator",
           config.profiles[i].frameRateDenominator );
-      settings.setValue ( "filterOption", config.profiles[i].filterOption );
-      settings.setValue ( "fileTypeOption", config.profiles[i].fileTypeOption );
-      settings.setValue ( "fileNameTemplate",
+      settings->setValue ( "filterOption", config.profiles[i].filterOption );
+      settings->setValue ( "fileTypeOption",
+          config.profiles[i].fileTypeOption );
+      settings->setValue ( "fileNameTemplate",
           config.profiles[i].fileNameTemplate );
-      settings.setValue ( "limitEnabled", config.profiles[i].limitEnabled );
-      settings.setValue ( "framesLimitValue",
+      settings->setValue ( "limitEnabled", config.profiles[i].limitEnabled );
+      settings->setValue ( "framesLimitValue",
           config.profiles[i].framesLimitValue );
-      settings.setValue ( "secondsLimitValue",
+      settings->setValue ( "secondsLimitValue",
           config.profiles[i].secondsLimitValue );
-      settings.setValue ( "limitType", config.profiles[i].limitType );
-      settings.setValue ( "target", config.profiles[i].target );
+      settings->setValue ( "limitType", config.profiles[i].limitType );
+      settings->setValue ( "target", config.profiles[i].target );
     }
   }
-  settings.endArray();
+  settings->endArray();
 
-  settings.beginWriteArray ( "filterSlots" );
+  settings->beginWriteArray ( "filterSlots" );
   for ( int i = 0; i < MAX_FILTER_SLOTS; i++ ) {
-    settings.setArrayIndex ( i );
-    settings.setValue ( "slot", config.filterSlots[i] );
+    settings->setArrayIndex ( i );
+    settings->setValue ( "slot", config.filterSlots[i] );
   }
-  settings.endArray();
+  settings->endArray();
 
-  settings.beginWriteArray ( "filterSequence" );
+  settings->beginWriteArray ( "filterSequence" );
   int numSeqs;
   if (( numSeqs = config.autorunFilterSequence.count())) {
     for ( int i = 0; i < numSeqs; i++ ) {
-      settings.setArrayIndex ( i );
-      settings.setValue ( "slot", config.autorunFilterSequence[i] );
+      settings->setArrayIndex ( i );
+      settings->setValue ( "slot", config.autorunFilterSequence[i] );
     }
   }
-  settings.endArray();
+  settings->endArray();
 
-  settings.beginWriteArray ( "filterWheelUserConfig" );
+  settings->beginWriteArray ( "filterWheelUserConfig" );
   int numInterfaces = config.filterWheelConfig.count();
   for ( int i = 0; i < numInterfaces; i++ ) {
-    settings.setArrayIndex ( i );
-    settings.beginWriteArray ( "matches" );
+    settings->setArrayIndex ( i );
+    settings->beginWriteArray ( "matches" );
     int numMatches = config.filterWheelConfig[i].count();
     userConfigList confList = config.filterWheelConfig[i];
     for ( int j = 0; j < numMatches; j++ ) {
-      settings.setArrayIndex ( j );
-      settings.setValue ( "vendorId", confList[j].vendorId );
-      settings.setValue ( "productId", confList[j].productId );
-      settings.setValue ( "manufacturer", confList[j].manufacturer );
-      settings.setValue ( "product", confList[j].product );
-      settings.setValue ( "serialNo", confList[j].serialNo );
-      settings.setValue ( "fsPath", confList[j].filesystemPath );
+      settings->setArrayIndex ( j );
+      settings->setValue ( "vendorId", confList[j].vendorId );
+      settings->setValue ( "productId", confList[j].productId );
+      settings->setValue ( "manufacturer", confList[j].manufacturer );
+      settings->setValue ( "product", confList[j].product );
+      settings->setValue ( "serialNo", confList[j].serialNo );
+      settings->setValue ( "fsPath", confList[j].filesystemPath );
     }
-    settings.endArray();
+    settings->endArray();
   }
-  settings.endArray();
+  settings->endArray();
 
-  settings.beginWriteArray ( "ptrUserConfig" );
+  settings->beginWriteArray ( "ptrUserConfig" );
   numInterfaces = config.timerConfig.count();
   for ( int i = 0; i < numInterfaces; i++ ) {
-    settings.setArrayIndex ( i );
-    settings.beginWriteArray ( "matches" );
+    settings->setArrayIndex ( i );
+    settings->beginWriteArray ( "matches" );
     int numMatches = config.timerConfig[i].count();
     userConfigList confList = config.timerConfig[i];
     for ( int j = 0; j < numMatches; j++ ) {
-      settings.setArrayIndex ( j );
-      settings.setValue ( "vendorId", confList[j].vendorId );
-      settings.setValue ( "productId", confList[j].productId );
-      settings.setValue ( "manufacturer", confList[j].manufacturer );
-      settings.setValue ( "product", confList[j].product );
-      settings.setValue ( "serialNo", confList[j].serialNo );
-      settings.setValue ( "fsPath", confList[j].filesystemPath );
+      settings->setArrayIndex ( j );
+      settings->setValue ( "vendorId", confList[j].vendorId );
+      settings->setValue ( "productId", confList[j].productId );
+      settings->setValue ( "manufacturer", confList[j].manufacturer );
+      settings->setValue ( "product", confList[j].product );
+      settings->setValue ( "serialNo", confList[j].serialNo );
+      settings->setValue ( "fsPath", confList[j].filesystemPath );
     }
-    settings.endArray();
+    settings->endArray();
   }
-  settings.endArray();
+  settings->endArray();
 
   int r = config.currentColouriseColour.red();
   int g = config.currentColouriseColour.green();
   int b = config.currentColouriseColour.blue();
-  settings.setValue ( "colourise/currentColour/red", r );
-  settings.setValue ( "colourise/currentColour/green", g );
-  settings.setValue ( "colourise/currentColour/blue", b );
-  settings.beginWriteArray ( "colourise/customColours" );
+  settings->setValue ( "colourise/currentColour/red", r );
+  settings->setValue ( "colourise/currentColour/green", g );
+  settings->setValue ( "colourise/currentColour/blue", b );
+  settings->beginWriteArray ( "colourise/customColours" );
   for ( int i = 0; i < config.numCustomColours; i++ ) {
-    settings.setArrayIndex ( i );
+    settings->setArrayIndex ( i );
     r = config.customColours[i].red();
     g = config.customColours[i].green();
     b = config.customColours[i].blue();
-    settings.setValue ( "red", r );
-    settings.setValue ( "green", g );
-    settings.setValue ( "blue", b );
+    settings->setValue ( "red", r );
+    settings->setValue ( "green", g );
+    settings->setValue ( "blue", b );
   }
-  settings.endArray();
+  settings->endArray();
 
-  settings.setValue ( "fits/observer", config.fitsObserver );
-  settings.setValue ( "fits/instrument", config.fitsInstrument );
-  settings.setValue ( "fits/object", config.fitsObject );
-  settings.setValue ( "fits/comment", config.fitsComment );
-  settings.setValue ( "fits/telescope", config.fitsTelescope );
-  settings.setValue ( "fits/focalLength", config.fitsFocalLength );
-  settings.setValue ( "fits/apertureDia", config.fitsApertureDia );
-  settings.setValue ( "fits/apertureArea", config.fitsApertureArea );
-  settings.setValue ( "fits/pixelSizeX", config.fitsPixelSizeX );
-  settings.setValue ( "fits/pixelSizeY", config.fitsPixelSizeY );
-  settings.setValue ( "fits/subframeOriginX", config.fitsSubframeOriginX );
-  settings.setValue ( "fits/subframeOriginY", config.fitsSubframeOriginY );
-  settings.setValue ( "fits/siteLatitude", config.fitsSiteLatitude );
-  settings.setValue ( "fits/siteLongitude", config.fitsSiteLongitude );
-  settings.setValue ( "fits/filter", config.fitsFilter );
+  settings->setValue ( "fits/observer", config.fitsObserver );
+  settings->setValue ( "fits/instrument", config.fitsInstrument );
+  settings->setValue ( "fits/object", config.fitsObject );
+  settings->setValue ( "fits/comment", config.fitsComment );
+  settings->setValue ( "fits/telescope", config.fitsTelescope );
+  settings->setValue ( "fits/focalLength", config.fitsFocalLength );
+  settings->setValue ( "fits/apertureDia", config.fitsApertureDia );
+  settings->setValue ( "fits/apertureArea", config.fitsApertureArea );
+  settings->setValue ( "fits/pixelSizeX", config.fitsPixelSizeX );
+  settings->setValue ( "fits/pixelSizeY", config.fitsPixelSizeY );
+  settings->setValue ( "fits/subframeOriginX", config.fitsSubframeOriginX );
+  settings->setValue ( "fits/subframeOriginY", config.fitsSubframeOriginY );
+  settings->setValue ( "fits/siteLatitude", config.fitsSiteLatitude );
+  settings->setValue ( "fits/siteLongitude", config.fitsSiteLongitude );
+  settings->setValue ( "fits/filter", config.fitsFilter );
 
-  settings.setValue ( "timer/mode", config.timerMode );
-  settings.setValue ( "timer/enabled", config.timerEnabled );
-  settings.setValue ( "timer/triggerInterval", config.triggerInterval );
-  settings.setValue ( "timer/drainDelayEnabled", config.userDrainDelayEnabled );
-  settings.setValue ( "timer/drainDelay", config.drainDelay );
-  settings.setValue ( "timer/timestampDelay", config.timestampDelay );
-  settings.setValue ( "timer/queryGPSForEachCapture",
+  settings->setValue ( "timer/mode", config.timerMode );
+  settings->setValue ( "timer/enabled", config.timerEnabled );
+  settings->setValue ( "timer/triggerInterval", config.triggerInterval );
+  settings->setValue ( "timer/drainDelayEnabled",
+      config.userDrainDelayEnabled );
+  settings->setValue ( "timer/drainDelay", config.drainDelay );
+  settings->setValue ( "timer/timestampDelay", config.timestampDelay );
+  settings->setValue ( "timer/queryGPSForEachCapture",
       config.queryGPSForEachCapture );
+  settings->sync();
 }
 
 
@@ -1826,7 +1846,7 @@ MainWindow::quit ( void )
   doingQuit = 1;
   doDisconnectCam();
   doDisconnectFilterWheel();
-  writeConfig();
+  writeConfig ( userConfigFile );
   qApp->quit();
 }
 
@@ -2856,4 +2876,11 @@ MainWindow::setLocation ( void )
       state.latitude, 0, 'f', 4 ).arg ( state.longitude, 0, 'f', 4 ).arg (
       state.altitude, 0, 'f', 0 );
   locationLabel->setText ( locationText );
+}
+
+
+void
+MainWindow::updateConfig ( void )
+{
+  writeConfig ( userConfigFile );
 }

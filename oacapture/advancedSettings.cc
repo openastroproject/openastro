@@ -2,7 +2,7 @@
  *
  * advancedSettings.cc -- the advanced settings widget class
  *
- * Copyright 2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -469,7 +469,7 @@ AdvancedSettings::saveFilters ( void )
       break;
   }
 
-  state.mainWindow->writeConfig();
+  state.mainWindow->updateConfig();
   state.mainWindow->showStatusMessage ( tr ( "Changes saved" ));
   saveButton->setEnabled ( 0 );
 }

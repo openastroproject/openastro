@@ -160,7 +160,7 @@ SettingsWidget::storeSettings ( void )
 #endif
   demosaic->storeSettings();
   fits->storeSettings();
-  state.mainWindow->writeConfig();
+  state.mainWindow->updateConfig();
   state.mainWindow->showStatusMessage ( tr ( "Changes saved" ));
   cancelButton->setText ( tr ( "Close" ));
   haveUnsavedData = 0;

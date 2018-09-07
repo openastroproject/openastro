@@ -2,7 +2,8 @@
  *
  * settingsWidget.cc -- the main settings widget wrapper class
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -139,7 +140,7 @@ SettingsWidget::storeSettings ( void )
   demosaic->storeSettings();
   fits->storeSettings();
   timer->storeSettings();
-  state.mainWindow->writeConfig();
+  state.mainWindow->updateConfig();
   state.mainWindow->showStatusMessage ( tr ( "Changes saved" ));
   cancelButton->setText ( tr ( "Close" ));
   haveUnsavedData = 0;

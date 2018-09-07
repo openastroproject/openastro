@@ -2,7 +2,7 @@
  *
  * oacapture.cc -- main application entrypoint
  *
- * Copyright 2013,2014,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -31,6 +31,9 @@
 #include "version.h"
 #include "mainWindow.h"
 #include "state.h"
+
+
+void usage();
 
 int
 main ( int argc, char* argv[] )
@@ -68,8 +71,46 @@ main ( int argc, char* argv[] )
     app.installTranslator ( &appTranslator );
   }
 
-  MainWindow mainWindow;
+  // FIX ME -- This all a bit cack-handed.  Find a better way to do it when
+  // more command line parameters are required
+  QStringList args = QCoreApplication::arguments();
+  QString configFile = "";
+  if ( !args.isEmpty()) {
+    int p = 1;
+    while  ( p < args.size()) {
+      if ( configFile == "" ) {
+        if ( args[p] == "-c" ) {
+          p++;
+          if ( p < args.size()) {
+            configFile = args[p];
+            p++;
+          } else {
+            usage();
+          }
+        } else {
+          if ( args[p].startsWith ( "-c" )) {
+            configFile = args[p].right ( args[p].size() - 2 );
+            p++;
+          } else {
+            usage();
+          }
+        }
+      } else {
+        usage();
+      }
+    }
+  }
+
+  MainWindow mainWindow ( configFile );
   mainWindow.show();
 
   return app.exec();
+}
+
+
+void
+usage()
+{
+  qCritical( "usage: oacapture [-c <config filename>]" );
+  exit(1);
 }
