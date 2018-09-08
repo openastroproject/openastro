@@ -268,19 +268,6 @@ MainWindow::readConfig ( QString configFile )
   QSettings*  settings;
   const char* defaultDir = "";
 
-  if ( configFile != "" ) {
-    settings = new QSettings ( configFile, QSettings::IniFormat );
-  } else {
-#if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
-    QSettings	iniSettings ( QSettings::IniFormat, QSettings::UserScope,
-                ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
-    QSettings	plistSettings ( ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
-    settings = &iniSettings;
-#else
-    settings = new QSettings ( ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
-#endif
-  }
-
 #if USE_HOME_DEFAULT
   struct passwd*	pwd;
 
@@ -290,8 +277,15 @@ MainWindow::readConfig ( QString configFile )
   }
 #endif
   
+  if ( configFile != "" ) {
+    settings = new QSettings ( configFile, QSettings::IniFormat );
+  } else {
 #if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
-  if ( configFile == "" ) {
+    QSettings	iniSettings ( QSettings::IniFormat, QSettings::UserScope,
+                ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
+    QSettings	plistSettings ( ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
+    settings = &iniSettings;
+
     // The intention here is to allow a new ini-format file to override an
     // old plist file, but to use the plist file if no other exists
     if ( iniSettings.value ( "saveSettings", -1 ).toInt() == -1 ) {
@@ -299,8 +293,10 @@ MainWindow::readConfig ( QString configFile )
         settings = &plistSettings;
       }
     }
-  }
+#else
+    settings = new QSettings ( ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
 #endif
+  }
 
   // -1 means we don't have a config file.  We change it to 1 later in the
   // function
