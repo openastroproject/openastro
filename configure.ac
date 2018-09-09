@@ -437,9 +437,6 @@ then
       AC_MSG_WARN([No suitable version of system dc1394 library found.  Using internal version.])
   # ])
   fi
-else
-  # we'll always have this, because we use a local copy
-  AC_DEFINE([HAVE_LIBDC1394],[1],[Have dc1394 library])
 fi
 
 use_system_libuvc=no

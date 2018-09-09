@@ -27,6 +27,7 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/ext/libusb \
   -I$(top_srcdir)/liboacam \
   $(LIBUSB_CFLAGS) \
+  $(LIBDC1394_CFLAGS) \
   $(DYNLIB_EXTN_CFLAGS)
 
 noinst_LTLIBRARIES = libiidc.la

@@ -535,7 +535,7 @@ Camera::stop ( void )
 int
 Camera::videoFramePixelFormat ( void )
 {
-  return framePixelFormat;
+  return cameraFuncs.getFramePixelFormat ( cameraContext );
 }
 
 
