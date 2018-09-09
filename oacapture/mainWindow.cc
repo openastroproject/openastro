@@ -281,16 +281,20 @@ MainWindow::readConfig ( QString configFile )
     settings = new QSettings ( configFile, QSettings::IniFormat );
   } else {
 #if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
-    QSettings	iniSettings ( QSettings::IniFormat, QSettings::UserScope,
-                ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
-    QSettings	plistSettings ( ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
-    settings = &iniSettings;
+    QSettings* iniSettings = new QSettings ( QSettings::IniFormat,
+        QSettings::UserScope, ORGANISATION_NAME_SETTINGS, APPLICATION_NAME );
+    settings = iniSettings;
 
     // The intention here is to allow a new ini-format file to override an
     // old plist file, but to use the plist file if no other exists
-    if ( iniSettings.value ( "saveSettings", -1 ).toInt() == -1 ) {
-      if ( plistSettings.value ( "saveSettings", -1 ).toInt() != -1 ) {
-        settings = &plistSettings;
+    if ( iniSettings->value ( "saveSettings", -1 ).toInt() == -1 ) {
+      QSettings* plistSettings = new QSettings ( ORGANISATION_NAME_SETTINGS,
+          APPLICATION_NAME );
+      if ( plistSettings->value ( "saveSettings", -1 ).toInt() != -1 ) {
+        delete iniSettings;
+        settings = plistSettings;
+      } else {
+        delete plistSettings;
       }
     }
 #else
@@ -932,6 +936,8 @@ MainWindow::readConfig ( QString configFile )
       50 ).toInt();
   config.queryGPSForEachCapture = settings->value (
       "timer/queryGPSForEachCapture", 0 ).toInt();
+
+  delete settings;
 }
 
 
