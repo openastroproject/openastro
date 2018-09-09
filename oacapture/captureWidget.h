@@ -42,6 +42,7 @@
 #define	CAPTURE_PNG	4
 #define	CAPTURE_FITS	5
 #define	CAPTURE_MOV	6
+#define	CAPTURE_RAW	7
 
 class CaptureWidget : public QGroupBox
 {

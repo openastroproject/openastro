@@ -47,7 +47,7 @@ oacapture_SOURCES = autorunSettings.cc camera.cc cameraSettings.cc \
   outputTIFF.cc outputPNG.cc previewWidget.cc profileSettings.cc \
   settingsWidget.cc targets.cc zoomWidget.cc advancedSettings.cc \
   outputFFMPEG.cc outputMOV.cc outputDIB.cc focusOverlay.cc timer.cc \
-  fitsSettings.cc timerSettings.cc \
+  fitsSettings.cc timerSettings.cc outputRAW.cc \
   moc_autorunSettings.cc moc_camera.cc moc_cameraSettings.cc \
   moc_cameraWidget.cc moc_captureSettings.cc moc_captureWidget.cc \
   moc_controlWidget.cc moc_filterSettings.cc \
