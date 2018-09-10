@@ -113,9 +113,7 @@ extern STATE		state;
 #define	RETICLE_TRAMLINES	3
 
 #define QUICKTIME_OK(f)	(( f == OA_PIX_FMT_RGB24 ) || \
-    ( f == OA_PIX_FMT_BGR24 ) || ( f == OA_PIX_FMT_GREY16BE ) || \
-    ( f == OA_PIX_FMT_GREY16LE ) || ( f == OA_PIX_FMT_RGB48BE ) || \
-    ( f == OA_PIX_FMT_GREY8 ))
+    ( f == OA_PIX_FMT_BGR24 ) || ( f == OA_PIX_FMT_GREY8 ))
 
 #define UTVIDEO_OK(f) (!(( f == OA_PIX_FMT_GREY8 ) || \
     ( f == OA_PIX_FMT_GREY16LE ) || ( f == OA_PIX_FMT_GREY16BE ) || \

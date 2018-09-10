@@ -665,7 +665,7 @@ static int avi_read_header(AVFormatContext *s)
             st->start_time = 0;
             avio_rl32(pb); /* buffer size */
             avio_rl32(pb); /* quality */
-            if (ast->cum_len*ast->scale/ast->rate > 3600) {
+            if (ast->cum_len > 3600LL * ast->rate / ast->scale) {
                 av_log(s, AV_LOG_ERROR, "crazy start time, iam scared, giving up\n");
                 ast->cum_len = 0;
             }
@@ -1079,6 +1079,9 @@ static int read_gab2_sub(AVFormatContext *s, AVStream *st, AVPacket *pkt)
         sub_demuxer = av_probe_input_format2(&pd, 1, &score);
         av_freep(&pd.buf);
         if (!sub_demuxer)
+            goto error;
+
+        if (strcmp(sub_demuxer->name, "srt") && strcmp(sub_demuxer->name, "ass"))
             goto error;
 
         if (!(ast->sub_ctx = avformat_alloc_context()))

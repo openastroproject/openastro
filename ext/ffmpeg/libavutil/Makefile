@@ -183,6 +183,7 @@ TESTPROGS = adler32                                                     \
             pca                                                         \
             parseutils                                                  \
             pixdesc                                                     \
+            pixelutils                                                  \
             random_seed                                                 \
             rational                                                    \
             ripemd                                                      \

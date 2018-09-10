@@ -932,6 +932,7 @@ TESTPROGS = imgconvert                                                  \
             jpeg2000dwt                                                 \
             mathops                                                    \
             options                                                     \
+            avfft                                                       \
 
 TESTPROGS-$(CONFIG_CABAC)                 += cabac
 TESTPROGS-$(CONFIG_FFT)                   += fft fft-fixed fft-fixed32

@@ -37,15 +37,18 @@
 OutputMOV::OutputMOV ( int x, int y, int n, int d, int fmt ) :
     OutputFFMPEG ( x, y, n, d, fmt )
 {
-  videoCodec = AV_CODEC_ID_RAWVIDEO;
+  //videoCodec = AV_CODEC_ID_RAWVIDEO;
+  videoCodec = AV_CODEC_ID_QTRLE;
   fileExtension = "mov";
 
   switch ( fmt ) {
     case OA_PIX_FMT_GREY8:
       actualPixelFormat = AV_PIX_FMT_GRAY8;
-      storedPixelFormat = AV_PIX_FMT_GRAY16BE;
+      // storedPixelFormat = AV_PIX_FMT_GRAY16BE;
+      storedPixelFormat = AV_PIX_FMT_GRAY8;
       break;
 
+    /*
     case OA_PIX_FMT_GREY16LE:
       actualPixelFormat = AV_PIX_FMT_GRAY16LE;
       storedPixelFormat = AV_PIX_FMT_GRAY16BE;
@@ -54,14 +57,18 @@ OutputMOV::OutputMOV ( int x, int y, int n, int d, int fmt ) :
     case OA_PIX_FMT_GREY16BE:
       actualPixelFormat = storedPixelFormat = AV_PIX_FMT_GRAY16BE;
       break;
+    */
 
     case OA_PIX_FMT_RGB24:
       actualPixelFormat = AV_PIX_FMT_RGB24;
-      storedPixelFormat = AV_PIX_FMT_BGR24;
+      //storedPixelFormat = AV_PIX_FMT_BGR24;
+      storedPixelFormat = AV_PIX_FMT_RGB24;
       break;
 
     case OA_PIX_FMT_BGR24:
-      actualPixelFormat = storedPixelFormat = AV_PIX_FMT_BGR24;
+      //actualPixelFormat = storedPixelFormat = AV_PIX_FMT_BGR24;
+      actualPixelFormat = AV_PIX_FMT_BGR24;
+      storedPixelFormat = AV_PIX_FMT_RGB24;
       break;
   }
 }
