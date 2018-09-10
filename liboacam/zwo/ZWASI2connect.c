@@ -532,7 +532,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       sizeof ( camInfo.SupportedBins ));
   i = 0;
   while (( bin = camInfo.SupportedBins[i] )) {
-    if ( 2 == bin || 3 ==bin || 4 == bin ) {
+    if ( 2 == bin || 3 == bin || 4 == bin ) {
       camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;
     }
     i++;
@@ -1104,6 +1104,10 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       cameraInfo->frameSizes[1].sizes[5].y = 240;
       cameraInfo->frameSizes[1].numSizes = 6;
 
+      cameraInfo->frameSizes[2].sizes[0].x = 2328;
+      cameraInfo->frameSizes[2].sizes[0].y = 1760;
+      cameraInfo->frameSizes[2].numSizes = 1;
+
       camera->features.pixelSizeX = 3800;
       camera->features.pixelSizeY = 3800;
 
@@ -1261,6 +1265,10 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       cameraInfo->frameSizes[1].sizes[5].x = 320;
       cameraInfo->frameSizes[1].sizes[5].y = 240;
       cameraInfo->frameSizes[1].numSizes = 6;
+
+      cameraInfo->frameSizes[2].sizes[0].x = 2748;
+      cameraInfo->frameSizes[2].sizes[0].y = 1836;
+      cameraInfo->frameSizes[2].numSizes = 1;
 
       camera->features.pixelSizeX = 2400;
       camera->features.pixelSizeY = 2400;
