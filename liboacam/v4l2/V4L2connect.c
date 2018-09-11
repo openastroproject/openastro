@@ -1630,19 +1630,22 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           camera->features.rawMode = 1;
           break;
 
+        case 0x00000000: // Possibly a degenerate case, but this is returned
+          // for the Celestron Neximage 10
 #ifdef V4L2_PIX_FMT_PWC1
         case V4L2_PIX_FMT_PWC1:
+#endif
 #ifdef V4L2_PIX_FMT_PWC2
         case V4L2_PIX_FMT_PWC2:
 #endif
-          // silently ignore this one because we're never going to make
-          // use of it
+          // silently ignore these because we're never going to make
+          // use of them
           break;
-#endif
 
         default:
-          fprintf ( stderr, "Unhandled V4L2 format '%s': (%c%c%c%c)\n",
-            formatDesc.description, formatDesc.pixelformat & 0xff,
+          fprintf ( stderr, "Unhandled V4L2 format '%s': 0x%08x (%c%c%c%c)\n",
+            formatDesc.description, formatDesc.pixelformat,
+            formatDesc.pixelformat & 0xff,
             ( formatDesc.pixelformat >> 8 ) & 0xff,
             ( formatDesc.pixelformat >> 16 ) & 0xff,
             ( formatDesc.pixelformat >> 24 ) & 0xff );
