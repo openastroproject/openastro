@@ -800,7 +800,12 @@ _doStart ( oaCamera* camera )
       &cameraInfo->streamControl, cameraInfo->currentUVCFormatId,
       cameraInfo->xSize, cameraInfo->ySize,
       cameraInfo->frameRateDenominator / cameraInfo->frameRateNumerator );
-
+  if ( UVC_ERROR_INVALID_MODE == res ) {
+    // have another go with whatever frame rate we can find
+    res = uvc_get_stream_ctrl_format_size ( cameraInfo->uvcHandle,
+        &cameraInfo->streamControl, cameraInfo->currentUVCFormatId,
+        cameraInfo->xSize, cameraInfo->ySize, 0 );
+  }
   if ( res < 0 ) {
     fprintf ( stderr, "uvc_get_stream_ctrl_format_size returned %d\n", res );
     return -OA_ERR_CAMERA_IO;
