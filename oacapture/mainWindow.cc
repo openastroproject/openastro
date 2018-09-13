@@ -2547,12 +2547,17 @@ MainWindow::createPreviewWindow()
   height = rec.height();
   width = rec.width();
   if ( height < 1024 || width < 1280 ) {
-    if ( height < 600 || width < 800 ) {
-      minWidth = 640;
-      minHeight = 480;
+    if ( height <= 600 || width <= 800 ) {
+      minWidth = 560;
+      minHeight = 420;
     } else {
-      minWidth = 800;
-      minHeight = 600;
+      if ( height <= 800 || width <= 1000 ) {
+        minWidth = 700;
+        minHeight = 560;
+      } else {
+        minWidth = 900;
+        minHeight = 720;
+      }
     }
   } else {
     height *= 2.0/3.0;
