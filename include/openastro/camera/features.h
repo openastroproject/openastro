@@ -36,6 +36,7 @@ typedef struct oaCameraFeatures {
   unsigned int hasReset : 1;
   unsigned int externalTrigger : 1;
   unsigned int strobeOutput : 1;
+  unsigned int fixedFrameSizes : 1;
   unsigned int pixelSizeX;
   unsigned int pixelSizeY;
 } oaCameraFeatures;

@@ -2,7 +2,8 @@
  *
  * imageWidget.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -45,40 +46,49 @@ class ImageWidget : public QGroupBox
   Q_OBJECT
 
   public:
-    			ImageWidget ( QWidget* parent = 0 );
-    			~ImageWidget();
+    			  ImageWidget ( QWidget* parent = 0 );
+    			  ~ImageWidget();
     void		configure ( void );
     void		enableAllControls ( int );
-    void                updateFromConfig ( void );
+    void    updateFromConfig ( void );
 
   public slots:
-    void		resolutionChanged ( int );
-    void		setMaxImageSize ( void );
+    void		cameraROIChanged ( int );
+    void		setUserROI ( void );
+    void		updateUserROI ( void );
+    void		setCropSize ( void );
+    void		updateFrameCrop ( void );
     void		resetResolution ( void );
-    void		changeROI ( void );
-    void		enableROIEntry ( void );
 
   private:
-    QRadioButton*	roi;
-    QRadioButton*	max;
+    QGridLayout*        grid;
+    QLabel*             cameraROILabel;
+    QCheckBox*          userROI;
+    QCheckBox*          cropRegion;
+    QComboBox*	       	resMenu;
+    QLineEdit*		      roiXSize;
+    QLineEdit*		      roiYSize;
+    QLabel*             roiBy;
     QPushButton*        roiButton;
-    QComboBox*		resMenu;
-    QButtonGroup*	buttonGroup;
-    QLineEdit*		xSize;
-    QLineEdit*		ySize;
+    QHBoxLayout*        roiInputBox;
+    QIntValidator*      roiXValidator;
+    QIntValidator*      roiYValidator;
+    QLineEdit*		      cropXSize;
+    QLineEdit*		      cropYSize;
+    QLabel*             cropBy;
+    QPushButton*        cropButton;
+    QHBoxLayout*        cropInputBox;
+    QIntValidator*      cropXValidator;
+    QIntValidator*      cropYValidator;
     QList<unsigned int>	XResolutions;
     QList<unsigned int>	YResolutions;
-    int			ignoreResolutionChanges;
+    int	            		ignoreResolutionChanges;
+    /*
     bool		xSizeSavedState;
     bool		ySizeSavedState;
     bool		roiSavedState;
     bool		maxSavedState;
     bool		resMenuSavedState;
-    QGridLayout*	grid;
-    QHBoxLayout*	roiInputBox;
-    QLabel*		x;
-    QIntValidator*      roiXValidator;
-    QIntValidator*      roiYValidator;
-
-    void		doResolutionChange ( int );
+*/
+    void                doResolutionChange ( int );
 };

@@ -141,6 +141,7 @@ class PreviewWidget : public QFrame
     void		mouseReleaseEvent ( QMouseEvent* );
     void		wheelEvent ( QWheelEvent* );
     void		recalculateDimensions ( int );
+    void    inplaceCrop ( void*, int, int, int, int, int );
 
     QVector<QRgb>	greyscaleColourTable;
     QVector<QRgb>	falseColourTable;

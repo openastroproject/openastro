@@ -181,6 +181,24 @@ PreviewWidget::paintEvent ( QPaintEvent* event )
   painter.drawImage ( 0, 0, image );
   pthread_mutex_unlock ( &imageMutex );
 
+  if ( state.cropMode ) {
+    int x, y, w, h;
+    painter.setRenderHint ( QPainter::Antialiasing, false );
+    painter.setPen ( QPen ( Qt::yellow, 2, Qt::SolidLine, Qt::FlatCap ));
+    x = ( config.imageSizeX - state.cropSizeX ) / 2 - 2;
+    y = ( config.imageSizeY - state.cropSizeY ) / 2 - 2;
+    w = state.cropSizeX + 4;
+    h = state.cropSizeY + 4;
+    if ( currentZoom != 100 ) {
+      float zoomFactor = currentZoom / 100.0;
+      x *= zoomFactor;
+      y *= zoomFactor;
+      w *= zoomFactor;
+      h *= zoomFactor;
+    }
+    painter.drawRect ( x, y, w, h );
+  }
+
   painter.setTransform ( rotationTransform );
   painter.setRenderHint ( QPainter::Antialiasing, true );
   painter.setPen ( QPen ( Qt::red, 2, Qt::SolidLine, Qt::FlatCap ));
@@ -627,10 +645,11 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
   struct timeval	t;
   int			doDisplay = 0;
   int			doHistogram = 0;
-  unsigned int		previewPixelFormat, writePixelFormat;
+  unsigned int		previewPixelFormat, writePixelFormat, pixelFormat;
   // write straight from the data if possible
   void*			previewBuffer = imageData;
   void*			writeBuffer = imageData;
+  void*     cropBuffer;
   int			currentPreviewBuffer = -1;
   int			writeDemosaicPreviewBuffer = 0;
   int			maxLength;
@@ -852,6 +871,9 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
   }
 
   OutputHandler* output = 0;
+  int actualX, actualY;
+  actualX = config.imageSizeX;
+  actualY = config.imageSizeY;
   if ( !state->pauseEnabled ) {
     // This should be thread-safe
     output = state->captureWidget->getOutputHandler();
@@ -861,9 +883,29 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
         self->setNewFirstFrameTime = 0;
       }
       state->lastFrameTime = now;
+      if ( state->cropMode ) {
+        if ( config.demosaicOutput && writeDemosaicPreviewBuffer &&
+            oaFrameFormats[ writePixelFormat ].rawColour ) {
+          // This is a special case because as the preview buffer is no
+          // longer required for previewing we can use it directly
+          writeBuffer = previewBuffer;
+          pixelFormat = OA_DEMOSAIC_FMT ( writePixelFormat );
+        } else {
+          pixelFormat = writePixelFormat;
+        }
+        self->inplaceCrop ( writeBuffer, config.imageSizeX, config.imageSizeY,
+            state->cropSizeX, state->cropSizeY,
+            oaFrameFormats[ pixelFormat ].bytesPerPixel );
+        actualX = state->cropSizeX;
+        actualY = state->cropSizeY;
+        length = actualX * actualY *
+            oaFrameFormats[ pixelFormat ].bytesPerPixel;
+      }
       if ( config.demosaicOutput &&
           oaFrameFormats[ writePixelFormat ].rawColour ) {
         if ( writeDemosaicPreviewBuffer ) {
+          // could be redundant if we're also cropping, but it shouldn't
+          // cause harm
           writeBuffer = previewBuffer;
         } else {
           // we can use the preview buffer here because we're done with it
@@ -873,8 +915,8 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
           // cfaPattern, but I can't see that such a thing is possible
           // at the moment
           ( void ) oademosaic ( writeBuffer,
-              self->previewImageBuffer[0], config.imageSizeX,
-              config.imageSizeY, 8, cfaPattern, config.demosaicMethod );
+              self->previewImageBuffer[0], actualX, actualY, 8, cfaPattern,
+              config.demosaicMethod );
           writeBuffer = self->previewImageBuffer[0];
         }
         writePixelFormat = OA_DEMOSAIC_FMT ( writePixelFormat );
@@ -918,8 +960,8 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
 
     if ( state->histogramOn ) {
       // This call should be thread-safe
-      state->histogramWidget->process ( writeBuffer, config.imageSizeX,
-          config.imageSizeY, length, writePixelFormat );
+      state->histogramWidget->process ( writeBuffer, actualX, actualY,
+          length, writePixelFormat );
       doHistogram = 1;
     }
   }
@@ -1068,4 +1110,27 @@ PreviewWidget::reduceTo8Bit ( void* sourceData, void* targetData, int xSize,
   }
 
   return outputFormat;
+}
+
+
+void
+PreviewWidget::inplaceCrop ( void* data, int xSize, int ySize, int cropX,
+    int cropY, int bpp )
+{
+  uint8_t*  source;
+  uint8_t*  startOfRow;
+  uint8_t*  target = ( uint8_t* ) data;
+  int       origRowLength, cropRowLength, i;
+
+  origRowLength = xSize * bpp;
+  cropRowLength = cropX * bpp;
+  startOfRow = target + ( ySize - cropY ) / 2 * origRowLength +
+      ( xSize - cropX ) / 2 * bpp;
+  while ( cropY-- ) {
+    source = startOfRow;
+    for ( i = 0; i < cropRowLength; i++ ) {
+      *target++ = *source++;
+    }
+    startOfRow += origRowLength;
+  }
 }

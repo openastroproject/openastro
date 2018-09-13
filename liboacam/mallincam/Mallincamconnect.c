@@ -604,6 +604,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
   cameraInfo->maxResolutionX = cameraInfo->currentXSize;
   cameraInfo->maxResolutionY = cameraInfo->currentYSize;
   cameraInfo->binMode = 1;
+  camera->features.fixedFrameSizes = 1;
 
   if ( numResolutions > 1 ) {
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;

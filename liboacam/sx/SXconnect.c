@@ -356,6 +356,7 @@ oaSXInitCamera ( oaCameraDevice* device )
 
   cameraInfo->xSize = cameraInfo->maxResolutionX;
   cameraInfo->ySize = cameraInfo->maxResolutionY;
+  camera->features.fixedFrameSizes = 1;
 
 
   cameraInfo->buffers = 0;

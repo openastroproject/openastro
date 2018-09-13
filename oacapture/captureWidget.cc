@@ -530,6 +530,14 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     }
   }
 
+  int actualX, actualY;
+  if ( state.cropMode ) {
+    actualX = state.cropSizeX;
+    actualY = state.cropSizeY;
+  } else {
+    actualX = config.imageSizeX;
+    actualY = config.imageSizeY;
+  }
   switch ( config.fileTypeOption ) {
     case CAPTURE_AVI:
       if ( config.windowsCompatibleAVI && WINDIB_OK( format )) {
@@ -542,16 +550,16 @@ CaptureWidget::doStartRecording ( int autorunFlag )
         // and if you have 16-bit greyscale well, you're up a smelly waterway
         // with no means of propulsion
 
-        out = new OutputDIB ( config.imageSizeX, config.imageSizeY,
+        out = new OutputDIB ( actualX, actualY,
             state.controlWidget->getFPSNumerator(),
             state.controlWidget->getFPSDenominator());
       } else {
         if ( config.useUtVideo && UTVIDEO_OK( format )) {
-          out = new OutputAVI ( config.imageSizeX, config.imageSizeY,
+          out = new OutputAVI ( actualX, actualY,
               state.controlWidget->getFPSNumerator(),
               state.controlWidget->getFPSDenominator(), format );
         } else {
-          out = new OutputAVI ( config.imageSizeX, config.imageSizeY,
+          out = new OutputAVI ( actualX, actualY,
               state.controlWidget->getFPSNumerator(),
               state.controlWidget->getFPSDenominator(), format );
         }
@@ -559,32 +567,32 @@ CaptureWidget::doStartRecording ( int autorunFlag )
       break;
 
     case CAPTURE_MOV:
-      out = new OutputMOV ( config.imageSizeX, config.imageSizeY,
+      out = new OutputMOV ( actualX, actualY,
           state.controlWidget->getFPSNumerator(),
           state.controlWidget->getFPSDenominator(), format );
       break;
 
     case CAPTURE_SER:
-      out = new OutputSER ( config.imageSizeX, config.imageSizeY,
+      out = new OutputSER ( actualX, actualY,
           state.controlWidget->getFPSNumerator(),
           state.controlWidget->getFPSDenominator(), format );
       break;
 
     case CAPTURE_TIFF:
-      out = new OutputTIFF ( config.imageSizeX, config.imageSizeY,
+      out = new OutputTIFF ( actualX, actualY,
           state.controlWidget->getFPSNumerator(),
           state.controlWidget->getFPSDenominator(), format );
       break;
 
     case CAPTURE_PNG:
-      out = new OutputPNG ( config.imageSizeX, config.imageSizeY,
+      out = new OutputPNG ( actualX, actualY,
           state.controlWidget->getFPSNumerator(),
           state.controlWidget->getFPSDenominator(), format );
       break;
 
 #ifdef HAVE_LIBCFITSIO
     case CAPTURE_FITS:
-      out = new OutputFITS ( config.imageSizeX, config.imageSizeY,
+      out = new OutputFITS ( actualX, actualY,
           state.controlWidget->getFPSNumerator(),
           state.controlWidget->getFPSDenominator(), format );
       break;
@@ -1459,8 +1467,13 @@ CaptureWidget::writeSettings ( OutputHandler* out )
         oaFrameFormats[ config.inputFrameFormat ].simpleName ).toStdString().
         c_str() << ")" << std::endl;
 
-    settings << tr ( "Image size: " ).toStdString().c_str() <<
-        config.imageSizeX << "x" << config.imageSizeY << std::endl;
+    if ( state.cropMode ) {
+      settings << tr ( "Image size: " ).toStdString().c_str() <<
+          state.cropSizeX << "x" << state.cropSizeY << std::endl;
+    } else {
+      settings << tr ( "Image size: " ).toStdString().c_str() <<
+          config.imageSizeX << "x" << config.imageSizeY << std::endl;
+    }
 
     if ( state.camera->hasFrameRateSupport()) {
       settings << tr ( "Frame rate/sec: " ).toStdString().c_str();

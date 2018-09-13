@@ -2,7 +2,8 @@
  *
  * imageWidget.cc -- class for the image controls in the UI
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -40,60 +41,17 @@ extern "C" {
 
 ImageWidget::ImageWidget ( QWidget* parent ) : QGroupBox ( parent )
 {
-  roiXValidator = 0;
-  roiYValidator = 0;
+  setTitle ( tr ( "Image" ));
 
   grid = new QGridLayout ( this );
 
-  roi = new QRadioButton ( tr ( "Use ROI" ), this );
-  roi->setToolTip ( tr ( "Manually select a region of interest" ));
-  max = new QRadioButton ( tr ( "Max Size" ), this );
-  max->setToolTip ( tr ( "Set maximum size image frame" ));
-  if ( config.useROI ) {
-    roi->setChecked ( true );
-    max->setChecked ( false );
-  } else {
-    roi->setChecked ( false );
-    max->setChecked ( true );
-  }
-  buttonGroup = new QButtonGroup ( this );
-  buttonGroup->addButton ( roi );
-  buttonGroup->addButton ( max );
-  buttonGroup->setExclusive ( true );
-  connect ( max, SIGNAL( clicked()), this, SLOT( setMaxImageSize()));
-  connect ( max, SIGNAL( clicked()), this, SLOT( enableROIEntry()));
-
-  xSize = new QLineEdit ( this );
-  ySize = new QLineEdit ( this );
-  x = new QLabel ( " x ", this );
-
-  xSize->setMaxLength ( 4 );
-  xSize->setFixedWidth ( 45 );
-  ySize->setMaxLength ( 4 );
-  ySize->setFixedWidth ( 45 );
-  QString xStr, yStr;
-  if ( config.imageSizeX > 0 ) {
-    xStr = QString::number ( config.imageSizeX );
-  } else {
-    xStr = "";
-    config.imageSizeX = 0;
-  }
-  xSize->setText ( xStr );
-  if ( config.imageSizeY > 0 ) {
-    yStr = QString::number ( config.imageSizeY );
-  } else {
-    yStr = "";
-    config.imageSizeY = 0;
-  }
-  ySize->setText ( yStr );
-  SET_PROFILE_CONFIG( imageSizeX, config.imageSizeX );
-  SET_PROFILE_CONFIG( imageSizeY, config.imageSizeY );
-
-  roiButton = new QPushButton (
-      QIcon ( ":/qt-icons/roi.png" ), "", this );
-  roiButton->setToolTip ( tr ( "Set new ROI" ));
-  connect ( roiButton, SIGNAL( clicked()), this, SLOT( changeROI()));
-  roiButton->setEnabled ( 0 );
+  cameraROILabel = new QLabel ( tr ( "Camera ROI" ));
+  userROI = new QCheckBox ( tr ( "User ROI" ));
+  userROI->setChecked ( false );
+  userROI->setToolTip ( tr ( "Select your own region of interest" ));
+  cropRegion = new QCheckBox ( tr ( "Crop to size" ));
+  cropRegion->setChecked ( false );
+  cropRegion->setToolTip ( tr ( "Choose the output frame size" ));
 
   ignoreResolutionChanges = 0;
   resMenu = new QComboBox ( this );
@@ -101,23 +59,82 @@ ImageWidget::ImageWidget ( QWidget* parent ) : QGroupBox ( parent )
   resolutions << "640x480" << "1280x960";
   resMenu->addItems ( resolutions );
   connect ( resMenu, SIGNAL( currentIndexChanged ( int )), this,
-      SLOT( resolutionChanged ( int )));
+      SLOT( cameraROIChanged ( int )));
 
-  setTitle ( tr ( "Image" ));
+  roiXSize = new QLineEdit ( this );
+  roiYSize = new QLineEdit ( this );
+  roiBy = new QLabel ( " x ", this );
+
+  roiXSize->setMaxLength ( 4 );
+  roiXSize->setFixedWidth ( 45 );
+  roiYSize->setMaxLength ( 4 );
+  roiYSize->setFixedWidth ( 45 );
+  QString xStr, yStr;
+  if ( config.imageSizeX > 0 ) {
+    xStr = QString::number ( config.imageSizeX );
+  } else {
+    xStr = "";
+    config.imageSizeX = 0;
+  }
+  roiXSize->setText ( xStr );
+  if ( config.imageSizeY > 0 ) {
+    yStr = QString::number ( config.imageSizeY );
+  } else {
+    yStr = "";
+    config.imageSizeY = 0;
+  }
+  roiYSize->setText ( yStr );
+  SET_PROFILE_CONFIG( imageSizeX, config.imageSizeX );
+  SET_PROFILE_CONFIG( imageSizeY, config.imageSizeY );
+
+  roiButton = new QPushButton (
+      QIcon ( ":/qt-icons/roi.png" ), "", this );
+  roiButton->setToolTip ( tr ( "Set new ROI" ));
+  connect ( roiButton, SIGNAL( clicked()), this, SLOT( setUserROI()));
 
   roiInputBox = new QHBoxLayout();
-  roiInputBox->addWidget ( xSize );
-  roiInputBox->addWidget ( x );
-  roiInputBox->addWidget ( ySize );
+  roiInputBox->addWidget ( roiXSize );
+  roiInputBox->addWidget ( roiBy );
+  roiInputBox->addWidget ( roiYSize );
   roiInputBox->addWidget ( roiButton );
 
-  grid->addWidget ( roi, 0, 0 );
-  grid->addWidget ( max, 0, 2 );
-  grid->addLayout ( roiInputBox, 1, 0 );
-  grid->setColumnStretch ( 1, 1 );
-  grid->addWidget ( resMenu, 1, 2 );
+  cropXSize = new QLineEdit ( this );
+  cropYSize = new QLineEdit ( this );
+  cropBy = new QLabel ( " x ", this );
+
+  cropXSize->setMaxLength ( 4 );
+  cropXSize->setFixedWidth ( 45 );
+  cropYSize->setMaxLength ( 4 );
+  cropYSize->setFixedWidth ( 45 );
+
+  cropButton = new QPushButton (
+      QIcon ( ":/qt-icons/roi.png" ), "", this );
+  cropButton->setToolTip ( tr ( "Set new ROI" ));
+  connect ( cropButton, SIGNAL( clicked()), this, SLOT( setCropSize()));
+
+  cropInputBox = new QHBoxLayout();
+  cropInputBox->addWidget ( cropXSize );
+  cropInputBox->addWidget ( cropBy );
+  cropInputBox->addWidget ( cropYSize );
+  cropInputBox->addWidget ( cropButton );
+
+  roiXValidator = 0;
+  roiYValidator = 0;
+  cropXValidator = 0;
+  cropYValidator = 0;
+  state.cropMode = 0;
+
+  grid->addWidget ( cameraROILabel, 0, 0 );
+  grid->addWidget ( userROI, 0, 1 );
+  grid->addWidget ( cropRegion, 0, 2 );
+  grid->addWidget ( resMenu, 1, 0 );
+  grid->addLayout ( roiInputBox, 1, 1 );
+  grid->addLayout ( cropInputBox, 1, 2 );
 
   setLayout ( grid );
+
+  connect ( userROI, SIGNAL( clicked()), this, SLOT( updateUserROI()));
+  connect ( cropRegion, SIGNAL( clicked()), this, SLOT( updateFrameCrop()));
 }
 
 
@@ -191,7 +208,8 @@ ImageWidget::configure ( void )
     config.imageSizeX = showXRes;
     config.imageSizeY = showYRes;
   } else {
-    showItem = max->isChecked() ? numItems - 1: 0;
+    showItem = ( !userROI->isChecked() && !cropRegion->isChecked()) ?
+        numItems - 1: 0;
     if ( showItem ) {
       config.imageSizeX = xRes[ lastKey ];
       config.imageSizeY = yRes[ lastKey ];
@@ -210,46 +228,56 @@ ImageWidget::configure ( void )
   // won't get called.  So, we have to get the current index and
   // if it is 0, call resolution changed manually
   if ( resMenu->currentIndex() == showItem ) {
-    resolutionChanged ( showItem );
+    cameraROIChanged ( showItem );
   } else {
     resMenu->setCurrentIndex ( showItem );
   }
   // xSize->setText ( QString::number ( config.imageSizeX ));
   // ySize->setText ( QString::number ( config.imageSizeY ));
-  xSize->setEnabled ( 0 );
-  ySize->setEnabled ( 0 );
-  if ( 1 == numItems ) {
-    max->setEnabled ( 0 );
-  } else {
-    max->setEnabled ( 1 );
+
+  if ( !roiXValidator ) {
+    roiXValidator = new QIntValidator ( 1, maxX, this );
+    roiYValidator = new QIntValidator ( 1, maxY, this );
+    roiXSize->setValidator ( roiXValidator );
+    roiYSize->setValidator ( roiYValidator );
+    cropXValidator = new QIntValidator ( 1, maxX, this );
+    cropYValidator = new QIntValidator ( 1, maxY, this );
+    cropXSize->setValidator ( roiXValidator );
+    cropYSize->setValidator ( roiYValidator );
+  }
+  roiXValidator->setRange ( 1, maxX );
+  roiYValidator->setRange ( 1, maxY );
+  cropXValidator->setRange ( 1, maxX );
+  cropYValidator->setRange ( 1, maxY );
+
+  if ( state.cropMode ) {
+    if ( config.imageSizeX > state.cropSizeX || config.imageSizeY > state.
+        cropSizeY ) {
+      state.cropMode = 0;
+      cropRegion->setChecked ( false );
+    }
   }
 
-  if ( state.camera->hasROI()) {
-    roi->setEnabled ( 1 );
-    max->setEnabled ( 1 );
-    roiButton->setEnabled(1);
-    if ( !roiXValidator ) {
-      roiXValidator = new QIntValidator ( 1, maxX, this );
-      roiYValidator = new QIntValidator ( 1, maxY, this );
-    } else {
-      roiXValidator->setRange ( 1, maxX );
-      roiYValidator->setRange ( 1, maxY );
-    }
-    xSize->setValidator ( roiXValidator );
-    ySize->setValidator ( roiYValidator );
-    xSize->setEnabled ( 1 );
-    ySize->setEnabled ( 1 );
+  // If the camera has fixed frame sizes the we want to display the crop
+  // label for the frame size selector.  Otherwise it's the User ROI label
+  if ( state.camera->hasFixedFrameSizes()) {
+    userROI->setEnabled(0);
+    roiXSize->setEnabled(0);
+    roiYSize->setEnabled(0);
+    roiBy->setEnabled(0);
+    roiButton->setEnabled(0);
   } else {
-    roi->setEnabled ( 0 );
-    xSize->setEnabled ( 0 );
-    ySize->setEnabled ( 0 );
-    roiButton->setEnabled ( 0 );
+    userROI->setEnabled(1);
+    roiXSize->setEnabled(1);
+    roiYSize->setEnabled(1);
+    roiBy->setEnabled(1);
+    roiButton->setEnabled(1);
   }
 }
 
 
 void
-ImageWidget::resolutionChanged ( int index )
+ImageWidget::cameraROIChanged ( int index )
 {
   // changes to this function may need to be replicated in
   // updateFromConfig()
@@ -258,16 +286,8 @@ ImageWidget::resolutionChanged ( int index )
     return;
   }
 
-  if ( index == ( resMenu->count() - 1 )) {
-    // last item -- max size
-    max->setChecked ( true );
-  } else {
-    // Neither should be checked in this instance
-    buttonGroup->setExclusive ( false );
-    max->setChecked ( false );
-    roi->setChecked ( false );
-    buttonGroup->setExclusive ( true );
-  }
+  userROI->setChecked ( false );
+
   config.imageSizeX = XResolutions[ index ];
   config.imageSizeY = YResolutions[ index ];
   // xSize->setText ( QString::number ( config.imageSizeX ));
@@ -299,6 +319,7 @@ ImageWidget::doResolutionChange ( int roiChanged )
 void
 ImageWidget::enableAllControls ( int state )
 {
+  /*
   // actually we need to save the state if we're disabling because it
   // doesn't make sense to re-enable them all
 
@@ -313,8 +334,8 @@ ImageWidget::enableAllControls ( int state )
   } else {
     xSizeSavedState = xSize->isEnabled();
     ySizeSavedState = ySize->isEnabled();
-    roiSavedState = roi->isEnabled();
-    maxSavedState = max->isEnabled();
+    roiSavedState = userROI->isEnabled();
+    maxSavedState = presetROI->isEnabled();
     resMenuSavedState = resMenu->isEnabled();
     xSizeState = 0;
     ySizeState = 0;
@@ -324,39 +345,17 @@ ImageWidget::enableAllControls ( int state )
   }
   xSize->setEnabled ( xSizeState );
   ySize->setEnabled ( ySizeState );
-  max->setEnabled ( maxState );
-  roi->setEnabled ( roiState );
+  presetROI->setEnabled ( maxState );
+  userROI->setEnabled ( roiState );
   resMenu->setEnabled ( resMenuState );
-}
-
-
-void
-ImageWidget::setMaxImageSize ( void )
-{
-  int newItem = resMenu->count() - 1;
-  int currentItem = resMenu->currentIndex();
-
-  if ( newItem == currentItem ) {
-    resetResolution();
-  } else {
-    resMenu->setCurrentIndex ( newItem );
-  }
-}
-
-
-void
-ImageWidget::enableROIEntry ( void )
-{
-  xSize->setEnabled ( 1 );
-  ySize->setEnabled ( 1 );
-  roiButton->setEnabled ( 1 );
+  */
 }
 
 
 void
 ImageWidget::resetResolution ( void )
 {
-  resolutionChanged ( resMenu->currentIndex());
+  cameraROIChanged ( resMenu->currentIndex());
 }
 
 
@@ -375,19 +374,20 @@ ImageWidget::updateFromConfig ( void )
         index = i;
       }
     }
-
+/*
     if (( numRes - 1 ) == index ) {
       // last item -- max size
-      max->setChecked ( true );
+      presetROI->setChecked ( true );
     } else {
       // Neither should be checked in this instance
       buttonGroup->setExclusive ( false );
-      max->setChecked ( false );
-      roi->setChecked ( false );
+      presetROI->setChecked ( false );
+      userROI->setChecked ( false );
       buttonGroup->setExclusive ( true );
     }
+    */
     // need to ignore changes here because changing the index will
-    // call resolutionChanged() and we're doing its work ourselves
+    // call cameraROIChanged() and we're doing its work ourselves
     ignoreResolutionChanges = 1;
     resMenu->setCurrentIndex ( index );
     ignoreResolutionChanges = 0;
@@ -411,10 +411,23 @@ ImageWidget::updateFromConfig ( void )
 
 
 void
-ImageWidget::changeROI ( void )
+ImageWidget::updateUserROI ( void )
 {
-  QString xStr = xSize->text();
-  QString yStr = ySize->text();
+  if ( userROI->isChecked()) {
+    setUserROI();
+  } else {
+    // if the button is unchecked then we return to whatever is set in the
+    // camera ROI
+    cameraROIChanged ( resMenu->currentIndex());
+  }
+}
+
+
+void
+ImageWidget::setUserROI ( void )
+{
+  QString xStr = roiXSize->text();
+  QString yStr = roiYSize->text();
   int x, y;
 
   x = y = -1;
@@ -427,16 +440,73 @@ ImageWidget::changeROI ( void )
 
   if ( x > 0 && y > 0 ) {
     unsigned int altX, altY;
+    // To prevent issues with mosaicked frames make the new X and Y values
+    // multiples of 2
+    x = x + ( x % 2 );
+    y = y + ( y % 2 );
     if ( state.camera->testROISize ( x, y, &altX, &altY )) {
       x = altX;
       y = altY;
     }
     config.imageSizeX = x;
     config.imageSizeY = y;
-    xSize->setText ( QString::number ( config.imageSizeX ));
-    ySize->setText ( QString::number ( config.imageSizeY ));
+    roiYSize->setText ( QString::number ( config.imageSizeX ));
+    roiYSize->setText ( QString::number ( config.imageSizeY ));
     doResolutionChange ( 1 );
-    roi->setChecked ( true );
-    max->setChecked ( false );
+    userROI->setChecked ( true );
+  } else {
+    userROI->setChecked ( false );
+  }
+
+  if ( state.cropMode ) {
+    if ( config.imageSizeX > state.cropSizeX || config.imageSizeY > state.
+        cropSizeY ) {
+      state.cropMode = 0;
+      cropRegion->setChecked ( false );
+    }
+  }
+}
+
+
+void
+ImageWidget::updateFrameCrop ( void )
+{
+  if ( cropRegion->isChecked()) {
+    setCropSize();
+  } else {
+    state.cropMode = 0;
+  }
+}
+
+
+void
+ImageWidget::setCropSize ( void )
+{
+  QString xStr = cropXSize->text();
+  QString yStr = cropYSize->text();
+  int x, y;
+
+  x = y = -1;
+  if ( xStr != "" ) {
+    x = xStr.toInt();
+  }
+  if ( yStr != "" ) {
+    y = yStr.toInt();
+  }
+
+  if ( x > 0 && y > 0 ) {
+    // To prevent issues with mosaicked frames make the new X and Y values
+    // multiples of 2
+    x = x + ( x % 2 );
+    y = y + ( y % 2 );
+    if ( x <= config.imageSizeX && y <= config.imageSizeY ) {
+      cropRegion->setChecked ( true );
+      state.cropSizeX = x;
+      state.cropSizeY = y;
+      state.cropMode = 1;
+    }
+  } else {
+    state.cropMode = 0;
+    cropRegion->setChecked ( false );
   }
 }

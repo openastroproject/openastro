@@ -604,6 +604,7 @@ oaAltairInitCamera ( oaCameraDevice* device )
       fprintf ( stderr, "Can't handle resolution %dx%d for camera\n", x, y );
     }
   }
+  camera->features.fixedFrameSizes = 1;
 
   cameraInfo->maxResolutionX = cameraInfo->currentXSize;
   cameraInfo->maxResolutionY = cameraInfo->currentYSize;

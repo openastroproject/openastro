@@ -60,6 +60,7 @@ class Camera : public QObject
     int			hasDemosaicMode ( void );
     int			hasBinning ( int64_t );
     int			hasROI ( void );
+    int     hasFixedFrameSizes ( void );
     int			hasControl ( int );
     int			hasAuto ( int );
     int			isAuto ( int );

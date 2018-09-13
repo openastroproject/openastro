@@ -1094,6 +1094,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
   cameraInfo->frameSizes[1].numSizes = i;
 
   camera->features.frameRates = allFramesHaveFixedRates;
+  camera->features.fixedFrameSizes = 1;
   cameraInfo->frameRates.numRates = 0;
 
   camera->interface = device->interface;

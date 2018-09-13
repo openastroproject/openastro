@@ -1728,6 +1728,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   cameraInfo->frameSizes[1].numSizes = j;
 
   camera->features.frameRates = 0;
+  camera->features.fixedFrameSizes = 1;
 
   OA_CLEAR( parm );
   parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;

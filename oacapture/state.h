@@ -104,6 +104,9 @@ typedef struct
   double		latitude;
   double		altitude;
 
+  int       cropMode;
+  int       cropSizeX;
+  int       cropSizeY;
 } STATE;
 
 extern STATE		state;

@@ -924,6 +924,7 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
   }
 
   cameraInfo->frameSizes[1].numSizes = numResolutions;
+  camera->features.fixedFrameSizes = 1;
   return OA_ERR_NONE;
 }
 

@@ -2,7 +2,7 @@
  *
  * atikSerialconnect-ftdi.c -- Initialise Atik serial cameras using libftdi1
  *
- * Copyright 2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -429,6 +429,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
   cameraInfo->frameSizes[1].sizes[0].x = cameraInfo->maxResolutionX;
   cameraInfo->frameSizes[1].sizes[0].y = cameraInfo->maxResolutionY;
   cameraInfo->frameSizes[1].numSizes = 1;
+  camera->features.fixedFrameSizes = 1;
 
   cameraInfo->buffers = 0;
   cameraInfo->configuredBuffers = 0;

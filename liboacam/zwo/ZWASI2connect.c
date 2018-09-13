@@ -1314,6 +1314,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   cameraInfo->ySize = cameraInfo->maxResolutionY;
   cameraInfo->buffers = 0;
   cameraInfo->configuredBuffers = 0;
+  camera->features.fixedFrameSizes = 0;
 
   ASISetROIFormat ( cameraInfo->cameraId, cameraInfo->xSize,
       cameraInfo->ySize, cameraInfo->binMode, cameraInfo->currentMode );

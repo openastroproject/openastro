@@ -937,6 +937,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       }
     }
   }
+  camera->features.fixedFrameSizes = 1;
   maxBinMode = numBinModes = 0;
   i = cameraInfo->availableBinModes;
   while ( i ) {

@@ -177,6 +177,16 @@ Camera::hasROI ( void )
 }
 
 
+int Camera::hasFixedFrameSizes ( void )
+{
+  if ( !initialised ) {
+    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    return 0;
+  }
+  return cameraFeatures.fixedFrameSizes;
+}
+
+
 int
 Camera::hasFrameRateSupport ( void )
 {

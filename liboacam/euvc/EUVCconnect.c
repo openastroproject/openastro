@@ -1174,6 +1174,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
     free (( void* ) camera );
     return 0;
   }
+  camera->features.fixedFrameSizes = 1;
 
   for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
     void* m = malloc ( cameraInfo->imageBufferLength );
