@@ -105,10 +105,10 @@ typedef struct
   double		altitude;
 
   int       cropMode;
-  int       cropSizeX;
-  int       cropSizeY;
-  int       sensorSizeX;
-  int       sensorSizeY;
+  unsigned int  cropSizeX;
+  unsigned int  cropSizeY;
+  unsigned int  sensorSizeX;
+  unsigned int  sensorSizeY;
 } STATE;
 
 extern STATE		state;

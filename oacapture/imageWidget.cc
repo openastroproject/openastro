@@ -450,9 +450,9 @@ ImageWidget::setCropSize ( void )
 {
   QString xStr = cropXSize->text();
   QString yStr = cropYSize->text();
-  int x, y;
+  unsigned int x, y;
 
-  x = y = -1;
+  x = y = 0;
   if ( xStr != "" ) {
     x = xStr.toInt();
   }
