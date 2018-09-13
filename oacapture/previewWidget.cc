@@ -649,7 +649,6 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
   // write straight from the data if possible
   void*			previewBuffer = imageData;
   void*			writeBuffer = imageData;
-  void*     cropBuffer;
   int			currentPreviewBuffer = -1;
   int			writeDemosaicPreviewBuffer = 0;
   int			maxLength;
