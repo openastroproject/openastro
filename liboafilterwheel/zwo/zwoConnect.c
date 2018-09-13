@@ -43,7 +43,6 @@ typedef uint8_t bool;
 
 
 static void _zwoInitFunctionPointers ( oaFilterWheel* );
-static int  _getNumSlots ( oaFilterWheel* );
 
 /**
  * Initialise a given filter wheel device
@@ -154,13 +153,6 @@ _zwoInitFunctionPointers ( oaFilterWheel* wheel )
   wheel->funcs.readControl = oaZWOWheelReadControl;
   wheel->funcs.setControl = oaZWOWheelSetControl;
   // wheel->funcs.testControl = XXXX;
-}
-
-
-int
-_getNumSlots ( oaFilterWheel* wheel )
-{
-  return wheel->numSlots;
 }
 
 
