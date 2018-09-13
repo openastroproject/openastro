@@ -83,12 +83,5 @@ class ImageWidget : public QGroupBox
     QList<unsigned int>	XResolutions;
     QList<unsigned int>	YResolutions;
     int	            		ignoreResolutionChanges;
-    /*
-    bool		xSizeSavedState;
-    bool		ySizeSavedState;
-    bool		roiSavedState;
-    bool		maxSavedState;
-    bool		resMenuSavedState;
-*/
     void                doResolutionChange ( int );
 };

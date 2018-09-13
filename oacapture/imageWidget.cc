@@ -321,36 +321,11 @@ ImageWidget::doResolutionChange ( int roiChanged )
 void
 ImageWidget::enableAllControls ( int state )
 {
-  /*
-  // actually we need to save the state if we're disabling because it
-  // doesn't make sense to re-enable them all
-
-  bool xSizeState, ySizeState, roiState, maxState, resMenuState;
-
-  if ( state ) {
-    xSizeState = xSizeSavedState;
-    ySizeState = ySizeSavedState;
-    roiState = roiSavedState;
-    maxState = maxSavedState;
-    resMenuState = resMenuSavedState;
-  } else {
-    xSizeSavedState = xSize->isEnabled();
-    ySizeSavedState = ySize->isEnabled();
-    roiSavedState = userROI->isEnabled();
-    maxSavedState = presetROI->isEnabled();
-    resMenuSavedState = resMenu->isEnabled();
-    xSizeState = 0;
-    ySizeState = 0;
-    roiState = 0;
-    maxState = 0;
-    resMenuState = 0;
-  }
-  xSize->setEnabled ( xSizeState );
-  ySize->setEnabled ( ySizeState );
-  presetROI->setEnabled ( maxState );
-  userROI->setEnabled ( roiState );
-  resMenu->setEnabled ( resMenuState );
-  */
+  userROI->setEnabled ( state );
+  cropRegion->setEnabled ( state );
+  resMenu->setEnabled ( state );
+  roiButton->setEnabled ( state );
+  cropButton->setEnabled ( state );
 }
 
 
@@ -376,18 +351,7 @@ ImageWidget::updateFromConfig ( void )
         index = i;
       }
     }
-/*
-    if (( numRes - 1 ) == index ) {
-      // last item -- max size
-      presetROI->setChecked ( true );
-    } else {
-      // Neither should be checked in this instance
-      buttonGroup->setExclusive ( false );
-      presetROI->setChecked ( false );
-      userROI->setChecked ( false );
-      buttonGroup->setExclusive ( true );
-    }
-    */
+
     // need to ignore changes here because changing the index will
     // call cameraROIChanged() and we're doing its work ourselves
     ignoreResolutionChanges = 1;
