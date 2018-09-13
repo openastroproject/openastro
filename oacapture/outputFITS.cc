@@ -243,6 +243,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   void* outputBuffer = frame;
   char stringBuff[FLEN_VALUE+1];
   float pixelSize = 0;
+  int xorg, yorg;
   // Hack to get around older versions of library using char* rather
   // than const char*
 #if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
@@ -442,14 +443,26 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 
 
   if ( config.fitsSubframeOriginX != "" ) {
-    fits_write_key_lng ( fptr, "XORGSUBF", config.fitsSubframeOriginX.toInt(),
-        "", &status );
+    xorg = config.fitsSubframeOriginX.toInt();
+  } else {
+    if ( state.cropMode ) {
+      xorg = ( state.sensorSizeX - state.cropSizeX ) / 2;
+    } else {
+      xorg = ( state.sensorSizeX - config.imageSizeX ) / 2;
+    }
   }
+  fits_write_key_lng ( fptr, "XORGSUBF", xorg, "", &status );
 
   if ( config.fitsSubframeOriginY != "" ) {
-    fits_write_key_lng ( fptr, "YORGSUBF", config.fitsSubframeOriginY.toInt(),
-        "", &status );
+    yorg = config.fitsSubframeOriginY.toInt();
+  } else {
+    if ( state.cropMode ) {
+      yorg = ( state.sensorSizeY - state.cropSizeY ) / 2;
+    } else {
+      yorg = ( state.sensorSizeY - config.imageSizeY ) / 2;
+    }
   }
+  fits_write_key_lng ( fptr, "YORGSUBF", yorg, "", &status );
 
   QString currentFilter = state.captureWidget->getCurrentFilterName();
   if ( config.fitsFilter != "" ) {

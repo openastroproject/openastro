@@ -220,6 +220,8 @@ ImageWidget::configure ( void )
   }
   maxX = xRes[ lastKey ];
   maxY = yRes[ lastKey ];
+  state.sensorSizeX = maxX;
+  state.sensorSizeY = maxY;
   SET_PROFILE_CONFIG( imageSizeX, config.imageSizeX );
   SET_PROFILE_CONFIG( imageSizeY, config.imageSizeY );
 

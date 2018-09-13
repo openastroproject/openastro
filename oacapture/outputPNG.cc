@@ -182,6 +182,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   png_text		pngComments[ 30 ];
   int			numComments = 0;
   char			stringBuffs[30][ PNG_KEYWORD_MAX_LENGTH + 1 ];
+  int       xorg, yorg;
 
   filenameRoot = getNewFilename();
   fullSaveFilePath = filenameRoot + ".png";
@@ -372,21 +373,33 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
   pngComments[ numComments ].key = ( char* ) "XORGSUBF";
   if ( config.fitsSubframeOriginX != "" ) {
-    ( void ) strncpy ( stringBuffs[ numComments ],
-        config.fitsSubframeOriginX.toStdString().c_str(),
-        PNG_KEYWORD_MAX_LENGTH+1 );
-    pngComments[ numComments ].text = stringBuffs[ numComments ];
-    numComments++;
+    xorg = config.fitsSubframeOriginX.toInt();
+  } else {
+    if ( state.cropMode ) {
+      xorg = ( state.sensorSizeX - state.cropSizeX ) / 2;
+    } else {
+      xorg = ( state.sensorSizeX - config.imageSizeX ) / 2;
+    }
   }
+  ( void ) snprintf ( stringBuffs[ numComments ], PNG_KEYWORD_MAX_LENGTH,
+      "%d", xorg );
+  pngComments[ numComments ].text = stringBuffs[ numComments ];
+  numComments++;
 
   pngComments[ numComments ].key = ( char* ) "YORGSUBF";
   if ( config.fitsSubframeOriginY != "" ) {
-    ( void ) strncpy ( stringBuffs[ numComments ],
-        config.fitsSubframeOriginY.toStdString().c_str(),
-        PNG_KEYWORD_MAX_LENGTH+1 );
-    pngComments[ numComments ].text = stringBuffs[ numComments ];
-    numComments++;
+    yorg = config.fitsSubframeOriginY.toInt();
+  } else {
+    if ( state.cropMode ) {
+      yorg = ( state.sensorSizeY - state.cropSizeY ) / 2;
+    } else {
+      yorg = ( state.sensorSizeY - config.imageSizeY ) / 2;
+    }
   }
+  ( void ) snprintf ( stringBuffs[ numComments ], PNG_KEYWORD_MAX_LENGTH,
+      "%d", yorg );
+  pngComments[ numComments ].text = stringBuffs[ numComments ];
+  numComments++;
 
   pngComments[ numComments ].key = ( char* ) "FILTER";
   QString currentFilter = state.captureWidget->getCurrentFilterName();

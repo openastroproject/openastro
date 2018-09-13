@@ -107,6 +107,8 @@ typedef struct
   int       cropMode;
   int       cropSizeX;
   int       cropSizeY;
+  int       sensorSizeX;
+  int       sensorSizeY;
 } STATE;
 
 extern STATE		state;
