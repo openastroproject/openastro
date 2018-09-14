@@ -83,10 +83,9 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     perror ( "malloc COMMON_INFO failed" );
     return 0;
   }
+  OA_CLEAR ( *camera );
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
-  OA_CLEAR ( camera->controlType );
-  OA_CLEAR ( camera->features );
   camera->_private = cameraInfo;
   camera->_common = commonInfo;
   devInfo = device->_private;
@@ -423,9 +422,11 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     case CAM_ATK16ICC:
     case CAM_ATK16ICSC:
       cameraInfo->colour = 1;
+      camera->frameFormats [ OA_PIX_FMT_GBRG16LE ] = 1;
       break;
     default:
       cameraInfo->colour = 0;
+      camera->frameFormats [ OA_PIX_FMT_GREY16LE ] = 1;
       break;
   }
 
