@@ -254,7 +254,7 @@ _QHY5LIIInitCamera ( oaCamera* camera )
   camera->features.pixelSizeX = 3750;
   camera->features.pixelSizeY = 3750;
 
-  oaQHY5LIISetAllControls ( cameraInfo );
+  oaQHY5LIISetAllControls ( camera );
 
   return OA_ERR_NONE;
 }
