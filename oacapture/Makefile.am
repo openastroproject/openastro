@@ -96,6 +96,7 @@ ui-%.h: %.ui
 	@UIC@ -o $@ $<
 
 qrc_%.cc: %.qrc
+	$(LN_S) -f $(top_srcdir)/qt-icons .
 	@RCC@ -o $@ $<
 
 mostlyclean-local:
