@@ -281,8 +281,8 @@ oaSXInitCamera ( oaCameraDevice* device )
   if ( cameraInfo->bitDepth <= 8 ) {
     cameraInfo->bytesPerPixel = 1;
     if ( cameraInfo->isColour ) {
-      cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG8;
-      camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
+      cameraInfo->currentFrameFormat = OA_PIX_FMT_BGGR8;
+      camera->frameFormats[ OA_PIX_FMT_BGGR8 ] = 1;
     } else {
       cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY8;
       camera->frameFormats[ OA_PIX_FMT_GREY8 ] = 1;
@@ -290,8 +290,8 @@ oaSXInitCamera ( oaCameraDevice* device )
   } else {
     cameraInfo->bytesPerPixel = 2;
     if ( cameraInfo->isColour ) {
-      cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG16LE;
-      camera->frameFormats[ OA_PIX_FMT_GRBG16LE ] = 1;
+      cameraInfo->currentFrameFormat = OA_PIX_FMT_BGGR16LE;
+      camera->frameFormats[ OA_PIX_FMT_BGGR16LE ] = 1;
     } else {
       cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY16LE;
       camera->frameFormats[ OA_PIX_FMT_GREY16LE ] = 1;

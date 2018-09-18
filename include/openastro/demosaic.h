@@ -2,7 +2,7 @@
  *
  * demosaic.h -- demosaic API header
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -31,7 +31,11 @@
 #define OA_DEMOSAIC_BGGR	2
 #define OA_DEMOSAIC_GRBG	3
 #define OA_DEMOSAIC_GBRG	4
-#define OA_DEMOSAIC_AUTO	5
+#define OA_DEMOSAIC_CMYG	5
+#define OA_DEMOSAIC_MCGY	6
+#define OA_DEMOSAIC_YGCM	7
+#define OA_DEMOSAIC_GYMC	8
+#define OA_DEMOSAIC_AUTO	9
 
 #define	OA_DEMOSAIC_NEAREST_NEIGHBOUR	1
 #define	OA_DEMOSAIC_NEAREST_NEIGHBOR	OA_DEMOSAIC_NEAREST_NEIGHBOUR

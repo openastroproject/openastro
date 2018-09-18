@@ -2,7 +2,7 @@
  *
  * demosaic.c -- main demosaic library entrypoint
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -37,6 +37,12 @@ int
 oademosaic ( void* source, void* target, int xSize, int ySize, int bitDepth,
     int format, int method )
 {
+  if ( OA_DEMOSAIC_CMYG == format || OA_DEMOSAIC_MCGY == format ||
+      OA_DEMOSAIC_YGCM == format || OA_DEMOSAIC_GYMC == format ) {
+    // This is the only method we have for CMYG etc. at the moment
+    method = OA_DEMOSAIC_NEAREST_NEIGHBOUR;
+  }
+
   switch ( method ) {
     case OA_DEMOSAIC_NEAREST_NEIGHBOUR:
       oadNearestNeighbour ( source, target, xSize, ySize, bitDepth, format );

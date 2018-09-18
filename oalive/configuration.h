@@ -2,7 +2,8 @@
  *
  * config.h -- declaration of data structures for configuration data
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -134,6 +135,7 @@ typedef struct
   // demosaic config
   int			cfaPattern;
   int			demosaicMethod;
+  int			monoIsRawColour;
 
   // saved profiles
   int			numProfiles;

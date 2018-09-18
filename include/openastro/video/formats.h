@@ -129,10 +129,23 @@
 #define OA_PIX_FMT_GRBG14_16BE          82
 #define OA_PIX_FMT_GRBG14_16LE          83
 
+#define OA_PIX_FMT_CMYG8                84
+#define OA_PIX_FMT_MCGY8                85
+#define OA_PIX_FMT_YGCM8                86
+#define OA_PIX_FMT_GYMC8                87
+#define OA_PIX_FMT_CMYG16BE             88
+#define OA_PIX_FMT_CMYG16LE             89
+#define OA_PIX_FMT_MCGY16BE             90
+#define OA_PIX_FMT_MCGY16LE             91
+#define OA_PIX_FMT_YGCM16BE             92
+#define OA_PIX_FMT_YGCM16LE             93
+#define OA_PIX_FMT_GYMC16BE             94
+#define OA_PIX_FMT_GYMC16LE             95
+
 // Adding more frame formats here requires the oaFrameFormats table
 // updating in liboavideo/formats.c
 
-#define OA_PIX_FMT_LAST_P1		OA_PIX_FMT_GRBG14_16LE+1
+#define OA_PIX_FMT_LAST_P1		OA_PIX_FMT_GYMC16LE+1
 
 #define OA_DEMOSAIC_FMT(x) \
   ((( x == OA_PIX_FMT_BGGR8 ) || ( x == OA_PIX_FMT_RGGB8 ) || \
@@ -143,7 +156,16 @@
   ?  OA_PIX_FMT_RGB48LE : \
   (( x == OA_PIX_FMT_BGGR16BE ) || ( x == OA_PIX_FMT_RGGB16BE ) || \
   ( x == OA_PIX_FMT_GBRG16BE ) || ( x == OA_PIX_FMT_GRBG16BE )) \
-  ?  OA_PIX_FMT_RGB48BE : 0 )
+  ?  OA_PIX_FMT_RGB48BE : \
+  (( x == OA_PIX_FMT_CMYG8 ) || ( x == OA_PIX_FMT_MCGY8 ) || \
+   ( x == OA_PIX_FMT_YGCM8 ) || ( x == OA_PIX_FMT_GYMC8 )) \
+   ? OA_PIX_FMT_RGB24 : \
+  (( x == OA_PIX_FMT_CMYG16LE ) || ( x == OA_PIX_FMT_MCGY16LE ) || \
+   ( x == OA_PIX_FMT_YGCM16LE ) || ( x == OA_PIX_FMT_GYMC16LE )) \
+   ? OA_PIX_FMT_RGB48LE : \
+  (( x == OA_PIX_FMT_CMYG16BE ) || ( x == OA_PIX_FMT_MCGY16BE ) || \
+   ( x == OA_PIX_FMT_YGCM16BE ) || ( x == OA_PIX_FMT_GYMC16BE )) \
+   ? OA_PIX_FMT_RGB48BE : 0 )
 
 typedef struct {
   const char*	name;

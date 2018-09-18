@@ -27,6 +27,10 @@
     <file>qt-icons/GBRG.png</file>
     <file>qt-icons/GRBG.png</file>
     <file>qt-icons/RGGB.png</file>
+    <file>qt-icons/CMYG.png</file>
+    <file>qt-icons/MCGY.png</file>
+    <file>qt-icons/YGCM.png</file>
+    <file>qt-icons/GYMC.png</file>
     <file>qt-icons/roi.png</file>
     <file>qt-icons/planetary-camera.png</file>
     <file>qt-icons/capture.png</file>

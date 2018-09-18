@@ -31,6 +31,7 @@
 #include "configuration.h"
 #include "state.h"
 #include "version.h"
+#include "openastro/demosaic.h"
 
 #define	DEFAULT_FRAME_TIME	100
 
@@ -41,7 +42,6 @@
 Camera::Camera()
 {
   initialised = 0;
-  framePixelFormat = OA_PIX_FMT_RGB24; // the default
 }
 
 
@@ -430,7 +430,6 @@ Camera::initialise ( oaCameraDevice* device )
 
   if (( cameraContext = device->initCamera ( device ))) {
     initialised = 1;
-    framePixelFormat = cameraFuncs.getFramePixelFormat ( cameraContext );
     return 0;
   }
   return -1;
@@ -545,7 +544,69 @@ Camera::stop ( void )
 int
 Camera::videoFramePixelFormat ( void )
 {
-  return cameraFuncs.getFramePixelFormat ( cameraContext );
+  int format;
+
+  format = cameraFuncs.getFramePixelFormat ( cameraContext );
+  if ( config.monoIsRawColour ) {
+    if ( format == OA_PIX_FMT_GREY16LE ) {
+      switch ( config.cfaPattern ) {
+        case OA_DEMOSAIC_RGGB:
+          format = OA_PIX_FMT_RGGB16LE;
+          break;
+        case OA_DEMOSAIC_BGGR:
+          format = OA_PIX_FMT_BGGR16LE;
+          break;
+        case OA_DEMOSAIC_GRBG:
+          format = OA_PIX_FMT_GRBG16LE;
+          break;
+        case OA_DEMOSAIC_GBRG:
+          format = OA_PIX_FMT_GBRG16LE;
+          break;
+        case OA_DEMOSAIC_CMYG:
+          format = OA_PIX_FMT_CMYG16LE;
+          break;
+        case OA_DEMOSAIC_MCGY:
+          format = OA_PIX_FMT_MCGY16LE;
+          break;
+        case OA_DEMOSAIC_YGCM:
+          format = OA_PIX_FMT_YGCM16LE;
+          break;
+        case OA_DEMOSAIC_GYMC:
+          format = OA_PIX_FMT_GYMC16LE;
+          break;
+      }
+    } else {
+      if ( format == OA_PIX_FMT_GREY16BE ) {
+        switch ( config.cfaPattern ) {
+          case OA_DEMOSAIC_RGGB:
+            format = OA_PIX_FMT_RGGB16BE;
+            break;
+          case OA_DEMOSAIC_BGGR:
+            format = OA_PIX_FMT_BGGR16BE;
+            break;
+          case OA_DEMOSAIC_GRBG:
+            format = OA_PIX_FMT_GRBG16BE;
+            break;
+          case OA_DEMOSAIC_GBRG:
+            format = OA_PIX_FMT_GBRG16BE;
+            break;
+          case OA_DEMOSAIC_CMYG:
+            format = OA_PIX_FMT_CMYG16BE;
+            break;
+          case OA_DEMOSAIC_MCGY:
+            format = OA_PIX_FMT_MCGY16BE;
+            break;
+          case OA_DEMOSAIC_YGCM:
+            format = OA_PIX_FMT_YGCM16BE;
+            break;
+          case OA_DEMOSAIC_GYMC:
+            format = OA_PIX_FMT_GYMC16BE;
+            break;
+        }
+      }
+    }
+  }
+  return format;
 }
 
 

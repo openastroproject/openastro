@@ -1077,6 +1077,18 @@ PreviewWidget::reduceTo8Bit ( void* sourceData, void* targetData, int xSize,
         case OA_DEMOSAIC_GBRG:
           outputFormat = OA_PIX_FMT_GBRG8;
           break;
+        case OA_DEMOSAIC_CMYG:
+          outputFormat = OA_PIX_FMT_CMYG8;
+          break;
+        case OA_DEMOSAIC_MCGY:
+          outputFormat = OA_PIX_FMT_MCGY8;
+          break;
+        case OA_DEMOSAIC_YGCM:
+          outputFormat = OA_PIX_FMT_YGCM8;
+          break;
+        case OA_DEMOSAIC_GYMC:
+          outputFormat = OA_PIX_FMT_GYMC8;
+          break;
       }
     } else {
       switch ( format ) {

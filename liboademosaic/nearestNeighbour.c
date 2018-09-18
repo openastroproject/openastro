@@ -2,7 +2,7 @@
  *
  * nearestNeighbour.c -- nearest neighbour demosaic method
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -238,6 +238,244 @@ _nnGBRG8 ( void* source, void* target, int xSize, int ySize )
 }
 
 
+static void
+_nnCMYG8 ( void* source, void* target, int xSize, int ySize )
+{
+  int row, col;
+  unsigned char* s;
+  unsigned char* t;
+  uint16_t c, m, y, g;
+
+  // FIX ME -- handle first row/column
+
+  // odd rows, odd pixels
+  // R is (Y (left) + M (up)) / 2
+  // G is direct copy
+  // B is (M (up) + C (up left)) / 2
+  // odd rows, even pixels
+  // R is (Y (current) + M (up left)) / 2
+  // G is G (left)
+  // B is (M (up left) + C (up)) / 2
+  
+  ySize--;
+  for ( row = 1; row < ySize; row += 2 ) {
+    s = ( unsigned char* ) source + row * xSize + 1;
+    t = ( unsigned char* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col <= xSize; col += 2 ) {
+      c = *( s - xSize - 1 );
+      m = *( s - xSize );
+      y = *( s - 1 );
+      g = *s;
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+      c = *( s - xSize );
+      y = *s;
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+    }
+  }
+
+  // even rows, odd pixels
+  // R is (Y (up left) + M (current)) / 2
+  // G is G (up)
+  // B is (M (current) + C (left)) / 2
+  // odd rows, even pixels
+  // R is (Y (up) + M (left)) / 2
+  // G is G (up left)
+  // B is (M (left) + C (current)) / 2
+
+  for ( row = 2; row < ySize; row += 2 ) {
+    s = ( unsigned char* ) source + row * xSize + 1;
+    t = ( unsigned char* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col <= xSize; col += 2 ) {
+      c = *( s - 1 );
+      m = *s;
+      y = *( s - xSize - 1 );
+      g = *( s - xSize );
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+      c = *s;
+      y = *( s - xSize );
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+    }
+  }
+}
+
+
+static void
+_nnMCGY8 ( void* source, void* target, int xSize, int ySize )
+{
+  int row, col;
+  unsigned char* s;
+  unsigned char* t;
+  uint16_t c, m, y, g;
+
+  // FIX ME -- handle first row/column
+
+  ySize--;
+  for ( row = 1; row < ySize; row += 2 ) {
+    s = ( unsigned char* ) source + row * xSize + 1;
+    t = ( unsigned char* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col <= xSize; col += 2 ) {
+      m = *( s - xSize - 1 );
+      c = *( s - xSize );
+      g = *( s - 1 );
+      y = *s;
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+      m = *( s - xSize );
+      g = *s;
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+    }
+  }
+
+  for ( row = 2; row < ySize; row += 2 ) {
+    s = ( unsigned char* ) source + row * xSize + 1;
+    t = ( unsigned char* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col <= xSize; col += 2 ) {
+      m = *( s - 1 );
+      c = *s;
+      g = *( s - xSize - 1 );
+      y = *( s - xSize );
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+      m = *s;
+      g = *( s - xSize );
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+    }
+  }
+}
+
+
+static void
+_nnYGCM8 ( void* source, void* target, int xSize, int ySize )
+{
+  int row, col;
+  unsigned char* s;
+  unsigned char* t;
+  uint16_t c, m, y, g;
+
+  // FIX ME -- handle first row/column
+
+  ySize--;
+  for ( row = 1; row < ySize; row += 2 ) {
+    s = ( unsigned char* ) source + row * xSize + 1;
+    t = ( unsigned char* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col <= xSize; col += 2 ) {
+      y = *( s - xSize - 1 );
+      g = *( s - xSize );
+      c = *( s - 1 );
+      m = *s;
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+      y = *( s - xSize );
+      c = *s;
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+    }
+  }
+
+  for ( row = 2; row < ySize; row += 2 ) {
+    s = ( unsigned char* ) source + row * xSize + 1;
+    t = ( unsigned char* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col <= xSize; col += 2 ) {
+      y = *( s - 1 );
+      g = *s;
+      c = *( s - xSize - 1 );
+      m = *( s - xSize );
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+      y = *s;
+      c = *( s - xSize );
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+    }
+  }
+}
+
+
+static void
+_nnGYMC8 ( void* source, void* target, int xSize, int ySize )
+{
+  int row, col;
+  unsigned char* s;
+  unsigned char* t;
+  uint16_t c, m, y, g;
+
+  // FIX ME -- handle first row/column
+
+  ySize--;
+  for ( row = 1; row < ySize; row += 2 ) {
+    s = ( unsigned char* ) source + row * xSize + 1;
+    t = ( unsigned char* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col <= xSize; col += 2 ) {
+      g = *( s - xSize - 1 );
+      y = *( s - xSize );
+      m = *( s - 1 );
+      c = *s;
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+      g = *( s - xSize );
+      m = *s;
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+    }
+  }
+
+  for ( row = 2; row < ySize; row += 2 ) {
+    s = ( unsigned char* ) source + row * xSize + 1;
+    t = ( unsigned char* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col <= xSize; col += 2 ) {
+      g = *( s - 1 );
+      y = *s;
+      m = *( s - xSize - 1 );
+      c = *( s - xSize );
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+      g = *s;
+      m = *( s - xSize );
+      *t++ = ( y + m ) / 2; // R
+      *t++ = g;  // G
+      *t++ = ( m + c ) / 2; // B
+      s++;
+    }
+  }
+}
+
+
 void
 oadNearestNeighbour ( void* source, void* target, int xSize, int ySize,
     int bitDepth, int format )
@@ -261,6 +499,18 @@ oadNearestNeighbour ( void* source, void* target, int xSize, int ySize,
       break;
     case OA_DEMOSAIC_GBRG:
       _nnGBRG8 ( source, target, xSize, ySize );
+      break;
+    case OA_DEMOSAIC_CMYG:
+      _nnCMYG8 ( source, target, xSize, ySize );
+      break;
+    case OA_DEMOSAIC_MCGY:
+      _nnMCGY8 ( source, target, xSize, ySize );
+      break;
+    case OA_DEMOSAIC_YGCM:
+      _nnYGCM8 ( source, target, xSize, ySize );
+      break;
+    case OA_DEMOSAIC_GYMC:
+      _nnGYMC8 ( source, target, xSize, ySize );
       break;
   }
 }

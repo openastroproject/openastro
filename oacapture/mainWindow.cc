@@ -376,6 +376,7 @@ MainWindow::readConfig ( QString configFile )
     config.demosaicOutput = 0;
     config.cfaPattern = OA_DEMOSAIC_AUTO;
     config.demosaicMethod = 1;
+    config.monoIsRawColour = 0;
 
     config.numProfiles = 0;
     config.numFilters = 0;
@@ -526,6 +527,8 @@ MainWindow::readConfig ( QString configFile )
     config.demosaicMethod = settings->value ( "demosaic/method", 1 ).toInt();
     config.cfaPattern = settings->value ( "demosaic/cfaPattern",
         OA_DEMOSAIC_AUTO ).toInt();
+    config.monoIsRawColour = settings->value ( "demosaic/monoIsRawColour",
+        1 ).toInt();
 
     config.reticleStyle = settings->value ( "reticle/style",
         RETICLE_CIRCLE ).toInt();
@@ -1046,6 +1049,7 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "demosaic/preview", config.demosaicPreview );
   settings->setValue ( "demosaic/output", config.demosaicOutput );
   settings->setValue ( "demosaic/method", config.demosaicMethod );
+  settings->setValue ( "demosaic/monoIsRawColour", config.monoIsRawColour );
   settings->setValue ( "demosaic/cfaPattern", config.cfaPattern );
 
   settings->setValue ( "reticle/style", config.reticleStyle );

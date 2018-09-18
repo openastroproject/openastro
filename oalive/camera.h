@@ -100,5 +100,4 @@ class Camera : public QObject
 
     oaCamera*		cameraContext;
     int			initialised;
-    int			framePixelFormat;
 };

@@ -52,12 +52,68 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
         result = 0;
       }
       break;
+    case OA_PIX_FMT_CMYG16BE:
+      length = 2 * xSize * ySize;
+      if ( OA_PIX_FMT_CMYG8 == targetFormat ) {
+        oaBigEndian16BitTo8Bit ( source, target, length );
+        result = 0;
+      }
+      break;
+    case OA_PIX_FMT_MCGY16BE:
+      length = 2 * xSize * ySize;
+      if ( OA_PIX_FMT_MCGY8 == targetFormat ) {
+        oaBigEndian16BitTo8Bit ( source, target, length );
+        result = 0;
+      }
+      break;
+    case OA_PIX_FMT_YGCM16BE:
+      length = 2 * xSize * ySize;
+      if ( OA_PIX_FMT_YGCM8 == targetFormat ) {
+        oaBigEndian16BitTo8Bit ( source, target, length );
+        result = 0;
+      }
+      break;
+    case OA_PIX_FMT_GYMC16BE:
+      length = 2 * xSize * ySize;
+      if ( OA_PIX_FMT_GYMC8 == targetFormat ) {
+        oaBigEndian16BitTo8Bit ( source, target, length );
+        result = 0;
+      }
+      break;
     case OA_PIX_FMT_GREY10_16LE:
     case OA_PIX_FMT_GREY12_16LE:
     case OA_PIX_FMT_GREY14_16LE:
     case OA_PIX_FMT_GREY16LE:
       length = 2 * xSize * ySize;
       if ( OA_PIX_FMT_GREY8 == targetFormat ) {
+        oaLittleEndian16BitTo8Bit ( source, target, length );
+        result = 0;
+      }
+      break;
+    case OA_PIX_FMT_CMYG16LE:
+      length = 2 * xSize * ySize;
+      if ( OA_PIX_FMT_CMYG8 == targetFormat ) {
+        oaLittleEndian16BitTo8Bit ( source, target, length );
+        result = 0;
+      }
+      break;
+    case OA_PIX_FMT_MCGY16LE:
+      length = 2 * xSize * ySize;
+      if ( OA_PIX_FMT_MCGY8 == targetFormat ) {
+        oaLittleEndian16BitTo8Bit ( source, target, length );
+        result = 0;
+      }
+      break;
+    case OA_PIX_FMT_YGCM16LE:
+      length = 2 * xSize * ySize;
+      if ( OA_PIX_FMT_YGCM8 == targetFormat ) {
+        oaLittleEndian16BitTo8Bit ( source, target, length );
+        result = 0;
+      }
+      break;
+    case OA_PIX_FMT_GYMC16LE:
+      length = 2 * xSize * ySize;
+      if ( OA_PIX_FMT_GYMC8 == targetFormat ) {
         oaLittleEndian16BitTo8Bit ( source, target, length );
         result = 0;
       }

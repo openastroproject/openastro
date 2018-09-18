@@ -163,6 +163,7 @@ typedef struct
   int			demosaicOutput;
   int			cfaPattern;
   int			demosaicMethod;
+  int     monoIsRawColour;
 
   // saved profiles
   int			numProfiles;

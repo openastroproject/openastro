@@ -2,7 +2,8 @@
  *
  * demosaicSettings.h -- class declaration
  *
- * Copyright 2013,2014,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2016,2017,2018
+ *     James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -49,13 +50,20 @@ class DemosaicSettings : public QWidget
     QLabel*             demosaicLabel;
     QCheckBox*		previewBox;
     QCheckBox*		outputBox;
-    QVBoxLayout*	box;
+    QCheckBox*		monoAsRaw;
+    QVBoxLayout*	lbox;
+    QVBoxLayout*	rbox;
+    QHBoxLayout*	hbox;
     QLabel*             cfaLabel;
     QButtonGroup*       cfaButtons;
     QRadioButton*       rggbButton;
     QRadioButton*       bggrButton;
     QRadioButton*       grbgButton;
     QRadioButton*       gbrgButton;
+    QRadioButton*       cmygButton;
+    QRadioButton*       mcgyButton;
+    QRadioButton*       ygcmButton;
+    QRadioButton*       gymcButton;
     QRadioButton*       autoButton;
     QLabel*             methodLabel;
     QButtonGroup*       methodButtons;

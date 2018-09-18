@@ -2,7 +2,7 @@
  *
  * SX.h -- header for Starlight Xpress camera API
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -82,7 +82,7 @@
 #define SXUSB_CAMERA_MODEL          14
 #define SXUSB_LOAD_EEPROM           15
 #define SXUSB_SET_A2D               16
-#define SXUSB_RED_A2D               17
+#define SXUSB_READ_A2D              17
 #define SXUSB_READ_PIXELS_GATED     18
 #define SXUSB_BUILD_NUMBER          19
 
