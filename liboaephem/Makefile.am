@@ -1,7 +1,7 @@
 #
-# Makefile.am -- Top level Makefile template
+# Makefile.am -- liboaephem Makefile template
 #
-# Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+# Copyright 2018 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -21,16 +21,13 @@
 # along with the Open Astro Project.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-#SUBDIRS = bin docs include liboafilterwheel udev
 
-ACLOCAL_AMFLAGS=-I m4
+AM_CPPFLAGS = -I$(top_srcdir)/include
 
-WARN_SUBDIRS = liboacam liboademosaic liboaSER liboavideo liboafilterwheel \
-               liboaPTR liboaimgproc liboautil liboaephem oacapture oalive
+lib_LTLIBRARIES = liboaephem.la
 
-NOWARN_SUBDIRS = ext udev bin packagers
-
-SUBDIRS = $(NOWARN_SUBDIRS) $(WARN_SUBDIRS)
+liboaephem_la_SOURCES = \
+  orbitalElements.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
@@ -41,10 +38,3 @@ warnings:
 verbose-warnings:
 	$(MAKE) V=1 CFLAGS='$(WARNINGS)' CXXFLAGS='$(WARNINGS)'
 	$(MAKE) V=1 CFLAGS='$(WARNINGS)' CXXFLAGS='$(WARNINGS)' $(check_PROGRAMS)
-
-dmg:
-	bin/build-oacapture-dmg.sh
-	bin/build-oalive-dmg.sh
-
-osx-pkg:
-	bin/build-osx-pkg.sh
