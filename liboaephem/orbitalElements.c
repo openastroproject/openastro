@@ -26,9 +26,14 @@
 
 #include <oa_common.h>
 
+#include <time.h>
+#ifdef HAVE_MATH_H
+#include <math.h>
+#endif
 #include <openastro/ephemeris.h>
 
 #include "orbitalElements.h"
+#include "eccentricity.h"
 
 
 orbitalElement orbitalElements[OA_EPHEM_NUM_SSO+1] =
@@ -202,3 +207,42 @@ orbitalElement orbitalElements[OA_EPHEM_NUM_SSO+1] =
 	  .meanAnomalyC		= 356.0470
   }
 };
+
+
+void
+eclipticCartesianPosition ( unsigned int body, struct tm* date,
+		cartesian* posn )
+{
+	int				day;
+	double		eccAnomaly, eccentricity, semiMajorAxis, longitude, perihelion;
+	double		inclination;
+	double		xv, yv, v, r;
+	double		sinLong, cosLong, sinVW, cosVW;
+
+	day = oaDayNumber ( date );
+	eccAnomaly = eccentricityAnomaly ( body, date );
+	eccentricity = orbitalElements[ body ].eccentricityC +
+		  orbitalElements[ body ].eccentricityM * day;
+	semiMajorAxis = orbitalElements[ body ].semiMajorAxisC +
+		  orbitalElements[ body ].semiMajorAxisM * day;
+	longitude = orbitalElements[ body ].longitudeC +
+		  orbitalElements[ body ].longitudeM * day;
+	perihelion = orbitalElements[ body ].perihelionC +
+      orbitalElements[ body ].perihelionM * day;
+	inclination = orbitalElements[ body ].inclinationC +
+      orbitalElements[ body ].inclinationM * day;
+
+	xv = semiMajorAxis * ( cos ( eccAnomaly ) - eccentricity );
+  yv = semiMajorAxis * sqrt ( 1.0 - eccentricity * eccentricity ) *
+			sin ( eccAnomaly );
+	v = atan2 ( yv, xv );
+  r = sqrt( xv*xv + yv*yv );
+
+	sinLong = sin ( longitude );
+	cosLong = cos ( longitude );
+	sinVW = sin ( v + perihelion );
+	cosVW = cos ( v + perihelion );
+	posn->x = r * cosLong * cosVW - sinLong * sinVW * cos ( inclination );
+	posn->y = r * sinLong * cosVW + cosLong * sinVW * cos ( inclination );
+	posn->z = r * sinVW * sin ( inclination );
+}

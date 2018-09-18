@@ -44,4 +44,6 @@ typedef struct {
 
 extern orbitalElement	orbitalElements[OA_EPHEM_NUM_SSO+1];
 
+void eclipticCartesianPosition ( unsigned int, struct tm*, cartesian* posn );
+
 #endif

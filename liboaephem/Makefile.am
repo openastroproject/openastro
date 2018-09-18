@@ -27,7 +27,8 @@ AM_CPPFLAGS = -I$(top_srcdir)/include
 lib_LTLIBRARIES = liboaephem.la
 
 liboaephem_la_SOURCES = \
-  orbitalElements.c
+	orbitalElements.c nonSSO.c ephem.c eccentricity.c \
+	mercury.c venus.c mars.c jupiter.c saturn.c uranus.c neptune.c moon.c sun.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
