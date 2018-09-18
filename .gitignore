@@ -59,6 +59,10 @@ libtool
 *.app
 *.dmg
 
+# Editor temp files
+
+.*.swp
+
 # Cmake stuff
 
 CMakeCache.txt
@@ -125,3 +129,5 @@ ui_*.h
 /packagers/deb/clean.sh
 /packagers/deb/debfiles/changelog
 /packagers/rpm/oacapture.spec
+/oacapture/qt-icons
+/oalive/qt-icons
