@@ -40,6 +40,8 @@ typedef struct {
 	double	eccentricityC;
 	double	meanAnomalyM;
 	double	meanAnomalyC;
+	double	equatorialDia;
+	double	polarDia;
 } orbitalElement;
 
 extern orbitalElement	orbitalElements[OA_EPHEM_NUM_SSO+1];

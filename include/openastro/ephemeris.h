@@ -61,5 +61,6 @@ extern int		oaEclipticCartesianPosition ( unsigned int, struct tm*,
 extern int		oaEquatorialCartesianPosition ( unsigned int, struct tm*,
 									cartesian* );
 extern int		oaRADECPosition ( unsigned int, struct tm*, radec* );
+extern double	oaApparentEquatorialDiameter ( unsigned int, struct tm* );
 
 #endif /* OA_EPHEMERIS */

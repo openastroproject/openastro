@@ -52,6 +52,8 @@ orbitalElement orbitalElements[OA_EPHEM_NUM_SSO+1] =
 	  .eccentricityC	= 0.0,
 	  .meanAnomalyM		= 0.0,
 	  .meanAnomalyC		= 0.0,
+		.equatorialDia	= 0.0,
+		.polarDia				= 0.0
   },
   { // Mercury
 	  .longitudeM			= 3.24587E-5,
@@ -65,7 +67,9 @@ orbitalElement orbitalElements[OA_EPHEM_NUM_SSO+1] =
 	  .eccentricityM	= 5.59E-10,
 	  .eccentricityC	= 0.205635,
 	  .meanAnomalyM		= 4.0923344368,
-	  .meanAnomalyC		= 168.6562
+	  .meanAnomalyC		= 168.6562,
+		.equatorialDia	= 6.74,
+		.polarDia				= 6.74
   },
   { // Venus
 	  .longitudeM			= 2.46590E-5,
@@ -79,7 +83,9 @@ orbitalElement orbitalElements[OA_EPHEM_NUM_SSO+1] =
 	  .eccentricityM	= -1.302E-9,
 	  .eccentricityC	= 0.006773,
 	  .meanAnomalyM		= 1.6021302244,
-	  .meanAnomalyC		= 48.0052
+	  .meanAnomalyC		= 48.0052,
+		.equatorialDia	= 16.92,
+		.polarDia				= 16.92
   },
   { // Earth -- another dummy entry
 	  .longitudeM			= 0.0,
@@ -94,6 +100,8 @@ orbitalElement orbitalElements[OA_EPHEM_NUM_SSO+1] =
 	  .eccentricityC	= 0.0,
 	  .meanAnomalyM		= 0.0,
 	  .meanAnomalyC		= 0.0,
+		.equatorialDia	= 17.59,
+		.polarDia				= 17.53
   },
   { // Mars
 	  .longitudeM			= 2.11081E-5,
@@ -107,7 +115,9 @@ orbitalElement orbitalElements[OA_EPHEM_NUM_SSO+1] =
 	  .eccentricityM	= 2.516E-9,
 	  .eccentricityC	= 0.093405,
 	  .meanAnomalyM		= 0.5240207766,
-	  .meanAnomalyC		= 18.6021
+	  .meanAnomalyC		= 18.6021,
+		.equatorialDia	= 9.36,
+		.polarDia				= 9.28
   },
   { // Jupiter
 	  .longitudeM			= 2.76854E-5,
@@ -121,7 +131,9 @@ orbitalElement orbitalElements[OA_EPHEM_NUM_SSO+1] =
 	  .eccentricityM	= 4.469E-9,
 	  .eccentricityC	= 0.048498,
 	  .meanAnomalyM		= 0.0830853001,
-	  .meanAnomalyC		= 19.8950
+	  .meanAnomalyC		= 19.8950,
+		.equatorialDia	= 196.94,
+		.polarDia				= 185.08
   },
   { // Saturn
 	  .longitudeM			= 2.38980E-5,
@@ -135,7 +147,9 @@ orbitalElement orbitalElements[OA_EPHEM_NUM_SSO+1] =
 	  .eccentricityM	= -9.499E-9,
 	  .eccentricityC	= 0.055546,
 	  .meanAnomalyM		= 0.0334442282,
-	  .meanAnomalyC		= 316.9670
+	  .meanAnomalyC		= 316.9670,
+		.equatorialDia	= 165.6,
+		.polarDia				= 150.8
   },
   { // Uranus
 	  .longitudeM			= 1.3978E-5,
@@ -149,7 +163,9 @@ orbitalElement orbitalElements[OA_EPHEM_NUM_SSO+1] =
 	  .eccentricityM	= 7.45E-9,
 	  .eccentricityC	= 0.047318,
 	  .meanAnomalyM		= 0.011725806,
-	  .meanAnomalyC		= 142.5905
+	  .meanAnomalyC		= 142.5905,
+		.equatorialDia	= 65.8,
+		.polarDia				= 62.1
   },
   { // Neptune
 	  .longitudeM			= 3.0173E-5,
@@ -163,7 +179,9 @@ orbitalElement orbitalElements[OA_EPHEM_NUM_SSO+1] =
 	  .eccentricityM	= 2.15E-9,
 	  .eccentricityC	= 0.008606,
 	  .meanAnomalyM		= 0.005995147,
-	  .meanAnomalyC		= 260.2471
+	  .meanAnomalyC		= 260.2471,
+		.equatorialDia	= 62.2,
+		.polarDia				= 60.9
   },
   { // Pluto -- another dummy entry
 	  .longitudeM			= 0.0,
@@ -178,6 +196,8 @@ orbitalElement orbitalElements[OA_EPHEM_NUM_SSO+1] =
 	  .eccentricityC	= 0.0,
 	  .meanAnomalyM		= 0.0,
 	  .meanAnomalyC		= 0.0,
+		.equatorialDia	= 0.0,
+		.polarDia				= 0.0
   },
   { // Moon
 	  .longitudeM			= -0.0529538083,
@@ -191,7 +211,9 @@ orbitalElement orbitalElements[OA_EPHEM_NUM_SSO+1] =
 	  .eccentricityM	= 0.0,
 	  .eccentricityC	= 0.054900,
 	  .meanAnomalyM		= 13.0649929509,
-	  .meanAnomalyC		= 115.3654
+	  .meanAnomalyC		= 115.3654,
+		.equatorialDia	= 112422.0,
+		.polarDia				= 112422.0
   },
   { // Sun
 	  .longitudeM			= 0.0,
@@ -205,7 +227,9 @@ orbitalElement orbitalElements[OA_EPHEM_NUM_SSO+1] =
 	  .eccentricityM	= -1.151E-9,
 	  .eccentricityC	= 0.016709,
 	  .meanAnomalyM		= 0.9856002585,
-	  .meanAnomalyC		= 356.0470
+	  .meanAnomalyC		= 356.0470,
+		.equatorialDia	= 1919.26,
+		.polarDia				= 1919.26
   }
 };
 

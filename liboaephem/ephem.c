@@ -32,6 +32,7 @@
 #endif
 #include <openastro/ephemeris.h>
 
+#include "orbitalElements.h"
 #include "mercury.h"
 #include "venus.h"
 #include "mars.h"
@@ -90,14 +91,44 @@ oaEquatorialCartesianPosition ( unsigned int body, struct tm* date,
 	int			day;
 	double	ecl;
 
-	// This is only correct for the Sun
 	if ( oaEclipticCartesianPosition ( body, date, posn )) {
 		return -1;
 	}
+	if ( OA_SSO_MOON == body ) {
+		return 0;
+	}
+
 	day = oaDayNumber ( date );
 	ecl = oaEclipticObliquity ( day );
-  posn->y = posn->y * cosDeg ( ecl );
-  posn->z = posn->y * sinDeg ( ecl );
+	if ( OA_SSO_SUN == body ) {
+    posn->y = posn->y * cosDeg ( ecl );
+    posn->z = posn->y * sinDeg ( ecl );
+	} else {
+		double eccentricity, meanAnomaly, perihelion, eccentricAnomaly, longitude;
+		double xv, yv, xs, ys, v, rs;
+
+		eccentricity = orbitalElements[ OA_SSO_SUN ].eccentricityC +
+        orbitalElements[ OA_SSO_SUN ].eccentricityM * day;
+    meanAnomaly = orbitalElements[ OA_SSO_SUN ].meanAnomalyC +
+        orbitalElements[ OA_SSO_SUN ].meanAnomalyM * day;
+    perihelion = orbitalElements[ OA_SSO_SUN ].perihelionC +
+        orbitalElements[ OA_SSO_SUN ].perihelionM * day;
+    eccentricAnomaly = meanAnomaly + eccentricity * ( 180 / M_PI ) *
+        sinDeg ( meanAnomaly ) * ( 1.0 + eccentricity *
+				cosDeg ( meanAnomaly ));
+
+    xv = cosDeg ( eccentricAnomaly ) - eccentricity;
+    yv = sqrt ( 1.0 - eccentricity * eccentricity ) *
+				sinDeg ( eccentricAnomaly );
+    v = atan2Deg ( yv, xv );
+    rs = xv*xv + yv*yv;
+    longitude = v + perihelion;
+    xs = rs * cosDeg ( longitude );
+    ys = rs * sinDeg ( longitude );
+		posn->x = posn->x + xs;
+		posn->y = ( posn->y + ys ) * cosDeg ( ecl ) - posn->z * sinDeg ( ecl );
+		posn->z = ( posn->y + ys ) * sinDeg ( ecl ) - posn->z * cosDeg ( ecl );
+	}
   return 0;
 }
 
@@ -118,3 +149,17 @@ oaRADECPosition ( unsigned int body, struct tm* date,
   return 0;
 }
 
+
+double
+oaApparentEquatorialDiameter ( unsigned int body, struct tm* date )
+{
+	cartesian coords;
+	double		r;
+
+	if ( oaEquatorialCartesianPosition ( body, date, &coords )) {
+		return -1;
+	}
+
+	r = sqrt ( coords.x * coords.x + coords.y * coords.y + coords.z * coords.z );
+  return orbitalElements[ body ].equatorialDia / r;
+}
