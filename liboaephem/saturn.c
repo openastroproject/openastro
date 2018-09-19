@@ -40,5 +40,33 @@
 void
 saturnEclipticCartesianPosition ( struct tm* date, cartesian* posn )
 {
+	int			day;
+  double	eclipticLat, eclipticLong, Mj, Ms, r;
+
+	day = oaDayNumber ( date );
+
 	eclipticCartesianPosition ( OA_SSO_SATURN, date, posn );
+
+  eclipticLat = atan2 ( posn->z, sqrt ( posn->x * posn->x +
+      posn->y * posn->y ));
+  eclipticLong = atan2 ( posn->y, posn->x );
+
+  Mj = orbitalElements[ OA_SSO_JUPITER ].meanAnomalyC +
+      orbitalElements[ OA_SSO_JUPITER ].meanAnomalyM * day;
+  Ms = orbitalElements[ OA_SSO_SATURN ].meanAnomalyC +
+      orbitalElements[ OA_SSO_SATURN ].meanAnomalyM * day;
+
+  eclipticLong += 0.812 * sin ( 2 * Mj - 5 * Ms - 67.6 );
+  eclipticLong += -0.229 * cos ( 2 * Mj - 4 * Ms - 2 );
+  eclipticLong += +0.119 * sin ( Mj - 2 * Ms - 3 );
+  eclipticLong += 0.046 * sin ( 2 * Mj - 6 * Ms - 69 );
+  eclipticLong += 0.014 * sin ( Mj - 3 * Ms + 32 );
+
+  eclipticLat += -0.020 * cos ( 2 * Mj - 4 * Ms - 2 );
+  eclipticLat += +0.018 * sin ( 2 * Mj - 6 * Ms - 49 );
+
+	r = sqrt ( posn->x * posn->x + posn->y * posn->y + posn->z * posn->z );
+	posn->x = r * cos ( eclipticLong ) * cos ( eclipticLat );
+	posn->y = r * sin ( eclipticLong ) * cos ( eclipticLat );
+	posn->z = r * sin ( eclipticLat );
 }

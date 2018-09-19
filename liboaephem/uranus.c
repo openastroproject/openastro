@@ -40,5 +40,30 @@
 void
 uranusEclipticCartesianPosition ( struct tm* date, cartesian* posn )
 {
+	int			day;
+  double	eclipticLat, eclipticLong, Mj, Ms, Mu, r;
+
+	day = oaDayNumber ( date );
+
 	eclipticCartesianPosition ( OA_SSO_URANUS, date, posn );
+  
+  eclipticLat = atan2 ( posn->z, sqrt ( posn->x * posn->x +
+      posn->y * posn->y ));
+  eclipticLong = atan2 ( posn->y, posn->x );
+  
+  Mj = orbitalElements[ OA_SSO_JUPITER ].meanAnomalyC +
+      orbitalElements[ OA_SSO_JUPITER ].meanAnomalyM * day;
+  Ms = orbitalElements[ OA_SSO_SATURN ].meanAnomalyC +
+      orbitalElements[ OA_SSO_SATURN ].meanAnomalyM * day;
+  Mu = orbitalElements[ OA_SSO_URANUS ].meanAnomalyC +
+      orbitalElements[ OA_SSO_URANUS ].meanAnomalyM * day;
+  
+  eclipticLong += 0.040 * sin ( Ms - 2 * Mu + 6 );
+  eclipticLong += 0.035 * sin ( Ms - 3 * Mu + 33 );
+  eclipticLong += -0.015 * sin ( Mj - Mu + 20 );
+
+	r = sqrt ( posn->x * posn->x + posn->y * posn->y + posn->z * posn->z );
+	posn->x = r * cos ( eclipticLong ) * cos ( eclipticLat );
+	posn->y = r * sin ( eclipticLong ) * cos ( eclipticLat );
+	posn->z = r * sin ( eclipticLat );
 }
