@@ -41,6 +41,7 @@
 #include "neptune.h"
 #include "moon.h"
 #include "sun.h"
+#include "trig.h"
 
 
 int
@@ -95,8 +96,8 @@ oaEquatorialCartesianPosition ( unsigned int body, struct tm* date,
 	}
 	day = oaDayNumber ( date );
 	ecl = oaEclipticObliquity ( day );
-  posn->y = posn->y * cos ( ecl );
-  posn->z = posn->y * sin ( ecl );
+  posn->y = posn->y * cosDeg ( ecl );
+  posn->z = posn->y * sinDeg ( ecl );
   return 0;
 }
 
@@ -111,8 +112,8 @@ oaRADECPosition ( unsigned int body, struct tm* date,
 		return -1;
 	}
 
-	posn->RA = atan2 ( coords.y, coords.x );
-	posn->dec = atan2 ( coords.z, sqrt ( coords.x * coords.x +
+	posn->RA = atan2Deg ( coords.y, coords.x );
+	posn->dec = atan2Deg ( coords.z, sqrt ( coords.x * coords.x +
 			coords.y * coords.y ));
   return 0;
 }

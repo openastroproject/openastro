@@ -34,6 +34,7 @@
 
 #include "eccentricity.h"
 #include "orbitalElements.h"
+#include "trig.h"
 
 
 double
@@ -49,7 +50,7 @@ eccentrictyAnomaly ( unsigned int body, struct tm* date )
 	meanAnomaly = orbitalElements[ OA_SSO_SUN ].meanAnomalyC +
       orbitalElements[ body ].meanAnomalyM * day;
   anomaly = meanAnomaly + eccentricity * ( 180 / M_PI ) *
-		  sin ( meanAnomaly ) * ( 1.0 + eccentricity * cos ( meanAnomaly ));
+		  sinDeg ( meanAnomaly ) * ( 1.0 + eccentricity * cosDeg ( meanAnomaly ));
 
 	if ( anomaly < 0.05 ) {
 		return anomaly;
@@ -61,8 +62,8 @@ eccentrictyAnomaly ( unsigned int body, struct tm* date )
 		previous = anomaly;
 		prevDelta = delta;
 		anomaly = previous - ( previous -
-				eccentricity * ( 180 / M_PI ) * sin ( previous ) - meanAnomaly ) /
-				( 1 - eccentricity * cos ( previous ));
+				eccentricity * 180 / M_PI * sinDeg ( previous ) - meanAnomaly ) /
+				( 1 - eccentricity * cosDeg ( previous ));
 		delta = anomaly - previous;
 		if ( delta > prevDelta ) {
 			fprintf ( stderr, "Doesn't look like eccentricity is converging\n" );

@@ -34,6 +34,7 @@
 
 #include "sun.h"
 #include "orbitalElements.h"
+#include "trig.h"
 
 
 void
@@ -51,14 +52,14 @@ sunEclipticCartesianPosition ( struct tm* date, cartesian* posn )
 	perihelion = orbitalElements[ OA_SSO_SUN ].perihelionC +
       orbitalElements[ OA_SSO_SUN ].perihelionM * day;
   eccentricAnomaly = meanAnomaly + eccentricity * ( 180 / M_PI ) *
-		  sin ( meanAnomaly ) * ( 1.0 + eccentricity * cos ( meanAnomaly ));
+		  sinDeg ( meanAnomaly ) * ( 1.0 + eccentricity * cosDeg ( meanAnomaly ));
 
-  xv = cos ( eccentricAnomaly ) - eccentricity;
-  yv = sqrt ( 1.0 - eccentricity * eccentricity ) * sin ( eccentricAnomaly );
-	v = atan2 ( yv, xv );
+  xv = cosDeg ( eccentricAnomaly ) - eccentricity;
+  yv = sqrt ( 1.0 - eccentricity * eccentricity ) * sinDeg ( eccentricAnomaly );
+	v = atan2Deg ( yv, xv );
   r = sqrt( xv*xv + yv*yv );
   longitude = v + perihelion;
-	posn->x = r * cos ( longitude );
-	posn->y = r * sin ( longitude );
+	posn->x = r * cosDeg ( longitude );
+	posn->y = r * sinDeg ( longitude );
 	posn->z = 0;
 }

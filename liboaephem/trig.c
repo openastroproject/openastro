@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * moon.c -- Calculations for the Moon
+ * trig.c -- Trig functions for degrees
  *
  * Copyright 2018 James Fidell (james@openastroproject.org)
  *
@@ -26,20 +26,32 @@
 
 #include <oa_common.h>
 
-#include <time.h>
 #ifdef HAVE_MATH_H
 #include <math.h>
 #endif
-#include <openastro/ephemeris.h>
 
-#include "moon.h"
-#include "orbitalElements.h"
-#include "eccentricity.h"
+#include "trig.h"
 
 
-void
-moonEclipticCartesianPosition ( struct tm* date, cartesian* posn )
+double
+sinDeg ( double theta )
 {
-	// FIX ME -- add perturbation corrections
-	eclipticCartesianPosition ( OA_SSO_MOON, date, posn );
+	double v = sin ( theta / 180 * M_PI );
+	return v;
+}
+
+
+double
+cosDeg ( double theta )
+{
+	double v = cos ( theta / 180 * M_PI );
+	return v;
+}
+
+
+double
+atan2Deg ( double x, double y )
+{
+	double v = 180 / M_PI * atan2 ( x, y );
+	return v;
 }

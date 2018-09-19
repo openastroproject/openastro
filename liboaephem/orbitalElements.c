@@ -34,6 +34,7 @@
 
 #include "orbitalElements.h"
 #include "eccentricity.h"
+#include "trig.h"
 
 
 orbitalElement orbitalElements[OA_EPHEM_NUM_SSO+1] =
@@ -232,17 +233,17 @@ eclipticCartesianPosition ( unsigned int body, struct tm* date,
 	inclination = orbitalElements[ body ].inclinationC +
       orbitalElements[ body ].inclinationM * day;
 
-	xv = semiMajorAxis * ( cos ( eccAnomaly ) - eccentricity );
+	xv = semiMajorAxis * ( cosDeg ( eccAnomaly ) - eccentricity );
   yv = semiMajorAxis * sqrt ( 1.0 - eccentricity * eccentricity ) *
-			sin ( eccAnomaly );
-	v = atan2 ( yv, xv );
+			sinDeg ( eccAnomaly );
+	v = atan2Deg ( yv, xv );
   r = sqrt( xv*xv + yv*yv );
 
-	sinLong = sin ( longitude );
-	cosLong = cos ( longitude );
-	sinVW = sin ( v + perihelion );
-	cosVW = cos ( v + perihelion );
-	posn->x = r * cosLong * cosVW - sinLong * sinVW * cos ( inclination );
-	posn->y = r * sinLong * cosVW + cosLong * sinVW * cos ( inclination );
-	posn->z = r * sinVW * sin ( inclination );
+	sinLong = sinDeg ( longitude );
+	cosLong = cosDeg ( longitude );
+	sinVW = sinDeg ( v + perihelion );
+	cosVW = cosDeg ( v + perihelion );
+	posn->x = r * cosLong * cosVW - sinLong * sinVW * cosDeg ( inclination );
+	posn->y = r * sinLong * cosVW + cosLong * sinVW * cosDeg ( inclination );
+	posn->z = r * sinVW * sinDeg ( inclination );
 }
