@@ -41,7 +41,7 @@
 #define OA_CLEAR(x)	memset ( &(x), 0, sizeof ( x ))
 
 typedef struct {
-  oaFilterWheelDevice** wheelList;
+  oaFilterWheelDevice**	wheelList;
   unsigned int          numFilterWheels;
   unsigned int          maxFilterWheels;
 } FILTERWHEEL_LIST;

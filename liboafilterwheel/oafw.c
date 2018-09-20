@@ -63,7 +63,7 @@ oaInterface	oaFilterWheelInterfaces[] = {
 };
   
 
-FILTERWHEEL_LIST	list;
+static FILTERWHEEL_LIST	list;
 
 int
 oaGetFilterWheels( oaFilterWheelDevice*** deviceList )
