@@ -46,20 +46,20 @@
 oaInterface	oaFilterWheelInterfaces[] = {
   { 0, "", "", 0, OA_UDC_FLAG_NONE },
 #if defined(HAVE_LIBUDEV) || defined(HAVE_LIBFTDI)
-  { OA_FW_IF_XAGYL, "Xagyl", "Xagyl", oaXagylGetFilterWheels,
+  { OA_FW_IF_XAGYL, "Xagyl", "Xagyl", oaXagylGetFilterWheels, 0,
       OA_UDC_FLAG_USB_ALL },
 #else
-  { 0, "", "", 0, OA_UDC_FLAG_NONE },
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
-  { OA_FW_IF_SX, "Starlight Xpress", "SX", oaSXGetFilterWheels,
+  { OA_FW_IF_SX, "Starlight Xpress", "SX", oaSXGetFilterWheels, 0,
       OA_UDC_FLAG_NONE },
 #ifdef HAVE_LIBZWOFW
-  { OA_FW_IF_ZWO, "ZW Optical", "ZWO", oaZWOGetFilterWheels,
+  { OA_FW_IF_ZWO, "ZW Optical", "ZWO", oaZWOGetFilterWheels, 0,
       OA_UDC_FLAG_NONE },
 #else
-  { 0, "", "", 0, OA_UDC_FLAG_NONE },
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
-  { 0, "", "", 0, OA_UDC_FLAG_NONE }
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE }
 };
   
 
