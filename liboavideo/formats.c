@@ -1264,20 +1264,6 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .lossless           = 1,
     .packed             = 0,
     .planar   = 0
-  }, {  // OA_PIX_FMT_CMYG_16LE
-    .name               = "CMYG16LE",
-    .simpleName         = "16bpp raw colour",
-    .bytesPerPixel      = 2,
-    .bitsPerPixel       = 16,
-    .cfaPattern         = OA_DEMOSAIC_CMYG,
-    .littleEndian       = 1,
-    .monochrome         = 0,
-    .rawColour          = 1,
-    .fullColour         = 0,
-    .lumChrom           = 0,
-    .lossless           = 1,
-    .packed             = 0,
-    .planar   = 0
   }, {  // OA_PIX_FMT_CMYG_16BE
     .name               = "CMYG16BE",
     .simpleName         = "16bpp raw colour",
@@ -1292,12 +1278,12 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .lossless           = 1,
     .packed             = 0,
     .planar   = 0
-  }, {  // OA_PIX_FMT_MCGY_16LE
-    .name               = "MCGY16LE",
+  }, {  // OA_PIX_FMT_CMYG_16LE
+    .name               = "CMYG16LE",
     .simpleName         = "16bpp raw colour",
     .bytesPerPixel      = 2,
     .bitsPerPixel       = 16,
-    .cfaPattern         = OA_DEMOSAIC_MCGY,
+    .cfaPattern         = OA_DEMOSAIC_CMYG,
     .littleEndian       = 1,
     .monochrome         = 0,
     .rawColour          = 1,
@@ -1320,12 +1306,12 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .lossless           = 1,
     .packed             = 0,
     .planar   = 0
-  }, {  // OA_PIX_FMT_YGCM_16LE
-    .name               = "YGCM16LE",
+  }, {  // OA_PIX_FMT_MCGY_16LE
+    .name               = "MCGY16LE",
     .simpleName         = "16bpp raw colour",
     .bytesPerPixel      = 2,
     .bitsPerPixel       = 16,
-    .cfaPattern         = OA_DEMOSAIC_YGCM,
+    .cfaPattern         = OA_DEMOSAIC_MCGY,
     .littleEndian       = 1,
     .monochrome         = 0,
     .rawColour          = 1,
@@ -1348,12 +1334,12 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .lossless           = 1,
     .packed             = 0,
     .planar   = 0
-  }, {  // OA_PIX_FMT_GYMC_16LE
-    .name               = "GYMC16LE",
+  }, {  // OA_PIX_FMT_YGCM_16LE
+    .name               = "YGCM16LE",
     .simpleName         = "16bpp raw colour",
     .bytesPerPixel      = 2,
     .bitsPerPixel       = 16,
-    .cfaPattern         = OA_DEMOSAIC_GYMC,
+    .cfaPattern         = OA_DEMOSAIC_YGCM,
     .littleEndian       = 1,
     .monochrome         = 0,
     .rawColour          = 1,
@@ -1369,6 +1355,20 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .bitsPerPixel       = 16,
     .cfaPattern         = OA_DEMOSAIC_GYMC,
     .littleEndian       = 0,
+    .monochrome         = 0,
+    .rawColour          = 1,
+    .fullColour         = 0,
+    .lumChrom           = 0,
+    .lossless           = 1,
+    .packed             = 0,
+    .planar   = 0
+  }, {  // OA_PIX_FMT_GYMC_16LE
+    .name               = "GYMC16LE",
+    .simpleName         = "16bpp raw colour",
+    .bytesPerPixel      = 2,
+    .bitsPerPixel       = 16,
+    .cfaPattern         = OA_DEMOSAIC_GYMC,
+    .littleEndian       = 1,
     .monochrome         = 0,
     .rawColour          = 1,
     .fullColour         = 0,
