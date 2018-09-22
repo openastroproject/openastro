@@ -109,7 +109,7 @@ ImageWidget::ImageWidget ( QWidget* parent ) : QGroupBox ( parent )
 
   cropButton = new QPushButton (
       QIcon ( ":/qt-icons/roi.png" ), "", this );
-  cropButton->setToolTip ( tr ( "Set new ROI" ));
+  cropButton->setToolTip ( tr ( "Set new crop size" ));
   connect ( cropButton, SIGNAL( clicked()), this, SLOT( setCropSize()));
 
   cropInputBox = new QHBoxLayout();
