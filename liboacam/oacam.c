@@ -49,9 +49,6 @@
 #include "IIDCoacam.h"
 #endif
 #include "PWCoacam.h"
-#if HAVE_LIBASI
-#include "ZWASIoacam.h"
-#endif
 #if HAVE_LIBASI2
 #include "ZWASI2oacam.h"
 #endif
@@ -111,18 +108,8 @@ oaInterface	oaCameraInterfaces[] = {
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
-#if HAVE_LIBASI
-  {
-    OA_CAM_IF_ZWASI,
-    "ZW Optical ASI",
-    "ZWASI",
-    oaZWASIGetCameras,
-    0,
-    OA_UDC_FLAG_NONE
-  },
-#else
+	// This used to be for the original ZWO ASI SDK
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
-#endif
   {
     OA_CAM_IF_QHY,
     "QHYCCD",

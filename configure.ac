@@ -553,69 +553,35 @@ else
   fi
 fi
 
-use_system_libasicamera=no
 use_system_libasicamera2=no
 if test $checkSystemLibasicamera -eq 1
 then
-  if `$PKG_CONFIG --exists libasicamera`; then
-    AC_MSG_NOTICE([Using system libasicamera library])
-    flags=`$PKG_CONFIG --cflags-only-I libasicamera`
-    if test $useisystemInclude -eq 1; then
-      flags=`echo "$flags" | sed 's/^-I/-isystem/'`
-    fi
-    LIBASI_CFLAGS="$flags"
-    # can't use shared libasicamera if we're not using the system libusb
-    # because it will try to pull it in anyhow
-    if test "x$use_system_libusb" == "xyes"; then
-      LIBASI_LDFLAGS="`$PKG_CONFIG --libs-only-L libasicamera`"
-      LIBASI_LIBS="`$PKG_CONFIG --libs-only-l libasicamera`"
-    else
-      AC_MSG_NOTICE([Using static libASICamera to avoid system libusb])
-      LIBASI_LDFLAGS=""
-      mylibdir="`$PKG_CONFIG --variable=libdir libasicamera`"
-      LIBASI_LIBS="$mylibdir/libASICamera.a"
-    fi
-    have_libasicamera=yes
-    use_system_libasicamera=yes
-    AC_DEFINE([HAVE_LIBASI],[1],[Have libASICamera])
-  else
-    AC_CHECK_LIB([ASICamera],[getNumberOfConnectedCameras],[
-      LIBS="-lASICamera $LIBS"
-      AC_DEFINE([HAVE_LIBASI],[1],[Have libASICamera])
-      have_libasicamera=yes
-    ],[
-      AC_MSG_WARN([libASICamera not found.  Attempting to use libASICamera2.])
-    ])
-  fi
   if `$PKG_CONFIG --exists libasicamera2`; then
     AC_MSG_NOTICE([Using system libASICamera2 library])
     flags=`$PKG_CONFIG --cflags-only-I libasicamera2`
     if test $useisystemInclude -eq 1; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
-    LIBASI_CFLAGS="$flags"
+    LIBASI2_CFLAGS="$flags"
     # can't use shared libASICamera2 if we're not using the system libusb
     # because it will try to pull it in anyhow
     if test "x$use_system_libusb" == "xyes"; then
-      LIBASI_LDFLAGS="`$PKG_CONFIG --libs-only-L libasicamera2`"
+      LIBASI2_LDFLAGS="`$PKG_CONFIG --libs-only-L libasicamera2`"
       LIBASI2_LIBS="`$PKG_CONFIG --libs-only-l libasicamera2`"
     else
       AC_MSG_NOTICE([Using static libASICamera2 to avoid system libusb])
-      LIBASI_LDFLAGS=""
+      LIBASI2_LDFLAGS=""
       mylibdir="`$PKG_CONFIG --variable=libdir libasicamera2`"
       LIBASI2_LIBS="$mylibdir/libASICamera2.a"
     fi
-    have_libasicamera=yes
     use_system_libasicamera2=yes
     AC_DEFINE([HAVE_LIBASI2],[1],[Have libASICamera2])
   else
     AC_CHECK_LIB([ASICamera2],[ASIGetNumOfConnectedCameras],[
       LIBS="-lASICamera2 $LIBS"
       AC_DEFINE([HAVE_LIBASI2],[1],[Have libASICamera2])
-      have_libasicamera2=yes
     ],[
       AC_DEFINE([HAVE_LIBASI2],[1],[Have libASICamera2])
-      have_libasicamera2=yes
       AC_MSG_WARN([No suitable version of system libASICamera2 found.  Using internal version.])
     ])
   fi
@@ -1050,7 +1016,6 @@ case $host in
     ;;
   *)
     zwoSupportedArch=0
-    LIBASI2_CFLAGS="-DHAVE_LIBASI=0"
     AC_MSG_NOTICE([No compatible ASI library for architecture $host.])
     LIBASI2_CFLAGS="-DHAVE_LIBASI2=0"
     AC_MSG_NOTICE([No compatible ASI2 library for architecture $host.  Support for ASI cameras not included])
@@ -1139,8 +1104,6 @@ AC_SUBST(FXLOAD_CFLAGS)
 AC_SUBST(FXLOAD_CFLAGS)
 AC_SUBST(LIBUVC_CFLAGS)
 AC_SUBST(LIBUVC_LIBS)
-AC_SUBST(LIBASI_CFLAGS)
-AC_SUBST(LIBASI_LIBS)
 AC_SUBST(LIBASI2_CFLAGS)
 AC_SUBST(LIBASI2_LIBS)
 AC_SUBST(LIBZWOFW_LIBS)
@@ -1151,10 +1114,8 @@ AC_SUBST(DEFAULT_PATH_CFLAGS)
 AC_SUBST(DYNLIB_EXTN_CFLAGS)
 AC_SUBST(MOC_CFLAGS)
 
-AM_CONDITIONAL([LIBASI_COND], [test "x$LIBASI_LIBS" != "x"])
 AM_CONDITIONAL([LIBASI2_COND], [test "x$LIBASI2_LIBS" != "x"])
 AM_CONDITIONAL([LIBZWOFW_COND], [test "x$LIBZWOFW_LIBS" != "x"])
-AM_CONDITIONAL([LIBASI_COMMON_COND], [test "x$LIBASI_LIBS$LIBASI2_LIBS" != "x"])
 AM_CONDITIONAL([LIBV4L2_COND], [test "x$have_v4l2" == "xyes"])
 AM_CONDITIONAL([LIBDC1394_COND], [test "x$use_system_dc1394" == "xno"])
 AM_CONDITIONAL([LIBUDEV_COND], [test "x$have_udev" == "xyes"])

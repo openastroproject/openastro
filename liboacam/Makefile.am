@@ -35,7 +35,7 @@ AM_CPPFLAGS = \
 
 lib_LTLIBRARIES = liboacam.la
 
-if LIBASI_COMMON_COND
+if LIBASI2_COND
 ZWODIR	= zwo
 ZWOLIB	= $(ZWODIR)/libzwo.la
 endif

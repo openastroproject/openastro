@@ -66,7 +66,6 @@ oalive_LDADD = \
   $(LIBDC1394_LIBS) \
   $(LIBFTDI_LIBS) \
   $(LIBUSB_LIBS) \
-  $(LIBASI_LIBS) \
   $(LIBASI2_LIBS) \
   $(LIBZWOFW_LIBS) \
   $(OSX_FRAMEWORKS)

@@ -26,21 +26,17 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/include \
   -I$(top_srcdir)/ext/libASICamera/include \
   -I$(top_srcdir)/liboacam \
-  $(LIBASI_CFLAGS) \
+  $(LIBASI2_CFLAGS) \
   $(DYNLIB_EXTN_CFLAGS)
 
 noinst_LTLIBRARIES = libzwo.la
 
-if LIBASI_COND
-ASISRC = ZWASIoacam.c ZWASIconnect.c ZWASIcontroller.c ZWASIgetState.c \
-  ZWASIcontrol.c
-endif
 if LIBASI2_COND
 ASI2SRC = ZWASI2oacam.c ZWASI2connect.c ZWASI2controller.c ZWASI2getState.c \
   ZWASI2control.c
 endif
 
-libzwo_la_SOURCES = $(ASISRC) $(ASI2SRC) ZWASIcommonControl.c ZWASIcallback.c \
+libzwo_la_SOURCES = $(ASI2SRC) ZWASIcommonControl.c ZWASIcallback.c \
   ZWASIroi.c ZWASIcommon.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
