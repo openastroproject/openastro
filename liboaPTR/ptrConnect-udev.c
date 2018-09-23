@@ -2,7 +2,7 @@
  *
  * ptrInit-udev.c -- Initialise PTR device (udev)
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -133,8 +133,13 @@ oaPTRInit ( oaPTRDevice* device )
   tio.c_cc[VTIME] = 4;
   tio.c_cflag &= ~PARENB; // no parity
   tio.c_cflag &= ~CSTOPB; // 1 stop bit
+#ifdef PTRV1
   cfsetispeed ( &tio, B38400 );
   cfsetospeed ( &tio, B38400 );
+#else
+  cfsetispeed ( &tio, B3000000 );
+  cfsetospeed ( &tio, B3000000 );
+#endif
 
   if ( tcsetattr ( ptrDesc, TCSANOW, &tio )) {
     int errnoCopy = errno;

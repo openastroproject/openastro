@@ -33,7 +33,9 @@
 #include <termios.h>
 #include <ctype.h>
 #include <string.h>
+#ifdef PTRV1
 #include <sys/select.h>
+#endif
 
 #include <openastro/util.h>
 #include <openastro/timer.h>
@@ -72,10 +74,11 @@ oaPTREnumerate ( PTR_LIST* deviceList )
   DEVICE_INFO*			_private;
   struct termios		tio;
   int				ptrDesc, numRead, result, i;
+#ifdef PTRV1
   fd_set			readable;
   struct timeval		timeout;
+#endif
   uint32_t			major = 0, minor = 0;
-
 
   if (!( udev = udev_new())) {
     fprintf ( stderr, "can't get connection to udev\n" );
@@ -100,9 +103,14 @@ oaPTREnumerate ( PTR_LIST* deviceList )
       pid = udev_device_get_sysattr_value ( dev, "idProduct" );
       serialNo = udev_device_get_sysattr_value ( dev, "serial" );
       havePTR = 0;
+#ifdef PTRV1
       if ( !strcmp ( "04d8", vid ) && !strcmp ( "00df", pid )) {
+#else
+      if ( !strcmp ( "04b4", vid ) && !strcmp ( "0003", pid )) {
+#endif
         havePTR = 1;
       }
+fprintf ( stderr, "Found PTR2 device\n" );
 
       // Check the user-defined entries if required.  The sense here is to
       // accept a match wherever the configured values match the USB data.
@@ -168,8 +176,13 @@ oaPTREnumerate ( PTR_LIST* deviceList )
           tio.c_cc[VTIME] = 4;
           tio.c_cflag &= ~PARENB; // no parity
           tio.c_cflag &= ~CSTOPB; // 1 stop bit
+#ifdef PTRV1
           cfsetispeed ( &tio, B38400 );
           cfsetospeed ( &tio, B38400 );
+#else
+          cfsetispeed ( &tio, B3000000 );
+          cfsetospeed ( &tio, B3000000 );
+#endif
           if ( tcsetattr ( ptrDesc, TCSANOW, &tio )) {
             int errnoCopy = errno;
             errno = 0;
@@ -205,6 +218,8 @@ oaPTREnumerate ( PTR_LIST* deviceList )
             continue;
           }
 
+					// On the original PTR:
+					//
           // After a reset we should get seven lines something like:
           //
           // sysreset
@@ -220,11 +235,25 @@ oaPTREnumerate ( PTR_LIST* deviceList )
           //
           // Internal clock synchronized: 20160531T212127.000
           // PTR-0.1 >
+					//
+					// On the PTR-2 we have:
+					//
+          // sysreset
+          // <blank line>
+          // PTR-2.0 YYYY-MM-DD
+          // ------------------
+					// PTR-2.0 >
+					//
+					// and that appears to be it
 
           usleep ( 100000 );
 
           result = 0;
+#ifdef PTRV1
           for ( i = 0; i < 7 && !result; i++ ) {
+#else
+          for ( i = 0; i < 4 && !result; i++ ) {
+#endif
             numRead = _ptrRead ( ptrDesc, buffer, sizeof ( buffer ) - 1 );
             if ( numRead < 0 ) {
               perror(0);
@@ -234,7 +263,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
                 fprintf ( stderr, "%s: no characters read from PTR\n",
                     __FUNCTION__ );
               } else {
-                if (( namePtr = strstr ( buffer, "PTR-" )) &&
+                if ( i && ( namePtr = strstr ( buffer, "PTR-" )) &&
                     isdigit ( namePtr[4] ) && namePtr[5] == '.' ) {
                   endPtr = namePtr + 5;
                   major = namePtr[4] - '0';
@@ -248,6 +277,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
             }
           }
 
+#ifdef PTRV1
           // Assuming we have found something useful, wait for the remaining
           // lines and clean up
 
@@ -270,6 +300,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
               } while ( !strstr ( buffer, "lock" ));
             }
           }
+#endif
 
           tcflush ( ptrDesc, TCIFLUSH );
           close ( ptrDesc );
