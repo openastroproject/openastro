@@ -107,6 +107,7 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, int flags )
   oaCameraDevice*       dev;
   DEVICE_INFO*		_private;
   int                   numFound, ret;
+	char						buffer[61];
 
 #if HAVE_LIBDL
   static void*		libHandle = 0;
@@ -405,8 +406,9 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, int flags )
 
     _oaInitCameraDeviceFunctionPointers ( dev );
     dev->interface = OA_CAM_IF_FC2;
+		( void ) strncpy ( buffer, devList[i].modelName, 60 );
     ( void ) snprintf ( dev->deviceName, OA_MAX_NAME_LEN+1,
-        "%s (%d.%d.%d.%d)", devList[i].modelName,
+        "%s (%d.%d.%d.%d)", buffer,
         devList[i].ipAddress.octets[0], devList[i].ipAddress.octets[1],
         devList[i].ipAddress.octets[2], devList[i].ipAddress.octets[3] );
     memcpy (( void* ) &_private->pgeGuid, ( void* ) &guid, sizeof ( guid ));
