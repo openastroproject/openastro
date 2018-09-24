@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * ptrInit-udev.c -- Initialise PTR device (udev)
+ * ptrConnect-udev.c -- Initialise PTR device (udev)
  *
  * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
