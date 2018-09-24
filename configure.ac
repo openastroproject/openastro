@@ -627,21 +627,18 @@ AC_CHECK_LIB([m],[exp10],[
 ],[
   AC_MSG_WARN([No exp10() function found.  Using internal version])])
 
-flycaplib="-lflycapture-c "
 AC_CHECK_LIB([dl],[dlopen],[
   LIBS="-ldl $LIBS"
   AC_DEFINE([HAVE_LIBDL],[1],[Have dl library])
   have_dl=yes
-  flycaplib=""
 ],[
   AC_MSG_WARN([No dl library found.  No big deal])])
 
-AC_CHECK_LIB([flycapture-c],[fc2CreateGigEContext],[
-  LIBS="$flycaplib$LIBS"
+AC_CHECK_HEADERS([flycapture/C/FlyCapture2_C.h],[
   AC_DEFINE([HAVE_LIBFLYCAPTURE2],[1],[Have flycapture2-c library])
   have_flycapture2=yes
 ],[
-  AC_MSG_WARN([No flycapture2 library found.  Point Grey Gig-E cameras will not be supported via this library])])
+  AC_MSG_WARN([flycapture2 headers not found.  Point Grey Gig-E cameras will not be supported via this library])])
 
 if test "x$have_dl" == "xyes" -a "x$have_flycapture2" == "xyes"
 then
