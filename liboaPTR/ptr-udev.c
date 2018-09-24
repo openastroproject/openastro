@@ -33,9 +33,7 @@
 #include <termios.h>
 #include <ctype.h>
 #include <string.h>
-#ifdef PTRV1
 #include <sys/select.h>
-#endif
 
 #include <openastro/util.h>
 #include <openastro/timer.h>
@@ -74,10 +72,8 @@ oaPTREnumerate ( PTR_LIST* deviceList )
   DEVICE_INFO*			_private;
   struct termios		tio;
   int				ptrDesc, numRead, result, i;
-#ifdef PTRV1
   fd_set			readable;
   struct timeval		timeout;
-#endif
   uint32_t			major = 0, minor = 0;
 
   if (!( udev = udev_new())) {
@@ -110,7 +106,6 @@ oaPTREnumerate ( PTR_LIST* deviceList )
 #endif
         havePTR = 1;
       }
-fprintf ( stderr, "Found PTR2 device\n" );
 
       // Check the user-defined entries if required.  The sense here is to
       // accept a match wherever the configured values match the USB data.
@@ -192,6 +187,8 @@ fprintf ( stderr, "Found PTR2 device\n" );
             continue;
           }
 
+          tcflush ( ptrDesc, TCIOFLUSH );
+
           for ( i = 0; i < 2; i++ ) {
             // ctrl-C
             if ( _ptrWrite ( ptrDesc, "\003", 1 )) {
@@ -200,16 +197,24 @@ fprintf ( stderr, "Found PTR2 device\n" );
               close ( ptrDesc );
               continue;
               // we need to wait at least 5ms here for the PTR to respond
-              usleep ( 100000 );
+              usleep ( 300000 );
             }
 
-            // now flush the input buffer to get rid of the echoed "^C" and
-            // the PTR prompt
-
-            tcflush ( ptrDesc, TCIFLUSH );
+            FD_ZERO ( &readable );
+            FD_SET ( ptrDesc, &readable );
+            timeout.tv_sec = 2;
+            timeout.tv_usec = 0;
+            if ( select ( ptrDesc + 1, &readable, 0, 0, &timeout ) == 0 ) {
+              fprintf ( stderr, "%s: PTR select #1 timed out\n", __FUNCTION__ );
+            } else {
+              numRead = _ptrRead ( ptrDesc, buffer, sizeof ( buffer ) - 1 );
+              if ( numRead <= 0 ) {
+                fprintf ( stderr, "%s: PTR ctrl-C not found\n", __FUNCTION__ );
+              }
+            }
           }
 
-          usleep ( 100000 );
+          usleep ( 300000 );
 
           if ( _ptrWrite ( ptrDesc, "sysreset\r", 9 )) {
             fprintf ( stderr, "%s: failed to write sysreset to %s\n",
@@ -246,14 +251,19 @@ fprintf ( stderr, "Found PTR2 device\n" );
 					//
 					// and that appears to be it
 
-          usleep ( 100000 );
-
           result = 0;
 #ifdef PTRV1
           for ( i = 0; i < 7 && !result; i++ ) {
 #else
           for ( i = 0; i < 4 && !result; i++ ) {
 #endif
+            FD_ZERO ( &readable );
+            FD_SET ( ptrDesc, &readable );
+            timeout.tv_sec = 2;
+            timeout.tv_usec = 0;
+            if ( select ( ptrDesc + 1, &readable, 0, 0, &timeout ) == 0 ) {
+              fprintf ( stderr, "%s: PTR select #3 timed out\n", __FUNCTION__ );
+            }
             numRead = _ptrRead ( ptrDesc, buffer, sizeof ( buffer ) - 1 );
             if ( numRead < 0 ) {
               perror(0);
@@ -263,6 +273,9 @@ fprintf ( stderr, "Found PTR2 device\n" );
                 fprintf ( stderr, "%s: no characters read from PTR\n",
                     __FUNCTION__ );
               } else {
+								// i non-zero because the first time we'll read the prompt and
+								// sysreset command being echoed back, but we want to read
+								// up to the PTR version and date line.
                 if ( i && ( namePtr = strstr ( buffer, "PTR-" )) &&
                     isdigit ( namePtr[4] ) && namePtr[5] == '.' ) {
                   endPtr = namePtr + 5;
@@ -287,7 +300,7 @@ fprintf ( stderr, "Found PTR2 device\n" );
             timeout.tv_sec = 2;
             timeout.tv_usec = 0;
             if ( select ( ptrDesc + 1, &readable, 0, 0, &timeout ) == 0 ) {
-              fprintf ( stderr, "%s: PTR select timed out\n", __FUNCTION__ );
+              fprintf ( stderr, "%s: PTR select #3 timed out\n", __FUNCTION__ );
               result = -1;
             } else {
               do {
@@ -302,7 +315,8 @@ fprintf ( stderr, "Found PTR2 device\n" );
           }
 #endif
 
-          tcflush ( ptrDesc, TCIFLUSH );
+					// Hopefully this should ditch anyting that's left in the buffers
+          tcflush ( ptrDesc, TCIOFLUSH );
           close ( ptrDesc );
 
           if ( result < 0 ) {
