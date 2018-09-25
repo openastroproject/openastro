@@ -42,7 +42,7 @@ checkSystemDC1394=1
 checkSystemLibuvc=0
 checkSystemLibhidapi=0
 checkSystemLibasicamera=0
-checkSystemLibzwowheel=0
+checkSystemLibefwfilter=0
 useisystemInclude=0
 build_libusb=no
 zwoSupportedArch=1
@@ -54,7 +54,7 @@ case $host in
     checkSystemLibuvc=1
     checkSystemLibhidapi=1
     checkSystemLibasicamera=1
-    checkSystemLibzwowheel=1
+    checkSystemLibefwfilter=1
     ;;
   *-apple-*)
     useisystemInclude=1
@@ -587,12 +587,12 @@ then
   fi
 fi
 
-use_system_libzwowheel=no
-if test $checkSystemLibzwowheel -eq 1
+use_system_libefwfilter=no
+if test $checkSystemLibefwfilter -eq 1
 then
-  if `$PKG_CONFIG --exists libzwowheel`; then
+  if `$PKG_CONFIG --exists libefwfilter`; then
     AC_MSG_NOTICE([Using system libEFWFilter library])
-    flags=`$PKG_CONFIG --cflags-only-I libzwowheel`
+    flags=`$PKG_CONFIG --cflags-only-I libefwfilter`
     if test $useisystemInclude -eq 1; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
@@ -600,22 +600,22 @@ then
     # can't use shared libEFWFilter if we're not using the system libusb
     # because it will try to pull it in anyhow
     if test "x$use_system_libusb" == "xyes"; then
-      LIBZWOFW_LDFLAGS="`$PKG_CONFIG --libs-only-L libzwowheel`"
-      LIBZWOFW_LIBS="`$PKG_CONFIG --libs-only-l libzwowheel`"
+      LIBZWOFW_LDFLAGS="`$PKG_CONFIG --libs-only-L libefwfilter`"
+      LIBZWOFW_LIBS="`$PKG_CONFIG --libs-only-l libefwfilter`"
     else
       AC_MSG_NOTICE([Using static libEFWFilter to avoid system libusb])
       LIBZWOFW_LDFLAGS=""
-      mylibdir="`$PKG_CONFIG --variable=libdir libzwowheel`"
+      mylibdir="`$PKG_CONFIG --variable=libdir libefwfilter`"
       LIBZWOFW_LIBS="$mylibdir/libEFWFilter.a"
     fi
-    have_libzwowheel=yes
-    use_system_libzwowheel=yes
+    have_libefwfilter=yes
+    use_system_libefwfilter=yes
     AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
   else
     AC_CHECK_LIB([EFWFilter],[EFWGetNum],[
       LIBS="-lEFWFilter $LIBS"
       AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
-      have_libzwowheel=yes
+      have_libefwfilter=yes
     ],[
       AC_MSG_WARN([No system libEFWFilter found. Using internal version.])
     ])
@@ -1029,7 +1029,7 @@ then
     LIBASI2_CFLAGS="-DHAVE_LIBASI2=1"
     LIBASI2_LIBS="\$(top_builddir)/ext/libASICamera/libASICamera2.a"
   fi
-  if test "x$use_system_libzwowheel" == "xno"; then
+  if test "x$use_system_libefwfilter" == "xno"; then
     AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
     LIBZWOFW_CFLAGS="-DHAVE_LIBZWOFW=1"
     LIBZWOFW_LIBS="\$(top_builddir)/ext/libEFWFilter/libEFWFilter.a"
