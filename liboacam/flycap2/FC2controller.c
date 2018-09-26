@@ -1087,7 +1087,7 @@ static int
 _doFrameFormat ( FC2_STATE* cameraInfo, int format )
 {
   fc2GigEImageSettings	settings;
-  int			restart;
+  int			restart = 0;
 
   if (( *p_fc2GetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
