@@ -746,6 +746,10 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   int		commandLen, readBytes;
   double	latDeg, latMin, longDeg, longMin, alt;
   double*	r = command->resultData;
+#ifndef PTRV1
+  char		longDir, latDir;
+  double	latSec, longSec;
+#endif
 
   if ( deviceInfo->isRunning ) {
     return -OA_ERR_TIMER_RUNNING;
@@ -777,12 +781,8 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
     return -OA_ERR_SYSTEM_ERROR;
   }
 
-  // We expect to get a string back of the form:
-  // G:+ddmm.mmmm,-dddmm.mmmm,aaa.a
-  // where aaa does not have a fixed length.
-
   memset ( buffer, 0, 128 );
-  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, 40 )) < 28 ) {
+  if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, 40 )) < 35 ) {
     fprintf ( stderr, "%s, failed to read response to 'geo' command\n",
         __FUNCTION__ );
     if ( readBytes > 0 ) {
@@ -793,6 +793,11 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
     return -OA_ERR_SYSTEM_ERROR;
   }
 
+#ifdef PTRV1
+  // We expect to get a string back of the form:
+  // G:+ddmm.mmmm,-dddmm.mmmm,aaa.a
+  // where aaa does not have a fixed length.
+
   if ( *buffer != 'G' || *( buffer + 1 ) != ':' ) {
     fprintf ( stderr, "%s, geo string '%s' has invalid format\n",
         __FUNCTION__, buffer );
@@ -801,7 +806,7 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 
   if ( sscanf ( buffer + 2, "%3lf%lf,%4lf%lf,%lf", &latDeg, &latMin, &longDeg,
       &longMin, &alt ) < 5 ) {
-    fprintf ( stderr, "%s, geo string '%s' fails to match expected format",
+    fprintf ( stderr, "%s, geo string '%s' fails to match expected format\n",
         __FUNCTION__, buffer + 2 );
   }
 
@@ -810,6 +815,33 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 
   deviceInfo->latitude = latDeg + latMin / 60;
   deviceInfo->longitude = longDeg + longMin / 60;
+#else
+  // We expect to get a string back of the form:
+  // [NS]dd:mm:ss.aaa, [EW]dd:mm:ss.aaa, HHH.h m
+
+  if ( sscanf ( buffer, "%c%2lf:%2lf:%lf, %c%2lf:%2lf:%lf, %lf m",
+      &latDir, &latDeg, &latMin, &latSec, &longDir, &longDeg, &longMin,
+      &longSec, &alt ) < 9 ) {
+    fprintf ( stderr, "%s, geo string '%s' doesn't match expected format #1\n",
+        __FUNCTION__, buffer );
+  }
+
+  if (( latDir != 'N' && latDir != 'S' ) || ( longDir != 'E' &&
+      longDir != 'W' )) {
+    fprintf ( stderr, "%s, geo string '%s' doesn't match expected format #2\n",
+        __FUNCTION__, buffer );
+  }
+
+  deviceInfo->latitude = latDeg + latMin / 60 + latSec / 3600;
+  deviceInfo->longitude = longDeg + longMin / 60 + longSec / 3600;
+  if ( latDir == 'S' ) {
+    deviceInfo->latitude = -deviceInfo->latitude;
+  }
+  if ( longDir == 'E' ) {
+    deviceInfo->longitude = -deviceInfo->longitude;
+  }
+#endif
+
   deviceInfo->altitude = alt;
 
   r[0] = deviceInfo->latitude;
