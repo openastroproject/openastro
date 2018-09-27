@@ -65,22 +65,15 @@ _ptrRead ( int fd, char* buffer, int maxlen )
 {
   char *p = buffer;
   int done = 0, len = 0, err;
-  // This lastChar stuff is a temporary workaround for a possible bug where
-  // two CR characters are issued after a command is echoed from the device
-  // before the LF.  Otherwise the three labelled lines are redundant.
-  char lastChar = -1;
 
   do {
     if (( err = read ( fd, p, 1 )) != 1 ) {
       return err;
     }
-    if (!( *p == 0x0d && lastChar == 0x0d )) { // workaround
-      lastChar = *p; // workaround
-      if ( *p++ == 0x0a ) {
-        done = 1;
-      }
-      len++;
-    } // workaround
+    if ( *p++ == 0x0a ) {
+      done = 1;
+    }
+    len++;
   } while ( !done && len < maxlen );
 
   *p = 0;
