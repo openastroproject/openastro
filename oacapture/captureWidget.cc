@@ -1582,6 +1582,15 @@ CaptureWidget::writeSettings ( OutputHandler* out )
       }
     }
 
+		if ( state.gpsValid ) {
+			settings << tr ( "Longitude: ").toStdString().c_str() <<
+				state.longitude << std::endl;
+			settings << tr ( "Latitude: ").toStdString().c_str() <<
+				state.latitude << std::endl;
+			settings << tr ( "Altitude: ").toStdString().c_str() <<
+				state.altitude << std::endl;
+		}
+	
     settings.close();
   } else {
     QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
