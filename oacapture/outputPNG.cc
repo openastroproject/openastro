@@ -443,6 +443,20 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
+	stringBuffs[ numComments ][0] = 0;
+  pngComments[ numComments ].key = ( char* ) "SITEELEV";
+  if ( state.gpsValid ) {
+    ( void ) sprintf ( stringBuffs[ numComments ], "%g", state.altitude );
+    ( void ) sprintf ( stringBuffs[ numComments + 1 ], "%g", state.altitude );
+  }
+  if ( stringBuffs[ numComments ][0] ) {
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+    pngComments[ numComments ].key = ( char* ) "ELEVATIO";
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
+
   pngComments[ numComments ].key = ( char* ) "SWCREATE";
   pngComments[ numComments ].text = ( char* ) APPLICATION_NAME " " VERSION_STR;
   numComments++;

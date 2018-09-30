@@ -498,6 +498,15 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     fits_write_key_str ( fptr, "SITELONG", cString, "", &status );
   }
 
+	stringBuff[0] = 0;
+  if ( state.gpsValid ) {
+    ( void ) sprintf ( stringBuff, "%g", state.altitude );
+  }
+  if ( stringBuff[0] ) {
+    fits_write_key_str ( fptr, "SITEELEV", cString, "", &status );
+    fits_write_key_str ( fptr, "ELEVATIO", cString, "", &status );
+  }
+
   fits_write_key_str ( fptr, "SWCREATE", APPLICATION_NAME " " VERSION_STR, "",
       &status );
 
