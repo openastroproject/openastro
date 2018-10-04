@@ -29,14 +29,14 @@ AM_CPPFLAGS = \
 lib_LTLIBRARIES = liboaPTR.la
 
 if LIBUDEV_COND
-IOSRC = ptrIO-udev.c ptr-udev.c
+IOSRC = ptrIO-udev.c ptr-udev.c ptrConnect-udev.c
 else
 IOSRC = ptrIO-acm.c ptr-acm.c
 endif
 
 liboaPTR_la_SOURCES = \
-  debug.c oaptr.c ptrCallback.c ptrConfig.c ptrConnect-udev.c ptrControl.c \
-  ptrController.c unimplemented.c utils.c $(IOSRC)
+  debug.c oaptr.c ptrCallback.c ptrConfig.c ptrControl.c ptrController.c \
+  unimplemented.c utils.c $(IOSRC)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
