@@ -524,7 +524,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
 
   if ( config.queryGPSForEachCapture && state.timer && state.timer->hasGPS()) {
     if ( state.timer->readGPS ( &state.latitude, &state.longitude,
-        &state.altitude ) == OA_ERR_NONE ) {
+        &state.altitude, 1 ) == OA_ERR_NONE ) {
       state.gpsValid = 1;
       emit ( updateLocation());
     }

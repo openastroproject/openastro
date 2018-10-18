@@ -2,7 +2,7 @@
  *
  * ptrIO-udev.c -- PTR IO routines (libudev)
  *
- * Copyright 2016, 2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016, 2017, 2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -51,11 +51,11 @@ _ptrWrite ( int fd, const char* buffer, int len )
 		}
 		usleep ( 50 );
 	}
-	/*
+/*
   if ( write ( fd, buffer, len ) != len ) {
     return -1;
   }
-	*/
+*/
   return 0;
 }
 

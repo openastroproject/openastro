@@ -2,7 +2,7 @@
  *
  * ptr.h -- header for PTR API
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -46,6 +46,7 @@ extern int              oaPTRReadControl ( oaPTR*, int,
                                 oaControlValue* );
 extern int              oaPTRGetTimestamp ( oaPTR*, int, oaTimerStamp* );
 extern int              oaPTRReadGPS ( oaPTR*, double* );
+extern int              oaPTRReadCachedGPS ( oaPTR*, double* );
 
 extern void		oaPTRClearIDFilters ( void );
 extern void		oaPTRAddIDFilter ( userDeviceConfig* );

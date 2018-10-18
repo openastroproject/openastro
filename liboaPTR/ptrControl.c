@@ -2,7 +2,7 @@
  *
  * ptrControl.c -- PTR device control functions
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -220,6 +220,34 @@ oaPTRReadGPS ( oaPTR* device, double* data )
 
   OA_CLEAR ( command );
   command.commandType = OA_CMD_GPS_GET;
+  command.resultData = data;
+
+  oaDLListAddToTail ( privateInfo->commandQueue, &command );
+  pthread_cond_broadcast ( &privateInfo->commandQueued );
+  pthread_mutex_lock ( &privateInfo->commandQueueMutex );
+  while ( !command.completed ) {
+    pthread_cond_wait ( &privateInfo->commandComplete,
+        &privateInfo->commandQueueMutex );
+  }
+  pthread_mutex_unlock ( &privateInfo->commandQueueMutex );
+  retval = command.resultCode;
+
+  return retval;
+}
+
+
+int
+oaPTRReadCachedGPS ( oaPTR* device, double* data )
+{
+  OA_COMMAND    command;
+  PRIVATE_INFO* privateInfo = device->_private;
+  int           retval;
+
+  // Could do more validation here, but it's a bit messy to do here
+  // and in the controller too.
+
+  OA_CLEAR ( command );
+  command.commandType = OA_CMD_GPS_CACHE_GET;
   command.resultData = data;
 
   oaDLListAddToTail ( privateInfo->commandQueue, &command );

@@ -250,6 +250,9 @@ _ptrInitFunctionPointers ( oaPTR* ptr, uint32_t version )
   if ( version >= 0x0101 ) {
     ptr->funcs.readGPS = oaPTRReadGPS;
   }
+  if ( version >= 0x0200 ) {
+    ptr->funcs.readCachedGPS = oaPTRReadCachedGPS;
+  }
   // FIX ME -- need control range function for PTR
 }
 

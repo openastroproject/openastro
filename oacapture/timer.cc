@@ -315,7 +315,7 @@ Timer::readTimestamp ( void )
 
 
 int
-Timer::readGPS ( double* lat, double* lng, double* alt )
+Timer::readGPS ( double* lat, double* lng, double* alt, int useCache )
 {
   double	data[3];
   int		ret;
@@ -325,10 +325,19 @@ Timer::readGPS ( double* lat, double* lng, double* alt )
     return 0;
   }
 
-  if (( ret = timerFuncs.readGPS ( timerContext, data )) == OA_ERR_NONE ) {
-    *lat = data[0];
-    *lng = data[1];
-    *alt = data[2];
+  if ( useCache ) {
+    if (( ret = timerFuncs.readCachedGPS ( timerContext, data )) ==
+        OA_ERR_NONE ) {
+      *lat = data[0];
+      *lng = data[1];
+      *alt = data[2];
+    }
+  } else {
+    if (( ret = timerFuncs.readGPS ( timerContext, data )) == OA_ERR_NONE ) {
+      *lat = data[0];
+      *lng = data[1];
+      *alt = data[2];
+    }
   }
 
   return ret;

@@ -2,7 +2,7 @@
  *
  * controller.h -- common definitions for device controller queues
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -60,6 +60,7 @@ typedef struct {
 #define OA_CMD_ROI_GET                  0x0c
 #define OA_CMD_DATA_GET			0x0d
 #define OA_CMD_GPS_GET			0x0e
+#define OA_CMD_GPS_CACHE_GET		0x0f
 
 #define OA_CALLBACK_NEW_FRAME           0x01
 

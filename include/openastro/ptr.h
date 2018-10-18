@@ -56,6 +56,7 @@ typedef struct oaPTRFuncs {
 				int64_t*, int64_t*, int64_t*, int64_t* );
   int			( *readTimestamp )( struct oaPTR*, int, oaTimerStamp* );
   int			( *readGPS )( struct oaPTR*, double* );
+  int			( *readCachedGPS )( struct oaPTR*, double* );
 } oaPTRFuncs;
 
 typedef struct oaPTR {
