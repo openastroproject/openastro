@@ -1769,7 +1769,7 @@ MainWindow::connectTimer ( int deviceIndex )
       statusLine->insertPermanentWidget( position + 1, locationLabel );
     }
     if ( state.timer->readGPS ( &state.latitude, &state.longitude,
-        &state.altitude ) == OA_ERR_NONE ) {
+        &state.altitude, 1 ) == OA_ERR_NONE ) {
       state.gpsValid = 1;
       setLocation();
     }
@@ -2883,9 +2883,12 @@ MainWindow::frameWriteFailedPopup ( void )
 void
 MainWindow::setLocation ( void )
 {
-  QString locationText = QString ( "%1N  %2E, %3m" ).arg (
-      state.latitude, 0, 'f', 4 ).arg ( state.longitude, 0, 'f', 4 ).arg (
-      state.altitude, 0, 'f', 0 );
+  QString locationText = QString ( "%1%2  %3%4, %5m" ).
+		  arg ( fabs ( state.latitude ), 0, 'f', 4 ).
+			arg ( state.latitude < 0 ? 'S' : 'N' ).
+			arg ( fabs ( state.longitude ), 0, 'f', 4 ).
+			arg ( state.longitude < 0 ? 'W' : 'E' ).
+			arg ( state.altitude, 0, 'f', 0 );
   locationLabel->setText ( locationText );
 }
 
