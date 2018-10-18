@@ -476,7 +476,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 
   stringBuff[0] = 0;
   if ( state.gpsValid ) {
-    ( void ) sprintf ( stringBuff, "%e", state.latitude );
+    ( void ) sprintf ( stringBuff, "%+8.6e", state.latitude );
   }
   if ( !stringBuff[0] && config.fitsSiteLatitude != "" ) {
     ( void ) strncpy ( stringBuff,
@@ -488,7 +488,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 
   stringBuff[0] = 0;
   if ( state.gpsValid ) {
-    ( void ) sprintf ( stringBuff, "%e", state.longitude );
+    ( void ) sprintf ( stringBuff, "%+8.6e", state.longitude );
   }
   if ( !stringBuff[0] && config.fitsSiteLongitude != "" ) {
     ( void ) strncpy ( stringBuff,
@@ -500,9 +500,9 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 
 	stringBuff[0] = 0;
   if ( state.gpsValid ) {
-    ( void ) sprintf ( stringBuff, "%g", state.altitude );
+    ( void ) sprintf ( stringBuff, "%+8.6e", state.altitude );
     fits_write_key_str ( fptr, "SITEELEV", cString, "", &status );
-    ( void ) sprintf ( stringBuff, "%e", state.altitude );
+    ( void ) sprintf ( stringBuff, "%g", state.altitude );
     fits_write_key_str ( fptr, "ELEVATIO", cString, "", &status );
   }
 
