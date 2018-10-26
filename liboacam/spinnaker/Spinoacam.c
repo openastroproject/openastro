@@ -125,13 +125,11 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
   size_t		ifaceNameLen = SPINNAKER_MAX_BUFF_LEN;
   spinCamera		cameraHandle;
   spinNodeMapHandle	cameraNodeMapHandle = 0;
-  /*
   spinNodeHandle	vendorNameHandle = 0;
   bool8_t		vendorNameAvailable = False;
   bool8_t		vendorNameReadable = False;
   char			vendorName[ SPINNAKER_MAX_BUFF_LEN ];
   size_t		vendorNameLen = SPINNAKER_MAX_BUFF_LEN;
-  */
   spinNodeHandle	modelNameHandle = 0;
   bool8_t		modelNameAvailable = False;
   bool8_t		modelNameReadable = False;
@@ -649,7 +647,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
           return -OA_ERR_SYSTEM_ERROR;
         }
 
-        /*
         if (( *p_spinNodeMapGetNode )( cameraNodeMapHandle, "DeviceVendorName",
             &vendorNameHandle ) != SPINNAKER_ERR_SUCCESS ) {
           fprintf ( stderr, "Can't get Spinnaker camera name node\n" );
@@ -705,7 +702,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
         } else {
           ( void ) strcpy ( vendorName, "vendor unavailable" );
         }
-        */
 
         if (( *p_spinNodeMapGetNode )( cameraNodeMapHandle,
             "DeviceModelName", &modelNameHandle ) !=
@@ -1052,8 +1048,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
         return -OA_ERR_SYSTEM_ERROR;
       }
     } else {
-      ( void ) free (( void* ) devices );
-      ( void ) free (( void* ) _private );
       ( void ) ( *p_spinCameraListClear )( cameraListHandle );
       ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
       fprintf ( stderr, "Interface %s has no cameras\n",
