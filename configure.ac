@@ -711,7 +711,7 @@ AC_ARG_WITH(ffmpeg-extra-configure,
 
 embffmpeg_configure_args="--prefix=$prefix"
 
-embffmpeg_configure_args="$embffmpeg_configure_args --enable-memalign-hack --enable-static --disable-debug --disable-programs --disable-network --disable-encoders --enable-encoder=utvideo --enable-encoder=rawvideo --enable-encoder=qtrle --disable-doc --disable-muxers --enable-muxer=avi --enable-muxer=mov --disable-bsfs --disable-indevs --disable-protocols --enable-protocol=file --disable-iconv --disable-vaapi --disable-vda --disable-decoders --disable-demuxers --disable-filters --disable-devices"
+embffmpeg_configure_args="$embffmpeg_configure_args --enable-memalign-hack --enable-static --disable-debug --disable-programs --disable-network --disable-encoders --enable-encoder=utvideo --enable-encoder=rawvideo --enable-encoder=qtrle --disable-doc --disable-muxers --enable-muxer=avi --enable-muxer=mov --disable-bsfs --disable-indevs --disable-protocols --enable-protocol=file --disable-iconv --disable-vaapi --disable-vda --disable-decoders --disable-demuxers --disable-filters --disable-devices --disable-doc"
 
 if test "$enable_shared" = "yes"; then
   embffmpeg_configure_args="$embffmpeg_configure_args --enable-shared"
