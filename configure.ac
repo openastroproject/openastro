@@ -1012,13 +1012,16 @@ case $host in
     AC_CONFIG_LINKS([$extI/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv5/libEFWFilter.a])
     ;;
   *)
-    zwoSupportedArch=0
-    AC_MSG_NOTICE([No compatible ASI library for architecture $host.])
-    LIBASI2_CFLAGS="-DHAVE_LIBASI2=0"
-    AC_MSG_NOTICE([No compatible ASI2 library for architecture $host.  Support for ASI cameras not included])
-    LIBZWOFW_LIBS=""
-    LIBZWOFW_CFLAGS="-DHAVE_LIBZWOFW=0"
-    AC_MSG_NOTICE([No compatible EFWFilter library for architecture $host.  Support for ZWO filter wheels not included])
+    if test "x$use_system_libasicamera2" != "xyes" -o "x$use_system_libefwfilter" != "xyes"
+    then
+      zwoSupportedArch=0
+      AC_MSG_NOTICE([No compatible ASI library for architecture $host.])
+      LIBASI2_CFLAGS="-DHAVE_LIBASI2=0"
+      AC_MSG_NOTICE([No compatible ASI2 library for architecture $host.  Support for ASI cameras not included])
+      LIBZWOFW_LIBS=""
+      LIBZWOFW_CFLAGS="-DHAVE_LIBZWOFW=0"
+      AC_MSG_NOTICE([No compatible EFWFilter library for architecture $host.  Support for ZWO filter wheels not included])
+    fi
     ;;
 esac
 
