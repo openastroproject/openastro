@@ -47,6 +47,7 @@ ControlsWidget::ControlsWidget ( QWidget* parent )
   camera = new CameraControls ( this );
   stacking = new StackingControls ( this );
   save = new SaveControls ( this );
+  processing = new ProcessingControls ( this );
 
   startButton = new QPushButton ( "Start", this );
   stopButton = new QPushButton ( "Stop", this );
@@ -84,6 +85,7 @@ ControlsWidget::ControlsWidget ( QWidget* parent )
 */
 
   tabSet->addTab ( camera, tr ( "Camera" ));
+  tabSet->addTab ( processing, tr ( "Display" ));
   tabSet->addTab ( stacking, tr ( "Stacking" ));
   tabSet->addTab ( save, tr ( "Image Capture" ));
   tabSet->setTabPosition ( QTabWidget::East );
@@ -111,6 +113,7 @@ ControlsWidget::ControlsWidget ( QWidget* parent )
   frameOutputHandler = processedImageOutputHandler = 0;
 
   state.cameraControls = camera;
+  state.processingControls = processing;
 }
 
 
@@ -118,6 +121,7 @@ ControlsWidget::~ControlsWidget()
 {
   state.mainWindow->destroyLayout (( QLayout* ) mainBox );
   state.cameraControls = 0;
+  state.processingControls = 0;
 }
 
 
@@ -139,6 +143,7 @@ void
 ControlsWidget::configure ( void )
 {
   camera->configure();
+  processing->configure();
   configureResolution();
 }
 

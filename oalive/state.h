@@ -48,6 +48,7 @@ typedef struct
   ViewWidget*		viewWidget;
   ControlsWidget*	controlsWidget;
   CameraControls*	cameraControls;
+  ProcessingControls*	processingControls;
 /*
   ControlWidget*	controlWidget;
   CaptureWidget*	captureWidget;

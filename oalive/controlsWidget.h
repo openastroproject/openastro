@@ -2,7 +2,7 @@
  *
  * controlsWidget.h -- class declaration
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -36,6 +36,7 @@
 #include "cameraControls.h"
 #include "stackingControls.h"
 #include "saveControls.h"
+#include "processingControls.h"
 #include "outputHandler.h"
 
 class ControlsWidget : public QWidget
@@ -68,6 +69,7 @@ class ControlsWidget : public QWidget
     CameraControls*	camera;
     StackingControls*	stacking;
     SaveControls*	save;
+    ProcessingControls*	processing;
 
     OutputHandler*	frameOutputHandler;
     OutputHandler*	processedImageOutputHandler;
