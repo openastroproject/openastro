@@ -1,7 +1,8 @@
 #
 # Makefile.am -- oalive Makefile template
 #
-# Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+# Copyright 2013,2014,2015,2016,2017,2018
+#   James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -44,13 +45,13 @@ oalive_SOURCES = advancedSettings.cc camera.cc controlsWidget.cc \
   fitsSettings.cc focusOverlay.cc generalSettings.cc oalive.cc outputFITS.cc \
   outputHandler.cc outputPNG.cc outputTIFF.cc profileSettings.cc \
   settingsWidget.cc targets.cc mainWindow.cc viewWidget.cc cameraControls.cc \
-  stackingControls.cc saveControls.cc \
+  stackingControls.cc saveControls.cc processingControls.cc \
   moc_advancedSettings.cc moc_camera.cc moc_controlsWidget.cc \
   moc_captureSettings.cc moc_demosaicSettings.cc moc_filterSettings.cc \
   moc_filterWheel.cc moc_fitsSettings.cc moc_focusOverlay.cc \
   moc_generalSettings.cc moc_profileSettings.cc moc_settingsWidget.cc \
   moc_mainWindow.cc moc_viewWidget.cc moc_cameraControls.cc \
-  moc_stackingControls.cc moc_saveControls.cc \
+  moc_stackingControls.cc moc_saveControls.cc moc_processingControls.cc \
   qrc_oalive.cc
 
 oalive_LDADD = \
