@@ -37,15 +37,13 @@ extern "C" {
 #include "configuration.h"
 #include "state.h"
 #include "targets.h"
+#include "trampoline.h"
 
 
-#ifdef OACAPTURE
-OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt ) :
-    OutputHandler ( x, y, n, d )
-#else
 OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt,
-    QString fileTemplate ) : OutputHandler ( x, y, n, d, fileTemplate )
-#endif
+		const char* appName, const char* appVer, QString fileTemplate,
+		trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate, trampolines )
 {
   int pixelSize;
 
@@ -62,6 +60,8 @@ OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt,
   writeBuffer = 0;
   rowPointers = 0;
   imageFormat = fmt;
+	applicationName = appName;
+	applicationVersion = appVer;
 
   switch ( fmt ) {
 
@@ -187,6 +187,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   png_text		pngComments[ 30 ];
   int			numComments = 0;
   char			stringBuffs[30][ PNG_KEYWORD_MAX_LENGTH + 1 ];
+  int       xorg, yorg;
 
   filenameRoot = getNewFilename();
   fullSaveFilePath = filenameRoot + ".png";
@@ -256,10 +257,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
   pngComments[ numComments ].key = ( char* ) "OBJECT";
   stringBuffs[ numComments ][0] = 0;
-  int currentTargetId = TGT_UNKNOWN;
-#ifdef OACAPTURE
-  currentTargetId = state.captureWidget->getCurrentTargetId();
-#endif
+  int currentTargetId = trampolines->getCurrentTargetId();
   if ( currentTargetId > 0 && currentTargetId != TGT_UNKNOWN ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
         targetList[ currentTargetId ], PNG_KEYWORD_MAX_LENGTH+1 );
@@ -378,27 +376,40 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
+#ifdef OACAPTURE
   pngComments[ numComments ].key = ( char* ) "XORGSUBF";
   if ( config.fitsSubframeOriginX != "" ) {
-    ( void ) strncpy ( stringBuffs[ numComments ],
-        config.fitsSubframeOriginX.toStdString().c_str(),
-        PNG_KEYWORD_MAX_LENGTH+1 );
-    pngComments[ numComments ].text = stringBuffs[ numComments ];
-    numComments++;
+    xorg = config.fitsSubframeOriginX.toInt();
+  } else {
+    if ( state.cropMode ) {
+      xorg = ( state.sensorSizeX - state.cropSizeX ) / 2;
+    } else {
+      xorg = ( state.sensorSizeX - config.imageSizeX ) / 2;
+    }
   }
+  ( void ) snprintf ( stringBuffs[ numComments ], PNG_KEYWORD_MAX_LENGTH,
+      "%d", xorg );
+  pngComments[ numComments ].text = stringBuffs[ numComments ];
+  numComments++;
 
   pngComments[ numComments ].key = ( char* ) "YORGSUBF";
   if ( config.fitsSubframeOriginY != "" ) {
-    ( void ) strncpy ( stringBuffs[ numComments ],
-        config.fitsSubframeOriginY.toStdString().c_str(),
-        PNG_KEYWORD_MAX_LENGTH+1 );
-    pngComments[ numComments ].text = stringBuffs[ numComments ];
-    numComments++;
+    yorg = config.fitsSubframeOriginY.toInt();
+  } else {
+    if ( state.cropMode ) {
+      yorg = ( state.sensorSizeY - state.cropSizeY ) / 2;
+    } else {
+      yorg = ( state.sensorSizeY - config.imageSizeY ) / 2;
+    }
   }
+  ( void ) snprintf ( stringBuffs[ numComments ], PNG_KEYWORD_MAX_LENGTH,
+      "%d", yorg );
+  pngComments[ numComments ].text = stringBuffs[ numComments ];
+  numComments++;
+#endif
 
-#ifdef OACAPTURE
   pngComments[ numComments ].key = ( char* ) "FILTER";
-  QString currentFilter = state.captureWidget->getCurrentFilterName();
+  QString currentFilter = trampolines->getCurrentFilterName();
   if ( config.fitsFilter != "" ) {
     currentFilter = config.fitsFilter;
   }
@@ -408,7 +419,6 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }
-#endif
 
 #ifdef OACAPTURE
   stringBuffs[ numComments ][0] = 0;
@@ -440,10 +450,26 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }
+
+	stringBuffs[ numComments ][0] = 0;
+  pngComments[ numComments ].key = ( char* ) "SITEELEV";
+  if ( state.gpsValid ) {
+    ( void ) sprintf ( stringBuffs[ numComments ], "%g", state.altitude );
+    ( void ) sprintf ( stringBuffs[ numComments + 1 ], "%g", state.altitude );
+  }
+  if ( stringBuffs[ numComments ][0] ) {
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+    pngComments[ numComments ].key = ( char* ) "ELEVATIO";
+    pngComments[ numComments ].text = stringBuffs[ numComments ];
+    numComments++;
+  }
 #endif
 
+  snprintf ( stringBuffs[ numComments ], PNG_KEYWORD_MAX_LENGTH+1, "%s %s",
+			applicationName, applicationVersion );
   pngComments[ numComments ].key = ( char* ) "SWCREATE";
-  pngComments[ numComments ].text = ( char* ) APPLICATION_NAME " " VERSION_STR;
+  pngComments[ numComments ].text = stringBuffs[ numComments ];
   numComments++;
 
   pngComments[ numComments ].key = ( char* ) "EXPTIME";

@@ -2,7 +2,8 @@
  *
  * outputSER.cc -- SER output class
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -34,10 +35,12 @@ extern "C" {
 #include "outputSER.h"
 #include "configuration.h"
 #include "state.h"
+#include "trampoline.h"
 
 
-OutputSER::OutputSER ( int x, int y, int n, int d, int fmt ) :
-    OutputHandler ( x, y, n, d )
+OutputSER::OutputSER ( int x, int y, int n, int d, int fmt,
+		QString fileTemplate, trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate, trampolines )
 {
   // FIX ME -- I should move a load of this into liboaSER
 

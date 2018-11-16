@@ -2,7 +2,7 @@
  *
  * outputMOV.h -- class declaration
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -28,9 +28,11 @@
 
 #include "outputHandler.h"
 #include "outputFFMPEG.h"
+#include "trampoline.h"
 
 class OutputMOV : public OutputFFMPEG
 {
   public:
-    			OutputMOV ( int, int, int, int, int );
+    			OutputMOV ( int, int, int, int, int, QString,
+							trampolineFuncs* );
 };

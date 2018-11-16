@@ -2,7 +2,8 @@
  *
  * captureSettings.h -- class declaration
  *
- * Copyright 2013,2014,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2016,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -40,7 +41,7 @@ class CaptureSettings : public QWidget
   Q_OBJECT
 
   public:
-    			CaptureSettings ( QWidget* );
+    			CaptureSettings ( QWidget*, int );
     			~CaptureSettings();
     void		storeSettings ( void );
 
@@ -54,26 +55,7 @@ class CaptureSettings : public QWidget
     QHBoxLayout*	spinboxLayout;
     QLabel*		indexSizeLabel;
     QSpinBox*		indexSizeSpinbox;
-#if 0
-    QLabel*		fitsLabel;
-    QLabel*		commentLabel;
-    QLabel*		instrumentLabel;
-    QLabel*		objectLabel;
-    QLabel*		observerLabel;
-    QLabel*		telescopeLabel;
-    QLabel*		focalLengthLabel;
-    QLabel*		apertureDiaLabel;
-    QLabel*		apertureAreaLabel;
-    QLineEdit*		titleInput;
-    QLineEdit*		commentInput;
-    QLineEdit*		instrumentInput;
-    QLineEdit*		objectInput;
-    QLineEdit*		observerInput;
-    QLineEdit*		telescopeInput;
-    QLineEdit*		focalLengthInput;
-    QLineEdit*		apertureDiaInput;
-    QLineEdit*		apertureAreaInput;
-#endif
+		int						videoFormats;
 
   public slots:
     void		resetIndex ( void );

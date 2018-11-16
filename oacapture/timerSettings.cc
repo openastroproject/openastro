@@ -2,7 +2,8 @@
  *
  * timerSettings.cc -- class for the timer settings in the settings UI
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -31,15 +32,16 @@ extern "C" {
 }
 
 #include "timerSettings.h"
-
 #include "configuration.h"
 #include "state.h"
 
 
-TimerSettings::TimerSettings ( QWidget* parent ) : QWidget ( parent )
+TimerSettings::TimerSettings ( QWidget* parent, QString appName ) :
+	  QWidget ( parent )
 {
   resetButton = 0;
   syncButton = 0;
+	applicationName = appName;
 
   timerEnableBox = new QCheckBox ( tr ( "Enable Timer" ));
   timerEnableBox->setChecked ( config.timerEnabled );
@@ -195,7 +197,7 @@ TimerSettings::storeSettings ( void )
           !config.limitType ) {
         msg = tr ( "\n\nWhen using timer mode the image capture type should "
             "be FITS/TIFF and a frame-based capture limit should be set." );
-        QMessageBox::warning ( this, APPLICATION_NAME, msg );
+        QMessageBox::warning ( this, applicationName, msg );
       }
       if ( state.camera && state.camera->isInitialised()) {
         if ( state.camera->hasControl ( OA_CAM_CTRL_TRIGGER_ENABLE ) &&

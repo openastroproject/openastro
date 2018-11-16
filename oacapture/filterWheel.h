@@ -38,12 +38,15 @@ extern "C" {
 #include <openastro/filterwheel.h>
 }
 
+#include "trampoline.h"
+
+
 class FilterWheel // : public QObject
 {
   // Q_OBJECT
 
   public:
-    			FilterWheel();
+    			FilterWheel ( trampolineFuncs* );
     			~FilterWheel();
     int			listConnected ( oaFilterWheelDevice*** );
     void    releaseInfo ( oaFilterWheelDevice** );
@@ -66,7 +69,9 @@ class FilterWheel // : public QObject
     void		populateControlValue ( oaControlValue*, uint32_t,
 				int64_t );
     int64_t		unpackControlValue ( oaControlValue* );
+
   private:
     int			initialised;
     oaFilterWheel*	wheelContext;
+		trampolineFuncs*	trampolines;
 };

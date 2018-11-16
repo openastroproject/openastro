@@ -2,7 +2,8 @@
  *
  * outputDIB.h -- class declaration
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -28,11 +29,13 @@
 
 #include "pipp_avi_write_dib.h"
 #include "outputHandler.h"
+#include "trampoline.h"
 
 class OutputDIB : public OutputHandler
 {
   public:
-    			OutputDIB ( int, int, int, int );
+    			OutputDIB ( int, int, int, int, int, QString,
+              trampolineFuncs* );
     			~OutputDIB();
     int			openOutput ( void );
     int			addFrame ( void*, const char*, int64_t, const char* );

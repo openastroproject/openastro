@@ -1,7 +1,8 @@
 #
 # Makefile.am -- oacapture Makefile template
 #
-# Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+# Copyright 2013,2014,2015,2016,2017,2018
+#   James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -31,11 +32,11 @@ SUBDIRS = icons desktop translations
 
 AM_CPPFLAGS = -I$(top_srcdir)/include $(FFMPEG_CFLAGS) $(APP_PATH_CFLAGS) \
   $(DEFAULT_PATH_CFLAGS) $(LIBWINDIB_CFLAGS) -D__STDC_CONSTANT_MACROS \
-  -DTRANSLATE_DIR=\"${datadir}/$(bin_PROGRAMS)/\"
+  -DTRANSLATE_DIR=\"${datadir}/$(bin_PROGRAMS)/\" -DOACAPTURE
 
 MOC_CPPFLAGS = -I$(top_srcdir)/include $(MOC_CFLAGS) $(APP_PATH_CFLAGS) \
   $(DEFAULT_PATH_CFLAGS) -D__STDC_CONSTANT_MACROS \
-  -DTRANSLATE_DIR=\"${datadir}/$(bin_PROGRAMS)/\"
+  -DTRANSLATE_DIR=\"${datadir}/$(bin_PROGRAMS)/\" -DOACAPTURE
 
 bin_PROGRAMS = oacapture
 BUILT_SOURCES = version.h
@@ -47,7 +48,7 @@ oacapture_SOURCES = autorunSettings.cc camera.cc cameraSettings.cc \
   outputTIFF.cc outputPNG.cc previewWidget.cc profileSettings.cc \
   settingsWidget.cc targets.cc zoomWidget.cc advancedSettings.cc \
   outputFFMPEG.cc outputMOV.cc outputDIB.cc focusOverlay.cc timer.cc \
-  fitsSettings.cc timerSettings.cc \
+  fitsSettings.cc timerSettings.cc trampoline.cc \
   moc_autorunSettings.cc moc_camera.cc moc_cameraSettings.cc \
   moc_cameraWidget.cc moc_captureSettings.cc moc_captureWidget.cc \
   moc_controlWidget.cc moc_filterSettings.cc \

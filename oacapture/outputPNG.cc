@@ -37,10 +37,13 @@ extern "C" {
 #include "configuration.h"
 #include "state.h"
 #include "targets.h"
+#include "trampoline.h"
 
 
-OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt ) :
-    OutputHandler ( x, y, n, d )
+OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt,
+		const char* appName, const char* appVer, QString fileTemplate,
+		trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate, trampolines )
 {
   int pixelSize;
 
@@ -57,6 +60,8 @@ OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt ) :
   writeBuffer = 0;
   rowPointers = 0;
   imageFormat = fmt;
+	applicationName = appName;
+	applicationVersion = appVer;
 
   switch ( fmt ) {
 
@@ -252,7 +257,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
   pngComments[ numComments ].key = ( char* ) "OBJECT";
   stringBuffs[ numComments ][0] = 0;
-  int currentTargetId = state.captureWidget->getCurrentTargetId();
+  int currentTargetId = trampolines->getCurrentTargetId();
   if ( currentTargetId > 0 && currentTargetId != TGT_UNKNOWN ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
         targetList[ currentTargetId ], PNG_KEYWORD_MAX_LENGTH+1 );
@@ -371,6 +376,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
+#ifdef OACAPTURE
   pngComments[ numComments ].key = ( char* ) "XORGSUBF";
   if ( config.fitsSubframeOriginX != "" ) {
     xorg = config.fitsSubframeOriginX.toInt();
@@ -400,9 +406,10 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
       "%d", yorg );
   pngComments[ numComments ].text = stringBuffs[ numComments ];
   numComments++;
+#endif
 
   pngComments[ numComments ].key = ( char* ) "FILTER";
-  QString currentFilter = state.captureWidget->getCurrentFilterName();
+  QString currentFilter = trampolines->getCurrentFilterName();
   if ( config.fitsFilter != "" ) {
     currentFilter = config.fitsFilter;
   }
@@ -413,6 +420,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
+#ifdef OACAPTURE
   stringBuffs[ numComments ][0] = 0;
   pngComments[ numComments ].key = ( char* ) "SITELAT";
   if ( state.gpsValid ) {
@@ -456,9 +464,12 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }
+#endif
 
+  snprintf ( stringBuffs[ numComments ], PNG_KEYWORD_MAX_LENGTH+1, "%s %s",
+			applicationName, applicationVersion );
   pngComments[ numComments ].key = ( char* ) "SWCREATE";
-  pngComments[ numComments ].text = ( char* ) APPLICATION_NAME " " VERSION_STR;
+  pngComments[ numComments ].text = stringBuffs[ numComments ];
   numComments++;
 
   pngComments[ numComments ].key = ( char* ) "EXPTIME";

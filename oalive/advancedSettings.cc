@@ -2,8 +2,7 @@
  *
  * advancedSettings.cc -- the advanced settings widget class
  *
- * Copyright 2014,2015,2016,2017,2018
- *     James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -35,11 +34,9 @@ extern "C" {
 #include <openastro/userConfig.h>
 }
 
-#include "version.h"
 #include "configuration.h"
 #include "state.h"
 #include "advancedSettings.h"
-#include "mainWindow.h"
 
 
 AdvancedSettings::AdvancedSettings ( int device, int interface )

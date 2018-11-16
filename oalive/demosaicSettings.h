@@ -35,13 +35,15 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "trampoline.h"
+
 
 class DemosaicSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			DemosaicSettings ( QWidget* );
+    			DemosaicSettings ( QWidget*, int, trampolineFuncs* );
     			~DemosaicSettings();
     void		storeSettings ( void );
     void		updateCFASetting ( void );
@@ -71,4 +73,6 @@ class DemosaicSettings : public QWidget
     QRadioButton*       bilinearButton;
     QRadioButton*       smoothHueButton;
     QRadioButton*       vngButton;
+		trampolineFuncs*		trampolines;
+		int									demosaicOpts;
 };

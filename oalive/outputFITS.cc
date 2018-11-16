@@ -44,15 +44,13 @@ extern "C" {
 #include "configuration.h"
 #include "state.h"
 #include "targets.h"
+#include "trampoline.h"
 
 
-#ifdef OACAPTURE
-OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt ) :
-    OutputHandler ( x, y, n, d )
-#else
 OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
-    QString fileTemplate ) : OutputHandler ( x, y, n, d, fileTemplate )
-#endif
+		const char *appName, const char* appVer, QString fileTemplate,
+		trampolineFuncs* trampolines ) :
+		OutputHandler ( x, y, n, d, fileTemplate, trampolines )
 {
   uint16_t byteOrderTest = 0x1234;
   uint8_t* firstByte;
@@ -75,6 +73,8 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
   writeBuffer = 0;
   elements = 0;
   imageFormat = fmt;
+	applicationName = appName;
+	applicationVersion = appVer;
 
   switch ( fmt ) {
 
@@ -247,7 +247,8 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   fitsfile* fptr;
   void* outputBuffer = frame;
   char stringBuff[FLEN_VALUE+1];
-  float pixelSize;
+  float pixelSize = 0;
+  int xorg, yorg;
   // Hack to get around older versions of library using char* rather
   // than const char*
 #if CFITSIO_MAJOR > 3 || ( CFITSIO_MAJOR == 3 && CFITSIO_MINOR > 30 )
@@ -359,10 +360,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   }
 
   stringBuff[0] = 0;
-  int currentTargetId = TGT_UNKNOWN;
-#ifdef OACAPTURE
-  currentTargetId = state.captureWidget->getCurrentTargetId();
-#endif
+  int currentTargetId = trampolines->getCurrentTargetId();
   if ( currentTargetId > 0 && currentTargetId != TGT_UNKNOWN ) {
     ( void ) strncpy ( stringBuff, targetList[ currentTargetId ],
         FLEN_VALUE+1 );
@@ -421,7 +419,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
    * defaults are set then we'll assume the user knows what they're doing,
    * otherwise we deal with it ourselves
    */
-
+  
   if ( config.fitsPixelSizeX != "" ) {
     pixelSize = config.fitsPixelSizeX.toFloat();
   } else {
@@ -449,18 +447,31 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   }
 
 
+#ifdef OACAPTURE
   if ( config.fitsSubframeOriginX != "" ) {
-    fits_write_key_lng ( fptr, "XORGSUBF", config.fitsSubframeOriginX.toInt(),
-        "", &status );
+    xorg = config.fitsSubframeOriginX.toInt();
+  } else {
+    if ( state.cropMode ) {
+      xorg = ( state.sensorSizeX - state.cropSizeX ) / 2;
+    } else {
+      xorg = ( state.sensorSizeX - config.imageSizeX ) / 2;
+    }
   }
+  fits_write_key_lng ( fptr, "XORGSUBF", xorg, "", &status );
 
   if ( config.fitsSubframeOriginY != "" ) {
-    fits_write_key_lng ( fptr, "YORGSUBF", config.fitsSubframeOriginY.toInt(),
-        "", &status );
+    yorg = config.fitsSubframeOriginY.toInt();
+  } else {
+    if ( state.cropMode ) {
+      yorg = ( state.sensorSizeY - state.cropSizeY ) / 2;
+    } else {
+      yorg = ( state.sensorSizeY - config.imageSizeY ) / 2;
+    }
   }
+  fits_write_key_lng ( fptr, "YORGSUBF", yorg, "", &status );
+#endif
 
-#ifdef OACAPTURE
-  QString currentFilter = state.captureWidget->getCurrentFilterName();
+  QString currentFilter = trampolines->getCurrentFilterName();
   if ( config.fitsFilter != "" ) {
     currentFilter = config.fitsFilter;
   }
@@ -469,12 +480,11 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
         currentFilter.toStdString().c_str(), FLEN_VALUE+1 );
     fits_write_key_str ( fptr, "FILTER", cString, "", &status );
   }
-#endif
 
 #ifdef OACAPTURE
   stringBuff[0] = 0;
   if ( state.gpsValid ) {
-    ( void ) sprintf ( stringBuff, "%g", state.latitude );
+    ( void ) sprintf ( stringBuff, "%+8.6e", state.latitude );
   }
   if ( !stringBuff[0] && config.fitsSiteLatitude != "" ) {
     ( void ) strncpy ( stringBuff,
@@ -486,7 +496,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 
   stringBuff[0] = 0;
   if ( state.gpsValid ) {
-    ( void ) sprintf ( stringBuff, "%g", state.longitude );
+    ( void ) sprintf ( stringBuff, "%+8.6e", state.longitude );
   }
   if ( !stringBuff[0] && config.fitsSiteLongitude != "" ) {
     ( void ) strncpy ( stringBuff,
@@ -495,10 +505,19 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   if ( stringBuff[0] ) {
     fits_write_key_str ( fptr, "SITELONG", cString, "", &status );
   }
+
+	stringBuff[0] = 0;
+  if ( state.gpsValid ) {
+    ( void ) sprintf ( stringBuff, "%+8.6e", state.altitude );
+    fits_write_key_str ( fptr, "SITEELEV", cString, "", &status );
+    ( void ) sprintf ( stringBuff, "%g", state.altitude );
+    fits_write_key_str ( fptr, "ELEVATIO", cString, "", &status );
+  }
 #endif
 
-  fits_write_key_str ( fptr, "SWCREATE", APPLICATION_NAME " " VERSION_STR, "",
-      &status );
+	( void ) snprintf ( stringBuff, FLEN_VALUE, "%s %s", applicationName,
+			applicationVersion );
+  fits_write_key_str ( fptr, "SWCREATE", cString, "", &status );
 
   fits_write_key_dbl ( fptr, "BSCALE", 1.0, -5, "", &status );
   fits_write_key_dbl ( fptr, "BZERO", 0.0, -5, "", &status );

@@ -2,7 +2,7 @@
  *
  * outputHandler.cc -- output hander (mostly) virtual class
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -30,16 +30,29 @@
 
 #include "outputHandler.h"
 #include "state.h"
+#include "trampoline.h"
 
 
-OutputHandler::OutputHandler ( int x, int y, int n, int d )
+OutputHandler::OutputHandler ( int x, int y, int n, int d,
+		QString nameTemplate, trampolineFuncs* tramps )
 {
   Q_UNUSED( x );
   Q_UNUSED( y );
   Q_UNUSED( n );
   Q_UNUSED( d );
 
-  generateFilename();
+	trampolines = tramps;
+
+#ifdef OACAPTURE
+	if ( nameTemplate == "" ) {
+		filenameTemplate = config.fileNameTemplate;
+    generateFilename();
+  } else {
+#endif
+		filenameTemplate = nameTemplate;
+#ifdef OACAPTURE
+	}
+#endif
 }
 
 
@@ -88,12 +101,12 @@ OutputHandler::generateFilename ( void )
   unsigned int exposure;
   index = QString("%1").arg ( state.captureIndex, config.indexDigits, 10,
       QChar('0'));
-  gain = QString("%1").arg ( state.controlWidget->getCurrentGain());
-  exposure = state.controlWidget->getCurrentExposure();
+  gain = QString("%1").arg ( trampolines->getCurrentGain());
+  exposure = trampolines->getCurrentExposure();
   exposureMs = QString("%1").arg ( exposure / 1000 );
   exposureS = QString("%1").arg (( int ) ( exposure / 1000000 ));
 
-  filename = config.fileNameTemplate;
+  filename = filenameTemplate;
 
   filename.replace ( "%DATE", date );
   filename.replace ( "%TIME", time );
@@ -104,9 +117,8 @@ OutputHandler::generateFilename ( void )
   filename.replace ( "%MINUTE", minutes );
   filename.replace ( "%SECOND", seconds );
   filename.replace ( "%EPOCH", epoch );
-  filename.replace ( "%FILTER", state.captureWidget->getCurrentFilterName());
-  filename.replace ( "%PROFILE",
-      state.captureWidget->getCurrentProfileName());
+  filename.replace ( "%FILTER", trampolines->getCurrentFilterName());
+  filename.replace ( "%PROFILE", trampolines->getCurrentProfileName());
   filename.replace ( "%INDEX", index );
   filename.replace ( "%GAIN", gain );
   filename.replace ( "%EXPMS", exposureMs );

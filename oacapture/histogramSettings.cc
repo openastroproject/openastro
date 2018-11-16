@@ -2,7 +2,7 @@
  *
  * histogramSettings.cc -- class for the histogram settings in the settings UI
  *
- * Copyright 2013,2014,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -27,12 +27,15 @@
 #include <oa_common.h>
 
 #include "histogramSettings.h"
-
 #include "configuration.h"
 #include "state.h"
 
-HistogramSettings::HistogramSettings ( QWidget* parent ) : QWidget ( parent )
+
+HistogramSettings::HistogramSettings ( QWidget* parent,
+		trampolineFuncs* redirs ) : QWidget ( parent )
 {
+	trampolines = redirs;
+
   rawRGBBox = new QCheckBox ( tr ( "Show raw colour as RGB histogram" ), this );
   rawRGBBox->setChecked ( config.rawRGBHistogram );
   splitBox = new QCheckBox ( tr ( "Split RGB histogram" ), this );
@@ -65,7 +68,7 @@ HistogramSettings::storeSettings ( void )
 {
   config.splitHistogram = splitBox->isChecked() ? 1 : 0;
   if ( state.histogramWidget ) {
-    state.histogramWidget->updateLayout();
+    trampolines->updateHistogramLayout();
   }
   config.histogramOnTop = onTopBox->isChecked() ? 1 : 0;
   config.rawRGBHistogram = rawRGBBox->isChecked() ? 1 : 0;

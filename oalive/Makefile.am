@@ -45,7 +45,7 @@ oalive_SOURCES = advancedSettings.cc camera.cc controlsWidget.cc \
   fitsSettings.cc focusOverlay.cc generalSettings.cc oalive.cc outputFITS.cc \
   outputHandler.cc outputPNG.cc outputTIFF.cc profileSettings.cc \
   settingsWidget.cc targets.cc mainWindow.cc viewWidget.cc cameraControls.cc \
-  stackingControls.cc saveControls.cc processingControls.cc \
+  stackingControls.cc saveControls.cc processingControls.cc trampoline.cc \
   moc_advancedSettings.cc moc_camera.cc moc_controlsWidget.cc \
   moc_captureSettings.cc moc_demosaicSettings.cc moc_filterSettings.cc \
   moc_filterWheel.cc moc_fitsSettings.cc moc_focusOverlay.cc \

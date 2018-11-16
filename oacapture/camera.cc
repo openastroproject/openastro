@@ -30,7 +30,6 @@
 #include "camera.h"
 #include "configuration.h"
 #include "state.h"
-#include "version.h"
 #include "openastro/demosaic.h"
 
 #define	DEFAULT_FRAME_TIME	100
@@ -360,7 +359,8 @@ Camera::releaseInfo ( oaCameraDevice** devs )
 // properly at some point
 
 int
-Camera::initialise ( oaCameraDevice* device )
+Camera::initialise ( oaCameraDevice* device, const char* appName,
+		QWidget* topWidget )
 {
   int ret;
 
@@ -375,8 +375,8 @@ Camera::initialise ( oaCameraDevice* device )
   if ( device->hasLoadableFirmware && !device->firmwareLoaded ) {
 
     QMessageBox* loading = new QMessageBox ( QMessageBox::NoIcon,
-        APPLICATION_NAME, tr ( "Attempting to load camera firmware" ),
-        QMessageBox::NoButton, TOP_WIDGET );
+        appName, tr ( "Attempting to load camera firmware" ),
+        QMessageBox::NoButton, topWidget );
     QAbstractButton* b = loading->button ( QMessageBox::Ok );
     if ( b ) {
       loading->removeButton ( b );
@@ -396,30 +396,30 @@ Camera::initialise ( oaCameraDevice* device )
           break;
 
         case OA_ERR_MANUAL_FIRMWARE:
-          QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+          QMessageBox::warning ( topWidget, appName,
               tr ( "The firmware could not be loaded.  It must be loaded "
               "manually." ));
           break;
 
         case OA_ERR_FXLOAD_NOT_FOUND:
-          QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+          QMessageBox::warning ( topWidget, appName,
               tr ( "The firmware could not be loaded.  The fxload utility "
               "was not found." ));
           break;
 
         case OA_ERR_FXLOAD_ERROR:
-          QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+          QMessageBox::warning ( topWidget, appName,
               tr ( "The firmware could not be loaded.  The fxload utility "
               "returned an error." ));
           break;
 
         case OA_ERR_FIRMWARE_UNKNOWN:
-          QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+          QMessageBox::warning ( topWidget, appName,
               tr ( "The firmware could not be found." ));
           break;
 
         default:
-          QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+          QMessageBox::warning ( topWidget, appName,
               tr ( "Unexpected error loading firmware." ));
           break;
       }
@@ -514,16 +514,13 @@ Camera::setFrameInterval ( int numerator, int denominator )
 
 
 int
-Camera::start ( void )
+Camera::start ( void* ( *callback )( void*, void*, int ))
 {
-  void* (*callback )(void*, void*, int);
-
   if ( !initialised ) {
     qWarning() << __FUNCTION__ << " called with camera uninitialised";
     return -1;
   }
 
-  callback = ( void* (*)(void*, void*, int)) &PreviewWidget::updatePreview;
   return cameraFuncs.startStreaming ( cameraContext, callback, &state );
 }
 

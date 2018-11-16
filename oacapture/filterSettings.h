@@ -2,7 +2,8 @@
  *
  * filterSettings.h -- class declaration
  *
- * Copyright 2013,2014,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2016,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -38,13 +39,15 @@ extern "C" {
 #include <openastro/filterwheel.h>
 }
 
+#include "trampoline.h"
+
 
 class FilterSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			FilterSettings ( QWidget* );
+    			FilterSettings ( QWidget*, trampolineFuncs* );
     			~FilterSettings();
     void		storeSettings ( void );
     QString		getSlotFilterName ( int );
@@ -63,6 +66,7 @@ class FilterSettings : public QWidget
     int			listChanged;
     int			slotsChanged;
     int			filterWheelSlots;
+		trampolineFuncs*		trampolines;
 
   public slots:
     void		addEntry ( void );

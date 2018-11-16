@@ -2,7 +2,7 @@
  *
  * outputMOV.cc -- MOV output class
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -32,10 +32,12 @@
 #include "outputFFMPEG.h"
 #include "outputMOV.h"
 #include "state.h"
+#include "trampoline.h"
 
 
-OutputMOV::OutputMOV ( int x, int y, int n, int d, int fmt ) :
-    OutputFFMPEG ( x, y, n, d, fmt )
+OutputMOV::OutputMOV ( int x, int y, int n, int d, int fmt,
+		QString fileTemplate, trampolineFuncs* trampolines ) :
+    OutputFFMPEG ( x, y, n, d, fmt, fileTemplate, trampolines )
 {
   //videoCodec = AV_CODEC_ID_RAWVIDEO;
   videoCodec = AV_CODEC_ID_QTRLE;

@@ -2,7 +2,7 @@
  *
  * saveControls.cc -- class for the save data tab in the settings dialog
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -39,20 +39,21 @@ extern "C" {
 
 #include "saveControls.h"
 #include "state.h"
+#include "version.h"
 #ifdef HAVE_LIBCFITSIO
 #include "outputFITS.h"
 #endif
 #include "outputTIFF.h"
 
 #ifdef HAVE_LIBCFITSIO
-#define MAX_FILE_FORMATS        3
+#define MAX_FILE_FORMATS        4
 static QString  fileFormats[MAX_FILE_FORMATS] = {
-    "", "TIFF", "FITS"
+    "", "TIFF", "PNG", "FITS"
 };
 #else
-#define MAX_FILE_FORMATS        2
+#define MAX_FILE_FORMATS        3
 static QString  fileFormats[MAX_FILE_FORMATS] = {
-    "", "TIFF"
+    "", "TIFF", "PNG"
 };
 #endif
 

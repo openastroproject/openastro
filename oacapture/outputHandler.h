@@ -2,7 +2,8 @@
  *
  * outputHandler.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -34,10 +35,14 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "trampoline.h"
+
+
 class OutputHandler
 {
   public:
-    			OutputHandler ( int, int, int, int );
+    			OutputHandler ( int, int, int, int, QString,
+							trampolineFuncs* );
     virtual		~OutputHandler() {};
     unsigned int	getFrameCount ( void );
 
@@ -58,7 +63,9 @@ class OutputHandler
     QString		fullSaveFilePath;
     QString		filenameRoot;
     void		generateFilename ( void );
+		trampolineFuncs*	trampolines;
 
   private:
     QString		filename;
+		QString		filenameTemplate;
 };

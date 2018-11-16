@@ -2,7 +2,8 @@
  *
  * generalSettings.cc -- class for general settings in the settings UI
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -26,14 +27,22 @@
 
 #include <oa_common.h>
 
+#include "trampoline.h"
 #include "generalSettings.h"
-
 #include "configuration.h"
 #include "state.h"
 
 
-GeneralSettings::GeneralSettings ( QWidget* parent ) : QWidget ( parent )
+GeneralSettings::GeneralSettings ( QWidget* parent, QWidget* top,
+		QString appName, int split, int fps, trampolineFuncs* redirs ) :
+		QWidget ( parent )
 {
+	topWidget = top;
+	applicationName = appName;
+	splitControls = split;
+	fpsControls = fps;
+	trampolines = redirs;
+
 #ifdef SAVE_OPTION
   saveBox = new QCheckBox ( tr ( "Load and save settings automatically" ),
       this );
@@ -76,28 +85,34 @@ GeneralSettings::GeneralSettings ( QWidget* parent ) : QWidget ( parent )
   connectSole->setChecked ( config.connectSoleCamera );
 
 #ifdef OACAPTURE
-  dockable = new QCheckBox ( tr ( "Make controls dockable" ));
-  dockable->setChecked ( config.dockableControls );
+  if ( splitControls ) {
+    dockable = new QCheckBox ( tr ( "Make controls dockable" ));
+    dockable->setChecked ( config.dockableControls );
 
-  controlPosn = new QCheckBox ( tr ( "Display controls on right" ));
-  controlPosn->setChecked ( config.controlsOnRight );
+    controlPosn = new QCheckBox ( tr ( "Display controls on right" ));
+    controlPosn->setChecked ( config.controlsOnRight );
 
-  separateControls = new QCheckBox ( tr ( "Use separate window for controls" ));
-  separateControls->setChecked ( config.separateControls );
+    separateControls = new QCheckBox ( tr (
+				"Use separate window for controls" ));
+    separateControls->setChecked ( config.separateControls );
+  }
+#endif
+#ifdef OACAPTURE
+	if ( fpsControls ) {
+    fpsLabel = new QLabel ( tr ( "Display FPS" ), this );
+    fpsCountLabel = new QLabel ( QString::number ( config.displayFPS ), this );
+    fpsSlider = new QSlider ( Qt::Horizontal, this );
+    fpsSlider->setRange ( 1, 30 );
+    fpsSlider->setSingleStep ( 1 );
+    fpsSlider->setValue ( config.displayFPS );
+    fpsSlider->setTickPosition ( QSlider::TicksBelow );
+    fpsSlider->setTickInterval ( 1 );
 
-  fpsLabel = new QLabel ( tr ( "Display FPS" ), this );
-  fpsCountLabel = new QLabel ( QString::number ( config.displayFPS ), this );
-  fpsSlider = new QSlider ( Qt::Horizontal, this );
-  fpsSlider->setRange ( 1, 30 );
-  fpsSlider->setSingleStep ( 1 );
-  fpsSlider->setValue ( config.displayFPS );
-  fpsSlider->setTickPosition ( QSlider::TicksBelow );
-  fpsSlider->setTickInterval ( 1 );
-
-  fpsbox = new QHBoxLayout();
-  fpsbox->addWidget ( fpsLabel );
-  fpsbox->addWidget ( fpsCountLabel );
-  fpsbox->addWidget ( fpsSlider );
+    fpsbox = new QHBoxLayout();
+    fpsbox->addWidget ( fpsLabel );
+    fpsbox->addWidget ( fpsCountLabel );
+    fpsbox->addWidget ( fpsSlider );
+  }
 #endif
 
   box = new QVBoxLayout ( this );
@@ -122,21 +137,21 @@ GeneralSettings::GeneralSettings ( QWidget* parent ) : QWidget ( parent )
   rightBox->addWidget ( saveCaptureSettings );
   rightBox->addSpacing ( 15 );
   rightBox->addWidget ( connectSole );
-#ifdef OACAPTURE
-  rightBox->addSpacing ( 15 );
-  rightBox->addWidget ( dockable );
-  rightBox->addWidget ( controlPosn );
-  rightBox->addWidget ( separateControls );
-#endif
-  rightBox->addStretch ( 1 );
+	if ( splitControls ) {
+    rightBox->addSpacing ( 15 );
+    rightBox->addWidget ( dockable );
+    rightBox->addWidget ( controlPosn );
+    rightBox->addWidget ( separateControls );
+    rightBox->addStretch ( 1 );
+	}
 
   topBox->addLayout ( leftBox );
   topBox->addLayout ( rightBox );
   topBox->addStretch ( 1 );
   box->addLayout ( topBox );
-#ifdef OACAPTURE
-  box->addLayout ( fpsbox );
-#endif
+	if ( fpsControls ) {
+    box->addLayout ( fpsbox );
+	}
   box->addStretch ( 1 );
   setLayout ( box );
 
@@ -150,27 +165,30 @@ GeneralSettings::GeneralSettings ( QWidget* parent ) : QWidget ( parent )
       SLOT ( dataChanged()));
   connect ( connectSole, SIGNAL ( stateChanged ( int )), parent,
       SLOT ( dataChanged()));
-#ifdef OACAPTURE
-  connect ( dockable, SIGNAL ( stateChanged ( int )), this,
-      SLOT ( showRestartWarning()));
-  connect ( controlPosn, SIGNAL ( stateChanged ( int )), this,
-      SLOT ( showRestartWarning()));
-  connect ( separateControls, SIGNAL ( stateChanged ( int )), this,
-      SLOT ( showRestartWarning()));
-  connect ( fpsSlider, SIGNAL ( valueChanged ( int )), parent,
-      SLOT ( dataChanged()));
-  connect ( fpsSlider, SIGNAL ( valueChanged ( int )), this,
-      SLOT ( updateFPSLabel ( int )));
+	if ( splitControls ) {
+    connect ( dockable, SIGNAL ( stateChanged ( int )), this,
+        SLOT ( showRestartWarning()));
+    connect ( controlPosn, SIGNAL ( stateChanged ( int )), this,
+        SLOT ( showRestartWarning()));
+    connect ( separateControls, SIGNAL ( stateChanged ( int )), this,
+        SLOT ( showRestartWarning()));
+	}
+	if ( fpsControls ) {
+    connect ( fpsSlider, SIGNAL ( valueChanged ( int )), parent,
+        SLOT ( dataChanged()));
+    connect ( fpsSlider, SIGNAL ( valueChanged ( int )), this,
+        SLOT ( updateFPSLabel ( int )));
+	}
+#ifdef OALIVE
+	  connect ( recentreButton, SIGNAL ( clicked()), state.viewWidget,
+      SLOT ( recentreReticle()));
+  connect ( derotateButton, SIGNAL ( clicked()), state.viewWidget,
+      SLOT ( derotateReticle()));
 #endif
 #ifdef OACAPTURE
   connect ( recentreButton, SIGNAL ( clicked()), state.previewWidget,
       SLOT ( recentreReticle()));
   connect ( derotateButton, SIGNAL ( clicked()), state.previewWidget,
-      SLOT ( derotateReticle()));
-#else
-  connect ( recentreButton, SIGNAL ( clicked()), state.viewWidget,
-      SLOT ( recentreReticle()));
-  connect ( derotateButton, SIGNAL ( clicked()), state.viewWidget,
       SLOT ( derotateReticle()));
 #endif
 }
@@ -200,21 +218,22 @@ GeneralSettings::storeSettings ( void )
     config.reticleStyle = RETICLE_TRAMLINES;
   }
   config.tempsInC = degCButton->isChecked();
-#ifdef OACAPTURE
-  state.cameraWidget->resetTemperatureLabel();
-#else
-  state.mainWindow->resetTemperatureLabel();
-#endif
+  trampolines->resetTemperatureLabel();
   config.saveCaptureSettings = saveCaptureSettings->isChecked() ? 1 : 0;
   config.connectSoleCamera = connectSole->isChecked() ? 1 : 0;
 
 #ifdef OACAPTURE
-  config.displayFPS = fpsSlider->value();
-  state.previewWidget->setDisplayFPS ( config.displayFPS );
-
-  config.dockableControls = dockable->isChecked() ? 1 : 0;
-  config.controlsOnRight = controlPosn->isChecked() ? 1 : 0;
-  config.separateControls = separateControls->isChecked() ? 1 : 0;
+	if ( fpsControls ) {
+    config.displayFPS = fpsSlider->value();
+    trampolines->setDisplayFPS ( config.displayFPS );
+	}
+#endif
+#ifdef OACAPTURE
+  if ( splitControls ) {
+    config.dockableControls = dockable->isChecked() ? 1 : 0;
+    config.controlsOnRight = controlPosn->isChecked() ? 1 : 0;
+    config.separateControls = separateControls->isChecked() ? 1 : 0;
+	}
 #endif
 }
 
@@ -240,6 +259,6 @@ GeneralSettings::showRestartWarning ( void )
         "selections to make the controls dockable or appear on the right." );
   }
 
-  QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME, msg1 + msg2 );
+  QMessageBox::warning ( topWidget, applicationName, msg1 + msg2 );
   state.settingsWidget->dataChanged();
 }

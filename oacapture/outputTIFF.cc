@@ -2,7 +2,8 @@
  *
  * outputTIFF.cc -- TIFF output class
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -34,10 +35,13 @@ extern "C" {
 #include "outputTIFF.h"
 #include "configuration.h"
 #include "state.h"
+#include "trampoline.h"
 
 
-OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt ) :
-    OutputHandler ( x, y, n, d )
+OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
+		const char* appName, const char* appVer, QString fileTemplate,
+		trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate, trampolines )
 {
   uint16_t byteOrderTest = 0x1234;
   uint8_t* firstByte;
@@ -55,6 +59,8 @@ OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt ) :
   swapRedBlue = 0;
   colour = 0;
   writeBuffer = 0;
+	applicationName = appName;
+	applicationVersion = appVer;
 
   switch ( fmt ) {
 
@@ -176,6 +182,7 @@ OutputTIFF::addFrame ( void* frame, const char* timestampStr, int64_t expTime,
   void*          buffer = frame;
   unsigned char* s;
   unsigned char* t;
+	char						tiffField[128];
 
   filenameRoot = getNewFilename();
   fullSaveFilePath = filenameRoot + ".tiff";
@@ -202,7 +209,9 @@ OutputTIFF::addFrame ( void* frame, const char* timestampStr, int64_t expTime,
   }
   TIFFSetField ( handle, TIFFTAG_BITSPERSAMPLE, pixelDepth );
 
-  TIFFSetField ( handle, TIFFTAG_SOFTWARE, APPLICATION_NAME " " VERSION_STR );
+	( void ) snprintf ( tiffField, 128, "%s %s", applicationName,
+			applicationVersion );
+  TIFFSetField ( handle, TIFFTAG_SOFTWARE, tiffField );
   if ( timestampStr && *timestampStr ) {
     TIFFSetField ( handle, TIFFTAG_DATETIME, timestampStr );
   }

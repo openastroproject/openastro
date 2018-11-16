@@ -122,7 +122,7 @@ MainWindow::MainWindow ( QString configFile )
   state.controlWidget = 0;
   state.libavStarted = 0;
   state.camera = new Camera;
-  state.filterWheel = new FilterWheel;
+  state.filterWheel = new FilterWheel ( &trampolines );
   state.timer = new Timer;
   oldHistogramState = -1;
   state.lastRecordedFile = "";
@@ -1507,7 +1507,8 @@ MainWindow::connectCamera ( int deviceIndex )
   doDisconnectCam();
 
   for ( attempt = 0, ret = 1; ret == 1 && attempt < 2; attempt++ ) {
-    if (( ret = state.camera->initialise ( cameraDevs[ deviceIndex ] ))) {
+    if (( ret = state.camera->initialise ( cameraDevs[ deviceIndex ],
+					APPLICATION_NAME, TOP_WIDGET ))) {
       if ( !attempt && ret == 1 ) {
         if ( connectedCameras == 1 ) {
           // we think a rescan should be sufficient to identify the camera
@@ -1589,7 +1590,7 @@ MainWindow::connectCamera ( int deviceIndex )
 
   // start regardless of whether we're displaying or capturing the
   // data
-  state.camera->start();
+  state.camera->start ( &PreviewWidget::updatePreview );
   state.controlWidget->disableAutoControls();
   state.histogramOn = oldHistogramState;
   oldHistogramState = -1;
@@ -2202,7 +2203,8 @@ void
 MainWindow::createSettingsWidget ( void )
 {
   if ( !state.settingsWidget ) {
-    state.settingsWidget = new SettingsWidget();
+    state.settingsWidget = new SettingsWidget ( TOP_WIDGET,
+				APPLICATION_NAME, OACAPTURE_SETTINGS, 1, 1, &trampolines );
     state.settingsWidget->setWindowFlags ( Qt::WindowStaysOnTopHint );
     state.settingsWidget->setAttribute ( Qt::WA_DeleteOnClose );
     state.settingsWidget->enableTab ( state.cameraSettingsIndex,

@@ -32,8 +32,6 @@ extern "C" {
 
 #include "timer.h"
 #include "configuration.h"
-#include "state.h"
-#include "version.h"
 
 
 #define timerFuncs	timerContext->funcs

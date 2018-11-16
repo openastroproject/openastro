@@ -2,7 +2,8 @@
  *
  * autorunSettings.h -- class declaration
  *
- * Copyright 2013,2014,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2016,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -34,13 +35,14 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "trampoline.h"
 
 class AutorunSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			AutorunSettings ( QWidget* );
+    			AutorunSettings ( QWidget*, trampolineFuncs* );
     			~AutorunSettings();
     void		storeSettings ( void );
     void		setSlotName ( int, const QString& );
@@ -75,6 +77,7 @@ class AutorunSettings : public QWidget
     QHBoxLayout*	filterDelayBox;
     int			sequenceLength;
     int			filterWheelSlots;
+		trampolineFuncs*	trampolines;
 
     void		addFilterWidgets ( int );
 

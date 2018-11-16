@@ -2,7 +2,8 @@
  *
  * filterSettings.cc -- class for the filter settings tab in the settings UI
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -32,14 +33,17 @@ extern "C" {
 #include <openastro/filterwheel.h>
 }
 
+#include "trampoline.h"
 #include "configuration.h"
+#include "filterSettings.h"
 #include "state.h"
 
-#include "filterSettings.h"
 
-
-FilterSettings::FilterSettings ( QWidget* parent ) : QWidget ( parent )
+FilterSettings::FilterSettings ( QWidget* parent, trampolineFuncs* redirs ) :
+		QWidget ( parent )
 {
+	trampolines = redirs;
+
   filterWheelSlots = 0;
   if ( state.filterWheel && state.filterWheel->isInitialised()) {
     filterWheelSlots = state.filterWheel->numSlots();
@@ -162,8 +166,7 @@ FilterSettings::storeSettings ( void )
     totalFilters = oldFilterCount = config.numFilters;
     // handle the degenerate case
     if ( !newFilterCount && !oldFilterCount ) {
-qWarning() << "state.captureWidget->reloadFilters();";
-      // state.captureWidget->reloadFilters();
+      trampolines->reloadFilters();
       return;
     }
 
@@ -232,8 +235,7 @@ qWarning() << "state.captureWidget->reloadFilters();";
       config.filterSlots[i] = slotMenus[i]->currentIndex();
     }
   }
-qWarning() << "state.captureWidget->reloadFilters();";
-  // state.captureWidget->reloadFilters();
+  trampolines->reloadFilters();
 }
 
 

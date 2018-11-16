@@ -490,6 +490,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
   int			format;
   int			pauseButtonState = 1;
   int64_t		exposureTime;
+	QString	emptyStr = "";
 
   state.pauseEnabled = 0;
   state.captureWasPaused = 0;
@@ -552,16 +553,19 @@ CaptureWidget::doStartRecording ( int autorunFlag )
 
         out = new OutputDIB ( actualX, actualY,
             state.controlWidget->getFPSNumerator(),
-            state.controlWidget->getFPSDenominator());
+            state.controlWidget->getFPSDenominator(), format, emptyStr,
+              &trampolines );
       } else {
         if ( config.useUtVideo && UTVIDEO_OK( format )) {
           out = new OutputAVI ( actualX, actualY,
               state.controlWidget->getFPSNumerator(),
-              state.controlWidget->getFPSDenominator(), format );
+              state.controlWidget->getFPSDenominator(), format, emptyStr,
+							&trampolines );
         } else {
           out = new OutputAVI ( actualX, actualY,
               state.controlWidget->getFPSNumerator(),
-              state.controlWidget->getFPSDenominator(), format );
+              state.controlWidget->getFPSDenominator(), format, emptyStr,
+							&trampolines );
         }
       }
       break;
@@ -569,32 +573,40 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     case CAPTURE_MOV:
       out = new OutputMOV ( actualX, actualY,
           state.controlWidget->getFPSNumerator(),
-          state.controlWidget->getFPSDenominator(), format );
+          state.controlWidget->getFPSDenominator(), format, emptyStr,
+					&trampolines );
       break;
 
     case CAPTURE_SER:
       out = new OutputSER ( actualX, actualY,
           state.controlWidget->getFPSNumerator(),
-          state.controlWidget->getFPSDenominator(), format );
+          state.controlWidget->getFPSDenominator(), format, emptyStr,
+					&trampolines );
       break;
 
     case CAPTURE_TIFF:
       out = new OutputTIFF ( actualX, actualY,
           state.controlWidget->getFPSNumerator(),
-          state.controlWidget->getFPSDenominator(), format );
+          state.controlWidget->getFPSDenominator(), format,
+					APPLICATION_NAME, VERSION_STR, emptyStr,
+					&trampolines );
       break;
 
     case CAPTURE_PNG:
       out = new OutputPNG ( actualX, actualY,
           state.controlWidget->getFPSNumerator(),
-          state.controlWidget->getFPSDenominator(), format );
+          state.controlWidget->getFPSDenominator(), format,
+					APPLICATION_NAME, VERSION_STR, emptyStr,
+					&trampolines );
       break;
 
 #ifdef HAVE_LIBCFITSIO
     case CAPTURE_FITS:
       out = new OutputFITS ( actualX, actualY,
           state.controlWidget->getFPSNumerator(),
-          state.controlWidget->getFPSDenominator(), format );
+          state.controlWidget->getFPSDenominator(), format,
+					APPLICATION_NAME, VERSION_STR, emptyStr,
+					&trampolines );
       break;
 #endif
   }
@@ -698,7 +710,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     emit writeStatusMessage ( tr ( "Starting timer" ));
     state.timer->start();
     emit writeStatusMessage ( tr ( "Restarting camera" ));
-    state.camera->start();
+    state.camera->start ( &PreviewWidget::updatePreview );
     pauseButtonState = 0;
   }
 

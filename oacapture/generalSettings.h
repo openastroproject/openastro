@@ -2,7 +2,8 @@
  *
  * generalSettings.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -34,15 +35,16 @@
 #include <QtCore>
 #include <QtGui>
 
-#include "version.h"
-
+#include "trampoline.h"
+ 
 
 class GeneralSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			GeneralSettings ( QWidget* );
+    			GeneralSettings ( QWidget*, QWidget*, QString, int, int,
+							trampolineFuncs* );
     			~GeneralSettings();
     void		storeSettings ( void );
 
@@ -71,6 +73,11 @@ class GeneralSettings : public QWidget
     QSlider*		fpsSlider;
     QPushButton*	recentreButton;
     QPushButton*	derotateButton;
+		int						fpsControls;
+		int						splitControls;
+		QString				applicationName;
+		QWidget*			topWidget;
+		trampolineFuncs*	trampolines;
 
   public slots:
     void		updateFPSLabel ( int );

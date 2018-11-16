@@ -2,7 +2,8 @@
  *
  * captureSettings.cc -- class for the capture tab in the settings dialog
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -26,34 +27,28 @@
 
 #include <oa_common.h>
 
-#if 0
-extern "C" {
-#ifdef HAVE_FITSIO_H 
-#include "fitsio.h"
-#else
-#ifdef HAVE_CFITSIO_FITSIO_H
-#include "cfitsio/fitsio.h"
-#endif
-#endif
-}
-#endif
-
 #include "captureSettings.h"
 #include "state.h"
 
-CaptureSettings::CaptureSettings ( QWidget* parent ) : QWidget ( parent )
+CaptureSettings::CaptureSettings ( QWidget* parent, int formats ) :
+	QWidget ( parent )
 {
-  indexResetButton = new QPushButton ( tr ( "Reset capture counter" ), this );
-#ifdef OACAPTURE
-  winAVIBox = new QCheckBox (
-      tr ( "Use Windows-compatible format for AVI files "
-      "(8-bit mono/raw colour)" ), this );
-  winAVIBox->setChecked ( config.windowsCompatibleAVI );
+  videoFormats = formats;
 
-  utVideoBox = new QCheckBox (
-      tr ( "Use UtVideo lossless compression for AVI files where possible" ),
-      this );
-  utVideoBox->setChecked ( config.useUtVideo );
+  indexResetButton = new QPushButton ( tr ( "Reset capture counter" ), this );
+
+#ifdef OACAPTURE
+	if ( videoFormats ) {
+    winAVIBox = new QCheckBox (
+        tr ( "Use Windows-compatible format for AVI files "
+        "(8-bit mono/raw colour)" ), this );
+    winAVIBox->setChecked ( config.windowsCompatibleAVI );
+
+    utVideoBox = new QCheckBox (
+        tr ( "Use UtVideo lossless compression for AVI files where possible" ),
+        this );
+    utVideoBox->setChecked ( config.useUtVideo );
+	}
 #endif
 
   indexSizeLabel = new QLabel ( tr ( "Filename capture index size" ));
@@ -66,10 +61,10 @@ CaptureSettings::CaptureSettings ( QWidget* parent ) : QWidget ( parent )
   spinboxLayout = new QHBoxLayout();
   vLayout = new QVBoxLayout();
   vLayout->addWidget ( indexResetButton );
-#ifdef OACAPTURE
-  vLayout->addWidget ( winAVIBox );
-  vLayout->addWidget ( utVideoBox );
-#endif
+	if ( videoFormats ) {
+    vLayout->addWidget ( winAVIBox );
+    vLayout->addWidget ( utVideoBox );
+	}
   spinboxLayout->addWidget ( indexSizeLabel );
   spinboxLayout->addWidget ( indexSizeSpinbox );
   vLayout->addLayout ( spinboxLayout );
@@ -81,12 +76,12 @@ CaptureSettings::CaptureSettings ( QWidget* parent ) : QWidget ( parent )
   setLayout ( hLayout );
   connect ( indexResetButton, SIGNAL ( clicked()), this,
       SLOT ( resetIndex()));
-#ifdef OACAPTURE
-  connect ( winAVIBox, SIGNAL ( stateChanged ( int )), parent,
-      SLOT ( dataChanged()));
-  connect ( utVideoBox, SIGNAL ( stateChanged ( int )), parent,
-      SLOT ( dataChanged()));
-#endif
+	if ( videoFormats ) {
+    connect ( winAVIBox, SIGNAL ( stateChanged ( int )), parent,
+        SLOT ( dataChanged()));
+    connect ( utVideoBox, SIGNAL ( stateChanged ( int )), parent,
+        SLOT ( dataChanged()));
+	}
   connect ( indexSizeSpinbox, SIGNAL ( valueChanged ( int )), parent,
       SLOT ( dataChanged()));
 }
@@ -102,8 +97,10 @@ void
 CaptureSettings::storeSettings ( void )
 {
 #ifdef OACAPTURE
-  config.windowsCompatibleAVI = winAVIBox->isChecked() ? 1 : 0;
-  config.useUtVideo = utVideoBox->isChecked() ? 1 : 0;
+	if ( videoFormats ) {
+    config.windowsCompatibleAVI = winAVIBox->isChecked() ? 1 : 0;
+    config.useUtVideo = utVideoBox->isChecked() ? 1 : 0;
+	}
 #endif
   config.indexDigits = indexSizeSpinbox->value();
 }

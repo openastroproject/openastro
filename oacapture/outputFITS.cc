@@ -44,10 +44,13 @@ extern "C" {
 #include "configuration.h"
 #include "state.h"
 #include "targets.h"
+#include "trampoline.h"
 
 
-OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt ) :
-    OutputHandler ( x, y, n, d )
+OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
+		const char *appName, const char* appVer, QString fileTemplate,
+		trampolineFuncs* trampolines ) :
+		OutputHandler ( x, y, n, d, fileTemplate, trampolines )
 {
   uint16_t byteOrderTest = 0x1234;
   uint8_t* firstByte;
@@ -70,6 +73,8 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt ) :
   writeBuffer = 0;
   elements = 0;
   imageFormat = fmt;
+	applicationName = appName;
+	applicationVersion = appVer;
 
   switch ( fmt ) {
 
@@ -355,7 +360,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   }
 
   stringBuff[0] = 0;
-  int currentTargetId = state.captureWidget->getCurrentTargetId();
+  int currentTargetId = trampolines->getCurrentTargetId();
   if ( currentTargetId > 0 && currentTargetId != TGT_UNKNOWN ) {
     ( void ) strncpy ( stringBuff, targetList[ currentTargetId ],
         FLEN_VALUE+1 );
@@ -442,6 +447,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   }
 
 
+#ifdef OACAPTURE
   if ( config.fitsSubframeOriginX != "" ) {
     xorg = config.fitsSubframeOriginX.toInt();
   } else {
@@ -463,8 +469,9 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     }
   }
   fits_write_key_lng ( fptr, "YORGSUBF", yorg, "", &status );
+#endif
 
-  QString currentFilter = state.captureWidget->getCurrentFilterName();
+  QString currentFilter = trampolines->getCurrentFilterName();
   if ( config.fitsFilter != "" ) {
     currentFilter = config.fitsFilter;
   }
@@ -474,6 +481,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     fits_write_key_str ( fptr, "FILTER", cString, "", &status );
   }
 
+#ifdef OACAPTURE
   stringBuff[0] = 0;
   if ( state.gpsValid ) {
     ( void ) sprintf ( stringBuff, "%+8.6e", state.latitude );
@@ -505,9 +513,11 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     ( void ) sprintf ( stringBuff, "%g", state.altitude );
     fits_write_key_str ( fptr, "ELEVATIO", cString, "", &status );
   }
+#endif
 
-  fits_write_key_str ( fptr, "SWCREATE", APPLICATION_NAME " " VERSION_STR, "",
-      &status );
+	( void ) snprintf ( stringBuff, FLEN_VALUE, "%s %s", applicationName,
+			applicationVersion );
+  fits_write_key_str ( fptr, "SWCREATE", cString, "", &status );
 
   fits_write_key_dbl ( fptr, "BSCALE", 1.0, -5, "", &status );
   fits_write_key_dbl ( fptr, "BZERO", 0.0, -5, "", &status );

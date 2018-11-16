@@ -34,11 +34,13 @@ extern "C" {
 };
 
 #include "outputHandler.h"
+#include "trampoline.h"
 
 class OutputFFMPEG : public OutputHandler
 {
   public:
-    			OutputFFMPEG ( int, int, int, int, int );
+    			OutputFFMPEG ( int, int, int, int, int, QString,
+							trampolineFuncs* );
     			~OutputFFMPEG();
     int			openOutput ( void );
     int			addFrame ( void*, const char*, int64_t, const char* );

@@ -38,8 +38,10 @@
 #define UNHANDLED_PER_ROW	6
 
 
-CameraSettings::CameraSettings ( QWidget* parent ) : QWidget ( parent )
+CameraSettings::CameraSettings ( QWidget* parent, trampolineFuncs* redirs ) :
+		QWidget ( parent )
 {
+	trampolines = redirs;
   layout = 0;
   sliderSignalMapper = 0;
   checkboxSignalMapper = 0;
@@ -116,19 +118,19 @@ CameraSettings::configure ( void )
                   valueChanged ( int )), controlSlider[mod][baseVal],
                   SLOT( setValue( int )));
 
-              int min = state.controlWidget->getSpinboxMinimum ( c );
+              int min = trampolines->getSpinboxMinimum ( c );
               controlSlider[mod][baseVal]->setMinimum ( min );
               controlSpinbox[mod][baseVal]->setMinimum ( min );
 
-              int max = state.controlWidget-> getSpinboxMaximum ( c );
+              int max = trampolines-> getSpinboxMaximum ( c );
               controlSlider[mod][baseVal]->setMaximum ( max );
               controlSpinbox[mod][baseVal]->setMaximum ( max );
 
-              int step = state.controlWidget-> getSpinboxStep ( c );
+              int step = trampolines-> getSpinboxStep ( c );
               controlSlider[mod][baseVal]->setSingleStep ( step );
               controlSpinbox[mod][baseVal]->setSingleStep ( step );
 
-              int val = state.controlWidget-> getSpinboxValue ( c );
+              int val = trampolines-> getSpinboxValue ( c );
               controlSlider[mod][baseVal]->setValue ( val );
               controlSpinbox[mod][baseVal]->setValue ( val );
 
@@ -261,11 +263,11 @@ CameraSettings::configure ( void )
     frameRateLabel = new QLabel ( tr ( "Framerate (fps)" ), this );
     frameRateMenu = new QComboBox ( this );
     frameRateSlider->setFocusPolicy ( Qt::TabFocus );
-    QStringList rateList = state.controlWidget->getFrameRates();
+    QStringList rateList = trampolines->getFrameRates();
     frameRateSlider->setRange ( 0, rateList.count());
     frameRateSlider->setSingleStep ( 1 );
     frameRateMenu->addItems ( rateList );
-    frameRateIndex = state.controlWidget->getFrameRateIndex();
+    frameRateIndex = trampolines->getFrameRateIndex();
     frameRateSlider->setValue ( frameRateIndex );
     frameRateMenu->setCurrentIndex ( frameRateIndex );
 
@@ -552,7 +554,7 @@ CameraSettings::~CameraSettings()
 void
 CameraSettings::updateSliderControl ( int control )
 {
-  state.controlWidget->updateSpinbox ( control, controlSpinbox[
+	trampolines->updateSpinbox ( control, controlSpinbox[
       OA_CAM_CTRL_MODIFIER(control)][OA_CAM_CTRL_MODE_BASE(control)]->value());
 }
 
@@ -565,29 +567,29 @@ CameraSettings::updateCheckboxControl ( int control )
 
   switch ( control ) {
     case OA_CAM_CTRL_HFLIP:
-      state.mainWindow->setFlipX ( value );
+      trampolines->setFlipX ( value );
       break;
 
     case OA_CAM_CTRL_VFLIP:
-      state.mainWindow->setFlipY ( value );
+      trampolines->setFlipY ( value );
       break;
 
     case OA_CAM_CTRL_TRIGGER_ENABLE:
       config.timerMode = value ? OA_TIMER_MODE_TRIGGER : OA_TIMER_MODE_STROBE;
-      state.controlWidget->updateCheckbox ( control, value );
+      trampolines->updateControlCheckbox ( control, value );
       break;
 
     case OA_CAM_CTRL_TRIGGER_DELAY_ENABLE:
-      state.controlWidget->updateCheckbox ( control, value );
+      trampolines->updateControlCheckbox ( control, value );
       break;
 
     case OA_CAM_CTRL_STROBE_ENABLE:
       config.timerMode = value ? OA_TIMER_MODE_STROBE : OA_TIMER_MODE_TRIGGER;
-      state.controlWidget->updateCheckbox ( control, value );
+      trampolines->updateControlCheckbox ( control, value );
       break;
 
     default:
-      state.controlWidget->updateCheckbox ( control, value );
+      trampolines->updateControlCheckbox ( control, value );
       break;
   }
 
@@ -823,32 +825,32 @@ CameraSettings::updateFrameRate ( int index )
 void
 CameraSettings::frameRateChanged ( void )
 {
-  state.controlWidget->updateFrameRate ( frameRateMenu->currentIndex());
+  trampolines->updateFrameRate ( frameRateMenu->currentIndex());
 }
 
 
 void
 CameraSettings::reconfigureControl ( int control )
 {
-  int min = state.controlWidget->getSpinboxMinimum ( control );
+  int min = trampolines->getSpinboxMinimum ( control );
   controlSlider[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
       control )]->setMinimum ( min );
   controlSpinbox[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
       control )]->setMinimum ( min );
 
-  int max = state.controlWidget->getSpinboxMaximum ( control );
+  int max = trampolines->getSpinboxMaximum ( control );
   controlSlider[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
       control )]->setMaximum ( max );
   controlSpinbox[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
       control )]->setMaximum ( max );
 
-  int step = state.controlWidget->getSpinboxStep ( control );
+  int step = trampolines->getSpinboxStep ( control );
   controlSlider[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
       control )]->setSingleStep ( step );
   controlSpinbox[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
       control )]->setSingleStep ( step );
 
-  int val = state.controlWidget->getSpinboxValue ( control );
+  int val = trampolines->getSpinboxValue ( control );
   controlSlider[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
       control )]->setValue ( val );
   controlSpinbox[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
@@ -867,7 +869,7 @@ CameraSettings::forceFrameFormatChanged ( int newState )
   } else {
     config.forceInputFrameFormat = selectedFrameFormat->currentIndex() + 1;
   }
-  state.cameraWidget->updateForceFrameFormat ( oldState,
+  trampolines->updateForceFrameFormat ( oldState,
       config.forceInputFrameFormat );
 }
 
@@ -880,7 +882,7 @@ CameraSettings::selectedFrameFormatChanged ( int newIndex )
   if ( config.forceInputFrameFormat ) {
     oldState = config.forceInputFrameFormat;
     config.forceInputFrameFormat = newIndex + 1;
-    state.cameraWidget->updateForceFrameFormat ( oldState,
+    trampolines->updateForceFrameFormat ( oldState,
         config.forceInputFrameFormat );
   }
 }

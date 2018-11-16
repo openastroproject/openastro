@@ -2,7 +2,8 @@
  *
  * outputTIFF.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -30,10 +31,14 @@ extern "C" {
 #include "tiffio.h"
 }
 
+#include "trampoline.h"
+
+
 class OutputTIFF : public OutputHandler
 {
   public:
-    			OutputTIFF ( int, int, int, int, int );
+    			OutputTIFF ( int, int, int, int, int, const char*, const char*,
+							QString, trampolineFuncs* );
     			~OutputTIFF();
     int			openOutput ( void );
     int			addFrame ( void*, const char*, int64_t, const char* );
@@ -51,4 +56,6 @@ class OutputTIFF : public OutputHandler
     int			colour;
     int			frameSize;
     unsigned char*	writeBuffer;
+		const char*	applicationName;
+		const char*	applicationVersion;
 };

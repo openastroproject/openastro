@@ -2,7 +2,8 @@
  *
  * cameraSettings.h -- class declaration
  *
- * Copyright 2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -38,13 +39,15 @@ extern "C" {
 #include <openastro/camera.h>
 }
 
+#include "trampoline.h"
+
 
 class CameraSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			CameraSettings ( QWidget* );
+    			CameraSettings ( QWidget*, trampolineFuncs* );
     			~CameraSettings();
     void		configure ( void );
     void		storeSettings ( void );
@@ -83,6 +86,7 @@ class CameraSettings : public QWidget
     QCheckBox*		forceFrameFormat;
     QComboBox*		selectedFrameFormat;
     QHBoxLayout*	frameHBoxLayout;
+		trampolineFuncs*	trampolines;
 
   public slots:
     void		updateSliderControl ( int );

@@ -30,10 +30,14 @@ extern "C" {
 #include "png.h"
 }
 
+#include "trampoline.h"
+
+
 class OutputPNG : public OutputHandler
 {
   public:
-    			OutputPNG ( int, int, int, int, int, QString );
+    			OutputPNG ( int, int, int, int, int, const char*, const char*,
+							QString, trampolineFuncs* );
     			~OutputPNG();
     int			openOutput ( void );
     int			addFrame ( void*, const char*, int64_t, const char* );
@@ -56,4 +60,6 @@ class OutputPNG : public OutputHandler
     png_infop		infoPtr;
     png_bytep*		rowPointers;
     unsigned		imageFormat;
+		const char*	applicationName;
+		const char*	applicationVersion;
 };

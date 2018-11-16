@@ -2,7 +2,8 @@
  *
  * outputSER.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -30,10 +31,14 @@ extern "C" {
 #include <openastro/SER.h>
 }
 
+#include "trampoline.h"
+
+
 class OutputSER : public OutputHandler
 {
   public:
-    			OutputSER ( int, int, int, int, int );
+    			OutputSER ( int, int, int, int, int, QString,
+							trampolineFuncs* );
     			~OutputSER();
     int			openOutput ( void );
     int			addFrame ( void*, const char*, int64_t, const char* );

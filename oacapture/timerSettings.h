@@ -2,7 +2,8 @@
  *
  * timerSettings.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -40,7 +41,7 @@ class TimerSettings : public QWidget
   Q_OBJECT
 
   public:
-    			TimerSettings ( QWidget* );
+    			TimerSettings ( QWidget*, QString );
     			~TimerSettings();
     void		storeSettings ( void );
 
@@ -68,6 +69,7 @@ class TimerSettings : public QWidget
     QHBoxLayout*	drainDelayLayout;
     QHBoxLayout*	timestampDelayLayout;
     QCheckBox*		checkGPSBox;
+		QString				applicationName;
 
   public slots:
     void		doTimerReset ( void );

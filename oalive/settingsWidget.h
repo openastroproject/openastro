@@ -3,7 +3,7 @@
  * settingsWidget.h -- class declaration
  *
  * Copyright 2013,2014,2015,2016,2018
- *     James Fidell (james@openastroproject.org)
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -37,18 +37,30 @@
 
 #include "generalSettings.h"
 #include "captureSettings.h"
-#ifdef OACAPTURE
-#include "cameraSettings.h"
-#endif
 #include "profileSettings.h"
 #include "filterSettings.h"
 #ifdef OACAPTURE
 #include "autorunSettings.h"
 #include "histogramSettings.h"
+#include "cameraSettings.h"
 #include "timerSettings.h"
 #endif
 #include "demosaicSettings.h"
 #include "fitsSettings.h"
+
+#define	SETTINGS_GENERAL		0x0001
+#define	SETTINGS_CAPTURE		0x0002
+#define	SETTINGS_CAMERA			0x0004
+#define	SETTINGS_PROFILE		0x0008
+#define	SETTINGS_FILTER			0x0010
+#define	SETTINGS_AUTORUN		0x0020
+#define	SETTINGS_HISTOGRAM	0x0040
+#define	SETTINGS_TIMER			0x0080
+#define	SETTINGS_DEMOSAIC		0x0100
+#define	SETTINGS_FITS				0x0200
+
+#define OACAPTURE_SETTINGS	0x03ff
+#define	OALIVE_SETTINGS			0x031b
 
 
 class SettingsWidget : public QWidget
@@ -56,7 +68,8 @@ class SettingsWidget : public QWidget
   Q_OBJECT
 
   public:
-    			SettingsWidget();
+    			SettingsWidget ( QWidget*, QString, unsigned int, int, int,
+							trampolineFuncs* );
     			~SettingsWidget();
     void		setActiveTab ( int );
     void		enableTab ( int, int );
@@ -72,20 +85,17 @@ class SettingsWidget : public QWidget
     void		reconfigureControl ( int );
     QWidget*		getTabset ( void );
 
-
   private:
     GeneralSettings*	general;
     CaptureSettings*	capture;
 #ifdef OACAPTURE
     CameraSettings*	cameras;
+    TimerSettings*	timer;
+    AutorunSettings*	autorun;
+    HistogramSettings*	histogram;
 #endif
     ProfileSettings*	profiles;
     FilterSettings*	filters;
-#ifdef OACAPTURE
-    AutorunSettings*	autorun;
-    HistogramSettings*	histogram;
-    TimerSettings*	timer;
-#endif
     DemosaicSettings*	demosaic;
     FITSSettings*	fits;
     QVBoxLayout*	vbox;
@@ -94,6 +104,8 @@ class SettingsWidget : public QWidget
     QPushButton*	cancelButton;
     QPushButton*	saveButton;
     int                 haveUnsavedData;
+		QString				applicationName;
+		unsigned int	reqdWindows;
 
   public slots:
     void		storeSettings ( void );

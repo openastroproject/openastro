@@ -2,7 +2,7 @@
  *
  * profileSettings.cc -- class for profile settings tab in the settings UI
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -29,14 +29,16 @@
 #include <QtGui>
 
 #include "configuration.h"
-#include "state.h"
-
 #include "profileSettings.h"
 #include "targets.h"
+#include "state.h"
 
 
-ProfileSettings::ProfileSettings ( QWidget* parent ) : QWidget ( parent )
+ProfileSettings::ProfileSettings ( QWidget* parent, trampolineFuncs* redirs ) :
+		QWidget ( parent )
 {
+	trampolines = redirs;
+
   firstTime = 1;
 
   list = new QListWidget ( this );
@@ -128,7 +130,7 @@ ProfileSettings::storeSettings ( void )
     }
     config.numProfiles = list->count();
     config.profiles = changedProfiles;
-    state.captureWidget->reloadProfiles();
+    trampolines->reloadProfiles();
   }
 }
 
@@ -177,10 +179,15 @@ ProfileSettings::addEntry ( void )
   p.frameRateDenominator = config.frameRateDenominator;
   p.filterOption = config.filterOption;
   p.fileTypeOption = config.fileTypeOption;
+#ifdef OALIVE
+	p.frameFileNameTemplate = config.frameFileNameTemplate;
+#endif
+#ifdef OACAPTURE
   p.fileNameTemplate = config.fileNameTemplate;
   p.limitEnabled = config.limitEnabled;
   p.framesLimitValue = config.framesLimitValue;
   p.secondsLimitValue = config.secondsLimitValue;
+#endif
   p.target = TGT_UNKNOWN;
   ignoreTargetChange = 1;
   targetMenu->setCurrentIndex ( 0 );

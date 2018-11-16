@@ -2,7 +2,7 @@
  *
  * autorunSettings.cc -- class for autorun settings in the settings widget
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -27,12 +27,14 @@
 #include <oa_common.h>
 
 #include "autorunSettings.h"
-
 #include "configuration.h"
 #include "state.h"
 
-AutorunSettings::AutorunSettings ( QWidget* parent ) : QWidget ( parent )
+AutorunSettings::AutorunSettings ( QWidget* parent, trampolineFuncs* redirs ) :
+	QWidget ( parent )
 {
+	trampolines = redirs;
+
   filterWheelSlots = 0;
   if ( state.filterWheel && state.filterWheel->isInitialised()) {
     filterWheelSlots = state.filterWheel->numSlots();
@@ -204,7 +206,7 @@ void
 AutorunSettings::enableAutorun ( void )
 {
   storeSettings();
-  state.captureWidget->resetAutorun();
+  trampolines->resetAutorun();
 }
 
 

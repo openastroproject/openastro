@@ -31,19 +31,26 @@ extern "C" {
 #include <openastro/demosaic.h>
 }
 
+#include "trampoline.h"
 #include "demosaicSettings.h"
-
 #include "configuration.h"
 #include "state.h"
 
-DemosaicSettings::DemosaicSettings ( QWidget* parent ) : QWidget ( parent )
+
+DemosaicSettings::DemosaicSettings ( QWidget* parent, int demosaic,
+		trampolineFuncs* redirs ) : QWidget ( parent )
 {
+	trampolines = redirs;
+	demosaicOpts = demosaic;
+
 #ifdef OACAPTURE
-  demosaicLabel = new QLabel ( tr ( "When demosaic is enabled:" ));
-  previewBox = new QCheckBox ( tr ( "Demosaic preview image" ), this );
-  previewBox->setChecked ( config.demosaicPreview );
-  outputBox = new QCheckBox ( tr ( "Demosaic output data" ), this );
-  outputBox->setChecked ( config.demosaicOutput );
+	if ( demosaicOpts ) {
+    demosaicLabel = new QLabel ( tr ( "When demosaic is enabled:" ));
+    previewBox = new QCheckBox ( tr ( "Demosaic preview image" ), this );
+    previewBox->setChecked ( config.demosaicPreview );
+    outputBox = new QCheckBox ( tr ( "Demosaic output data" ), this );
+    outputBox->setChecked ( config.demosaicOutput );
+	}
 #endif
 
   cfaLabel = new QLabel ( tr ( "Bayer format" ));
@@ -111,12 +118,12 @@ DemosaicSettings::DemosaicSettings ( QWidget* parent ) : QWidget ( parent )
   hbox = new QHBoxLayout ( this );
   lbox = new QVBoxLayout();
   rbox = new QVBoxLayout();
-#ifdef OACAPTURE
-  lbox->addWidget ( demosaicLabel );
-  lbox->addWidget ( previewBox );
-  lbox->addWidget ( outputBox );
-  lbox->addSpacing ( 25 );
-#endif
+	if ( demosaicOpts ) {
+    lbox->addWidget ( demosaicLabel );
+    lbox->addWidget ( previewBox );
+    lbox->addWidget ( outputBox );
+    lbox->addSpacing ( 25 );
+	}
   rbox->addWidget ( cfaLabel );
   rbox->addWidget ( rggbButton );
   rbox->addWidget ( bggrButton );
@@ -142,12 +149,12 @@ DemosaicSettings::DemosaicSettings ( QWidget* parent ) : QWidget ( parent )
   hbox->addStretch ( 1 );
   setLayout ( hbox );
 
-#ifdef OACAPTURE
-  connect ( previewBox, SIGNAL ( stateChanged ( int )), parent,
-      SLOT ( dataChanged()));
-  connect ( outputBox, SIGNAL ( stateChanged ( int )), parent,
-      SLOT ( dataChanged()));
-#endif
+	if ( demosaicOpts ) {
+    connect ( previewBox, SIGNAL ( stateChanged ( int )), parent,
+        SLOT ( dataChanged()));
+    connect ( outputBox, SIGNAL ( stateChanged ( int )), parent,
+        SLOT ( dataChanged()));
+	}
   connect ( cfaButtons, SIGNAL ( buttonClicked ( int )), parent,
       SLOT ( dataChanged()));
   connect ( methodButtons, SIGNAL ( buttonClicked ( int )), parent,
@@ -167,8 +174,10 @@ void
 DemosaicSettings::storeSettings ( void )
 {
 #ifdef OACAPTURE
-  config.demosaicPreview = previewBox->isChecked() ? 1 : 0;
-  config.demosaicOutput = outputBox->isChecked() ? 1 : 0;
+	if ( demosaicOpts ) {
+    config.demosaicPreview = previewBox->isChecked() ? 1 : 0;
+    config.demosaicOutput = outputBox->isChecked() ? 1 : 0;
+	}
 #endif
   if ( rggbButton->isChecked()) {
     config.cfaPattern = OA_DEMOSAIC_RGGB;
@@ -213,17 +222,19 @@ DemosaicSettings::storeSettings ( void )
 
   if ( state.camera->isInitialised()) {
     int format = state.camera->videoFramePixelFormat();
-    state.viewWidget->setVideoFramePixelFormat ( format );
+    trampolines->setVideoFramePixelFormat ( format );
 #ifdef OACAPTURE
-    state.captureWidget->enableTIFFCapture (
-        ( !oaFrameFormats[ format ].rawColour ||
-        ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
-    state.captureWidget->enablePNGCapture (
-        ( !oaFrameFormats[ format ].rawColour ||
-        ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
-    state.captureWidget->enableMOVCapture (( QUICKTIME_OK( format ) || 
-        ( oaFrameFormats[ format ].rawColour && config.demosaic &&
-        config.demosaicOutput )) ? 1 : 0 );
+		if ( demosaicOpts ) {
+			trampolines->enableTIFFCapture (
+					( !oaFrameFormats[ format ].rawColour ||
+					( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
+			trampolines->enablePNGCapture (
+					( !oaFrameFormats[ format ].rawColour ||
+					( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
+			trampolines->enableMOVCapture (( QUICKTIME_OK( format ) || 
+					( oaFrameFormats[ format ].rawColour && config.demosaic &&
+					config.demosaicOutput )) ? 1 : 0 );
+		}
 #endif
   }
 }

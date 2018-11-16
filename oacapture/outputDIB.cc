@@ -2,7 +2,7 @@
  *
  * outputDIB.cc -- Windows DIB AVI output class
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -34,8 +34,9 @@
 #include "state.h"
 
 
-OutputDIB::OutputDIB ( int x, int y, int n, int d ) :
-    OutputHandler ( x, y, n, d )
+OutputDIB::OutputDIB ( int x, int y, int n, int d, int fmt,
+    QString fileTemplate, trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate, trampolines )
 {
   writesDiscreteFiles = 0;
   frameCount = 0;

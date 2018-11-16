@@ -43,10 +43,12 @@ extern "C" {
 #include "outputHandler.h"
 #include "outputFFMPEG.h"
 #include "state.h"
+#include "trampoline.h"
 
 
-OutputFFMPEG::OutputFFMPEG ( int x, int y, int n, int d, int fmt ) :
-    OutputHandler ( x, y, n, d )
+OutputFFMPEG::OutputFFMPEG ( int x, int y, int n, int d, int fmt,
+		QString fileTemplate, trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate,  trampolines )
 {
   if ( !state.libavStarted ) {
     av_register_all();

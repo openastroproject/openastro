@@ -34,7 +34,6 @@ extern "C" {
 #include <openastro/userConfig.h>
 }
 
-#include "version.h"
 #include "configuration.h"
 #include "state.h"
 #include "advancedSettings.h"
@@ -61,6 +60,7 @@ AdvancedSettings::AdvancedSettings ( int device, int interface )
       configFlags = oaFilterWheelInterfaces[ interfaceType ].userConfigFlags;
       break;
 
+#ifdef OACAPTURE
     case OA_DEVICE_PTR:
       ifaceStr = "PTR";
       deviceStr = tr ( "Timer" );
@@ -70,6 +70,7 @@ AdvancedSettings::AdvancedSettings ( int device, int interface )
       }
       configFlags = OA_UDC_FLAG_USB_ALL;
       break;
+#endif
 
     default:
       ifaceStr = tr ( "Unknown" );
@@ -454,6 +455,7 @@ AdvancedSettings::saveFilters ( void )
       state.filterWheel->updateSearchFilters ( interfaceType );
       break;
 
+#ifdef OACAPTURE
     case OA_DEVICE_PTR:
       config.timerConfig[0].clear();
       if ( numDevices ) {
@@ -464,6 +466,7 @@ AdvancedSettings::saveFilters ( void )
       }
       state.timer->updateSearchFilters(0);
       break;
+#endif
 
     default:
       break;

@@ -29,14 +29,14 @@
 #include "filterWheel.h"
 #include "configuration.h"
 #include "state.h"
-#include "version.h"
 
 
 #define wheelFuncs     wheelContext->funcs
 
-FilterWheel::FilterWheel()
+FilterWheel::FilterWheel ( trampolineFuncs* funcs )
 {
   initialised = 0;
+	trampolines = funcs;
 }
 
 
@@ -141,12 +141,13 @@ FilterWheel::initialise ( oaFilterWheelDevice* device )
     initialised = 1;
     // FIX ME -- this lot should probably be done in the caller
     if ( state.settingsWidget ) {
-      state.settingsWidget->setSlotCount ( wheelContext->numSlots );
-      state.captureWidget->setSlotCount ( wheelContext->numSlots );
+      trampolines->setFilterSlotCount ( wheelContext->numSlots );
     }
+#ifdef OACAPTURE
     if ( state.captureWidget ) {
-      state.captureWidget->reloadFilters();
+      trampolines->reloadFilters();
     }
+#endif
     return 0;
   }
   return -1;
@@ -161,12 +162,13 @@ FilterWheel::disconnect ( void )
     initialised = 0;
     // FIX ME -- this lot should probably be done in the caller
     if ( state.settingsWidget ) {
-      state.settingsWidget->setSlotCount ( 0 );
-      state.captureWidget->setSlotCount ( 0 );
+      trampolines->setFilterSlotCount ( 0 );
     }
+#ifdef OACAPTURE
     if ( state.captureWidget ) {
-      state.captureWidget->reloadFilters();
+      trampolines->reloadFilters();
     }
+#endif
   }
 }
 

@@ -29,11 +29,12 @@
 #include <QtGui>
 
 #include "version.h"
+#include "trampoline.h"
 #include "configuration.h"
 #include "state.h"
 #include "controlsWidget.h"
-
 #include "outputTIFF.h"
+#include "outputPNG.h"
 #include "outputFITS.h"
 
 
@@ -177,7 +178,7 @@ void
 ControlsWidget::startCapture ( void )
 {
   openOutputFiles();
-  state.camera->start();
+  state.camera->start ( &ViewWidget::addImage );
   startButton->setEnabled ( 0 );
   stopButton->setEnabled ( 1 );
 }
@@ -218,7 +219,7 @@ ControlsWidget::restartCapture ( void )
   }
   openOutputFiles();
   state.viewWidget->restart();
-  state.camera->start();
+  state.camera->start ( &ViewWidget::addImage );
   startButton->setEnabled ( 0 );
   stopButton->setEnabled ( 1 );
 }
@@ -426,20 +427,30 @@ ControlsWidget::openOutputFiles ( void )
         out = new OutputTIFF ( config.imageSizeX, config.imageSizeY,
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
-            config.frameFileNameTemplate );
+						APPLICATION_NAME, VERSION_STR, config.frameFileNameTemplate,
+						&trampolines );
+        break;
+      case CAPTURE_PNG:
+        out = new OutputPNG ( config.imageSizeX, config.imageSizeY,
+            state.cameraControls->getFPSNumerator(),
+            state.cameraControls->getFPSDenominator(), format,
+						APPLICATION_NAME, VERSION_STR, config.frameFileNameTemplate,
+						&trampolines );
         break;
 #ifdef HAVE_LIBCFITSIO
       case CAPTURE_FITS:
         out = new OutputFITS ( config.imageSizeX, config.imageSizeY,
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
-            config.frameFileNameTemplate );
+						APPLICATION_NAME, VERSION_STR, config.frameFileNameTemplate,
+						&trampolines );
         break;
 #endif
     }
 
     if ( out && ( CAPTURE_TIFF == config.fileTypeOption ||
-        CAPTURE_FITS == config.fileTypeOption )) {
+        CAPTURE_FITS == config.fileTypeOption ||
+				CAPTURE_PNG == config.fileTypeOption )) {
       if ( !out->outputWritable()) {
         // FIX ME -- this may cross threads: don't cross the threads!
         QMessageBox::warning ( this, tr ( "Start Recording" ),
@@ -485,20 +496,30 @@ qWarning() << "have frame save handler";
         out = new OutputTIFF ( config.imageSizeX, config.imageSizeY,
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
-            config.processedFileNameTemplate );
+						APPLICATION_NAME, VERSION_STR, config.processedFileNameTemplate,
+            &trampolines );
+        break;
+      case CAPTURE_PNG:
+        out = new OutputPNG ( config.imageSizeX, config.imageSizeY,
+            state.cameraControls->getFPSNumerator(),
+            state.cameraControls->getFPSDenominator(), format,
+						APPLICATION_NAME, VERSION_STR, config.processedFileNameTemplate,
+            &trampolines );
         break;
 #ifdef HAVE_LIBCFITSIO
       case CAPTURE_FITS:
         out = new OutputFITS ( config.imageSizeX, config.imageSizeY,
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
-            config.processedFileNameTemplate );
+						APPLICATION_NAME, VERSION_STR, config.processedFileNameTemplate,
+            &trampolines );
         break;
 #endif
     }
 
     if ( out && ( CAPTURE_TIFF == config.fileTypeOption ||
-        CAPTURE_FITS == config.fileTypeOption )) {
+        CAPTURE_FITS == config.fileTypeOption ||
+				CAPTURE_PNG == config.fileTypeOption )) {
       if ( !out->outputWritable()) {
         // FIX ME -- this may cross threads: don't cross the threads!
         QMessageBox::warning ( this, tr ( "Start Recording" ),

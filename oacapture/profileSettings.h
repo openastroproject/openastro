@@ -2,7 +2,8 @@
  *
  * profileSettings.h -- class declaration
  *
- * Copyright 2013,2014,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2016,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -34,6 +35,7 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "trampoline.h"
 #include "configuration.h"
 
 
@@ -42,7 +44,7 @@ class ProfileSettings : public QWidget
   Q_OBJECT
 
   public:
-    			ProfileSettings ( QWidget* );
+    			ProfileSettings ( QWidget*, trampolineFuncs* );
     			~ProfileSettings();
     void		storeSettings ( void );
 
@@ -60,6 +62,7 @@ class ProfileSettings : public QWidget
     int			firstTime;
     QList<PROFILE>	changedProfiles;
     QComboBox*		targetMenu;
+		trampolineFuncs*		trampolines;
 
   public slots:
     void		addEntry ( void );

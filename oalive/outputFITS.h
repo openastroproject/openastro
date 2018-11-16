@@ -3,7 +3,7 @@
  * outputFITS.h -- class declaration
  *
  * Copyright 2013,2014,2015,2016,2017,2018
- *     James Fidell (james@openastroproject.org)
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -30,7 +30,8 @@
 class OutputFITS : public OutputHandler
 {
   public:
-    			OutputFITS ( int, int, int, int, int, QString );
+    			OutputFITS ( int, int, int, int, int, const char*, const char*,
+							QString, trampolineFuncs* );
     			~OutputFITS();
     int			openOutput ( void );
     int			addFrame ( void*, const char*, int64_t, const char* );
@@ -57,4 +58,6 @@ class OutputFITS : public OutputHandler
     int			elements;
     long		fitsAxes[3];
     unsigned int	imageFormat;
+		const char*		applicationName;
+		const char*		applicationVersion;
 };

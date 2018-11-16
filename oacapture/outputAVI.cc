@@ -32,10 +32,12 @@
 #include "outputFFMPEG.h"
 #include "outputAVI.h"
 #include "state.h"
+#include "trampoline.h"
 
 
-OutputAVI::OutputAVI ( int x, int y, int n, int d, int fmt ) :
-    OutputFFMPEG ( x, y, n, d, fmt )
+OutputAVI::OutputAVI ( int x, int y, int n, int d, int fmt,
+		QString fileTemplate, trampolineFuncs* trampolines) :
+    OutputFFMPEG ( x, y, n, d, fmt, fileTemplate, trampolines )
 {
   videoCodec = AV_CODEC_ID_UTVIDEO;
 
