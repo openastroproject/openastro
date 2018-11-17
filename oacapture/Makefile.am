@@ -42,7 +42,7 @@ MOC_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/common $(MOC_CFLAGS) \
 bin_PROGRAMS = oacapture
 BUILT_SOURCES = version.h
 oacapture_SOURCES = autorunSettings.cc camera.cc cameraSettings.cc \
-  cameraWidget.cc captureSettings.cc captureWidget.cc controlWidget.cc \
+  cameraWidget.cc captureWidget.cc controlWidget.cc \
   demosaicSettings.cc filterSettings.cc filterWheel.cc generalSettings.cc \
   histogramSettings.cc histogramWidget.cc imageWidget.cc mainWindow.cc \
   oacapture.cc outputAVI.cc outputFITS.cc outputHandler.cc outputSER.cc \

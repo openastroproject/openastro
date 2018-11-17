@@ -38,6 +38,7 @@
 #include "configuration.h"
 #include "state.h"
 #include "mainWindow.h"
+#include "profileSettings.h"
 #include "settingsWidget.h"
 #ifdef OACAPTURE
 #include "cameraSettings.h"
@@ -45,7 +46,6 @@
 #include "histogramSettings.h"
 #include "timerSettings.h"
 #endif
-#include "profileSettings.h"
 #include "demosaicSettings.h"
 
 

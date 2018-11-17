@@ -35,6 +35,8 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "configuration.h"
+
 #include "generalSettings.h"
 #include "captureSettings.h"
 #include "profileSettings.h"

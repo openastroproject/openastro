@@ -36,8 +36,8 @@
 #include <QtGui>
 
 #include "trampoline.h"
-#include "configuration.h"
 
+#include "configuration.h"
 
 class ProfileSettings : public QWidget
 {

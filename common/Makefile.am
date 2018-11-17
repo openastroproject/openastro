@@ -37,7 +37,7 @@ MOC_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/common $(MOC_CFLAGS) \
   -DTRANSLATE_DIR=\"${datadir}/$(bin_PROGRAMS)/\"
 
 lib_LTLIBRARIES = liboacommon.la
-liboacommon_la_SOURCES = targets.cc \
+liboacommon_la_SOURCES = targets.cc captureSettings.cc \
 	moc_advancedSettings.cc moc_camera.cc moc_captureSettings.cc \
 	moc_demosaicSettings.cc moc_filterSettings.cc moc_filterWheel.cc \
 	moc_fitsSettings.cc moc_focusOverlay.cc moc_generalSettings.cc

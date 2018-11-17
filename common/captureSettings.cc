@@ -31,12 +31,9 @@
 
 
 CaptureSettings::CaptureSettings ( QWidget* parent, captureConfig* cConf,
-		int formats, trampolineFuncs* redirs ) : QWidget ( parent )
+		int formats, trampolineFuncs* redirs ) : QWidget ( parent ),
+		videoFormats ( formats ), trampolines ( redirs ), pconfig ( cConf )
 {
-  videoFormats = formats;
-	trampolines = redirs;
-	pconfig = cConf;
-
   indexResetButton = new QPushButton ( tr ( "Reset capture counter" ), this );
 
 	if ( videoFormats ) {
