@@ -39,37 +39,7 @@ extern "C" {
 
 #define	CONFIG_VERSION	7
 
-typedef struct {
-  QString	filterName;
-  int		controls[OA_CAM_CTRL_MODIFIERS_P1][ OA_CAM_CTRL_LAST_P1 ];
-  int		intervalMenuOption;
-} FILTER_PROFILE;
-
-typedef struct {
-  QString       profileName;
-  int           binning2x2;
-  int           colourise;
-  int           useROI;
-  unsigned int  imageSizeX;
-  unsigned int  imageSizeY;
-  QList<FILTER_PROFILE> filterProfiles;
-  int           frameRateNumerator;
-  int           frameRateDenominator;
-  int           fileTypeOption;
-  int           filterOption;
-  int           limitEnabled;
-  int           secondsLimitValue;
-  int           framesLimitValue;
-  int           limitType;
-  QString       fileNameTemplate;
-  int		target;
-} PROFILE;
-
-
-// overkill, but i may want to expand this later
-typedef struct {
-  QString	filterName;
-} FILTER;
+#include "profile.h"
 
 typedef QList<userDeviceConfig> userConfigList;
 
