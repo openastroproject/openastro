@@ -34,6 +34,7 @@ extern "C" {
 #include "trampoline.h"
 #include "captureSettings.h"
 #include "demosaicSettings.h"
+#include "fitsSettings.h"
 
 #include "configuration.h"
 #include "state.h"

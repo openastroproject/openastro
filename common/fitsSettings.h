@@ -2,7 +2,8 @@
  *
  * fitsSettings.h -- class declaration
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -33,6 +34,25 @@
 #endif
 #include <QtCore>
 #include <QtGui>
+
+typedef struct {
+  QString		observer;
+  QString		telescope;
+  QString		instrument;
+  QString		object;
+  QString		comment;
+  QString		focalLength;
+  QString		apertureDia;
+  QString		apertureArea;
+  QString		pixelSizeX;
+  QString		pixelSizeY;
+  QString		subframeOriginX;
+  QString		subframeOriginY;
+  QString		siteLatitude;
+  QString		siteLongitude;
+  QString		filter;
+} fitsConfig;
+
 
 class FITSSettings : public QWidget
 {

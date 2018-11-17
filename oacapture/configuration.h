@@ -149,23 +149,6 @@ typedef struct
   QList<userConfigList>	filterWheelConfig;
   QList<userConfigList>	timerConfig;
 
-  // FITS keyword data
-  QString               fitsObserver;
-  QString               fitsTelescope;
-  QString               fitsInstrument;
-  QString               fitsObject;
-  QString               fitsComment;
-  QString               fitsFocalLength;
-  QString               fitsApertureDia;
-  QString               fitsApertureArea;
-  QString               fitsPixelSizeX;
-  QString               fitsPixelSizeY;
-  QString               fitsSubframeOriginX;
-  QString               fitsSubframeOriginY;
-  QString               fitsSiteLatitude;
-  QString               fitsSiteLongitude;
-  QString               fitsFilter;
-
   // Timer configuration
   int			timerEnabled;
   int			timerMode;

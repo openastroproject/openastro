@@ -2,7 +2,7 @@
  *
  * fitsSettings.cc -- class for the FITS data tab in the settings dialog
  *
- * Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -72,63 +72,63 @@ FITSSettings::FITSSettings ( QWidget* parent ) : QWidget ( parent )
 
   observerInput = new QLineEdit ( this );
   observerInput->setMaxLength ( FLEN_VALUE );
-  observerInput->setText ( config.fitsObserver );
+  observerInput->setText ( fitsConf.observer );
 
   siteLatitudeInput = new QLineEdit ( this );
   siteLatitudeInput->setMaxLength ( FLEN_VALUE );
-  siteLatitudeInput->setText ( config.fitsSiteLatitude );
+  siteLatitudeInput->setText ( fitsConf.siteLatitude );
 
   siteLongitudeInput = new QLineEdit ( this );
   siteLongitudeInput->setMaxLength ( FLEN_VALUE );
-  siteLongitudeInput->setText ( config.fitsSiteLongitude );
+  siteLongitudeInput->setText ( fitsConf.siteLongitude );
 
   commentInput = new QLineEdit ( this );
   commentInput->setMaxLength ( FLEN_VALUE );
-  commentInput->setText ( config.fitsComment );
+  commentInput->setText ( fitsConf.comment );
 
   telescopeInput = new QLineEdit ( this );
   telescopeInput->setMaxLength ( FLEN_VALUE );
-  telescopeInput->setText ( config.fitsTelescope );
+  telescopeInput->setText ( fitsConf.telescope );
 
   focalLengthInput = new QLineEdit ( this );
   focalLengthInput->setMaxLength ( FLEN_VALUE );
-  focalLengthInput->setText ( config.fitsFocalLength );
+  focalLengthInput->setText ( fitsConf.focalLength );
 
   apertureDiaInput = new QLineEdit ( this );
   apertureDiaInput->setMaxLength ( FLEN_VALUE );
-  apertureDiaInput->setText ( config.fitsApertureDia );
+  apertureDiaInput->setText ( fitsConf.apertureDia );
 
   apertureAreaInput = new QLineEdit ( this );
   apertureAreaInput->setMaxLength ( FLEN_VALUE );
-  apertureAreaInput->setText ( config.fitsApertureArea );
+  apertureAreaInput->setText ( fitsConf.apertureArea );
 
   instrumentInput = new QLineEdit ( this );
   instrumentInput->setMaxLength ( FLEN_VALUE );
-  instrumentInput->setText ( config.fitsInstrument );
+  instrumentInput->setText ( fitsConf.instrument );
 
   pixelSizeXInput = new QLineEdit ( this );
   pixelSizeXInput->setMaxLength ( FLEN_VALUE );
-  pixelSizeXInput->setText ( config.fitsPixelSizeX );
+  pixelSizeXInput->setText ( fitsConf.pixelSizeX );
 
   pixelSizeYInput = new QLineEdit ( this );
   pixelSizeYInput->setMaxLength ( FLEN_VALUE );
-  pixelSizeYInput->setText ( config.fitsPixelSizeY );
+  pixelSizeYInput->setText ( fitsConf.pixelSizeY );
 
   subframeOriginXInput = new QLineEdit ( this );
   subframeOriginXInput->setMaxLength ( FLEN_VALUE );
-  subframeOriginXInput->setText ( config.fitsSubframeOriginX );
+  subframeOriginXInput->setText ( fitsConf.subframeOriginX );
 
   subframeOriginYInput = new QLineEdit ( this );
   subframeOriginYInput->setMaxLength ( FLEN_VALUE );
-  subframeOriginYInput->setText ( config.fitsSubframeOriginY );
+  subframeOriginYInput->setText ( fitsConf.subframeOriginY );
 
   objectInput = new QLineEdit ( this );
   objectInput->setMaxLength ( FLEN_VALUE );
-  objectInput->setText ( config.fitsObject );
+  objectInput->setText ( fitsConf.object );
 
   filterInput = new QLineEdit ( this );
   filterInput->setMaxLength ( FLEN_VALUE );
-  filterInput->setText ( config.fitsFilter );
+  filterInput->setText ( fitsConf.filter );
 
 
   grid = new QGridLayout;
@@ -221,19 +221,19 @@ FITSSettings::~FITSSettings()
 void
 FITSSettings::storeSettings ( void )
 {
-  config.fitsObserver = observerInput->text();
-  config.fitsInstrument = instrumentInput->text();
-  config.fitsObject = objectInput->text();
-  config.fitsComment = commentInput->text();
-  config.fitsTelescope = telescopeInput->text();
-  config.fitsFocalLength = focalLengthInput->text();
-  config.fitsApertureDia = apertureDiaInput->text();
-  config.fitsApertureArea = apertureAreaInput->text();
-  config.fitsPixelSizeX = pixelSizeXInput->text();
-  config.fitsPixelSizeY = pixelSizeYInput->text();
-  config.fitsSubframeOriginX = subframeOriginXInput->text();
-  config.fitsSubframeOriginY = subframeOriginYInput->text();
-  config.fitsSiteLatitude = siteLatitudeInput->text();
-  config.fitsSiteLongitude = siteLongitudeInput->text();
-  config.fitsFilter = filterInput->text();
+  fitsConf.observer = observerInput->text();
+  fitsConf.instrument = instrumentInput->text();
+  fitsConf.object = objectInput->text();
+  fitsConf.comment = commentInput->text();
+  fitsConf.telescope = telescopeInput->text();
+  fitsConf.focalLength = focalLengthInput->text();
+  fitsConf.apertureDia = apertureDiaInput->text();
+  fitsConf.apertureArea = apertureAreaInput->text();
+  fitsConf.pixelSizeX = pixelSizeXInput->text();
+  fitsConf.pixelSizeY = pixelSizeYInput->text();
+  fitsConf.subframeOriginX = subframeOriginXInput->text();
+  fitsConf.subframeOriginY = subframeOriginYInput->text();
+  fitsConf.siteLatitude = siteLatitudeInput->text();
+  fitsConf.siteLongitude = siteLongitudeInput->text();
+  fitsConf.filter = filterInput->text();
 }

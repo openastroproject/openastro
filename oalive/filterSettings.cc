@@ -37,6 +37,7 @@ extern "C" {
 #include "configuration.h"
 #include "captureSettings.h"
 #include "filterSettings.h"
+#include "fitsSettings.h"
 
 #include "state.h"
 

@@ -2,7 +2,7 @@
  *
  * stackingControlss.cc -- class for the stacking tab in the settings dialog
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -29,6 +29,7 @@
 #include <strings.h>
 
 #include "captureSettings.h"
+#include "fitsSettings.h"
 
 #include "stackingControls.h"
 #include "state.h"

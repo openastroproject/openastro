@@ -41,6 +41,7 @@ extern "C" {
 }
 
 #include "captureSettings.h"
+#include "fitsSettings.h"
 #include "outputHandler.h"
 #include "focusOverlay.h"
 #include "state.h"

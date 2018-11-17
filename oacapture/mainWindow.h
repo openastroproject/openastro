@@ -51,8 +51,10 @@ extern "C" {
 #include "histogramWidget.h"
 #include "focusOverlay.h"
 #include "captureSettings.h"
+#include "fitsSettings.h"
 
 extern captureConfig	captureConf;
+extern fitsConfig			fitsConf;
 
 class MainWindow : public QMainWindow
 {

@@ -27,6 +27,7 @@
 #include <oa_common.h>
 
 #include "captureSettings.h"
+#include "fitsSettings.h"
 
 #include "processingControls.h"
 #include "state.h"

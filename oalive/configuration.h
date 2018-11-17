@@ -152,23 +152,6 @@ typedef struct
 
   QList<userConfigList>	filterWheelConfig;
 
-  // FITS keyword data
-  QString               fitsObserver;
-  QString               fitsTelescope;
-  QString               fitsInstrument;
-  QString               fitsObject;
-  QString               fitsComment;
-  QString               fitsFocalLength;
-  QString               fitsApertureDia;
-  QString               fitsApertureArea;
-  QString               fitsPixelSizeX;
-  QString               fitsPixelSizeY;
-  QString               fitsSubframeOriginX;
-  QString               fitsSubframeOriginY;
-  QString               fitsSiteLatitude;
-  QString               fitsSiteLongitude;
-  QString               fitsFilter;
-
 } CONFIG;
 
 extern CONFIG		config;

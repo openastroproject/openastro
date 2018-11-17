@@ -30,6 +30,7 @@
 #include <openastro/demosaic.h>
 
 #include "captureSettings.h"
+#include "fitsSettings.h"
 #include "camera.h"
 
 #include "configuration.h"

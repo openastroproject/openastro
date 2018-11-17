@@ -38,6 +38,7 @@ extern "C" {
 }
 
 #include "captureSettings.h"
+#include "fitsSettings.h"
 #include "focusOverlay.h"
 #include "targets.h"
 
@@ -60,6 +61,7 @@ extern "C" {
 
 CONFIG		config;
 captureConfig	captureConf;
+fitsConfig		fitsConf;
 STATE		state;
 
 #ifdef OACAPTURE
@@ -445,21 +447,21 @@ MainWindow::readConfig ( QString configFile )
     config.currentColouriseColour.setRgb ( 255, 255, 255 );
     config.numCustomColours = 0;
 
-    config.fitsObserver = "";
-    config.fitsInstrument = "";
-    config.fitsObject = "";
-    config.fitsComment = "";
-    config.fitsTelescope = "";
-    config.fitsFocalLength = "";
-    config.fitsApertureDia = "";
-    config.fitsApertureArea = "";
-    config.fitsPixelSizeX = "";
-    config.fitsPixelSizeY = "";
-    config.fitsSubframeOriginX = "";
-    config.fitsSubframeOriginY = "";
-    config.fitsSiteLatitude = "";
-    config.fitsSiteLongitude = "";
-    config.fitsFilter = "";
+    fitsConf.observer = "";
+    fitsConf.instrument = "";
+    fitsConf.object = "";
+    fitsConf.comment = "";
+    fitsConf.telescope = "";
+    fitsConf.focalLength = "";
+    fitsConf.apertureDia = "";
+    fitsConf.apertureArea = "";
+    fitsConf.pixelSizeX = "";
+    fitsConf.pixelSizeY = "";
+    fitsConf.subframeOriginX = "";
+    fitsConf.subframeOriginY = "";
+    fitsConf.siteLatitude = "";
+    fitsConf.siteLongitude = "";
+    fitsConf.filter = "";
 
 #ifdef OACAPTURE
     config.timerMode = OA_TIMER_MODE_UNSET;
@@ -977,28 +979,26 @@ MainWindow::readConfig ( QString configFile )
     config.saveSettings = -config.saveSettings;
   }
 
-  config.fitsObserver = settings->value ( "fits/observer", "" ).toString();
-  config.fitsInstrument = settings->value ( "fits/instrument", "" ).toString();
-  config.fitsObject = settings->value ( "fits/object", "" ).toString();
-  config.fitsComment = settings->value ( "fits/comment", "" ).toString();
-  config.fitsTelescope = settings->value ( "fits/telescope", "" ).toString();
-  config.fitsFocalLength = settings->value (
-      "fits/focalLength", "" ).toString();
-  config.fitsApertureDia = settings->value (
-      "fits/apertureDia", "" ).toString();
-  config.fitsApertureArea = settings->value (
+  fitsConf.observer = settings->value ( "fits/observer", "" ).toString();
+  fitsConf.instrument = settings->value ( "fits/instrument", "" ).toString();
+  fitsConf.object = settings->value ( "fits/object", "" ).toString();
+  fitsConf.comment = settings->value ( "fits/comment", "" ).toString();
+  fitsConf.telescope = settings->value ( "fits/telescope", "" ).toString();
+  fitsConf.focalLength = settings->value ( "fits/focalLength", "" ).toString();
+  fitsConf.apertureDia = settings->value ( "fits/apertureDia", "" ).toString();
+  fitsConf.apertureArea = settings->value (
       "fits/apertureArea", "" ).toString();
-  config.fitsPixelSizeX = settings->value ( "fits/pixelSizeX", "" ).toString();
-  config.fitsPixelSizeY = settings->value ( "fits/pixelSizeY", "" ).toString();
-  config.fitsSubframeOriginX = settings->value (
+  fitsConf.pixelSizeX = settings->value ( "fits/pixelSizeX", "" ).toString();
+  fitsConf.pixelSizeY = settings->value ( "fits/pixelSizeY", "" ).toString();
+  fitsConf.subframeOriginX = settings->value (
       "fits/subframeOriginX", "" ).toString();
-  config.fitsSubframeOriginY = settings->value (
+  fitsConf.subframeOriginY = settings->value (
       "fits/subframeOriginY", "" ).toString();
-  config.fitsSiteLatitude = settings->value (
+  fitsConf.siteLatitude = settings->value (
       "fits/siteLatitude", "" ).toString();
-  config.fitsSiteLongitude = settings->value (
+  fitsConf.siteLongitude = settings->value (
       "fits/siteLongitude", "" ).toString();
-  config.fitsFilter = settings->value ( "fits/filter", "" ).toString();
+  fitsConf.filter = settings->value ( "fits/filter", "" ).toString();
 
 #ifdef OACAPTURE
   config.timerMode = settings->value ( "timer/mode",
@@ -1307,21 +1307,21 @@ MainWindow::writeConfig ( QString configFile )
   }
   settings->endArray();
 
-  settings->setValue ( "fits/observer", config.fitsObserver );
-  settings->setValue ( "fits/instrument", config.fitsInstrument );
-  settings->setValue ( "fits/object", config.fitsObject );
-  settings->setValue ( "fits/comment", config.fitsComment );
-  settings->setValue ( "fits/telescope", config.fitsTelescope );
-  settings->setValue ( "fits/focalLength", config.fitsFocalLength );
-  settings->setValue ( "fits/apertureDia", config.fitsApertureDia );
-  settings->setValue ( "fits/apertureArea", config.fitsApertureArea );
-  settings->setValue ( "fits/pixelSizeX", config.fitsPixelSizeX );
-  settings->setValue ( "fits/pixelSizeY", config.fitsPixelSizeY );
-  settings->setValue ( "fits/subframeOriginX", config.fitsSubframeOriginX );
-  settings->setValue ( "fits/subframeOriginY", config.fitsSubframeOriginY );
-  settings->setValue ( "fits/siteLatitude", config.fitsSiteLatitude );
-  settings->setValue ( "fits/siteLongitude", config.fitsSiteLongitude );
-  settings->setValue ( "fits/filter", config.fitsFilter );
+  settings->setValue ( "fits/observer", fitsConf.observer );
+  settings->setValue ( "fits/instrument", fitsConf.instrument );
+  settings->setValue ( "fits/object", fitsConf.object );
+  settings->setValue ( "fits/comment", fitsConf.comment );
+  settings->setValue ( "fits/telescope", fitsConf.telescope );
+  settings->setValue ( "fits/focalLength", fitsConf.focalLength );
+  settings->setValue ( "fits/apertureDia", fitsConf.apertureDia );
+  settings->setValue ( "fits/apertureArea", fitsConf.apertureArea );
+  settings->setValue ( "fits/pixelSizeX", fitsConf.pixelSizeX );
+  settings->setValue ( "fits/pixelSizeY", fitsConf.pixelSizeY );
+  settings->setValue ( "fits/subframeOriginX", fitsConf.subframeOriginX );
+  settings->setValue ( "fits/subframeOriginY", fitsConf.subframeOriginY );
+  settings->setValue ( "fits/siteLatitude", fitsConf.siteLatitude );
+  settings->setValue ( "fits/siteLongitude", fitsConf.siteLongitude );
+  settings->setValue ( "fits/filter", fitsConf.filter );
 
 #ifdef OACAPTURE
   settings->setValue ( "timer/mode", config.timerMode );

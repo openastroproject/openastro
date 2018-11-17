@@ -32,6 +32,7 @@ extern "C" {
 };
 
 #include "captureSettings.h"
+#include "fitsSettings.h"
 #include "outputHandler.h"
 #include "outputTIFF.h"
 #include "trampoline.h"

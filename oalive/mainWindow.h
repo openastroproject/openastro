@@ -39,11 +39,13 @@ extern "C" {
 } 
 
 #include "captureSettings.h"
+#include "fitsSettings.h"
 #include "viewWidget.h"
 #include "focusOverlay.h"
 #include "controlsWidget.h"
 
 extern captureConfig  captureConf;
+extern fitsConfig			fitsConf;
 
 class MainWindow : public QMainWindow
 {

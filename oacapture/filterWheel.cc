@@ -28,6 +28,7 @@
 
 #include "filterWheel.h"
 #include "captureSettings.h"
+#include "fitsSettings.h"
 
 #include "configuration.h"
 #include "state.h"

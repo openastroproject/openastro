@@ -30,6 +30,7 @@
 
 #include "configuration.h"
 #include "captureSettings.h"
+#include "fitsSettings.h"
 #include "profileSettings.h"
 #include "targets.h"
 

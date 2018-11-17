@@ -29,6 +29,7 @@
 #include <QtGui>
 
 #include "captureSettings.h"
+#include "fitsSettings.h"
 #include "trampoline.h"
 #include "targets.h"
 

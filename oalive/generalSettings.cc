@@ -30,6 +30,7 @@
 #include "trampoline.h"
 #include "captureSettings.h"
 #include "generalSettings.h"
+#include "fitsSettings.h"
 
 #include "configuration.h"
 #include "state.h"

@@ -27,10 +27,14 @@
 
 #include <oa_common.h>
 
+#include <openastro/demosaic.h>
+
+#include "captureSettings.h"
+#include "fitsSettings.h"
 #include "camera.h"
+
 #include "configuration.h"
 #include "state.h"
-#include "openastro/demosaic.h"
 
 #define	DEFAULT_FRAME_TIME	100
 

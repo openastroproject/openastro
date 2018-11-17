@@ -168,11 +168,11 @@ OutputSER::openOutput ( void )
   header.FrameCount = 0;
 
   ( void ) strncpy ( header.Observer,
-      config.fitsObserver.toStdString().c_str(), 40 );
+      fitsConf.observer.toStdString().c_str(), 40 );
   ( void ) strncpy ( header.Instrument,
-      config.fitsInstrument.toStdString().c_str(), 40 );
+      fitsConf.instrument.toStdString().c_str(), 40 );
   ( void ) strncpy ( header.Telescope,
-      config.fitsTelescope.toStdString().c_str(), 40 );
+      fitsConf.telescope.toStdString().c_str(), 40 );
 
   int		e;
 

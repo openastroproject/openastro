@@ -2,7 +2,7 @@
  *
  * cameraControls.cc -- class for the camera tab in the settings dialog
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -29,6 +29,7 @@
 #include <strings.h>
 
 #include "captureSettings.h"
+#include "fitsSettings.h"
 
 #include "cameraControls.h"
 #include "state.h"

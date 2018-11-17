@@ -38,6 +38,7 @@ extern "C" {
 
 
 #include "captureSettings.h"
+#include "fitsSettings.h"
 #include "outputHandler.h"
 #ifdef HAVE_LIBCFITSIO
 #include "outputFITS.h"
@@ -117,25 +118,25 @@ SaveControls::SaveControls ( QWidget* parent ) : QWidget ( parent )
 
   observerInput = new QLineEdit ( this );
   observerInput->setMaxLength ( FLEN_VALUE );
-  observerInput->setText ( config.fitsObserver );
+  observerInput->setText ( fitsConf.observer );
   connect ( observerInput, SIGNAL( editingFinished()), this,
       SLOT( updateObserver()));
 
   telescopeInput = new QLineEdit ( this );
   telescopeInput->setMaxLength ( FLEN_VALUE );
-  telescopeInput->setText ( config.fitsTelescope );
+  telescopeInput->setText ( fitsConf.telescope );
   connect ( telescopeInput, SIGNAL( editingFinished()), this,
       SLOT( updateTelescope()));
 
   instrumentInput = new QLineEdit ( this );
   instrumentInput->setMaxLength ( FLEN_VALUE );
-  instrumentInput->setText ( config.fitsInstrument );
+  instrumentInput->setText ( fitsConf.instrument );
   connect ( instrumentInput, SIGNAL( editingFinished()), this,
       SLOT( updateInstrument()));
 
   objectInput = new QLineEdit ( this );
   objectInput->setMaxLength ( FLEN_VALUE );
-  objectInput->setText ( config.fitsObject );
+  objectInput->setText ( fitsConf.object );
   connect ( objectInput, SIGNAL( editingFinished()), this,
       SLOT( updateObject()));
 
@@ -143,7 +144,7 @@ SaveControls::SaveControls ( QWidget* parent ) : QWidget ( parent )
   commentInput->setMaxLength ( FLEN_VALUE );
   connect ( commentInput, SIGNAL( editingFinished()), this,
       SLOT( updateComment()));
-  commentInput->setText ( config.fitsComment );
+  commentInput->setText ( fitsConf.comment );
 
   typeBox = new QHBoxLayout;
   typeBox->addWidget ( typeLabel );
@@ -193,35 +194,35 @@ SaveControls::~SaveControls()
 void
 SaveControls::updateObserver ( void )
 {
-  config.fitsObserver = observerInput->text();
+  fitsConf.observer = observerInput->text();
 }
 
 
 void
 SaveControls::updateTelescope ( void )
 {
-  config.fitsTelescope = telescopeInput->text();
+  fitsConf.telescope = telescopeInput->text();
 }
 
 
 void
 SaveControls::updateInstrument ( void )
 {
-  config.fitsInstrument = instrumentInput->text();
+  fitsConf.instrument = instrumentInput->text();
 }
 
 
 void
 SaveControls::updateObject ( void )
 {
-  config.fitsObject = objectInput->text();
+  fitsConf.object = objectInput->text();
 }
 
 
 void
 SaveControls::updateComment ( void )
 {
-  config.fitsComment = commentInput->text();
+  fitsConf.comment = commentInput->text();
 }
 
 
