@@ -116,7 +116,7 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
         QIcon ( ":/qt-icons/mosaic.png" ), tr ( "Demosaic" ));
 	}
 	if ( reqdWindows & SETTINGS_FITS ) {
-    fits = new FITSSettings ( this );
+    fits = new FITSSettings ( this, &fitsConf, trampolines );
     state.fitsSettingsIndex = tabSet->addTab ( fits,
         QIcon ( ":/qt-icons/fits.png" ), tr ( "FITS/SER Metadata" ));
 	}

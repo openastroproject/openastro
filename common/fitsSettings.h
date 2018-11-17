@@ -35,6 +35,9 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "trampoline.h"
+
+
 typedef struct {
   QString		observer;
   QString		telescope;
@@ -59,7 +62,7 @@ class FITSSettings : public QWidget
   Q_OBJECT
 
   public:
-    			FITSSettings ( QWidget* );
+    			FITSSettings ( QWidget*, fitsConfig*, trampolineFuncs* );
     			~FITSSettings();
     void		storeSettings ( void );
 
@@ -95,4 +98,6 @@ class FITSSettings : public QWidget
     QLineEdit*          siteLatitudeInput;
     QLineEdit*          siteLongitudeInput;
     QLineEdit*          filterInput;
+		trampolineFuncs*		trampolines;
+		fitsConfig*					pconfig;
 };
