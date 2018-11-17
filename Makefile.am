@@ -1,7 +1,8 @@
 #
 # Makefile.am -- Top level Makefile template
 #
-# Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+# Copyright 2013,2014,2015,2017,2018
+#   James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -26,7 +27,8 @@
 ACLOCAL_AMFLAGS=-I m4
 
 WARN_SUBDIRS = liboacam liboademosaic liboaSER liboavideo liboafilterwheel \
-               liboaPTR liboaimgproc liboautil liboaephem oacapture oalive
+               liboaPTR liboaimgproc liboautil liboaephem common \
+							 oacapture oalive
 
 NOWARN_SUBDIRS = ext udev bin packagers
 

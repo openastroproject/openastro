@@ -30,12 +30,12 @@
 
 SUBDIRS = icons desktop # translations
 
-AM_CPPFLAGS = -I$(top_srcdir)/include $(APP_PATH_CFLAGS) \
-  $(DEFAULT_PATH_CFLAGS) -D__STDC_CONSTANT_MACROS -DOALIVE \
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/common \
+	$(APP_PATH_CFLAGS) $(DEFAULT_PATH_CFLAGS) -D__STDC_CONSTANT_MACROS -DOALIVE \
   -DTRANSLATE_DIR=\"${datadir}/$(bin_PROGRAMS)/\"
 
-MOC_CPPFLAGS = -I$(top_srcdir)/include $(MOC_CFLAGS) $(APP_PATH_CFLAGS) \
-  $(DEFAULT_PATH_CFLAGS) -D__STDC_CONSTANT_MACROS -DOALIVE \
+MOC_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/common $(MOC_CFLAGS) \
+	$(APP_PATH_CFLAGS) $(DEFAULT_PATH_CFLAGS) -D__STDC_CONSTANT_MACROS -DOALIVE \
   -DTRANSLATE_DIR=\"${datadir}/$(bin_PROGRAMS)/\"
 
 bin_PROGRAMS = oalive
@@ -44,17 +44,15 @@ oalive_SOURCES = advancedSettings.cc camera.cc controlsWidget.cc \
   captureSettings.cc demosaicSettings.cc filterSettings.cc filterWheel.cc \
   fitsSettings.cc focusOverlay.cc generalSettings.cc oalive.cc outputFITS.cc \
   outputHandler.cc outputPNG.cc outputTIFF.cc profileSettings.cc \
-  settingsWidget.cc targets.cc mainWindow.cc viewWidget.cc cameraControls.cc \
+  settingsWidget.cc mainWindow.cc viewWidget.cc cameraControls.cc \
   stackingControls.cc saveControls.cc processingControls.cc trampoline.cc \
-  moc_advancedSettings.cc moc_camera.cc moc_controlsWidget.cc \
-  moc_captureSettings.cc moc_demosaicSettings.cc moc_filterSettings.cc \
-  moc_filterWheel.cc moc_fitsSettings.cc moc_focusOverlay.cc \
-  moc_generalSettings.cc moc_profileSettings.cc moc_settingsWidget.cc \
-  moc_mainWindow.cc moc_viewWidget.cc moc_cameraControls.cc \
-  moc_stackingControls.cc moc_saveControls.cc moc_processingControls.cc \
+	moc_cameraControls.cc moc_controlsWidget.cc moc_mainWindow.cc \
+	moc_processingControls.cc moc_saveControls.cc moc_settingsWidget.cc \
+	moc_stackingControls.cc moc_viewWidget.cc moc_profileSettings.cc \
   qrc_oalive.cc
 
 oalive_LDADD = \
+  ../common/liboacommon.la \
   ../liboacam/liboacam.la \
   ../liboaimgproc/liboaimgproc.la \
   ../liboademosaic/liboademosaic.la \
