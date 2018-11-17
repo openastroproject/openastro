@@ -39,12 +39,14 @@ extern "C" {
 
 #include <openastro/demosaic.h>
 
-#include "outputHandler.h"
-#include "outputFITS.h"
-#include "configuration.h"
-#include "state.h"
 #include "targets.h"
 #include "trampoline.h"
+#include "captureSettings.h"
+#include "outputHandler.h"
+#include "outputFITS.h"
+
+#include "configuration.h"
+#include "state.h"
 
 
 OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,

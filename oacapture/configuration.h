@@ -141,9 +141,6 @@ typedef struct
   int			autorunCount;
   int			autorunDelay;
   int			saveCaptureSettings;
-  int			windowsCompatibleAVI;
-  int			useUtVideo;
-  int			indexDigits;
 
   // display config
   int			preview;

@@ -28,34 +28,34 @@
 #include <oa_common.h>
 
 #include "captureSettings.h"
-#include "state.h"
 
-CaptureSettings::CaptureSettings ( QWidget* parent, int formats ) :
-	QWidget ( parent )
+
+CaptureSettings::CaptureSettings ( QWidget* parent, captureConfig* cConf,
+		int formats, trampolineFuncs* redirs ) : QWidget ( parent )
 {
   videoFormats = formats;
+	trampolines = redirs;
+	pconfig = cConf;
 
   indexResetButton = new QPushButton ( tr ( "Reset capture counter" ), this );
 
-#ifdef OACAPTURE
 	if ( videoFormats ) {
     winAVIBox = new QCheckBox (
         tr ( "Use Windows-compatible format for AVI files "
         "(8-bit mono/raw colour)" ), this );
-    winAVIBox->setChecked ( config.windowsCompatibleAVI );
+    winAVIBox->setChecked ( pconfig->windowsCompatibleAVI );
 
     utVideoBox = new QCheckBox (
         tr ( "Use UtVideo lossless compression for AVI files where possible" ),
         this );
-    utVideoBox->setChecked ( config.useUtVideo );
+    utVideoBox->setChecked ( pconfig->useUtVideo );
 	}
-#endif
 
   indexSizeLabel = new QLabel ( tr ( "Filename capture index size" ));
   indexSizeSpinbox = new QSpinBox ( this );
   indexSizeSpinbox->setMinimum ( 3 );
   indexSizeSpinbox->setMaximum ( 10 );
-  indexSizeSpinbox->setValue ( config.indexDigits );
+  indexSizeSpinbox->setValue ( pconfig->indexDigits );
 
   hLayout = new QHBoxLayout ( this );
   spinboxLayout = new QHBoxLayout();
@@ -89,20 +89,18 @@ CaptureSettings::CaptureSettings ( QWidget* parent, int formats ) :
 
 CaptureSettings::~CaptureSettings()
 {
-  state.mainWindow->destroyLayout (( QLayout* ) vLayout );
+  trampolines->destroyLayout (( QLayout* ) vLayout );
 }
 
 
 void
 CaptureSettings::storeSettings ( void )
 {
-#ifdef OACAPTURE
 	if ( videoFormats ) {
-    config.windowsCompatibleAVI = winAVIBox->isChecked() ? 1 : 0;
-    config.useUtVideo = utVideoBox->isChecked() ? 1 : 0;
+    pconfig->windowsCompatibleAVI = winAVIBox->isChecked() ? 1 : 0;
+    pconfig->useUtVideo = utVideoBox->isChecked() ? 1 : 0;
 	}
-#endif
-  config.indexDigits = indexSizeSpinbox->value();
+  pconfig->indexDigits = indexSizeSpinbox->value();
 }
 
 
@@ -110,5 +108,5 @@ void
 CaptureSettings::resetIndex ( void )
 {
   // FIX ME -- this might not be good in the middle of a capture run
-  state.captureIndex = 0;
+	trampolines->resetCaptureIndex();
 }

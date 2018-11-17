@@ -28,9 +28,11 @@
 
 #include <QtGui>
 
-#include "configuration.h"
+#include "captureSettings.h"
 #include "trampoline.h"
 #include "targets.h"
+
+#include "configuration.h"
 #include "state.h"
 
 
@@ -243,6 +245,20 @@ t_setVideoFramePixelFormat ( int format )
 }
 
 
+void
+t_destroyLayout ( QLayout* layout )
+{
+  state.mainWindow->destroyLayout ( layout );
+}
+
+
+void
+t_resetCaptureIndex ( void )
+{
+	qWarning() << __FUNCTION__ << "doing nothing";
+}
+
+
 trampolineFuncs trampolines {
 	.getCurrentGain = &t_getCurrentGain,
 	.getCurrentExposure = &t_getCurrentExposure,
@@ -271,5 +287,7 @@ trampolineFuncs trampolines {
   .enableTIFFCapture = &t_enableTIFFCapture,
   .enableMOVCapture = &t_enableMOVCapture,
   .enablePNGCapture = &t_enablePNGCapture,
-	.setVideoFramePixelFormat = &t_setVideoFramePixelFormat
+	.setVideoFramePixelFormat = &t_setVideoFramePixelFormat,
+	.destroyLayout = &t_destroyLayout,
+  .resetCaptureIndex = &t_resetCaptureIndex
 };

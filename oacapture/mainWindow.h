@@ -50,7 +50,9 @@ extern "C" {
 #include "previewWidget.h"
 #include "histogramWidget.h"
 #include "focusOverlay.h"
+#include "captureSettings.h"
 
+extern captureConfig	captureConf;
 
 class MainWindow : public QMainWindow
 {

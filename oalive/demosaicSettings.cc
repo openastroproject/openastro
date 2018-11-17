@@ -32,7 +32,9 @@ extern "C" {
 }
 
 #include "trampoline.h"
+#include "captureSettings.h"
 #include "demosaicSettings.h"
+
 #include "configuration.h"
 #include "state.h"
 

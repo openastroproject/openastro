@@ -464,7 +464,7 @@ CaptureWidget::startRecording ( void )
       maxFrames /= 10;
       numDigits++;
     } while ( maxFrames );
-    if ( numDigits > config.indexDigits ) {
+    if ( numDigits > captureConf.indexDigits ) {
       if ( QMessageBox::critical ( TOP_WIDGET, APPLICATION_NAME,
           tr ( "The number of frames in the currently configured capture run "
           "is likely to exceed the size of the index in the filename.  "
@@ -541,7 +541,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
   }
   switch ( config.fileTypeOption ) {
     case CAPTURE_AVI:
-      if ( config.windowsCompatibleAVI && WINDIB_OK( format )) {
+      if ( captureConf.windowsCompatibleAVI && WINDIB_OK( format )) {
 
         // This is a bit messy.  If we can write a UtVideo frame that's
         // nice and easy.  If we can write a reliable WinDIB format that's
@@ -556,7 +556,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
             state.controlWidget->getFPSDenominator(), format, emptyStr,
               &trampolines );
       } else {
-        if ( config.useUtVideo && UTVIDEO_OK( format )) {
+        if ( captureConf.useUtVideo && UTVIDEO_OK( format )) {
           out = new OutputAVI ( actualX, actualY,
               state.controlWidget->getFPSNumerator(),
               state.controlWidget->getFPSDenominator(), format, emptyStr,

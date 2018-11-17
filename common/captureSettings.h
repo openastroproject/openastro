@@ -35,13 +35,21 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "trampoline.h"
+
+typedef struct {
+	int			useUtVideo;
+	int			indexDigits;
+	int			windowsCompatibleAVI;
+} captureConfig;
+
 
 class CaptureSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			CaptureSettings ( QWidget*, int );
+    			CaptureSettings ( QWidget*, captureConfig*, int, trampolineFuncs* );
     			~CaptureSettings();
     void		storeSettings ( void );
 
@@ -56,6 +64,8 @@ class CaptureSettings : public QWidget
     QLabel*		indexSizeLabel;
     QSpinBox*		indexSizeSpinbox;
 		int						videoFormats;
+		trampolineFuncs*	trampolines;
+		captureConfig*		pconfig;
 
   public slots:
     void		resetIndex ( void );

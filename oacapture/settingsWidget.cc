@@ -29,12 +29,16 @@
 
 #include <QtGui>
 
+#include "captureSettings.h"
+#include "generalSettings.h"
+#include "captureSettings.h"
+#include "filterSettings.h"
+#include "fitsSettings.h"
+
 #include "configuration.h"
 #include "state.h"
 #include "mainWindow.h"
 #include "settingsWidget.h"
-#include "generalSettings.h"
-#include "captureSettings.h"
 #ifdef OACAPTURE
 #include "cameraSettings.h"
 #include "autorunSettings.h"
@@ -42,9 +46,7 @@
 #include "timerSettings.h"
 #endif
 #include "profileSettings.h"
-#include "filterSettings.h"
 #include "demosaicSettings.h"
-#include "fitsSettings.h"
 
 
 SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
@@ -72,7 +74,8 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
         QIcon ( ":/qt-icons/cog.png" ), tr ( "General" ));
 	}
 	if ( reqdWindows & SETTINGS_CAPTURE ) {
-    capture = new CaptureSettings ( this, videoFormats );
+    capture = new CaptureSettings ( this, &captureConf, videoFormats,
+				trampolines );
     state.captureSettingsIndex = tabSet->addTab ( capture,
         QIcon ( ":/qt-icons/capture.png" ), tr ( "Capture" ));
 	}

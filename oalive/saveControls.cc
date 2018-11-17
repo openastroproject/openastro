@@ -37,13 +37,16 @@ extern "C" {
 }
 
 
-#include "saveControls.h"
-#include "state.h"
-#include "version.h"
+#include "captureSettings.h"
+#include "outputHandler.h"
 #ifdef HAVE_LIBCFITSIO
 #include "outputFITS.h"
 #endif
 #include "outputTIFF.h"
+
+#include "saveControls.h"
+#include "state.h"
+#include "version.h"
 
 #ifdef HAVE_LIBCFITSIO
 #define MAX_FILE_FORMATS        4

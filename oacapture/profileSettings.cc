@@ -28,9 +28,11 @@
 
 #include <QtGui>
 
-#include "configuration.h"
+#include "captureSettings.h"
 #include "profileSettings.h"
 #include "targets.h"
+
+#include "configuration.h"
 #include "state.h"
 
 

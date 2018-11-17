@@ -28,7 +28,9 @@
 #include <oa_common.h>
 
 #include "trampoline.h"
+#include "captureSettings.h"
 #include "generalSettings.h"
+
 #include "configuration.h"
 #include "state.h"
 

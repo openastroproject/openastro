@@ -28,6 +28,8 @@
 
 #include <QApplication>
 
+#include "captureSettings.h"
+
 #include "version.h"
 #include "state.h"
 #include "mainWindow.h"

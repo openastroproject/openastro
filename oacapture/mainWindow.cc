@@ -52,6 +52,7 @@ extern "C" {
 #include "targets.h"
 
 CONFIG		config;
+captureConfig	captureConf;
 STATE		state;
 
 static const char* styleGroupBoxBorders =
@@ -361,9 +362,10 @@ MainWindow::readConfig ( QString configFile )
     config.autorunCount = 0;
     config.autorunDelay = 0;
     config.saveCaptureSettings = 1;
-    config.windowsCompatibleAVI = 0;
-    config.useUtVideo = 0;
-    config.indexDigits = 6;
+
+    captureConf.windowsCompatibleAVI = 0;
+    captureConf.useUtVideo = 0;
+    captureConf.indexDigits = 6;
 
     config.preview = 1;
     config.nightMode = 0;
@@ -422,10 +424,11 @@ MainWindow::readConfig ( QString configFile )
     config.separateControls = settings->value ( "separateControls", 0 ).toInt();
     config.saveCaptureSettings = settings->value ( "saveCaptureSettings",
         1 ).toInt();
-    config.windowsCompatibleAVI = settings->value ( "windowsCompatibleAVI",
-        0 ).toInt();
-    config.useUtVideo = settings->value ( "useUtVideo", 0 ).toInt();
-    config.indexDigits = settings->value ( "indexDigits", 6 ).toInt();
+
+    captureConf.windowsCompatibleAVI = settings->value (
+				"windowsCompatibleAVI", 0 ).toInt();
+    captureConf.useUtVideo = settings->value ( "useUtVideo", 0 ).toInt();
+    captureConf.indexDigits = settings->value ( "indexDigits", 6 ).toInt();
 
     config.showHistogram = settings->value ( "options/showHistogram",
         0 ).toInt();
@@ -977,9 +980,11 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "controlsOnRight", config.controlsOnRight );
   settings->setValue ( "separateControls", config.separateControls );
   settings->setValue ( "saveCaptureSettings", config.saveCaptureSettings );
-  settings->setValue ( "windowsCompatibleAVI", config.windowsCompatibleAVI );
-  settings->setValue ( "useUtVideo", config.useUtVideo );
-  settings->setValue ( "indexDigits", config.indexDigits );
+
+  settings->setValue ( "windowsCompatibleAVI",
+			captureConf.windowsCompatibleAVI );
+  settings->setValue ( "useUtVideo", captureConf.useUtVideo );
+  settings->setValue ( "indexDigits", captureConf.indexDigits );
 
   // FIX ME -- how to handle this?
   // settings->setValue ( "device/camera", -1 ).toInt();

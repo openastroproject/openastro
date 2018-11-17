@@ -35,7 +35,9 @@ extern "C" {
 
 #include "trampoline.h"
 #include "configuration.h"
+#include "captureSettings.h"
 #include "filterSettings.h"
+
 #include "state.h"
 
 

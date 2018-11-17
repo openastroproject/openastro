@@ -37,7 +37,10 @@ extern "C" {
 #include <openastro/demosaic.h>
 }
 
+#include "captureSettings.h"
 #include "focusOverlay.h"
+#include "targets.h"
+
 #include "mainWindow.h"
 #include "version.h"
 #include "configuration.h"
@@ -54,9 +57,9 @@ extern "C" {
 #endif
 #include "settingsWidget.h"
 #include "state.h"
-#include "targets.h"
 
 CONFIG		config;
+captureConfig	captureConf;
 STATE		state;
 
 #ifdef OACAPTURE

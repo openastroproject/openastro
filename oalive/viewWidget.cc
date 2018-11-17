@@ -40,6 +40,11 @@ extern "C" {
 #include <openastro/video/formats.h>
 }
 
+#include "captureSettings.h"
+#include "outputHandler.h"
+#include "focusOverlay.h"
+#include "state.h"
+
 #include "configuration.h"
 #ifdef OACAPTURE
 #include "previewWidget.h"
@@ -47,9 +52,6 @@ extern "C" {
 #else
 #include "viewWidget.h"
 #endif
-#include "outputHandler.h"
-#include "focusOverlay.h"
-#include "state.h"
 
 
 // FIX ME -- Lots of this stuff needs refactoring or placing elsewhere

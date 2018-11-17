@@ -27,6 +27,8 @@
 #include <oa_common.h>
 
 #include "filterWheel.h"
+#include "captureSettings.h"
+
 #include "configuration.h"
 #include "state.h"
 

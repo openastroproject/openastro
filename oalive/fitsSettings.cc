@@ -37,11 +37,14 @@ extern "C" {
 }
 
 
+#include "captureSettings.h"
+#include "outputHandler.h"
 #include "fitsSettings.h"
-#include "state.h"
 #ifdef HAVE_LIBCFITSIO
 #include "outputFITS.h"
 #endif
+
+#include "state.h"
 
 
 FITSSettings::FITSSettings ( QWidget* parent ) : QWidget ( parent )

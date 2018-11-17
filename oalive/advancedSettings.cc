@@ -34,9 +34,11 @@ extern "C" {
 #include <openastro/userConfig.h>
 }
 
+#include "captureSettings.h"
+#include "advancedSettings.h"
+
 #include "configuration.h"
 #include "state.h"
-#include "advancedSettings.h"
 
 
 AdvancedSettings::AdvancedSettings ( int device, int interface )

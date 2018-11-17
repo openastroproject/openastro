@@ -26,9 +26,12 @@
 
 #include <oa_common.h>
 
+#include <strings.h>
+
+#include "captureSettings.h"
+
 #include "stackingControls.h"
 #include "state.h"
-#include "strings.h"
 
 
 StackingControls::StackingControls ( QWidget* parent ) : QWidget ( parent )

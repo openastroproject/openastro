@@ -59,6 +59,8 @@ typedef struct {
 	void ( *enableMOVCapture )( int );
 	void ( *enablePNGCapture )( int );
 	void ( *setVideoFramePixelFormat )( int );
+	void ( *destroyLayout )( QLayout* );
+	void ( *resetCaptureIndex )( void );
 } trampolineFuncs;
 
 extern trampolineFuncs trampolines;

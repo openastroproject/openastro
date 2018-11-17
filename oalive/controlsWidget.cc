@@ -28,14 +28,17 @@
 
 #include <QtGui>
 
-#include "version.h"
+#include "captureSettings.h"
 #include "trampoline.h"
-#include "configuration.h"
-#include "state.h"
-#include "controlsWidget.h"
+#include "outputHandler.h"
 #include "outputTIFF.h"
 #include "outputPNG.h"
 #include "outputFITS.h"
+
+#include "version.h"
+#include "configuration.h"
+#include "state.h"
+#include "controlsWidget.h"
 
 
 ControlsWidget::ControlsWidget ( QWidget* parent )

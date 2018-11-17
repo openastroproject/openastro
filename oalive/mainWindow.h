@@ -38,17 +38,12 @@ extern "C" {
 #include <openastro/filterwheel.h>
 } 
 
+#include "captureSettings.h"
 #include "viewWidget.h"
 #include "focusOverlay.h"
 #include "controlsWidget.h"
-/*
-#include "configuration.h"
-#include "captureWidget.h"
-#include "imageWidget.h"
-#include "zoomWidget.h"
-#include "cameraWidget.h"
-#include "histogramWidget.h"
-*/
+
+extern captureConfig  captureConf;
 
 class MainWindow : public QMainWindow
 {

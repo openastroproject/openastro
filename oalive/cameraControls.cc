@@ -26,9 +26,12 @@
 
 #include <oa_common.h>
 
+#include <strings.h>
+
+#include "captureSettings.h"
+
 #include "cameraControls.h"
 #include "state.h"
-#include "strings.h"
 
 #define SLIDERS_PER_ROW		1
 #define CHECKBOXES_PER_ROW	2

@@ -31,11 +31,13 @@ extern "C" {
 #include <tiffio.h>
 };
 
+#include "captureSettings.h"
 #include "outputHandler.h"
 #include "outputTIFF.h"
+#include "trampoline.h"
+
 #include "configuration.h"
 #include "state.h"
-#include "trampoline.h"
 
 
 OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
