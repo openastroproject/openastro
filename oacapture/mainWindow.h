@@ -41,6 +41,12 @@ extern "C" {
 #include <openastro/timer.h>
 } 
 
+#include "focusOverlay.h"
+#include "captureSettings.h"
+#include "fitsSettings.h"
+#include "demosaicSettings.h"
+
+#include "mainWindow.h"
 #include "configuration.h"
 #include "captureWidget.h"
 #include "controlWidget.h"
@@ -49,12 +55,10 @@ extern "C" {
 #include "cameraWidget.h"
 #include "previewWidget.h"
 #include "histogramWidget.h"
-#include "focusOverlay.h"
-#include "captureSettings.h"
-#include "fitsSettings.h"
 
-extern captureConfig	captureConf;
-extern fitsConfig			fitsConf;
+extern captureConfig		captureConf;
+extern fitsConfig				fitsConf;
+extern demosaicConfig		demosaicConf;
 
 class MainWindow : public QMainWindow
 {

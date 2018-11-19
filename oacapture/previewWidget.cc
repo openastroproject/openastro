@@ -769,7 +769,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
   unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
       ( unsigned long ) t.tv_usec / 1000;
 
-  int cfaPattern = config.cfaPattern;
+  int cfaPattern = demosaicConf.cfaPattern;
   if ( OA_DEMOSAIC_AUTO == cfaPattern &&
       oaFrameFormats[ previewPixelFormat ].rawColour ) {
     cfaPattern = oaFrameFormats[ previewPixelFormat ].cfaPattern;
@@ -780,7 +780,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
       self->lastDisplayUpdateTime = now;
       doDisplay = 1;
 
-      if ( self->demosaic && config.demosaicPreview ) {
+      if ( self->demosaic && demosaicConf.demosaicPreview ) {
         if ( oaFrameFormats[ previewPixelFormat ].rawColour ) {
           currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :
               !currentPreviewBuffer;
@@ -788,8 +788,8 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
           ( void ) oademosaic ( previewBuffer,
               self->previewImageBuffer[ currentPreviewBuffer ],
               config.imageSizeX, config.imageSizeY, 8, cfaPattern,
-              config.demosaicMethod );
-          if ( config.demosaicOutput && previewBuffer == writeBuffer ) {
+              demosaicConf.demosaicMethod );
+          if ( demosaicConf.demosaicOutput && previewBuffer == writeBuffer ) {
             writeDemosaicPreviewBuffer = 1;
           }
           previewPixelFormat = OA_DEMOSAIC_FMT ( previewPixelFormat );
@@ -814,7 +814,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
 
       if ( OA_PIX_FMT_GREY8 == previewPixelFormat ||
            ( oaFrameFormats[ previewPixelFormat ].rawColour &&
-           ( !self->demosaic || !config.demosaicPreview ))) {
+           ( !self->demosaic || !demosaicConf.demosaicPreview ))) {
         newImage = new QImage (( const uint8_t* ) previewBuffer,
             config.imageSizeX, config.imageSizeY, config.imageSizeX,
             QImage::Format_Indexed8 );
@@ -883,7 +883,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
       }
       state->lastFrameTime = now;
       if ( state->cropMode ) {
-        if ( config.demosaicOutput && writeDemosaicPreviewBuffer &&
+        if ( demosaicConf.demosaicOutput && writeDemosaicPreviewBuffer &&
             oaFrameFormats[ writePixelFormat ].rawColour ) {
           // This is a special case because as the preview buffer is no
           // longer required for previewing we can use it directly
@@ -900,7 +900,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
         length = actualX * actualY *
             oaFrameFormats[ pixelFormat ].bytesPerPixel;
       }
-      if ( config.demosaicOutput &&
+      if ( demosaicConf.demosaicOutput &&
           oaFrameFormats[ writePixelFormat ].rawColour ) {
         if ( writeDemosaicPreviewBuffer ) {
           // could be redundant if we're also cropping, but it shouldn't
@@ -915,7 +915,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
           // at the moment
           ( void ) oademosaic ( writeBuffer,
               self->previewImageBuffer[0], actualX, actualY, 8, cfaPattern,
-              config.demosaicMethod );
+              demosaicConf.demosaicMethod );
           writeBuffer = self->previewImageBuffer[0];
         }
         writePixelFormat = OA_DEMOSAIC_FMT ( writePixelFormat );

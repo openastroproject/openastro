@@ -132,11 +132,6 @@ typedef struct
   // reticle config
   int			reticleStyle;
 
-  // demosaic config
-  int			cfaPattern;
-  int			demosaicMethod;
-  int			monoIsRawColour;
-
   // saved profiles
   int			numProfiles;
   QList<PROFILE>	profiles;

@@ -40,12 +40,14 @@ extern "C" {
 
 #include "captureSettings.h"
 #include "fitsSettings.h"
+#include "demosaicSettings.h"
 #include "viewWidget.h"
 #include "focusOverlay.h"
 #include "controlsWidget.h"
 
 extern captureConfig  captureConf;
 extern fitsConfig			fitsConf;
+extern demosaicConfig	demosaicConf;
 
 class MainWindow : public QMainWindow
 {

@@ -33,6 +33,7 @@
 #include "fitsSettings.h"
 #include "camera.h"
 
+#include "mainWindow.h"
 #include "configuration.h"
 #include "state.h"
 
@@ -548,9 +549,9 @@ Camera::videoFramePixelFormat ( void )
   int format;
 
   format = cameraFuncs.getFramePixelFormat ( cameraContext );
-  if ( config.monoIsRawColour ) {
+  if ( demosaicConf.monoIsRawColour ) {
     if ( format == OA_PIX_FMT_GREY16LE ) {
-      switch ( config.cfaPattern ) {
+      switch ( demosaicConf.cfaPattern ) {
         case OA_DEMOSAIC_RGGB:
           format = OA_PIX_FMT_RGGB16LE;
           break;
@@ -578,7 +579,7 @@ Camera::videoFramePixelFormat ( void )
       }
     } else {
       if ( format == OA_PIX_FMT_GREY16BE ) {
-        switch ( config.cfaPattern ) {
+        switch ( demosaicConf.cfaPattern ) {
           case OA_DEMOSAIC_RGGB:
             format = OA_PIX_FMT_RGGB16BE;
             break;

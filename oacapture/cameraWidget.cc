@@ -293,13 +293,13 @@ CameraWidget::changeFrameFormat ( int menuOption )
   }
   state.captureWidget->enableTIFFCapture (
       ( !oaFrameFormats[ newFormat ].rawColour ||
-      ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
+      ( config.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
   state.captureWidget->enablePNGCapture (
       ( !oaFrameFormats[ newFormat ].rawColour ||
-      ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
+      ( config.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
   state.captureWidget->enableMOVCapture (( QUICKTIME_OK( newFormat ) ||
       ( oaFrameFormats[ newFormat ].rawColour && config.demosaic &&
-      config.demosaicOutput )) ? 1 : 0 );
+      demosaicConf.demosaicOutput )) ? 1 : 0 );
   return;
 }
 

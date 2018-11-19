@@ -1203,7 +1203,7 @@ if ( output && self->recordingInProgress ) {
   unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
       ( unsigned long ) t.tv_usec / 1000;
 
-  int cfaPattern = config.cfaPattern;
+  int cfaPattern = demosaicConf.cfaPattern;
   if ( OA_DEMOSAIC_AUTO == cfaPattern &&
       oaFrameFormats[ viewPixelFormat ].rawColour ) {
     cfaPattern = oaFrameFormats[ viewPixelFormat ].cfaPattern;

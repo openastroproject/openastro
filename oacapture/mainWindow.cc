@@ -52,8 +52,9 @@ extern "C" {
 #include "targets.h"
 
 CONFIG		config;
-captureConfig	captureConf;
-fitsConfig		fitsConf;
+captureConfig		captureConf;
+fitsConfig			fitsConf;
+demosaicConfig	demosaicConf;
 STATE		state;
 
 static const char* styleGroupBoxBorders =
@@ -375,11 +376,11 @@ MainWindow::readConfig ( QString configFile )
     config.histogramOnTop = 1;
     config.rawRGBHistogram = 1;
 
-    config.demosaicPreview = 0;
-    config.demosaicOutput = 0;
-    config.cfaPattern = OA_DEMOSAIC_AUTO;
-    config.demosaicMethod = 1;
-    config.monoIsRawColour = 0;
+    demosaicConf.demosaicPreview = 0;
+    demosaicConf.demosaicOutput = 0;
+    demosaicConf.cfaPattern = OA_DEMOSAIC_AUTO;
+    demosaicConf.demosaicMethod = 1;
+    demosaicConf.monoIsRawColour = 0;
 
     config.numProfiles = 0;
     config.numFilters = 0;
@@ -526,12 +527,15 @@ MainWindow::readConfig ( QString configFile )
     config.histogramOnTop = settings->value ( "histogram/onTop", 1 ).toInt();
     config.rawRGBHistogram = settings->value ( "histogram/rawRGB", 1 ).toInt();
 
-    config.demosaicPreview = settings->value ( "demosaic/preview", 0 ).toInt();
-    config.demosaicOutput = settings->value ( "demosaic/output", 0 ).toInt();
-    config.demosaicMethod = settings->value ( "demosaic/method", 1 ).toInt();
-    config.cfaPattern = settings->value ( "demosaic/cfaPattern",
+    demosaicConf.demosaicPreview = settings->value ( "demosaic/preview",
+				0 ).toInt();
+    demosaicConf.demosaicOutput = settings->value ( "demosaic/output",
+				0 ).toInt();
+    demosaicConf.demosaicMethod = settings->value ( "demosaic/method",
+				1 ).toInt();
+    demosaicConf.cfaPattern = settings->value ( "demosaic/cfaPattern",
         OA_DEMOSAIC_AUTO ).toInt();
-    config.monoIsRawColour = settings->value ( "demosaic/monoIsRawColour",
+    demosaicConf.monoIsRawColour = settings->value ( "demosaic/monoIsRawColour",
         1 ).toInt();
 
     config.reticleStyle = settings->value ( "reticle/style",
@@ -1050,11 +1054,12 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "histogram/onTop", config.histogramOnTop );
   settings->setValue ( "histogram/rawRGB", config.rawRGBHistogram );
 
-  settings->setValue ( "demosaic/preview", config.demosaicPreview );
-  settings->setValue ( "demosaic/output", config.demosaicOutput );
-  settings->setValue ( "demosaic/method", config.demosaicMethod );
-  settings->setValue ( "demosaic/monoIsRawColour", config.monoIsRawColour );
-  settings->setValue ( "demosaic/cfaPattern", config.cfaPattern );
+  settings->setValue ( "demosaic/preview", demosaicConf.demosaicPreview );
+  settings->setValue ( "demosaic/output", demosaicConf.demosaicOutput );
+  settings->setValue ( "demosaic/method", demosaicConf.demosaicMethod );
+  settings->setValue ( "demosaic/monoIsRawColour",
+			demosaicConf.monoIsRawColour );
+  settings->setValue ( "demosaic/cfaPattern", demosaicConf.cfaPattern );
 
   settings->setValue ( "reticle/style", config.reticleStyle );
 
@@ -1602,13 +1607,13 @@ MainWindow::connectCamera ( int deviceIndex )
   format = state.camera->videoFramePixelFormat();
   state.captureWidget->enableTIFFCapture (
       ( !oaFrameFormats[ format ].rawColour ||
-      ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
+      ( config.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
   state.captureWidget->enablePNGCapture (
       ( !oaFrameFormats[ format ].rawColour  ||
-      ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
+      ( config.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
   state.captureWidget->enableMOVCapture (( QUICKTIME_OK( format ) || 
       ( oaFrameFormats[ format ].rawColour && config.demosaic &&
-      config.demosaicOutput )) ? 1 : 0 );
+      demosaicConf.demosaicOutput )) ? 1 : 0 );
 }
 
 
@@ -2071,13 +2076,13 @@ MainWindow::enableDemosaic ( void )
     format = state.camera->videoFramePixelFormat();
     state.captureWidget->enableTIFFCapture (
         ( !oaFrameFormats[ format ].rawColour ||
-        ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
+        ( config.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
     state.captureWidget->enablePNGCapture (
         ( !oaFrameFormats[ format ].rawColour ||
-        ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
+        ( config.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
     state.captureWidget->enableMOVCapture (( QUICKTIME_OK( format ) || 
         ( oaFrameFormats[ format ].rawColour && config.demosaic &&
-        config.demosaicOutput )) ? 1 : 0 );
+        demosaicConf.demosaicOutput )) ? 1 : 0 );
   }
 }
 

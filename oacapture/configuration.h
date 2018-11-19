@@ -125,13 +125,6 @@ typedef struct
   int			histogramOnTop;
   int			rawRGBHistogram;
 
-  // demosaic config
-  int			demosaicPreview;
-  int			demosaicOutput;
-  int			cfaPattern;
-  int			demosaicMethod;
-  int     monoIsRawColour;
-
   // saved profiles
   int			numProfiles;
   QList<PROFILE>	profiles;

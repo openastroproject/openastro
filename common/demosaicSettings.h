@@ -37,13 +37,21 @@
 
 #include "trampoline.h"
 
+typedef struct {
+	int		demosaicPreview;
+	int		demosaicOutput;
+	int		cfaPattern;
+	int		demosaicMethod;
+	int		monoIsRawColour;
+} demosaicConfig;
+
 
 class DemosaicSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			DemosaicSettings ( QWidget*, int, trampolineFuncs* );
+    			DemosaicSettings ( QWidget*, demosaicConfig*, int, trampolineFuncs* );
     			~DemosaicSettings();
     void		storeSettings ( void );
     void		updateCFASetting ( void );
@@ -75,4 +83,5 @@ class DemosaicSettings : public QWidget
     QRadioButton*       vngButton;
 		trampolineFuncs*		trampolines;
 		int									demosaicOpts;
+		demosaicConfig*			pconfig;
 };

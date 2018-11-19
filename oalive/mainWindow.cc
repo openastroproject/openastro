@@ -59,10 +59,11 @@ extern "C" {
 #include "settingsWidget.h"
 #include "state.h"
 
-CONFIG		config;
-captureConfig	captureConf;
-fitsConfig		fitsConf;
-STATE		state;
+CONFIG					config;
+captureConfig		captureConf;
+fitsConfig			fitsConf;
+demosaicConfig	demosaicConf;
+STATE						state;
 
 #ifdef OACAPTURE
 static const char* styleGroupBoxBorders =
@@ -434,9 +435,9 @@ MainWindow::readConfig ( QString configFile )
     config.demosaicPreview = 0;
     config.demosaicOutput = 0;
 #endif
-    config.cfaPattern = OA_DEMOSAIC_AUTO;
-    config.demosaicMethod = OA_DEMOSAIC_BILINEAR;
-    config.monoIsRawColour = 0;
+    demosaicConf.cfaPattern = OA_DEMOSAIC_AUTO;
+    demosaicConf.demosaicMethod = OA_DEMOSAIC_BILINEAR;
+    demosaicConf.monoIsRawColour = 0;
 
     config.numProfiles = 0;
     config.numFilters = 0;
@@ -614,11 +615,11 @@ MainWindow::readConfig ( QString configFile )
     config.demosaicPreview = settings->value ( "demosaic/preview", 0 ).toInt();
     config.demosaicOutput = settings->value ( "demosaic/output", 0 ).toInt();
 #endif
-    config.demosaicMethod = settings->value ( "demosaic/method",
+    demosaicConf.demosaicMethod = settings->value ( "demosaic/method",
         OA_DEMOSAIC_BILINEAR ).toInt();
-    config.cfaPattern = settings->value ( "demosaic/cfaPattern",
+    demosaicConf.cfaPattern = settings->value ( "demosaic/cfaPattern",
         OA_DEMOSAIC_AUTO ).toInt();
-    config.monoIsRawColour = settings->value ( "demosaic/monoIsRawColour",
+    demosaicConf.monoIsRawColour = settings->value ( "demosaic/monoIsRawColour",
         1 ).toInt();
 
     config.reticleStyle = settings->value ( "reticle/style",
@@ -1143,9 +1144,10 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "demosaic/preview", config.demosaicPreview );
   settings->setValue ( "demosaic/output", config.demosaicOutput );
 #endif
-  settings->setValue ( "demosaic/method", config.demosaicMethod );
-  settings->setValue ( "demosaic/monoIsRawColour", config.monoIsRawColour );
-  settings->setValue ( "demosaic/cfaPattern", config.cfaPattern );
+  settings->setValue ( "demosaic/method", demosaicConf.demosaicMethod );
+  settings->setValue ( "demosaic/monoIsRawColour",
+			demosaicConf.monoIsRawColour );
+  settings->setValue ( "demosaic/cfaPattern", demosaicConf.cfaPattern );
 
   settings->setValue ( "reticle/style", config.reticleStyle );
 
