@@ -167,6 +167,24 @@
    ( x == OA_PIX_FMT_YGCM16BE ) || ( x == OA_PIX_FMT_GYMC16BE )) \
    ? OA_PIX_FMT_RGB48BE : 0 )
 
+#define QUICKTIME_OK(f)	(( f == OA_PIX_FMT_RGB24 ) || \
+    ( f == OA_PIX_FMT_BGR24 ) || ( f == OA_PIX_FMT_GREY8 ))
+
+#define UTVIDEO_OK(f) (!(( f == OA_PIX_FMT_GREY8 ) || \
+    ( f == OA_PIX_FMT_GREY16LE ) || ( f == OA_PIX_FMT_GREY16BE ) || \
+    ( f == OA_PIX_FMT_BGGR8 ) || ( f == OA_PIX_FMT_RGGB8 ) || \
+    ( f == OA_PIX_FMT_GRBG8 ) || ( f == OA_PIX_FMT_GBRG8 ) || \
+    ( f == OA_PIX_FMT_BGGR16LE ) || ( f == OA_PIX_FMT_BGGR16BE ) || \
+    ( f == OA_PIX_FMT_RGGB16LE ) || ( f == OA_PIX_FMT_RGGB16BE ) || \
+    ( f == OA_PIX_FMT_GBRG16LE ) || ( f == OA_PIX_FMT_GBRG16BE ) || \
+    ( f == OA_PIX_FMT_GRBG16LE ) || ( f == OA_PIX_FMT_GRBG16BE ) || \
+    ( f == OA_PIX_FMT_YUYV )))
+
+#define WINDIB_OK(f) (( f == OA_PIX_FMT_GREY8 ) || \
+    ( f == OA_PIX_FMT_BGGR8 ) || ( f == OA_PIX_FMT_RGGB8 ) || \
+    ( f == OA_PIX_FMT_GRBG8 ) || ( f == OA_PIX_FMT_GBRG8 ))
+
+
 typedef struct {
   const char*	name;
   const char*	simpleName;

@@ -100,24 +100,5 @@ extern STATE		state;
 #define	RETICLE_CROSS		2
 #define	RETICLE_TRAMLINES	3
 
-#define QUICKTIME_OK(f)	(( f == OA_PIX_FMT_RGB24 ) || \
-    ( f == OA_PIX_FMT_BGR24 ) || ( f == OA_PIX_FMT_GREY16BE ) || \
-    ( f == OA_PIX_FMT_GREY16LE ) || ( f == OA_PIX_FMT_RGB48BE ) || \
-    ( f == OA_PIX_FMT_GREY8 ))
-
-#define UTVIDEO_OK(f) (!(( f == OA_PIX_FMT_GREY8 ) || \
-    ( f == OA_PIX_FMT_GREY16LE ) || ( f == OA_PIX_FMT_GREY16BE ) || \
-    ( f == OA_PIX_FMT_BGGR8 ) || ( f == OA_PIX_FMT_RGGB8 ) || \
-    ( f == OA_PIX_FMT_GRBG8 ) || ( f == OA_PIX_FMT_GBRG8 ) || \
-    ( f == OA_PIX_FMT_BGGR16LE ) || ( f == OA_PIX_FMT_BGGR16BE ) || \
-    ( f == OA_PIX_FMT_RGGB16LE ) || ( f == OA_PIX_FMT_RGGB16BE ) || \
-    ( f == OA_PIX_FMT_GBRG16LE ) || ( f == OA_PIX_FMT_GBRG16BE ) || \
-    ( f == OA_PIX_FMT_GRBG16LE ) || ( f == OA_PIX_FMT_GRBG16BE ) || \
-    ( f == OA_PIX_FMT_YUYV )))
-
-#define WINDIB_OK(f) (( f == OA_PIX_FMT_GREY8 ) || \
-    ( f == OA_PIX_FMT_BGGR8 ) || ( f == OA_PIX_FMT_RGGB8 ) || \
-    ( f == OA_PIX_FMT_GRBG8 ) || ( f == OA_PIX_FMT_GBRG8 ))
-
 #define TOP_WIDGET ( state.settingsWidget ? state.settingsWidget->getTabset() :\
     ( state.mainWindow ? ( QWidget* ) state.mainWindow : ( QWidget* ) this ))

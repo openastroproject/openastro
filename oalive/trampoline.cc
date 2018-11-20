@@ -260,6 +260,27 @@ t_resetCaptureIndex ( void )
 }
 
 
+int
+t_isCameraInitialised ( void )
+{
+  return state.camera->isInitialised();
+}
+
+
+int
+t_videoFramePixelFormat ( void )
+{
+  return state.camera->videoFramePixelFormat();
+}
+
+
+int
+t_isDemosaicEnabled ( void )
+{
+	return config.demosaic;
+}
+
+
 trampolineFuncs trampolines {
 	.getCurrentGain = &t_getCurrentGain,
 	.getCurrentExposure = &t_getCurrentExposure,
@@ -290,5 +311,8 @@ trampolineFuncs trampolines {
   .enablePNGCapture = &t_enablePNGCapture,
 	.setVideoFramePixelFormat = &t_setVideoFramePixelFormat,
 	.destroyLayout = &t_destroyLayout,
-  .resetCaptureIndex = &t_resetCaptureIndex
+  .resetCaptureIndex = &t_resetCaptureIndex,
+  .isCameraInitialised = &t_isCameraInitialised,
+  .videoFramePixelFormat = &t_videoFramePixelFormat,
+  .isDemosaicEnabled = &t_isDemosaicEnabled
 };

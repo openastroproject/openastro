@@ -61,6 +61,9 @@ typedef struct {
 	void ( *setVideoFramePixelFormat )( int );
 	void ( *destroyLayout )( QLayout* );
 	void ( *resetCaptureIndex )( void );
+	int ( *isCameraInitialised )( void );
+	int ( *videoFramePixelFormat )( void );
+	int ( *isDemosaicEnabled )( void );
 } trampolineFuncs;
 
 extern trampolineFuncs trampolines;

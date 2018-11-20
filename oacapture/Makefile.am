@@ -43,7 +43,7 @@ bin_PROGRAMS = oacapture
 BUILT_SOURCES = version.h
 oacapture_SOURCES = autorunSettings.cc camera.cc cameraSettings.cc \
   cameraWidget.cc captureWidget.cc controlWidget.cc \
-  demosaicSettings.cc filterSettings.cc filterWheel.cc generalSettings.cc \
+  filterSettings.cc filterWheel.cc generalSettings.cc \
   histogramSettings.cc histogramWidget.cc imageWidget.cc mainWindow.cc \
   oacapture.cc outputAVI.cc outputFITS.cc outputHandler.cc outputSER.cc \
   outputTIFF.cc outputPNG.cc previewWidget.cc profileSettings.cc \

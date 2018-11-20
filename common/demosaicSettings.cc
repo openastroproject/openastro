@@ -29,15 +29,13 @@
 
 extern "C" {
 #include <openastro/demosaic.h>
+#include <openastro/video/formats.h>
 }
 
 #include "trampoline.h"
 #include "captureSettings.h"
 #include "demosaicSettings.h"
 #include "fitsSettings.h"
-
-#include "configuration.h"
-#include "state.h"
 
 
 DemosaicSettings::DemosaicSettings ( QWidget* parent, demosaicConfig* dConf,
@@ -165,7 +163,7 @@ DemosaicSettings::DemosaicSettings ( QWidget* parent, demosaicConfig* dConf,
 
 DemosaicSettings::~DemosaicSettings()
 {
-  state.mainWindow->destroyLayout (( QLayout* ) hbox );
+  trampolines->destroyLayout (( QLayout* ) hbox );
 }
 
 
@@ -217,18 +215,19 @@ DemosaicSettings::storeSettings ( void )
   }
   pconfig->monoIsRawColour = monoAsRaw->isChecked() ? 1 : 0;
 
-  if ( state.camera->isInitialised()) {
-    int format = state.camera->videoFramePixelFormat();
+  if ( trampolines->isCameraInitialised()) {
+    int format = trampolines->videoFramePixelFormat();
+		int enabled = trampolines->isDemosaicEnabled();
     trampolines->setVideoFramePixelFormat ( format );
 		if ( demosaicOpts ) {
 			trampolines->enableTIFFCapture (
 					( !oaFrameFormats[ format ].rawColour ||
-					( config.demosaic && pconfig->demosaicOutput )) ? 1 : 0 );
+					( enabled && pconfig->demosaicOutput )) ? 1 : 0 );
 			trampolines->enablePNGCapture (
 					( !oaFrameFormats[ format ].rawColour ||
-					( config.demosaic && pconfig->demosaicOutput )) ? 1 : 0 );
+					( enabled && pconfig->demosaicOutput )) ? 1 : 0 );
 			trampolines->enableMOVCapture (( QUICKTIME_OK( format ) || 
-					( oaFrameFormats[ format ].rawColour && config.demosaic &&
+					( oaFrameFormats[ format ].rawColour && enabled &&
 					pconfig->demosaicOutput )) ? 1 : 0 );
 		}
   }
