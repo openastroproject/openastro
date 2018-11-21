@@ -28,10 +28,11 @@
 
 #include <QtGui>
 
+#include <openastro/video/formats.h>
+
 #include "outputHandler.h"
 #include "outputFFMPEG.h"
 #include "outputAVI.h"
-#include "state.h"
 #include "trampoline.h"
 
 

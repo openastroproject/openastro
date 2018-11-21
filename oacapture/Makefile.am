@@ -45,7 +45,7 @@ oacapture_SOURCES = autorunSettings.cc cameraSettings.cc \
   cameraWidget.cc captureWidget.cc controlWidget.cc \
   filterSettings.cc filterWheel.cc generalSettings.cc \
   histogramSettings.cc histogramWidget.cc imageWidget.cc mainWindow.cc \
-  oacapture.cc outputAVI.cc outputFITS.cc outputHandler.cc outputSER.cc \
+  oacapture.cc outputFITS.cc outputHandler.cc outputSER.cc \
   outputTIFF.cc outputPNG.cc previewWidget.cc profileSettings.cc \
   settingsWidget.cc zoomWidget.cc advancedSettings.cc outputFFMPEG.cc \
 	outputMOV.cc outputDIB.cc focusOverlay.cc timer.cc \
