@@ -182,7 +182,7 @@ void
 ControlsWidget::startCapture ( void )
 {
   openOutputFiles();
-  state.camera->start ( &ViewWidget::addImage );
+  state.camera->start ( &ViewWidget::addImage, &state );
   startButton->setEnabled ( 0 );
   stopButton->setEnabled ( 1 );
 }
@@ -223,7 +223,7 @@ ControlsWidget::restartCapture ( void )
   }
   openOutputFiles();
   state.viewWidget->restart();
-  state.camera->start ( &ViewWidget::addImage );
+  state.camera->start ( &ViewWidget::addImage, &state );
   startButton->setEnabled ( 0 );
   stopButton->setEnabled ( 1 );
 }
@@ -420,7 +420,7 @@ ControlsWidget::openOutputFiles ( void )
   OutputHandler*	out = 0;
   int			format;
 
-  format = state.camera->videoFramePixelFormat();
+  format = state.camera->videoFramePixelFormat ( &demosaicConf );
   if ( oaFrameFormats[ format ].rawColour ) {
     format = OA_DEMOSAIC_FMT ( format );
   }

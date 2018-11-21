@@ -28,6 +28,8 @@
 
 #include <QtGui>
 
+#include "demosaicSettings.h"
+
 #include "configuration.h"
 #include "trampoline.h"
 #include "state.h"
@@ -256,7 +258,7 @@ t_isCameraInitialised ( void )
 int
 t_videoFramePixelFormat ( void )
 {
-	return state.camera->videoFramePixelFormat();
+	return state.camera->videoFramePixelFormat ( &demosaicConf );
 }
 
 

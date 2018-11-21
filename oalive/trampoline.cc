@@ -270,7 +270,7 @@ t_isCameraInitialised ( void )
 int
 t_videoFramePixelFormat ( void )
 {
-  return state.camera->videoFramePixelFormat();
+  return state.camera->videoFramePixelFormat ( &demosaicConf );
 }
 
 

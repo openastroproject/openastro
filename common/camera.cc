@@ -31,11 +31,8 @@
 
 #include "captureSettings.h"
 #include "fitsSettings.h"
+#include "demosaicSettings.h"
 #include "camera.h"
-
-#include "mainWindow.h"
-#include "configuration.h"
-#include "state.h"
 
 #define	DEFAULT_FRAME_TIME	100
 
@@ -519,14 +516,14 @@ Camera::setFrameInterval ( int numerator, int denominator )
 
 
 int
-Camera::start ( void* ( *callback )( void*, void*, int ))
+Camera::start ( void* ( *callback )( void*, void*, int ), void* state )
 {
   if ( !initialised ) {
     qWarning() << __FUNCTION__ << " called with camera uninitialised";
     return -1;
   }
 
-  return cameraFuncs.startStreaming ( cameraContext, callback, &state );
+  return cameraFuncs.startStreaming ( cameraContext, callback, state );
 }
 
 
@@ -544,14 +541,14 @@ Camera::stop ( void )
 
 
 int
-Camera::videoFramePixelFormat ( void )
+Camera::videoFramePixelFormat ( demosaicConfig* demosaicConf )
 {
   int format;
 
   format = cameraFuncs.getFramePixelFormat ( cameraContext );
-  if ( demosaicConf.monoIsRawColour ) {
+  if ( demosaicConf->monoIsRawColour ) {
     if ( format == OA_PIX_FMT_GREY16LE ) {
-      switch ( demosaicConf.cfaPattern ) {
+      switch ( demosaicConf->cfaPattern ) {
         case OA_DEMOSAIC_RGGB:
           format = OA_PIX_FMT_RGGB16LE;
           break;
@@ -579,7 +576,7 @@ Camera::videoFramePixelFormat ( void )
       }
     } else {
       if ( format == OA_PIX_FMT_GREY16BE ) {
-        switch ( demosaicConf.cfaPattern ) {
+        switch ( demosaicConf->cfaPattern ) {
           case OA_DEMOSAIC_RGGB:
             format = OA_PIX_FMT_RGGB16BE;
             break;

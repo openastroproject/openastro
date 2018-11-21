@@ -518,7 +518,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     }
   }
 
-  format = state.camera->videoFramePixelFormat();
+  format = state.camera->videoFramePixelFormat ( &demosaicConf );
   if ( oaFrameFormats[ format ].rawColour && demosaicConf.demosaicOutput ) {
     format = OA_DEMOSAIC_FMT ( format );
   }
@@ -710,7 +710,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     emit writeStatusMessage ( tr ( "Starting timer" ));
     state.timer->start();
     emit writeStatusMessage ( tr ( "Restarting camera" ));
-    state.camera->start ( &PreviewWidget::updatePreview );
+    state.camera->start ( &PreviewWidget::updatePreview, &state );
     pauseButtonState = 0;
   }
 

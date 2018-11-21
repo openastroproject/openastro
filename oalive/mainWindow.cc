@@ -1756,7 +1756,7 @@ MainWindow::connectCamera ( int deviceIndex )
   // FIX ME -- should these happen in the "configure" functions for each
   // widget?
   state.viewWidget->setVideoFramePixelFormat (
-      state.camera->videoFramePixelFormat());
+      state.camera->videoFramePixelFormat ( &demosaicConf ));
 
   // FIX ME -- enable binning
   // state.cameraWidget->enableBinningControl ( state.camera->hasBinning ( 2 ));
