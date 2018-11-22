@@ -29,11 +29,11 @@
 
 extern "C" {
 #include <openastro/SER.h>
-};
+#include <openastro/video/formats.h>
+}
 
 #include "outputHandler.h"
 #include "outputSER.h"
-#include "configuration.h"
 #include "trampoline.h"
 
 

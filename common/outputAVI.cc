@@ -28,7 +28,9 @@
 
 #include <QtGui>
 
+extern "C" {
 #include <openastro/video/formats.h>
+}
 
 #include "outputHandler.h"
 #include "outputFFMPEG.h"
