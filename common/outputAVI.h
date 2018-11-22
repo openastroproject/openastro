@@ -34,5 +34,5 @@ class OutputAVI : public OutputFFMPEG
 {
   public:
     			OutputAVI ( int, int, int, int, int, QString,
-							trampolineFuncs* );
+							unsigned long long*, trampolineFuncs* );
 };

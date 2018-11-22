@@ -38,13 +38,14 @@ extern "C" {
 #include "trampoline.h"
 
 #include "configuration.h"
-#include "state.h"
 
 
 OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
 		const char* appName, const char* appVer, QString fileTemplate,
+		unsigned long long* pcounter, fitsConfig* pConf,
 		trampolineFuncs* trampolines ) :
-    OutputHandler ( x, y, n, d, fileTemplate, trampolines )
+    OutputHandler ( x, y, n, d, fileTemplate, pcounter, pConf, trampolines ),
+		applicationName ( appName ), applicationVersion ( appVer )
 {
   uint16_t byteOrderTest = 0x1234;
   uint8_t* firstByte;
@@ -62,8 +63,6 @@ OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
   swapRedBlue = 0;
   colour = 0;
   writeBuffer = 0;
-	applicationName = appName;
-	applicationVersion = appVer;
 
   switch ( fmt ) {
 
@@ -275,7 +274,7 @@ OutputTIFF::addFrame ( void* frame, const char* timestampStr, int64_t expTime,
   ret = TIFFWriteEncodedStrip ( handle, 0, buffer, frameSize );
   TIFFClose ( handle );
   frameCount++;
-  state.captureIndex++;
+  *pCaptureIndex++;
   return ret;
 }
 

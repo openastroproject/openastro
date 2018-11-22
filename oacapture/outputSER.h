@@ -38,7 +38,7 @@ class OutputSER : public OutputHandler
 {
   public:
     			OutputSER ( int, int, int, int, int, QString,
-							trampolineFuncs* );
+							unsigned long long*, fitsConfig*, trampolineFuncs* );
     			~OutputSER();
     int			openOutput ( void );
     int			addFrame ( void*, const char*, int64_t, const char* );

@@ -45,8 +45,11 @@ extern "C" {
 
 OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt,
 		const char* appName, const char* appVer, QString fileTemplate,
+		unsigned long long* pcounter, fitsConfig* pConf,
 		trampolineFuncs* trampolines ) :
-    OutputHandler ( x, y, n, d, fileTemplate, trampolines )
+    OutputHandler ( x, y, n, d, fileTemplate, pcounter, pConf, trampolines ),
+		applicationName ( appName ), applicationVersion ( appVer ),
+		imageFormat ( fmt )
 {
   int pixelSize;
 
@@ -62,9 +65,6 @@ OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt,
   colour = 0;
   writeBuffer = 0;
   rowPointers = 0;
-  imageFormat = fmt;
-	applicationName = appName;
-	applicationVersion = appVer;
 
   switch ( fmt ) {
 
@@ -251,9 +251,9 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   }
 
   pngComments[ numComments ].key = ( char* ) "OBSERVER";
-  if ( fitsConf.observer != "" ) {
+  if ( pConfig->observer != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
-        fitsConf.observer.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
+        pConfig->observer.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }
@@ -266,7 +266,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
         targetList[ currentTargetId ], PNG_KEYWORD_MAX_LENGTH+1 );
   } else {
     ( void ) strncpy ( stringBuffs[ numComments ],
-        fitsConf.object.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
+        pConfig->object.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
   }
   if ( stringBuffs[ numComments ][0]) {
     pngComments[ numComments ].text = stringBuffs[ numComments ];
@@ -274,25 +274,25 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   }
 
   pngComments[ numComments ].key = ( char* ) "TELESCOP";
-  if ( fitsConf.telescope != "" ) {
+  if ( pConfig->telescope != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
-        fitsConf.telescope.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
+        pConfig->telescope.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }
 
   pngComments[ numComments ].key = ( char* ) "INSTRUME";
-  if ( fitsConf.instrument != "" ) {
+  if ( pConfig->instrument != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
-        fitsConf.instrument.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
+        pConfig->instrument.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }
 
   pngComments[ numComments ].key = ( char* ) "COMMENT1";
-  if ( fitsConf.comment != "" ) {
+  if ( pConfig->comment != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
-        fitsConf.comment.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
+        pConfig->comment.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }
@@ -313,27 +313,27 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   numComments++;
 
   pngComments[ numComments ].key = ( char* ) "FOCALLEN";
-  if ( fitsConf.focalLength != "" ) {
+  if ( pConfig->focalLength != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
-        fitsConf.focalLength.toStdString().c_str(),
+        pConfig->focalLength.toStdString().c_str(),
         PNG_KEYWORD_MAX_LENGTH+1 );
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }
 
   pngComments[ numComments ].key = ( char* ) "APTDIA";
-  if ( fitsConf.apertureDia != "" ) {
+  if ( pConfig->apertureDia != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
-        fitsConf.apertureDia.toStdString().c_str(),
+        pConfig->apertureDia.toStdString().c_str(),
         PNG_KEYWORD_MAX_LENGTH+1 );
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   } 
 
   pngComments[ numComments ].key = ( char* ) "APTAREA";
-  if ( fitsConf.apertureArea != "" ) {
+  if ( pConfig->apertureArea != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
-        fitsConf.apertureArea.toStdString().c_str(),
+        pConfig->apertureArea.toStdString().c_str(),
         PNG_KEYWORD_MAX_LENGTH+1 );
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
@@ -341,9 +341,9 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
   pngComments[ numComments ].key = ( char* ) "XPIXSZ";
   stringBuffs[ numComments ][0] = 0;
-  if ( fitsConf.pixelSizeX != "" ) {
+  if ( pConfig->pixelSizeX != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
-        fitsConf.pixelSizeX.toStdString().c_str(),
+        pConfig->pixelSizeX.toStdString().c_str(),
         PNG_KEYWORD_MAX_LENGTH+1 );
   } else {
     int binMultiplier = 1;
@@ -361,9 +361,9 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
   pngComments[ numComments ].key = ( char* ) "YPIXSZ";
   stringBuffs[ numComments ][0] = 0;
-  if ( fitsConf.pixelSizeY != "" ) {
+  if ( pConfig->pixelSizeY != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
-        fitsConf.pixelSizeY.toStdString().c_str(),
+        pConfig->pixelSizeY.toStdString().c_str(),
         PNG_KEYWORD_MAX_LENGTH+1 );
   } else {
     int binMultiplier = 1;
@@ -381,8 +381,8 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
 #ifdef OACAPTURE
   pngComments[ numComments ].key = ( char* ) "XORGSUBF";
-  if ( fitsConf.subframeOriginX != "" ) {
-    xorg = fitsConf.subframeOriginX.toInt();
+  if ( pConfig->subframeOriginX != "" ) {
+    xorg = pConfig->subframeOriginX.toInt();
   } else {
     if ( state.cropMode ) {
       xorg = ( state.sensorSizeX - state.cropSizeX ) / 2;
@@ -396,8 +396,8 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   numComments++;
 
   pngComments[ numComments ].key = ( char* ) "YORGSUBF";
-  if ( fitsConf.subframeOriginY != "" ) {
-    yorg = fitsConf.subframeOriginY.toInt();
+  if ( pConfig->subframeOriginY != "" ) {
+    yorg = pConfig->subframeOriginY.toInt();
   } else {
     if ( state.cropMode ) {
       yorg = ( state.sensorSizeY - state.cropSizeY ) / 2;
@@ -413,8 +413,8 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
   pngComments[ numComments ].key = ( char* ) "FILTER";
   QString currentFilter = trampolines->getCurrentFilterName();
-  if ( fitsConf.filter != "" ) {
-    currentFilter = fitsConf.filter;
+  if ( pConfig->filter != "" ) {
+    currentFilter = pConfig->filter;
   }
   if ( currentFilter != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
@@ -429,9 +429,9 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   if ( state.gpsValid ) {
     ( void ) sprintf ( stringBuffs[ numComments ], "%g", state.latitude );
   }
-  if ( !stringBuffs[ numComments ][0] && fitsConf.siteLatitude != "" ) {
+  if ( !stringBuffs[ numComments ][0] && pConfig->siteLatitude != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
-        fitsConf.siteLatitude.toStdString().c_str(),
+        pConfig->siteLatitude.toStdString().c_str(),
         PNG_KEYWORD_MAX_LENGTH+1 );
   }
   if ( stringBuffs[ numComments ][0] ) {
@@ -444,9 +444,9 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   if ( state.gpsValid ) {
     ( void ) sprintf ( stringBuffs[ numComments ], "%g", state.longitude );
   }
-  if ( !stringBuffs[ numComments ][0] && fitsConf.siteLongitude != "" ) {
+  if ( !stringBuffs[ numComments ][0] && pConfig->siteLongitude != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
-        fitsConf.siteLatitude.toStdString().c_str(),
+        pConfig->siteLatitude.toStdString().c_str(),
         PNG_KEYWORD_MAX_LENGTH+1 );
   }
   if ( stringBuffs[ numComments ][0] ) {
@@ -588,7 +588,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
   fclose ( handle );
   frameCount++;
-  state.captureIndex++;
+  *pCaptureIndex++;
   return OA_ERR_NONE;
 }
 

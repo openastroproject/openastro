@@ -36,13 +36,14 @@
 #include <QtGui>
 
 #include "trampoline.h"
+#include "fitsSettings.h"
 
 
 class OutputHandler
 {
   public:
     			OutputHandler ( int, int, int, int, QString,
-							trampolineFuncs* );
+							unsigned long long*, fitsConfig*, trampolineFuncs* );
     virtual		~OutputHandler() {};
     unsigned int	getFrameCount ( void );
 
@@ -64,6 +65,8 @@ class OutputHandler
     QString		filenameRoot;
     void		generateFilename ( void );
 		trampolineFuncs*	trampolines;
+		unsigned long long* pCaptureIndex;
+		fitsConfig*		pConfig;
 
   private:
     QString		filename;

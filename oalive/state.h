@@ -79,7 +79,7 @@ typedef struct
   QString		lastRecordedFile;
   QString		currentDirectory;
 
-  unsigned int		captureIndex;
+  unsigned long long		captureIndex;
 
   int			stackingMethod;
 

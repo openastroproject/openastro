@@ -47,8 +47,9 @@ extern "C" {
 
 
 OutputFFMPEG::OutputFFMPEG ( int x, int y, int n, int d, int fmt,
-		QString fileTemplate, trampolineFuncs* trampolines ) :
-    OutputHandler ( x, y, n, d, fileTemplate,  trampolines )
+		QString fileTemplate, unsigned long long* pcounter,
+		trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate, pcounter, 0, trampolines )
 {
   if ( !state.libavStarted ) {
     av_register_all();
@@ -413,7 +414,7 @@ OutputFFMPEG::closeOutput ( void )
   outputFormat = 0;
   videoStream = 0;
 
-  state.captureIndex++;
+  *pCaptureIndex++;
 
 #ifdef WINDOWS_RAW
   // This does not work

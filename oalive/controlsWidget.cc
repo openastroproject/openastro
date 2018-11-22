@@ -432,14 +432,14 @@ ControlsWidget::openOutputFiles ( void )
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.frameFileNameTemplate,
-						&trampolines );
+						&state.captureIndex, &fitsConf, &trampolines );
         break;
       case CAPTURE_PNG:
         out = new OutputPNG ( config.imageSizeX, config.imageSizeY,
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.frameFileNameTemplate,
-						&trampolines );
+						&state.captureIndex, &fitsConf, &trampolines );
         break;
 #ifdef HAVE_LIBCFITSIO
       case CAPTURE_FITS:
@@ -447,7 +447,7 @@ ControlsWidget::openOutputFiles ( void )
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.frameFileNameTemplate,
-						&trampolines );
+						&state.captureIndex, &fitsConf, &trampolines );
         break;
 #endif
     }
@@ -501,14 +501,14 @@ qWarning() << "have frame save handler";
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.processedFileNameTemplate,
-            &trampolines );
+            &state.captureIndex, &fitsConf, &trampolines );
         break;
       case CAPTURE_PNG:
         out = new OutputPNG ( config.imageSizeX, config.imageSizeY,
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.processedFileNameTemplate,
-            &trampolines );
+            &state.captureIndex, &fitsConf, &trampolines );
         break;
 #ifdef HAVE_LIBCFITSIO
       case CAPTURE_FITS:
@@ -516,7 +516,7 @@ qWarning() << "have frame save handler";
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.processedFileNameTemplate,
-            &trampolines );
+            &state.captureIndex, &fitsConf, &trampolines );
         break;
 #endif
     }

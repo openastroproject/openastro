@@ -52,8 +52,11 @@ extern "C" {
 
 OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
 		const char *appName, const char* appVer, QString fileTemplate,
+		unsigned long long* pcounter, fitsConfig* pconf,
 		trampolineFuncs* trampolines ) :
-		OutputHandler ( x, y, n, d, fileTemplate, trampolines )
+		OutputHandler ( x, y, n, d, fileTemplate, pcounter, pconf, trampolines ),
+		applicationName ( appName ), applicationVersion ( appVer ),
+		imageFormat ( fmt )
 {
   uint16_t byteOrderTest = 0x1234;
   uint8_t* firstByte;
@@ -75,9 +78,6 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
   splitPlanes = 0;
   writeBuffer = 0;
   elements = 0;
-  imageFormat = fmt;
-	applicationName = appName;
-	applicationVersion = appVer;
 
   switch ( fmt ) {
 
@@ -576,7 +576,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     return -1;
   }
 
-  state.captureIndex++;
+  *pCaptureIndex++;
   frameCount++;
   return 0;
 }

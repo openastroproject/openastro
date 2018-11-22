@@ -30,7 +30,6 @@
 
 #include "trampoline.h"
 #include "captureSettings.h"
-#include "fitsSettings.h"
 #include "outputHandler.h"
 
 #include "mainWindow.h"
@@ -38,14 +37,14 @@
 
 
 OutputHandler::OutputHandler ( int x, int y, int n, int d,
-		QString nameTemplate, trampolineFuncs* tramps )
+		QString nameTemplate, unsigned long long* pcounter,
+		fitsConfig* pconf, trampolineFuncs* tramps ) : trampolines ( tramps ),
+		pCaptureIndex ( pcounter ), pConfig ( pconf )
 {
   Q_UNUSED( x );
   Q_UNUSED( y );
   Q_UNUSED( n );
   Q_UNUSED( d );
-
-	trampolines = tramps;
 
 #ifdef OACAPTURE
 	if ( nameTemplate == "" ) {
@@ -103,7 +102,7 @@ OutputHandler::generateFilename ( void )
 
   QString index, gain, exposureMs, exposureS;
   unsigned int exposure;
-  index = QString("%1").arg ( state.captureIndex, captureConf.indexDigits, 10,
+  index = QString("%1").arg ( *pCaptureIndex, captureConf.indexDigits, 10,
       QChar('0'));
   gain = QString("%1").arg ( trampolines->getCurrentGain());
   exposure = trampolines->getCurrentExposure();

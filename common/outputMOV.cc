@@ -37,8 +37,9 @@
 
 
 OutputMOV::OutputMOV ( int x, int y, int n, int d, int fmt,
-		QString fileTemplate, trampolineFuncs* trampolines ) :
-    OutputFFMPEG ( x, y, n, d, fmt, fileTemplate, trampolines )
+		QString fileTemplate, unsigned long long* pcounter,
+		trampolineFuncs* trampolines ) :
+    OutputFFMPEG ( x, y, n, d, fmt, fileTemplate, pcounter, trampolines )
 {
   //videoCodec = AV_CODEC_ID_RAWVIDEO;
   videoCodec = AV_CODEC_ID_QTRLE;
