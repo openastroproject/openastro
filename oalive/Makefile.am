@@ -43,7 +43,7 @@ BUILT_SOURCES = version.h
 oalive_SOURCES = advancedSettings.cc controlsWidget.cc \
   filterSettings.cc filterWheel.cc \
   focusOverlay.cc generalSettings.cc oalive.cc outputFITS.cc \
-  outputHandler.cc outputPNG.cc outputTIFF.cc profileSettings.cc \
+  outputHandler.cc outputPNG.cc profileSettings.cc \
   settingsWidget.cc mainWindow.cc viewWidget.cc cameraControls.cc \
   stackingControls.cc saveControls.cc processingControls.cc trampoline.cc \
 	moc_cameraControls.cc moc_controlsWidget.cc moc_mainWindow.cc \

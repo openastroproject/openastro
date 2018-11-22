@@ -29,6 +29,7 @@
 
 extern "C" {
 #include <tiffio.h>
+#include <openastro/video/formats.h>
 };
 
 #include "captureSettings.h"
@@ -36,8 +37,6 @@ extern "C" {
 #include "outputHandler.h"
 #include "outputTIFF.h"
 #include "trampoline.h"
-
-#include "configuration.h"
 
 
 OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
