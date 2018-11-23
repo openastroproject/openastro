@@ -269,6 +269,118 @@ t_isDemosaicEnabled ( void )
 }
 
 
+int
+t_isBinningValid ( void )
+{
+	return state.binningValid;
+}
+
+
+int
+t_binModeX ( void )
+{
+	return state.binModeX;
+}
+
+
+int
+t_binModeY ( void )
+{
+	return state.binModeY;
+}
+
+
+int
+t_pixelSizeX ( void )
+{
+	return state.camera->pixelSizeX();
+}
+
+
+int
+t_pixelSizeY ( void )
+{
+	return state.camera->pixelSizeY();
+}
+
+
+int
+t_isCropMode ( void )
+{
+	return state.cropMode;
+}
+
+
+int
+t_sensorSizeX ( void )
+{
+	return state.sensorSizeX;
+}
+
+
+int
+t_sensorSizeY ( void )
+{
+	return state.sensorSizeY;
+}
+
+
+int
+t_cropSizeX ( void )
+{
+	return state.cropSizeX;
+}
+
+
+int
+t_cropSizeY ( void )
+{
+	return state.cropSizeY;
+}
+
+
+int
+t_isGPSValid ( void )
+{
+	return state.gpsValid;
+}
+
+
+double
+t_latitude ( void )
+{
+	return state.latitude;
+}
+
+
+double
+t_longitude ( void )
+{
+	return state.longitude;
+}
+
+
+double
+t_altitude ( void )
+{
+	return state.altitude;
+}
+
+
+int
+t_isCameraTempValid ( void )
+{
+	return state.cameraTempValid;
+}
+
+
+float
+t_cameraTemp ( void )
+{
+	return state.cameraTemp;
+}
+
+
 trampolineFuncs trampolines {
 	.getCurrentGain = &t_getCurrentGain,
 	.getCurrentExposure = &t_getCurrentExposure,
@@ -302,5 +414,21 @@ trampolineFuncs trampolines {
 	.resetCaptureIndex = &t_resetCaptureIndex,
 	.isCameraInitialised = &t_isCameraInitialised,
 	.videoFramePixelFormat = &t_videoFramePixelFormat,
-  .isDemosaicEnabled = &t_isDemosaicEnabled
+  .isDemosaicEnabled = &t_isDemosaicEnabled,
+  .isBinningValid = &t_isBinningValid,
+  .binModeX = &t_binModeX,
+  .binModeY = &t_binModeY,
+  .pixelSizeX = &t_pixelSizeX,
+  .pixelSizeY = &t_pixelSizeY,
+  .sensorSizeX = &t_sensorSizeX,
+  .sensorSizeY = &t_sensorSizeY,
+  .cropSizeX = &t_cropSizeX,
+  .cropSizeY = &t_cropSizeY,
+  .isCropMode = &t_isCropMode,
+  .isGPSValid = &t_isGPSValid,
+  .latitude = &t_latitude,
+  .longitude = &t_longitude,
+  .altitude = &t_altitude,
+  .isCameraTempValid = &t_isCameraTempValid,
+  .cameraTemp = &t_cameraTemp
 };

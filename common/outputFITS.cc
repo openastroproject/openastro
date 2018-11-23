@@ -35,9 +35,11 @@ extern "C" {
 #include "cfitsio/fitsio.h"
 #endif
 #endif
-}
 
+#include <openastro/camera.h>
 #include <openastro/demosaic.h>
+#include <openastro/video/formats.h>
+}
 
 #include "targets.h"
 #include "trampoline.h"
@@ -45,9 +47,6 @@ extern "C" {
 #include "fitsSettings.h"
 #include "outputHandler.h"
 #include "outputFITS.h"
-
-#include "configuration.h"
-#include "state.h"
 
 
 OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
@@ -356,9 +355,9 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 
   fits_write_date ( fptr, &status );
 
-  if ( fitsConf.observer != "" ) {
+  if ( pConfig->observer != "" ) {
     ( void ) strncpy ( stringBuff,
-        fitsConf.observer.toStdString().c_str(), FLEN_VALUE+1 );
+        pConfig->observer.toStdString().c_str(), FLEN_VALUE+1 );
     fits_write_key_str ( fptr, "OBSERVER", cString, "", &status );
   }
 
@@ -369,27 +368,27 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
         FLEN_VALUE+1 );
   } else {
     ( void ) strncpy ( stringBuff,
-        fitsConf.object.toStdString().c_str(), FLEN_VALUE+1 );
+        pConfig->object.toStdString().c_str(), FLEN_VALUE+1 );
   }
   if ( stringBuff[0]) {
     fits_write_key_str ( fptr, "OBJECT", cString, "", &status );
   }
 
-  if ( fitsConf.telescope != "" ) {
+  if ( pConfig->telescope != "" ) {
     ( void ) strncpy ( stringBuff,
-        fitsConf.telescope.toStdString().c_str(), FLEN_VALUE+1 );
+        pConfig->telescope.toStdString().c_str(), FLEN_VALUE+1 );
     fits_write_key_str ( fptr, "TELESCOP", cString, "", &status );
   }
 
-  if ( fitsConf.instrument != "" ) {
+  if ( pConfig->instrument != "" ) {
     ( void ) strncpy ( stringBuff,
-        fitsConf.instrument.toStdString().c_str(), FLEN_VALUE+1 );
+        pConfig->instrument.toStdString().c_str(), FLEN_VALUE+1 );
     fits_write_key_str ( fptr, "INSTRUME", cString, "", &status );
   }
 
-  if ( fitsConf.comment != "" ) {
+  if ( pConfig->comment != "" ) {
     ( void ) strncpy ( stringBuff,
-        fitsConf.comment.toStdString().c_str(), FLEN_VALUE+1 );
+        pConfig->comment.toStdString().c_str(), FLEN_VALUE+1 );
     fits_write_comment ( fptr, cString, &status );
   }
 
@@ -402,18 +401,18 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
       oaFrameFormats[ imageFormat ].simpleName );
   fits_write_comment ( fptr, stringBuff, &status );
 
-  if ( fitsConf.focalLength != "" ) {
-    fits_write_key_lng ( fptr, "FOCALLEN", fitsConf.focalLength.toInt(),
+  if ( pConfig->focalLength != "" ) {
+    fits_write_key_lng ( fptr, "FOCALLEN", pConfig->focalLength.toInt(),
         "", &status );
   }
 
-  if ( fitsConf.apertureDia != "" ) {
-    fits_write_key_lng ( fptr, "APTDIA", fitsConf.apertureDia.toInt(),
+  if ( pConfig->apertureDia != "" ) {
+    fits_write_key_lng ( fptr, "APTDIA", pConfig->apertureDia.toInt(),
         "", &status );
   }
 
-  if ( fitsConf.apertureArea != "" ) {
-    fits_write_key_lng ( fptr, "APTAREA", fitsConf.apertureArea.toInt(),
+  if ( pConfig->apertureArea != "" ) {
+    fits_write_key_lng ( fptr, "APTAREA", pConfig->apertureArea.toInt(),
         "", &status );
   }
 
@@ -423,60 +422,58 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
    * otherwise we deal with it ourselves
    */
   
-  if ( fitsConf.pixelSizeX != "" ) {
-    pixelSize = fitsConf.pixelSizeX.toFloat();
+  if ( pConfig->pixelSizeX != "" ) {
+    pixelSize = pConfig->pixelSizeX.toFloat();
   } else {
     int binMultiplier = 1;
-    if ( state.binningValid ) {
-      binMultiplier = OA_BIN_MODE_MULTIPLIER ( state.binModeX  );
+    if ( trampolines->isBinningValid()) {
+      binMultiplier = OA_BIN_MODE_MULTIPLIER ( trampolines->binModeX());
     }
-    pixelSize = state.camera->pixelSizeX() * binMultiplier / 1000.0;
+    pixelSize = trampolines->pixelSizeX() * binMultiplier / 1000.0;
   }
   if ( pixelSize ) {
     fits_write_key_dbl ( fptr, "XPIXSZ", pixelSize, -5, "", &status );
   }
 
-  if ( fitsConf.pixelSizeY != "" ) {
-    pixelSize = fitsConf.pixelSizeY.toFloat();
+  if ( pConfig->pixelSizeY != "" ) {
+    pixelSize = pConfig->pixelSizeY.toFloat();
   } else {
     int binMultiplier = 1;
-    if ( state.binningValid ) {
-      binMultiplier = OA_BIN_MODE_MULTIPLIER ( state.binModeY  );
+    if ( trampolines->isBinningValid()) {
+      binMultiplier = OA_BIN_MODE_MULTIPLIER ( trampolines->binModeY());
     }
-    pixelSize = state.camera->pixelSizeY() * binMultiplier / 1000.0;
+    pixelSize = trampolines->pixelSizeY() * binMultiplier / 1000.0;
   }
   if ( pixelSize ) {
     fits_write_key_dbl ( fptr, "YPIXSZ", pixelSize, -5, "", &status );
   }
 
 
-#ifdef OACAPTURE
-  if ( fitsConf.subframeOriginX != "" ) {
-    xorg = fitsConf.subframeOriginX.toInt();
+  if ( pConfig->subframeOriginX != "" ) {
+    xorg = pConfig->subframeOriginX.toInt();
   } else {
-    if ( state.cropMode ) {
-      xorg = ( state.sensorSizeX - state.cropSizeX ) / 2;
+    if ( trampolines->isCropMode()) {
+      xorg = ( trampolines->sensorSizeX() - trampolines->cropSizeX()) / 2;
     } else {
-      xorg = ( state.sensorSizeX - config.imageSizeX ) / 2;
+      xorg = ( trampolines->sensorSizeX() - xSize ) / 2;
     }
   }
   fits_write_key_lng ( fptr, "XORGSUBF", xorg, "", &status );
 
-  if ( fitsConf.subframeOriginY != "" ) {
-    yorg = fitsConf.subframeOriginY.toInt();
+  if ( pConfig->subframeOriginY != "" ) {
+    yorg = pConfig->subframeOriginY.toInt();
   } else {
-    if ( state.cropMode ) {
-      yorg = ( state.sensorSizeY - state.cropSizeY ) / 2;
+    if ( trampolines->isCropMode()) {
+      yorg = ( trampolines->sensorSizeY() - trampolines->cropSizeY()) / 2;
     } else {
-      yorg = ( state.sensorSizeY - config.imageSizeY ) / 2;
+      yorg = ( trampolines->sensorSizeY() - ySize ) / 2;
     }
   }
   fits_write_key_lng ( fptr, "YORGSUBF", yorg, "", &status );
-#endif
 
   QString currentFilter = trampolines->getCurrentFilterName();
-  if ( fitsConf.filter != "" ) {
-    currentFilter = fitsConf.filter;
+  if ( pConfig->filter != "" ) {
+    currentFilter = pConfig->filter;
   }
   if ( currentFilter != "" ) {
     ( void ) strncpy ( stringBuff,
@@ -484,39 +481,37 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     fits_write_key_str ( fptr, "FILTER", cString, "", &status );
   }
 
-#ifdef OACAPTURE
   stringBuff[0] = 0;
-  if ( state.gpsValid ) {
-    ( void ) sprintf ( stringBuff, "%+8.6e", state.latitude );
+  if ( trampolines->isGPSValid()) {
+    ( void ) sprintf ( stringBuff, "%+8.6e", trampolines->latitude());
   }
-  if ( !stringBuff[0] && fitsConf.siteLatitude != "" ) {
+  if ( !stringBuff[0] && pConfig->siteLatitude != "" ) {
     ( void ) strncpy ( stringBuff,
-        fitsConf.siteLatitude.toStdString().c_str(), FLEN_VALUE+1 );
+        pConfig->siteLatitude.toStdString().c_str(), FLEN_VALUE+1 );
   }
   if ( stringBuff[0] ) {
     fits_write_key_str ( fptr, "SITELAT", cString, "", &status );
   }
 
   stringBuff[0] = 0;
-  if ( state.gpsValid ) {
-    ( void ) sprintf ( stringBuff, "%+8.6e", state.longitude );
+  if ( trampolines->isGPSValid()) {
+    ( void ) sprintf ( stringBuff, "%+8.6e", trampolines->longitude());
   }
-  if ( !stringBuff[0] && fitsConf.siteLongitude != "" ) {
+  if ( !stringBuff[0] && pConfig->siteLongitude != "" ) {
     ( void ) strncpy ( stringBuff,
-        fitsConf.siteLongitude.toStdString().c_str(), FLEN_VALUE+1 );
+        pConfig->siteLongitude.toStdString().c_str(), FLEN_VALUE+1 );
   }
   if ( stringBuff[0] ) {
     fits_write_key_str ( fptr, "SITELONG", cString, "", &status );
   }
 
 	stringBuff[0] = 0;
-  if ( state.gpsValid ) {
-    ( void ) sprintf ( stringBuff, "%+8.6e", state.altitude );
+  if ( trampolines->isGPSValid()) {
+    ( void ) sprintf ( stringBuff, "%+8.6e", trampolines->altitude());
     fits_write_key_str ( fptr, "SITEELEV", cString, "", &status );
-    ( void ) sprintf ( stringBuff, "%g", state.altitude );
+    ( void ) sprintf ( stringBuff, "%g", trampolines->altitude());
     fits_write_key_str ( fptr, "ELEVATIO", cString, "", &status );
   }
-#endif
 
 	( void ) snprintf ( stringBuff, FLEN_VALUE, "%s %s", applicationName,
 			applicationVersion );
@@ -550,13 +545,16 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     fits_write_key_lng ( fptr, "YBAYROFF", yoff, "", &status );
   }
 
-  if ( state.cameraTempValid ) {
-    fits_write_key_dbl ( fptr, "CCD-TEMP", state.cameraTemp, -5, "", &status );
+  if ( trampolines->isCameraTempValid()) {
+    fits_write_key_dbl ( fptr, "CCD-TEMP", trampolines->cameraTemp(), -5, "",
+				&status );
   }
 
-  if ( state.binningValid ) {
-    fits_write_key_lng ( fptr, "XBINNING", state.binModeX, "", &status );
-    fits_write_key_lng ( fptr, "YBINNING", state.binModeY, "", &status );
+  if ( trampolines->isBinningValid()) {
+    fits_write_key_lng ( fptr, "XBINNING", trampolines->binModeX(), "",
+				&status );
+    fits_write_key_lng ( fptr, "YBINNING", trampolines->binModeY(), "",
+				&status );
   }
 
   if ( fits_write_img ( fptr, tableType, 1, elements * ( nAxes == 3 ? 3 : 1 ),

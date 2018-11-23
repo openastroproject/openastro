@@ -64,6 +64,22 @@ typedef struct {
 	int ( *isCameraInitialised )( void );
 	int ( *videoFramePixelFormat )( void );
 	int ( *isDemosaicEnabled )( void );
+	int ( *isBinningValid )( void );
+	int ( *binModeX )( void );
+	int ( *binModeY )( void );
+	int ( *pixelSizeX )( void );
+	int ( *pixelSizeY )( void );
+	int ( *sensorSizeX )( void );
+	int ( *sensorSizeY )( void );
+	int ( *cropSizeX )( void );
+	int ( *cropSizeY )( void );
+	int ( *isCropMode )( void );
+	int ( *isGPSValid )( void );
+	double ( *latitude )( void );
+	double ( *longitude )( void );
+	double ( *altitude )( void );
+	int ( *isCameraTempValid )( void );
+	float ( *cameraTemp )( void );
 } trampolineFuncs;
 
 extern trampolineFuncs trampolines;

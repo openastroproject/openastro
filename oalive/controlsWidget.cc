@@ -233,10 +233,8 @@ void
 ControlsWidget::configureResolution ( void )
 {
   // FIX ME -- add controls for screen resolution
-/* commented to prevent unused error
   int maxX, maxY;
   maxX = maxY = 0;
-*/
 
   // This includes a particularly ugly way to sort the resolutions using
   // a QMap and some further QMap abuse to be able to find the X and Y
@@ -308,9 +306,10 @@ ControlsWidget::configureResolution ( void )
       config.imageSizeY = yRes[ firstKey ];
     }
   }
-  // commented to prevent unused error
-  //maxX = xRes[ lastKey ];
-  //maxY = yRes[ lastKey ];
+  maxX = xRes[ lastKey ];
+  maxY = yRes[ lastKey ];
+	state.sensorSizeX = maxX;
+	state.sensorSizeY = maxY;
 
   // There's a gotcha here for cameras that only support a single
   // resolution, as the index won't actually change, and the slot
