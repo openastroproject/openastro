@@ -50,7 +50,6 @@ typedef struct
   ImageWidget*		imageWidget;
   ZoomWidget*		zoomWidget;
   CameraWidget*		cameraWidget;
-  int			libavStarted; // has libav* been initialised?
   int			histogramOn;
   HistogramWidget*	histogramWidget;
   SettingsWidget*	settingsWidget;

@@ -149,7 +149,6 @@ MainWindow::MainWindow ( QString configFile )
 #else
   state.cameraControls = 0;
 #endif
-  state.libavStarted = 0;
   state.camera = new Camera;
   state.filterWheel = new FilterWheel ( &trampolines );
 #ifdef OACAPTURE

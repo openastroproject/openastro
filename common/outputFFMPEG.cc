@@ -38,24 +38,26 @@ extern "C" {
 #include "libavutil/imgutils.h"
 #include "libavformat/avformat.h"
 #include "libavcodec/avcodec.h"
+#include <openastro/video/formats.h>
 };
 
 #include "outputHandler.h"
 #include "outputFFMPEG.h"
-#include "state.h"
 #include "trampoline.h"
 
+
+static int libavStarted = 0;
 
 OutputFFMPEG::OutputFFMPEG ( int x, int y, int n, int d, int fmt,
 		QString fileTemplate, unsigned long long* pcounter,
 		trampolineFuncs* trampolines ) :
     OutputHandler ( x, y, n, d, fileTemplate, pcounter, 0, trampolines )
 {
-  if ( !state.libavStarted ) {
+  if ( !libavStarted ) {
     av_register_all();
     av_log_set_level ( AV_LOG_QUIET );
     // av_log_set_level ( AV_LOG_INFO );
-    state.libavStarted = 1;
+    libavStarted = 1;
   }
 
   writesDiscreteFiles = 0;

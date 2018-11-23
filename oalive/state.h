@@ -56,7 +56,6 @@ typedef struct
   ZoomWidget*		zoomWidget;
   CameraWidget*		cameraWidget;
 */
-  int			libavStarted; // has libav* been initialised?
   Camera*		camera;
   FilterWheel*		filterWheel;
 

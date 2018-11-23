@@ -123,7 +123,6 @@ MainWindow::MainWindow ( QString configFile )
 
   state.mainWindow = this;
   state.controlWidget = 0;
-  state.libavStarted = 0;
   state.camera = new Camera;
   state.filterWheel = new FilterWheel ( &trampolines );
   state.timer = new Timer;
