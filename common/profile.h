@@ -61,6 +61,8 @@ typedef struct {
   int           framesLimitValue;
   int           limitType;
   QString       fileNameTemplate;
+  QString       frameFileNameTemplate;
+  QString       processedFileNameTemplate;
   int		target;
 } PROFILE;
 
