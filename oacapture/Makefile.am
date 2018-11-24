@@ -50,7 +50,7 @@ oacapture_SOURCES = autorunSettings.cc cameraSettings.cc \
 	timerSettings.cc trampoline.cc displayWindow.cc \
 	moc_autorunSettings.cc moc_cameraSettings.cc moc_cameraWidget.cc \
 	moc_captureWidget.cc moc_controlWidget.cc moc_displayWindow.cc \
-	moc_histogramSettings.cc moc_imageWidget.cc moc_mainWindow.cc \
+	moc_imageWidget.cc moc_mainWindow.cc \
 	moc_previewWidget.cc moc_settingsWidget.cc moc_timer.cc \
 	moc_timerSettings.cc moc_zoomWidget.cc \
   qrc_oacapture.cc
