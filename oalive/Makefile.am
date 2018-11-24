@@ -41,8 +41,7 @@ MOC_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/common $(MOC_CFLAGS) \
 bin_PROGRAMS = oalive
 BUILT_SOURCES = version.h
 oalive_SOURCES = advancedSettings.cc controlsWidget.cc \
-  filterSettings.cc filterWheel.cc \
-  focusOverlay.cc generalSettings.cc oalive.cc \
+  filterSettings.cc filterWheel.cc generalSettings.cc oalive.cc \
   outputHandler.cc profileSettings.cc \
   settingsWidget.cc mainWindow.cc viewWidget.cc cameraControls.cc \
   stackingControls.cc saveControls.cc processingControls.cc trampoline.cc \
