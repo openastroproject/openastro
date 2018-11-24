@@ -28,9 +28,11 @@
 
 extern "C" {
 #include <png.h>
-};
 
+#include <openastro/camera.h>
 #include <openastro/demosaic.h>
+#include <openastro/video/formats.h>
+};
 
 #include "targets.h"
 #include "trampoline.h"
@@ -38,9 +40,6 @@ extern "C" {
 #include "fitsSettings.h"
 #include "outputHandler.h"
 #include "outputPNG.h"
-
-#include "configuration.h"
-#include "state.h"
 
 
 OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt,
@@ -347,11 +346,11 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
         PNG_KEYWORD_MAX_LENGTH+1 );
   } else {
     int binMultiplier = 1;
-    if ( state.binningValid ) {
-      binMultiplier = OA_BIN_MODE_MULTIPLIER ( state.binModeX  );
+    if ( trampolines->isBinningValid()) {
+      binMultiplier = OA_BIN_MODE_MULTIPLIER ( trampolines->binModeX());
     }
     ( void ) snprintf ( stringBuffs[ numComments ],
-        PNG_KEYWORD_MAX_LENGTH, "%f", state.camera->pixelSizeX() *
+        PNG_KEYWORD_MAX_LENGTH, "%f", trampolines->pixelSizeX() *
         binMultiplier / 1000.0 );
   }
   if ( stringBuffs[ numComments ][0] ) {
@@ -367,11 +366,11 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
         PNG_KEYWORD_MAX_LENGTH+1 );
   } else {
     int binMultiplier = 1;
-    if ( state.binningValid ) {
-      binMultiplier = OA_BIN_MODE_MULTIPLIER ( state.binModeY  );
+    if ( trampolines->isBinningValid()) {
+      binMultiplier = OA_BIN_MODE_MULTIPLIER ( trampolines->binModeY());
     }
     ( void ) snprintf ( stringBuffs[ numComments ],
-        PNG_KEYWORD_MAX_LENGTH, "%f", state.camera->pixelSizeY() *
+        PNG_KEYWORD_MAX_LENGTH, "%f", trampolines->pixelSizeY() *
         binMultiplier / 1000.0 );
   }
   if ( stringBuffs[ numComments ][0] ) {
@@ -379,15 +378,14 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
-#ifdef OACAPTURE
   pngComments[ numComments ].key = ( char* ) "XORGSUBF";
   if ( pConfig->subframeOriginX != "" ) {
     xorg = pConfig->subframeOriginX.toInt();
   } else {
-    if ( state.cropMode ) {
-      xorg = ( state.sensorSizeX - state.cropSizeX ) / 2;
+    if ( trampolines->isCropMode()) {
+      xorg = ( trampolines->sensorSizeX() - trampolines->cropSizeX()) / 2;
     } else {
-      xorg = ( state.sensorSizeX - config.imageSizeX ) / 2;
+      xorg = ( trampolines->sensorSizeX() - xSize ) / 2;
     }
   }
   ( void ) snprintf ( stringBuffs[ numComments ], PNG_KEYWORD_MAX_LENGTH,
@@ -399,17 +397,16 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   if ( pConfig->subframeOriginY != "" ) {
     yorg = pConfig->subframeOriginY.toInt();
   } else {
-    if ( state.cropMode ) {
-      yorg = ( state.sensorSizeY - state.cropSizeY ) / 2;
+    if ( trampolines->isCropMode()) {
+      yorg = ( trampolines->sensorSizeY() - trampolines->cropSizeY()) / 2;
     } else {
-      yorg = ( state.sensorSizeY - config.imageSizeY ) / 2;
+      yorg = ( trampolines->sensorSizeY() - ySize ) / 2;
     }
   }
   ( void ) snprintf ( stringBuffs[ numComments ], PNG_KEYWORD_MAX_LENGTH,
       "%d", yorg );
   pngComments[ numComments ].text = stringBuffs[ numComments ];
   numComments++;
-#endif
 
   pngComments[ numComments ].key = ( char* ) "FILTER";
   QString currentFilter = trampolines->getCurrentFilterName();
@@ -423,11 +420,11 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
-#ifdef OACAPTURE
   stringBuffs[ numComments ][0] = 0;
   pngComments[ numComments ].key = ( char* ) "SITELAT";
-  if ( state.gpsValid ) {
-    ( void ) sprintf ( stringBuffs[ numComments ], "%g", state.latitude );
+  if ( trampolines->isGPSValid()) {
+    ( void ) sprintf ( stringBuffs[ numComments ], "%g",
+		trampolines->latitude());
   }
   if ( !stringBuffs[ numComments ][0] && pConfig->siteLatitude != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
@@ -441,8 +438,9 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
   stringBuffs[ numComments ][0] = 0;
   pngComments[ numComments ].key = ( char* ) "SITELONG";
-  if ( state.gpsValid ) {
-    ( void ) sprintf ( stringBuffs[ numComments ], "%g", state.longitude );
+  if ( trampolines->isGPSValid()) {
+    ( void ) sprintf ( stringBuffs[ numComments ], "%g",
+				trampolines->longitude());
   }
   if ( !stringBuffs[ numComments ][0] && pConfig->siteLongitude != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
@@ -456,9 +454,11 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
 	stringBuffs[ numComments ][0] = 0;
   pngComments[ numComments ].key = ( char* ) "SITEELEV";
-  if ( state.gpsValid ) {
-    ( void ) sprintf ( stringBuffs[ numComments ], "%g", state.altitude );
-    ( void ) sprintf ( stringBuffs[ numComments + 1 ], "%g", state.altitude );
+  if ( trampolines->isGPSValid()) {
+    ( void ) sprintf ( stringBuffs[ numComments ], "%g",
+		trampolines->altitude());
+    ( void ) sprintf ( stringBuffs[ numComments + 1 ], "%g",
+				trampolines->altitude());
   }
   if ( stringBuffs[ numComments ][0] ) {
     pngComments[ numComments ].text = stringBuffs[ numComments ];
@@ -467,7 +467,6 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }
-#endif
 
   snprintf ( stringBuffs[ numComments ], PNG_KEYWORD_MAX_LENGTH+1, "%s %s",
 			applicationName, applicationVersion );
@@ -520,20 +519,23 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   }
 
   pngComments[ numComments ].key = ( char* ) "CCD-TEMP";
-  if ( state.cameraTempValid ) {
-    ( void ) sprintf ( stringBuffs[ numComments ], "%g", state.cameraTemp );
+  if ( trampolines->isCameraTempValid()) {
+    ( void ) sprintf ( stringBuffs[ numComments ], "%g",
+				trampolines->cameraTemp());
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }
 
 
-  if ( state.binningValid ) {
+  if ( trampolines->isBinningValid()) {
     pngComments[ numComments ].key = ( char* ) "XBINNING";
-    ( void ) sprintf ( stringBuffs[ numComments ], "%d", state.binModeX );
+    ( void ) sprintf ( stringBuffs[ numComments ], "%d",
+				trampolines->binModeX());
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
     pngComments[ numComments ].key = ( char* ) "YBINNING";
-    ( void ) sprintf ( stringBuffs[ numComments ], "%d", state.binModeY );
+    ( void ) sprintf ( stringBuffs[ numComments ], "%d",
+				trampolines->binModeY());
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }

@@ -40,7 +40,7 @@ lib_LTLIBRARIES = liboacommon.la
 liboacommon_la_SOURCES = camera.cc targets.cc \
 	captureSettings.cc demosaicSettings.cc fitsSettings.cc \
 	outputAVI.cc outputDIB.cc outputFFMPEG.cc outputFITS.cc outputMOV.cc \
-	outputSER.cc outputTIFF.cc \
+	outputPNG.cc outputSER.cc outputTIFF.cc \
 	moc_camera.cc moc_filterWheel.cc \
 	moc_focusOverlay.cc \
 	moc_advancedSettings.cc moc_captureSettings.cc moc_demosaicSettings.cc \
