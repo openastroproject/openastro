@@ -37,6 +37,7 @@
 
 #include "trampoline.h"
 
+
 class AutorunSettings : public QWidget
 {
   Q_OBJECT
