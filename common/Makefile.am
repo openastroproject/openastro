@@ -42,11 +42,11 @@ liboacommon_la_SOURCES = camera.cc targets.cc \
 	outputAVI.cc outputDIB.cc outputFFMPEG.cc outputFITS.cc outputMOV.cc \
 	outputPNG.cc outputSER.cc outputTIFF.cc \
 	moc_camera.cc moc_filterWheel.cc \
-	moc_focusOverlay.cc \
-	moc_advancedSettings.cc moc_autorunSettings.cc moc_captureSettings.cc \
-	moc_demosaicSettings.cc moc_filterSettings.cc moc_fitsSettings.cc \
-	moc_generalSettings.cc moc_histogramSettings.cc moc_profileSettings.cc \
-	moc_timerSettings.cc
+	moc_focusOverlay.cc moc_settingsWidget.cc \
+	moc_advancedSettings.cc moc_autorunSettings.cc moc_cameraSettings.cc \
+	moc_captureSettings.cc moc_demosaicSettings.cc moc_filterSettings.cc \
+	moc_fitsSettings.cc moc_generalSettings.cc moc_histogramSettings.cc \
+	moc_profileSettings.cc moc_timerSettings.cc
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

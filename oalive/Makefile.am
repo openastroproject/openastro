@@ -46,7 +46,7 @@ oalive_SOURCES = advancedSettings.cc controlsWidget.cc \
   settingsWidget.cc mainWindow.cc viewWidget.cc cameraControls.cc \
   stackingControls.cc saveControls.cc processingControls.cc trampoline.cc \
 	moc_cameraControls.cc moc_controlsWidget.cc moc_mainWindow.cc \
-	moc_processingControls.cc moc_saveControls.cc moc_settingsWidget.cc \
+	moc_processingControls.cc moc_saveControls.cc \
 	moc_stackingControls.cc moc_viewWidget.cc \
   qrc_oalive.cc
 

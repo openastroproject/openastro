@@ -35,18 +35,14 @@
 #include <QtCore>
 #include <QtGui>
 
-#include "configuration.h"
-
 #include "generalSettings.h"
 #include "captureSettings.h"
 #include "profileSettings.h"
 #include "filterSettings.h"
-#ifdef OACAPTURE
 #include "autorunSettings.h"
 #include "histogramSettings.h"
 #include "cameraSettings.h"
 #include "timerSettings.h"
-#endif
 #include "demosaicSettings.h"
 #include "fitsSettings.h"
 
@@ -90,12 +86,10 @@ class SettingsWidget : public QWidget
   private:
     GeneralSettings*	general;
     CaptureSettings*	capture;
-#ifdef OACAPTURE
     CameraSettings*	cameras;
     TimerSettings*	timer;
     AutorunSettings*	autorun;
     HistogramSettings*	histogram;
-#endif
     ProfileSettings*	profiles;
     FilterSettings*	filters;
     DemosaicSettings*	demosaic;
