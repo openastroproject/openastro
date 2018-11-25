@@ -39,10 +39,8 @@ extern "C" {
 #include <openastro/ptr.h>
 }
 
-class Timer // : public QObject
+class Timer
 {
-  // Q_OBJECT
-
   public:
     			Timer();
     			~Timer();
