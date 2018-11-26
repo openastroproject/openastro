@@ -45,6 +45,7 @@ extern "C" {
 #include "captureSettings.h"
 #include "fitsSettings.h"
 #include "demosaicSettings.h"
+#include "timerSettings.h"
 
 #include "mainWindow.h"
 #include "configuration.h"
@@ -59,6 +60,7 @@ extern "C" {
 extern captureConfig		captureConf;
 extern fitsConfig				fitsConf;
 extern demosaicConfig		demosaicConf;
+extern timerConfig			timerConf;
 
 class MainWindow : public QMainWindow
 {

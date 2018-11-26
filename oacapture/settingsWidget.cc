@@ -40,11 +40,11 @@
 #include "mainWindow.h"
 #include "profileSettings.h"
 #include "settingsWidget.h"
+#include "timerSettings.h"
 #ifdef OACAPTURE
 #include "cameraSettings.h"
 #include "autorunSettings.h"
 #include "histogramSettings.h"
-#include "timerSettings.h"
 #endif
 #include "demosaicSettings.h"
 
@@ -121,13 +121,12 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
     state.fitsSettingsIndex = tabSet->addTab ( fits,
         QIcon ( ":/qt-icons/fits.png" ), tr ( "FITS/SER Metadata" ));
 	}
-#ifdef OACAPTURE
 	if ( reqdWindows & SETTINGS_TIMER ) {
-    timer = new TimerSettings ( this, applicationName );
+    timer = new TimerSettings ( this, &timerConf, applicationName,
+				trampolines );
     state.timerSettingsIndex = tabSet->addTab ( timer,
         QIcon ( ":/qt-icons/timer.png" ), tr ( "Timer" ));
 	}
-#endif
 
   tabSet->setUsesScrollButtons ( false );
 
@@ -206,11 +205,9 @@ SettingsWidget::storeSettings ( void )
 	if ( reqdWindows & SETTINGS_FITS ) {
     fits->storeSettings();
 	}
-#ifdef OACAPTURE
 	if ( reqdWindows & SETTINGS_TIMER ) {
     timer->storeSettings();
 	}
-#endif
   state.mainWindow->updateConfig();
   state.mainWindow->showStatusMessage ( tr ( "Changes saved" ));
   cancelButton->setText ( tr ( "Close" ));

@@ -55,6 +55,7 @@ CONFIG		config;
 captureConfig		captureConf;
 fitsConfig			fitsConf;
 demosaicConfig	demosaicConf;
+timerConfig			timerConf;
 STATE		state;
 
 static const char* styleGroupBoxBorders =
@@ -406,8 +407,8 @@ MainWindow::readConfig ( QString configFile )
     fitsConf.siteLongitude = "";
     fitsConf.filter = "";
 
-    config.timerMode = OA_TIMER_MODE_UNSET;
-    config.timerEnabled = 0;
+    timerConf.timerMode = OA_TIMER_MODE_UNSET;
+    timerConf.timerEnabled = 0;
   } else {
 
     int version = settings->value ( "configVersion", CONFIG_VERSION ).toInt();
@@ -932,17 +933,17 @@ MainWindow::readConfig ( QString configFile )
       "fits/siteLongitude", "" ).toString();
   fitsConf.filter = settings->value ( "fits/filter", "" ).toString();
 
-  config.timerMode = settings->value ( "timer/mode",
+  timerConf.timerMode = settings->value ( "timer/mode",
       OA_TIMER_MODE_UNSET ).toInt();
-  config.timerEnabled = settings->value ( "timer/enabled", 0 ).toInt();
-  config.triggerInterval = settings->value ( "timer/triggerInterval",
+  timerConf.timerEnabled = settings->value ( "timer/enabled", 0 ).toInt();
+  timerConf.triggerInterval = settings->value ( "timer/triggerInterval",
       1 ).toInt();
-  config.userDrainDelayEnabled = settings->value ( "timer/drainDelayEnabled",
+  timerConf.userDrainDelayEnabled = settings->value ( "timer/drainDelayEnabled",
       0 ).toInt();
-  config.drainDelay = settings->value ( "timer/drainDelay", 500 ).toInt();
-  config.timestampDelay = settings->value ( "timer/timestampDelay",
+  timerConf.drainDelay = settings->value ( "timer/drainDelay", 500 ).toInt();
+  timerConf.timestampDelay = settings->value ( "timer/timestampDelay",
       50 ).toInt();
-  config.queryGPSForEachCapture = settings->value (
+  timerConf.queryGPSForEachCapture = settings->value (
       "timer/queryGPSForEachCapture", 0 ).toInt();
 
   delete settings;
@@ -1225,15 +1226,15 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "fits/siteLongitude", fitsConf.siteLongitude );
   settings->setValue ( "fits/filter", fitsConf.filter );
 
-  settings->setValue ( "timer/mode", config.timerMode );
-  settings->setValue ( "timer/enabled", config.timerEnabled );
-  settings->setValue ( "timer/triggerInterval", config.triggerInterval );
+  settings->setValue ( "timer/mode", timerConf.timerMode );
+  settings->setValue ( "timer/enabled", timerConf.timerEnabled );
+  settings->setValue ( "timer/triggerInterval", timerConf.triggerInterval );
   settings->setValue ( "timer/drainDelayEnabled",
-      config.userDrainDelayEnabled );
-  settings->setValue ( "timer/drainDelay", config.drainDelay );
-  settings->setValue ( "timer/timestampDelay", config.timestampDelay );
+      timerConf.userDrainDelayEnabled );
+  settings->setValue ( "timer/drainDelay", timerConf.drainDelay );
+  settings->setValue ( "timer/timestampDelay", timerConf.timestampDelay );
   settings->setValue ( "timer/queryGPSForEachCapture",
-      config.queryGPSForEachCapture );
+      timerConf.queryGPSForEachCapture );
   settings->sync();
 }
 

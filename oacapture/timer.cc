@@ -31,6 +31,7 @@ extern "C" {
 }
 
 #include "timer.h"
+#include "mainWindow.h"
 #include "configuration.h"
 
 
@@ -302,7 +303,7 @@ Timer::readTimestamp ( void )
     return 0;
   }
 
-  if ( timerFuncs.readTimestamp ( timerContext, config.timestampDelay,
+  if ( timerFuncs.readTimestamp ( timerContext, timerConf.timestampDelay,
       &ts ) != OA_ERR_NONE ) {
     ts.timestamp[0] = 0;
     ts.index = 0;

@@ -80,6 +80,11 @@ typedef struct {
 	double ( *altitude )( void );
 	int ( *isCameraTempValid )( void );
 	float ( *cameraTemp )( void );
+	void ( *setTimerMode )( int );
+	int ( *isTimerInitialised )( void );
+	int ( *timerHasReset )( void );
+	int ( *timerHasSync )( void );
+	void ( *checkTimerWarnings )( void );
 } trampolineFuncs;
 
 extern trampolineFuncs trampolines;

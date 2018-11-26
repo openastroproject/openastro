@@ -142,15 +142,6 @@ typedef struct
   QList<userConfigList>	filterWheelConfig;
   QList<userConfigList>	timerConfig;
 
-  // Timer configuration
-  int			timerEnabled;
-  int			timerMode;
-  int			triggerInterval;
-  int			userDrainDelayEnabled;
-  int			drainDelay;
-  int			timestampDelay;
-  int			queryGPSForEachCapture;
-
 } CONFIG;
 
 extern CONFIG		config;

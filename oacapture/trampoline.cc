@@ -33,6 +33,7 @@
 #include "configuration.h"
 #include "trampoline.h"
 #include "state.h"
+#include "version.h"
 
 
 int
@@ -381,6 +382,66 @@ t_cameraTemp ( void )
 }
 
 
+void
+t_setTimerMode ( int mode )
+{
+	timerConf.timerMode = mode;
+}
+
+
+int
+t_isTimerInitialised ( void )
+{
+	return ( state.timer && state.timer->isInitialised() ? 1 : 0 );
+}
+
+
+int
+t_timerHasReset ( void )
+{
+	return state.timer->hasReset();
+}
+
+
+int
+t_timerHasSync ( void )
+{
+	return state.timer->hasSync();
+}
+
+
+void
+t_checkTimerWarnings ( void )
+{
+	QString		msg;
+
+  if (( CAPTURE_FITS != config.fileTypeOption && CAPTURE_TIFF !=                      config.fileTypeOption ) || !config.limitEnabled ||
+      !config.limitType ) {
+    msg = QCoreApplication::translate ( "SettingsWidget",
+				"\n\nWhen using timer mode the image capture type should "
+        "be FITS/TIFF/PNG and a frame-based capture limit should be set." );
+    QMessageBox::warning ( state.settingsWidget, APPLICATION_NAME, msg );
+  }
+  if ( state.camera && state.camera->isInitialised()) {
+    if ( state.camera->hasControl ( OA_CAM_CTRL_TRIGGER_ENABLE ) &&
+        timerConf.timerMode == OA_TIMER_MODE_TRIGGER &&
+        !state.camera->readControl ( OA_CAM_CTRL_TRIGGER_ENABLE )) {
+      msg = QCoreApplication::translate ( "SettingsWidget",
+					"\n\nThe timer is in trigger mode but the camera is "
+          "not.  These two settings should be the same." );
+    }
+    if ( state.camera->hasControl ( OA_CAM_CTRL_STROBE_ENABLE ) &&
+        timerConf.timerMode == OA_TIMER_MODE_STROBE &&
+        !state.camera->readControl ( OA_CAM_CTRL_STROBE_ENABLE )) {
+      msg = QCoreApplication::translate ( "SettingsWidget",
+					"\n\nThe timer is in strobe mode but the camera is "
+          "not.  These two settings should be the same." );
+    }
+    QMessageBox::warning ( state.settingsWidget, APPLICATION_NAME, msg );
+  }
+}
+
+
 trampolineFuncs trampolines {
 	.getCurrentGain = &t_getCurrentGain,
 	.getCurrentExposure = &t_getCurrentExposure,
@@ -430,5 +491,10 @@ trampolineFuncs trampolines {
   .longitude = &t_longitude,
   .altitude = &t_altitude,
   .isCameraTempValid = &t_isCameraTempValid,
-  .cameraTemp = &t_cameraTemp
+  .cameraTemp = &t_cameraTemp,
+  .setTimerMode = &t_setTimerMode,
+  .isTimerInitialised = &t_isTimerInitialised,
+  .timerHasReset = &t_timerHasReset,
+  .timerHasSync = &t_timerHasSync,
+  .checkTimerWarnings = &t_checkTimerWarnings
 };

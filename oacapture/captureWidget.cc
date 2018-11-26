@@ -425,7 +425,7 @@ CaptureWidget::pauseRecording ( void )
 void
 CaptureWidget::startRecording ( void )
 {
-  if ( config.timerEnabled && state.timer && state.timer->isInitialised()) {
+  if ( timerConf.timerEnabled && state.timer && state.timer->isInitialised()) {
     if (( CAPTURE_FITS != config.fileTypeOption && CAPTURE_TIFF !=
         config.fileTypeOption ) || !config.limitEnabled || !config.limitType ) {
       QString msg = tr ( "\n\nWhen using timer mode the image capture type "
@@ -523,7 +523,8 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     format = OA_DEMOSAIC_FMT ( format );
   }
 
-  if ( config.queryGPSForEachCapture && state.timer && state.timer->hasGPS()) {
+  if ( timerConf.queryGPSForEachCapture && state.timer &&
+			state.timer->hasGPS()) {
     if ( state.timer->readGPS ( &state.latitude, &state.longitude,
         &state.altitude, 1 ) == OA_ERR_NONE ) {
       state.gpsValid = 1;
@@ -666,17 +667,17 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     state.histogramWidget->resetStats();
   }
 
-  if ( config.timerEnabled && state.timer && state.timer->isInitialised()) {
+  if ( timerConf.timerEnabled && state.timer && state.timer->isInitialised()) {
     if ( state.timer->hasControl ( OA_TIMER_CTRL_MODE )) {
-      state.timer->setControl ( OA_TIMER_CTRL_MODE, config.timerMode );
+      state.timer->setControl ( OA_TIMER_CTRL_MODE, timerConf.timerMode );
     }
     if ( state.timer->hasControl ( OA_TIMER_CTRL_COUNT )) {
       state.timer->setControl ( OA_TIMER_CTRL_COUNT, config.framesLimitValue );
     }
-    if ( config.timerMode == OA_TIMER_MODE_TRIGGER ) {
+    if ( timerConf.timerMode == OA_TIMER_MODE_TRIGGER ) {
       if ( state.timer->hasControl ( OA_TIMER_CTRL_INTERVAL )) {
         state.timer->setControl ( OA_TIMER_CTRL_INTERVAL,
-            config.triggerInterval );
+            timerConf.triggerInterval );
       }
       // FIX ME
       qWarning() << "Need to check camera trigger is armed?";
@@ -703,8 +704,8 @@ CaptureWidget::doStartRecording ( int autorunFlag )
         exposureTime = 1000000;
       }
     }
-    if ( config.userDrainDelayEnabled ) {
-      exposureTime = config.drainDelay * 1000;
+    if ( timerConf.userDrainDelayEnabled ) {
+      exposureTime = timerConf.drainDelay * 1000;
     }
     usleep ( exposureTime );
     emit writeStatusMessage ( tr ( "Starting timer" ));

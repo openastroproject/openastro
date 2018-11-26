@@ -35,13 +35,26 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "trampoline.h"
+
+
+typedef struct {
+	int			timerEnabled;
+	int			timerMode;
+	int			triggerInterval;
+	int			userDrainDelayEnabled;
+	int			drainDelay;
+	int			timestampDelay;
+	int			queryGPSForEachCapture;
+} timerConfig;
+
 
 class TimerSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			TimerSettings ( QWidget*, QString );
+    			TimerSettings ( QWidget*, timerConfig*, QString, trampolineFuncs* );
     			~TimerSettings();
     void		storeSettings ( void );
 
@@ -70,6 +83,8 @@ class TimerSettings : public QWidget
     QHBoxLayout*	timestampDelayLayout;
     QCheckBox*		checkGPSBox;
 		QString				applicationName;
+		timerConfig*	pconfig;
+		trampolineFuncs*	trampolines;
 
   public slots:
     void		doTimerReset ( void );

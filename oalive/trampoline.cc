@@ -393,6 +393,43 @@ t_cameraTemp ( void )
 }
 
 
+void
+t_setTimerMode ( int mode )
+{
+	qWarning() << __FUNCTION__ << "doing nothing";
+}
+
+
+int
+t_isTimerInitialised ( void )
+{
+	qWarning() << __FUNCTION__ << "doing nothing";
+  return 0;
+}
+
+
+int
+t_timerHasReset ( void )
+{
+	qWarning() << __FUNCTION__ << "doing nothing";
+  return 0;
+}
+
+int
+t_timerHasSync ( void )
+{
+	qWarning() << __FUNCTION__ << "doing nothing";
+  return 0;
+}
+
+
+void
+t_checkTimerWarnings ( void )
+{
+	qWarning() << __FUNCTION__ << "doing nothing";
+}
+
+
 trampolineFuncs trampolines {
 	.getCurrentGain = &t_getCurrentGain,
 	.getCurrentExposure = &t_getCurrentExposure,
@@ -442,5 +479,10 @@ trampolineFuncs trampolines {
   .longitude = &t_longitude,
   .altitude = &t_altitude,
   .isCameraTempValid = &t_isCameraTempValid,
-	.cameraTemp = &t_cameraTemp
+	.cameraTemp = &t_cameraTemp,
+	.setTimerMode = &t_setTimerMode,
+	.isTimerInitialised = &t_isTimerInitialised,
+	.timerHasReset = &t_timerHasReset,
+	.timerHasSync = &t_timerHasSync,
+	.checkTimerWarnings = &t_checkTimerWarnings
 };

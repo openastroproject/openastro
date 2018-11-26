@@ -69,6 +69,7 @@ typedef struct
   int			filterSettingsIndex;
   int			demosaicSettingsIndex;
   int			fitsSettingsIndex;
+  int			timerSettingsIndex;
 /*
   int			cameraSettingsIndex;
   int			autorunSettingsIndex;
