@@ -28,7 +28,6 @@
 
 #include <QtGui>
 
-#include "configuration.h"
 #include "captureSettings.h"
 #include "profileSettings.h"
 #include "targets.h"
@@ -160,35 +159,30 @@ ProfileSettings::addEntry ( void )
   } while ( found );
 
   p.profileName = newName;
-  p.binning2x2 = config.binning2x2;
-  p.colourise = config.colourise;
-  p.useROI = config.useROI;
-  p.imageSizeX = config.imageSizeX;
-  p.imageSizeY = config.imageSizeY;
-  for ( int j = 0; j < config.numFilters; j++ ) {
+  p.binning2x2 = trampolines->binning2x2();
+  p.colourise = trampolines->colourise();
+  p.useROI = trampolines->useROI();
+  p.imageSizeX = trampolines->imageSizeX();
+  p.imageSizeY = trampolines->imageSizeY();
+  for ( int j = 0; j < trampolines->numFilters(); j++ ) {
     FILTER_PROFILE fp;
-    fp.filterName = config.filters[j].filterName;
+    fp.filterName = trampolines->filterName ( j );
     for ( int i = 1; i < OA_CAM_CTRL_LAST_P1; i++ ) {
       for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_P1; j++ ) {
-        fp.controls[j][i] = config.controlValues[j][i];
+        fp.controls[j][i] = trampolines->cameraControlValue ( j, i );
       }
     }
     p.filterProfiles.append ( fp );
   }
-  p.frameRateNumerator = config.frameRateNumerator;
-  p.frameRateDenominator = config.frameRateDenominator;
-  p.filterOption = config.filterOption;
-  p.fileTypeOption = config.fileTypeOption;
-#ifdef OALIVE
-	p.frameFileNameTemplate = config.frameFileNameTemplate;
-#endif
-#ifdef OACAPTURE
-  p.fileNameTemplate = config.fileNameTemplate;
-  p.limitEnabled = config.limitEnabled;
-  p.framesLimitValue = config.framesLimitValue;
-  p.secondsLimitValue = config.secondsLimitValue;
-#endif
-  p.target = TGT_UNKNOWN;
+  p.frameRateNumerator = trampolines->frameRateNumerator();
+  p.frameRateDenominator = trampolines->frameRateDenominator();
+  p.filterOption = trampolines->filterOption();
+  p.fileTypeOption = trampolines->fileTypeOption();
+	p.frameFileNameTemplate = trampolines->frameFileNameTemplate();
+  p.fileNameTemplate = trampolines->fileNameTemplate();
+  p.limitEnabled = trampolines->limitEnabled();
+  p.framesLimitValue = trampolines->framesLimitValue();
+  p.secondsLimitValue = trampolines->secondsLimitValue();
   ignoreTargetChange = 1;
   targetMenu->setCurrentIndex ( 0 );
   ignoreTargetChange = 0;

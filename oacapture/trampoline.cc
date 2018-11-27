@@ -312,28 +312,28 @@ t_isCropMode ( void )
 }
 
 
-int
+unsigned int
 t_sensorSizeX ( void )
 {
 	return state.sensorSizeX;
 }
 
 
-int
+unsigned int
 t_sensorSizeY ( void )
 {
 	return state.sensorSizeY;
 }
 
 
-int
+unsigned int
 t_cropSizeX ( void )
 {
 	return state.cropSizeX;
 }
 
 
-int
+unsigned int
 t_cropSizeY ( void )
 {
 	return state.cropSizeY;
@@ -442,6 +442,124 @@ t_checkTimerWarnings ( void )
 }
 
 
+int
+t_binning2x2 ( void )
+{
+  return config.binning2x2;
+}
+
+int
+t_colourise ( void )
+{
+  return config.colourise;
+}
+
+int
+t_useROI ( void )
+{
+  return config.useROI;
+}
+
+
+unsigned int
+t_imageSizeX ( void )
+{
+  return config.imageSizeX;
+}
+
+
+unsigned int
+t_imageSizeY ( void )
+{
+  return config.imageSizeY;
+}
+
+
+int
+t_frameRateNumerator ( void )
+{
+  return config.frameRateNumerator;
+}
+
+
+int
+t_frameRateDenominator ( void )
+{
+  return config.frameRateDenominator;
+}
+
+
+int
+t_filterOption ( void )
+{
+  return config.filterOption;
+}
+
+
+int
+t_numFilters ( void )
+{
+  return config.numFilters;
+}
+
+
+QString
+t_filterName ( int n )
+{
+  return config.filters[n].filterName;
+}
+
+
+int64_t
+t_cameraControlValue ( int m, int c )
+{
+  return config.controlValues[m][c];
+}
+
+
+int
+t_fileTypeOption ( void )
+{
+  return config.fileTypeOption;
+}
+
+
+QString
+t_frameFileNameTemplate ( void )
+{
+	qWarning() << __FUNCTION__ << "doing nothing";
+	return "";
+}
+
+
+QString
+t_fileNameTemplate ( void )
+{
+  return config.fileNameTemplate;
+}
+
+
+int
+t_limitEnabled ( void )
+{
+  return config.limitEnabled;
+}
+
+
+int
+t_framesLimitValue ( void )
+{
+  return config.framesLimitValue;
+}
+
+
+int
+t_secondsLimitValue ( void )
+{
+  return config.secondsLimitValue;
+}
+
+
 trampolineFuncs trampolines {
 	.getCurrentGain = &t_getCurrentGain,
 	.getCurrentExposure = &t_getCurrentExposure,
@@ -496,5 +614,22 @@ trampolineFuncs trampolines {
   .isTimerInitialised = &t_isTimerInitialised,
   .timerHasReset = &t_timerHasReset,
   .timerHasSync = &t_timerHasSync,
-  .checkTimerWarnings = &t_checkTimerWarnings
+  .checkTimerWarnings = &t_checkTimerWarnings,
+  .binning2x2 = &t_binning2x2,
+  .colourise = &t_colourise,
+  .useROI = &t_useROI,
+  .imageSizeX = &t_imageSizeX,
+  .imageSizeY = &t_imageSizeY,
+  .frameRateNumerator = &t_frameRateNumerator,
+  .frameRateDenominator = &t_frameRateDenominator,
+  .filterOption = &t_filterOption,
+  .numFilters = &t_numFilters,
+  .filterName = &t_filterName,
+  .cameraControlValue = &t_cameraControlValue,
+  .fileTypeOption = &t_fileTypeOption,
+  .frameFileNameTemplate = &t_frameFileNameTemplate,
+  .fileNameTemplate = &t_fileNameTemplate,
+  .limitEnabled = &t_limitEnabled,
+  .framesLimitValue = &t_framesLimitValue,
+  .secondsLimitValue = &t_secondsLimitValue
 };

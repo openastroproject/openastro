@@ -69,10 +69,10 @@ typedef struct {
 	int ( *binModeY )( void );
 	int ( *pixelSizeX )( void );
 	int ( *pixelSizeY )( void );
-	int ( *sensorSizeX )( void );
-	int ( *sensorSizeY )( void );
-	int ( *cropSizeX )( void );
-	int ( *cropSizeY )( void );
+	unsigned int ( *sensorSizeX )( void );
+	unsigned int ( *sensorSizeY )( void );
+	unsigned int ( *cropSizeX )( void );
+	unsigned int ( *cropSizeY )( void );
 	int ( *isCropMode )( void );
 	int ( *isGPSValid )( void );
 	double ( *latitude )( void );
@@ -85,6 +85,23 @@ typedef struct {
 	int ( *timerHasReset )( void );
 	int ( *timerHasSync )( void );
 	void ( *checkTimerWarnings )( void );
+	int ( *binning2x2 )( void );
+	int ( *colourise )( void );
+	int ( *useROI )( void );
+	unsigned int ( *imageSizeX )( void );
+	unsigned int ( *imageSizeY )( void );
+	int ( *frameRateNumerator )( void );
+	int ( *frameRateDenominator )( void );
+	int ( *filterOption )( void );
+	int ( *numFilters )( void );
+	QString ( *filterName )( int );
+	int64_t ( *cameraControlValue )( int, int );
+	int ( *fileTypeOption )( void );
+	QString ( *frameFileNameTemplate )( void );
+	QString ( *fileNameTemplate )( void );
+	int ( *limitEnabled )( void );
+	int ( *framesLimitValue )( void );
+	int ( *secondsLimitValue )( void );
 } trampolineFuncs;
 
 extern trampolineFuncs trampolines;
