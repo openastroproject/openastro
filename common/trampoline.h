@@ -102,6 +102,8 @@ typedef struct {
 	int ( *limitEnabled )( void );
 	int ( *framesLimitValue )( void );
 	int ( *secondsLimitValue )( void );
+	QString ( *captureDirectory )( void );
+	QString ( *currentDirectory )( void );
 } trampolineFuncs;
 
 extern trampolineFuncs trampolines;

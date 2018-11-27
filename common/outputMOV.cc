@@ -40,8 +40,8 @@ extern "C" {
 
 OutputMOV::OutputMOV ( int x, int y, int n, int d, int fmt,
 		QString fileTemplate, unsigned long long* pcounter,
-		trampolineFuncs* trampolines ) :
-    OutputFFMPEG ( x, y, n, d, fmt, fileTemplate, pcounter, trampolines )
+		captureConfig* cConf, trampolineFuncs* trampolines ) :
+    OutputFFMPEG ( x, y, n, d, fmt, fileTemplate, pcounter, cConf, trampolines )
 {
   //videoCodec = AV_CODEC_ID_RAWVIDEO;
   videoCodec = AV_CODEC_ID_QTRLE;

@@ -551,6 +551,20 @@ t_secondsLimitValue ( void )
 }
 
 
+QString
+t_captureDirectory ( void )
+{
+	return config.captureDirectory;
+}
+
+
+QString
+t_currentDirectory ( void )
+{
+	return state.currentDirectory;
+}
+
+
 trampolineFuncs trampolines {
 	.getCurrentGain = &t_getCurrentGain,
 	.getCurrentExposure = &t_getCurrentExposure,
@@ -622,5 +636,7 @@ trampolineFuncs trampolines {
   .fileNameTemplate = &t_fileNameTemplate,
   .limitEnabled = &t_limitEnabled,
   .framesLimitValue = &t_framesLimitValue,
-  .secondsLimitValue = &t_secondsLimitValue
+  .secondsLimitValue = &t_secondsLimitValue,
+  .captureDirectory = &t_captureDirectory,
+  .currentDirectory = &t_currentDirectory
 };

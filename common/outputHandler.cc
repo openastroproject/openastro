@@ -32,30 +32,22 @@
 #include "captureSettings.h"
 #include "outputHandler.h"
 
-#include "mainWindow.h"
-#include "state.h"
-
 
 OutputHandler::OutputHandler ( int x, int y, int n, int d,
 		QString nameTemplate, unsigned long long* pcounter,
-		fitsConfig* pconf, trampolineFuncs* tramps ) : trampolines ( tramps ),
-		pCaptureIndex ( pcounter ), pConfig ( pconf )
+		fitsConfig* pconf, captureConfig* cconf, trampolineFuncs* tramps ) :
+		trampolines ( tramps ), pCaptureIndex ( pcounter ), pConfig ( pconf ),
+		cConfig ( cconf ), filenameTemplate ( nameTemplate )
 {
   Q_UNUSED( x );
   Q_UNUSED( y );
   Q_UNUSED( n );
   Q_UNUSED( d );
 
-#ifdef OACAPTURE
 	if ( nameTemplate == "" ) {
-		filenameTemplate = config.fileNameTemplate;
+		filenameTemplate = trampolines->fileNameTemplate().toStdString().c_str();
     generateFilename();
-  } else {
-#endif
-		filenameTemplate = nameTemplate;
-#ifdef OACAPTURE
 	}
-#endif
 }
 
 
@@ -102,7 +94,7 @@ OutputHandler::generateFilename ( void )
 
   QString index, gain, exposureMs, exposureS;
   unsigned int exposure;
-  index = QString("%1").arg ( *pCaptureIndex, captureConf.indexDigits, 10,
+  index = QString("%1").arg ( *pCaptureIndex, cConfig->indexDigits, 10,
       QChar('0'));
   gain = QString("%1").arg ( trampolines->getCurrentGain());
   exposure = trampolines->getCurrentExposure();
@@ -144,11 +136,11 @@ OutputHandler::generateFilename ( void )
   filename.replace ( "%X", exposureS );
 
   if ( filename[0] != '/' ) {
-    if ( config.captureDirectory != "" ) {
-      filename = config.captureDirectory + "/" + filename;
-    } else {
-      filename = state.currentDirectory + "/" + filename;
+		QString d = trampolines->captureDirectory();
+    if ( d == "" ) {
+			d = trampolines->currentDirectory();
     }
+    filename = d + "/" + filename;
   }
 
   fullSaveFilePath = "";

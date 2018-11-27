@@ -50,8 +50,8 @@ static int libavStarted = 0;
 
 OutputFFMPEG::OutputFFMPEG ( int x, int y, int n, int d, int fmt,
 		QString fileTemplate, unsigned long long* pcounter,
-		trampolineFuncs* trampolines ) :
-    OutputHandler ( x, y, n, d, fileTemplate, pcounter, 0, trampolines )
+		captureConfig* cConf, trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate, pcounter, 0, cConf, trampolines )
 {
   if ( !libavStarted ) {
     av_register_all();

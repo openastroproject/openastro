@@ -555,18 +555,18 @@ CaptureWidget::doStartRecording ( int autorunFlag )
         out = new OutputDIB ( actualX, actualY,
             state.controlWidget->getFPSNumerator(),
             state.controlWidget->getFPSDenominator(), format, emptyStr,
-              &state.captureIndex, &trampolines );
+              &state.captureIndex, &captureConf, &trampolines );
       } else {
         if ( captureConf.useUtVideo && UTVIDEO_OK( format )) {
           out = new OutputAVI ( actualX, actualY,
               state.controlWidget->getFPSNumerator(),
               state.controlWidget->getFPSDenominator(), format, emptyStr,
-							&state.captureIndex, &trampolines );
+							&state.captureIndex, &captureConf, &trampolines );
         } else {
           out = new OutputAVI ( actualX, actualY,
               state.controlWidget->getFPSNumerator(),
               state.controlWidget->getFPSDenominator(), format, emptyStr,
-							&state.captureIndex, &trampolines );
+							&state.captureIndex, &captureConf, &trampolines );
         }
       }
       break;
@@ -575,14 +575,14 @@ CaptureWidget::doStartRecording ( int autorunFlag )
       out = new OutputMOV ( actualX, actualY,
           state.controlWidget->getFPSNumerator(),
           state.controlWidget->getFPSDenominator(), format, emptyStr,
-					&state.captureIndex, &trampolines );
+					&state.captureIndex, &captureConf, &trampolines );
       break;
 
     case CAPTURE_SER:
       out = new OutputSER ( actualX, actualY,
           state.controlWidget->getFPSNumerator(),
           state.controlWidget->getFPSDenominator(), format, emptyStr,
-					&state.captureIndex, &fitsConf, &trampolines );
+					&state.captureIndex, &fitsConf, &captureConf, &trampolines );
       break;
 
     case CAPTURE_TIFF:
@@ -590,7 +590,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
           state.controlWidget->getFPSNumerator(),
           state.controlWidget->getFPSDenominator(), format,
 					APPLICATION_NAME, VERSION_STR, emptyStr,
-					&state.captureIndex, &fitsConf, &trampolines );
+					&state.captureIndex, &fitsConf, &captureConf, &trampolines );
       break;
 
     case CAPTURE_PNG:
@@ -598,7 +598,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
           state.controlWidget->getFPSNumerator(),
           state.controlWidget->getFPSDenominator(), format,
 					APPLICATION_NAME, VERSION_STR, emptyStr,
-					&state.captureIndex, &fitsConf, &trampolines );
+					&state.captureIndex, &fitsConf, &captureConf, &trampolines );
       break;
 
 #ifdef HAVE_LIBCFITSIO
@@ -607,7 +607,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
           state.controlWidget->getFPSNumerator(),
           state.controlWidget->getFPSDenominator(), format,
 					APPLICATION_NAME, VERSION_STR, emptyStr,
-					&state.captureIndex, &fitsConf, &trampolines );
+					&state.captureIndex, &fitsConf, &captureConf, &trampolines );
       break;
 #endif
   }

@@ -51,10 +51,10 @@ extern "C" {
 
 OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
 		const char *appName, const char* appVer, QString fileTemplate,
-		unsigned long long* pcounter, fitsConfig* pconf,
+		unsigned long long* pcounter, fitsConfig* pconf, captureConfig* cConf,
 		trampolineFuncs* trampolines ) :
-		OutputHandler ( x, y, n, d, fileTemplate, pcounter, pconf, trampolines ),
-		applicationName ( appName ), applicationVersion ( appVer ),
+		OutputHandler ( x, y, n, d, fileTemplate, pcounter, pconf, cConf,
+		trampolines ), applicationName ( appName ), applicationVersion ( appVer ),
 		imageFormat ( fmt )
 {
   uint16_t byteOrderTest = 0x1234;

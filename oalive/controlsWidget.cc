@@ -431,14 +431,14 @@ ControlsWidget::openOutputFiles ( void )
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.frameFileNameTemplate,
-						&state.captureIndex, &fitsConf, &trampolines );
+						&state.captureIndex, &fitsConf, &captureConf, &trampolines );
         break;
       case CAPTURE_PNG:
         out = new OutputPNG ( config.imageSizeX, config.imageSizeY,
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.frameFileNameTemplate,
-						&state.captureIndex, &fitsConf, &trampolines );
+						&state.captureIndex, &fitsConf, &captureConf, &trampolines );
         break;
 #ifdef HAVE_LIBCFITSIO
       case CAPTURE_FITS:
@@ -446,7 +446,7 @@ ControlsWidget::openOutputFiles ( void )
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.frameFileNameTemplate,
-						&state.captureIndex, &fitsConf, &trampolines );
+						&state.captureIndex, &fitsConf, &captureConf, &trampolines );
         break;
 #endif
     }
@@ -500,14 +500,14 @@ qWarning() << "have frame save handler";
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.processedFileNameTemplate,
-            &state.captureIndex, &fitsConf, &trampolines );
+            &state.captureIndex, &fitsConf, &captureConf, &trampolines );
         break;
       case CAPTURE_PNG:
         out = new OutputPNG ( config.imageSizeX, config.imageSizeY,
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.processedFileNameTemplate,
-            &state.captureIndex, &fitsConf, &trampolines );
+            &state.captureIndex, &fitsConf, &captureConf, &trampolines );
         break;
 #ifdef HAVE_LIBCFITSIO
       case CAPTURE_FITS:
@@ -515,7 +515,7 @@ qWarning() << "have frame save handler";
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.processedFileNameTemplate,
-            &state.captureIndex, &fitsConf, &trampolines );
+            &state.captureIndex, &fitsConf, &captureConf, &trampolines );
         break;
 #endif
     }

@@ -37,13 +37,15 @@
 
 #include "trampoline.h"
 #include "fitsSettings.h"
+#include "captureSettings.h"
 
 
 class OutputHandler
 {
   public:
     			OutputHandler ( int, int, int, int, QString,
-							unsigned long long*, fitsConfig*, trampolineFuncs* );
+							unsigned long long*, fitsConfig*, captureConfig*,
+							trampolineFuncs* );
     virtual		~OutputHandler() {};
     unsigned int	getFrameCount ( void );
 
@@ -66,7 +68,8 @@ class OutputHandler
     void		generateFilename ( void );
 		trampolineFuncs*	trampolines;
 		unsigned long long* pCaptureIndex;
-		fitsConfig*		pConfig;
+		fitsConfig*			pConfig;
+		captureConfig*	cConfig;
 
   private:
     QString		filename;

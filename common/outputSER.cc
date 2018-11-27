@@ -39,8 +39,9 @@ extern "C" {
 
 OutputSER::OutputSER ( int x, int y, int n, int d, int fmt,
 		QString fileTemplate, unsigned long long* pcounter,
-		fitsConfig* pConfig, trampolineFuncs* trampolines ) :
-    OutputHandler ( x, y, n, d, fileTemplate, pcounter, pConfig, trampolines )
+		fitsConfig* pConfig, captureConfig* cConf, trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate, pcounter, pConfig, cConf,
+		trampolines )
 {
   // FIX ME -- I should move a load of this into liboaSER
 

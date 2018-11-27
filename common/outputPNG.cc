@@ -44,10 +44,10 @@ extern "C" {
 
 OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt,
 		const char* appName, const char* appVer, QString fileTemplate,
-		unsigned long long* pcounter, fitsConfig* pConf,
+		unsigned long long* pcounter, fitsConfig* pConf, captureConfig* cConf,
 		trampolineFuncs* trampolines ) :
-    OutputHandler ( x, y, n, d, fileTemplate, pcounter, pConf, trampolines ),
-		applicationName ( appName ), applicationVersion ( appVer ),
+    OutputHandler ( x, y, n, d, fileTemplate, pcounter, pConf, cConf,
+		trampolines ), applicationName ( appName ), applicationVersion ( appVer ),
 		imageFormat ( fmt )
 {
   int pixelSize;

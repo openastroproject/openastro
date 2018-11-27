@@ -42,7 +42,7 @@ liboacommon_la_SOURCES = camera.cc targets.cc \
 	timerSettings.cc \
 	focusOverlay.cc \
 	outputAVI.cc outputDIB.cc outputFFMPEG.cc outputFITS.cc outputMOV.cc \
-	outputPNG.cc outputSER.cc outputTIFF.cc \
+	outputPNG.cc outputSER.cc outputTIFF.cc outputHandler.cc \
 	moc_camera.cc moc_filterWheel.cc \
 	moc_focusOverlay.cc moc_settingsWidget.cc \
 	moc_advancedSettings.cc moc_autorunSettings.cc moc_cameraSettings.cc \
