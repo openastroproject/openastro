@@ -71,13 +71,13 @@ CaptureWidget::CaptureWidget ( QWidget* parent ) : QGroupBox ( parent )
   profileLabel = new QLabel ( tr ( "Profile:" ), this );
   profileMenu = new QComboBox ( this );
   QStringList profileNames;
-  if ( config.numProfiles ) {
-    for ( int i = 0; i < config.numProfiles; i++ ) {
-      profileNames << config.profiles[i].profileName;
+  if ( profileConf.numProfiles ) {
+    for ( int i = 0; i < profileConf.numProfiles; i++ ) {
+      profileNames << profileConf.profiles[i].profileName;
     }
   }
   profileMenu->addItems ( profileNames );
-  if ( config.numProfiles ) {
+  if ( profileConf.numProfiles ) {
     profileMenu->setCurrentIndex ( config.profileOption );
   }
   profileMenu->setEnabled ( 0 );
@@ -787,7 +787,7 @@ CaptureWidget::enableProfileSelect ( int state )
 {
   profileMenu->setEnabled ( state );
 #ifdef RELOAD_PROFILE
-  restoreButton->setEnabled ( config.numProfiles ? state : 0 );
+  restoreButton->setEnabled ( profileConf.numProfiles ? state : 0 );
 #endif
 }
 
@@ -1128,8 +1128,9 @@ CaptureWidget::filterTypeChanged ( int index )
 QString
 CaptureWidget::getCurrentProfileName ( void )
 {
-  if ( config.numProfiles > 0 && config.profileOption < config.numProfiles ) {
-    return config.profiles[ config.profileOption ].profileName;
+  if ( profileConf.numProfiles > 0 &&
+			config.profileOption < profileConf.numProfiles ) {
+    return profileConf.profiles[ config.profileOption ].profileName;
   }
   return "";
 }
@@ -1138,8 +1139,9 @@ CaptureWidget::getCurrentProfileName ( void )
 QString
 CaptureWidget::getCurrentTargetName ( void )
 {
-  if ( config.numProfiles > 0 && config.profileOption < config.numProfiles ) {
-    return targetList [ config.profiles[ config.profileOption ].target ];
+  if ( profileConf.numProfiles > 0 &&
+			config.profileOption < profileConf.numProfiles ) {
+    return targetList [ profileConf.profiles[ config.profileOption ].target ];
   }
   return "";
 }
@@ -1148,8 +1150,9 @@ CaptureWidget::getCurrentTargetName ( void )
 int
 CaptureWidget::getCurrentTargetId ( void )
 {
-  if ( config.numProfiles > 0 && config.profileOption < config.numProfiles ) {
-    return config.profiles[ config.profileOption ].target;
+  if ( profileConf.numProfiles > 0 &&
+			config.profileOption < profileConf.numProfiles ) {
+    return profileConf.profiles[ config.profileOption ].target;
   }
   return -1;
 }
@@ -1220,24 +1223,24 @@ CaptureWidget::reloadProfiles ( void )
   disconnect ( profileMenu, SIGNAL( currentIndexChanged ( int )), this,
       SLOT( profileTypeChanged ( int )));
   int oldCount = profileMenu->count();
-  if ( config.numProfiles ) {
-    for ( int i = 0; i < config.numProfiles; i++ ) {
+  if ( profileConf.numProfiles ) {
+    for ( int i = 0; i < profileConf.numProfiles; i++ ) {
       if ( i < oldCount ) {
-        profileMenu->setItemText ( i, config.profiles[i].profileName );
+        profileMenu->setItemText ( i, profileConf.profiles[i].profileName );
       } else {
-        profileMenu->addItem ( config.profiles[i].profileName );
+        profileMenu->addItem ( profileConf.profiles[i].profileName );
       }
     }
   }
-  if ( config.numProfiles < oldCount ) {
-    for ( int i = config.numProfiles; i < oldCount; i++ ) {
-      profileMenu->removeItem ( config.numProfiles );
+  if ( profileConf.numProfiles < oldCount ) {
+    for ( int i = profileConf.numProfiles; i < oldCount; i++ ) {
+      profileMenu->removeItem ( profileConf.numProfiles );
     }
   }
   connect ( profileMenu, SIGNAL( currentIndexChanged ( int )), this,
       SLOT( profileTypeChanged ( int )));
 #ifdef RELOAD_PROFILE
-  restoreButton->setEnabled ( config.numProfiles ? 1 : 0 );
+  restoreButton->setEnabled ( profileConf.numProfiles ? 1 : 0 );
 #endif
 }
 
@@ -1245,31 +1248,31 @@ CaptureWidget::reloadProfiles ( void )
 void
 CaptureWidget::updateSettingsFromProfile ( void )
 {
-  config.binning2x2 = config.profiles[ config.profileOption ].binning2x2;
-  config.colourise = config.profiles[ config.profileOption ].colourise;
-  config.useROI = config.profiles[ config.profileOption ].useROI;
-  config.imageSizeX = config.profiles[ config.profileOption ].imageSizeX;
-  config.imageSizeY = config.profiles[ config.profileOption ].imageSizeY;
+  config.binning2x2 = profileConf.profiles[ config.profileOption ].binning2x2;
+  config.colourise = profileConf.profiles[ config.profileOption ].colourise;
+  config.useROI = profileConf.profiles[ config.profileOption ].useROI;
+  config.imageSizeX = profileConf.profiles[ config.profileOption ].imageSizeX;
+  config.imageSizeY = profileConf.profiles[ config.profileOption ].imageSizeY;
 
   config.frameRateNumerator =
-      config.profiles[ config.profileOption ].frameRateNumerator;
+      profileConf.profiles[ config.profileOption ].frameRateNumerator;
   config.frameRateDenominator =
-      config.profiles[ config.profileOption ].frameRateDenominator;
+      profileConf.profiles[ config.profileOption ].frameRateDenominator;
   config.fileTypeOption =
-      config.profiles[ config.profileOption ].fileTypeOption;
+      profileConf.profiles[ config.profileOption ].fileTypeOption;
   config.fileNameTemplate =
-      config.profiles[ config.profileOption ].fileNameTemplate;
+      profileConf.profiles[ config.profileOption ].fileNameTemplate;
   config.limitEnabled =
-      config.profiles[ config.profileOption ].limitEnabled;
+      profileConf.profiles[ config.profileOption ].limitEnabled;
   config.framesLimitValue =
-      config.profiles[ config.profileOption ].framesLimitValue;
+      profileConf.profiles[ config.profileOption ].framesLimitValue;
   config.secondsLimitValue =
-      config.profiles[ config.profileOption ].secondsLimitValue;
+      profileConf.profiles[ config.profileOption ].secondsLimitValue;
 
   for ( int i = 1; i < OA_CAM_CTRL_LAST_P1; i++ ) {
     for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_P1; j++ ) {
       config.controlValues[j][i] =
-        config.profiles[ config.profileOption ].filterProfiles[
+        profileConf.profiles[ config.profileOption ].filterProfiles[
         config.filterOption ].controls[j][i];
     }
   }
@@ -1287,7 +1290,7 @@ CaptureWidget::updateFilterSettingsFromProfile ( void )
   for ( int i = 1; i < OA_CAM_CTRL_LAST_P1; i++ ) {
     for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_P1; j++ ) {
       config.controlValues[j][i] =
-        config.profiles[ config.profileOption ].filterProfiles[
+        profileConf.profiles[ config.profileOption ].filterProfiles[
         config.filterOption ].controls[j][i];
     }
   }

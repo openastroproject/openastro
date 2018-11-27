@@ -61,6 +61,7 @@ captureConfig		captureConf;
 fitsConfig			fitsConf;
 demosaicConfig	demosaicConf;
 timerConfig			timerConf;
+profileConfig		profileConf;
 STATE						state;
 
 #ifdef OACAPTURE

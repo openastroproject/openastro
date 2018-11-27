@@ -27,6 +27,7 @@
 
 #include <oa_common.h>
 
+#include "mainWindow.h"
 #include "cameraSettings.h"
 #include "state.h"
 #include "strings.h"

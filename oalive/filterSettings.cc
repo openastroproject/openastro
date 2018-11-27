@@ -187,7 +187,7 @@ FilterSettings::storeSettings ( void )
         f.filterName = entry->text();
         config.filters.append ( f );
         // Add the profiles for the new filter
-        for ( int i = 0; i < config.numProfiles; i++ ) {
+        for ( int i = 0; i < profileConf.numProfiles; i++ ) {
           FILTER_PROFILE fp;
           fp.filterName = f.filterName;
           for ( int j = 1; j <  OA_CAM_CTRL_LAST_P1; j++ ) {
@@ -195,7 +195,7 @@ FilterSettings::storeSettings ( void )
               fp.controls[k][j] = config.controlValues[k][j];
             }
           }
-          config.profiles[i].filterProfiles.append ( fp );
+          profileConf.profiles[i].filterProfiles.append ( fp );
         }
         totalFilters++;
         compareNewPosn++;
@@ -222,8 +222,8 @@ FilterSettings::storeSettings ( void )
           // remove the filter
           config.filters.removeAt ( compareOldPosn );
           // remove the filters profiles
-          for ( int i = 0; i < config.numProfiles; i++ ) {
-            config.profiles[i].filterProfiles.removeAt ( compareOldPosn );
+          for ( int i = 0; i < profileConf.numProfiles; i++ ) {
+            profileConf.profiles[i].filterProfiles.removeAt ( compareOldPosn );
           }
           totalFilters--;
           oldFilterCount--;

@@ -87,7 +87,7 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
 	}
 #endif
 	if ( reqdWindows & SETTINGS_PROFILE ) {
-    profiles = new ProfileSettings ( this, trampolines );
+    profiles = new ProfileSettings ( this, &profileConf, trampolines );
     state.profileSettingsIndex = tabSet->addTab ( profiles,
         QIcon ( ":/qt-icons/jupiter.png" ), tr ( "Profiles" ));
 	}

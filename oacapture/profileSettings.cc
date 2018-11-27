@@ -33,20 +33,18 @@
 #include "profileSettings.h"
 #include "targets.h"
 
-#include "state.h"
 
-
-ProfileSettings::ProfileSettings ( QWidget* parent, trampolineFuncs* redirs ) :
-		QWidget ( parent )
+ProfileSettings::ProfileSettings ( QWidget* parent, profileConfig* pConf,
+		trampolineFuncs* redirs ) :
+		QWidget ( parent ), trampolines ( redirs ), parentWidget ( parent ),
+		pconfig ( pConf )
 {
-	trampolines = redirs;
-
   firstTime = 1;
 
   list = new QListWidget ( this );
-  if ( config.numProfiles ) {
-    for ( int i = 0; i < config.numProfiles; i++ ) {
-      list->addItem ( config.profiles[i].profileName );
+  if ( pconfig->numProfiles ) {
+    for ( int i = 0; i < pconfig->numProfiles; i++ ) {
+      list->addItem ( pconfig->profiles[i].profileName );
       QListWidgetItem* entry = list->item ( i );
       entry->setFlags ( entry->flags() | Qt :: ItemIsEditable );
     }
@@ -72,7 +70,7 @@ ProfileSettings::ProfileSettings ( QWidget* parent, trampolineFuncs* redirs ) :
   connect ( addButton, SIGNAL ( clicked()), parent, SLOT ( dataChanged()));
   removeButton = new QPushButton ( QIcon ( ":/qt-icons/list-remove-4.png" ),
       tr ( "Remove Profile" ));
-  if ( 1 == config.numProfiles ) {
+  if ( 1 == pconfig->numProfiles ) {
     removeButton->setEnabled ( 0 );
   }
   removeButton->setStyleSheet("Text-align:left");
@@ -109,9 +107,9 @@ ProfileSettings::ProfileSettings ( QWidget* parent, trampolineFuncs* redirs ) :
 
   // we work on a copy of the profile list to avoid messing up the live
   // one
-  if ( config.numProfiles ) {
-    for ( int i = 0; i < config.numProfiles; i++ ) {
-      changedProfiles.append ( config.profiles.at ( i ));
+  if ( pconfig->numProfiles ) {
+    for ( int i = 0; i < pconfig->numProfiles; i++ ) {
+      changedProfiles.append ( pconfig->profiles.at ( i ));
     }
   }
 }
@@ -119,7 +117,7 @@ ProfileSettings::ProfileSettings ( QWidget* parent, trampolineFuncs* redirs ) :
 
 ProfileSettings::~ProfileSettings()
 {
-  state.mainWindow->destroyLayout (( QLayout* ) hbox );
+  trampolines->destroyLayout (( QLayout* ) hbox );
 }
 
 
@@ -127,11 +125,11 @@ void
 ProfileSettings::storeSettings ( void )
 {
   if ( listAltered ) {
-    if ( config.numProfiles ) {
-      config.profiles.clear();
+    if ( pconfig->numProfiles ) {
+      pconfig->profiles.clear();
     }
-    config.numProfiles = list->count();
-    config.profiles = changedProfiles;
+    pconfig->numProfiles = list->count();
+    pconfig->profiles = changedProfiles;
     trampolines->reloadProfiles();
   }
 }
@@ -271,6 +269,7 @@ ProfileSettings::targetChanged ( int index )
     QVariant v = targetMenu->itemData ( index );
     changedProfiles[ currentProfile ].target = v.toInt();
     listAltered = 1;
-    state.settingsWidget->dataChanged();
+		QMetaObject::invokeMethod ( parentWidget, "dataChanged",
+        Qt::BlockingQueuedConnection );
   }
 }

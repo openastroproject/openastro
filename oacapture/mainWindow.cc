@@ -56,6 +56,7 @@ captureConfig		captureConf;
 fitsConfig			fitsConf;
 demosaicConfig	demosaicConf;
 timerConfig			timerConf;
+profileConfig		profileConf;
 STATE		state;
 
 static const char* styleGroupBoxBorders =
@@ -382,7 +383,7 @@ MainWindow::readConfig ( QString configFile )
     demosaicConf.demosaicMethod = 1;
     demosaicConf.monoIsRawColour = 0;
 
-    config.numProfiles = 0;
+    profileConf.numProfiles = 0;
     config.numFilters = 0;
 
     config.promptForFilterChange = 0;
@@ -641,9 +642,9 @@ MainWindow::readConfig ( QString configFile )
       }
     }
 
-    config.numProfiles = settings->beginReadArray ( "profiles" );
-    if ( config.numProfiles ) {
-      for ( int i = 0; i < config.numProfiles; i++ ) {
+    profileConf.numProfiles = settings->beginReadArray ( "profiles" );
+    if ( profileConf.numProfiles ) {
+      for ( int i = 0; i < profileConf.numProfiles; i++ ) {
         settings->setArrayIndex ( i );
         PROFILE p;
         p.profileName = settings->value ( "name", "" ).toString();
@@ -751,7 +752,7 @@ MainWindow::readConfig ( QString configFile )
               0 ).toInt();
           p.limitType = settings->value ( "limitType", -1 ).toInt();
           p.target = settings->value ( "target", 0 ).toInt();
-          config.profiles.append ( p );
+          profileConf.profiles.append ( p );
         }
       }
       settings->endArray();
@@ -795,8 +796,8 @@ MainWindow::readConfig ( QString configFile )
       p.secondsLimitValue = config.secondsLimitValue;
       p.limitType = config.limitType;
       p.target = TGT_UNKNOWN;
-      config.profiles.append ( p );
-      config.numProfiles = 1;
+      profileConf.profiles.append ( p );
+      profileConf.numProfiles = 1;
     }
 
     if ( version > 4 ) {
@@ -1083,23 +1084,23 @@ MainWindow::writeConfig ( QString configFile )
   settings->endArray();
 
   settings->beginWriteArray ( "profiles" );
-  if ( config.numProfiles ) {
-    for ( int i = 0; i < config.numProfiles; i++ ) {
+  if ( profileConf.numProfiles ) {
+    for ( int i = 0; i < profileConf.numProfiles; i++ ) {
       settings->setArrayIndex ( i );
-      settings->setValue ( "name", config.profiles[i].profileName );
-      settings->setValue ( "binning2x2", config.profiles[i].binning2x2 );
-      settings->setValue ( "colourise", config.profiles[i].colourise );
-      settings->setValue ( "useROI", config.profiles[i].useROI );
-      settings->setValue ( "imageSizeX", config.profiles[i].imageSizeX );
-      settings->setValue ( "imageSizeY", config.profiles[i].imageSizeY );
+      settings->setValue ( "name", profileConf.profiles[i].profileName );
+      settings->setValue ( "binning2x2", profileConf.profiles[i].binning2x2 );
+      settings->setValue ( "colourise", profileConf.profiles[i].colourise );
+      settings->setValue ( "useROI", profileConf.profiles[i].useROI );
+      settings->setValue ( "imageSizeX", profileConf.profiles[i].imageSizeX );
+      settings->setValue ( "imageSizeY", profileConf.profiles[i].imageSizeY );
 
       if ( config.numFilters &&
-          !config.profiles[ i ].filterProfiles.isEmpty()) {
+          !profileConf.profiles[ i ].filterProfiles.isEmpty()) {
         settings->beginWriteArray ( "filters" );
         for ( int j = 0; j < config.numFilters; j++ ) {
           settings->setArrayIndex ( j );
           settings->setValue ( "intervalMenuOption",
-              config.profiles[ i ].filterProfiles[ j ].intervalMenuOption );
+              profileConf.profiles[i].filterProfiles[ j ].intervalMenuOption );
           settings->beginWriteArray ( "controls" );
           for ( int k = 1; k < OA_CAM_CTRL_LAST_P1; k++ ) {
             settings->setArrayIndex ( k );
@@ -1107,7 +1108,7 @@ MainWindow::writeConfig ( QString configFile )
             for ( int l = 0; l < OA_CAM_CTRL_MODIFIERS_P1; l++ ) {
               settings->setArrayIndex ( l );
               settings->setValue ( "controlValue",
-                  config.profiles[ i ].filterProfiles[ j ].controls[ l ][ k ]);
+                  profileConf.profiles[i].filterProfiles[j].controls[l][k]);
             }
             settings->endArray();
           }
@@ -1116,21 +1117,23 @@ MainWindow::writeConfig ( QString configFile )
         settings->endArray();
       }
       settings->setValue ( "frameRateNumerator",
-          config.profiles[i].frameRateNumerator );
+          profileConf.profiles[i].frameRateNumerator );
       settings->setValue ( "frameRateDenominator",
-          config.profiles[i].frameRateDenominator );
-      settings->setValue ( "filterOption", config.profiles[i].filterOption );
+          profileConf.profiles[i].frameRateDenominator );
+      settings->setValue ( "filterOption",
+					profileConf.profiles[i].filterOption );
       settings->setValue ( "fileTypeOption",
-          config.profiles[i].fileTypeOption );
+          profileConf.profiles[i].fileTypeOption );
       settings->setValue ( "fileNameTemplate",
-          config.profiles[i].fileNameTemplate );
-      settings->setValue ( "limitEnabled", config.profiles[i].limitEnabled );
+          profileConf.profiles[i].fileNameTemplate );
+      settings->setValue ( "limitEnabled",
+					profileConf.profiles[i].limitEnabled );
       settings->setValue ( "framesLimitValue",
-          config.profiles[i].framesLimitValue );
+          profileConf.profiles[i].framesLimitValue );
       settings->setValue ( "secondsLimitValue",
-          config.profiles[i].secondsLimitValue );
-      settings->setValue ( "limitType", config.profiles[i].limitType );
-      settings->setValue ( "target", config.profiles[i].target );
+          profileConf.profiles[i].secondsLimitValue );
+      settings->setValue ( "limitType", profileConf.profiles[i].limitType );
+      settings->setValue ( "target", profileConf.profiles[i].target );
     }
   }
   settings->endArray();
@@ -1560,16 +1563,16 @@ MainWindow::connectCamera ( int deviceIndex )
   // values, set them in the camera and write them to the current
   // profile.
   if ( config.profileOption >= 0 && config.profileOption <
-      config.numProfiles && config.filterOption >= 0 && config.filterOption <
-      config.numFilters ) {
+      profileConf.numProfiles && config.filterOption >= 0 &&
+			config.filterOption < config.numFilters ) {
     for ( uint8_t c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
       for ( uint8_t m = 1; m < OA_CAM_CTRL_MODIFIERS_P1; m++ ) {
         config.controlValues[ m ][ c ] =
-          config.profiles[ config.profileOption ].filterProfiles[
+          profileConf.profiles[ config.profileOption ].filterProfiles[
               config.filterOption ].controls[ m ][ c ];
       }
     }
-    config.intervalMenuOption = config.profiles[ config.profileOption ].
+    config.intervalMenuOption = profileConf.profiles[ config.profileOption ].
         filterProfiles[ config.filterOption ].intervalMenuOption;
   }
   configure();

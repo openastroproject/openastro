@@ -38,13 +38,18 @@
 #include "profile.h"
 #include "trampoline.h"
 
+typedef struct {
+	int							numProfiles;
+	QList<PROFILE>	profiles;
+} profileConfig;
+
 
 class ProfileSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			ProfileSettings ( QWidget*, trampolineFuncs* );
+    			ProfileSettings ( QWidget*, profileConfig*, trampolineFuncs* );
     			~ProfileSettings();
     void		storeSettings ( void );
 
@@ -63,6 +68,8 @@ class ProfileSettings : public QWidget
     QList<PROFILE>	changedProfiles;
     QComboBox*		targetMenu;
 		trampolineFuncs*		trampolines;
+		QWidget*						parentWidget;
+		profileConfig*			pconfig;
 
   public slots:
     void		addEntry ( void );
