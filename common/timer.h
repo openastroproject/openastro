@@ -39,10 +39,14 @@ extern "C" {
 #include <openastro/ptr.h>
 }
 
+#include "timerSettings.h"
+#include "trampoline.h"
+
+
 class Timer
 {
   public:
-    			Timer();
+    			Timer ( timerConfig*, trampolineFuncs* );
     			~Timer();
     int			listConnected ( oaTimerDevice*** );
     void		releaseInfo ( oaTimerDevice** );
@@ -69,4 +73,6 @@ class Timer
   private:
     int			initialised;
     oaTimer*		timerContext;
+		trampolineFuncs*	trampolines;
+		timerConfig*			timerConf;
 };

@@ -127,7 +127,7 @@ MainWindow::MainWindow ( QString configFile )
   state.controlWidget = 0;
   state.camera = new Camera;
   state.filterWheel = new FilterWheel ( &trampolines );
-  state.timer = new Timer;
+  state.timer = new Timer ( &timerConf, &trampolines );
   oldHistogramState = -1;
   state.lastRecordedFile = "";
   state.captureIndex = 0;

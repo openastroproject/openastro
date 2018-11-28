@@ -575,7 +575,23 @@ t_numFilterWheelIDFilters ( int interfaceType )
 userDeviceConfig*
 t_filterDeviceConfig ( int interfaceType, int n )
 {
-  &( config.filterWheelConfig[ interfaceType ][ n ] );
+  return &( config.filterWheelConfig[ interfaceType ][ n ] );
+}
+
+
+int
+t_numTimerIDFilters ( int interfaceType )
+{
+	qWarning() << __FUNCTION__ << "doing nothing";
+  return 0;
+}
+
+
+userDeviceConfig*
+t_timerDeviceConfig ( int interfaceType, int n )
+{
+	qWarning() << __FUNCTION__ << "doing nothing";
+  return 0;
 }
 
 
@@ -654,5 +670,7 @@ trampolineFuncs trampolines {
   .captureDirectory = &t_captureDirectory,
   .currentDirectory = &t_currentDirectory,
 	.numFilterWheelIDFilters = &t_numFilterWheelIDFilters,
-	.filterDeviceConfig = &t_filterDeviceConfig
+	.filterDeviceConfig = &t_filterDeviceConfig,
+	.numTimerIDFilters = &t_numTimerIDFilters,
+	.timerDeviceConfig = &t_timerDeviceConfig
 };

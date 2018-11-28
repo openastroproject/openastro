@@ -31,14 +31,13 @@ extern "C" {
 }
 
 #include "timer.h"
-#include "mainWindow.h"
-#include "configuration.h"
 
 
 #define timerFuncs	timerContext->funcs
 #define timerControls	timerContext->controls
 
-Timer::Timer()
+Timer::Timer ( timerConfig* tConf, trampolineFuncs* redirs ) :
+		timerConf ( tConf ), trampolines ( redirs )
 {
   initialised = 0;
 }
@@ -228,13 +227,13 @@ Timer::hasSync ( void )
 void
 Timer::updateSearchFilters ( int interfaceType )
 {
-  int numFilters;
+  int numIDFilters;
 
   oaClearPTRIDFilters();
-  numFilters = config.timerConfig[ interfaceType ].count();
-  if ( numFilters ) {
-    for ( int i = 0; i < numFilters; i++ ) {
-      oaAddPTRIDFilter ( &( config.timerConfig[ interfaceType ][ i ] ));
+  numIDFilters = trampolines->numTimerIDFilters ( interfaceType );
+  if ( numIDFilters ) {
+    for ( int i = 0; i < numIDFilters; i++ ) {
+      oaAddPTRIDFilter ( trampolines->timerDeviceConfig ( interfaceType, i ));
     }
   }
 }
@@ -303,7 +302,7 @@ Timer::readTimestamp ( void )
     return 0;
   }
 
-  if ( timerFuncs.readTimestamp ( timerContext, timerConf.timestampDelay,
+  if ( timerFuncs.readTimestamp ( timerContext, timerConf->timestampDelay,
       &ts ) != OA_ERR_NONE ) {
     ts.timestamp[0] = 0;
     ts.index = 0;

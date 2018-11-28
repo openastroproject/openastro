@@ -33,10 +33,10 @@
 
 #define wheelFuncs     wheelContext->funcs
 
-FilterWheel::FilterWheel ( trampolineFuncs* funcs )
+FilterWheel::FilterWheel ( trampolineFuncs* funcs ) :
+		trampolines ( funcs )
 {
   initialised = 0;
-	trampolines = funcs;
 }
 
 

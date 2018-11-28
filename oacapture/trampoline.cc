@@ -590,7 +590,21 @@ t_numFilterWheelIDFilters ( int interfaceType )
 userDeviceConfig*
 t_filterDeviceConfig ( int interfaceType, int n )
 {
-	&( config.filterWheelConfig[ interfaceType ][ n ] );
+	return &( config.filterWheelConfig[ interfaceType ][ n ] );
+}
+
+
+int
+t_numTimerIDFilters ( int interfaceType )
+{
+	return config.timerConfig[ interfaceType ].count();
+}
+
+
+userDeviceConfig*
+t_timerDeviceConfig ( int interfaceType, int n )
+{
+	return &( config.timerConfig[ interfaceType ][ n ] );
 }
 
 
@@ -669,5 +683,7 @@ trampolineFuncs trampolines {
 	.captureDirectory = &t_captureDirectory,
 	.currentDirectory = &t_currentDirectory,
 	.numFilterWheelIDFilters = &t_numFilterWheelIDFilters,
-	.filterDeviceConfig = &t_filterDeviceConfig
+	.filterDeviceConfig = &t_filterDeviceConfig,
+	.numTimerIDFilters = &t_numTimerIDFilters,
+	.timerDeviceConfig = &t_timerDeviceConfig
 };

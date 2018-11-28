@@ -109,6 +109,8 @@ typedef struct {
 	QString ( *currentDirectory )( void );
 	int ( *numFilterWheelIDFilters )( int );
 	userDeviceConfig* ( *filterDeviceConfig )( int, int );
+	int ( *numTimerIDFilters )( int );
+	userDeviceConfig* ( *timerDeviceConfig )( int, int );
 } trampolineFuncs;
 
 extern trampolineFuncs trampolines;
