@@ -30,6 +30,9 @@
 
 #include <oa_common.h>
 
+#include <openastro/userConfig.h>
+
+
 typedef struct {
   int ( *getCurrentGain )( void );
   int ( *getCurrentExposure )( void );
@@ -104,6 +107,8 @@ typedef struct {
 	int ( *secondsLimitValue )( void );
 	QString ( *captureDirectory )( void );
 	QString ( *currentDirectory )( void );
+	int ( *numFilterWheelIDFilters )( int );
+	userDeviceConfig* ( *filterDeviceConfig )( int, int );
 } trampolineFuncs;
 
 extern trampolineFuncs trampolines;

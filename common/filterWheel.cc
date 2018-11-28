@@ -30,9 +30,6 @@
 #include "captureSettings.h"
 #include "fitsSettings.h"
 
-#include "configuration.h"
-#include "state.h"
-
 
 #define wheelFuncs     wheelContext->funcs
 
@@ -143,14 +140,8 @@ FilterWheel::initialise ( oaFilterWheelDevice* device )
   if (( wheelContext = device->initFilterWheel ( device ))) {
     initialised = 1;
     // FIX ME -- this lot should probably be done in the caller
-    if ( state.settingsWidget ) {
-      trampolines->setFilterSlotCount ( wheelContext->numSlots );
-    }
-#ifdef OACAPTURE
-    if ( state.captureWidget ) {
-      trampolines->reloadFilters();
-    }
-#endif
+    trampolines->setFilterSlotCount ( wheelContext->numSlots );
+    trampolines->reloadFilters();
     return 0;
   }
   return -1;
@@ -164,14 +155,8 @@ FilterWheel::disconnect ( void )
     wheelFuncs.closeWheel ( wheelContext );
     initialised = 0;
     // FIX ME -- this lot should probably be done in the caller
-    if ( state.settingsWidget ) {
-      trampolines->setFilterSlotCount ( 0 );
-    }
-#ifdef OACAPTURE
-    if ( state.captureWidget ) {
-      trampolines->reloadFilters();
-    }
-#endif
+    trampolines->setFilterSlotCount ( 0 );
+    trampolines->reloadFilters();
   }
 }
 
@@ -341,14 +326,14 @@ FilterWheel::setSpeed ( unsigned int speed, int nodelay )
 void
 FilterWheel::updateSearchFilters ( int interfaceType )
 {
-  int numFilters;
+  int numIDFilters;
 
   oaClearFilterWheelIDFilters ( interfaceType );
-  numFilters = config.filterWheelConfig[ interfaceType ].count();
-  if ( numFilters ) {
-    for ( int i = 0; i < numFilters; i++ ) {
+  numIDFilters = trampolines->numFilterWheelIDFilters ( interfaceType );
+  if ( numIDFilters ) {
+    for ( int i = 0; i < numIDFilters; i++ ) {
       oaAddFilterWheelIDFilter ( interfaceType,
-          &( config.filterWheelConfig[ interfaceType ][ i ] ));
+          trampolines->filterDeviceConfig ( interfaceType, i ));
     }
   }
 }

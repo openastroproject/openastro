@@ -74,15 +74,21 @@ t_getCurrentProfileName ( void )
 void
 t_setFilterSlotCount ( int num )
 {
-	state.settingsWidget->setSlotCount ( num );
-	state.captureWidget->setSlotCount ( num );
+	if ( state.settingsWidget ) {
+		state.settingsWidget->setSlotCount ( num );
+	}
+	if ( state.captureWidget ) {
+		state.captureWidget->setSlotCount ( num );
+	}
 }
 
 
 void
 t_reloadFilters ( void )
 {
-	state.captureWidget->reloadFilters();
+	if ( state.captureWidget ) {
+	  state.captureWidget->reloadFilters();
+	}
 }
 
 
@@ -574,6 +580,20 @@ t_currentDirectory ( void )
 }
 
 
+int
+t_numFilterWheelIDFilters ( int interfaceType )
+{
+	return config.filterWheelConfig[ interfaceType ].count();
+}
+
+
+userDeviceConfig*
+t_filterDeviceConfig ( int interfaceType, int n )
+{
+	&( config.filterWheelConfig[ interfaceType ][ n ] );
+}
+
+
 trampolineFuncs trampolines {
 	.getCurrentGain = &t_getCurrentGain,
 	.getCurrentExposure = &t_getCurrentExposure,
@@ -647,5 +667,7 @@ trampolineFuncs trampolines {
   .framesLimitValue = &t_framesLimitValue,
   .secondsLimitValue = &t_secondsLimitValue,
 	.captureDirectory = &t_captureDirectory,
-	.currentDirectory = &t_currentDirectory
+	.currentDirectory = &t_currentDirectory,
+	.numFilterWheelIDFilters = &t_numFilterWheelIDFilters,
+	.filterDeviceConfig = &t_filterDeviceConfig
 };
