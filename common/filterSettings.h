@@ -41,6 +41,7 @@ extern "C" {
 
 #include "trampoline.h"
 #include "profile.h"
+#include "profileSettings.h"
 
 typedef struct {
 	int							numFilters;
@@ -57,7 +58,8 @@ class FilterSettings : public QWidget
   Q_OBJECT
 
   public:
-    			FilterSettings ( QWidget*, trampolineFuncs* );
+    			FilterSettings ( QWidget*, filterConfig*, profileConfig*,
+							trampolineFuncs* );
     			~FilterSettings();
     void		storeSettings ( void );
     QString		getSlotFilterName ( int );
@@ -77,6 +79,8 @@ class FilterSettings : public QWidget
     int			slotsChanged;
     int			filterWheelSlots;
 		trampolineFuncs*		trampolines;
+		filterConfig*				pFilterConf;
+		profileConfig*			pProfileConf;
 
   public slots:
     void		addEntry ( void );
