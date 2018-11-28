@@ -28,6 +28,7 @@
 
 #include "camera.h"
 #include "filterWheel.h"
+#include "timer.h"
 #include "viewWidget.h"
 #include "advancedSettings.h"
 #include "mainWindow.h"
@@ -58,6 +59,7 @@ typedef struct
 */
   Camera*		camera;
   FilterWheel*		filterWheel;
+	Timer*					timer;
 
   SettingsWidget*	settingsWidget;
   AdvancedSettings*	advancedSettings;

@@ -38,12 +38,15 @@ extern "C" {
 #include <openastro/userConfig.h>
 }
 
+#include "trampoline.h"
+
+
 class AdvancedSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			AdvancedSettings ( int, int );
+    			AdvancedSettings ( QWidget*, int, int, trampolineFuncs* );
     			~AdvancedSettings();
 
   private:
@@ -76,6 +79,7 @@ class AdvancedSettings : public QWidget
     QList<int>		rowList;
     int			addedRows;
     QSignalMapper*	deleteMapper;
+		trampolineFuncs*	trampolines;
 
   public slots:
     void		inputBoxesChanged ( void );

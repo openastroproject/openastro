@@ -119,6 +119,7 @@ typedef struct
   // advanced user configuration
 
   QList<userConfigList>	filterWheelConfig;
+  QList<userConfigList>	timerConfig;
 
 } CONFIG;
 

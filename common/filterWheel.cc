@@ -329,11 +329,11 @@ FilterWheel::updateSearchFilters ( int interfaceType )
   int numIDFilters;
 
   oaClearFilterWheelIDFilters ( interfaceType );
-  numIDFilters = trampolines->numFilterWheelIDFilters ( interfaceType );
+  numIDFilters = trampolines->filterWheelDeviceConfig ( interfaceType ).count();
   if ( numIDFilters ) {
     for ( int i = 0; i < numIDFilters; i++ ) {
       oaAddFilterWheelIDFilter ( interfaceType,
-          trampolines->filterDeviceConfig ( interfaceType, i ));
+          &( trampolines->filterWheelDeviceConfig ( interfaceType )[ i ]));
     }
   }
 }

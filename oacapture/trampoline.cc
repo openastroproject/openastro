@@ -580,31 +580,45 @@ t_currentDirectory ( void )
 }
 
 
-int
-t_numFilterWheelIDFilters ( int interfaceType )
+QList<userDeviceConfig>
+t_filterWheelDeviceConfig ( int interfaceType )
 {
-	return config.filterWheelConfig[ interfaceType ].count();
+	return config.filterWheelConfig[ interfaceType ];
 }
 
 
-userDeviceConfig*
-t_filterDeviceConfig ( int interfaceType, int n )
+QList<userDeviceConfig>
+t_timerDeviceConfig ( int interfaceType )
 {
-	return &( config.filterWheelConfig[ interfaceType ][ n ] );
+	return config.timerConfig[ interfaceType ];
 }
 
 
-int
-t_numTimerIDFilters ( int interfaceType )
+void
+t_updateFilterWheelSearchFilters ( int interfaceType )
 {
-	return config.timerConfig[ interfaceType ].count();
+  state.filterWheel->updateSearchFilters ( interfaceType );
 }
 
 
-userDeviceConfig*
-t_timerDeviceConfig ( int interfaceType, int n )
+void
+t_updateTimerSearchFilters ( int interfaceType )
 {
-	return &( config.timerConfig[ interfaceType ][ n ] );
+  state.timer->updateSearchFilters ( interfaceType );
+}
+
+
+void
+t_updateConfig ( void )
+{
+  state.mainWindow->updateConfig();
+}
+
+
+void
+t_showStatusMessage ( QString msg )
+{
+  state.mainWindow->showStatusMessage ( msg );
 }
 
 
@@ -682,8 +696,10 @@ trampolineFuncs trampolines {
   .secondsLimitValue = &t_secondsLimitValue,
 	.captureDirectory = &t_captureDirectory,
 	.currentDirectory = &t_currentDirectory,
-	.numFilterWheelIDFilters = &t_numFilterWheelIDFilters,
-	.filterDeviceConfig = &t_filterDeviceConfig,
-	.numTimerIDFilters = &t_numTimerIDFilters,
-	.timerDeviceConfig = &t_timerDeviceConfig
+	.filterWheelDeviceConfig = &t_filterWheelDeviceConfig,
+	.timerDeviceConfig = &t_timerDeviceConfig,
+  .updateFilterWheelSearchFilters = &t_updateFilterWheelSearchFilters,
+  .updateTimerSearchFilters = &t_updateTimerSearchFilters,
+  .updateConfig = &t_updateConfig,
+  .showStatusMessage = &t_showStatusMessage
 };

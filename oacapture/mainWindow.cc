@@ -2805,8 +2805,8 @@ void
 MainWindow::advancedFilterWheelHandler ( int interfaceType )
 {
   if ( !state.advancedSettings ) {
-    state.advancedSettings = new AdvancedSettings ( OA_DEVICE_FILTERWHEEL,
-        interfaceType );
+    state.advancedSettings = new AdvancedSettings ( this,
+				OA_DEVICE_FILTERWHEEL, interfaceType, &trampolines );
     state.advancedSettings->setAttribute ( Qt::WA_DeleteOnClose );
     connect ( state.advancedSettings, SIGNAL( destroyed ( QObject* )), this,
         SLOT ( advancedClosed()));
@@ -2820,7 +2820,8 @@ void
 MainWindow::advancedPTRHandler ( void )
 {
   if ( !state.advancedSettings ) {
-    state.advancedSettings = new AdvancedSettings ( OA_DEVICE_PTR, 0 );
+    state.advancedSettings = new AdvancedSettings ( this, OA_DEVICE_PTR, 0,
+				&trampolines );
     state.advancedSettings->setAttribute ( Qt::WA_DeleteOnClose );
     connect ( state.advancedSettings, SIGNAL( destroyed ( QObject* )), this,
         SLOT ( advancedClosed()));

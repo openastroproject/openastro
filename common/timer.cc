@@ -230,10 +230,11 @@ Timer::updateSearchFilters ( int interfaceType )
   int numIDFilters;
 
   oaClearPTRIDFilters();
-  numIDFilters = trampolines->numTimerIDFilters ( interfaceType );
+  numIDFilters = trampolines->timerDeviceConfig ( interfaceType ).count();
   if ( numIDFilters ) {
     for ( int i = 0; i < numIDFilters; i++ ) {
-      oaAddPTRIDFilter ( trampolines->timerDeviceConfig ( interfaceType, i ));
+      oaAddPTRIDFilter (
+					&( trampolines->timerDeviceConfig ( interfaceType )[i]));
     }
   }
 }

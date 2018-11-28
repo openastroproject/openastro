@@ -38,11 +38,9 @@ extern "C" {
 #include "advancedSettings.h"
 #include "fitsSettings.h"
 
-#include "configuration.h"
-#include "state.h"
 
-
-AdvancedSettings::AdvancedSettings ( int device, int interface )
+AdvancedSettings::AdvancedSettings ( QWidget* parent, int device,
+		int interface, trampolineFuncs *redirs ) : trampolines ( redirs )
 {
   QString			ifaceStr, deviceStr;
   QList<userDeviceConfig>	configList;
@@ -56,24 +54,22 @@ AdvancedSettings::AdvancedSettings ( int device, int interface )
     case OA_DEVICE_FILTERWHEEL:
       ifaceStr = QString ( oaFilterWheelInterfaces[ interfaceType ].name );
       deviceStr = tr ( "Filter Wheel" );
-      if ( !config.filterWheelConfig[ interfaceType ].isEmpty()) {
-        configList = config.filterWheelConfig [ interfaceType ];
+      if ( !trampolines->filterWheelDeviceConfig ( interfaceType ).isEmpty()) {
+        configList = trampolines->filterWheelDeviceConfig ( interfaceType );
         haveItems = 1;
       }
       configFlags = oaFilterWheelInterfaces[ interfaceType ].userConfigFlags;
       break;
 
-#ifdef OACAPTURE
     case OA_DEVICE_PTR:
       ifaceStr = "PTR";
       deviceStr = tr ( "Timer" );
-      if ( !config.timerConfig[0].isEmpty()) {
-        configList = config.timerConfig[0];
+      if ( !trampolines->timerDeviceConfig ( 0 ).isEmpty()) {
+        configList = trampolines->timerDeviceConfig ( 0 );
         haveItems = 1;
       }
       configFlags = OA_UDC_FLAG_USB_ALL;
       break;
-#endif
 
     default:
       ifaceStr = tr ( "Unknown" );
@@ -250,7 +246,7 @@ AdvancedSettings::AdvancedSettings ( int device, int interface )
   connect ( addButton, SIGNAL( clicked()), this, SLOT ( addFilterToGrid()));
 
   cancelButton = new QPushButton ( tr ( "Close" ), this );
-  connect ( cancelButton, SIGNAL( clicked()), state.mainWindow,
+  connect ( cancelButton, SIGNAL( clicked()), parent,
       SLOT( closeAdvancedWindow()));
 
   saveButton = new QPushButton ( tr ( "Save" ), this );
@@ -282,7 +278,7 @@ AdvancedSettings::AdvancedSettings ( int device, int interface )
 
 AdvancedSettings::~AdvancedSettings()
 {
-  state.mainWindow->destroyLayout (( QLayout* ) vbox );
+  trampolines->destroyLayout (( QLayout* ) vbox );
 }
 
 
@@ -448,34 +444,32 @@ AdvancedSettings::saveFilters ( void )
   switch ( deviceType ) {
 
     case OA_DEVICE_FILTERWHEEL:
-      config.filterWheelConfig[ interfaceType ].clear();
+      trampolines->filterWheelDeviceConfig ( interfaceType ).clear();
       if ( numDevices ) {
         for ( int i = 0; i < editedList.count(); i++ ) {
-          config.filterWheelConfig[ interfaceType ].append (
+          trampolines->filterWheelDeviceConfig ( interfaceType ).append (
               editedList.takeFirst());
         }
       }
-      state.filterWheel->updateSearchFilters ( interfaceType );
+      trampolines->updateFilterWheelSearchFilters ( interfaceType );
       break;
 
-#ifdef OACAPTURE
     case OA_DEVICE_PTR:
-      config.timerConfig[0].clear();
+      trampolines->timerDeviceConfig ( 0 ).clear();
       if ( numDevices ) {
         for ( int i = 0; i < editedList.count(); i++ ) {
-          config.timerConfig[0].append (
+          trampolines->timerDeviceConfig ( 0 ).append (
               editedList.takeFirst());
         }
       }
-      state.timer->updateSearchFilters(0);
+      trampolines->updateTimerSearchFilters(0);
       break;
-#endif
 
     default:
       break;
   }
 
-  state.mainWindow->updateConfig();
-  state.mainWindow->showStatusMessage ( tr ( "Changes saved" ));
+  trampolines->updateConfig();
+  trampolines->showStatusMessage ( tr ( "Changes saved" ));
   saveButton->setEnabled ( 0 );
 }

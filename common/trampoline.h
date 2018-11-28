@@ -107,10 +107,12 @@ typedef struct {
 	int ( *secondsLimitValue )( void );
 	QString ( *captureDirectory )( void );
 	QString ( *currentDirectory )( void );
-	int ( *numFilterWheelIDFilters )( int );
-	userDeviceConfig* ( *filterDeviceConfig )( int, int );
-	int ( *numTimerIDFilters )( int );
-	userDeviceConfig* ( *timerDeviceConfig )( int, int );
+	QList<userDeviceConfig> ( *filterWheelDeviceConfig )( int );
+	QList<userDeviceConfig> ( *timerDeviceConfig )( int );
+	void ( *updateFilterWheelSearchFilters ) ( int );
+	void ( *updateTimerSearchFilters ) ( int );
+	void ( *updateConfig ) ( void );
+	void ( *showStatusMessage ) ( QString );
 } trampolineFuncs;
 
 extern trampolineFuncs trampolines;
