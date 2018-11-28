@@ -40,6 +40,16 @@ extern "C" {
 }
 
 #include "trampoline.h"
+#include "profile.h"
+
+typedef struct {
+	int							numFilters;
+	QList<FILTER>		filters;
+	int							filterSlots[MAX_FILTER_SLOTS];
+	QList<int>			autorunFilterSequence;
+	int							promptForFilterChange;
+	int							interFilterDelay;
+} filterConfig;
 
 
 class FilterSettings : public QWidget

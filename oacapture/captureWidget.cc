@@ -96,8 +96,8 @@ CaptureWidget::CaptureWidget ( QWidget* parent ) : QGroupBox ( parent )
   filterLabel = new QLabel ( tr ( "Filter:" ), this );
   filterMenu = new QComboBox ( this );
   QStringList filterNames;
-  for ( int i = 0; i < config.numFilters; i++ ) {
-    filterNames << config.filters[i].filterName;
+  for ( int i = 0; i < filterConf.numFilters; i++ ) {
+    filterNames << filterConf.filters[i].filterName;
   }
   filterMenu->addItems ( filterNames );
   filterMenu->setCurrentIndex ( config.filterOption );
@@ -502,14 +502,14 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     if ( !autorunFlag ) {
       autorunFilter = 0;
     }
-    if ( config.autorunFilterSequence.count()) {
-      int newFilterNum = config.autorunFilterSequence [ autorunFilter ];
+    if ( filterConf.autorunFilterSequence.count()) {
+      int newFilterNum = filterConf.autorunFilterSequence [ autorunFilter ];
       // FIX ME -- this may cross threads: don't cross the threads!
-      if ( config.promptForFilterChange && !( state.filterWheel &&
+      if ( filterConf.promptForFilterChange && !( state.filterWheel &&
           state.filterWheel->isInitialised())) {
         QMessageBox* changeFilter = new QMessageBox ( QMessageBox::NoIcon,
             APPLICATION_NAME, tr ( "Change to next filter: " ) +
-            config.filters[ newFilterNum ].filterName,
+            filterConf.filters[ newFilterNum ].filterName,
             QMessageBox::Ok, TOP_WIDGET );
         changeFilter->exec();
         delete changeFilter;
@@ -731,7 +731,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
   if ( state.autorunEnabled ) {
     if ( !autorunFlag ) {
       state.autorunRemaining = config.autorunCount;
-      filterSequenceRemaining = config.autorunFilterSequence.count();
+      filterSequenceRemaining = filterConf.autorunFilterSequence.count();
     }
   }
 
@@ -1009,7 +1009,7 @@ CaptureWidget::singleAutorunFinished ( void )
 {
   int filterSequenceLength;
 
-  filterSequenceLength = config.autorunFilterSequence.count();
+  filterSequenceLength = filterConf.autorunFilterSequence.count();
   if ( filterSequenceLength ) {
     if ( !--filterSequenceRemaining ) {
       filterSequenceRemaining = filterSequenceLength;
@@ -1104,13 +1104,14 @@ CaptureWidget::getCurrentFilterName ( void )
   int f = -1;
 
   if ( state.filterWheel && state.filterWheel->isInitialised()) {
-    f = config.filterSlots[ config.filterOption ];
+    f = filterConf.filterSlots[ config.filterOption ];
   } else {
-    if ( config.numFilters > 0 && config.filterOption < config.numFilters ) {
+    if ( filterConf.numFilters > 0 &&
+				config.filterOption < filterConf.numFilters ) {
       f = config.filterOption;
     }
   }
-  return ( f >= 0 ) ? config.filters[ f ].filterName : "";
+  return ( f >= 0 ) ? filterConf.filters[ f ].filterName : "";
 }
 
 
@@ -1174,31 +1175,31 @@ CaptureWidget::reloadFilters ( void )
 
   int oldCount = filterMenu->count();
   if ( !state.filterWheel || !state.filterWheel->isInitialised()) {
-    if ( config.numFilters ) {
-      for ( int i = 0; i < config.numFilters; i++ ) {
+    if ( filterConf.numFilters ) {
+      for ( int i = 0; i < filterConf.numFilters; i++ ) {
         if ( i < oldCount ) {
-          filterMenu->setItemText ( i, config.filters[i].filterName );
+          filterMenu->setItemText ( i, filterConf.filters[i].filterName );
         } else {
-          filterMenu->addItem ( config.filters[i].filterName );
+          filterMenu->addItem ( filterConf.filters[i].filterName );
         }
       }
     }
-    if ( config.numFilters < oldCount ) {
-      for ( int i = config.numFilters; i < oldCount; i++ ) {
-        filterMenu->removeItem ( config.numFilters );
+    if ( filterConf.numFilters < oldCount ) {
+      for ( int i = filterConf.numFilters; i < oldCount; i++ ) {
+        filterMenu->removeItem ( filterConf.numFilters );
       }
     }
   } else {
     int numSlots = state.filterWheel->numSlots();
     if ( numSlots ) {
       for ( int i = numSlots - 1; i >= 0; i-- ) {
-        if ( config.filterSlots[ i ] >= 0 ) {
+        if ( filterConf.filterSlots[ i ] >= 0 ) {
           if ( i < oldCount ) {
             filterMenu->setItemText ( i,
-                config.filters[ config.filterSlots[ i ]].filterName );
+                filterConf.filters[ filterConf.filterSlots[ i ]].filterName );
           } else {
             filterMenu->addItem (
-                config.filters[ config.filterSlots[ i ]].filterName );
+                filterConf.filters[ filterConf.filterSlots[ i ]].filterName );
           }
         } else {
           filterMenu->removeItem ( i );
@@ -1305,7 +1306,7 @@ CaptureWidget::updateFromConfig ( void )
 {
   disconnect ( filterMenu, SIGNAL( currentIndexChanged ( int )), this,
       SLOT( filterTypeChanged ( int )));
-  if ( config.numFilters > config.filterOption ) {
+  if ( filterConf.numFilters > config.filterOption ) {
     filterMenu->setCurrentIndex ( config.filterOption );
   }
   connect ( filterMenu, SIGNAL( currentIndexChanged ( int )), this,
@@ -1503,7 +1504,8 @@ CaptureWidget::writeSettings ( OutputHandler* out )
       }
       settings << std::endl;
     }
-    if ( config.numFilters > 0 && config.filterOption < config.numFilters ) {
+    if ( filterConf.numFilters > 0 &&
+				config.filterOption < filterConf.numFilters ) {
       QString n = getCurrentFilterName();
       settings <<  tr ( "Filter: " ).toStdString().c_str() <<
           n.toStdString() << std::endl;

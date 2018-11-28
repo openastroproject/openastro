@@ -113,6 +113,8 @@ typedef struct {
 	void ( *updateTimerSearchFilters ) ( int );
 	void ( *updateConfig ) ( void );
 	void ( *showStatusMessage ) ( QString );
+	int ( *numFilterWheelSlots )( void );
+	void ( *propagateNewSlotName )( int, QString );
 } trampolineFuncs;
 
 extern trampolineFuncs trampolines;

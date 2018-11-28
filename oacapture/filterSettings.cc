@@ -34,27 +34,20 @@ extern "C" {
 }
 
 #include "trampoline.h"
-#include "configuration.h"
 #include "captureSettings.h"
 #include "filterSettings.h"
 #include "fitsSettings.h"
 
-#include "state.h"
-
+#include "mainWindow.h"
 
 FilterSettings::FilterSettings ( QWidget* parent, trampolineFuncs* redirs ) :
-		QWidget ( parent )
+		QWidget ( parent ), trampolines ( redirs )
 {
-	trampolines = redirs;
-
-  filterWheelSlots = 0;
-  if ( state.filterWheel && state.filterWheel->isInitialised()) {
-    filterWheelSlots = state.filterWheel->numSlots();
-  }
+  filterWheelSlots = trampolines->numFilterWheelSlots();
   list = new QListWidget ( this );
-  if ( config.numFilters ) {
-    for ( int i = 0; i < config.numFilters; i++ ) {
-      list->addItem ( config.filters[i].filterName );
+  if ( filterConf.numFilters ) {
+    for ( int i = 0; i < filterConf.numFilters; i++ ) {
+      list->addItem ( filterConf.filters[i].filterName );
       QListWidgetItem* entry = list->item ( i );
       entry->setFlags ( entry->flags() | Qt :: ItemIsEditable );
     }
@@ -92,11 +85,11 @@ FilterSettings::FilterSettings ( QWidget* parent, trampolineFuncs* redirs ) :
     slotMenus[i] = new QComboBox ( this );
     slotGrid->addWidget ( slotLabels[i], i / 2, ( i % 2 ) * 2 );
     slotGrid->addWidget ( slotMenus[i], i / 2, ( i % 2 ) * 2 + 1 );
-    for ( int j = 0; j < config.numFilters; j++ ) {
-      slotMenus[i]->addItem ( config.filters[j].filterName );
+    for ( int j = 0; j < filterConf.numFilters; j++ ) {
+      slotMenus[i]->addItem ( filterConf.filters[j].filterName );
     }
-    if ( config.filterSlots[i] >= 0 ) {
-      slotMenus[i]->setCurrentIndex ( config.filterSlots[i] );
+    if ( filterConf.filterSlots[i] >= 0 ) {
+      slotMenus[i]->setCurrentIndex ( filterConf.filterSlots[i] );
     }
     connect ( slotMenus[i], SIGNAL ( currentIndexChanged ( int )),
         slotChangedMapper, SLOT ( map()));
@@ -128,7 +121,7 @@ FilterSettings::FilterSettings ( QWidget* parent, trampolineFuncs* redirs ) :
 
 FilterSettings::~FilterSettings()
 {
-  state.mainWindow->destroyLayout (( QLayout* ) hbox );
+  trampolines->destroyLayout (( QLayout* ) hbox );
 }
 
 
@@ -166,7 +159,7 @@ FilterSettings::storeSettings ( void )
 
   if ( listChanged ) {
     newFilterCount = list->count();
-    totalFilters = oldFilterCount = config.numFilters;
+    totalFilters = oldFilterCount = filterConf.numFilters;
     // handle the degenerate case
     if ( !newFilterCount && !oldFilterCount ) {
       trampolines->reloadFilters();
@@ -185,14 +178,14 @@ FilterSettings::storeSettings ( void )
         FILTER f;
         QListWidgetItem* entry = list->item ( compareNewPosn );
         f.filterName = entry->text();
-        config.filters.append ( f );
+        filterConf.filters.append ( f );
         // Add the profiles for the new filter
         for ( int i = 0; i < profileConf.numProfiles; i++ ) {
           FILTER_PROFILE fp;
           fp.filterName = f.filterName;
           for ( int j = 1; j <  OA_CAM_CTRL_LAST_P1; j++ ) {
             for ( int k = 0; k <  OA_CAM_CTRL_MODIFIERS_P1; k++ ) {
-              fp.controls[k][j] = config.controlValues[k][j];
+              fp.controls[k][j] = trampolines->cameraControlValue ( k, j );
             }
           }
           profileConf.profiles[i].filterProfiles.append ( fp );
@@ -207,7 +200,8 @@ FilterSettings::storeSettings ( void )
           deleteOldFilter = 1;
         } else {
           QListWidgetItem* entry = list->item ( compareNewPosn );
-          if ( config.filters[ compareOldPosn ].filterName != entry->text()) {
+          if ( filterConf.filters[ compareOldPosn ].filterName !=
+							entry->text()) {
             // The name of the new one doesn't match the current old one, so we
             // need to delete the old one
             deleteOldFilter = 1;
@@ -220,7 +214,7 @@ FilterSettings::storeSettings ( void )
 
         if ( deleteOldFilter ) {
           // remove the filter
-          config.filters.removeAt ( compareOldPosn );
+          filterConf.filters.removeAt ( compareOldPosn );
           // remove the filters profiles
           for ( int i = 0; i < profileConf.numProfiles; i++ ) {
             profileConf.profiles[i].filterProfiles.removeAt ( compareOldPosn );
@@ -230,12 +224,12 @@ FilterSettings::storeSettings ( void )
         }
       }
     }
-    config.numFilters = totalFilters;
+    filterConf.numFilters = totalFilters;
   }
 
   if ( slotsChanged ) {
     for ( int i = 0; i < MAX_FILTER_SLOTS; i++ ) {
-      config.filterSlots[i] = slotMenus[i]->currentIndex();
+      filterConf.filterSlots[i] = slotMenus[i]->currentIndex();
     }
   }
   trampolines->reloadFilters();
@@ -327,7 +321,7 @@ FilterSettings::filterSlotChanged ( int slotIndex )
   if ( currentFilter >= 0 ) {
     filterName = slotMenus[ slotIndex ]->itemText ( currentFilter );
   }
-  state.settingsWidget->propagateNewSlotName ( slotIndex, filterName );
+  trampolines->propagateNewSlotName ( slotIndex, filterName );
   slotsChanged = 1;
 }
 

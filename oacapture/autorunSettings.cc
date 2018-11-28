@@ -98,10 +98,10 @@ AutorunSettings::AutorunSettings ( QWidget* parent, trampolineFuncs* redirs ) :
   filterGridBox->addLayout ( filterGrid );
   filterGridBox->addStretch ( 1 );
 
-  int numExisting = config.autorunFilterSequence.count();
+  int numExisting = filterConf.autorunFilterSequence.count();
   for ( int i = 0; i < numExisting; i++ ) {
     addFilterWidgets ( 1 );
-    filterMenus[i]->setCurrentIndex ( config.autorunFilterSequence[i] );
+    filterMenus[i]->setCurrentIndex ( filterConf.autorunFilterSequence[i] );
     connect ( filterMenus[i], SIGNAL ( currentIndexChanged ( int )), parent,
       SLOT ( dataChanged()));
   }
@@ -111,7 +111,7 @@ AutorunSettings::AutorunSettings ( QWidget* parent, trampolineFuncs* redirs ) :
   filterPromptBox = new QHBoxLayout();
   filterPromptBox->addWidget ( filterPromptOption );
   filterPromptBox->addStretch ( 1 );
-  filterPromptOption->setChecked ( config.promptForFilterChange );
+  filterPromptOption->setChecked ( filterConf.promptForFilterChange );
 
 #ifdef INTER_FILTER_DELAY
   filterDelay = new QLineEdit ( this );
@@ -119,8 +119,8 @@ AutorunSettings::AutorunSettings ( QWidget* parent, trampolineFuncs* redirs ) :
   filterDelay->setValidator ( filterDelayValidator );
   filterDelayLabel = new QLabel ( tr (
       "seconds delay after moving motorised filter wheel" ), this );
-  if ( config.interFilterDelay ) {
-    QString n = QString::number ( config.interFilterDelay );
+  if ( filterConf.interFilterDelay ) {
+    QString n = QString::number ( filterConf.interFilterDelay );
     filterDelay->setText ( n );
   }
 
@@ -186,17 +186,17 @@ AutorunSettings::storeSettings ( void )
   }
 #ifdef INTER_FILTER_DELAY
   if ( filterDelayStr != "" ) {
-    config.interFilterDelay = filterDelayStr.toInt();
+    filterConf.interFilterDelay = filterDelayStr.toInt();
   }
 #endif
 
-  config.promptForFilterChange = filterPromptOption->isChecked() ? 1 : 0;
+  filterConf.promptForFilterChange = filterPromptOption->isChecked() ? 1 : 0;
 
   int numSeqs;
-  config.autorunFilterSequence.clear();
+  filterConf.autorunFilterSequence.clear();
   if (( numSeqs = filterMenus.count())) {
     for ( int i = 0; i < numSeqs; i++ ) {
-      config.autorunFilterSequence.append ( filterMenus[i]->currentIndex());
+      filterConf.autorunFilterSequence.append ( filterMenus[i]->currentIndex());
     }
   }
 }
@@ -226,8 +226,8 @@ AutorunSettings::addFilterWidgets ( int inCtor )
       if ( !inCtor ) {
         filterName = state.settingsWidget->getSlotFilterName ( j );
       } else {
-        int filterNum = config.filterSlots[ j ];
-        filterName = config.filters[ filterNum ].filterName;
+        int filterNum = filterConf.filterSlots[ j ];
+        filterName = filterConf.filters[ filterNum ].filterName;
       }
       QString label;
       label = QString ( "%1: ").arg ( j + 1 );
@@ -235,9 +235,9 @@ AutorunSettings::addFilterWidgets ( int inCtor )
       cb->addItem ( filterName );
     }
   } else {
-    if ( config.numFilters ) {
-      for ( int j = 0; j < config.numFilters; j++ ) {
-        cb->addItem ( config.filters[ j ].filterName );
+    if ( filterConf.numFilters ) {
+      for ( int j = 0; j < filterConf.numFilters; j++ ) {
+        cb->addItem ( filterConf.filters[ j ].filterName );
       }
     }
   }
@@ -340,7 +340,8 @@ AutorunSettings::setSlotCount ( int numSlots )
           }
         }
         for ( int i = 0; i < seqLen; i++ ) {
-          filterMenus[i]->setCurrentIndex ( config.autorunFilterSequence[i] );
+          filterMenus[i]->setCurrentIndex (
+							filterConf.autorunFilterSequence[i] );
         }
       }
       if ( currentSlots > numSlots ) {
@@ -352,21 +353,21 @@ AutorunSettings::setSlotCount ( int numSlots )
       }
     }
   } else {
-    if ( config.numFilters ) {
-      for ( int s = 0; s < config.numFilters; s++ ) {
+    if ( filterConf.numFilters ) {
+      for ( int s = 0; s < filterConf.numFilters; s++ ) {
         for ( int i = 0; i < seqLen; i++ ) {
           if ( s < currentSlots ) {
-            filterMenus[i]->setItemText ( s, config.filters[s].filterName );
+            filterMenus[i]->setItemText ( s, filterConf.filters[s].filterName );
           } else {
-            filterMenus[i]->addItem ( config.filters[s].filterName );
+            filterMenus[i]->addItem ( filterConf.filters[s].filterName );
           }
         }
       }
     }
-    if ( config.numFilters < currentSlots ) {
-      for ( int s = config.numFilters; s < currentSlots; s++ ) {
+    if ( filterConf.numFilters < currentSlots ) {
+      for ( int s = filterConf.numFilters; s < currentSlots; s++ ) {
         for ( int i = 0; i < seqLen; i++ ) { 
-          filterMenus[i]->removeItem ( config.numFilters );
+          filterMenus[i]->removeItem ( filterConf.numFilters );
         }
       }
     }

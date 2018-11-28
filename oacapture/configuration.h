@@ -125,14 +125,6 @@ typedef struct
   int			histogramOnTop;
   int			rawRGBHistogram;
 
-  // filters
-  int			numFilters;
-  QList<FILTER>		filters;
-  int			filterSlots[MAX_FILTER_SLOTS];
-  QList<int>		autorunFilterSequence;
-  int			promptForFilterChange;
-  int			interFilterDelay;
-
   // advanced user configuration
 
   QList<userConfigList>	filterWheelConfig;

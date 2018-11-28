@@ -43,6 +43,7 @@ extern "C" {
 #include "timerSettings.h"
 #include "demosaicSettings.h"
 #include "profileSettings.h"
+#include "filterSettings.h"
 #include "viewWidget.h"
 #include "focusOverlay.h"
 #include "controlsWidget.h"
@@ -52,6 +53,7 @@ extern fitsConfig			fitsConf;
 extern demosaicConfig	demosaicConf;
 extern timerConfig		timerConf;
 extern profileConfig  profileConf;
+extern filterConfig		filterConf;
 
 class MainWindow : public QMainWindow
 {

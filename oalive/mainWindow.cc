@@ -62,6 +62,7 @@ fitsConfig			fitsConf;
 demosaicConfig	demosaicConf;
 timerConfig			timerConf;
 profileConfig		profileConf;
+filterConfig		filterConf;
 STATE						state;
 
 #ifdef OACAPTURE
@@ -438,10 +439,10 @@ MainWindow::readConfig ( QString configFile )
     demosaicConf.monoIsRawColour = 0;
 
     config.numProfiles = 0;
-    config.numFilters = 0;
+    filterConf.numFilters = 0;
 
-    config.promptForFilterChange = 0;
-    config.interFilterDelay = 0;
+    filterConf.promptForFilterChange = 0;
+    filterConf.interFilterDelay = 0;
 
     config.currentColouriseColour.setRgb ( 255, 255, 255 );
     config.numCustomColours = 0;
@@ -595,9 +596,9 @@ MainWindow::readConfig ( QString configFile )
     config.autorunCount = settings->value ( "autorun/count", 0 ).toInt();
     config.autorunDelay = settings->value ( "autorun/delay", 0 ).toInt();
 #endif
-    config.promptForFilterChange = settings->value (
+    filterConf.promptForFilterChange = settings->value (
         "autorun/filterPrompt", 0 ).toInt();
-    config.interFilterDelay = settings->value (
+    filterConf.interFilterDelay = settings->value (
         "autorun/interFilterDelay", 0 ).toInt();
 
 #ifdef OACAPTURE
@@ -649,24 +650,24 @@ MainWindow::readConfig ( QString configFile )
     // adjusted accordingly.
 
     if ( version > 1 ) {
-      config.numFilters = settings->beginReadArray ( "filters" );
-      if ( config.numFilters ) {
-        for ( int i = 0; i < config.numFilters; i++ ) {
+      filterConf.numFilters = settings->beginReadArray ( "filters" );
+      if ( filterConf.numFilters ) {
+        for ( int i = 0; i < filterConf.numFilters; i++ ) {
           settings->setArrayIndex ( i );
           FILTER f;
           f.filterName = settings->value ( "name", "" ).toString();
-          config.filters.append ( f );
+          filterConf.filters.append ( f );
         }
       } else {
         // FIX ME -- these should probably be configured elsewhere
         QList<QString> defaults;
         defaults << "None" << "L" << "R" << "G" << "B" << "IR" << "UV" <<
             "Ha" << "Hb" << "S2" << "O3" << "CH4";
-        config.numFilters = defaults.count();
-        for ( int i = 0; i < config.numFilters; i++ ) {
+        filterConf.numFilters = defaults.count();
+        for ( int i = 0; i < filterConf.numFilters; i++ ) {
           FILTER f;
           f.filterName = defaults[i];
-          config.filters.append ( f );
+          filterConf.filters.append ( f );
         }
       }
       settings->endArray();
@@ -694,23 +695,23 @@ MainWindow::readConfig ( QString configFile )
               // time through
               FILTER fn;
               fn.filterName = "none";
-              config.filters.append ( fn );
+              filterConf.filters.append ( fn );
               totalFilters++;
               renumberFrom = 0;
               renumberTo = numFilters;
             }
           }
-          config.filters.append ( f );
+          filterConf.filters.append ( f );
           totalFilters++;
         }
       } else {
         FILTER fn;
         fn.filterName = "none";
-        config.filters.append ( fn );
+        filterConf.filters.append ( fn );
         totalFilters++;
       }
       settings->endArray();
-      config.numFilters = totalFilters;
+      filterConf.numFilters = totalFilters;
       if ( config.filterOption >= renumberFrom && config.filterOption <=
           renumberTo ) {
         if ( renumberTo < numFilters && config.filterOption ==
@@ -739,9 +740,9 @@ MainWindow::readConfig ( QString configFile )
             if ( numFilters ) {
               for ( int k = 0; k < numFilters; k++ ) {
                 settings->setArrayIndex ( k );
-                if ( numFilters <= config.numFilters ) {
+                if ( numFilters <= filterConf.numFilters ) {
                   FILTER_PROFILE fp;
-                  fp.filterName = config.filters[k].filterName;
+                  fp.filterName = filterConf.filters[k].filterName;
                   p.filterProfiles.append ( fp );
                 }
                 // Give up on anything before version 7.  It's just too
@@ -754,7 +755,7 @@ MainWindow::readConfig ( QString configFile )
                     if ( numModifiers )  { 
                       for ( int i = 0; i < numModifiers; i++ ) {
                         settings->setArrayIndex ( i );
-                        if ( numFilters <= config.numFilters ) {
+                        if ( numFilters <= filterConf.numFilters ) {
                           p.filterProfiles[ k ].controls[ i ][ j ] =
                               settings->value ( "controlValue", 0 ).toInt();
                         }
@@ -771,10 +772,10 @@ MainWindow::readConfig ( QString configFile )
             settings->endArray();
 
           } else {
-            if ( config.numFilters ) {
-              for ( int k = 0; k < config.numFilters; k++ ) {
+            if ( filterConf.numFilters ) {
+              for ( int k = 0; k < filterConf.numFilters; k++ ) {
                 FILTER_PROFILE fp;
-                fp.filterName = config.filters[k].filterName;
+                fp.filterName = filterConf.filters[k].filterName;
                 p.filterProfiles.append ( fp );
                 for ( int j = 0; j < OA_CAM_CTRL_LAST_P1; j++ ) {
                   for ( int i = 0; i < OA_CAM_CTRL_MODIFIERS_P1; i++ ) {
@@ -823,17 +824,17 @@ MainWindow::readConfig ( QString configFile )
       p.useROI = config.useROI;
       p.imageSizeX = config.imageSizeX;
       p.imageSizeY = config.imageSizeY;
-      if ( config.numFilters ) {
-        for ( int k = 0; k < config.numFilters; k++ ) {
+      if ( filterConf.numFilters ) {
+        for ( int k = 0; k < filterConf.numFilters; k++ ) {
           FILTER_PROFILE fp;
-          fp.filterName = config.filters[k].filterName;
+          fp.filterName = filterConf.filters[k].filterName;
           fp.intervalMenuOption = 1; // msec
           p.filterProfiles.append ( fp );
         }
       }
       for ( int j = 1; j < OA_CAM_CTRL_LAST_P1; j++ ) {
-        if ( config.numFilters ) {
-	  for ( int k = 0; k < config.numFilters; k++ ) {
+        if ( filterConf.numFilters ) {
+	  for ( int k = 0; k < filterConf.numFilters; k++ ) {
             for ( int i = 0; i < OA_CAM_CTRL_MODIFIERS_P1; i++ ) {
               p.filterProfiles[ k ].controls[ i ][ j ] =
                   config.controlValues[ i ][ j ];
@@ -874,7 +875,7 @@ MainWindow::readConfig ( QString configFile )
       if ( numSeqs ) {
         for ( int i = 0; i < numSeqs; i++ ) {
           settings->setArrayIndex ( i );
-          config.autorunFilterSequence.append ( settings->value (
+          filterConf.autorunFilterSequence.append ( settings->value (
               "slot", -1 ).toInt());
         }
       }
@@ -1117,9 +1118,10 @@ MainWindow::writeConfig ( QString configFile )
 
   settings->setValue ( "autorun/count", config.autorunCount );
   settings->setValue ( "autorun/delay", config.autorunDelay );
-  settings->setValue ( "autorun/filterPrompt", config.promptForFilterChange );
+  settings->setValue ( "autorun/filterPrompt",
+			filterConf.promptForFilterChange );
   settings->setValue ( "autorun/interFilterDelay",
-      config.interFilterDelay );
+      filterConf.interFilterDelay );
 
   settings->setValue ( "display/preview", config.preview );
   settings->setValue ( "display/nightMode", config.nightMode );
@@ -1160,10 +1162,10 @@ MainWindow::writeConfig ( QString configFile )
   settings->endArray();
 
   settings->beginWriteArray ( "filters" );
-  if ( config.numFilters ) {
-    for ( int i = 0; i < config.numFilters; i++ ) {
+  if ( filterConf.numFilters ) {
+    for ( int i = 0; i < filterConf.numFilters; i++ ) {
       settings->setArrayIndex ( i );
-      settings->setValue ( "name", config.filters[i].filterName );
+      settings->setValue ( "name", filterConf.filters[i].filterName );
     }
   }
   settings->endArray();
@@ -1179,10 +1181,10 @@ MainWindow::writeConfig ( QString configFile )
       settings->setValue ( "imageSizeX", config.profiles[i].imageSizeX );
       settings->setValue ( "imageSizeY", config.profiles[i].imageSizeY );
 
-      if ( config.numFilters &&
+      if ( filterConf.numFilters &&
           !config.profiles[ i ].filterProfiles.isEmpty()) {
         settings->beginWriteArray ( "filters" );
-        for ( int j = 0; j < config.numFilters; j++ ) {
+        for ( int j = 0; j < filterConf.numFilters; j++ ) {
           settings->setArrayIndex ( j );
           settings->setValue ( "intervalMenuOption",
               config.profiles[ i ].filterProfiles[ j ].intervalMenuOption );
@@ -1238,10 +1240,10 @@ MainWindow::writeConfig ( QString configFile )
 #ifdef OACAPTURE
   settings->beginWriteArray ( "filterSequence" );
   int numSeqs;
-  if (( numSeqs = config.autorunFilterSequence.count())) {
+  if (( numSeqs = filterConf.autorunFilterSequence.count())) {
     for ( int i = 0; i < numSeqs; i++ ) {
       settings->setArrayIndex ( i );
-      settings->setValue ( "slot", config.autorunFilterSequence[i] );
+      settings->setValue ( "slot", filterConf.autorunFilterSequence[i] );
     }
   }
   settings->endArray();
@@ -1710,7 +1712,7 @@ MainWindow::connectCamera ( int deviceIndex )
   // profile.
   if ( config.profileOption >= 0 && config.profileOption <
       config.numProfiles && config.filterOption >= 0 && config.filterOption <
-      config.numFilters ) {
+      filterConf.numFilters ) {
     for ( uint8_t c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
       for ( uint8_t m = 1; m < OA_CAM_CTRL_MODIFIERS_P1; m++ ) {
         config.controlValues[ m ][ c ] =
