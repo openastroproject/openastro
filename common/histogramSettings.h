@@ -49,7 +49,7 @@ class HistogramSettings : public QWidget
   Q_OBJECT
 
   public:
-    			HistogramSettings ( QWidget*, trampolineFuncs* );
+    			HistogramSettings ( QWidget*, histogramConfig*, trampolineFuncs* );
     			~HistogramSettings();
     void		storeSettings ( void );
 
@@ -59,4 +59,5 @@ class HistogramSettings : public QWidget
     QCheckBox*		onTopBox;
     QVBoxLayout*	box;
 		trampolineFuncs*	trampolines;
+		histogramConfig*	pHistConf;
 };

@@ -106,7 +106,7 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
 #endif
 #ifdef OACAPTURE
 	if ( reqdWindows & SETTINGS_HISTOGRAM ) {
-    histogram = new HistogramSettings ( this, trampolines );
+    histogram = new HistogramSettings ( this, &histogramConf, trampolines );
     state.histogramSettingsIndex = tabSet->addTab ( histogram,
         QIcon ( ":/qt-icons/barchart.png" ), tr ( "Histogram" ));
 	}

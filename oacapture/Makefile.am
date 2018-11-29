@@ -43,8 +43,7 @@ bin_PROGRAMS = oacapture
 BUILT_SOURCES = version.h
 oacapture_SOURCES = autorunSettings.cc cameraSettings.cc \
   cameraWidget.cc captureWidget.cc controlWidget.cc \
-  generalSettings.cc \
-  histogramSettings.cc histogramWidget.cc imageWidget.cc mainWindow.cc \
+  generalSettings.cc histogramWidget.cc imageWidget.cc mainWindow.cc \
   oacapture.cc previewWidget.cc settingsWidget.cc zoomWidget.cc \
 	trampoline.cc displayWindow.cc \
 	moc_cameraWidget.cc \
