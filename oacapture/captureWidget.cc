@@ -306,7 +306,7 @@ CaptureWidget::CaptureWidget ( QWidget* parent ) : QGroupBox ( parent )
   box->addLayout ( type );
   box->addLayout ( controls );
 
-  if ( !config.dockableControls ) {
+  if ( !generalConf.dockableControls ) {
     setTitle ( tr ( "Capture" ));
   }
   setLayout ( box );
@@ -767,7 +767,7 @@ CaptureWidget::doStopRecording ( void )
   if ( state.histogramOn ) {
     state.histogramWidget->stopStats();
   }
-  if ( config.saveCaptureSettings && outputHandler ) {
+  if ( generalConf.saveCaptureSettings && outputHandler ) {
     writeSettings ( outputHandler );
   }
   closeOutputHandler();
@@ -1377,7 +1377,7 @@ CaptureWidget::writeSettings ( OutputHandler* out )
               break;
             }
             case OA_CAM_CTRL_TEMPERATURE:
-              if ( config.tempsInC ) {
+              if ( generalConf.tempsInC ) {
                 settings << tr ( "Temp (C): " ).toStdString().c_str();
               } else {
                 settings << tr ( "Temp (F): " ).toStdString().c_str();
@@ -1428,7 +1428,7 @@ CaptureWidget::writeSettings ( OutputHandler* out )
                     float temp = state.camera->getTemperature();
                     state.cameraTempValid = 1;
                     state.cameraTemp = temp;
-                    if ( !config.tempsInC ) {
+                    if ( !generalConf.tempsInC ) {
                       temp = temp * 9 / 5 + 32;
                     }
                     stringVal.setNum ( temp, 'g', 3 );

@@ -45,11 +45,6 @@ typedef QList<userDeviceConfig> userConfigList;
 
 typedef struct
 {
-  // general
-  int			saveSettings;
-  int			tempsInC;
-  int			connectSoleCamera;
-
   // settings from device menu
   int			cameraDevice;
 
@@ -101,9 +96,6 @@ typedef struct
   int			saveProcessedImage;
   int			saveCaptureSettings;
   int			indexDigits;
-
-  // reticle config
-  int			reticleStyle;
 
   // saved profiles
   int			numProfiles;

@@ -37,6 +37,22 @@
 
 #include "trampoline.h"
  
+typedef struct {
+	// misc config
+	int				saveSettings;
+	int				tempsInC;
+	int				saveCaptureSettings;
+	int				connectSoleCamera;
+	// window layout
+	int				dockableControls;
+	int				controlsOnRight;
+	int				separateControls;
+	// display config
+	int				displayFPS;
+	// reticle config
+	int				reticleStyle;
+} generalConfig;
+
 
 class GeneralSettings : public QWidget
 {

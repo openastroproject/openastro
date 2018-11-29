@@ -54,7 +54,7 @@ CameraWidget::CameraWidget ( QWidget* parent ) : QGroupBox ( parent )
       SLOT( setBinning ( int )));
 
   tempLabel = new QLabel();
-  if ( config.tempsInC ) {
+  if ( generalConf.tempsInC ) {
     tempLabel->setText ( tr ( "Temp (C)" ));
   } else {
     tempLabel->setText ( tr ( "Temp (F)" ));
@@ -72,7 +72,7 @@ CameraWidget::CameraWidget ( QWidget* parent ) : QGroupBox ( parent )
   fpsActualValue = new QLabel ( "0" );
   fpsActualValue->setFixedWidth ( 50 );
 
-  if ( !config.dockableControls ) {
+  if ( !generalConf.dockableControls ) {
     setTitle ( tr ( "Camera" ));
   }
 
@@ -229,7 +229,7 @@ CameraWidget::setTemperature()
   state.cameraTemp = temp;
 
   if ( updateTemperatureLabel == 1 ) {
-    if ( config.tempsInC ) {
+    if ( generalConf.tempsInC ) {
       tempLabel->setText ( tr ( "Temp (C)" ));
     } else {
       tempLabel->setText ( tr ( "Temp (F)" ));
@@ -237,7 +237,7 @@ CameraWidget::setTemperature()
     updateTemperatureLabel = 0;
   }
 
-  if ( !config.tempsInC ) {
+  if ( !generalConf.tempsInC ) {
     temp = temp * 9 / 5 + 32;
   }
   stringVal.setNum ( temp, 'g', 3 );

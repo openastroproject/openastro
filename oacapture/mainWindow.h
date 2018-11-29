@@ -50,6 +50,7 @@ extern "C" {
 #include "filterSettings.h"
 #include "histogramSettings.h"
 #include "autorunSettings.h"
+#include "generalSettings.h"
 
 #include "mainWindow.h"
 #include "configuration.h"
@@ -69,6 +70,7 @@ extern profileConfig		profileConf;
 extern filterConfig			filterConf;
 extern histogramConfig	histogramConf;
 extern autorunConfig		autorunConf;
+extern generalConfig		generalConf;
 
 class MainWindow : public QMainWindow
 {

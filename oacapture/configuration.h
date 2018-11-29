@@ -45,14 +45,6 @@ typedef QList<userDeviceConfig> userConfigList;
 
 typedef struct
 {
-  // general
-  int			saveSettings;
-  int			tempsInC;
-  int			connectSoleCamera;
-  int			dockableControls;
-  int			controlsOnRight;
-  int			separateControls;
-
   // settings from device menu
   int			cameraDevice;
 
@@ -110,15 +102,10 @@ typedef struct
   QString		captureDirectory;
   int			autorunCount;
   int			autorunDelay;
-  int			saveCaptureSettings;
 
   // display config
   int			preview;
   int			nightMode;
-  int			displayFPS;
-
-  // reticle config
-  int			reticleStyle;
 
   // advanced user configuration
 

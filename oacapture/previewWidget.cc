@@ -204,7 +204,7 @@ PreviewWidget::paintEvent ( QPaintEvent* event )
   painter.setPen ( QPen ( Qt::red, 2, Qt::SolidLine, Qt::FlatCap ));
 
   if ( config.showReticle ) {
-    switch ( config.reticleStyle ) {
+    switch ( generalConf.reticleStyle ) {
 
       case RETICLE_CIRCLE:
         painter.drawEllipse ( reticleCentreX - 50, reticleCentreY - 50,

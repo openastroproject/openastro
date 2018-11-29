@@ -60,6 +60,7 @@ profileConfig		profileConf;
 filterConfig		filterConf;
 histogramConfig	histogramConf;
 autorunConfig		autorunConf;
+generalConfig		generalConf;
 
 STATE		state;
 
@@ -175,7 +176,7 @@ MainWindow::MainWindow ( QString configFile )
   state.currentDirectory = QString::fromLatin1 ( getcwd ( d, PATH_MAX ));
 #endif
 
-  if ( connectedCameras == 1 && config.connectSoleCamera ) {
+  if ( connectedCameras == 1 && generalConf.connectSoleCamera ) {
     connectCamera ( 0 );
   }
   focusaid->setChecked ( config.showFocusAid );
@@ -312,13 +313,13 @@ MainWindow::readConfig ( QString configFile )
 
   // -1 means we don't have a config file.  We change it to 1 later in the
   // function
-  config.saveSettings = settings->value ( "saveSettings", -1 ).toInt();
+  generalConf.saveSettings = settings->value ( "saveSettings", -1 ).toInt();
 
-  if ( !config.saveSettings ) {
+  if ( !generalConf.saveSettings ) {
 
-    config.tempsInC = 1;
-    config.reticleStyle = 1;
-    config.displayFPS = 15;
+    generalConf.tempsInC = 1;
+    generalConf.reticleStyle = 1;
+    generalConf.displayFPS = 15;
 
     config.showHistogram = 0;
     config.autoAlign = 0;
@@ -368,7 +369,7 @@ MainWindow::readConfig ( QString configFile )
 
     autorunConf.autorunCount = 0;
     autorunConf.autorunDelay = 0;
-    config.saveCaptureSettings = 1;
+    generalConf.saveCaptureSettings = 1;
 
     captureConf.windowsCompatibleAVI = 0;
     captureConf.useUtVideo = 0;
@@ -423,13 +424,16 @@ MainWindow::readConfig ( QString configFile )
     // FIX ME -- how to handle this?
     // config.cameraDevice = settings->value ( "device/camera", -1 ).toInt();
 
-    config.tempsInC = settings->value ( "tempsInCentigrade", 1 ).toInt();
-    config.connectSoleCamera = settings->value ( "connectSoleCamera",
+    generalConf.tempsInC = settings->value ( "tempsInCentigrade", 1 ).toInt();
+    generalConf.connectSoleCamera = settings->value ( "connectSoleCamera",
         0 ).toInt();
-    config.dockableControls = settings->value ( "dockableControls", 0 ).toInt();
-    config.controlsOnRight = settings->value ( "controlsOnRight", 1 ).toInt();
-    config.separateControls = settings->value ( "separateControls", 0 ).toInt();
-    config.saveCaptureSettings = settings->value ( "saveCaptureSettings",
+    generalConf.dockableControls = settings->value (
+				"dockableControls", 0 ).toInt();
+    generalConf.controlsOnRight = settings->value (
+				"controlsOnRight", 1 ).toInt();
+    generalConf.separateControls = settings->value (
+				"separateControls", 0 ).toInt();
+    generalConf.saveCaptureSettings = settings->value ( "saveCaptureSettings",
         1 ).toInt();
 
     captureConf.windowsCompatibleAVI = settings->value (
@@ -524,9 +528,10 @@ MainWindow::readConfig ( QString configFile )
 
     config.preview = settings->value ( "display/preview", 1 ).toInt();
     config.nightMode = settings->value ( "display/nightMode", 0 ).toInt();
-    config.displayFPS = settings->value ( "display/displayFPS", 15 ).toInt();
+    generalConf.displayFPS = settings->value (
+				"display/displayFPS", 15 ).toInt();
     // fix a problem with existing configs
-    if ( !config.displayFPS ) { config.displayFPS = 15; }
+    if ( !generalConf.displayFPS ) { generalConf.displayFPS = 15; }
 
     histogramConf.splitHistogram = settings->value (
 				"histogram/split", 0 ).toInt();
@@ -546,7 +551,7 @@ MainWindow::readConfig ( QString configFile )
     demosaicConf.monoIsRawColour = settings->value ( "demosaic/monoIsRawColour",
         1 ).toInt();
 
-    config.reticleStyle = settings->value ( "reticle/style",
+    generalConf.reticleStyle = settings->value ( "reticle/style",
         RETICLE_CIRCLE ).toInt();
 
     // Give up on earlier versions of this data.  It's too complicated to
@@ -916,8 +921,8 @@ MainWindow::readConfig ( QString configFile )
     settings->endArray();
   }
 
-  if ( !config.saveSettings || config.saveSettings == -1 ) {
-    config.saveSettings = -config.saveSettings;
+  if ( !generalConf.saveSettings || generalConf.saveSettings == -1 ) {
+    generalConf.saveSettings = -generalConf.saveSettings;
   }
 
   fitsConf.observer = settings->value ( "fits/observer", "" ).toString();
@@ -963,7 +968,7 @@ MainWindow::writeConfig ( QString configFile )
 {
   QSettings*  settings;
 
-  if ( !config.saveSettings ) {
+  if ( !generalConf.saveSettings ) {
     return;
   }
 
@@ -980,17 +985,18 @@ MainWindow::writeConfig ( QString configFile )
 
   settings->clear();
 
-  settings->setValue ( "saveSettings", config.saveSettings );
+  settings->setValue ( "saveSettings", generalConf.saveSettings );
 
   settings->setValue ( "configVersion", CONFIG_VERSION );
   settings->setValue ( "geometry", geometry());
 
-  settings->setValue ( "tempsInCentigrade", config.tempsInC );
-  settings->setValue ( "connectSoleCamera", config.connectSoleCamera );
-  settings->setValue ( "dockableControls", config.dockableControls );
-  settings->setValue ( "controlsOnRight", config.controlsOnRight );
-  settings->setValue ( "separateControls", config.separateControls );
-  settings->setValue ( "saveCaptureSettings", config.saveCaptureSettings );
+  settings->setValue ( "tempsInCentigrade", generalConf.tempsInC );
+  settings->setValue ( "connectSoleCamera", generalConf.connectSoleCamera );
+  settings->setValue ( "dockableControls", generalConf.dockableControls );
+  settings->setValue ( "controlsOnRight", generalConf.controlsOnRight );
+  settings->setValue ( "separateControls", generalConf.separateControls );
+  settings->setValue ( "saveCaptureSettings",
+			generalConf.saveCaptureSettings );
 
   settings->setValue ( "windowsCompatibleAVI",
 			captureConf.windowsCompatibleAVI );
@@ -1057,7 +1063,7 @@ MainWindow::writeConfig ( QString configFile )
 
   settings->setValue ( "display/preview", config.preview );
   settings->setValue ( "display/nightMode", config.nightMode );
-  settings->setValue ( "display/displayFPS", config.displayFPS );
+  settings->setValue ( "display/displayFPS", generalConf.displayFPS );
 
   settings->setValue ( "histogram/split", histogramConf.splitHistogram );
   settings->setValue ( "histogram/onTop", histogramConf.histogramOnTop );
@@ -1070,7 +1076,7 @@ MainWindow::writeConfig ( QString configFile )
 			demosaicConf.monoIsRawColour );
   settings->setValue ( "demosaic/cfaPattern", demosaicConf.cfaPattern );
 
-  settings->setValue ( "reticle/style", config.reticleStyle );
+  settings->setValue ( "reticle/style", generalConf.reticleStyle );
 
   settings->beginWriteArray ( "controls" );
   for ( int i = 1; i < OA_CAM_CTRL_LAST_P1; i++ ) {
@@ -2606,10 +2612,10 @@ MainWindow::createPreviewWindow()
     previewScroller->hide();
   }
 
-  if ( config.dockableControls || config.separateControls ) {
+  if ( generalConf.dockableControls || generalConf.separateControls ) {
     setCentralWidget ( previewScroller );
   } else {
-    if ( config.controlsOnRight ) {
+    if ( generalConf.controlsOnRight ) {
       dummyWidget = new QWidget ( this );
       dummyWidget->setLayout ( vertControlsBox );
       splitter->addWidget ( previewScroller );
@@ -2623,7 +2629,7 @@ MainWindow::createPreviewWindow()
     }
   }
 
-  state.previewWidget->setDisplayFPS ( config.displayFPS );
+  state.previewWidget->setDisplayFPS ( generalConf.displayFPS );
 }
 
 
@@ -2672,7 +2678,7 @@ MainWindow::createControlWidgets ( void )
   imageZoomBox->addWidget ( imageWidget );
   imageZoomBox->addWidget ( zoomWidget );
 
-  if ( config.dockableControls && !config.separateControls ) {
+  if ( generalConf.dockableControls && !generalConf.separateControls ) {
     cameraDock = new QDockWidget ( tr ( "Camera" ), this );
     cameraDock->setFeatures ( QDockWidget::DockWidgetMovable |
         QDockWidget::DockWidgetFloatable );
@@ -2699,7 +2705,7 @@ MainWindow::createControlWidgets ( void )
     captureDock->setWidget ( captureWidget );
     captureWidget->show();
 
-    enum Qt::DockWidgetArea where = config.controlsOnRight ?
+    enum Qt::DockWidgetArea where = generalConf.controlsOnRight ?
         Qt::RightDockWidgetArea : Qt::TopDockWidgetArea;
     addDockWidget ( where, cameraDock );
     addDockWidget ( where, imageZoomDock );
@@ -2711,7 +2717,7 @@ MainWindow::createControlWidgets ( void )
     // we can't set a MainWindow layout directly, so we need to add a
     // new widget as the central widget and add the layout to that
 
-    if ( config.separateControls ) {
+    if ( generalConf.separateControls ) {
 
       controlWindow = new QMainWindow;
       dummyWidget = new QWidget ( controlWindow );
@@ -2733,7 +2739,7 @@ MainWindow::createControlWidgets ( void )
       splitter = new QSplitter ( this );
       setCentralWidget ( splitter );
 
-      if ( config.controlsOnRight ) {
+      if ( generalConf.controlsOnRight ) {
         vertControlsBox = new QVBoxLayout();
         vertControlsBox->addWidget ( cameraWidget );
         vertControlsBox->addLayout ( imageZoomBox );

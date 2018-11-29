@@ -247,7 +247,7 @@ ControlWidget::ControlWidget ( QWidget* parent ) : QGroupBox ( parent )
   framerateSlider->hide();
   framerateMenu->hide();
 
-  if ( !config.dockableControls ) {
+  if ( !generalConf.dockableControls ) {
     setTitle ( tr ( "Control" ));
   }
   setLayout ( grid );
