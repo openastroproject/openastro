@@ -37,6 +37,13 @@
 
 #include "trampoline.h"
 
+
+typedef struct {
+	int			splitHistogram;
+	int			histogramOnTop;
+	int			rawRGBHistogram;
+} histogramConfig;
+
 class HistogramSettings : public QWidget
 {
   Q_OBJECT

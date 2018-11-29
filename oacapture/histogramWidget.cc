@@ -41,7 +41,7 @@ extern "C" {
 HistogramWidget::HistogramWidget()
 {
   currentLayoutIsSplit = 0;
-  newLayoutIsSplit = config.splitHistogram;
+  newLayoutIsSplit = histogramConf.splitHistogram;
   showingThreeGraphs = 0;
   resize ( 300, 150 );
   setWindowTitle( APPLICATION_NAME " Histogram" );
@@ -84,7 +84,7 @@ HistogramWidget::process ( void* imageData, unsigned int width,
   if ( OA_PIX_FMT_RGB24 == format || OA_PIX_FMT_BGR24 == format ) {
     _processRGBHistogram ( imageData, width, height, length, format );
   } else {
-    if ( oaFrameFormats[ format ].rawColour && config.rawRGBHistogram ) {
+    if ( oaFrameFormats[ format ].rawColour && histogramConf.rawRGBHistogram ) {
       _processMosaicHistogram ( imageData, width, height, length, format );
     } else {
       _processGreyscaleHistogram ( imageData, width, height, length, format );
@@ -206,7 +206,7 @@ HistogramWidget::paintEvent ( QPaintEvent* event )
 void
 HistogramWidget::updateLayout ( void )
 {
-  newLayoutIsSplit = config.splitHistogram;
+  newLayoutIsSplit = histogramConf.splitHistogram;
 }
 
 

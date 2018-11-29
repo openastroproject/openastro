@@ -120,11 +120,6 @@ typedef struct
   // reticle config
   int			reticleStyle;
 
-  // histogram config
-  int			splitHistogram;
-  int			histogramOnTop;
-  int			rawRGBHistogram;
-
   // advanced user configuration
 
   QList<userConfigList>	filterWheelConfig;

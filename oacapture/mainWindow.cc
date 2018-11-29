@@ -58,6 +58,7 @@ demosaicConfig	demosaicConf;
 timerConfig			timerConf;
 profileConfig		profileConf;
 filterConfig		filterConf;
+histogramConfig	histogramConf;
 STATE		state;
 
 static const char* styleGroupBoxBorders =
@@ -374,9 +375,9 @@ MainWindow::readConfig ( QString configFile )
     config.preview = 1;
     config.nightMode = 0;
 
-    config.splitHistogram = 0;
-    config.histogramOnTop = 1;
-    config.rawRGBHistogram = 1;
+    histogramConf.splitHistogram = 0;
+    histogramConf.histogramOnTop = 1;
+    histogramConf.rawRGBHistogram = 1;
 
     demosaicConf.demosaicPreview = 0;
     demosaicConf.demosaicOutput = 0;
@@ -525,9 +526,12 @@ MainWindow::readConfig ( QString configFile )
     // fix a problem with existing configs
     if ( !config.displayFPS ) { config.displayFPS = 15; }
 
-    config.splitHistogram = settings->value ( "histogram/split", 0 ).toInt();
-    config.histogramOnTop = settings->value ( "histogram/onTop", 1 ).toInt();
-    config.rawRGBHistogram = settings->value ( "histogram/rawRGB", 1 ).toInt();
+    histogramConf.splitHistogram = settings->value (
+				"histogram/split", 0 ).toInt();
+    histogramConf.histogramOnTop = settings->value (
+				"histogram/onTop", 1 ).toInt();
+    histogramConf.rawRGBHistogram = settings->value (
+				"histogram/rawRGB", 1 ).toInt();
 
     demosaicConf.demosaicPreview = settings->value ( "demosaic/preview",
 				0 ).toInt();
@@ -1053,9 +1057,9 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "display/nightMode", config.nightMode );
   settings->setValue ( "display/displayFPS", config.displayFPS );
 
-  settings->setValue ( "histogram/split", config.splitHistogram );
-  settings->setValue ( "histogram/onTop", config.histogramOnTop );
-  settings->setValue ( "histogram/rawRGB", config.rawRGBHistogram );
+  settings->setValue ( "histogram/split", histogramConf.splitHistogram );
+  settings->setValue ( "histogram/onTop", histogramConf.histogramOnTop );
+  settings->setValue ( "histogram/rawRGB", histogramConf.rawRGBHistogram );
 
   settings->setValue ( "demosaic/preview", demosaicConf.demosaicPreview );
   settings->setValue ( "demosaic/output", demosaicConf.demosaicOutput );
@@ -1916,7 +1920,7 @@ MainWindow::enableHistogram ( void )
       state.histogramWidget = new HistogramWidget();
       // need to do this to be able to uncheck the menu item on closing
       state.histogramWidget->setAttribute ( Qt::WA_DeleteOnClose );
-      if ( config.histogramOnTop ) {
+      if ( histogramConf.histogramOnTop ) {
         state.histogramWidget->setWindowFlags ( Qt::WindowStaysOnTopHint );
       }
       connect ( state.histogramWidget, SIGNAL( destroyed ( QObject* )), this,

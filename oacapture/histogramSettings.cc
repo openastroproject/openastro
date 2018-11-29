@@ -27,8 +27,7 @@
 #include <oa_common.h>
 
 #include "histogramSettings.h"
-#include "configuration.h"
-#include "state.h"
+#include "mainWindow.h"
 
 
 HistogramSettings::HistogramSettings ( QWidget* parent,
@@ -37,11 +36,11 @@ HistogramSettings::HistogramSettings ( QWidget* parent,
 	trampolines = redirs;
 
   rawRGBBox = new QCheckBox ( tr ( "Show raw colour as RGB histogram" ), this );
-  rawRGBBox->setChecked ( config.rawRGBHistogram );
+  rawRGBBox->setChecked ( histogramConf.rawRGBHistogram );
   splitBox = new QCheckBox ( tr ( "Split RGB histogram" ), this );
-  splitBox->setChecked ( config.splitHistogram );
+  splitBox->setChecked ( histogramConf.splitHistogram );
   onTopBox = new QCheckBox ( tr ( "Keep histogram window on top" ), this );
-  onTopBox->setChecked ( config.histogramOnTop );
+  onTopBox->setChecked ( histogramConf.histogramOnTop );
   box = new QVBoxLayout ( this );
   box->addWidget ( rawRGBBox );
   box->addWidget ( splitBox );
@@ -59,17 +58,15 @@ HistogramSettings::HistogramSettings ( QWidget* parent,
 
 HistogramSettings::~HistogramSettings()
 {
-  state.mainWindow->destroyLayout (( QLayout* ) box );
+  trampolines->destroyLayout (( QLayout* ) box );
 }
 
 
 void
 HistogramSettings::storeSettings ( void )
 {
-  config.splitHistogram = splitBox->isChecked() ? 1 : 0;
-  if ( state.histogramWidget ) {
-    trampolines->updateHistogramLayout();
-  }
-  config.histogramOnTop = onTopBox->isChecked() ? 1 : 0;
-  config.rawRGBHistogram = rawRGBBox->isChecked() ? 1 : 0;
+  histogramConf.splitHistogram = splitBox->isChecked() ? 1 : 0;
+  trampolines->updateHistogramLayout();
+  histogramConf.histogramOnTop = onTopBox->isChecked() ? 1 : 0;
+  histogramConf.rawRGBHistogram = rawRGBBox->isChecked() ? 1 : 0;
 }
