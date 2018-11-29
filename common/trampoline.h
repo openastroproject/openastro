@@ -115,6 +115,8 @@ typedef struct {
 	void ( *showStatusMessage ) ( QString );
 	int ( *numFilterWheelSlots )( void );
 	void ( *propagateNewSlotName )( int, QString );
+	int ( *isFilterWheelInitialised )( void );
+	QString ( *slotFilterName )( int );
 } trampolineFuncs;
 
 extern trampolineFuncs trampolines;

@@ -624,6 +624,20 @@ t_propagateNewSlotName ( int slotIndex, QString filterName )
 }
 
 
+int
+t_isFilterWheelInitialised ( void )
+{
+	return ( state.filterWheel && state.filterWheel->isInitialised()) ? 1 : 0;
+}
+
+
+QString
+t_slotFilterName ( int slot )
+{
+  return state.settingsWidget->getSlotFilterName ( slot );
+}
+
+
 trampolineFuncs trampolines {
 	.getCurrentGain = &t_getCurrentGain,
 	.getCurrentExposure = &t_getCurrentExposure,
@@ -705,5 +719,7 @@ trampolineFuncs trampolines {
 	.updateConfig = &t_updateConfig,
 	.showStatusMessage = &t_showStatusMessage,
 	.numFilterWheelSlots = &t_numFilterWheelSlots,
-	.propagateNewSlotName = &t_propagateNewSlotName
+	.propagateNewSlotName = &t_propagateNewSlotName,
+	.isFilterWheelInitialised = &t_isFilterWheelInitialised,
+	.slotFilterName = &t_slotFilterName
 };

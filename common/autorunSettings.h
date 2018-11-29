@@ -36,6 +36,7 @@
 #include <QtGui>
 
 #include "trampoline.h"
+#include "filterSettings.h"
 
 typedef struct {
 	int			autorunCount;
@@ -48,7 +49,8 @@ class AutorunSettings : public QWidget
   Q_OBJECT
 
   public:
-    			AutorunSettings ( QWidget*, trampolineFuncs* );
+    			AutorunSettings ( QWidget*, autorunConfig*, filterConfig*,
+							trampolineFuncs* );
     			~AutorunSettings();
     void		storeSettings ( void );
     void		setSlotName ( int, const QString& );
@@ -84,6 +86,9 @@ class AutorunSettings : public QWidget
     int			sequenceLength;
     int			filterWheelSlots;
 		trampolineFuncs*	trampolines;
+		QWidget*					parentWidget;
+		autorunConfig*		pAutorunConf;
+		filterConfig*			pFilterConf;
 
     void		addFilterWidgets ( int );
 
