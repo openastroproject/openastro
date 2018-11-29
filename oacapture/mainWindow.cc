@@ -59,6 +59,8 @@ timerConfig			timerConf;
 profileConfig		profileConf;
 filterConfig		filterConf;
 histogramConfig	histogramConf;
+autorunConfig		autorunConf;
+
 STATE		state;
 
 static const char* styleGroupBoxBorders =
@@ -364,8 +366,8 @@ MainWindow::readConfig ( QString configFile )
     config.fileNameTemplate = QString ( "oaCapture-%DATE-%TIME" );
     config.captureDirectory = QString ( defaultDir );
 
-    config.autorunCount = 0;
-    config.autorunDelay = 0;
+    autorunConf.autorunCount = 0;
+    autorunConf.autorunDelay = 0;
     config.saveCaptureSettings = 1;
 
     captureConf.windowsCompatibleAVI = 0;
@@ -513,8 +515,8 @@ MainWindow::readConfig ( QString configFile )
     config.captureDirectory = settings->value ( "control/captureDirectory",
         defaultDir ).toString();
 
-    config.autorunCount = settings->value ( "autorun/count", 0 ).toInt();
-    config.autorunDelay = settings->value ( "autorun/delay", 0 ).toInt();
+    autorunConf.autorunCount = settings->value ( "autorun/count", 0 ).toInt();
+    autorunConf.autorunDelay = settings->value ( "autorun/delay", 0 ).toInt();
     filterConf.promptForFilterChange = settings->value (
         "autorun/filterPrompt", 0 ).toInt();
     filterConf.interFilterDelay = settings->value (
@@ -1046,8 +1048,8 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "control/fileNameTemplate", config.fileNameTemplate );
   settings->setValue ( "control/captureDirectory", config.captureDirectory );
 
-  settings->setValue ( "autorun/count", config.autorunCount );
-  settings->setValue ( "autorun/delay", config.autorunDelay );
+  settings->setValue ( "autorun/count", autorunConf.autorunCount );
+  settings->setValue ( "autorun/delay", autorunConf.autorunDelay );
   settings->setValue ( "autorun/filterPrompt",
 			filterConf.promptForFilterChange );
   settings->setValue ( "autorun/interFilterDelay",

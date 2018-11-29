@@ -37,6 +37,11 @@
 
 #include "trampoline.h"
 
+typedef struct {
+	int			autorunCount;
+	int			autorunDelay;
+} autorunConfig;
+
 
 class AutorunSettings : public QWidget
 {

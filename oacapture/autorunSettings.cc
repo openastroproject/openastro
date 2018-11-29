@@ -27,19 +27,12 @@
 #include <oa_common.h>
 
 #include "autorunSettings.h"
-#include "configuration.h"
 #include "state.h"
 
 AutorunSettings::AutorunSettings ( QWidget* parent, trampolineFuncs* redirs ) :
-	QWidget ( parent )
+	QWidget ( parent ), trampolines ( redirs )
 {
-	trampolines = redirs;
-
-  filterWheelSlots = 0;
-  if ( state.filterWheel && state.filterWheel->isInitialised()) {
-    filterWheelSlots = state.filterWheel->numSlots();
-  }
-
+  filterWheelSlots = trampolines->numFilterWheelSlots();
   filterMenus.clear();
   filterContainers.clear();
   removeButtons.clear();
@@ -49,8 +42,8 @@ AutorunSettings::AutorunSettings ( QWidget* parent, trampolineFuncs* redirs ) :
   numRuns = new QLineEdit ( this );
   numRunsValidator = new QIntValidator ( 1, 99999, this );
   numRuns->setValidator ( numRunsValidator );
-  if ( config.autorunCount ) {
-    QString n = QString::number ( config.autorunCount );
+  if ( autorunConf.autorunCount ) {
+    QString n = QString::number ( autorunConf.autorunCount );
     numRuns->setText ( n );
   }
 
@@ -59,8 +52,8 @@ AutorunSettings::AutorunSettings ( QWidget* parent, trampolineFuncs* redirs ) :
   delay = new QLineEdit ( this );
   delayValidator = new QIntValidator ( 0, 99999, this );
   delay->setValidator ( delayValidator );
-  if ( config.autorunDelay ) {
-    QString n = QString::number ( config.autorunDelay );
+  if ( autorunConf.autorunDelay ) {
+    QString n = QString::number ( autorunConf.autorunDelay );
     delay->setText ( n );
   }
 
@@ -179,10 +172,10 @@ AutorunSettings::storeSettings ( void )
   QString filterDelayStr = filterDelay->text();
 #endif
   if ( countStr != "" ) {
-    config.autorunCount = countStr.toInt();
+    autorunConf.autorunCount = countStr.toInt();
   }
   if ( delayStr != "" ) {
-    config.autorunDelay = delayStr.toInt();
+    autorunConf.autorunDelay = delayStr.toInt();
   }
 #ifdef INTER_FILTER_DELAY
   if ( filterDelayStr != "" ) {
