@@ -32,30 +32,29 @@
 #include "generalSettings.h"
 #include "fitsSettings.h"
 
-#include "configuration.h"
-#include "state.h"
 
-
-GeneralSettings::GeneralSettings ( QWidget* parent, QWidget* top,
-		QString appName, int split, int fps, trampolineFuncs* redirs ) :
+GeneralSettings::GeneralSettings ( QWidget* parent, QWidget* top, QWidget*
+		vWidget, generalConfig* gConf, QString appName, int split, int fps,
+		trampolineFuncs* redirs ) :
 		QWidget ( parent ), topWidget ( top ), applicationName ( appName ),
-		splitControls ( split ), fpsControls ( fps ), trampolines ( redirs )
+		splitControls ( split ), fpsControls ( fps ), trampolines ( redirs ),
+		parentWidget ( parent ), viewerWidget ( vWidget ), pGeneralConf ( gConf )
 {
 #ifdef SAVE_OPTION
   saveBox = new QCheckBox ( tr ( "Load and save settings automatically" ),
       this );
-  saveBox->setChecked ( generalConf.saveSettings );
+  saveBox->setChecked ( pGeneralConf->saveSettings );
 #endif
 
   reticleButtons = new QButtonGroup ( this );
   circleButton = new QRadioButton ( tr ( "Use circular reticle" ));
   crossButton = new QRadioButton ( tr ( "Use cross reticle" ));
   tramlineButton = new QRadioButton ( tr ( "Use tramline reticle" ));
-  circleButton->setChecked ( generalConf.reticleStyle ==
+  circleButton->setChecked ( pGeneralConf->reticleStyle ==
 			RETICLE_CIRCLE ? 1 : 0 );
-  crossButton->setChecked ( generalConf.reticleStyle ==
+  crossButton->setChecked ( pGeneralConf->reticleStyle ==
 			RETICLE_CROSS ? 1 : 0 );
-  tramlineButton->setChecked ( generalConf.reticleStyle ==
+  tramlineButton->setChecked ( pGeneralConf->reticleStyle ==
 			RETICLE_TRAMLINES ?
       1 : 0 );
   reticleButtons->addButton ( circleButton );
@@ -72,41 +71,38 @@ GeneralSettings::GeneralSettings ( QWidget* parent, QWidget* top,
   tempButtons = new QButtonGroup ( this );
   degCButton = new QRadioButton ( tr ( "Display temperatures in degrees C" ));
   degFButton = new QRadioButton ( tr ( "Display temperatures in degrees F" ));
-  degCButton->setChecked ( generalConf.tempsInC );
-  degFButton->setChecked ( !generalConf.tempsInC );
+  degCButton->setChecked ( pGeneralConf->tempsInC );
+  degFButton->setChecked ( !pGeneralConf->tempsInC );
   tempButtons->addButton ( degCButton );
   tempButtons->addButton ( degFButton );
 
   saveCaptureSettings = new QCheckBox ( tr (
       "Write capture settings to file" ));
-  saveCaptureSettings->setChecked ( generalConf.saveCaptureSettings );
+  saveCaptureSettings->setChecked ( pGeneralConf->saveCaptureSettings );
 
   connectSole = new QCheckBox ( tr (
       "Connect single camera on startup" ));
-  connectSole->setChecked ( generalConf.connectSoleCamera );
+  connectSole->setChecked ( pGeneralConf->connectSoleCamera );
 
-#ifdef OACAPTURE
   if ( splitControls ) {
     dockable = new QCheckBox ( tr ( "Make controls dockable" ));
-    dockable->setChecked ( generalConf.dockableControls );
+    dockable->setChecked ( pGeneralConf->dockableControls );
 
     controlPosn = new QCheckBox ( tr ( "Display controls on right" ));
-    controlPosn->setChecked ( generalConf.controlsOnRight );
+    controlPosn->setChecked ( pGeneralConf->controlsOnRight );
 
     separateControls = new QCheckBox ( tr (
 				"Use separate window for controls" ));
-    separateControls->setChecked ( generalConf.separateControls );
+    separateControls->setChecked ( pGeneralConf->separateControls );
   }
-#endif
-#ifdef OACAPTURE
 	if ( fpsControls ) {
     fpsLabel = new QLabel ( tr ( "Display FPS" ), this );
-    fpsCountLabel = new QLabel ( QString::number ( generalConf.displayFPS ),
+    fpsCountLabel = new QLabel ( QString::number ( pGeneralConf->displayFPS ),
 				this );
     fpsSlider = new QSlider ( Qt::Horizontal, this );
     fpsSlider->setRange ( 1, 30 );
     fpsSlider->setSingleStep ( 1 );
-    fpsSlider->setValue ( generalConf.displayFPS );
+    fpsSlider->setValue ( pGeneralConf->displayFPS );
     fpsSlider->setTickPosition ( QSlider::TicksBelow );
     fpsSlider->setTickInterval ( 1 );
 
@@ -115,7 +111,6 @@ GeneralSettings::GeneralSettings ( QWidget* parent, QWidget* top,
     fpsbox->addWidget ( fpsCountLabel );
     fpsbox->addWidget ( fpsSlider );
   }
-#endif
 
   box = new QVBoxLayout ( this );
   topBox = new QHBoxLayout();
@@ -181,24 +176,16 @@ GeneralSettings::GeneralSettings ( QWidget* parent, QWidget* top,
     connect ( fpsSlider, SIGNAL ( valueChanged ( int )), this,
         SLOT ( updateFPSLabel ( int )));
 	}
-#ifdef OALIVE
-	  connect ( recentreButton, SIGNAL ( clicked()), state.viewWidget,
+	  connect ( recentreButton, SIGNAL ( clicked()), viewerWidget,
       SLOT ( recentreReticle()));
-  connect ( derotateButton, SIGNAL ( clicked()), state.viewWidget,
+  connect ( derotateButton, SIGNAL ( clicked()), viewerWidget,
       SLOT ( derotateReticle()));
-#endif
-#ifdef OACAPTURE
-  connect ( recentreButton, SIGNAL ( clicked()), state.previewWidget,
-      SLOT ( recentreReticle()));
-  connect ( derotateButton, SIGNAL ( clicked()), state.previewWidget,
-      SLOT ( derotateReticle()));
-#endif
 }
 
 
 GeneralSettings::~GeneralSettings()
 {
-  state.mainWindow->destroyLayout (( QLayout* ) box );
+  trampolines->destroyLayout (( QLayout* ) box );
 }
 
 
@@ -206,37 +193,33 @@ void
 GeneralSettings::storeSettings ( void )
 {
 #ifdef SAVE_OPTION
-  generalConf.saveSettings = saveBox->isChecked() ? 1 : 0;
+  pGeneralConf->saveSettings = saveBox->isChecked() ? 1 : 0;
 #else
-  generalConf.saveSettings = 1;
+  pGeneralConf->saveSettings = 1;
 #endif
   if ( circleButton->isChecked()) {
-    generalConf.reticleStyle = RETICLE_CIRCLE;
+    pGeneralConf->reticleStyle = RETICLE_CIRCLE;
   }
   if ( crossButton->isChecked()) {
-    generalConf.reticleStyle = RETICLE_CROSS;
+    pGeneralConf->reticleStyle = RETICLE_CROSS;
   }
   if ( tramlineButton->isChecked()) {
-    generalConf.reticleStyle = RETICLE_TRAMLINES;
+    pGeneralConf->reticleStyle = RETICLE_TRAMLINES;
   }
-  generalConf.tempsInC = degCButton->isChecked();
+  pGeneralConf->tempsInC = degCButton->isChecked();
   trampolines->resetTemperatureLabel();
-  generalConf.saveCaptureSettings = saveCaptureSettings->isChecked() ? 1 : 0;
-  generalConf.connectSoleCamera = connectSole->isChecked() ? 1 : 0;
+  pGeneralConf->saveCaptureSettings = saveCaptureSettings->isChecked() ? 1 : 0;
+  pGeneralConf->connectSoleCamera = connectSole->isChecked() ? 1 : 0;
 
-#ifdef OACAPTURE
 	if ( fpsControls ) {
-    generalConf.displayFPS = fpsSlider->value();
-    trampolines->setDisplayFPS ( generalConf.displayFPS );
+    pGeneralConf->displayFPS = fpsSlider->value();
+    trampolines->setDisplayFPS ( pGeneralConf->displayFPS );
 	}
-#endif
-#ifdef OACAPTURE
   if ( splitControls ) {
-    generalConf.dockableControls = dockable->isChecked() ? 1 : 0;
-    generalConf.controlsOnRight = controlPosn->isChecked() ? 1 : 0;
-    generalConf.separateControls = separateControls->isChecked() ? 1 : 0;
+    pGeneralConf->dockableControls = dockable->isChecked() ? 1 : 0;
+    pGeneralConf->controlsOnRight = controlPosn->isChecked() ? 1 : 0;
+    pGeneralConf->separateControls = separateControls->isChecked() ? 1 : 0;
 	}
-#endif
 }
 
 
@@ -262,5 +245,6 @@ GeneralSettings::showRestartWarning ( void )
   }
 
   QMessageBox::warning ( topWidget, applicationName, msg1 + msg2 );
-  state.settingsWidget->dataChanged();
+	QMetaObject::invokeMethod ( parentWidget, "dataChanged",
+			Qt::BlockingQueuedConnection );
 }

@@ -40,7 +40,7 @@ MOC_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/common $(MOC_CFLAGS) \
 
 bin_PROGRAMS = oalive
 BUILT_SOURCES = version.h
-oalive_SOURCES = controlsWidget.cc generalSettings.cc oalive.cc \
+oalive_SOURCES = controlsWidget.cc oalive.cc \
   settingsWidget.cc mainWindow.cc viewWidget.cc cameraControls.cc \
   stackingControls.cc saveControls.cc processingControls.cc trampoline.cc \
 	moc_cameraControls.cc moc_controlsWidget.cc moc_mainWindow.cc \

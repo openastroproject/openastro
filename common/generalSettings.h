@@ -53,14 +53,18 @@ typedef struct {
 	int				reticleStyle;
 } generalConfig;
 
+#define RETICLE_CIRCLE		1
+#define RETICLE_CROSS			2
+#define RETICLE_TRAMLINES	3
+
 
 class GeneralSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			GeneralSettings ( QWidget*, QWidget*, QString, int, int,
-							trampolineFuncs* );
+    			GeneralSettings ( QWidget*, QWidget*, QWidget*, generalConfig*,
+							QString, int, int, trampolineFuncs* );
     			~GeneralSettings();
     void		storeSettings ( void );
 
@@ -93,7 +97,10 @@ class GeneralSettings : public QWidget
 		int						splitControls;
 		QString				applicationName;
 		QWidget*			topWidget;
+		QWidget*			parentWidget;
+		QWidget*			viewerWidget;
 		trampolineFuncs*	trampolines;
+		generalConfig*		pGeneralConf;
 
   public slots:
     void		updateFPSLabel ( int );

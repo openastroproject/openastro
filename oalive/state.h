@@ -110,9 +110,5 @@ typedef struct
 
 extern STATE		state;
 
-#define	RETICLE_CIRCLE		1
-#define	RETICLE_CROSS		2
-#define	RETICLE_TRAMLINES	3
-
 #define TOP_WIDGET ( state.settingsWidget ? state.settingsWidget->getTabset() :\
     ( state.mainWindow ? ( QWidget* ) state.mainWindow : ( QWidget* ) this ))
