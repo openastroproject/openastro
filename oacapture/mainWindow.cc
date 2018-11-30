@@ -52,7 +52,6 @@ extern "C" {
 #include "targets.h"
 
 CONFIG		config;
-filterConfig		filterConf;
 histogramConfig	histogramConf;
 autorunConfig		autorunConf;
 generalConfig		generalConf;

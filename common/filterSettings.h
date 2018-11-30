@@ -51,13 +51,14 @@ typedef struct {
 	int							interFilterDelay;
 } filterConfig;
 
+extern filterConfig filterConf;
 
 class FilterSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			FilterSettings ( QWidget*, filterConfig*, trampolineFuncs* );
+    			FilterSettings ( QWidget*, trampolineFuncs* );
     			~FilterSettings();
     void		storeSettings ( void );
     QString		getSlotFilterName ( int );
@@ -77,7 +78,6 @@ class FilterSettings : public QWidget
     int			slotsChanged;
     int			filterWheelSlots;
 		trampolineFuncs*		trampolines;
-		filterConfig*				pFilterConf;
 
   public slots:
     void		addEntry ( void );

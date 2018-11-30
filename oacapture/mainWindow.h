@@ -61,7 +61,6 @@ extern "C" {
 #include "previewWidget.h"
 #include "histogramWidget.h"
 
-extern filterConfig			filterConf;
 extern histogramConfig	histogramConf;
 extern autorunConfig		autorunConf;
 extern generalConfig		generalConf;

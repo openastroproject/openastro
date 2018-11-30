@@ -91,14 +91,13 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
         QIcon ( ":/qt-icons/jupiter.png" ), tr ( "Profiles" ));
 	}
 	if ( reqdWindows & SETTINGS_FILTER ) {
-    filters = new FilterSettings ( this, &filterConf, trampolines );
+    filters = new FilterSettings ( this, trampolines );
     state.filterSettingsIndex = tabSet->addTab ( filters,
         QIcon ( ":/qt-icons/filter-wheel.png" ), tr ( "Filters" ));
 	}
 #ifdef OACAPTURE
 	if ( reqdWindows & SETTINGS_AUTORUN ) {
-    autorun = new AutorunSettings ( this, &autorunConf, &filterConf,
-				trampolines );
+    autorun = new AutorunSettings ( this, &autorunConf, trampolines );
     state.autorunSettingsIndex = tabSet->addTab ( autorun,
         QIcon ( ":/qt-icons/clicknrun.png" ), tr ( "Autorun" ));
 	}

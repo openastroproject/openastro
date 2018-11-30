@@ -90,7 +90,7 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
         QIcon ( ":/qt-icons/jupiter.png" ), tr ( "Profiles" ));
 	}
 	if ( reqdWindows & SETTINGS_FILTER ) {
-    filters = new FilterSettings ( this, &filterConf, trampolines );
+    filters = new FilterSettings ( this, trampolines );
     state.filterSettingsIndex = tabSet->addTab ( filters,
         QIcon ( ":/qt-icons/filter-wheel.png" ), tr ( "Filters" ));
 	}
