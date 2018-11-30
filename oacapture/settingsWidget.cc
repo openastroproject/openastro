@@ -86,13 +86,12 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
 	}
 #endif
 	if ( reqdWindows & SETTINGS_PROFILE ) {
-    profiles = new ProfileSettings ( this, &profileConf, trampolines );
+    profiles = new ProfileSettings ( this, trampolines );
     state.profileSettingsIndex = tabSet->addTab ( profiles,
         QIcon ( ":/qt-icons/jupiter.png" ), tr ( "Profiles" ));
 	}
 	if ( reqdWindows & SETTINGS_FILTER ) {
-    filters = new FilterSettings ( this, &filterConf, &profileConf,
-				trampolines );
+    filters = new FilterSettings ( this, &filterConf, trampolines );
     state.filterSettingsIndex = tabSet->addTab ( filters,
         QIcon ( ":/qt-icons/filter-wheel.png" ), tr ( "Filters" ));
 	}

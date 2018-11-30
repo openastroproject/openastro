@@ -36,13 +36,13 @@ extern "C" {
 #include "trampoline.h"
 #include "captureSettings.h"
 #include "filterSettings.h"
+#include "profileSettings.h"
 #include "fitsSettings.h"
 
 
 FilterSettings::FilterSettings ( QWidget* parent, filterConfig* fConf,
-		profileConfig* pConf, trampolineFuncs* redirs ) :
-		QWidget ( parent ), trampolines ( redirs ), pFilterConf ( fConf ),
-		pProfileConf ( pConf )
+		trampolineFuncs* redirs ) :
+		QWidget ( parent ), trampolines ( redirs ), pFilterConf ( fConf )
 {
   filterWheelSlots = trampolines->numFilterWheelSlots();
   list = new QListWidget ( this );
@@ -181,7 +181,7 @@ FilterSettings::storeSettings ( void )
         f.filterName = entry->text();
         pFilterConf->filters.append ( f );
         // Add the profiles for the new filter
-        for ( int i = 0; i < pProfileConf->numProfiles; i++ ) {
+        for ( int i = 0; i < profileConf.numProfiles; i++ ) {
           FILTER_PROFILE fp;
           fp.filterName = f.filterName;
           for ( int j = 1; j <  OA_CAM_CTRL_LAST_P1; j++ ) {
@@ -189,7 +189,7 @@ FilterSettings::storeSettings ( void )
               fp.controls[k][j] = trampolines->cameraControlValue ( k, j );
             }
           }
-          pProfileConf->profiles[i].filterProfiles.append ( fp );
+          profileConf.profiles[i].filterProfiles.append ( fp );
         }
         totalFilters++;
         compareNewPosn++;
@@ -217,8 +217,8 @@ FilterSettings::storeSettings ( void )
           // remove the filter
           pFilterConf->filters.removeAt ( compareOldPosn );
           // remove the filters profiles
-          for ( int i = 0; i < pProfileConf->numProfiles; i++ ) {
-            pProfileConf->profiles[i].filterProfiles.removeAt (
+          for ( int i = 0; i < profileConf.numProfiles; i++ ) {
+            profileConf.profiles[i].filterProfiles.removeAt (
 								compareOldPosn );
           }
           totalFilters--;

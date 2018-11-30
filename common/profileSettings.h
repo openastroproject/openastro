@@ -43,13 +43,14 @@ typedef struct {
 	QList<PROFILE>	profiles;
 } profileConfig;
 
+extern profileConfig profileConf;
 
 class ProfileSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			ProfileSettings ( QWidget*, profileConfig*, trampolineFuncs* );
+    			ProfileSettings ( QWidget*, trampolineFuncs* );
     			~ProfileSettings();
     void		storeSettings ( void );
 
@@ -69,7 +70,6 @@ class ProfileSettings : public QWidget
     QComboBox*		targetMenu;
 		trampolineFuncs*		trampolines;
 		QWidget*						parentWidget;
-		profileConfig*			pconfig;
 
   public slots:
     void		addEntry ( void );

@@ -32,18 +32,19 @@
 #include "profileSettings.h"
 #include "targets.h"
 
+// This is global.  All applications using this code share it.
 
-ProfileSettings::ProfileSettings ( QWidget* parent, profileConfig* pConf,
-		trampolineFuncs* redirs ) :
-		QWidget ( parent ), trampolines ( redirs ), parentWidget ( parent ),
-		pconfig ( pConf )
+profileConfig profileConf;
+
+ProfileSettings::ProfileSettings ( QWidget* parent, trampolineFuncs* redirs ) :
+		QWidget ( parent ), trampolines ( redirs ), parentWidget ( parent )
 {
   firstTime = 1;
 
   list = new QListWidget ( this );
-  if ( pconfig->numProfiles ) {
-    for ( int i = 0; i < pconfig->numProfiles; i++ ) {
-      list->addItem ( pconfig->profiles[i].profileName );
+  if ( profileConf.numProfiles ) {
+    for ( int i = 0; i < profileConf.numProfiles; i++ ) {
+      list->addItem ( profileConf.profiles[i].profileName );
       QListWidgetItem* entry = list->item ( i );
       entry->setFlags ( entry->flags() | Qt :: ItemIsEditable );
     }
@@ -69,7 +70,7 @@ ProfileSettings::ProfileSettings ( QWidget* parent, profileConfig* pConf,
   connect ( addButton, SIGNAL ( clicked()), parent, SLOT ( dataChanged()));
   removeButton = new QPushButton ( QIcon ( ":/qt-icons/list-remove-4.png" ),
       tr ( "Remove Profile" ));
-  if ( 1 == pconfig->numProfiles ) {
+  if ( 1 == profileConf.numProfiles ) {
     removeButton->setEnabled ( 0 );
   }
   removeButton->setStyleSheet("Text-align:left");
@@ -106,9 +107,9 @@ ProfileSettings::ProfileSettings ( QWidget* parent, profileConfig* pConf,
 
   // we work on a copy of the profile list to avoid messing up the live
   // one
-  if ( pconfig->numProfiles ) {
-    for ( int i = 0; i < pconfig->numProfiles; i++ ) {
-      changedProfiles.append ( pconfig->profiles.at ( i ));
+  if ( profileConf.numProfiles ) {
+    for ( int i = 0; i < profileConf.numProfiles; i++ ) {
+      changedProfiles.append ( profileConf.profiles.at ( i ));
     }
   }
 }
@@ -124,11 +125,11 @@ void
 ProfileSettings::storeSettings ( void )
 {
   if ( listAltered ) {
-    if ( pconfig->numProfiles ) {
-      pconfig->profiles.clear();
+    if ( profileConf.numProfiles ) {
+      profileConf.profiles.clear();
     }
-    pconfig->numProfiles = list->count();
-    pconfig->profiles = changedProfiles;
+    profileConf.numProfiles = list->count();
+    profileConf.profiles = changedProfiles;
     trampolines->reloadProfiles();
   }
 }
