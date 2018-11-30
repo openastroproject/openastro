@@ -418,7 +418,7 @@ ControlsWidget::openOutputFiles ( void )
   OutputHandler*	out = 0;
   int			format;
 
-  format = state.camera->videoFramePixelFormat ( &demosaicConf );
+  format = state.camera->videoFramePixelFormat();
   if ( oaFrameFormats[ format ].rawColour ) {
     format = OA_DEMOSAIC_FMT ( format );
   }

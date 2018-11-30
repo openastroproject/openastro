@@ -110,8 +110,7 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
 	}
 #endif
 	if ( reqdWindows & SETTINGS_DEMOSAIC ) {
-    demosaic = new DemosaicSettings ( this, &demosaicConf, demosaicOpts,
-				trampolines );
+    demosaic = new DemosaicSettings ( this, demosaicOpts, trampolines );
     state.demosaicSettingsIndex = tabSet->addTab ( demosaic,
         QIcon ( ":/qt-icons/mosaic.png" ), tr ( "Demosaic" ));
 	}

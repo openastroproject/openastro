@@ -45,13 +45,14 @@ typedef struct {
 	int		monoIsRawColour;
 } demosaicConfig;
 
+extern demosaicConfig demosaicConf;
 
 class DemosaicSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			DemosaicSettings ( QWidget*, demosaicConfig*, int, trampolineFuncs* );
+    			DemosaicSettings ( QWidget*, int, trampolineFuncs* );
     			~DemosaicSettings();
     void		storeSettings ( void );
     void		updateCFASetting ( void );
@@ -83,5 +84,4 @@ class DemosaicSettings : public QWidget
     QRadioButton*       vngButton;
 		trampolineFuncs*		trampolines;
 		int									demosaicOpts;
-		demosaicConfig*			pconfig;
 };

@@ -52,7 +52,6 @@ extern "C" {
 #include "targets.h"
 
 CONFIG		config;
-demosaicConfig	demosaicConf;
 timerConfig			timerConf;
 profileConfig		profileConf;
 filterConfig		filterConf;
@@ -1597,7 +1596,7 @@ MainWindow::connectCamera ( int deviceIndex )
   // FIX ME -- should these happen in the "configure" functions for each
   // widget?
   state.previewWidget->setVideoFramePixelFormat (
-      state.camera->videoFramePixelFormat ( &demosaicConf ));
+      state.camera->videoFramePixelFormat());
   state.cameraWidget->enableBinningControl ( state.camera->hasBinning ( 2 ));
   v = state.camera->hasControl ( OA_CAM_CTRL_TEMPERATURE );
   state.previewWidget->enableTempDisplay ( v );
@@ -1620,7 +1619,7 @@ MainWindow::connectCamera ( int deviceIndex )
   state.histogramOn = oldHistogramState;
   oldHistogramState = -1;
 
-  format = state.camera->videoFramePixelFormat ( &demosaicConf );
+  format = state.camera->videoFramePixelFormat();
   state.captureWidget->enableTIFFCapture (
       ( !oaFrameFormats[ format ].rawColour ||
       ( config.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
@@ -2070,7 +2069,7 @@ MainWindow::enableFlipY ( void )
 void
 MainWindow::mosaicFlipWarning ( void )
 {
-  int format = state.camera->videoFramePixelFormat ( &demosaicConf );
+  int format = state.camera->videoFramePixelFormat();
 
   if ( oaFrameFormats[ format ].rawColour ) {
     QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
@@ -2089,7 +2088,7 @@ MainWindow::enableDemosaic ( void )
   config.demosaic = demosaicState;
   state.previewWidget->enableDemosaic ( demosaicState );
   if ( state.camera->isInitialised()) {
-    format = state.camera->videoFramePixelFormat ( &demosaicConf );
+    format = state.camera->videoFramePixelFormat();
     state.captureWidget->enableTIFFCapture (
         ( !oaFrameFormats[ format ].rawColour ||
         ( config.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );

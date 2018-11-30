@@ -518,7 +518,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     }
   }
 
-  format = state.camera->videoFramePixelFormat ( &demosaicConf );
+  format = state.camera->videoFramePixelFormat();
   if ( oaFrameFormats[ format ].rawColour && demosaicConf.demosaicOutput ) {
     format = OA_DEMOSAIC_FMT ( format );
   }

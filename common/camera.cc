@@ -541,14 +541,14 @@ Camera::stop ( void )
 
 
 int
-Camera::videoFramePixelFormat ( demosaicConfig* demosaicConf )
+Camera::videoFramePixelFormat ( void )
 {
   int format;
 
   format = cameraFuncs.getFramePixelFormat ( cameraContext );
-  if ( demosaicConf->monoIsRawColour ) {
+  if ( demosaicConf.monoIsRawColour ) {
     if ( format == OA_PIX_FMT_GREY16LE ) {
-      switch ( demosaicConf->cfaPattern ) {
+      switch ( demosaicConf.cfaPattern ) {
         case OA_DEMOSAIC_RGGB:
           format = OA_PIX_FMT_RGGB16LE;
           break;
@@ -576,7 +576,7 @@ Camera::videoFramePixelFormat ( demosaicConfig* demosaicConf )
       }
     } else {
       if ( format == OA_PIX_FMT_GREY16BE ) {
-        switch ( demosaicConf->cfaPattern ) {
+        switch ( demosaicConf.cfaPattern ) {
           case OA_DEMOSAIC_RGGB:
             format = OA_PIX_FMT_RGGB16BE;
             break;

@@ -39,8 +39,6 @@ extern "C" {
 #include <openastro/camera.h>
 }
 
-#include "demosaicSettings.h"
-
 
 class Camera : public QObject
 {
@@ -81,7 +79,7 @@ class Camera : public QObject
     const FRAMESIZES*	frameSizes ( void );
     const FRAMERATES*	frameRates ( int, int );
     void		delayFrameRateChanges ( void );
-    int			videoFramePixelFormat ( demosaicConfig* );
+    int			videoFramePixelFormat ( void );
 
     void		populateControlValue ( oaControlValue*, uint32_t,
 				int64_t );

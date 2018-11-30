@@ -37,17 +37,20 @@ extern "C" {
 #include "demosaicSettings.h"
 #include "fitsSettings.h"
 
+// This is global.  All applications using this code share it.
 
-DemosaicSettings::DemosaicSettings ( QWidget* parent, demosaicConfig* dConf,
-		int demosaic, trampolineFuncs* redirs ) : QWidget ( parent ),
-		trampolines ( redirs ), demosaicOpts ( demosaic ), pconfig ( dConf )
+demosaicConfig demosaicConf;
+
+DemosaicSettings::DemosaicSettings ( QWidget* parent, int demosaic,
+		trampolineFuncs* redirs ) : QWidget ( parent ),
+		trampolines ( redirs ), demosaicOpts ( demosaic )
 {
 	if ( demosaicOpts ) {
     demosaicLabel = new QLabel ( tr ( "When demosaic is enabled:" ));
     previewBox = new QCheckBox ( tr ( "Demosaic preview image" ), this );
-    previewBox->setChecked ( pconfig->demosaicPreview );
+    previewBox->setChecked ( demosaicConf.demosaicPreview );
     outputBox = new QCheckBox ( tr ( "Demosaic output data" ), this );
-    outputBox->setChecked ( pconfig->demosaicOutput );
+    outputBox->setChecked ( demosaicConf.demosaicOutput );
 	}
 
   cfaLabel = new QLabel ( tr ( "Bayer format" ));
@@ -61,15 +64,24 @@ DemosaicSettings::DemosaicSettings ( QWidget* parent, demosaicConfig* dConf,
   ygcmButton = new QRadioButton ( tr ( "YGCM" ));
   gymcButton = new QRadioButton ( tr ( "GYMC" ));
   autoButton = new QRadioButton ( tr ( "Auto" ));
-  rggbButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_RGGB ? 1 : 0 );
-  bggrButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_BGGR ? 1 : 0 );
-  grbgButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_GRBG ? 1 : 0 );
-  gbrgButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_GBRG ? 1 : 0 );
-  cmygButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_CMYG ? 1 : 0 );
-  mcgyButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_MCGY ? 1 : 0 );
-  ygcmButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_YGCM ? 1 : 0 );
-  gymcButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_GYMC ? 1 : 0 );
-  autoButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_AUTO ? 1 : 0 );
+  rggbButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_RGGB ? 1 : 0 );
+  bggrButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_BGGR ? 1 : 0 );
+  grbgButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_GRBG ? 1 : 0 );
+  gbrgButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_GBRG ? 1 : 0 );
+  cmygButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_CMYG ? 1 : 0 );
+  mcgyButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_MCGY ? 1 : 0 );
+  ygcmButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_YGCM ? 1 : 0 );
+  gymcButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_GYMC ? 1 : 0 );
+  autoButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_AUTO ? 1 : 0 );
   rggbButton->setIcon ( QIcon ( ":/qt-icons/RGGB.png" ));
   bggrButton->setIcon ( QIcon ( ":/qt-icons/BGGR.png" ));
   grbgButton->setIcon ( QIcon ( ":/qt-icons/GRBG.png" ));
@@ -95,13 +107,13 @@ DemosaicSettings::DemosaicSettings ( QWidget* parent, demosaicConfig* dConf,
   bilinearButton = new QRadioButton ( tr ( "Bilinear" ));
   smoothHueButton = new QRadioButton ( tr ( "Smooth Hue" ));
   vngButton = new QRadioButton ( tr ( "VNG" ));
-  nnButton->setChecked ( pconfig->demosaicMethod ==
+  nnButton->setChecked ( demosaicConf.demosaicMethod ==
       OA_DEMOSAIC_NEAREST_NEIGHBOUR ? 1 : 0 );
-  bilinearButton->setChecked ( pconfig->demosaicMethod ==
+  bilinearButton->setChecked ( demosaicConf.demosaicMethod ==
       OA_DEMOSAIC_BILINEAR ? 1 : 0 );
-  smoothHueButton->setChecked ( pconfig->demosaicMethod ==
+  smoothHueButton->setChecked ( demosaicConf.demosaicMethod ==
       OA_DEMOSAIC_SMOOTH_HUE ? 1 : 0 );
-  vngButton->setChecked ( pconfig->demosaicMethod ==
+  vngButton->setChecked ( demosaicConf.demosaicMethod ==
       OA_DEMOSAIC_VNG ? 1 : 0 );
 
   methodButtons->addButton ( nnButton );
@@ -110,7 +122,7 @@ DemosaicSettings::DemosaicSettings ( QWidget* parent, demosaicConfig* dConf,
   methodButtons->addButton ( vngButton );
 
   monoAsRaw = new QCheckBox ( tr ( "Treat mono frame as raw colour" ), this );
-  monoAsRaw->setChecked ( pconfig->monoIsRawColour );
+  monoAsRaw->setChecked ( demosaicConf.monoIsRawColour );
 
   hbox = new QHBoxLayout ( this );
   lbox = new QVBoxLayout();
@@ -171,49 +183,49 @@ void
 DemosaicSettings::storeSettings ( void )
 {
 	if ( demosaicOpts ) {
-    pconfig->demosaicPreview = previewBox->isChecked() ? 1 : 0;
-    pconfig->demosaicOutput = outputBox->isChecked() ? 1 : 0;
+    demosaicConf.demosaicPreview = previewBox->isChecked() ? 1 : 0;
+    demosaicConf.demosaicOutput = outputBox->isChecked() ? 1 : 0;
 	}
   if ( rggbButton->isChecked()) {
-    pconfig->cfaPattern = OA_DEMOSAIC_RGGB;
+    demosaicConf.cfaPattern = OA_DEMOSAIC_RGGB;
   }
   if ( bggrButton->isChecked()) {
-    pconfig->cfaPattern = OA_DEMOSAIC_BGGR;
+    demosaicConf.cfaPattern = OA_DEMOSAIC_BGGR;
   }
   if ( grbgButton->isChecked()) {
-    pconfig->cfaPattern = OA_DEMOSAIC_GRBG;
+    demosaicConf.cfaPattern = OA_DEMOSAIC_GRBG;
   }
   if ( gbrgButton->isChecked()) {
-    pconfig->cfaPattern = OA_DEMOSAIC_GBRG;
+    demosaicConf.cfaPattern = OA_DEMOSAIC_GBRG;
   }
   if ( cmygButton->isChecked()) {
-    pconfig->cfaPattern = OA_DEMOSAIC_CMYG;
+    demosaicConf.cfaPattern = OA_DEMOSAIC_CMYG;
   }
   if ( mcgyButton->isChecked()) {
-    pconfig->cfaPattern = OA_DEMOSAIC_MCGY;
+    demosaicConf.cfaPattern = OA_DEMOSAIC_MCGY;
   }
   if ( ygcmButton->isChecked()) {
-    pconfig->cfaPattern = OA_DEMOSAIC_YGCM;
+    demosaicConf.cfaPattern = OA_DEMOSAIC_YGCM;
   }
   if ( gymcButton->isChecked()) {
-    pconfig->cfaPattern = OA_DEMOSAIC_GYMC;
+    demosaicConf.cfaPattern = OA_DEMOSAIC_GYMC;
   }
   if ( autoButton->isChecked()) {
-    pconfig->cfaPattern = OA_DEMOSAIC_AUTO;
+    demosaicConf.cfaPattern = OA_DEMOSAIC_AUTO;
   }
   if ( nnButton->isChecked()) {
-    pconfig->demosaicMethod = OA_DEMOSAIC_NEAREST_NEIGHBOUR;
+    demosaicConf.demosaicMethod = OA_DEMOSAIC_NEAREST_NEIGHBOUR;
   }
   if ( bilinearButton->isChecked()) {
-    pconfig->demosaicMethod = OA_DEMOSAIC_BILINEAR;
+    demosaicConf.demosaicMethod = OA_DEMOSAIC_BILINEAR;
   }
   if ( smoothHueButton->isChecked()) {
-    pconfig->demosaicMethod = OA_DEMOSAIC_SMOOTH_HUE;
+    demosaicConf.demosaicMethod = OA_DEMOSAIC_SMOOTH_HUE;
   }
   if ( vngButton->isChecked()) {
-    pconfig->demosaicMethod = OA_DEMOSAIC_VNG;
+    demosaicConf.demosaicMethod = OA_DEMOSAIC_VNG;
   }
-  pconfig->monoIsRawColour = monoAsRaw->isChecked() ? 1 : 0;
+  demosaicConf.monoIsRawColour = monoAsRaw->isChecked() ? 1 : 0;
 
   if ( trampolines->isCameraInitialised()) {
     int format = trampolines->videoFramePixelFormat();
@@ -222,13 +234,13 @@ DemosaicSettings::storeSettings ( void )
 		if ( demosaicOpts ) {
 			trampolines->enableTIFFCapture (
 					( !oaFrameFormats[ format ].rawColour ||
-					( enabled && pconfig->demosaicOutput )) ? 1 : 0 );
+					( enabled && demosaicConf.demosaicOutput )) ? 1 : 0 );
 			trampolines->enablePNGCapture (
 					( !oaFrameFormats[ format ].rawColour ||
-					( enabled && pconfig->demosaicOutput )) ? 1 : 0 );
+					( enabled && demosaicConf.demosaicOutput )) ? 1 : 0 );
 			trampolines->enableMOVCapture (( QUICKTIME_OK( format ) || 
 					( oaFrameFormats[ format ].rawColour && enabled &&
-					pconfig->demosaicOutput )) ? 1 : 0 );
+					demosaicConf.demosaicOutput )) ? 1 : 0 );
 		}
   }
 }
@@ -237,13 +249,22 @@ DemosaicSettings::storeSettings ( void )
 void
 DemosaicSettings::updateCFASetting ( void )
 {
-  rggbButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_RGGB ? 1 : 0 );
-  bggrButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_BGGR ? 1 : 0 );
-  grbgButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_GRBG ? 1 : 0 );
-  gbrgButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_GBRG ? 1 : 0 );
-  cmygButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_CMYG ? 1 : 0 );
-  mcgyButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_MCGY ? 1 : 0 );
-  ygcmButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_YGCM ? 1 : 0 );
-  gymcButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_GYMC ? 1 : 0 );
-  autoButton->setChecked ( pconfig->cfaPattern == OA_DEMOSAIC_AUTO ? 1 : 0 );
+  rggbButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_RGGB ? 1 : 0 );
+  bggrButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_BGGR ? 1 : 0 );
+  grbgButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_GRBG ? 1 : 0 );
+  gbrgButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_GBRG ? 1 : 0 );
+  cmygButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_CMYG ? 1 : 0 );
+  mcgyButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_MCGY ? 1 : 0 );
+  ygcmButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_YGCM ? 1 : 0 );
+  gymcButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_GYMC ? 1 : 0 );
+  autoButton->setChecked ( demosaicConf.cfaPattern ==
+			OA_DEMOSAIC_AUTO ? 1 : 0 );
 }
