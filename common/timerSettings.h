@@ -48,13 +48,14 @@ typedef struct {
 	int			queryGPSForEachCapture;
 } timerConfig;
 
+extern timerConfig timerConf;
 
 class TimerSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			TimerSettings ( QWidget*, timerConfig*, QString, trampolineFuncs* );
+    			TimerSettings ( QWidget*, QString, trampolineFuncs* );
     			~TimerSettings();
     void		storeSettings ( void );
 
@@ -83,7 +84,6 @@ class TimerSettings : public QWidget
     QHBoxLayout*	timestampDelayLayout;
     QCheckBox*		checkGPSBox;
 		QString				applicationName;
-		timerConfig*	pconfig;
 		trampolineFuncs*	trampolines;
 
   public slots:

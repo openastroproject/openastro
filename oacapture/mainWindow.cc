@@ -52,7 +52,6 @@ extern "C" {
 #include "targets.h"
 
 CONFIG		config;
-timerConfig			timerConf;
 profileConfig		profileConf;
 filterConfig		filterConf;
 histogramConfig	histogramConf;
@@ -130,7 +129,7 @@ MainWindow::MainWindow ( QString configFile )
   state.controlWidget = 0;
   state.camera = new Camera;
   state.filterWheel = new FilterWheel ( &trampolines );
-  state.timer = new Timer ( &timerConf, &trampolines );
+  state.timer = new Timer ( &trampolines );
   oldHistogramState = -1;
   state.lastRecordedFile = "";
   state.captureIndex = 0;

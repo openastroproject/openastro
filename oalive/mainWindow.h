@@ -50,7 +50,6 @@ extern "C" {
 #include "focusOverlay.h"
 #include "controlsWidget.h"
 
-extern timerConfig		timerConf;
 extern profileConfig  profileConf;
 extern filterConfig		filterConf;
 extern generalConfig	generalConf;

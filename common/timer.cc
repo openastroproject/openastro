@@ -31,13 +31,14 @@ extern "C" {
 }
 
 #include "timer.h"
+#include "timerSettings.h"
 
 
 #define timerFuncs	timerContext->funcs
 #define timerControls	timerContext->controls
 
-Timer::Timer ( timerConfig* tConf, trampolineFuncs* redirs ) :
-		timerConf ( tConf ), trampolines ( redirs )
+Timer::Timer ( trampolineFuncs* redirs ) :
+		trampolines ( redirs )
 {
   initialised = 0;
 }
@@ -303,7 +304,7 @@ Timer::readTimestamp ( void )
     return 0;
   }
 
-  if ( timerFuncs.readTimestamp ( timerContext, timerConf->timestampDelay,
+  if ( timerFuncs.readTimestamp ( timerContext, timerConf.timestampDelay,
       &ts ) != OA_ERR_NONE ) {
     ts.timestamp[0] = 0;
     ts.index = 0;

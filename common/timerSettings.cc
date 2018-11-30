@@ -33,26 +33,28 @@ extern "C" {
 
 #include "timerSettings.h"
 
+// This is global.  All applications using this code share it.
 
-TimerSettings::TimerSettings ( QWidget* parent, timerConfig* tConf,
-		QString appName, trampolineFuncs* redirs ) :
-		QWidget ( parent ), trampolines ( redirs ), pconfig ( tConf ),
-		applicationName ( appName )
+timerConfig timerConf;
+
+TimerSettings::TimerSettings ( QWidget* parent, QString appName,
+		trampolineFuncs* redirs ) :
+		QWidget ( parent ), trampolines ( redirs ), applicationName ( appName )
 {
   resetButton = 0;
   syncButton = 0;
 
   timerEnableBox = new QCheckBox ( tr ( "Enable Timer" ));
-  timerEnableBox->setChecked ( pconfig->timerEnabled );
+  timerEnableBox->setChecked ( timerConf.timerEnabled );
 
   modeLabel = new QLabel ( tr ( "Timer mode" ));
   modeButtons = new QButtonGroup ( this );
   strobeModeButton = new QRadioButton ( tr ( "Strobe" ));
   triggerModeButton = new QRadioButton ( tr ( "Trigger" ));
 
-  strobeModeButton->setChecked ( pconfig->timerMode ==
+  strobeModeButton->setChecked ( timerConf.timerMode ==
       OA_TIMER_MODE_STROBE ? 1 : 0 );
-  triggerModeButton->setChecked ( pconfig->timerMode ==
+  triggerModeButton->setChecked ( timerConf.timerMode ==
       OA_TIMER_MODE_TRIGGER ?  1 : 0 );
 
   modeButtons->addButton ( strobeModeButton );
@@ -71,26 +73,26 @@ TimerSettings::TimerSettings ( QWidget* parent, timerConfig* tConf,
   interval = new QLineEdit ( this );
   intervalValidator = new QIntValidator ( 0, 99999, this );
   interval->setValidator ( intervalValidator );
-  if ( pconfig->triggerInterval ) {
-    QString n = QString::number ( pconfig->triggerInterval );
+  if ( timerConf.triggerInterval ) {
+    QString n = QString::number ( timerConf.triggerInterval );
     interval->setText ( n );
   }
 
   enableUserDrainBox = new QCheckBox ( tr (
       "Enable User-specified frame drain delay" ));
-  enableUserDrainBox->setChecked ( pconfig->userDrainDelayEnabled );
+  enableUserDrainBox->setChecked ( timerConf.userDrainDelayEnabled );
 
   drainDelayLabel = new QLabel ( tr ( "Image Drain delay (ms)" ), this );
   drainDelay = new QLineEdit ( this );
   drainDelayValidator = new QIntValidator ( 1, 1000, this );
   drainDelay->setValidator ( drainDelayValidator );
-  if ( pconfig->drainDelay ) {
-    QString n = QString::number ( pconfig->drainDelay );
+  if ( timerConf.drainDelay ) {
+    QString n = QString::number ( timerConf.drainDelay );
     drainDelay->setText ( n );
   }
 
   checkGPSBox = new QCheckBox ( tr ( "Read GPS for every capture run" ));
-  checkGPSBox->setChecked ( pconfig->queryGPSForEachCapture );
+  checkGPSBox->setChecked ( timerConf.queryGPSForEachCapture );
   /*
    * Not sure we need this for the moment
    *
@@ -98,8 +100,8 @@ TimerSettings::TimerSettings ( QWidget* parent, timerConfig* tConf,
   timestampDelay = new QLineEdit ( this );
   timestampDelayValidator = new QIntValidator ( 1, 5000, this );
   timestampDelay->setValidator ( timestampDelayValidator );
-  if ( pconfig->timestampDelay ) {
-    QString n = QString::number ( pconfig->timestampDelay );
+  if ( timerConf.timestampDelay ) {
+    QString n = QString::number ( timerConf.timestampDelay );
     timestampDelay->setText ( n );
   }
    */
@@ -187,16 +189,16 @@ TimerSettings::storeSettings ( void )
 {
   QString msg;
 
-  pconfig->timerMode = strobeModeButton->isChecked() ? OA_TIMER_MODE_STROBE :
+  timerConf.timerMode = strobeModeButton->isChecked() ? OA_TIMER_MODE_STROBE :
       triggerModeButton->isChecked() ? OA_TIMER_MODE_TRIGGER :
       OA_TIMER_MODE_UNSET;
-  if (( pconfig->timerEnabled = timerEnableBox->isChecked() ? 1 : 0 )) {
+  if (( timerConf.timerEnabled = timerEnableBox->isChecked() ? 1 : 0 )) {
     if ( trampolines->isTimerInitialised()) {
 			trampolines->checkTimerWarnings();
     }
   }
 
-  pconfig->userDrainDelayEnabled = enableUserDrainBox->isChecked() ? 1 : 0;
+  timerConf.userDrainDelayEnabled = enableUserDrainBox->isChecked() ? 1 : 0;
 
   QString intervalStr = interval->text();
   QString drainDelayStr = drainDelay->text();
@@ -204,18 +206,18 @@ TimerSettings::storeSettings ( void )
   QString timestampDelayStr = timestampDelay->text();
    */
   if ( intervalStr != "" ) {
-    pconfig->triggerInterval = intervalStr.toInt();
+    timerConf.triggerInterval = intervalStr.toInt();
   }
   if ( drainDelayStr != "" ) {
-    pconfig->drainDelay = drainDelayStr.toInt();
+    timerConf.drainDelay = drainDelayStr.toInt();
   }
   /*
   if ( timestampDelayStr != "" ) {
-    pconfig->timestampDelay = timestampDelayStr.toInt();
+    timerConf.timestampDelay = timestampDelayStr.toInt();
   }
    */
 
-  pconfig->queryGPSForEachCapture = checkGPSBox->isChecked() ? 1 : 0;
+  timerConf.queryGPSForEachCapture = checkGPSBox->isChecked() ? 1 : 0;
 }
 
 

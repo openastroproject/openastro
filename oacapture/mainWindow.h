@@ -61,8 +61,6 @@ extern "C" {
 #include "previewWidget.h"
 #include "histogramWidget.h"
 
-extern demosaicConfig		demosaicConf;
-extern timerConfig			timerConf;
 extern profileConfig		profileConf;
 extern filterConfig			filterConf;
 extern histogramConfig	histogramConf;

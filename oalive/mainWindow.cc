@@ -57,7 +57,6 @@ extern "C" {
 #include "state.h"
 
 CONFIG					config;
-timerConfig			timerConf;
 profileConfig		profileConf;
 filterConfig		filterConf;
 generalConfig		generalConf;

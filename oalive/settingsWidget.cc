@@ -120,8 +120,7 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
         QIcon ( ":/qt-icons/fits.png" ), tr ( "FITS/SER Metadata" ));
 	}
 	if ( reqdWindows & SETTINGS_TIMER ) {
-    timer = new TimerSettings ( this, &timerConf, applicationName,
-				trampolines );
+    timer = new TimerSettings ( this, applicationName, trampolines );
     state.timerSettingsIndex = tabSet->addTab ( timer,
         QIcon ( ":/qt-icons/timer.png" ), tr ( "Timer" ));
 	}
