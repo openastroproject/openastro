@@ -1272,7 +1272,7 @@ CaptureWidget::updateSettingsFromProfile ( void )
 
   for ( int i = 1; i < OA_CAM_CTRL_LAST_P1; i++ ) {
     for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_P1; j++ ) {
-      config.controlValues[j][i] =
+      cameraConf.controlValues[j][i] =
         profileConf.profiles[ config.profileOption ].filterProfiles[
         config.filterOption ].controls[j][i];
     }
@@ -1290,7 +1290,7 @@ CaptureWidget::updateFilterSettingsFromProfile ( void )
 {
   for ( int i = 1; i < OA_CAM_CTRL_LAST_P1; i++ ) {
     for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_P1; j++ ) {
-      config.controlValues[j][i] =
+      cameraConf.controlValues[j][i] =
         profileConf.profiles[ config.profileOption ].filterProfiles[
         config.filterOption ].controls[j][i];
     }
@@ -1366,7 +1366,7 @@ CaptureWidget::writeSettings ( OutputHandler* out )
         int c = baseVal | ( mod ? OA_CAM_CTRL_MODIFIER_AUTO_MASK : 0 );
         int type;
         if (( type = state.camera->hasControl ( c ))) {
-          int v = config.CONTROL_VALUE( c );
+          int v = cameraConf.CONTROL_VALUE( c );
           switch ( c ) {
             case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
             {
@@ -1395,7 +1395,7 @@ CaptureWidget::writeSettings ( OutputHandler* out )
           }
 
           if ( state.camera->hasControl ( OA_CAM_CTRL_MODE_ON_OFF (baseVal))) {
-            v = config.CONTROL_VALUE ( OA_CAM_CTRL_MODE_ON_OFF ( baseVal ));
+            v = cameraConf.CONTROL_VALUE ( OA_CAM_CTRL_MODE_ON_OFF ( baseVal ));
             settings << tr ( v ? "on" : "off" ).toStdString().c_str() <<
                 std::endl;
           } else {

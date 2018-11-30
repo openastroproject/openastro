@@ -27,10 +27,19 @@
 
 #include <oa_common.h>
 
-#include "mainWindow.h"
+extern "C" {
+#include <openastro/timer.h>
+#include <strings.h>
+}
+
+#include <QtCore>
+#include <QtGui>
+
 #include "cameraSettings.h"
-#include "state.h"
-#include "strings.h"
+#include "profileSettings.h"
+
+#include "configuration.h"
+#include "mainWindow.h"
 
 #define SLIDERS_PER_ROW		2
 #define CHECKBOXES_PER_ROW	4
@@ -39,10 +48,11 @@
 #define UNHANDLED_PER_ROW	6
 
 
-CameraSettings::CameraSettings ( QWidget* parent, trampolineFuncs* redirs ) :
-		QWidget ( parent )
+CameraSettings::CameraSettings ( QWidget* parent, QWidget* top,
+		cameraConfig *cConf, trampolineFuncs* redirs ) :
+		QWidget ( parent ), topWidget ( top ), trampolines ( redirs ),
+		pCameraConf ( cConf )
 {
-	trampolines = redirs;
   layout = 0;
   sliderSignalMapper = 0;
   checkboxSignalMapper = 0;
@@ -61,7 +71,7 @@ CameraSettings::configure ( void )
   int numSliderCheckboxes = 0, numUnhandled = 0;
 
   if ( layout ) {
-    state.mainWindow->destroyLayout (( QLayout* ) layout );
+    trampolines->destroyLayout (( QLayout* ) layout );
     delete sliderSignalMapper;
     delete checkboxSignalMapper;
     delete buttonSignalMapper;
@@ -92,8 +102,8 @@ CameraSettings::configure ( void )
         continue;
       }
 
-      if ( state.camera->Camera::isInitialised()) {
-        controlType[mod][baseVal] = state.camera->hasControl ( c );
+      if ( trampolines->isCameraInitialisedStatic()) {
+        controlType[mod][baseVal] = trampolines->cameraHasControl ( c );
 
         if ( controlType[mod][baseVal] ) {
 
@@ -150,10 +160,11 @@ CameraSettings::configure ( void )
                   c || OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) ==
                   c ) {
                 controlCheckbox[mod][baseVal]->setChecked (
-                    ( config.CONTROL_VALUE(c) == OA_EXPOSURE_MANUAL ) ? 0 : 1 );
+                    ( pCameraConf->CONTROL_VALUE(c) ==
+										OA_EXPOSURE_MANUAL ) ? 0 : 1 );
               } else {
                 controlCheckbox[mod][baseVal]->setChecked (
-                    config.CONTROL_VALUE(c));
+                    pCameraConf->CONTROL_VALUE(c));
               }
               checkboxSignalMapper->setMapping (
                   controlCheckbox[mod][baseVal], c );
@@ -175,16 +186,16 @@ CameraSettings::configure ( void )
               int64_t min, max, step, def;
               controlLabel[mod][baseVal] = new QLabel ( tr (
                   oaCameraControlLabel[baseVal] ));
-              state.camera->controlRange ( c, &min, &max, &step, &def );
+              trampolines->cameraControlRange ( c, &min, &max, &step, &def );
               if ( 1 == step && 0 == min ) {
                 numMenus++;
                 controlMenu[mod][baseVal] = new QComboBox ( this );
                 for ( int i = min; i <= max; i += step ) {
                   controlMenu[mod][baseVal]->addItem ( tr (
-                      state.camera->getMenuString ( c, i )));
+                      trampolines->cameraMenuString ( c, i )));
                 }
                 controlMenu[mod][baseVal]->setCurrentIndex (
-                    config.CONTROL_VALUE(c));
+                    pCameraConf->CONTROL_VALUE(c));
                 menuSignalMapper->setMapping ( controlMenu[mod][baseVal], c );
                 connect ( controlMenu[mod][baseVal], SIGNAL(
                     currentIndexChanged ( int )), menuSignalMapper,
@@ -204,14 +215,14 @@ CameraSettings::configure ( void )
               int64_t *values;
               controlLabel[mod][baseVal] = new QLabel ( tr (
                   oaCameraControlLabel[baseVal] ));
-              state.camera->controlDiscreteSet ( c, &count, &values );
+              trampolines->cameraControlDiscreteSet ( c, &count, &values );
               numMenus++;
               controlMenu[mod][baseVal] = new QComboBox ( this );
               for ( int i = 0; i < count; i++ ) {
                 controlMenu[mod][baseVal]->addItem ( tr (
-                    state.camera->getMenuString ( c, values[i] )));
+                    trampolines->cameraMenuString ( c, values[i] )));
                 controlMenu[mod][baseVal]->setCurrentIndex (
-                    config.CONTROL_VALUE(c));
+                    pCameraConf->CONTROL_VALUE(c));
                 menuSignalMapper->setMapping ( controlMenu[mod][baseVal], c );
                 connect ( controlMenu[mod][baseVal], SIGNAL(
                     currentIndexChanged ( int )), menuSignalMapper,
@@ -259,7 +270,8 @@ CameraSettings::configure ( void )
   connect ( menuSignalMapper, SIGNAL( mapped ( int )), this,
       SLOT ( menuChanged ( int )));
 
-  if ( state.camera->isInitialised() && state.camera->hasFrameRateSupport()) {
+  if ( trampolines->isCameraInitialised() &&
+			trampolines->hasFrameRateSupport()) {
     frameRateSlider = new QSlider ( Qt::Horizontal, this );
     frameRateLabel = new QLabel ( tr ( "Framerate (fps)" ), this );
     frameRateMenu = new QComboBox ( this );
@@ -328,7 +340,7 @@ CameraSettings::configure ( void )
             numSliderCheckboxes++;
             if ( OA_CAM_CTRL_MODIFIER_AUTO == mod ) {
               int autoMode =
-                config.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO ( baseVal ));
+                pCameraConf->CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO ( baseVal ));
               if ( OA_CAM_CTRL_EXPOSURE_UNSCALED == baseVal ||
                   OA_CAM_CTRL_EXPOSURE_ABSOLUTE == baseVal ) {
                 autoMode = ( OA_EXPOSURE_MANUAL == autoMode ) ? 0 : 1;
@@ -360,7 +372,8 @@ CameraSettings::configure ( void )
     }
   }
 
-  if ( state.camera->isInitialised() && state.camera->hasFrameRateSupport()) {
+  if ( trampolines->isCameraInitialised() &&
+			trampolines->hasFrameRateSupport()) {
     sliderGrid->addWidget ( frameRateLabel, row, col++ );
     col++;
     col++;
@@ -432,7 +445,7 @@ CameraSettings::configure ( void )
       c = baseVal | ( mod ? OA_CAM_CTRL_MODIFIER_AUTO_MASK : 0 );
       if ( OA_CTRL_TYPE_MENU == controlType[mod][baseVal] ) {
         int64_t min, max, step, def;
-        state.camera->controlRange ( c, &min, &max, &step, &def );
+        trampolines->cameraControlRange ( c, &min, &max, &step, &def );
         if ( 1 == step && 0 == min ) {
           menuGrid->addWidget ( controlLabel[mod][baseVal], row, col++,
               Qt::AlignRight );
@@ -500,7 +513,7 @@ CameraSettings::configure ( void )
   }
 
   forceFrameFormat = new QCheckBox ( tr ( "Force Input Frame Format" ), this );
-  forceFrameFormat->setChecked ( config.forceInputFrameFormat );
+  forceFrameFormat->setChecked ( pCameraConf->forceInputFrameFormat );
 
   selectedFrameFormat = new QComboBox ( this );
   for ( format = 1; format < OA_PIX_FMT_LAST_P1; format++ ) {
@@ -508,8 +521,9 @@ CameraSettings::configure ( void )
     selectedFrameFormat->setItemData ( format - 1,
           tr ( oaFrameFormats[ format ].simpleName ), Qt::ToolTipRole );
   }
-  if ( config.forceInputFrameFormat ) {
-    selectedFrameFormat->setCurrentIndex ( config.forceInputFrameFormat - 1 );
+  if ( pCameraConf->forceInputFrameFormat ) {
+    selectedFrameFormat->setCurrentIndex (
+				pCameraConf->forceInputFrameFormat - 1 );
   }
   frameHBoxLayout = new QHBoxLayout();
   frameHBoxLayout->addWidget ( forceFrameFormat );
@@ -543,7 +557,7 @@ CameraSettings::configure ( void )
 CameraSettings::~CameraSettings()
 {
   if ( layout ) {
-    state.mainWindow->destroyLayout (( QLayout* ) layout );
+    trampolines->destroyLayout (( QLayout* ) layout );
   }
   if ( sliderSignalMapper ) {
     delete sliderSignalMapper;
@@ -644,7 +658,7 @@ CameraSettings::buttonPushed ( int control )
   int c, v, baseVal, mod;
 
   if ( control > 0 ) {
-    state.camera->setControl ( control, 1 );
+    trampolines->setCameraControl ( control, 1 );
     if ( control == OA_CAM_CTRL_RESTORE_USER ||
         control == OA_CAM_CTRL_RESTORE_FACTORY ) {
 
@@ -654,23 +668,23 @@ CameraSettings::buttonPushed ( int control )
           switch ( controlType[mod][baseVal] ) {
 
             case OA_CTRL_TYPE_BOOLEAN:
-              v = state.camera->readControl ( c );
-              config.CONTROL_VALUE(c) = v;
+              v = trampolines->cameraReadControl ( c );
+              pCameraConf->CONTROL_VALUE(c) = v;
               SET_PROFILE_CONTROL( c, v );
               controlCheckbox[mod][baseVal]->setChecked ( v );
               break;
 
             case OA_CTRL_TYPE_INT32:
             case OA_CTRL_TYPE_INT64:
-              v = state.camera->readControl ( c );
-              config.CONTROL_VALUE(c) = v;
+              v = trampolines->cameraReadControl ( c );
+              pCameraConf->CONTROL_VALUE(c) = v;
               SET_PROFILE_CONTROL( c, v );
               controlSpinbox[mod][baseVal]->setValue ( v );
               break;
 
             case OA_CTRL_TYPE_MENU:
-              v = state.camera->readControl ( c );
-              config.CONTROL_VALUE(c) = v;
+              v = trampolines->cameraReadControl ( c );
+              pCameraConf->CONTROL_VALUE(c) = v;
               SET_PROFILE_CONTROL( c, v );
               controlMenu[mod][baseVal]->setCurrentIndex ( v );
               break;
@@ -688,7 +702,7 @@ CameraSettings::buttonPushed ( int control )
         }
       }
 
-      QMessageBox::warning ( TOP_WIDGET, tr ( "Restore Settings" ),
+      QMessageBox::warning ( topWidget, tr ( "Restore Settings" ),
           tr ( "Depending on how this function is implemented in the camera "
           "it is possible that the control settings may now be set to "
           "incorrect values" ));
@@ -702,24 +716,24 @@ CameraSettings::buttonPushed ( int control )
         switch ( controlType[mod][baseVal] ) {
 
           case OA_CTRL_TYPE_BOOLEAN:
-            state.camera->controlRange ( c, &min, &max, &step, &def );
+            trampolines->cameraControlRange ( c, &min, &max, &step, &def );
             controlCheckbox[mod][baseVal]->setChecked ( def );
-            config.CONTROL_VALUE(c) = def;
+            pCameraConf->CONTROL_VALUE(c) = def;
             SET_PROFILE_CONTROL( c, def );
             break;
 
           case OA_CTRL_TYPE_INT32:
           case OA_CTRL_TYPE_INT64:
-            state.camera->controlRange ( c, &min, &max, &step, &def );
+            trampolines->cameraControlRange ( c, &min, &max, &step, &def );
             controlSpinbox[mod][baseVal]->setValue ( def );
-            config.CONTROL_VALUE(c) = def;
+            pCameraConf->CONTROL_VALUE(c) = def;
             SET_PROFILE_CONTROL( c, def );
             break;
 
           case OA_CTRL_TYPE_MENU:
-            state.camera->controlRange ( c, &min, &max, &step, &def );
+            trampolines->cameraControlRange ( c, &min, &max, &step, &def );
             controlMenu[mod][baseVal]->setCurrentIndex ( def );
-            config.CONTROL_VALUE(c) = def;
+            pCameraConf->CONTROL_VALUE(c) = def;
             SET_PROFILE_CONTROL( c, def );
             break;
 
@@ -806,7 +820,7 @@ CameraSettings::menuChanged ( int control )
   if ( controlType [ mod ][ baseVal ] == OA_CTRL_TYPE_DISC_MENU ) {
     int32_t count;
     int64_t *values;
-    state.camera->controlDiscreteSet ( control, &count, &values );
+    trampolines->cameraControlDiscreteSet ( control, &count, &values );
     if ( value < count ) {
       value = values[value];
     } else {
@@ -814,7 +828,7 @@ CameraSettings::menuChanged ( int control )
       return;
     }
   }
-  state.camera->setControl ( control, value );
+  trampolines->setCameraControl ( control, value );
 }
 
 
@@ -866,14 +880,15 @@ CameraSettings::forceFrameFormatChanged ( int newState )
 {
   unsigned int oldState = 0;
 
-  oldState = config.forceInputFrameFormat;
+  oldState = pCameraConf->forceInputFrameFormat;
   if ( newState == Qt::Unchecked ) {
-    config.forceInputFrameFormat = 0;
+    pCameraConf->forceInputFrameFormat = 0;
   } else {
-    config.forceInputFrameFormat = selectedFrameFormat->currentIndex() + 1;
+    pCameraConf->forceInputFrameFormat =
+				selectedFrameFormat->currentIndex() + 1;
   }
   trampolines->updateForceFrameFormat ( oldState,
-      config.forceInputFrameFormat );
+      pCameraConf->forceInputFrameFormat );
 }
 
 
@@ -882,10 +897,10 @@ CameraSettings::selectedFrameFormatChanged ( int newIndex )
 {
   unsigned int oldState = 0;
 
-  if ( config.forceInputFrameFormat ) {
-    oldState = config.forceInputFrameFormat;
-    config.forceInputFrameFormat = newIndex + 1;
+  if ( pCameraConf->forceInputFrameFormat ) {
+    oldState = pCameraConf->forceInputFrameFormat;
+    pCameraConf->forceInputFrameFormat = newIndex + 1;
     trampolines->updateForceFrameFormat ( oldState,
-        config.forceInputFrameFormat );
+        pCameraConf->forceInputFrameFormat );
   }
 }

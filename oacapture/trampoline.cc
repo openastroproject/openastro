@@ -263,6 +263,13 @@ t_isCameraInitialised ( void )
 
 
 int
+t_isCameraInitialisedStatic ( void )
+{
+  return state.camera->Camera::isInitialised();
+}
+
+
+int
 t_videoFramePixelFormat ( void )
 {
 	return state.camera->videoFramePixelFormat ( &demosaicConf );
@@ -519,7 +526,7 @@ t_filterName ( int n )
 int64_t
 t_cameraControlValue ( int m, int c )
 {
-  return config.controlValues[m][c];
+  return cameraConf.controlValues[m][c];
 }
 
 
@@ -653,6 +660,56 @@ t_slotFilterName ( int slot )
 }
 
 
+int
+t_cameraHasControl ( int c )
+{
+  return state.camera->hasControl ( c );
+}
+
+
+void
+t_cameraControlRange ( int control, int64_t* min, int64_t* max,
+    int64_t* step, int64_t* def )
+{
+  state.camera->controlRange ( control, min, max, step, def );
+}
+
+
+void
+t_cameraControlDiscreteSet ( int control, int32_t* num, int64_t** vals )
+{
+  state.camera->controlDiscreteSet ( control, num, vals );
+}
+
+
+void
+t_setCameraControl ( int control, int64_t val )
+{
+	state.camera->setControl ( control, val );
+}
+
+
+const char*
+t_cameraMenuString ( int c, int v )
+{
+	state.camera->getMenuString ( c, v );
+}
+
+
+int64_t
+t_cameraReadControl ( int c )
+{
+	state.camera->readControl ( c );
+}
+
+
+int
+t_hasFrameRateSupport ( void )
+{
+	state.camera->hasFrameRateSupport();
+}
+
+
 trampolineFuncs trampolines {
 	.getCurrentGain = &t_getCurrentGain,
 	.getCurrentExposure = &t_getCurrentExposure,
@@ -685,6 +742,7 @@ trampolineFuncs trampolines {
 	.destroyLayout = &t_destroyLayout,
 	.resetCaptureIndex = &t_resetCaptureIndex,
 	.isCameraInitialised = &t_isCameraInitialised,
+	.isCameraInitialisedStatic = &t_isCameraInitialisedStatic,
 	.videoFramePixelFormat = &t_videoFramePixelFormat,
   .isDemosaicEnabled = &t_isDemosaicEnabled,
   .isBinningValid = &t_isBinningValid,
@@ -736,5 +794,12 @@ trampolineFuncs trampolines {
 	.numFilterWheelSlots = &t_numFilterWheelSlots,
 	.propagateNewSlotName = &t_propagateNewSlotName,
 	.isFilterWheelInitialised = &t_isFilterWheelInitialised,
-	.slotFilterName = &t_slotFilterName
+	.slotFilterName = &t_slotFilterName,
+	.cameraHasControl = &t_cameraHasControl,
+	.cameraControlRange = &t_cameraControlRange,
+	.cameraControlDiscreteSet = &t_cameraControlDiscreteSet,
+	.setCameraControl = &t_setCameraControl,
+	.cameraMenuString = &t_cameraMenuString,
+	.cameraReadControl = &t_cameraReadControl,
+	.hasFrameRateSupport = &t_hasFrameRateSupport
 };

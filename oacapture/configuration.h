@@ -64,7 +64,6 @@ typedef struct
 
   // camera config
   unsigned int		inputFrameFormat;
-  unsigned int		forceInputFrameFormat;
   int			binning2x2;
   int			colourise;
   QColor		currentColouriseColour;
@@ -83,7 +82,6 @@ typedef struct
   int			zoomValue;
 
   // control config
-  int64_t		controlValues[OA_CAM_CTRL_MODIFIERS_P1][ OA_CAM_CTRL_LAST_P1 ];
   int			exposureMenuOption;
   int			frameRateNumerator;
   int			frameRateDenominator;

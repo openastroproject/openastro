@@ -40,6 +40,13 @@ extern "C" {
 }
 
 #include "trampoline.h"
+#include "cameraSettings.h"
+
+
+typedef struct {
+	int64_t				controlValues[OA_CAM_CTRL_MODIFIERS_P1][ OA_CAM_CTRL_LAST_P1 ];
+	int						forceInputFrameFormat;
+} cameraConfig;
 
 
 class CameraSettings : public QWidget
@@ -47,7 +54,8 @@ class CameraSettings : public QWidget
   Q_OBJECT
 
   public:
-    			CameraSettings ( QWidget*, trampolineFuncs* );
+    			CameraSettings ( QWidget*, QWidget*, cameraConfig*,
+							trampolineFuncs* );
     			~CameraSettings();
     void		configure ( void );
     void		storeSettings ( void );
@@ -87,6 +95,8 @@ class CameraSettings : public QWidget
     QComboBox*		selectedFrameFormat;
     QHBoxLayout*	frameHBoxLayout;
 		trampolineFuncs*	trampolines;
+		QWidget*					topWidget;
+		cameraConfig*			pCameraConf;
 
   public slots:
     void		updateSliderControl ( int );
@@ -97,3 +107,8 @@ class CameraSettings : public QWidget
     void		forceFrameFormatChanged ( int );
     void		selectedFrameFormatChanged ( int );
 };
+
+
+#define CONTROL_VALUE(c)  controlValues[OA_CAM_CTRL_MODIFIER(c)][OA_CAM_CTRL_MODE_BASE(c)]
+
+#define SET_PROFILE_CONTROL(c,v) if ( config.profileOption >= 0 ) profileConf.profiles[ config.profileOption ].filterProfiles[ config.filterOption ].controls[OA_CAM_CTRL_MODIFIER(c)][OA_CAM_CTRL_MODE_BASE(c)] = v

@@ -135,8 +135,8 @@ CameraWidget::configure ( void )
       this, SLOT( changeFrameFormat ( int )));
 
   changeFrameFormat ( currentAction );
-  if ( config.forceInputFrameFormat ) {
-    updateForceFrameFormat ( 0, config.forceInputFrameFormat );
+  if ( cameraConf.forceInputFrameFormat ) {
+    updateForceFrameFormat ( 0, cameraConf.forceInputFrameFormat );
   }
   binning2x2->setEnabled ( state.camera->hasBinning ( 2 ) ? 1 : 0 );
 }

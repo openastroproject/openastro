@@ -61,6 +61,7 @@ filterConfig		filterConf;
 histogramConfig	histogramConf;
 autorunConfig		autorunConf;
 generalConfig		generalConf;
+cameraConfig		cameraConf;
 
 STATE		state;
 
@@ -334,7 +335,7 @@ MainWindow::readConfig ( QString configFile )
     config.binning2x2 = 0;
     config.colourise = 0;
     config.inputFrameFormat = OA_PIX_FMT_RGB24;
-    config.forceInputFrameFormat = 0;
+    cameraConf.forceInputFrameFormat = 0;
 
     config.useROI = 0;
     config.imageSizeX = 0;
@@ -345,11 +346,11 @@ MainWindow::readConfig ( QString configFile )
     config.zoomButton3Option = 5;
     config.zoomValue = 100;
 
-    config.CONTROL_VALUE( OA_CAM_CTRL_GAIN ) = 50;
-    config.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) = 10;
-    config.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 100;
-    config.CONTROL_VALUE( OA_CAM_CTRL_GAMMA ) = -1;
-    config.CONTROL_VALUE( OA_CAM_CTRL_BRIGHTNESS ) = -1;
+    cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN ) = 50;
+    cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) = 10;
+    cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 100;
+    cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAMMA ) = -1;
+    cameraConf.CONTROL_VALUE( OA_CAM_CTRL_BRIGHTNESS ) = -1;
     config.exposureMenuOption = 3;
     config.frameRateNumerator = 0;
     config.frameRateDenominator = 1;
@@ -459,7 +460,7 @@ MainWindow::readConfig ( QString configFile )
     config.colourise = 0;
     config.inputFrameFormat = settings->value ( "camera/inputFrameFormat",
         OA_PIX_FMT_RGB24 ).toInt();
-    config.forceInputFrameFormat = settings->value (
+    cameraConf.forceInputFrameFormat = settings->value (
         "camera/forceInputFrameFormat", 0 ).toInt();
 
     config.useROI = settings->value ( "image/useROI", 0 ).toInt();
@@ -475,15 +476,15 @@ MainWindow::readConfig ( QString configFile )
     config.zoomValue = settings->value ( "image/zoomValue", 100 ).toInt();
 
     if ( version < 3 ) {
-      config.CONTROL_VALUE( OA_CAM_CTRL_GAIN ) = settings->value (
+      cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN ) = settings->value (
           "control/gainValue", 50 ).toInt();
-      config.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) = settings->value (
-          "control/exposureValue", 10 ).toInt();
-      config.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = settings->value (
-          "control/exposureAbsoluteValue", 10 ).toInt();
-      config.CONTROL_VALUE( OA_CAM_CTRL_GAMMA ) = settings->value (
+      cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+				settings->value ( "control/exposureValue", 10 ).toInt();
+      cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+				settings->value ( "control/exposureAbsoluteValue", 10 ).toInt();
+      cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAMMA ) = settings->value (
           "control/gammaValue", -1 ).toInt();
-      config.CONTROL_VALUE( OA_CAM_CTRL_BRIGHTNESS ) = settings->value (
+      cameraConf.CONTROL_VALUE( OA_CAM_CTRL_BRIGHTNESS ) = settings->value (
           "control/brightnessValue", -1 ).toInt();
     }
 
@@ -565,8 +566,8 @@ MainWindow::readConfig ( QString configFile )
           if ( numModifiers )  {
             for ( int i = 0; i < numModifiers; i++ ) {
               settings->setArrayIndex ( i );
-              config.controlValues[i][j] = settings->value ( "controlValue",
-                0 ).toInt();
+              cameraConf.controlValues[i][j] = settings->value (
+									"controlValue", 0 ).toInt();
             }
           }
           settings->endArray();
@@ -792,7 +793,7 @@ MainWindow::readConfig ( QString configFile )
 	  for ( int k = 0; k < filterConf.numFilters; k++ ) {
             for ( int i = 0; i < OA_CAM_CTRL_MODIFIERS_P1; i++ ) {
               p.filterProfiles[ k ].controls[ i ][ j ] =
-                  config.controlValues[ i ][ j ];
+                  cameraConf.controlValues[ i ][ j ];
             }
           }
         }
@@ -1020,7 +1021,7 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "camera/colourise", config.colourise );
   settings->setValue ( "camera/inputFrameFormat", config.inputFrameFormat );
   settings->setValue ( "camera/forceInputFrameFormat",
-      config.forceInputFrameFormat );
+      cameraConf.forceInputFrameFormat );
 
   settings->setValue ( "image/useROI", config.useROI );
   settings->setValue ( "image/imageSizeX", config.imageSizeX );
@@ -1084,7 +1085,7 @@ MainWindow::writeConfig ( QString configFile )
     // don't particularly like this cast, but it seems to be the only way
     // to do it
     settings->setValue ( "controlValue",
-        ( qlonglong ) config.controlValues[i] );
+        ( qlonglong ) cameraConf.controlValues[i] );
   }
   settings->endArray();
 
@@ -1581,7 +1582,7 @@ MainWindow::connectCamera ( int deviceIndex )
 			config.filterOption < filterConf.numFilters ) {
     for ( uint8_t c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
       for ( uint8_t m = 1; m < OA_CAM_CTRL_MODIFIERS_P1; m++ ) {
-        config.controlValues[ m ][ c ] =
+        cameraConf.controlValues[ m ][ c ] =
           profileConf.profiles[ config.profileOption ].filterProfiles[
               config.filterOption ].controls[ m ][ c ];
       }
@@ -2031,7 +2032,7 @@ MainWindow::enableFlipX ( void )
   if ( state.camera->isInitialised() &&
       state.camera->hasControl ( OA_CAM_CTRL_HFLIP )) {
     state.camera->setControl ( OA_CAM_CTRL_HFLIP, flipState );
-    config.CONTROL_VALUE( OA_CAM_CTRL_HFLIP ) = flipState;
+    cameraConf.CONTROL_VALUE( OA_CAM_CTRL_HFLIP ) = flipState;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_HFLIP, flipState );
     if ( state.settingsWidget ) {
       state.settingsWidget->enableFlipX ( flipState );
@@ -2054,7 +2055,7 @@ MainWindow::enableFlipY ( void )
   if ( state.camera->isInitialised() &&
       state.camera->hasControl ( OA_CAM_CTRL_VFLIP )) {
     state.camera->setControl ( OA_CAM_CTRL_VFLIP, flipState );
-    config.CONTROL_VALUE( OA_CAM_CTRL_VFLIP ) = flipState;
+    cameraConf.CONTROL_VALUE( OA_CAM_CTRL_VFLIP ) = flipState;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_VFLIP, flipState );
     if ( state.settingsWidget ) {
       state.settingsWidget->enableFlipY ( flipState );

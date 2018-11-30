@@ -45,6 +45,7 @@ extern "C" {
 #include "profileSettings.h"
 #include "filterSettings.h"
 #include "generalSettings.h"
+#include "cameraSettings.h"
 
 #include "viewWidget.h"
 #include "focusOverlay.h"
@@ -57,6 +58,7 @@ extern timerConfig		timerConf;
 extern profileConfig  profileConf;
 extern filterConfig		filterConf;
 extern generalConfig	generalConf;
+extern cameraConfig		cameraConf;
 
 class MainWindow : public QMainWindow
 {

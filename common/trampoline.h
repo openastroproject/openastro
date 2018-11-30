@@ -65,6 +65,7 @@ typedef struct {
 	void ( *destroyLayout )( QLayout* );
 	void ( *resetCaptureIndex )( void );
 	int ( *isCameraInitialised )( void );
+	int ( *isCameraInitialisedStatic )( void );
 	int ( *videoFramePixelFormat )( void );
 	int ( *isDemosaicEnabled )( void );
 	int ( *isBinningValid )( void );
@@ -117,6 +118,13 @@ typedef struct {
 	void ( *propagateNewSlotName )( int, QString );
 	int ( *isFilterWheelInitialised )( void );
 	QString ( *slotFilterName )( int );
+	int ( *cameraHasControl )( int );
+	void ( *cameraControlRange )( int, int64_t*, int64_t*, int64_t*, int64_t* );
+	void ( *cameraControlDiscreteSet )( int, int32_t*, int64_t** );
+	void ( *setCameraControl )( int, int64_t );
+	const char* ( *cameraMenuString )( int, int );
+	int64_t ( *cameraReadControl )( int );
+	int ( *hasFrameRateSupport )( void );
 } trampolineFuncs;
 
 extern trampolineFuncs trampolines;

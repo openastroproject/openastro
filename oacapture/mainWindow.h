@@ -51,6 +51,7 @@ extern "C" {
 #include "histogramSettings.h"
 #include "autorunSettings.h"
 #include "generalSettings.h"
+#include "cameraSettings.h"
 
 #include "mainWindow.h"
 #include "configuration.h"
@@ -71,6 +72,7 @@ extern filterConfig			filterConf;
 extern histogramConfig	histogramConf;
 extern autorunConfig		autorunConf;
 extern generalConfig		generalConf;
+extern cameraConfig			cameraConf;
 
 class MainWindow : public QMainWindow
 {
