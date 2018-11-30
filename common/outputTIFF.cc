@@ -40,9 +40,8 @@ extern "C" {
 
 OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
 		const char* appName, const char* appVer, QString fileTemplate,
-		unsigned long long* pcounter, fitsConfig* pConf,
-		trampolineFuncs* trampolines ) :
-    OutputHandler ( x, y, n, d, fileTemplate, pcounter, pConf, trampolines ),
+		unsigned long long* pcounter, trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate, pcounter, trampolines ),
 		applicationName ( appName ), applicationVersion ( appVer )
 {
   uint16_t byteOrderTest = 0x1234;

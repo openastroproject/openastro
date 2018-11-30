@@ -43,16 +43,15 @@ extern "C" {
 
 #include "targets.h"
 #include "trampoline.h"
-#include "fitsSettings.h"
 #include "outputHandler.h"
 #include "outputFITS.h"
+#include "fitsSettings.h"
 
 
 OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
 		const char *appName, const char* appVer, QString fileTemplate,
-		unsigned long long* pcounter, fitsConfig* pconf, 
-		trampolineFuncs* trampolines ) :
-		OutputHandler ( x, y, n, d, fileTemplate, pcounter, pconf, trampolines ),
+		unsigned long long* pcounter, trampolineFuncs* trampolines ) :
+		OutputHandler ( x, y, n, d, fileTemplate, pcounter, trampolines ),
 		applicationName ( appName ), applicationVersion ( appVer ),
 		imageFormat ( fmt )
 {
@@ -354,9 +353,9 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 
   fits_write_date ( fptr, &status );
 
-  if ( pConfig->observer != "" ) {
+  if ( fitsConf.observer != "" ) {
     ( void ) strncpy ( stringBuff,
-        pConfig->observer.toStdString().c_str(), FLEN_VALUE+1 );
+        fitsConf.observer.toStdString().c_str(), FLEN_VALUE+1 );
     fits_write_key_str ( fptr, "OBSERVER", cString, "", &status );
   }
 
@@ -367,27 +366,27 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
         FLEN_VALUE+1 );
   } else {
     ( void ) strncpy ( stringBuff,
-        pConfig->object.toStdString().c_str(), FLEN_VALUE+1 );
+        fitsConf.object.toStdString().c_str(), FLEN_VALUE+1 );
   }
   if ( stringBuff[0]) {
     fits_write_key_str ( fptr, "OBJECT", cString, "", &status );
   }
 
-  if ( pConfig->telescope != "" ) {
+  if ( fitsConf.telescope != "" ) {
     ( void ) strncpy ( stringBuff,
-        pConfig->telescope.toStdString().c_str(), FLEN_VALUE+1 );
+        fitsConf.telescope.toStdString().c_str(), FLEN_VALUE+1 );
     fits_write_key_str ( fptr, "TELESCOP", cString, "", &status );
   }
 
-  if ( pConfig->instrument != "" ) {
+  if ( fitsConf.instrument != "" ) {
     ( void ) strncpy ( stringBuff,
-        pConfig->instrument.toStdString().c_str(), FLEN_VALUE+1 );
+        fitsConf.instrument.toStdString().c_str(), FLEN_VALUE+1 );
     fits_write_key_str ( fptr, "INSTRUME", cString, "", &status );
   }
 
-  if ( pConfig->comment != "" ) {
+  if ( fitsConf.comment != "" ) {
     ( void ) strncpy ( stringBuff,
-        pConfig->comment.toStdString().c_str(), FLEN_VALUE+1 );
+        fitsConf.comment.toStdString().c_str(), FLEN_VALUE+1 );
     fits_write_comment ( fptr, cString, &status );
   }
 
@@ -400,18 +399,18 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
       oaFrameFormats[ imageFormat ].simpleName );
   fits_write_comment ( fptr, stringBuff, &status );
 
-  if ( pConfig->focalLength != "" ) {
-    fits_write_key_lng ( fptr, "FOCALLEN", pConfig->focalLength.toInt(),
+  if ( fitsConf.focalLength != "" ) {
+    fits_write_key_lng ( fptr, "FOCALLEN", fitsConf.focalLength.toInt(),
         "", &status );
   }
 
-  if ( pConfig->apertureDia != "" ) {
-    fits_write_key_lng ( fptr, "APTDIA", pConfig->apertureDia.toInt(),
+  if ( fitsConf.apertureDia != "" ) {
+    fits_write_key_lng ( fptr, "APTDIA", fitsConf.apertureDia.toInt(),
         "", &status );
   }
 
-  if ( pConfig->apertureArea != "" ) {
-    fits_write_key_lng ( fptr, "APTAREA", pConfig->apertureArea.toInt(),
+  if ( fitsConf.apertureArea != "" ) {
+    fits_write_key_lng ( fptr, "APTAREA", fitsConf.apertureArea.toInt(),
         "", &status );
   }
 
@@ -421,8 +420,8 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
    * otherwise we deal with it ourselves
    */
   
-  if ( pConfig->pixelSizeX != "" ) {
-    pixelSize = pConfig->pixelSizeX.toFloat();
+  if ( fitsConf.pixelSizeX != "" ) {
+    pixelSize = fitsConf.pixelSizeX.toFloat();
   } else {
     int binMultiplier = 1;
     if ( trampolines->isBinningValid()) {
@@ -434,8 +433,8 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     fits_write_key_dbl ( fptr, "XPIXSZ", pixelSize, -5, "", &status );
   }
 
-  if ( pConfig->pixelSizeY != "" ) {
-    pixelSize = pConfig->pixelSizeY.toFloat();
+  if ( fitsConf.pixelSizeY != "" ) {
+    pixelSize = fitsConf.pixelSizeY.toFloat();
   } else {
     int binMultiplier = 1;
     if ( trampolines->isBinningValid()) {
@@ -448,8 +447,8 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   }
 
 
-  if ( pConfig->subframeOriginX != "" ) {
-    xorg = pConfig->subframeOriginX.toInt();
+  if ( fitsConf.subframeOriginX != "" ) {
+    xorg = fitsConf.subframeOriginX.toInt();
   } else {
     if ( trampolines->isCropMode()) {
       xorg = ( trampolines->sensorSizeX() - trampolines->cropSizeX()) / 2;
@@ -459,8 +458,8 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   }
   fits_write_key_lng ( fptr, "XORGSUBF", xorg, "", &status );
 
-  if ( pConfig->subframeOriginY != "" ) {
-    yorg = pConfig->subframeOriginY.toInt();
+  if ( fitsConf.subframeOriginY != "" ) {
+    yorg = fitsConf.subframeOriginY.toInt();
   } else {
     if ( trampolines->isCropMode()) {
       yorg = ( trampolines->sensorSizeY() - trampolines->cropSizeY()) / 2;
@@ -471,8 +470,8 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   fits_write_key_lng ( fptr, "YORGSUBF", yorg, "", &status );
 
   QString currentFilter = trampolines->getCurrentFilterName();
-  if ( pConfig->filter != "" ) {
-    currentFilter = pConfig->filter;
+  if ( fitsConf.filter != "" ) {
+    currentFilter = fitsConf.filter;
   }
   if ( currentFilter != "" ) {
     ( void ) strncpy ( stringBuff,
@@ -484,9 +483,9 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   if ( trampolines->isGPSValid()) {
     ( void ) sprintf ( stringBuff, "%+8.6e", trampolines->latitude());
   }
-  if ( !stringBuff[0] && pConfig->siteLatitude != "" ) {
+  if ( !stringBuff[0] && fitsConf.siteLatitude != "" ) {
     ( void ) strncpy ( stringBuff,
-        pConfig->siteLatitude.toStdString().c_str(), FLEN_VALUE+1 );
+        fitsConf.siteLatitude.toStdString().c_str(), FLEN_VALUE+1 );
   }
   if ( stringBuff[0] ) {
     fits_write_key_str ( fptr, "SITELAT", cString, "", &status );
@@ -496,9 +495,9 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   if ( trampolines->isGPSValid()) {
     ( void ) sprintf ( stringBuff, "%+8.6e", trampolines->longitude());
   }
-  if ( !stringBuff[0] && pConfig->siteLongitude != "" ) {
+  if ( !stringBuff[0] && fitsConf.siteLongitude != "" ) {
     ( void ) strncpy ( stringBuff,
-        pConfig->siteLongitude.toStdString().c_str(), FLEN_VALUE+1 );
+        fitsConf.siteLongitude.toStdString().c_str(), FLEN_VALUE+1 );
   }
   if ( stringBuff[0] ) {
     fits_write_key_str ( fptr, "SITELONG", cString, "", &status );

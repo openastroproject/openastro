@@ -52,7 +52,6 @@ extern "C" {
 #include "targets.h"
 
 CONFIG		config;
-fitsConfig			fitsConf;
 demosaicConfig	demosaicConf;
 timerConfig			timerConf;
 profileConfig		profileConf;

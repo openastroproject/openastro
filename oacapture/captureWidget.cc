@@ -582,7 +582,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
       out = new OutputSER ( actualX, actualY,
           state.controlWidget->getFPSNumerator(),
           state.controlWidget->getFPSDenominator(), format, emptyStr,
-					&state.captureIndex, &fitsConf, &trampolines );
+					&state.captureIndex, &trampolines );
       break;
 
     case CAPTURE_TIFF:
@@ -590,7 +590,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
           state.controlWidget->getFPSNumerator(),
           state.controlWidget->getFPSDenominator(), format,
 					APPLICATION_NAME, VERSION_STR, emptyStr,
-					&state.captureIndex, &fitsConf, &trampolines );
+					&state.captureIndex, &trampolines );
       break;
 
     case CAPTURE_PNG:
@@ -598,7 +598,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
           state.controlWidget->getFPSNumerator(),
           state.controlWidget->getFPSDenominator(), format,
 					APPLICATION_NAME, VERSION_STR, emptyStr,
-					&state.captureIndex, &fitsConf, &trampolines );
+					&state.captureIndex, &trampolines );
       break;
 
 #ifdef HAVE_LIBCFITSIO
@@ -607,7 +607,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
           state.controlWidget->getFPSNumerator(),
           state.controlWidget->getFPSDenominator(), format,
 					APPLICATION_NAME, VERSION_STR, emptyStr,
-					&state.captureIndex, &fitsConf, &trampolines );
+					&state.captureIndex, &trampolines );
       break;
 #endif
   }

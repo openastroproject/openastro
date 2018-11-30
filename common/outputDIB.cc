@@ -36,7 +36,7 @@
 OutputDIB::OutputDIB ( int x, int y, int n, int d, int fmt,
     QString fileTemplate, unsigned long long* pcounter,
 		trampolineFuncs* trampolines ) :
-    OutputHandler ( x, y, n, d, fileTemplate, pcounter, 0, trampolines )
+    OutputHandler ( x, y, n, d, fileTemplate, pcounter, trampolines )
 {
   writesDiscreteFiles = 0;
   frameCount = 0;

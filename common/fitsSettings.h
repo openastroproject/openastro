@@ -56,13 +56,14 @@ typedef struct {
   QString		filter;
 } fitsConfig;
 
+extern fitsConfig fitsConf;
 
 class FITSSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			FITSSettings ( QWidget*, fitsConfig*, trampolineFuncs* );
+    			FITSSettings ( QWidget*, trampolineFuncs* );
     			~FITSSettings();
     void		storeSettings ( void );
 
@@ -99,5 +100,4 @@ class FITSSettings : public QWidget
     QLineEdit*          siteLongitudeInput;
     QLineEdit*          filterInput;
 		trampolineFuncs*		trampolines;
-		fitsConfig*					pconfig;
 };

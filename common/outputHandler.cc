@@ -35,8 +35,8 @@
 
 OutputHandler::OutputHandler ( int x, int y, int n, int d,
 		QString nameTemplate, unsigned long long* pcounter,
-		fitsConfig* pconf, trampolineFuncs* tramps ) :
-		trampolines ( tramps ), pCaptureIndex ( pcounter ), pConfig ( pconf ),
+		trampolineFuncs* tramps ) :
+		trampolines ( tramps ), pCaptureIndex ( pcounter ),
 		filenameTemplate ( nameTemplate )
 {
   Q_UNUSED( x );

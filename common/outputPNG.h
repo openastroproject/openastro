@@ -37,7 +37,7 @@ class OutputPNG : public OutputHandler
 {
   public:
     			OutputPNG ( int, int, int, int, int, const char*, const char*,
-							QString, unsigned long long*, fitsConfig*, trampolineFuncs* );
+							QString, unsigned long long*, trampolineFuncs* );
     			~OutputPNG();
     int			openOutput ( void );
     int			addFrame ( void*, const char*, int64_t, const char* );

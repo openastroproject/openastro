@@ -35,13 +35,13 @@ extern "C" {
 #include "outputHandler.h"
 #include "outputSER.h"
 #include "trampoline.h"
+#include "fitsSettings.h"
 
 
 OutputSER::OutputSER ( int x, int y, int n, int d, int fmt,
 		QString fileTemplate, unsigned long long* pcounter,
-		fitsConfig* pConfig, trampolineFuncs* trampolines ) :
-    OutputHandler ( x, y, n, d, fileTemplate, pcounter, pConfig,
-		trampolines )
+		trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate, pcounter, trampolines )
 {
   // FIX ME -- I should move a load of this into liboaSER
 
@@ -169,11 +169,11 @@ OutputSER::openOutput ( void )
   header.FrameCount = 0;
 
   ( void ) strncpy ( header.Observer,
-      pConfig->observer.toStdString().c_str(), 40 );
+      fitsConf.observer.toStdString().c_str(), 40 );
   ( void ) strncpy ( header.Instrument,
-      pConfig->instrument.toStdString().c_str(), 40 );
+      fitsConf.instrument.toStdString().c_str(), 40 );
   ( void ) strncpy ( header.Telescope,
-      pConfig->telescope.toStdString().c_str(), 40 );
+      fitsConf.telescope.toStdString().c_str(), 40 );
 
   int		e;
 

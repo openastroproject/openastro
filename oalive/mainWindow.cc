@@ -57,7 +57,6 @@ extern "C" {
 #include "state.h"
 
 CONFIG					config;
-fitsConfig			fitsConf;
 demosaicConfig	demosaicConf;
 timerConfig			timerConf;
 profileConfig		profileConf;
