@@ -29,10 +29,14 @@
 
 #include "captureSettings.h"
 
+// This is global.  All applications using this code share it.
 
-CaptureSettings::CaptureSettings ( QWidget* parent, captureConfig* cConf,
-		int formats, trampolineFuncs* redirs ) : QWidget ( parent ),
-		videoFormats ( formats ), trampolines ( redirs ), pconfig ( cConf )
+captureConfig captureConf;
+
+
+CaptureSettings::CaptureSettings ( QWidget* parent, int formats,
+		trampolineFuncs* redirs ) :
+		QWidget ( parent ), videoFormats ( formats ), trampolines ( redirs )
 {
   indexResetButton = new QPushButton ( tr ( "Reset capture counter" ), this );
 
@@ -40,19 +44,19 @@ CaptureSettings::CaptureSettings ( QWidget* parent, captureConfig* cConf,
     winAVIBox = new QCheckBox (
         tr ( "Use Windows-compatible format for AVI files "
         "(8-bit mono/raw colour)" ), this );
-    winAVIBox->setChecked ( pconfig->windowsCompatibleAVI );
+    winAVIBox->setChecked ( captureConf.windowsCompatibleAVI );
 
     utVideoBox = new QCheckBox (
         tr ( "Use UtVideo lossless compression for AVI files where possible" ),
         this );
-    utVideoBox->setChecked ( pconfig->useUtVideo );
+    utVideoBox->setChecked ( captureConf.useUtVideo );
 	}
 
   indexSizeLabel = new QLabel ( tr ( "Filename capture index size" ));
   indexSizeSpinbox = new QSpinBox ( this );
   indexSizeSpinbox->setMinimum ( 3 );
   indexSizeSpinbox->setMaximum ( 10 );
-  indexSizeSpinbox->setValue ( pconfig->indexDigits );
+  indexSizeSpinbox->setValue ( captureConf.indexDigits );
 
   hLayout = new QHBoxLayout ( this );
   spinboxLayout = new QHBoxLayout();
@@ -94,10 +98,10 @@ void
 CaptureSettings::storeSettings ( void )
 {
 	if ( videoFormats ) {
-    pconfig->windowsCompatibleAVI = winAVIBox->isChecked() ? 1 : 0;
-    pconfig->useUtVideo = utVideoBox->isChecked() ? 1 : 0;
+    captureConf.windowsCompatibleAVI = winAVIBox->isChecked() ? 1 : 0;
+    captureConf.useUtVideo = utVideoBox->isChecked() ? 1 : 0;
 	}
-  pconfig->indexDigits = indexSizeSpinbox->value();
+  captureConf.indexDigits = indexSizeSpinbox->value();
 }
 
 

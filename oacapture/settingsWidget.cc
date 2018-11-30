@@ -74,8 +74,7 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
         QIcon ( ":/qt-icons/cog.png" ), tr ( "General" ));
 	}
 	if ( reqdWindows & SETTINGS_CAPTURE ) {
-    capture = new CaptureSettings ( this, &captureConf, videoFormats,
-				trampolines );
+    capture = new CaptureSettings ( this, videoFormats, trampolines );
     state.captureSettingsIndex = tabSet->addTab ( capture,
         QIcon ( ":/qt-icons/capture.png" ), tr ( "Capture" ));
 	}

@@ -51,7 +51,6 @@ extern "C" {
 #include "focusOverlay.h"
 #include "controlsWidget.h"
 
-extern captureConfig  captureConf;
 extern fitsConfig			fitsConf;
 extern demosaicConfig	demosaicConf;
 extern timerConfig		timerConf;

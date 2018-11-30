@@ -42,7 +42,6 @@ extern "C" {
 } 
 
 #include "focusOverlay.h"
-#include "captureSettings.h"
 #include "fitsSettings.h"
 #include "demosaicSettings.h"
 #include "timerSettings.h"
@@ -63,7 +62,6 @@ extern "C" {
 #include "previewWidget.h"
 #include "histogramWidget.h"
 
-extern captureConfig		captureConf;
 extern fitsConfig				fitsConf;
 extern demosaicConfig		demosaicConf;
 extern timerConfig			timerConf;

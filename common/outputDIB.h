@@ -36,7 +36,7 @@ class OutputDIB : public OutputHandler
 {
   public:
     			OutputDIB ( int, int, int, int, int, QString,
-              unsigned long long*, captureConfig*, trampolineFuncs* );
+              unsigned long long*, trampolineFuncs* );
     			~OutputDIB();
     int			openOutput ( void );
     int			addFrame ( void*, const char*, int64_t, const char* );

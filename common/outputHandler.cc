@@ -29,15 +29,15 @@
 #include <time.h>
 
 #include "trampoline.h"
-#include "captureSettings.h"
 #include "outputHandler.h"
+#include "captureSettings.h"
 
 
 OutputHandler::OutputHandler ( int x, int y, int n, int d,
 		QString nameTemplate, unsigned long long* pcounter,
-		fitsConfig* pconf, captureConfig* cconf, trampolineFuncs* tramps ) :
+		fitsConfig* pconf, trampolineFuncs* tramps ) :
 		trampolines ( tramps ), pCaptureIndex ( pcounter ), pConfig ( pconf ),
-		cConfig ( cconf ), filenameTemplate ( nameTemplate )
+		filenameTemplate ( nameTemplate )
 {
   Q_UNUSED( x );
   Q_UNUSED( y );
@@ -94,7 +94,7 @@ OutputHandler::generateFilename ( void )
 
   QString index, gain, exposureMs, exposureS;
   unsigned int exposure;
-  index = QString("%1").arg ( *pCaptureIndex, cConfig->indexDigits, 10,
+  index = QString("%1").arg ( *pCaptureIndex, captureConf.indexDigits, 10,
       QChar('0'));
   gain = QString("%1").arg ( trampolines->getCurrentGain());
   exposure = trampolines->getCurrentExposure();

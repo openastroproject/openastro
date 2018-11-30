@@ -43,13 +43,14 @@ typedef struct {
 	int			windowsCompatibleAVI;
 } captureConfig;
 
+extern captureConfig captureConf;
 
 class CaptureSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			CaptureSettings ( QWidget*, captureConfig*, int, trampolineFuncs* );
+    			CaptureSettings ( QWidget*, int, trampolineFuncs* );
     			~CaptureSettings();
     void		storeSettings ( void );
 
@@ -65,7 +66,6 @@ class CaptureSettings : public QWidget
     QSpinBox*		indexSizeSpinbox;
 		int						videoFormats;
 		trampolineFuncs*	trampolines;
-		captureConfig*		pconfig;
 
   public slots:
     void		resetIndex ( void );
