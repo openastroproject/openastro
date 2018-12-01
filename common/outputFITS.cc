@@ -425,8 +425,8 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     pixelSize = fitsConf.pixelSizeX.toFloat();
   } else {
     int binMultiplier = 1;
-    if ( trampolines->isBinningValid()) {
-      binMultiplier = OA_BIN_MODE_MULTIPLIER ( trampolines->binModeX());
+    if ( commonState.binningValid ) {
+      binMultiplier = OA_BIN_MODE_MULTIPLIER ( commonState.binModeX );
     }
     pixelSize = commonState.camera->pixelSizeX() * binMultiplier / 1000.0;
   }
@@ -438,8 +438,8 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     pixelSize = fitsConf.pixelSizeY.toFloat();
   } else {
     int binMultiplier = 1;
-    if ( trampolines->isBinningValid()) {
-      binMultiplier = OA_BIN_MODE_MULTIPLIER ( trampolines->binModeY());
+    if ( commonState.binningValid ) {
+      binMultiplier = OA_BIN_MODE_MULTIPLIER ( commonState.binModeY );
     }
     pixelSize = commonState.camera->pixelSizeY() * binMultiplier / 1000.0;
   }
@@ -451,10 +451,10 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   if ( fitsConf.subframeOriginX != "" ) {
     xorg = fitsConf.subframeOriginX.toInt();
   } else {
-    if ( trampolines->isCropMode()) {
-      xorg = ( trampolines->sensorSizeX() - trampolines->cropSizeX()) / 2;
+    if ( commonState.cropMode ) {
+      xorg = ( commonState.sensorSizeX - commonState.cropSizeX ) / 2;
     } else {
-      xorg = ( trampolines->sensorSizeX() - xSize ) / 2;
+      xorg = ( commonState.sensorSizeX - xSize ) / 2;
     }
   }
   fits_write_key_lng ( fptr, "XORGSUBF", xorg, "", &status );
@@ -462,10 +462,10 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   if ( fitsConf.subframeOriginY != "" ) {
     yorg = fitsConf.subframeOriginY.toInt();
   } else {
-    if ( trampolines->isCropMode()) {
-      yorg = ( trampolines->sensorSizeY() - trampolines->cropSizeY()) / 2;
+    if ( commonState.cropMode ) {
+      yorg = ( commonState.sensorSizeY - commonState.cropSizeY ) / 2;
     } else {
-      yorg = ( trampolines->sensorSizeY() - ySize ) / 2;
+      yorg = ( commonState.sensorSizeY - ySize ) / 2;
     }
   }
   fits_write_key_lng ( fptr, "YORGSUBF", yorg, "", &status );
@@ -481,8 +481,8 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   }
 
   stringBuff[0] = 0;
-  if ( trampolines->isGPSValid()) {
-    ( void ) sprintf ( stringBuff, "%+8.6e", trampolines->latitude());
+  if ( commonState.gpsValid ) {
+    ( void ) sprintf ( stringBuff, "%+8.6e", commonState.latitude );
   }
   if ( !stringBuff[0] && fitsConf.siteLatitude != "" ) {
     ( void ) strncpy ( stringBuff,
@@ -493,8 +493,8 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   }
 
   stringBuff[0] = 0;
-  if ( trampolines->isGPSValid()) {
-    ( void ) sprintf ( stringBuff, "%+8.6e", trampolines->longitude());
+  if ( commonState.gpsValid ) {
+    ( void ) sprintf ( stringBuff, "%+8.6e", commonState.longitude );
   }
   if ( !stringBuff[0] && fitsConf.siteLongitude != "" ) {
     ( void ) strncpy ( stringBuff,
@@ -505,10 +505,10 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   }
 
 	stringBuff[0] = 0;
-  if ( trampolines->isGPSValid()) {
-    ( void ) sprintf ( stringBuff, "%+8.6e", trampolines->altitude());
+  if ( commonState.gpsValid ) {
+    ( void ) sprintf ( stringBuff, "%+8.6e", commonState.altitude );
     fits_write_key_str ( fptr, "SITEELEV", cString, "", &status );
-    ( void ) sprintf ( stringBuff, "%g", trampolines->altitude());
+    ( void ) sprintf ( stringBuff, "%g", commonState.altitude );
     fits_write_key_str ( fptr, "ELEVATIO", cString, "", &status );
   }
 
@@ -544,15 +544,15 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     fits_write_key_lng ( fptr, "YBAYROFF", yoff, "", &status );
   }
 
-  if ( trampolines->isCameraTempValid()) {
-    fits_write_key_dbl ( fptr, "CCD-TEMP", trampolines->cameraTemp(), -5, "",
+  if ( commonState.cameraTempValid ) {
+    fits_write_key_dbl ( fptr, "CCD-TEMP", commonState.cameraTemp, -5, "",
 				&status );
   }
 
-  if ( trampolines->isBinningValid()) {
-    fits_write_key_lng ( fptr, "XBINNING", trampolines->binModeX(), "",
+  if ( commonState.binningValid ) {
+    fits_write_key_lng ( fptr, "XBINNING", commonState.binModeX, "",
 				&status );
-    fits_write_key_lng ( fptr, "YBINNING", trampolines->binModeY(), "",
+    fits_write_key_lng ( fptr, "YBINNING", commonState.binModeY, "",
 				&status );
   }
 

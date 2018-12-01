@@ -308,8 +308,8 @@ ControlsWidget::configureResolution ( void )
   }
   maxX = xRes[ lastKey ];
   maxY = yRes[ lastKey ];
-	state.sensorSizeX = maxX;
-	state.sensorSizeY = maxY;
+	commonState.sensorSizeX = maxX;
+	commonState.sensorSizeY = maxY;
 
   // There's a gotcha here for cameras that only support a single
   // resolution, as the index won't actually change, and the slot

@@ -256,104 +256,6 @@ t_isDemosaicEnabled ( void )
 }
 
 
-int
-t_isBinningValid ( void )
-{
-	return state.binningValid;
-}
-
-
-int
-t_binModeX ( void )
-{
-	return state.binModeX;
-}
-
-
-int
-t_binModeY ( void )
-{
-	return state.binModeY;
-}
-
-
-int
-t_isCropMode ( void )
-{
-	return state.cropMode;
-}
-
-
-unsigned int
-t_sensorSizeX ( void )
-{
-	return state.sensorSizeX;
-}
-
-
-unsigned int
-t_sensorSizeY ( void )
-{
-	return state.sensorSizeY;
-}
-
-
-unsigned int
-t_cropSizeX ( void )
-{
-	return state.cropSizeX;
-}
-
-
-unsigned int
-t_cropSizeY ( void )
-{
-	return state.cropSizeY;
-}
-
-
-int
-t_isGPSValid ( void )
-{
-	return state.gpsValid;
-}
-
-
-double
-t_latitude ( void )
-{
-	return state.latitude;
-}
-
-
-double
-t_longitude ( void )
-{
-	return state.longitude;
-}
-
-
-double
-t_altitude ( void )
-{
-	return state.altitude;
-}
-
-
-int
-t_isCameraTempValid ( void )
-{
-	return state.cameraTempValid;
-}
-
-
-float
-t_cameraTemp ( void )
-{
-	return state.cameraTemp;
-}
-
-
 void
 t_setTimerMode ( int mode )
 {
@@ -598,20 +500,6 @@ trampolineFuncs trampolines {
 	.setVideoFramePixelFormat = &t_setVideoFramePixelFormat,
 	.destroyLayout = &t_destroyLayout,
   .isDemosaicEnabled = &t_isDemosaicEnabled,
-  .isBinningValid = &t_isBinningValid,
-  .binModeX = &t_binModeX,
-  .binModeY = &t_binModeY,
-  .sensorSizeX = &t_sensorSizeX,
-  .sensorSizeY = &t_sensorSizeY,
-  .cropSizeX = &t_cropSizeX,
-  .cropSizeY = &t_cropSizeY,
-  .isCropMode = &t_isCropMode,
-  .isGPSValid = &t_isGPSValid,
-  .latitude = &t_latitude,
-  .longitude = &t_longitude,
-  .altitude = &t_altitude,
-  .isCameraTempValid = &t_isCameraTempValid,
-  .cameraTemp = &t_cameraTemp,
   .setTimerMode = &t_setTimerMode,
   .checkTimerWarnings = &t_checkTimerWarnings,
   .binning2x2 = &t_binning2x2,

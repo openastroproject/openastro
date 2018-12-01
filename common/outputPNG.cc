@@ -345,8 +345,8 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
         PNG_KEYWORD_MAX_LENGTH+1 );
   } else {
     int binMultiplier = 1;
-    if ( trampolines->isBinningValid()) {
-      binMultiplier = OA_BIN_MODE_MULTIPLIER ( trampolines->binModeX());
+    if ( commonState.binningValid ) {
+      binMultiplier = OA_BIN_MODE_MULTIPLIER ( commonState.binModeX );
     }
     ( void ) snprintf ( stringBuffs[ numComments ],
         PNG_KEYWORD_MAX_LENGTH, "%f", commonState.camera->pixelSizeX() *
@@ -365,8 +365,8 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
         PNG_KEYWORD_MAX_LENGTH+1 );
   } else {
     int binMultiplier = 1;
-    if ( trampolines->isBinningValid()) {
-      binMultiplier = OA_BIN_MODE_MULTIPLIER ( trampolines->binModeY());
+    if ( commonState.binningValid ) {
+      binMultiplier = OA_BIN_MODE_MULTIPLIER ( commonState.binModeY );
     }
     ( void ) snprintf ( stringBuffs[ numComments ],
         PNG_KEYWORD_MAX_LENGTH, "%f", commonState.camera->pixelSizeY() *
@@ -381,10 +381,10 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   if ( fitsConf.subframeOriginX != "" ) {
     xorg = fitsConf.subframeOriginX.toInt();
   } else {
-    if ( trampolines->isCropMode()) {
-      xorg = ( trampolines->sensorSizeX() - trampolines->cropSizeX()) / 2;
+    if ( commonState.cropMode ) {
+      xorg = ( commonState.sensorSizeX  - commonState.cropSizeX ) / 2;
     } else {
-      xorg = ( trampolines->sensorSizeX() - xSize ) / 2;
+      xorg = ( commonState.sensorSizeX  - xSize ) / 2;
     }
   }
   ( void ) snprintf ( stringBuffs[ numComments ], PNG_KEYWORD_MAX_LENGTH,
@@ -396,10 +396,10 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   if ( fitsConf.subframeOriginY != "" ) {
     yorg = fitsConf.subframeOriginY.toInt();
   } else {
-    if ( trampolines->isCropMode()) {
-      yorg = ( trampolines->sensorSizeY() - trampolines->cropSizeY()) / 2;
+    if ( commonState.cropMode ) {
+      yorg = ( commonState.sensorSizeY  - commonState.cropSizeY ) / 2;
     } else {
-      yorg = ( trampolines->sensorSizeY() - ySize ) / 2;
+      yorg = ( commonState.sensorSizeY  - ySize ) / 2;
     }
   }
   ( void ) snprintf ( stringBuffs[ numComments ], PNG_KEYWORD_MAX_LENGTH,
@@ -421,9 +421,9 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
   stringBuffs[ numComments ][0] = 0;
   pngComments[ numComments ].key = ( char* ) "SITELAT";
-  if ( trampolines->isGPSValid()) {
+  if ( commonState.gpsValid ) {
     ( void ) sprintf ( stringBuffs[ numComments ], "%g",
-		trampolines->latitude());
+		commonState.latitude );
   }
   if ( !stringBuffs[ numComments ][0] && fitsConf.siteLatitude != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
@@ -437,9 +437,9 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
   stringBuffs[ numComments ][0] = 0;
   pngComments[ numComments ].key = ( char* ) "SITELONG";
-  if ( trampolines->isGPSValid()) {
+  if ( commonState.gpsValid ) {
     ( void ) sprintf ( stringBuffs[ numComments ], "%g",
-				trampolines->longitude());
+				commonState.longitude );
   }
   if ( !stringBuffs[ numComments ][0] && fitsConf.siteLongitude != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
@@ -453,11 +453,11 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
 	stringBuffs[ numComments ][0] = 0;
   pngComments[ numComments ].key = ( char* ) "SITEELEV";
-  if ( trampolines->isGPSValid()) {
+  if ( commonState.gpsValid ) {
     ( void ) sprintf ( stringBuffs[ numComments ], "%g",
-		trampolines->altitude());
+		commonState.altitude );
     ( void ) sprintf ( stringBuffs[ numComments + 1 ], "%g",
-				trampolines->altitude());
+				commonState.altitude );
   }
   if ( stringBuffs[ numComments ][0] ) {
     pngComments[ numComments ].text = stringBuffs[ numComments ];
@@ -518,23 +518,23 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   }
 
   pngComments[ numComments ].key = ( char* ) "CCD-TEMP";
-  if ( trampolines->isCameraTempValid()) {
+  if ( commonState.cameraTempValid ) {
     ( void ) sprintf ( stringBuffs[ numComments ], "%g",
-				trampolines->cameraTemp());
+				commonState.cameraTemp );
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }
 
 
-  if ( trampolines->isBinningValid()) {
+  if ( commonState.binningValid ) {
     pngComments[ numComments ].key = ( char* ) "XBINNING";
     ( void ) sprintf ( stringBuffs[ numComments ], "%d",
-				trampolines->binModeX());
+				commonState.binModeX );
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
     pngComments[ numComments ].key = ( char* ) "YBINNING";
     ( void ) sprintf ( stringBuffs[ numComments ], "%d",
-				trampolines->binModeY());
+				commonState.binModeY );
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }

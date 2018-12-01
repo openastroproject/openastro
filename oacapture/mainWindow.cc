@@ -96,9 +96,9 @@ MainWindow::MainWindow ( QString configFile )
   state.histogramOn = 0;
   state.histogramWidget = 0;
   state.needGroupBoxBorders = 0;
-  state.cameraTempValid = 0;
-  state.gpsValid = 0;
-  state.binningValid = 0;
+  commonState.cameraTempValid = 0;
+  commonState.gpsValid = 0;
+  commonState.binningValid = 0;
 
   // The gtk+ style doesn't enable group box borders by default, which makes
   // the display look confusing.
@@ -1633,8 +1633,8 @@ MainWindow::connectCamera ( int deviceIndex )
 void
 MainWindow::disconnectCamera ( void )
 {
-  state.cameraTempValid = 0;
-  state.binningValid = 0;
+  commonState.cameraTempValid = 0;
+  commonState.binningValid = 0;
   if ( state.settingsWidget ) {
     state.settingsWidget->enableTab ( state.cameraSettingsIndex, 0 );
   }
@@ -1791,9 +1791,9 @@ MainWindow::connectTimer ( int deviceIndex )
       locationLabel = new QLabel;
       statusLine->insertPermanentWidget( position + 1, locationLabel );
     }
-    if ( commonState.timer->readGPS ( &state.latitude, &state.longitude,
-        &state.altitude, 1 ) == OA_ERR_NONE ) {
-      state.gpsValid = 1;
+    if ( commonState.timer->readGPS ( &commonState.latitude,
+				&commonState.longitude, &commonState.altitude, 1 ) == OA_ERR_NONE ) {
+      commonState.gpsValid = 1;
       setLocation();
     }
   }
@@ -1805,7 +1805,7 @@ MainWindow::connectTimer ( int deviceIndex )
 void
 MainWindow::disconnectTimer ( void )
 {
-  state.gpsValid = 0;
+  commonState.gpsValid = 0;
   doDisconnectTimer();
   statusLine->removeWidget ( locationLabel );
   statusLine->removeWidget ( timerStatus );
@@ -2910,11 +2910,11 @@ void
 MainWindow::setLocation ( void )
 {
   QString locationText = QString ( "%1%2  %3%4, %5m" ).
-		  arg ( fabs ( state.latitude ), 0, 'f', 4 ).
-			arg ( state.latitude < 0 ? 'S' : 'N' ).
-			arg ( fabs ( state.longitude ), 0, 'f', 4 ).
-			arg ( state.longitude < 0 ? 'W' : 'E' ).
-			arg ( state.altitude, 0, 'f', 0 );
+		  arg ( fabs ( commonState.latitude ), 0, 'f', 4 ).
+			arg ( commonState.latitude < 0 ? 'S' : 'N' ).
+			arg ( fabs ( commonState.longitude ), 0, 'f', 4 ).
+			arg ( commonState.longitude < 0 ? 'W' : 'E' ).
+			arg ( commonState.altitude, 0, 'f', 0 );
   locationLabel->setText ( locationText );
 }
 

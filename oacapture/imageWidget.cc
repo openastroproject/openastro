@@ -124,7 +124,7 @@ ImageWidget::ImageWidget ( QWidget* parent ) : QGroupBox ( parent )
   roiYValidator = 0;
   cropXValidator = 0;
   cropYValidator = 0;
-  state.cropMode = 0;
+  commonState.cropMode = 0;
 
   grid->addWidget ( cameraROILabel, 0, 0 );
   grid->addWidget ( userROI, 0, 1 );
@@ -222,8 +222,8 @@ ImageWidget::configure ( void )
   }
   maxX = xRes[ lastKey ];
   maxY = yRes[ lastKey ];
-  state.sensorSizeX = maxX;
-  state.sensorSizeY = maxY;
+  commonState.sensorSizeX = maxX;
+  commonState.sensorSizeY = maxY;
   SET_PROFILE_CONFIG( imageSizeX, config.imageSizeX );
   SET_PROFILE_CONFIG( imageSizeY, config.imageSizeY );
 
@@ -254,10 +254,10 @@ ImageWidget::configure ( void )
   cropXValidator->setRange ( 1, maxX );
   cropYValidator->setRange ( 1, maxY );
 
-  if ( state.cropMode ) {
-    if ( config.imageSizeX > state.cropSizeX || config.imageSizeY > state.
-        cropSizeY ) {
-      state.cropMode = 0;
+  if ( commonState.cropMode ) {
+    if ( config.imageSizeX > commonState.cropSizeX ||
+				config.imageSizeY > commonState.cropSizeY ) {
+      commonState.cropMode = 0;
       cropRegion->setChecked ( false );
     }
   }
@@ -427,10 +427,10 @@ ImageWidget::setUserROI ( void )
     userROI->setChecked ( false );
   }
 
-  if ( state.cropMode ) {
-    if ( config.imageSizeX > state.cropSizeX || config.imageSizeY > state.
-        cropSizeY ) {
-      state.cropMode = 0;
+  if ( commonState.cropMode ) {
+    if ( config.imageSizeX > commonState.cropSizeX ||
+				config.imageSizeY > commonState.cropSizeY ) {
+      commonState.cropMode = 0;
       cropRegion->setChecked ( false );
     }
   }
@@ -443,7 +443,7 @@ ImageWidget::updateFrameCrop ( void )
   if ( cropRegion->isChecked()) {
     setCropSize();
   } else {
-    state.cropMode = 0;
+    commonState.cropMode = 0;
   }
 }
 
@@ -470,12 +470,12 @@ ImageWidget::setCropSize ( void )
     y = y + ( y % 2 );
     if ( x <= config.imageSizeX && y <= config.imageSizeY ) {
       cropRegion->setChecked ( true );
-      state.cropSizeX = x;
-      state.cropSizeY = y;
-      state.cropMode = 1;
+      commonState.cropSizeX = x;
+      commonState.cropSizeY = y;
+      commonState.cropMode = 1;
     }
   } else {
-    state.cropMode = 0;
+    commonState.cropMode = 0;
     cropRegion->setChecked ( false );
   }
 }

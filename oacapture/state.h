@@ -83,23 +83,6 @@ typedef struct
   int			preferredExposureControl;
 
   QString		appPath;
-
-  int			cameraTempValid;
-  float			cameraTemp;
-  int			binningValid;
-  int			binModeX;
-  int			binModeY;
-
-  int			gpsValid;
-  double		longitude;
-  double		latitude;
-  double		altitude;
-
-  int       cropMode;
-  unsigned int  cropSizeX;
-  unsigned int  cropSizeY;
-  unsigned int  sensorSizeX;
-  unsigned int  sensorSizeY;
 } STATE;
 
 extern STATE		state;

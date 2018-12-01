@@ -111,10 +111,10 @@ MainWindow::MainWindow ( QString configFile )
   state.histogramOn = 0;
   state.histogramWidget = 0;
   state.needGroupBoxBorders = 0;
-  state.gpsValid = 0;
 #endif
-  state.cameraTempValid = 0;
-  state.binningValid = 0;
+  commonState.gpsValid = 0;
+  commonState.cameraTempValid = 0;
+  commonState.binningValid = 0;
 
 #ifdef OACAPTURE
   // The gtk+ style doesn't enable group box borders by default, which makes
@@ -1796,8 +1796,8 @@ MainWindow::disconnectCamera ( void )
     state.controlsWidget->disableAllButtons();
   }
 #endif
-  state.cameraTempValid = 0;
-  state.binningValid = 0;
+  commonState.cameraTempValid = 0;
+  commonState.binningValid = 0;
 #ifdef OACAPTURE
   if ( state.settingsWidget ) {
     state.settingsWidget->enableTab ( state.cameraSettingsIndex, 0 );
@@ -2028,8 +2028,8 @@ MainWindow::setTemperature()
   QString stringVal;
 
   temp = commonState.camera->getTemperature();
-  state.cameraTempValid = 1;
-  state.cameraTemp = temp;
+  commonState.cameraTempValid = 1;
+  commonState.cameraTemp = temp;
 
   if ( updateTemperatureLabel == 1 ) {
     if ( generalConf.tempsInC ) {

@@ -159,8 +159,8 @@ CameraWidget::setBinning ( int newState )
         config.imageSizeX *= 2;
         config.imageSizeY *= 2;
       }
-      state.binModeX = state.binModeY = 1;
-      state.binningValid = 1;
+      commonState.binModeX = commonState.binModeY = 1;
+      commonState.binningValid = 1;
     } else {
       commonState.camera->setControl ( OA_CAM_CTRL_BINNING, OA_BIN_MODE_2x2 );
       config.binning2x2 = 1;
@@ -170,8 +170,8 @@ CameraWidget::setBinning ( int newState )
         config.imageSizeX /= 2;
         config.imageSizeY /= 2;
       }
-      state.binModeX = state.binModeY = 2;
-      state.binningValid = 1;
+      commonState.binModeX = commonState.binModeY = 2;
+      commonState.binningValid = 1;
     }
     SET_PROFILE_CONFIG( binning2x2, config.binning2x2 );
     SET_PROFILE_CONFIG( imageSizeX, config.imageSizeX );
@@ -227,8 +227,8 @@ CameraWidget::setTemperature()
   QString stringVal;
 
   temp = commonState.camera->getTemperature();
-  state.cameraTempValid = 1;
-  state.cameraTemp = temp;
+  commonState.cameraTempValid = 1;
+  commonState.cameraTemp = temp;
 
   if ( updateTemperatureLabel == 1 ) {
     if ( generalConf.tempsInC ) {

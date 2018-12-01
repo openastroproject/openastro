@@ -183,14 +183,14 @@ PreviewWidget::paintEvent ( QPaintEvent* event )
   painter.drawImage ( 0, 0, image );
   pthread_mutex_unlock ( &imageMutex );
 
-  if ( state.cropMode ) {
+  if ( commonState.cropMode ) {
     int x, y, w, h;
     painter.setRenderHint ( QPainter::Antialiasing, false );
     painter.setPen ( QPen ( Qt::yellow, 2, Qt::SolidLine, Qt::FlatCap ));
-    x = ( config.imageSizeX - state.cropSizeX ) / 2 - 2;
-    y = ( config.imageSizeY - state.cropSizeY ) / 2 - 2;
-    w = state.cropSizeX + 4;
-    h = state.cropSizeY + 4;
+    x = ( config.imageSizeX - commonState.cropSizeX ) / 2 - 2;
+    y = ( config.imageSizeY - commonState.cropSizeY ) / 2 - 2;
+    w = commonState.cropSizeX + 4;
+    h = commonState.cropSizeY + 4;
     if ( currentZoom != 100 ) {
       float zoomFactor = currentZoom / 100.0;
       x *= zoomFactor;
@@ -885,7 +885,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
         self->setNewFirstFrameTime = 0;
       }
       state->lastFrameTime = now;
-      if ( state->cropMode ) {
+      if ( commonState->cropMode ) {
         if ( demosaicConf.demosaicOutput && writeDemosaicPreviewBuffer &&
             oaFrameFormats[ writePixelFormat ].rawColour ) {
           // This is a special case because as the preview buffer is no
@@ -896,10 +896,10 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
           pixelFormat = writePixelFormat;
         }
         self->inplaceCrop ( writeBuffer, config.imageSizeX, config.imageSizeY,
-            state->cropSizeX, state->cropSizeY,
+            commonState->cropSizeX, commonState->cropSizeY,
             oaFrameFormats[ pixelFormat ].bytesPerPixel );
-        actualX = state->cropSizeX;
-        actualY = state->cropSizeY;
+        actualX = commonState->cropSizeX;
+        actualY = commonState->cropSizeY;
         length = actualX * actualY *
             oaFrameFormats[ pixelFormat ].bytesPerPixel;
       }

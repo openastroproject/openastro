@@ -528,17 +528,17 @@ CaptureWidget::doStartRecording ( int autorunFlag )
 
   if ( timerConf.queryGPSForEachCapture && commonState.timer &&
 			commonState.timer->hasGPS()) {
-    if ( commonState.timer->readGPS ( &state.latitude, &state.longitude,
-        &state.altitude, 1 ) == OA_ERR_NONE ) {
-      state.gpsValid = 1;
+    if ( commonState.timer->readGPS ( &commonState.latitude,
+				&commonState.longitude, &commonState.altitude, 1 ) == OA_ERR_NONE ) {
+      commonState.gpsValid = 1;
       emit ( updateLocation());
     }
   }
 
   int actualX, actualY;
-  if ( state.cropMode ) {
-    actualX = state.cropSizeX;
-    actualY = state.cropSizeY;
+  if ( commonState.cropMode ) {
+    actualX = commonState.cropSizeX;
+    actualY = commonState.cropSizeY;
   } else {
     actualX = config.imageSizeX;
     actualY = config.imageSizeY;
@@ -1432,8 +1432,8 @@ CaptureWidget::writeSettings ( OutputHandler* out )
                   {
                     QString stringVal;
                     float temp = commonState.camera->getTemperature();
-                    state.cameraTempValid = 1;
-                    state.cameraTemp = temp;
+                    commonState.cameraTempValid = 1;
+                    commonState.cameraTemp = temp;
                     if ( !generalConf.tempsInC ) {
                       temp = temp * 9 / 5 + 32;
                     }
@@ -1491,9 +1491,9 @@ CaptureWidget::writeSettings ( OutputHandler* out )
         oaFrameFormats[ config.inputFrameFormat ].simpleName ).toStdString().
         c_str() << ")" << std::endl;
 
-    if ( state.cropMode ) {
+    if ( commonState.cropMode ) {
       settings << tr ( "Image size: " ).toStdString().c_str() <<
-          state.cropSizeX << "x" << state.cropSizeY << std::endl;
+          commonState.cropSizeX << "x" << commonState.cropSizeY << std::endl;
     } else {
       settings << tr ( "Image size: " ).toStdString().c_str() <<
           config.imageSizeX << "x" << config.imageSizeY << std::endl;
@@ -1607,13 +1607,13 @@ CaptureWidget::writeSettings ( OutputHandler* out )
       }
     }
 
-		if ( state.gpsValid ) {
+		if ( commonState.gpsValid ) {
 			settings << tr ( "Longitude: ").toStdString().c_str() <<
-				state.longitude << std::endl;
+				commonState.longitude << std::endl;
 			settings << tr ( "Latitude: ").toStdString().c_str() <<
-				state.latitude << std::endl;
+				commonState.latitude << std::endl;
 			settings << tr ( "Altitude: ").toStdString().c_str() <<
-				state.altitude << std::endl;
+				commonState.altitude << std::endl;
 		}
 	
     settings.close();
