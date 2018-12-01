@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * previewWidget.cc -- class for the preview window in the UI (and more)
+ * viewWidget.cc -- class for the preview window in the UI (and more)
  *
  * Copyright 2013,2014,2015,2016,2017,2018
  *     James Fidell (james@openastroproject.org)
@@ -44,8 +44,9 @@ extern "C" {
 #include "fitsSettings.h"
 #include "outputHandler.h"
 #include "focusOverlay.h"
-#include "state.h"
+#include "commonState.h"
 
+#include "state.h"
 #include "configuration.h"
 #ifdef OACAPTURE
 #include "previewWidget.h"
@@ -712,7 +713,8 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
 ViewWidget::addImage ( void* args, void* imageData, int length )
 #endif
 {
-  STATE*		state = ( STATE* ) args;
+	COMMON_STATE*	commonState = ( COMMON_STATE* ) args;
+  STATE*		state = ( STATE* ) commonState->localState;
 #ifdef OACAPTURE
   PreviewWidget*	self = state->previewWidget;
 #else
@@ -1147,7 +1149,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length )
     self->manualStop = 0;
   }
 
-if ( output && self->recordingInProgress ) {
+	if ( output && self->recordingInProgress ) {
     if ( config.limitEnabled ) {
       int finished = 0;
       float percentage = 0;
@@ -1290,7 +1292,7 @@ if ( output && self->recordingInProgress ) {
     output->addFrame ( viewBuffer, timestamp,
         state->cameraControls->getCurrentExposure(), comment );
   }
-  state->captureIndex++;
+  commonState->captureIndex++;
 
   self->framesInLastSecond++;
   if ( t.tv_sec != self->secondForFrameCount ) {

@@ -28,6 +28,7 @@
 #include <oa_common.h>
 
 #include "captureSettings.h"
+#include "commonState.h"
 
 // This is global.  All applications using this code share it.
 
@@ -109,5 +110,5 @@ void
 CaptureSettings::resetIndex ( void )
 {
   // FIX ME -- this might not be good in the middle of a capture run
-	trampolines->resetCaptureIndex();
+	commonState.captureIndex = 0;
 }

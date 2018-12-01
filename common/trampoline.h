@@ -63,7 +63,6 @@ typedef struct {
 	void ( *enablePNGCapture )( int );
 	void ( *setVideoFramePixelFormat )( int );
 	void ( *destroyLayout )( QLayout* );
-	void ( *resetCaptureIndex )( void );
 	int ( *isCameraInitialised )( void );
 	int ( *isCameraInitialisedStatic )( void );
 	int ( *videoFramePixelFormat )( void );

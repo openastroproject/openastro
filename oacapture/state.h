@@ -80,8 +80,6 @@ typedef struct
   QString		lastRecordedFile;
   QString		currentDirectory;
 
-  unsigned long long	captureIndex;
-
   unsigned int		needGroupBoxBorders;
 
   unsigned long		firstFrameTime;

@@ -81,8 +81,6 @@ typedef struct
   QString		lastRecordedFile;
   QString		currentDirectory;
 
-  unsigned long long		captureIndex;
-
   int			stackingMethod;
 
   int                   preferredExposureControl;

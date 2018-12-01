@@ -55,6 +55,7 @@ extern "C" {
 #endif
 #include "settingsWidget.h"
 #include "state.h"
+#include "commonState.h"
 
 CONFIG					config;
 cameraConfig		cameraConf;
@@ -84,6 +85,7 @@ MainWindow::MainWindow ( QString configFile )
   bool ok;
 #endif
 
+	commonState.localState = &state;
   userConfigFile = configFile;
   cameraSignalMapper = filterWheelSignalMapper = 0;
 #ifdef OACAPTURE
@@ -152,7 +154,7 @@ MainWindow::MainWindow ( QString configFile )
 #endif
   state.lastRecordedFile = "";
   updateTemperatureLabel = 0;
-  state.captureIndex = 0;
+  commonState.captureIndex = 0;
   state.settingsWidget = 0;
   state.advancedSettings = 0;
   colourDialog = 0;

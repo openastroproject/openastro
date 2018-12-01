@@ -48,8 +48,10 @@ extern "C" {
 #include "zoomWidget.h"
 #include "previewWidget.h"
 #include "settingsWidget.h"
-#include "state.h"
 #include "targets.h"
+
+#include "state.h"
+#include "commonState.h"
 
 CONFIG		config;
 STATE		state;
@@ -74,6 +76,7 @@ MainWindow::MainWindow ( QString configFile )
   int i;
   bool ok;
 
+	commonState.localState = &state;
   userConfigFile = configFile;
   cameraSignalMapper = filterWheelSignalMapper = 0;
   timerSignalMapper = 0;
@@ -125,7 +128,7 @@ MainWindow::MainWindow ( QString configFile )
   state.timer = new Timer ( &trampolines );
   oldHistogramState = -1;
   state.lastRecordedFile = "";
-  state.captureIndex = 0;
+  commonState.captureIndex = 0;
   state.settingsWidget = 0;
   state.advancedSettings = 0;
   colourDialog = 0;

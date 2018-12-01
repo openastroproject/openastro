@@ -248,13 +248,6 @@ t_destroyLayout ( QLayout* layout )
 }
 
 
-void
-t_resetCaptureIndex ( void )
-{
-	state.captureIndex = 0;
-}
-
-
 int
 t_isCameraInitialised ( void )
 {
@@ -740,7 +733,6 @@ trampolineFuncs trampolines {
   .enablePNGCapture = &t_enablePNGCapture,
 	.setVideoFramePixelFormat = &t_setVideoFramePixelFormat,
 	.destroyLayout = &t_destroyLayout,
-	.resetCaptureIndex = &t_resetCaptureIndex,
 	.isCameraInitialised = &t_isCameraInitialised,
 	.isCameraInitialisedStatic = &t_isCameraInitialisedStatic,
 	.videoFramePixelFormat = &t_videoFramePixelFormat,
