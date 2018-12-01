@@ -28,17 +28,20 @@
 
 #include "histogramSettings.h"
 
+// This is global.  All applications using this code share it.
+
+histogramConfig histogramConf;
 
 HistogramSettings::HistogramSettings ( QWidget* parent,
-		histogramConfig* hConf, trampolineFuncs* redirs ) : QWidget ( parent ),
-		pHistConf ( hConf ), trampolines ( redirs )
+		trampolineFuncs* redirs ) :
+		QWidget ( parent ), trampolines ( redirs )
 {
   rawRGBBox = new QCheckBox ( tr ( "Show raw colour as RGB histogram" ), this );
-  rawRGBBox->setChecked ( pHistConf->rawRGBHistogram );
+  rawRGBBox->setChecked ( histogramConf.rawRGBHistogram );
   splitBox = new QCheckBox ( tr ( "Split RGB histogram" ), this );
-  splitBox->setChecked ( pHistConf->splitHistogram );
+  splitBox->setChecked ( histogramConf.splitHistogram );
   onTopBox = new QCheckBox ( tr ( "Keep histogram window on top" ), this );
-  onTopBox->setChecked ( pHistConf->histogramOnTop );
+  onTopBox->setChecked ( histogramConf.histogramOnTop );
   box = new QVBoxLayout ( this );
   box->addWidget ( rawRGBBox );
   box->addWidget ( splitBox );
@@ -63,8 +66,8 @@ HistogramSettings::~HistogramSettings()
 void
 HistogramSettings::storeSettings ( void )
 {
-  pHistConf->splitHistogram = splitBox->isChecked() ? 1 : 0;
+  histogramConf.splitHistogram = splitBox->isChecked() ? 1 : 0;
   trampolines->updateHistogramLayout();
-  pHistConf->histogramOnTop = onTopBox->isChecked() ? 1 : 0;
-  pHistConf->rawRGBHistogram = rawRGBBox->isChecked() ? 1 : 0;
+  histogramConf.histogramOnTop = onTopBox->isChecked() ? 1 : 0;
+  histogramConf.rawRGBHistogram = rawRGBBox->isChecked() ? 1 : 0;
 }
