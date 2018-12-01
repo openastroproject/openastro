@@ -29,11 +29,12 @@
 #include "autorunSettings.h"
 #include "filterSettings.h"
 
+// This is global.  All applications using this code share it.
 
-AutorunSettings::AutorunSettings ( QWidget* parent, autorunConfig* aConf,
-		trampolineFuncs* redirs ) :
-		QWidget ( parent ), trampolines ( redirs ), parentWidget ( parent ),
-		pAutorunConf ( aConf )
+autorunConfig autorunConf;
+
+AutorunSettings::AutorunSettings ( QWidget* parent, trampolineFuncs* redirs ) :
+		QWidget ( parent ), trampolines ( redirs ), parentWidget ( parent )
 {
   filterWheelSlots = trampolines->numFilterWheelSlots();
   filterMenus.clear();
@@ -45,8 +46,8 @@ AutorunSettings::AutorunSettings ( QWidget* parent, autorunConfig* aConf,
   numRuns = new QLineEdit ( this );
   numRunsValidator = new QIntValidator ( 1, 99999, this );
   numRuns->setValidator ( numRunsValidator );
-  if ( pAutorunConf->autorunCount ) {
-    QString n = QString::number ( pAutorunConf->autorunCount );
+  if ( autorunConf.autorunCount ) {
+    QString n = QString::number ( autorunConf.autorunCount );
     numRuns->setText ( n );
   }
 
@@ -55,8 +56,8 @@ AutorunSettings::AutorunSettings ( QWidget* parent, autorunConfig* aConf,
   delay = new QLineEdit ( this );
   delayValidator = new QIntValidator ( 0, 99999, this );
   delay->setValidator ( delayValidator );
-  if ( pAutorunConf->autorunDelay ) {
-    QString n = QString::number ( pAutorunConf->autorunDelay );
+  if ( autorunConf.autorunDelay ) {
+    QString n = QString::number ( autorunConf.autorunDelay );
     delay->setText ( n );
   }
 
@@ -175,10 +176,10 @@ AutorunSettings::storeSettings ( void )
   QString filterDelayStr = filterDelay->text();
 #endif
   if ( countStr != "" ) {
-    pAutorunConf->autorunCount = countStr.toInt();
+    autorunConf.autorunCount = countStr.toInt();
   }
   if ( delayStr != "" ) {
-    pAutorunConf->autorunDelay = delayStr.toInt();
+    autorunConf.autorunDelay = delayStr.toInt();
   }
 #ifdef INTER_FILTER_DELAY
   if ( filterDelayStr != "" ) {

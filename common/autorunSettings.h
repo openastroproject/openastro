@@ -42,13 +42,14 @@ typedef struct {
 	int			autorunDelay;
 } autorunConfig;
 
+extern autorunConfig autorunConf;
 
 class AutorunSettings : public QWidget
 {
   Q_OBJECT
 
   public:
-    			AutorunSettings ( QWidget*, autorunConfig*, trampolineFuncs* );
+    			AutorunSettings ( QWidget*, trampolineFuncs* );
     			~AutorunSettings();
     void		storeSettings ( void );
     void		setSlotName ( int, const QString& );
@@ -85,7 +86,6 @@ class AutorunSettings : public QWidget
     int			filterWheelSlots;
 		trampolineFuncs*	trampolines;
 		QWidget*					parentWidget;
-		autorunConfig*		pAutorunConf;
 
     void		addFilterWidgets ( int );
 

@@ -52,7 +52,6 @@ extern "C" {
 #include "targets.h"
 
 CONFIG		config;
-autorunConfig		autorunConf;
 generalConfig		generalConf;
 cameraConfig		cameraConf;
 

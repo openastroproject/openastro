@@ -97,7 +97,7 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
 	}
 #ifdef OACAPTURE
 	if ( reqdWindows & SETTINGS_AUTORUN ) {
-    autorun = new AutorunSettings ( this, &autorunConf, trampolines );
+    autorun = new AutorunSettings ( this, trampolines );
     state.autorunSettingsIndex = tabSet->addTab ( autorun,
         QIcon ( ":/qt-icons/clicknrun.png" ), tr ( "Autorun" ));
 	}
