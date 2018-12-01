@@ -52,8 +52,6 @@ extern "C" {
 #include "targets.h"
 
 CONFIG		config;
-cameraConfig		cameraConf;
-
 STATE		state;
 
 static const char* styleGroupBoxBorders =

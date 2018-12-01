@@ -61,8 +61,6 @@ extern "C" {
 #include "previewWidget.h"
 #include "histogramWidget.h"
 
-extern cameraConfig			cameraConf;
-
 class MainWindow : public QMainWindow
 {
   Q_OBJECT

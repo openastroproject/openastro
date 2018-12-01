@@ -48,6 +48,8 @@ typedef struct {
 	int						forceInputFrameFormat;
 } cameraConfig;
 
+extern cameraConfig cameraConf;
+
 
 class CameraSettings : public QWidget
 {

@@ -61,6 +61,8 @@ CameraSettings::CameraSettings ( QWidget* parent, QWidget* top,
   memset ( controlType, 0, sizeof ( controlType ));
 }
 
+cameraConfig cameraConf;
+
 
 void
 CameraSettings::configure ( void )
