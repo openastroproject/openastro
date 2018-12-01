@@ -57,7 +57,6 @@ extern "C" {
 #include "state.h"
 
 CONFIG					config;
-generalConfig		generalConf;
 cameraConfig		cameraConf;
 STATE						state;
 

@@ -68,7 +68,7 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
 
 	if ( reqdWindows & SETTINGS_GENERAL ) {
     general = new GeneralSettings ( this, topWidget, state.viewWidget,
-				&generalConf, applicationName, 1, 1, trampolines );
+				applicationName, 1, 1, trampolines );
     state.generalSettingsIndex = tabSet->addTab ( general, 
         QIcon ( ":/qt-icons/cog.png" ), tr ( "General" ));
 	}

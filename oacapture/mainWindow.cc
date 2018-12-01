@@ -52,7 +52,6 @@ extern "C" {
 #include "targets.h"
 
 CONFIG		config;
-generalConfig		generalConf;
 cameraConfig		cameraConf;
 
 STATE		state;
