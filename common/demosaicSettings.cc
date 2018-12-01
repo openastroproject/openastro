@@ -32,6 +32,7 @@ extern "C" {
 #include <openastro/video/formats.h>
 }
 
+#include "commonState.h"
 #include "trampoline.h"
 #include "captureSettings.h"
 #include "demosaicSettings.h"
@@ -227,8 +228,8 @@ DemosaicSettings::storeSettings ( void )
   }
   demosaicConf.monoIsRawColour = monoAsRaw->isChecked() ? 1 : 0;
 
-  if ( trampolines->isCameraInitialised()) {
-    int format = trampolines->videoFramePixelFormat();
+  if ( commonState.camera->isInitialised()) {
+    int format = commonState.camera->videoFramePixelFormat();
 		int enabled = trampolines->isDemosaicEnabled();
     trampolines->setVideoFramePixelFormat ( format );
 		if ( demosaicOpts ) {

@@ -26,6 +26,7 @@
 
 #include <oa_common.h>
 
+#include "commonState.h"
 #include "autorunSettings.h"
 #include "filterSettings.h"
 
@@ -36,7 +37,10 @@ autorunConfig autorunConf;
 AutorunSettings::AutorunSettings ( QWidget* parent, trampolineFuncs* redirs ) :
 		QWidget ( parent ), trampolines ( redirs ), parentWidget ( parent )
 {
-  filterWheelSlots = trampolines->numFilterWheelSlots();
+  filterWheelSlots = 0;
+	if ( commonState.filterWheel && commonState.filterWheel->isInitialised()) {
+		filterWheelSlots = commonState.filterWheel->numSlots();
+	}
   filterMenus.clear();
   filterContainers.clear();
   removeButtons.clear();
@@ -216,7 +220,7 @@ AutorunSettings::addFilterWidgets ( int inCtor )
       "", this );
   QHBoxLayout *hb = new QHBoxLayout();
 
-  if ( trampolines->isFilterWheelInitialised()) {
+  if ( commonState.filterWheel && commonState.filterWheel->isInitialised()) {
     for ( int j = 0; j < filterWheelSlots; j++ ) {
       QString filterName;
       // can't call via settingsWidget if we're in the constructor because

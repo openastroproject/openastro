@@ -250,27 +250,6 @@ t_destroyLayout ( QLayout* layout )
 
 
 int
-t_isCameraInitialised ( void )
-{
-	return commonState.camera->isInitialised();
-}
-
-
-int
-t_isCameraInitialisedStatic ( void )
-{
-  return commonState.camera->Camera::isInitialised();
-}
-
-
-int
-t_videoFramePixelFormat ( void )
-{
-	return commonState.camera->videoFramePixelFormat();
-}
-
-
-int
 t_isDemosaicEnabled ( void )
 {
   return config.demosaic;
@@ -295,20 +274,6 @@ int
 t_binModeY ( void )
 {
 	return state.binModeY;
-}
-
-
-int
-t_pixelSizeX ( void )
-{
-	return commonState.camera->pixelSizeX();
-}
-
-
-int
-t_pixelSizeY ( void )
-{
-	return commonState.camera->pixelSizeY();
 }
 
 
@@ -393,27 +358,6 @@ void
 t_setTimerMode ( int mode )
 {
 	timerConf.timerMode = mode;
-}
-
-
-int
-t_isTimerInitialised ( void )
-{
-	return ( commonState.timer && commonState.timer->isInitialised() ? 1 : 0 );
-}
-
-
-int
-t_timerHasReset ( void )
-{
-	return commonState.timer->hasReset();
-}
-
-
-int
-t_timerHasSync ( void )
-{
-	return commonState.timer->hasSync();
 }
 
 
@@ -596,20 +540,6 @@ t_timerDeviceConfig ( int interfaceType )
 
 
 void
-t_updateFilterWheelSearchFilters ( int interfaceType )
-{
-  commonState.filterWheel->updateSearchFilters ( interfaceType );
-}
-
-
-void
-t_updateTimerSearchFilters ( int interfaceType )
-{
-  commonState.timer->updateSearchFilters ( interfaceType );
-}
-
-
-void
 t_updateConfig ( void )
 {
   state.mainWindow->updateConfig();
@@ -623,16 +553,6 @@ t_showStatusMessage ( QString msg )
 }
 
 
-int
-t_numFilterWheelSlots ( void )
-{
-  if ( commonState.filterWheel && commonState.filterWheel->isInitialised()) {
-    return commonState.filterWheel->numSlots();
-  }
-  return 0;
-}
-
-
 void
 t_propagateNewSlotName ( int slotIndex, QString filterName )
 {
@@ -640,68 +560,10 @@ t_propagateNewSlotName ( int slotIndex, QString filterName )
 }
 
 
-int
-t_isFilterWheelInitialised ( void )
-{
-  return ( commonState.filterWheel &&
-			commonState.filterWheel->isInitialised()) ? 1 : 0;
-}
-
-
 QString
 t_slotFilterName ( int slot )
 {
 	return state.settingsWidget->getSlotFilterName ( slot );
-}
-
-
-int
-t_cameraHasControl ( int c )
-{
-  return commonState.camera->hasControl ( c );
-}
-
-
-void
-t_cameraControlRange ( int control, int64_t* min, int64_t* max,
-    int64_t* step, int64_t* def )
-{
-  commonState.camera->controlRange ( control, min, max, step, def );
-}
-
-
-void
-t_cameraControlDiscreteSet ( int control, int32_t* num, int64_t** vals )
-{
-  commonState.camera->controlDiscreteSet ( control, num, vals );
-}
-
-
-void
-t_setCameraControl ( int control, int64_t val )
-{
-	commonState.camera->setControl ( control, val );
-}
-
-
-const char*
-t_cameraMenuString ( int c, int v )
-{
-	commonState.camera->getMenuString ( c, v );
-}
-
-
-int64_t
-t_cameraReadControl ( int c )
-{
-	commonState.camera->readControl ( c );
-}
-
-
-int
-t_hasFrameRateSupport ( void )
-{
-	commonState.camera->hasFrameRateSupport();
 }
 
 
@@ -735,15 +597,10 @@ trampolineFuncs trampolines {
   .enablePNGCapture = &t_enablePNGCapture,
 	.setVideoFramePixelFormat = &t_setVideoFramePixelFormat,
 	.destroyLayout = &t_destroyLayout,
-	.isCameraInitialised = &t_isCameraInitialised,
-	.isCameraInitialisedStatic = &t_isCameraInitialisedStatic,
-	.videoFramePixelFormat = &t_videoFramePixelFormat,
   .isDemosaicEnabled = &t_isDemosaicEnabled,
   .isBinningValid = &t_isBinningValid,
   .binModeX = &t_binModeX,
   .binModeY = &t_binModeY,
-  .pixelSizeX = &t_pixelSizeX,
-  .pixelSizeY = &t_pixelSizeY,
   .sensorSizeX = &t_sensorSizeX,
   .sensorSizeY = &t_sensorSizeY,
   .cropSizeX = &t_cropSizeX,
@@ -756,9 +613,6 @@ trampolineFuncs trampolines {
   .isCameraTempValid = &t_isCameraTempValid,
   .cameraTemp = &t_cameraTemp,
   .setTimerMode = &t_setTimerMode,
-  .isTimerInitialised = &t_isTimerInitialised,
-  .timerHasReset = &t_timerHasReset,
-  .timerHasSync = &t_timerHasSync,
   .checkTimerWarnings = &t_checkTimerWarnings,
   .binning2x2 = &t_binning2x2,
   .colourise = &t_colourise,
@@ -781,19 +635,8 @@ trampolineFuncs trampolines {
 	.currentDirectory = &t_currentDirectory,
 	.filterWheelDeviceConfig = &t_filterWheelDeviceConfig,
 	.timerDeviceConfig = &t_timerDeviceConfig,
-  .updateFilterWheelSearchFilters = &t_updateFilterWheelSearchFilters,
-  .updateTimerSearchFilters = &t_updateTimerSearchFilters,
   .updateConfig = &t_updateConfig,
   .showStatusMessage = &t_showStatusMessage,
-	.numFilterWheelSlots = &t_numFilterWheelSlots,
 	.propagateNewSlotName = &t_propagateNewSlotName,
-	.isFilterWheelInitialised = &t_isFilterWheelInitialised,
-	.slotFilterName = &t_slotFilterName,
-	.cameraHasControl = &t_cameraHasControl,
-	.cameraControlRange = &t_cameraControlRange,
-	.cameraControlDiscreteSet = &t_cameraControlDiscreteSet,
-	.setCameraControl = &t_setCameraControl,
-	.cameraMenuString = &t_cameraMenuString,
-	.cameraReadControl = &t_cameraReadControl,
-	.hasFrameRateSupport = &t_hasFrameRateSupport
+	.slotFilterName = &t_slotFilterName
 };

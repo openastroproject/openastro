@@ -41,6 +41,7 @@ extern "C" {
 #include <openastro/video/formats.h>
 }
 
+#include "commonState.h"
 #include "targets.h"
 #include "trampoline.h"
 #include "outputHandler.h"
@@ -427,7 +428,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     if ( trampolines->isBinningValid()) {
       binMultiplier = OA_BIN_MODE_MULTIPLIER ( trampolines->binModeX());
     }
-    pixelSize = trampolines->pixelSizeX() * binMultiplier / 1000.0;
+    pixelSize = commonState.camera->pixelSizeX() * binMultiplier / 1000.0;
   }
   if ( pixelSize ) {
     fits_write_key_dbl ( fptr, "XPIXSZ", pixelSize, -5, "", &status );
@@ -440,7 +441,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     if ( trampolines->isBinningValid()) {
       binMultiplier = OA_BIN_MODE_MULTIPLIER ( trampolines->binModeY());
     }
-    pixelSize = trampolines->pixelSizeY() * binMultiplier / 1000.0;
+    pixelSize = commonState.camera->pixelSizeY() * binMultiplier / 1000.0;
   }
   if ( pixelSize ) {
     fits_write_key_dbl ( fptr, "YPIXSZ", pixelSize, -5, "", &status );

@@ -33,6 +33,7 @@ extern "C" {
 #include <openastro/filterwheel.h>
 }
 
+#include "commonState.h"
 #include "trampoline.h"
 #include "captureSettings.h"
 #include "filterSettings.h"
@@ -45,7 +46,10 @@ filterConfig filterConf;
 FilterSettings::FilterSettings ( QWidget* parent, trampolineFuncs* redirs ) :
 		QWidget ( parent ), trampolines ( redirs )
 {
-  filterWheelSlots = trampolines->numFilterWheelSlots();
+  filterWheelSlots = 0;
+	if ( commonState.filterWheel && commonState.filterWheel->isInitialised()) {
+		filterWheelSlots = commonState.filterWheel->numSlots();
+	}
   list = new QListWidget ( this );
   if ( filterConf.numFilters ) {
     for ( int i = 0; i < filterConf.numFilters; i++ ) {

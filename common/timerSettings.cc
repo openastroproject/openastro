@@ -31,6 +31,7 @@ extern "C" {
 #include <openastro/timer.h>
 }
 
+#include "commonState.h"
 #include "timerSettings.h"
 
 // This is global.  All applications using this code share it.
@@ -60,11 +61,11 @@ TimerSettings::TimerSettings ( QWidget* parent, QString appName,
   modeButtons->addButton ( strobeModeButton );
   modeButtons->addButton ( triggerModeButton );
 
-  if ( trampolines->isTimerInitialised()) {
-    if ( trampolines->timerHasReset()) {
+  if ( commonState.timer && commonState.timer->isInitialised()) {
+    if ( commonState.timer->hasReset()) {
       resetButton = new QPushButton ( tr ( "Reset Timer" ), this );
     }
-    if ( trampolines->timerHasSync()) {
+    if ( commonState.timer->hasSync()) {
       syncButton = new QPushButton ( tr ( "Resync Timer" ), this );
     }
   }
@@ -193,7 +194,7 @@ TimerSettings::storeSettings ( void )
       triggerModeButton->isChecked() ? OA_TIMER_MODE_TRIGGER :
       OA_TIMER_MODE_UNSET;
   if (( timerConf.timerEnabled = timerEnableBox->isChecked() ? 1 : 0 )) {
-    if ( trampolines->isTimerInitialised()) {
+		if ( commonState.timer && commonState.timer->isInitialised()) {
 			trampolines->checkTimerWarnings();
     }
   }

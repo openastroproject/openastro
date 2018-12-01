@@ -63,15 +63,10 @@ typedef struct {
 	void ( *enablePNGCapture )( int );
 	void ( *setVideoFramePixelFormat )( int );
 	void ( *destroyLayout )( QLayout* );
-	int ( *isCameraInitialised )( void );
-	int ( *isCameraInitialisedStatic )( void );
-	int ( *videoFramePixelFormat )( void );
 	int ( *isDemosaicEnabled )( void );
 	int ( *isBinningValid )( void );
 	int ( *binModeX )( void );
 	int ( *binModeY )( void );
-	int ( *pixelSizeX )( void );
-	int ( *pixelSizeY )( void );
 	unsigned int ( *sensorSizeX )( void );
 	unsigned int ( *sensorSizeY )( void );
 	unsigned int ( *cropSizeX )( void );
@@ -84,9 +79,6 @@ typedef struct {
 	int ( *isCameraTempValid )( void );
 	float ( *cameraTemp )( void );
 	void ( *setTimerMode )( int );
-	int ( *isTimerInitialised )( void );
-	int ( *timerHasReset )( void );
-	int ( *timerHasSync )( void );
 	void ( *checkTimerWarnings )( void );
 	int ( *binning2x2 )( void );
 	int ( *colourise )( void );
@@ -109,21 +101,10 @@ typedef struct {
 	QString ( *currentDirectory )( void );
 	QList<userDeviceConfig> ( *filterWheelDeviceConfig )( int );
 	QList<userDeviceConfig> ( *timerDeviceConfig )( int );
-	void ( *updateFilterWheelSearchFilters ) ( int );
-	void ( *updateTimerSearchFilters ) ( int );
 	void ( *updateConfig ) ( void );
 	void ( *showStatusMessage ) ( QString );
-	int ( *numFilterWheelSlots )( void );
 	void ( *propagateNewSlotName )( int, QString );
-	int ( *isFilterWheelInitialised )( void );
 	QString ( *slotFilterName )( int );
-	int ( *cameraHasControl )( int );
-	void ( *cameraControlRange )( int, int64_t*, int64_t*, int64_t*, int64_t* );
-	void ( *cameraControlDiscreteSet )( int, int32_t*, int64_t** );
-	void ( *setCameraControl )( int, int64_t );
-	const char* ( *cameraMenuString )( int, int );
-	int64_t ( *cameraReadControl )( int );
-	int ( *hasFrameRateSupport )( void );
 } trampolineFuncs;
 
 extern trampolineFuncs trampolines;

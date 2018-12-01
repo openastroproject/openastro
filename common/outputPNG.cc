@@ -34,6 +34,7 @@ extern "C" {
 #include <openastro/video/formats.h>
 };
 
+#include "commonState.h"
 #include "targets.h"
 #include "trampoline.h"
 #include "outputHandler.h"
@@ -348,7 +349,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
       binMultiplier = OA_BIN_MODE_MULTIPLIER ( trampolines->binModeX());
     }
     ( void ) snprintf ( stringBuffs[ numComments ],
-        PNG_KEYWORD_MAX_LENGTH, "%f", trampolines->pixelSizeX() *
+        PNG_KEYWORD_MAX_LENGTH, "%f", commonState.camera->pixelSizeX() *
         binMultiplier / 1000.0 );
   }
   if ( stringBuffs[ numComments ][0] ) {
@@ -368,7 +369,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
       binMultiplier = OA_BIN_MODE_MULTIPLIER ( trampolines->binModeY());
     }
     ( void ) snprintf ( stringBuffs[ numComments ],
-        PNG_KEYWORD_MAX_LENGTH, "%f", trampolines->pixelSizeY() *
+        PNG_KEYWORD_MAX_LENGTH, "%f", commonState.camera->pixelSizeY() *
         binMultiplier / 1000.0 );
   }
   if ( stringBuffs[ numComments ][0] ) {

@@ -35,6 +35,7 @@ extern "C" {
 #include <QtCore>
 #include <QtGui>
 
+#include "commonState.h"
 #include "cameraSettings.h"
 #include "profileSettings.h"
 
@@ -104,8 +105,8 @@ CameraSettings::configure ( void )
         continue;
       }
 
-      if ( trampolines->isCameraInitialisedStatic()) {
-        controlType[mod][baseVal] = trampolines->cameraHasControl ( c );
+      if ( commonState.camera->Camera::isInitialised()) {
+        controlType[mod][baseVal] = commonState.camera->hasControl ( c );
 
         if ( controlType[mod][baseVal] ) {
 
@@ -188,13 +189,13 @@ CameraSettings::configure ( void )
               int64_t min, max, step, def;
               controlLabel[mod][baseVal] = new QLabel ( tr (
                   oaCameraControlLabel[baseVal] ));
-              trampolines->cameraControlRange ( c, &min, &max, &step, &def );
+              commonState.camera->controlRange ( c, &min, &max, &step, &def );
               if ( 1 == step && 0 == min ) {
                 numMenus++;
                 controlMenu[mod][baseVal] = new QComboBox ( this );
                 for ( int i = min; i <= max; i += step ) {
                   controlMenu[mod][baseVal]->addItem ( tr (
-                      trampolines->cameraMenuString ( c, i )));
+                      commonState.camera->getMenuString ( c, i )));
                 }
                 controlMenu[mod][baseVal]->setCurrentIndex (
                     pCameraConf->CONTROL_VALUE(c));
@@ -217,12 +218,12 @@ CameraSettings::configure ( void )
               int64_t *values;
               controlLabel[mod][baseVal] = new QLabel ( tr (
                   oaCameraControlLabel[baseVal] ));
-              trampolines->cameraControlDiscreteSet ( c, &count, &values );
+              commonState.camera->controlDiscreteSet ( c, &count, &values );
               numMenus++;
               controlMenu[mod][baseVal] = new QComboBox ( this );
               for ( int i = 0; i < count; i++ ) {
                 controlMenu[mod][baseVal]->addItem ( tr (
-                    trampolines->cameraMenuString ( c, values[i] )));
+                    commonState.camera->getMenuString ( c, values[i] )));
                 controlMenu[mod][baseVal]->setCurrentIndex (
                     pCameraConf->CONTROL_VALUE(c));
                 menuSignalMapper->setMapping ( controlMenu[mod][baseVal], c );
@@ -272,8 +273,8 @@ CameraSettings::configure ( void )
   connect ( menuSignalMapper, SIGNAL( mapped ( int )), this,
       SLOT ( menuChanged ( int )));
 
-  if ( trampolines->isCameraInitialised() &&
-			trampolines->hasFrameRateSupport()) {
+  if ( commonState.camera->isInitialised() &&
+			commonState.camera->hasFrameRateSupport()) {
     frameRateSlider = new QSlider ( Qt::Horizontal, this );
     frameRateLabel = new QLabel ( tr ( "Framerate (fps)" ), this );
     frameRateMenu = new QComboBox ( this );
@@ -374,8 +375,8 @@ CameraSettings::configure ( void )
     }
   }
 
-  if ( trampolines->isCameraInitialised() &&
-			trampolines->hasFrameRateSupport()) {
+  if ( commonState.camera->isInitialised() &&
+			commonState.camera->hasFrameRateSupport()) {
     sliderGrid->addWidget ( frameRateLabel, row, col++ );
     col++;
     col++;
@@ -447,7 +448,7 @@ CameraSettings::configure ( void )
       c = baseVal | ( mod ? OA_CAM_CTRL_MODIFIER_AUTO_MASK : 0 );
       if ( OA_CTRL_TYPE_MENU == controlType[mod][baseVal] ) {
         int64_t min, max, step, def;
-        trampolines->cameraControlRange ( c, &min, &max, &step, &def );
+        commonState.camera->controlRange ( c, &min, &max, &step, &def );
         if ( 1 == step && 0 == min ) {
           menuGrid->addWidget ( controlLabel[mod][baseVal], row, col++,
               Qt::AlignRight );
@@ -660,7 +661,7 @@ CameraSettings::buttonPushed ( int control )
   int c, v, baseVal, mod;
 
   if ( control > 0 ) {
-    trampolines->setCameraControl ( control, 1 );
+    commonState.camera->setControl ( control, 1 );
     if ( control == OA_CAM_CTRL_RESTORE_USER ||
         control == OA_CAM_CTRL_RESTORE_FACTORY ) {
 
@@ -670,7 +671,7 @@ CameraSettings::buttonPushed ( int control )
           switch ( controlType[mod][baseVal] ) {
 
             case OA_CTRL_TYPE_BOOLEAN:
-              v = trampolines->cameraReadControl ( c );
+              commonState.camera->readControl ( c );
               pCameraConf->CONTROL_VALUE(c) = v;
               SET_PROFILE_CONTROL( c, v );
               controlCheckbox[mod][baseVal]->setChecked ( v );
@@ -678,14 +679,14 @@ CameraSettings::buttonPushed ( int control )
 
             case OA_CTRL_TYPE_INT32:
             case OA_CTRL_TYPE_INT64:
-              v = trampolines->cameraReadControl ( c );
+              commonState.camera->readControl ( c );
               pCameraConf->CONTROL_VALUE(c) = v;
               SET_PROFILE_CONTROL( c, v );
               controlSpinbox[mod][baseVal]->setValue ( v );
               break;
 
             case OA_CTRL_TYPE_MENU:
-              v = trampolines->cameraReadControl ( c );
+              commonState.camera->readControl ( c );
               pCameraConf->CONTROL_VALUE(c) = v;
               SET_PROFILE_CONTROL( c, v );
               controlMenu[mod][baseVal]->setCurrentIndex ( v );
@@ -718,7 +719,7 @@ CameraSettings::buttonPushed ( int control )
         switch ( controlType[mod][baseVal] ) {
 
           case OA_CTRL_TYPE_BOOLEAN:
-            trampolines->cameraControlRange ( c, &min, &max, &step, &def );
+            commonState.camera->controlRange ( c, &min, &max, &step, &def );
             controlCheckbox[mod][baseVal]->setChecked ( def );
             pCameraConf->CONTROL_VALUE(c) = def;
             SET_PROFILE_CONTROL( c, def );
@@ -726,14 +727,14 @@ CameraSettings::buttonPushed ( int control )
 
           case OA_CTRL_TYPE_INT32:
           case OA_CTRL_TYPE_INT64:
-            trampolines->cameraControlRange ( c, &min, &max, &step, &def );
+            commonState.camera->controlRange ( c, &min, &max, &step, &def );
             controlSpinbox[mod][baseVal]->setValue ( def );
             pCameraConf->CONTROL_VALUE(c) = def;
             SET_PROFILE_CONTROL( c, def );
             break;
 
           case OA_CTRL_TYPE_MENU:
-            trampolines->cameraControlRange ( c, &min, &max, &step, &def );
+            commonState.camera->controlRange ( c, &min, &max, &step, &def );
             controlMenu[mod][baseVal]->setCurrentIndex ( def );
             pCameraConf->CONTROL_VALUE(c) = def;
             SET_PROFILE_CONTROL( c, def );
@@ -822,7 +823,7 @@ CameraSettings::menuChanged ( int control )
   if ( controlType [ mod ][ baseVal ] == OA_CTRL_TYPE_DISC_MENU ) {
     int32_t count;
     int64_t *values;
-    trampolines->cameraControlDiscreteSet ( control, &count, &values );
+    commonState.camera->controlDiscreteSet ( control, &count, &values );
     if ( value < count ) {
       value = values[value];
     } else {
@@ -830,7 +831,7 @@ CameraSettings::menuChanged ( int control )
       return;
     }
   }
-  trampolines->setCameraControl ( control, value );
+  commonState.camera->setControl ( control, value );
 }
 
 

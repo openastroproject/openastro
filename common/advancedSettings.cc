@@ -34,6 +34,7 @@ extern "C" {
 #include <openastro/userConfig.h>
 }
 
+#include "commonState.h"
 #include "captureSettings.h"
 #include "advancedSettings.h"
 #include "fitsSettings.h"
@@ -451,7 +452,7 @@ AdvancedSettings::saveFilters ( void )
               editedList.takeFirst());
         }
       }
-      trampolines->updateFilterWheelSearchFilters ( interfaceType );
+      commonState.filterWheel->updateSearchFilters ( interfaceType );
       break;
 
     case OA_DEVICE_PTR:
@@ -462,7 +463,7 @@ AdvancedSettings::saveFilters ( void )
               editedList.takeFirst());
         }
       }
-      trampolines->updateTimerSearchFilters(0);
+      commonState.timer->updateSearchFilters(0);
       break;
 
     default:
