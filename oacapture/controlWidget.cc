@@ -32,6 +32,8 @@ extern "C" {
 #include <openastro/camera.h>
 }
 
+#include "commonState.h"
+
 #include "configuration.h"
 #include "controlWidget.h"
 #include "state.h"
@@ -352,10 +354,10 @@ ControlWidget::configure ( void )
   // here.
 
   state.preferredExposureControl = 0;
-  if ( state.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
+  if ( commonState.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
     state.preferredExposureControl = OA_CAM_CTRL_EXPOSURE_ABSOLUTE;
   } else {
-    if ( state.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_UNSCALED )) {
+    if ( commonState.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_UNSCALED )) {
       state.preferredExposureControl = OA_CAM_CTRL_EXPOSURE_UNSCALED;
     }
   }
@@ -369,7 +371,7 @@ ControlWidget::configure ( void )
   type = 0;
   if ( config.selectableControl[0] >= 0 && config.selectableControl[0] !=
       state.preferredExposureControl ) {
-    type = state.camera->hasControl ( config.selectableControl[0]);
+    type = commonState.camera->hasControl ( config.selectableControl[0]);
   }
   if ( type != OA_CTRL_TYPE_INT32 && type != OA_CTRL_TYPE_INT64 ) {
     // we can't allow this one
@@ -385,7 +387,7 @@ ControlWidget::configure ( void )
   type = 0;
   if ( config.selectableControl[1] >= 0 && config.selectableControl[1] !=
       state.preferredExposureControl ) {
-    type = state.camera->hasControl ( config.selectableControl[1]);
+    type = commonState.camera->hasControl ( config.selectableControl[1]);
   }
   if ( type != OA_CTRL_TYPE_INT32 && type != OA_CTRL_TYPE_INT64 ) {
     // we can't allow this one
@@ -402,7 +404,7 @@ ControlWidget::configure ( void )
     // the index of this control in each of the drop-downs
     selectableControlIndexes[0][ c ] = selectableControlIndexes[1][ c ] = -1;
     if ( c != OA_CAM_CTRL_GAIN && c != state.preferredExposureControl ) {
-      type = state.camera->hasControl ( c );
+      type = commonState.camera->hasControl ( c );
       if ( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) {
         if ( replaceSelectable1 <= 0 ) {
           if ( replaceSelectable1 == 0 && c == config.selectableControl[0] ) {
@@ -435,7 +437,7 @@ ControlWidget::configure ( void )
           c2++;
         }
 
-        state.camera->controlRange ( c, &min, &max, &step, &def );
+        commonState.camera->controlRange ( c, &min, &max, &step, &def );
         selectableControlSlider[ c ]->setRange ( min, max );
         selectableControlSlider[ c ]->setSingleStep ( step );
         selectableControlSlider[ c ]->setValue (
@@ -459,7 +461,7 @@ ControlWidget::configure ( void )
     selectableControlMenu[0]->show();
     autoctrl = oaGetAutoForControl ( config.selectableControl[0] );
     if ( selectableControlCheckbox[ config.selectableControl[0]] &&
-        autoctrl >= 0 && state.camera->hasControl ( autoctrl ) ==
+        autoctrl >= 0 && commonState.camera->hasControl ( autoctrl ) ==
         OA_CTRL_TYPE_BOOLEAN ) {
       grid->addWidget (
           selectableControlCheckbox[ config.selectableControl[0]], 2, 1 );
@@ -480,7 +482,7 @@ ControlWidget::configure ( void )
     selectableControlMenu[1]->show();
     autoctrl = oaGetAutoForControl ( config.selectableControl[1] );
     if ( selectableControlCheckbox[ config.selectableControl[1]] &&
-        autoctrl >= 0 && state.camera->hasControl ( autoctrl ) ==
+        autoctrl >= 0 && commonState.camera->hasControl ( autoctrl ) ==
         OA_CTRL_TYPE_BOOLEAN ) {
       grid->addWidget (
           selectableControlCheckbox[ config.selectableControl[1]], 3, 1 );
@@ -523,8 +525,8 @@ ControlWidget::configure ( void )
       int32_t autoControl;
       if (( autoControl = oaGetAutoForControl ( config.selectableControl[i]))) {
         if ( selectableControlCheckbox[ config.selectableControl[i]] &&
-            autoControl >= 0 && state.camera->hasControl ( autoControl ) ==
-            OA_CTRL_TYPE_BOOLEAN ) { // FIX ME -- what if this is not boolean?
+            autoControl >= 0 && commonState.camera->hasControl (
+							autoControl ) == OA_CTRL_TYPE_BOOLEAN ) { // FIX ME -- what if this is not boolean?
           uint32_t value = cameraConf.CONTROL_VALUE( autoControl );
           selectableControlCheckbox[ config.selectableControl[i]]->
               setChecked ( value );
@@ -543,10 +545,11 @@ ControlWidget::configure ( void )
 
   ignoreSelectableControlChanges = 0;
 
-  type = state.camera->hasControl ( OA_CAM_CTRL_GAIN );
+  type = commonState.camera->hasControl ( OA_CAM_CTRL_GAIN );
   if ( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) {
     ignoreGainChanges = 1;
-    state.camera->controlRange ( OA_CAM_CTRL_GAIN, &min, &max, &step, &def );
+    commonState.camera->controlRange ( OA_CAM_CTRL_GAIN,
+				&min, &max, &step, &def );
     // This used to be set by calling camera::readControl ( OA_CAM_CTRL_GAIN )
     // but that doesn't always work if the camera isn't running, so instead
     // we just set it to 50%
@@ -562,7 +565,7 @@ ControlWidget::configure ( void )
         cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN ));
     selectableControlSlider[ OA_CAM_CTRL_GAIN ]->show();
     selectableControlSpinbox[ OA_CAM_CTRL_GAIN ]->show();
-    if ( state.camera->hasControl (
+    if ( commonState.camera->hasControl (
         OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_GAIN )) == OA_CTRL_TYPE_BOOLEAN ) {
       selectableControlCheckbox[ OA_CAM_CTRL_GAIN ]->show();
     }
@@ -584,8 +587,8 @@ ControlWidget::configure ( void )
 
   if ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE == state.preferredExposureControl ) {
     // FIX ME -- what if the type of this control is not INT32 or INT64 ?
-    state.camera->controlRange ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE, &min, &max,
-      &step, &def );
+    commonState.camera->controlRange ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE,
+				&min, &max, &step, &def );
     usingAbsoluteExposure = 1;
 
     prevOption = config.intervalMenuOption;
@@ -652,7 +655,7 @@ ControlWidget::configure ( void )
     intervalSizeMenu->setEnabled ( 1 );
     intervalSizeMenu->show();
 
-    // setting = state.camera->readControl (
+    // setting = commonState.camera->readControl (
     //     OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) / 1000;
     setting = cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
     setting *= intervalMultipliers[ prevOption ];
@@ -716,9 +719,9 @@ ControlWidget::configure ( void )
     if ( OA_CAM_CTRL_EXPOSURE_UNSCALED == state.preferredExposureControl ) {
       // FIX ME -- what if the type of this control is not INT32 or INT64 ?
       usingAbsoluteExposure = 0;
-      state.camera->controlRange ( OA_CAM_CTRL_EXPOSURE_UNSCALED, &min, &max,
-          &step, &def );
-      // setting = state.camera->readControl ( OA_CAM_CTRL_EXPOSURE );
+      commonState.camera->controlRange ( OA_CAM_CTRL_EXPOSURE_UNSCALED,
+					&min, &max, &step, &def );
+      // setting = commonState.camera->readControl ( OA_CAM_CTRL_EXPOSURE );
       // cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) = setting;
       setting = cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED );
       if ( setting < min ) {
@@ -825,11 +828,11 @@ ControlWidget::configure ( void )
   grid->removeItem ( grid->itemAtPosition ( 5, 1 ));
   // FIX ME -- Should handle auto exposure options that aren't just
   // boolean
-  if ( state.camera->hasControl (
+  if ( commonState.camera->hasControl (
       OA_CAM_CTRL_MODE_AUTO( state.preferredExposureControl )) ==
           OA_CTRL_TYPE_BOOLEAN ) {
     // FIX ME -- what if there is no non-auto control?  Issue #131
-    if ( state.camera->hasControl ( state.preferredExposureControl )) {
+    if ( commonState.camera->hasControl ( state.preferredExposureControl )) {
       grid->addWidget (
           selectableControlCheckbox[ state.preferredExposureControl ], 5, 1 );
       selectableControlCheckbox[ state.preferredExposureControl ]->show();
@@ -838,7 +841,7 @@ ControlWidget::configure ( void )
 
   updateFrameRates();
 
-  if ( !state.camera->hasFrameRateSupport()) {
+  if ( !commonState.camera->hasFrameRateSupport()) {
     if ( usingAbsoluteExposure ) {
       theoreticalFPSNumerator =
           cameraConf.CONTROL_VALUE ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
@@ -866,25 +869,25 @@ ControlWidget::configure ( void )
 void
 ControlWidget::updateFrameRates ( void )
 {
-  if ( !state.camera->isInitialised()) {
+  if ( !commonState.camera->isInitialised()) {
     return;
   }
-  if ( !state.camera->hasFrameRateSupport()) {
+  if ( !commonState.camera->hasFrameRateSupport()) {
     framerateLabel->hide();
     framerateSlider->hide();
     framerateMenu->hide();
     return;
   }
 
-  if ( state.camera->hasFixedFrameRates ( config.imageSizeX,
+  if ( commonState.camera->hasFixedFrameRates ( config.imageSizeX,
       config.imageSizeY )) {
 
     // Ugly sorting of the frame rates here.  We don't know what
     // order we'll get them in so we have to sort them into rate
     // order for the slider to work.
 
-    const FRAMERATES* rates = state.camera->frameRates ( config.imageSizeX,
-        config.imageSizeY );
+    const FRAMERATES* rates = commonState.camera->frameRates (
+				config.imageSizeX, config.imageSizeY );
 
     // don't use the frame rate slider if there's only one frame rate
     if ( 1 == rates->numRates ) {
@@ -994,7 +997,7 @@ ControlWidget::exposureMenuChanged ( int index )
   }
   ignoreExposureChanges = 0;
 
-  if ( !state.camera->hasFrameRateSupport()) {
+  if ( !commonState.camera->hasFrameRateSupport()) {
     if ( usingAbsoluteExposure ) {
       theoreticalFPSNumerator = newSetting *
           intervalMultipliers [ config.intervalMenuOption ];
@@ -1043,8 +1046,8 @@ ControlWidget::updateExposure ( int value )
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = value;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_EXPOSURE_ABSOLUTE, value );
     // convert value back to microseconds from milliseconds
-    state.camera->setControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE, usecValue );
-    if ( !state.camera->hasFrameRateSupport()) {
+    commonState.camera->setControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE, usecValue );
+    if ( !commonState.camera->hasFrameRateSupport()) {
       theoreticalFPSNumerator = usecValue;
       theoreticalFPSDenominator = 1000000;
       if ( theoreticalFPSNumerator && theoreticalFPSDenominator ) {
@@ -1061,7 +1064,7 @@ ControlWidget::updateExposure ( int value )
     }
   } else {
     state.cameraWidget->clearFPSMaxValue();
-    state.camera->setControl ( OA_CAM_CTRL_EXPOSURE_UNSCALED, value );
+    commonState.camera->setControl ( OA_CAM_CTRL_EXPOSURE_UNSCALED, value );
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) = value;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_EXPOSURE_UNSCALED, value );
     if ( state.settingsWidget ) {
@@ -1114,11 +1117,11 @@ ControlWidget::_doFrameRateChange ( int index, int updateUI )
 
   // FIX ME -- this last bit of the function could be tidier
 
-  if ( !state.camera->isInitialised()) {
+  if ( !commonState.camera->isInitialised()) {
     return;
   }
 
-  state.camera->setFrameInterval ( config.frameRateNumerator,
+  commonState.camera->setFrameInterval ( config.frameRateNumerator,
       config.frameRateDenominator );
 }
 
@@ -1129,7 +1132,7 @@ ControlWidget::updateGain ( int value )
   if ( !ignoreGainChanges ) {
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN ) = value;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_GAIN, value );
-    state.camera->setControl ( OA_CAM_CTRL_GAIN, value );
+    commonState.camera->setControl ( OA_CAM_CTRL_GAIN, value );
     if ( state.settingsWidget ) {
       state.settingsWidget->updateControl ( OA_CAM_CTRL_GAIN, value );
     }
@@ -1144,7 +1147,7 @@ ControlWidget::updateSelectableControl ( int control )
     int value = selectableControlSpinbox[ control ]->value();
     cameraConf.CONTROL_VALUE( control ) = value;
     SET_PROFILE_CONTROL( control, value );
-    state.camera->setControl ( control, value );
+    commonState.camera->setControl ( control, value );
     if ( state.settingsWidget ) {
       state.settingsWidget->updateControl ( control, value );
     }
@@ -1161,12 +1164,13 @@ ControlWidget::updateSelectableCheckbox ( int control )
 
   if (( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == autoControl ||
        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == autoControl )
-       && state.camera->hasControl ( autoControl ) == OA_CTRL_TYPE_BOOLEAN ) {
+       && commonState.camera->hasControl ( autoControl ) ==
+			 OA_CTRL_TYPE_BOOLEAN ) {
     value = value ? OA_EXPOSURE_AUTO : OA_EXPOSURE_MANUAL;
   }
   cameraConf.CONTROL_VALUE( autoControl ) = value;
   SET_PROFILE_CONTROL( autoControl, value );
-  state.camera->setControl ( autoControl, value );
+  commonState.camera->setControl ( autoControl, value );
   if ( selectableControlSlider[ control ] ) {
     selectableControlSlider[ control ]->setEnabled ( !value );
     selectableControlSpinbox[ control ]->setEnabled ( !value );
@@ -1207,23 +1211,24 @@ ControlWidget::updateFromConfig ( void )
   int64_t min, max, step, def;
   int type;
 
-  if ( state.camera->isInitialised()) {
+  if ( commonState.camera->isInitialised()) {
 
     for ( int c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-      type = state.camera->hasControl ( c );
+      type = commonState.camera->hasControl ( c );
       if ( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) {
 
-        state.camera->controlRange ( c, &min, &max, &step, &def );
+        commonState.camera->controlRange ( c, &min, &max, &step, &def );
 
         // FIX ME -- should this perhaps also happen for EXPOSURE_UNSCALED?
 
         if ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE == c ) {
           // FIX ME -- why check the type again?
-          type = state.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
+          type = commonState.camera->hasControl (
+							OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
           if ( OA_CTRL_TYPE_INT32 == type ||
               OA_CTRL_TYPE_INT64 == type ) {
-            state.camera->controlRange ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE, &min,
-                &max, &step, &def );
+            commonState.camera->controlRange ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE,
+								&min, &max, &step, &def );
             // convert from microseconds to current interval type
             min /= intervalMultipliers [ config.intervalMenuOption ];
             if ( min < 1 ) { min = 1; }
@@ -1254,12 +1259,12 @@ ControlWidget::updateFromConfig ( void )
       }
     }
 
-    type = state.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
+    type = commonState.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
     if ( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) {
       exposureSetting = cameraConf.CONTROL_VALUE(
 					OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
     } else {
-    type = state.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_UNSCALED );
+    type = commonState.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_UNSCALED );
       if ( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) {
         exposureSetting = cameraConf.CONTROL_VALUE(
 						OA_CAM_CTRL_EXPOSURE_UNSCALED );
@@ -1267,11 +1272,11 @@ ControlWidget::updateFromConfig ( void )
     }
 
 #ifdef BUGGY_CODE
-    if ( state.camera->hasFrameRateSupport()) {
+    if ( commonState.camera->hasFrameRateSupport()) {
       updateFrameRates();
 
-      const FRAMERATES* rates = state.camera->frameRates ( config.imageSizeX,
-          config.imageSizeY );
+      const FRAMERATES* rates = commonState.camera->frameRates (
+					config.imageSizeX, config.imageSizeY );
 
       for ( unsigned int i = 0; setFrameRate < 0 && i < rates->numRates; i++ ) {
         if ( rates->rates[i].numerator == config.frameRateNumerator &&
@@ -1286,7 +1291,7 @@ ControlWidget::updateFromConfig ( void )
   for ( int c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
     if ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE != c &&
         OA_CAM_CTRL_EXPOSURE_UNSCALED != c ) {
-      type = state.camera->hasControl ( c );
+      type = commonState.camera->hasControl ( c );
       if ( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) {
         selectableControlSpinbox[ c ]->setValue (
 						cameraConf.CONTROL_VALUE( c ));
@@ -1401,7 +1406,7 @@ ControlWidget::_setSelectableControl ( int selector, int index )
   int autoctrl;
   autoctrl = oaGetAutoForControl ( config.selectableControl[ thisOne ] );
   if ( selectableControlCheckbox[ config.selectableControl[ thisOne ]] &&
-      autoctrl >= 0 && state.camera->hasControl ( autoctrl )) {
+      autoctrl >= 0 && commonState.camera->hasControl ( autoctrl )) {
     grid->addWidget (
         selectableControlCheckbox[ config.selectableControl[ thisOne ]],
         thisOne + 2, 1 );
@@ -1427,7 +1432,7 @@ ControlWidget::_setSelectableControl ( int selector, int index )
     selectableControlIndexes[ theOther ][ c ] = -1;
     selectableControlsAllowed[ theOther ][ c ] = 0;
     if ( c != OA_CAM_CTRL_GAIN && c != state.preferredExposureControl ) {
-      type = state.camera->hasControl ( c );
+      type = commonState.camera->hasControl ( c );
       if ( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) {
         if ( c != config.selectableControl[ thisOne ]) {
           selectableControlMenu[ theOther ]->addItem (
@@ -1569,7 +1574,7 @@ ControlWidget::updateCheckbox ( int control, int value )
     }
     cameraConf.CONTROL_VALUE( control ) = value;
     SET_PROFILE_CONTROL( control, value );
-    state.camera->setControl ( control, value );
+    commonState.camera->setControl ( control, value );
   }
 }
 
@@ -1607,27 +1612,31 @@ void
 ControlWidget::disableAutoControls ( void )
 {
   // These ones we just want off all the time
-  if ( state.camera->hasControl ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ))) {
-    state.camera->setControl ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ), 0 );
+  if ( commonState.camera->hasControl (
+				OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ))) {
+    commonState.camera->setControl (
+				OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ), 0 );
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN )) = 0;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ), 0 );
   }
-  if ( state.camera->hasControl ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ))) {
-    state.camera->setControl ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ), 0 );
+  if ( commonState.camera->hasControl (
+				OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ))) {
+    commonState.camera->setControl (
+				OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ), 0 );
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE )) = 0;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ), 0 );
   }
-  if ( state.camera->hasControl (
+  if ( commonState.camera->hasControl (
       OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS ))) {
-    state.camera->setControl (
+    commonState.camera->setControl (
         OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS ), 0 );
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO(
 					OA_CAM_CTRL_BRIGHTNESS )) = 0;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS ), 0 );
   }
-  if ( state.camera->hasControl (
+  if ( commonState.camera->hasControl (
       OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ))) {
-    state.camera->setControl (
+    commonState.camera->setControl (
         OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ),
         OA_EXPOSURE_MANUAL );
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO(
@@ -1635,9 +1644,9 @@ ControlWidget::disableAutoControls ( void )
     SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ),
        OA_EXPOSURE_MANUAL );
   }
-  if ( state.camera->hasControl (
+  if ( commonState.camera->hasControl (
       OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ))) {
-    state.camera->setControl (
+    commonState.camera->setControl (
         OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ),
         OA_EXPOSURE_MANUAL );
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO(
@@ -1645,19 +1654,21 @@ ControlWidget::disableAutoControls ( void )
     SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ),
        OA_EXPOSURE_MANUAL );
   }
-  if ( state.camera->hasControl ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA ))) {
-    state.camera->setControl ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA ), 0 );
+  if ( commonState.camera->hasControl (
+				OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA ))) {
+    commonState.camera->setControl (
+				OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA ), 0 );
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA )) = 0;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA ), 0 );
   }
-  int AWBtype = state.camera->hasControl (
+  int AWBtype = commonState.camera->hasControl (
       OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ));
   if ( AWBtype ) {
     int AWBManual = 0;
     if ( OA_CTRL_TYPE_MENU == AWBtype ) {
-      AWBManual = state.camera->getAWBManualSetting();
+      AWBManual = commonState.camera->getAWBManualSetting();
     }
-    state.camera->setControl (
+    commonState.camera->setControl (
         OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ), AWBManual );
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO(
 					OA_CAM_CTRL_WHITE_BALANCE )) =
@@ -1665,33 +1676,33 @@ ControlWidget::disableAutoControls ( void )
     SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ),
         AWBManual );
   }
-  if ( state.camera->hasControl (
+  if ( commonState.camera->hasControl (
       OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_RED_BALANCE ))) {
-    state.camera->setControl (
+    commonState.camera->setControl (
         OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_RED_BALANCE ), 0 );
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO(
 					OA_CAM_CTRL_RED_BALANCE )) = 0;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_RED_BALANCE ), 0 );
   }
-  if ( state.camera->hasControl (
+  if ( commonState.camera->hasControl (
       OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLUE_BALANCE ))) {
-    state.camera->setControl (
+    commonState.camera->setControl (
         OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLUE_BALANCE ), 0 );
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO(
 					OA_CAM_CTRL_BLUE_BALANCE)) = 0;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLUE_BALANCE ), 0 );
   }
-  if ( state.camera->hasControl (
+  if ( commonState.camera->hasControl (
       OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_USBTRAFFIC ))) {
-    state.camera->setControl (
+    commonState.camera->setControl (
         OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_USBTRAFFIC ), 0 );
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO(
 					OA_CAM_CTRL_USBTRAFFIC )) = 0;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_USBTRAFFIC ), 0 );
   }
-  if ( state.camera->hasControl (
+  if ( commonState.camera->hasControl (
       OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTRAST ))) {
-    state.camera->setControl (
+    commonState.camera->setControl (
         OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_CONTRAST ), 0 );
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO(
 					OA_CAM_CTRL_CONTRAST )) = 0;
@@ -1703,7 +1714,7 @@ ControlWidget::disableAutoControls ( void )
 unsigned int
 ControlWidget::getCurrentGain ( void )
 {
-  if ( state.camera->hasControl ( OA_CAM_CTRL_GAIN )) {
+  if ( commonState.camera->hasControl ( OA_CAM_CTRL_GAIN )) {
     return cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN );
   }
   return 0;
@@ -1715,11 +1726,11 @@ ControlWidget::getCurrentExposure ( void )
 {
   // FIX ME -- this is entirely the wrong thing to do if both exposure
   // controls are available
-  if ( state.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
+  if ( commonState.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
     return cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) *
         intervalMultipliers [ config.intervalMenuOption ];
   } else {
-    if ( state.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_UNSCALED )) {
+    if ( commonState.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_UNSCALED )) {
       return cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED );
     }
   }
@@ -1746,10 +1757,10 @@ ControlWidget::intervalMenuChanged ( int index )
   // function above, but it's very slightly different.  Ideally it needs
   // refactoring
 
-  state.camera->controlRange ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE, &min, &max,
+  commonState.camera->controlRange ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE, &min, &max,
     &step, &def );
 
-  // setting = state.camera->readControl (
+  // setting = commonState.camera->readControl (
   //     OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) / 1000;
   setting = cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
   setting *= intervalMultipliers[ prevOption ];

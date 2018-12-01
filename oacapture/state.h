@@ -37,9 +37,7 @@
 #include "settingsWidget.h"
 #include "focusOverlay.h"
 #include "advancedSettings.h"
-#include "camera.h"
-#include "filterWheel.h"
-#include "timer.h"
+
 
 typedef struct
 {
@@ -55,10 +53,6 @@ typedef struct
   SettingsWidget*	settingsWidget;
   AdvancedSettings*	advancedSettings;
   FocusOverlay*		focusOverlay;
-
-  Camera*		camera;
-  FilterWheel*		filterWheel;
-  Timer*		timer;
 
   int			generalSettingsIndex;
   int			captureSettingsIndex;

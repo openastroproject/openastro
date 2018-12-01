@@ -146,10 +146,10 @@ MainWindow::MainWindow ( QString configFile )
 #else
   state.cameraControls = 0;
 #endif
-  state.camera = new Camera;
-  state.filterWheel = new FilterWheel ( &trampolines );
+  commonState.camera = new Camera;
+  commonState.filterWheel = new FilterWheel ( &trampolines );
 #ifdef OACAPTURE
-  state.timer = new Timer;
+  commonState.timer = new Timer;
   oldHistogramState = -1;
 #endif
   state.lastRecordedFile = "";
@@ -203,7 +203,7 @@ MainWindow::MainWindow ( QString configFile )
 #endif
 
   // update filters for matching filter wheels from config
-  state.filterWheel->updateAllSearchFilters();
+  commonState.filterWheel->updateAllSearchFilters();
 
   char d[ PATH_MAX ];
 #ifdef HAVE_QT4
@@ -288,15 +288,15 @@ MainWindow::~MainWindow()
   delete capturedValue;
   delete capturedLabel;
 #endif
-  if ( state.camera ) {
-    delete state.camera;
+  if ( commonState.camera ) {
+    delete commonState.camera;
   }
-  if ( state.filterWheel ) {
-    delete state.filterWheel;
+  if ( commonState.filterWheel ) {
+    delete commonState.filterWheel;
   }
 #ifdef OACAPTURE
-  if ( state.timer ) {
-    delete state.timer;
+  if ( commonState.timer ) {
+    delete commonState.timer;
   }
   if ( state.histogramWidget ) {
     delete state.histogramWidget;
@@ -1662,7 +1662,7 @@ MainWindow::connectCamera ( int deviceIndex )
   doDisconnectCam();
 
   for ( attempt = 0, ret = 1; ret == 1 && attempt < 2; attempt++ ) {
-    if (( ret = state.camera->initialise ( cameraDevs[ deviceIndex ],
+    if (( ret = commonState.camera->initialise ( cameraDevs[ deviceIndex ],
 				APPLICATION_NAME, TOP_WIDGET ))) {
       if ( !attempt && ret == 1 ) {
         if ( connectedCameras == 1 ) {
@@ -1721,7 +1721,8 @@ MainWindow::connectCamera ( int deviceIndex )
         filterProfiles[ config.filterOption ].intervalMenuOption;
   }
   configure();
-  statusLine->showMessage ( state.camera->name() + tr ( " connected" ), 5000 );
+  statusLine->showMessage ( commonState.camera->name() +
+			tr ( " connected" ), 5000 );
   clearTemperature();
 #ifdef OACAPTURE
   clearDroppedFrames();
@@ -1730,12 +1731,13 @@ MainWindow::connectCamera ( int deviceIndex )
   // FIX ME -- should these happen in the "configure" functions for each
   // widget?
   state.previewWidget->setVideoFramePixelFormat (
-      state.camera->videoFramePixelFormat());
-  state.cameraWidget->enableBinningControl ( state.camera->hasBinning ( 2 ));
-  v = state.camera->hasControl ( OA_CAM_CTRL_TEMPERATURE );
+      commonState.camera->videoFramePixelFormat());
+  state.cameraWidget->enableBinningControl (
+			commonState.camera->hasBinning ( 2 ));
+  v = commonState.camera->hasControl ( OA_CAM_CTRL_TEMPERATURE );
   state.previewWidget->enableTempDisplay ( v );
   styleStatusBarTemp ( v );
-  v = state.camera->hasControl ( OA_CAM_CTRL_DROPPED );
+  v = commonState.camera->hasControl ( OA_CAM_CTRL_DROPPED );
   state.previewWidget->enableDroppedDisplay ( v );
   styleStatusBarDroppedFrames ( v );
   if ( state.settingsWidget ) {
@@ -1753,11 +1755,11 @@ MainWindow::connectCamera ( int deviceIndex )
   // FIX ME -- should these happen in the "configure" functions for each
   // widget?
   state.viewWidget->setVideoFramePixelFormat (
-      state.camera->videoFramePixelFormat());
+      commonState.camera->videoFramePixelFormat());
 
   // FIX ME -- enable binning
-  // state.cameraWidget->enableBinningControl ( state.camera->hasBinning ( 2 ));
-  v = state.camera->hasControl ( OA_CAM_CTRL_TEMPERATURE );
+  // state.cameraWidget->enableBinningControl ( commonState.camera->hasBinning ( 2 ));
+  v = commonState.camera->hasControl ( OA_CAM_CTRL_TEMPERATURE );
   state.viewWidget->enableTempDisplay ( v );
   styleStatusBarTemp ( v );
 #endif
@@ -1765,14 +1767,14 @@ MainWindow::connectCamera ( int deviceIndex )
 #ifdef OACAPTURE
   // start regardless of whether we're displaying or capturing the
   // data
-  state.camera->start();
+  commonState.camera->start();
   state.controlWidget->disableAutoControls();
   state.histogramOn = oldHistogramState;
   oldHistogramState = -1;
 #endif
 
 #ifdef OACAPTURE
-  format = state.camera->videoFramePixelFormat();
+  format = commonState.camera->videoFramePixelFormat();
   state.captureWidget->enableTIFFCapture (
       ( !oaFrameFormats[ format ].rawColour ||
       ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
@@ -1814,7 +1816,7 @@ MainWindow::disconnectCamera ( void )
 void
 MainWindow::doDisconnectCam ( void )
 {
-  if ( state.camera && state.camera->isInitialised()) {
+  if ( commonState.camera && commonState.camera->isInitialised()) {
 #ifdef OACAPTURE
     if ( state.captureWidget ) {
       state.captureWidget->closeOutputHandler();
@@ -1823,8 +1825,8 @@ MainWindow::doDisconnectCam ( void )
       state.controlsWidget->closeOutputHandlers();
 #endif
     }
-    state.camera->stop();
-    state.camera->disconnect();
+    commonState.camera->stop();
+    commonState.camera->disconnect();
     disconnectCam->setEnabled( 0 );
     rescanCam->setEnabled( 1 );
   }
@@ -1842,15 +1844,15 @@ void
 MainWindow::connectFilterWheel ( int deviceIndex )
 {
   doDisconnectFilterWheel();
-  if ( state.filterWheel->initialise ( filterWheelDevs[ deviceIndex ] )) {
+  if ( commonState.filterWheel->initialise ( filterWheelDevs[ deviceIndex ] )) {
     QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
         tr ( "Unable to connect filter wheel" ));
     return;
   }
 
   disconnectWheel->setEnabled( 1 );
-  warmResetWheel->setEnabled( state.filterWheel->hasWarmReset());
-  coldResetWheel->setEnabled( state.filterWheel->hasColdReset());
+  warmResetWheel->setEnabled( commonState.filterWheel->hasWarmReset());
+  coldResetWheel->setEnabled( commonState.filterWheel->hasColdReset());
   rescanWheel->setEnabled( 0 );
   if ( !wheelStatus ) {
     wheelStatus = new QLabel();
@@ -1860,13 +1862,13 @@ MainWindow::connectFilterWheel ( int deviceIndex )
   }
   statusLine->addWidget ( wheelStatus );
   wheelStatus->show();
-  statusLine->showMessage ( state.filterWheel->name() +
+  statusLine->showMessage ( commonState.filterWheel->name() +
       tr ( " connected" ), 5000 );
-  if ( state.filterWheel->hasSpeedControl()) {
+  if ( commonState.filterWheel->hasSpeedControl()) {
     unsigned int speed;
-    state.filterWheel->getSpeed ( &speed );
+    commonState.filterWheel->getSpeed ( &speed );
     if ( !speed ) {
-      state.filterWheel->setSpeed ( 100, 0 );
+      commonState.filterWheel->setSpeed ( 100, 0 );
     }
   }
 
@@ -1888,8 +1890,8 @@ MainWindow::disconnectFilterWheel ( void )
 void
 MainWindow::warmResetFilterWheel ( void )
 {
-  if ( state.filterWheel && state.filterWheel->isInitialised()) {
-    state.filterWheel->warmReset();
+  if ( commonState.filterWheel && commonState.filterWheel->isInitialised()) {
+    commonState.filterWheel->warmReset();
   }
   statusLine->showMessage ( tr ( "Filter wheel reset" ), 5000 );
 }
@@ -1898,8 +1900,8 @@ MainWindow::warmResetFilterWheel ( void )
 void
 MainWindow::coldResetFilterWheel ( void )
 {
-  if ( state.filterWheel && state.filterWheel->isInitialised()) {
-    state.filterWheel->coldReset();
+  if ( commonState.filterWheel && commonState.filterWheel->isInitialised()) {
+    commonState.filterWheel->coldReset();
   }
   statusLine->showMessage ( tr ( "Filter wheel reset" ), 5000 );
 }
@@ -1915,8 +1917,8 @@ MainWindow::rescanFilterWheels ( void )
 void
 MainWindow::doDisconnectFilterWheel ( void )
 {
-  if ( state.filterWheel && state.filterWheel->isInitialised()) {
-    state.filterWheel->disconnect();
+  if ( commonState.filterWheel && commonState.filterWheel->isInitialised()) {
+    commonState.filterWheel->disconnect();
     disconnectWheel->setEnabled( 0 );
     warmResetWheel->setEnabled( 0 );
     coldResetWheel->setEnabled( 0 );
@@ -1930,14 +1932,14 @@ void
 MainWindow::connectTimer ( int deviceIndex )
 {
   doDisconnectTimer();
-  if ( state.timer->initialise ( timerDevs[ deviceIndex ] )) {
+  if ( commonState.timer->initialise ( timerDevs[ deviceIndex ] )) {
     QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
         tr ( "Unable to connect timer" ));
     return;
   }
 
   disconnectTimerDevice->setEnabled( 1 );
-  resetTimerDevice->setEnabled( state.timer->hasReset());
+  resetTimerDevice->setEnabled( commonState.timer->hasReset());
   rescanTimer->setEnabled( 0 );
   if ( !timerStatus ) {
     timerStatus = new QLabel();
@@ -1947,13 +1949,14 @@ MainWindow::connectTimer ( int deviceIndex )
   }
   statusLine->addWidget ( timerStatus );
   timerStatus->show();
-  if ( state.timer->hasGPS()) {
-    if ( state.timer->readGPS ( &state.latitude, &state.longitude,
+  if ( commonState.timer->hasGPS()) {
+    if ( commonState.timer->readGPS ( &state.latitude, &state.longitude,
         &state.altitude ) == OA_ERR_NONE ) {
       state.gpsValid = 1;
     }
   }
-  statusLine->showMessage ( state.timer->name() + tr ( " connected" ), 5000 );
+  statusLine->showMessage ( commonState.timer->name() +
+			tr ( " connected" ), 5000 );
 }
 
 
@@ -1970,8 +1973,8 @@ MainWindow::disconnectTimer ( void )
 void
 MainWindow::resetTimer ( void )
 {
-  if ( state.timer && state.timer->isInitialised()) {
-    state.timer->reset();
+  if ( commonState.timer && commonState.timer->isInitialised()) {
+    commonState.timer->reset();
   }
   statusLine->showMessage ( tr ( "Timer reset" ));
 }
@@ -1987,8 +1990,8 @@ MainWindow::rescanTimers ( void )
 void
 MainWindow::doDisconnectTimer ( void )
 {
-  if ( state.timer && state.timer->isInitialised()) {
-    state.timer->disconnect();
+  if ( commonState.timer && commonState.timer->isInitialised()) {
+    commonState.timer->disconnect();
     disconnectTimerDevice->setEnabled( 0 );
     resetTimerDevice->setEnabled( 0 );
     rescanTimer->setEnabled( 1 );
@@ -2024,7 +2027,7 @@ MainWindow::setTemperature()
   float temp;
   QString stringVal;
 
-  temp = state.camera->getTemperature();
+  temp = commonState.camera->getTemperature();
   state.cameraTempValid = 1;
   state.cameraTemp = temp;
 
@@ -2052,7 +2055,7 @@ MainWindow::setDroppedFrames()
   uint64_t dropped;
   QString stringVal;
 
-  dropped = state.camera->readControl ( OA_CAM_CTRL_DROPPED );
+  dropped = commonState.camera->readControl ( OA_CAM_CTRL_DROPPED );
   stringVal.setNum ( dropped );
   droppedValue->setText ( stringVal );
 }
@@ -2249,9 +2252,9 @@ MainWindow::enableFlipX ( void )
   int flipState = flipX->isChecked() ? 1 : 0;
 
   config.flipX = flipState;
-  if ( state.camera->isInitialised() &&
-      state.camera->hasControl ( OA_CAM_CTRL_HFLIP )) {
-    state.camera->setControl ( OA_CAM_CTRL_HFLIP, flipState );
+  if ( commonState.camera->isInitialised() &&
+      commonState.camera->hasControl ( OA_CAM_CTRL_HFLIP )) {
+    commonState.camera->setControl ( OA_CAM_CTRL_HFLIP, flipState );
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_HFLIP ) = flipState;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_HFLIP, flipState );
     if ( state.settingsWidget ) {
@@ -2272,9 +2275,9 @@ MainWindow::enableFlipY ( void )
   int flipState = flipY->isChecked() ? 1 : 0;
 
   config.flipY = flipState;
-  if ( state.camera->isInitialised() &&
-      state.camera->hasControl ( OA_CAM_CTRL_VFLIP )) {
-    state.camera->setControl ( OA_CAM_CTRL_VFLIP, flipState );
+  if ( commonState.camera->isInitialised() &&
+      commonState.camera->hasControl ( OA_CAM_CTRL_VFLIP )) {
+    commonState.camera->setControl ( OA_CAM_CTRL_VFLIP, flipState );
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_VFLIP ) = flipState;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_VFLIP, flipState );
     if ( state.settingsWidget ) {
@@ -2292,7 +2295,7 @@ MainWindow::enableFlipY ( void )
 void
 MainWindow::mosaicFlipWarning ( void )
 {
-  int format = state.camera->videoFramePixelFormat();
+  int format = commonState.camera->videoFramePixelFormat();
 
   if ( oaFrameFormats[ format ].rawColour ) {
     QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
@@ -2310,8 +2313,8 @@ MainWindow::enableDemosaic ( void )
 
   config.demosaic = demosaicState;
   state.previewWidget->enableDemosaic ( demosaicState );
-  if ( state.camera->isInitialised()) {
-    format = state.camera->videoFramePixelFormat();
+  if ( commonState.camera->isInitialised()) {
+    format = commonState.camera->videoFramePixelFormat();
     state.captureWidget->enableTIFFCapture (
         ( !oaFrameFormats[ format ].rawColour ||
         ( config.demosaic && config.demosaicOutput )) ? 1 : 0 );
@@ -2463,7 +2466,7 @@ MainWindow::createSettingsWidget ( void )
     state.settingsWidget->setAttribute ( Qt::WA_DeleteOnClose );
 #ifdef OACAPTURE
     state.settingsWidget->enableTab ( state.cameraSettingsIndex,
-        state.camera->isInitialised() ? 1 : 0 );
+        commonState.camera->isInitialised() ? 1 : 0 );
 #endif
     connect ( state.settingsWidget, SIGNAL( destroyed ( QObject* )), this,
         SLOT ( settingsClosed()));
@@ -2496,9 +2499,9 @@ MainWindow::doCameraMenu ( int replaceSingleItem )
   }
 
   if ( cameraDevs ) {
-    state.camera->releaseInfo ( cameraDevs );
+    commonState.camera->releaseInfo ( cameraDevs );
   }
-  numDevs = state.camera->listConnected ( &cameraDevs );
+  numDevs = commonState.camera->listConnected ( &cameraDevs );
 
   if ( !replaceSingleItem ) {
     if ( numDevs > 0 ) {
@@ -2574,9 +2577,9 @@ MainWindow::doFilterWheelMenu ( int replaceSingleItem )
   }
 
   if ( filterWheelDevs ) {
-    state.filterWheel->releaseInfo ( filterWheelDevs );
+    commonState.filterWheel->releaseInfo ( filterWheelDevs );
   }
-  numFilterWheels = state.filterWheel->listConnected ( &filterWheelDevs );
+  numFilterWheels = commonState.filterWheel->listConnected ( &filterWheelDevs );
 
   if ( !replaceSingleItem ) {
     if ( numFilterWheels > 0 ) {
@@ -2670,9 +2673,9 @@ MainWindow::doTimerMenu ( int replaceSingleItem )
   }
 
   if ( timerDevs ) {
-    state.timer->releaseInfo ( timerDevs );
+    commonState.timer->releaseInfo ( timerDevs );
   }
-  numTimers = state.timer->listConnected ( &timerDevs );
+  numTimers = commonState.timer->listConnected ( &timerDevs );
 
   if ( !replaceSingleItem ) {
     if ( numTimers > 0 ) {

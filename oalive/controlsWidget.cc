@@ -182,7 +182,7 @@ void
 ControlsWidget::startCapture ( void )
 {
   openOutputFiles();
-  state.camera->start ( &ViewWidget::addImage, &commonState );
+  commonState.camera->start ( &ViewWidget::addImage, &commonState );
   startButton->setEnabled ( 0 );
   stopButton->setEnabled ( 1 );
 }
@@ -191,7 +191,7 @@ ControlsWidget::startCapture ( void )
 void
 ControlsWidget::stopCapture ( void )
 {
-  state.camera->stop();
+  commonState.camera->stop();
   startButton->setEnabled ( 1 );
   stopButton->setEnabled ( 0 );
   if ( frameOutputHandler ) {
@@ -210,7 +210,7 @@ ControlsWidget::stopCapture ( void )
 void
 ControlsWidget::restartCapture ( void )
 {
-  state.camera->stop();
+  commonState.camera->stop();
   if ( frameOutputHandler ) {
     frameOutputHandler->closeOutput();
     delete frameOutputHandler;
@@ -223,7 +223,7 @@ ControlsWidget::restartCapture ( void )
   }
   openOutputFiles();
   state.viewWidget->restart();
-  state.camera->start ( &ViewWidget::addImage, &commonState );
+  commonState.camera->start ( &ViewWidget::addImage, &commonState );
   startButton->setEnabled ( 0 );
   stopButton->setEnabled ( 1 );
 }
@@ -240,7 +240,7 @@ ControlsWidget::configureResolution ( void )
   // a QMap and some further QMap abuse to be able to find the X and Y
   // resolutions should we not have a setting that matches the config and
   // happen to choose the max size option
-  const FRAMESIZES* sizeList = state.camera->frameSizes();
+  const FRAMESIZES* sizeList = commonState.camera->frameSizes();
   QMap<int,QString> sortMap;
   QMap<int,int> xRes, yRes;
   QString showItemStr;
@@ -337,7 +337,7 @@ ControlsWidget::configureResolution ( void )
   }
 */
 /*
-  if ( state.camera->hasROI()) {
+  if ( commonState.camera->hasROI()) {
     roi->setEnabled ( 1 );
     max->setEnabled ( 1 );
     roiButton->setEnabled(1);
@@ -367,8 +367,8 @@ ControlsWidget::resolutionChanged ( int index )
 {
   // changes to this function may need to be replicated in
   // updateFromConfig()
-  if ( !state.camera || ignoreResolutionChanges ||
-      !state.camera->isInitialised()) {
+  if ( !commonState.camera || ignoreResolutionChanges ||
+      !commonState.camera->isInitialised()) {
     return;
   }
 /*
@@ -394,14 +394,14 @@ ControlsWidget::resolutionChanged ( int index )
 void
 ControlsWidget::doResolutionChange ( int roiChanged )
 {
-  // state.camera->delayFrameRateChanges();
+  // commonState.camera->delayFrameRateChanges();
 
   camera->updateFrameRateSlider();
 
   if ( roiChanged ) {
-    state.camera->setROI ( config.imageSizeX, config.imageSizeY );
+    commonState.camera->setROI ( config.imageSizeX, config.imageSizeY );
   } else {
-    state.camera->setResolution ( config.imageSizeX, config.imageSizeY );
+    commonState.camera->setResolution ( config.imageSizeX, config.imageSizeY );
   }
   if ( state.viewWidget ) {
     state.viewWidget->updateFrameSize();
@@ -419,7 +419,7 @@ ControlsWidget::openOutputFiles ( void )
   OutputHandler*	out = 0;
   int			format;
 
-  format = state.camera->videoFramePixelFormat();
+  format = commonState.camera->videoFramePixelFormat();
   if ( oaFrameFormats[ format ].rawColour ) {
     format = OA_DEMOSAIC_FMT ( format );
   }

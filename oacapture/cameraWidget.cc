@@ -33,6 +33,8 @@ extern "C" {
 #include <openastro/demosaic.h>
 }
 
+#include "commonState.h"
+
 #include "configuration.h"
 #include "cameraWidget.h"
 #include "controlWidget.h"
@@ -113,7 +115,7 @@ CameraWidget::configure ( void )
   inputFormatList.clear();
 
   for ( format = 1; format < OA_PIX_FMT_LAST_P1; format++ ) {
-    if ( state.camera->hasFrameFormat ( format )) {
+    if ( commonState.camera->hasFrameFormat ( format )) {
       inputFormatMenu->addItem ( tr ( oaFrameFormats[ format ].name ));
       inputFormatMenu->setItemData ( numActions,
           tr ( oaFrameFormats[ format ].simpleName ), Qt::ToolTipRole );
@@ -138,7 +140,7 @@ CameraWidget::configure ( void )
   if ( cameraConf.forceInputFrameFormat ) {
     updateForceFrameFormat ( 0, cameraConf.forceInputFrameFormat );
   }
-  binning2x2->setEnabled ( state.camera->hasBinning ( 2 ) ? 1 : 0 );
+  binning2x2->setEnabled ( commonState.camera->hasBinning ( 2 ) ? 1 : 0 );
 }
 
 
@@ -147,9 +149,9 @@ CameraWidget::setBinning ( int newState )
 {
   int oldVal = config.binning2x2;
 
-  if ( state.camera->isInitialised()) {
+  if ( commonState.camera->isInitialised()) {
     if ( newState == Qt::Unchecked ) {
-      state.camera->setControl ( OA_CAM_CTRL_BINNING, OA_BIN_MODE_NONE );
+      commonState.camera->setControl ( OA_CAM_CTRL_BINNING, OA_BIN_MODE_NONE );
       config.binning2x2 = 0;
       // if we're "unbinning", double the expected resolution.
       // imageWidget::configure will sort it out if there's no match
@@ -160,7 +162,7 @@ CameraWidget::setBinning ( int newState )
       state.binModeX = state.binModeY = 1;
       state.binningValid = 1;
     } else {
-      state.camera->setControl ( OA_CAM_CTRL_BINNING, OA_BIN_MODE_2x2 );
+      commonState.camera->setControl ( OA_CAM_CTRL_BINNING, OA_BIN_MODE_2x2 );
       config.binning2x2 = 1;
       // if we're binning, half the expected resolution.
       // imageWidget::configure will sort it out if there's no match
@@ -224,7 +226,7 @@ CameraWidget::setTemperature()
   float temp;
   QString stringVal;
 
-  temp = state.camera->getTemperature();
+  temp = commonState.camera->getTemperature();
   state.cameraTempValid = 1;
   state.cameraTemp = temp;
 
@@ -278,11 +280,11 @@ CameraWidget::changeFrameFormat ( int menuOption )
 {
   int newFormat = inputFormatList[ menuOption ];
 
-  if ( !state.camera->isInitialised()) {
+  if ( !commonState.camera->isInitialised()) {
     return;
   }
 
-  state.camera->setFrameFormat ( newFormat );
+  commonState.camera->setFrameFormat ( newFormat );
   state.previewWidget->setVideoFramePixelFormat ( newFormat );
   config.inputFrameFormat = newFormat;
 
@@ -318,7 +320,7 @@ CameraWidget::updateForceFrameFormat ( unsigned int oldFormat,
     inputFormatMenu->setEnabled ( 0 );
     disconnect ( inputFormatMenu, SIGNAL( currentIndexChanged ( int )), 
         this, SLOT( changeFrameFormat ( int )));
-    if ( state.camera->hasFrameFormat ( newFormat )) {
+    if ( commonState.camera->hasFrameFormat ( newFormat )) {
       n = inputFormatList.indexOf ( newFormat );
       inputFormatMenu->setCurrentIndex ( n );
     } else {
@@ -333,7 +335,7 @@ CameraWidget::updateForceFrameFormat ( unsigned int oldFormat,
     // forced format has been disabled.  Enable the menu.  If the old
     // format isn't supported by the camera, delete it from the menu.
 
-    if ( !state.camera->hasFrameFormat ( oldFormat )) {
+    if ( !commonState.camera->hasFrameFormat ( oldFormat )) {
       inputFormatMenu->removeItem ( 0 );
     }
     inputFormatMenu->setEnabled ( 1 );
@@ -347,10 +349,10 @@ CameraWidget::updateForceFrameFormat ( unsigned int oldFormat,
     // then delete it from the menu.  If the new format is not supported
     // by the camera, add it to the menu.  Set the correct menu option.
 
-    if ( !state.camera->hasFrameFormat ( oldFormat )) {
+    if ( !commonState.camera->hasFrameFormat ( oldFormat )) {
       inputFormatMenu->removeItem ( 0 );
     }
-    if ( state.camera->hasFrameFormat ( newFormat )) {
+    if ( commonState.camera->hasFrameFormat ( newFormat )) {
       n = inputFormatList.indexOf ( newFormat );
       inputFormatMenu->setCurrentIndex ( n );
     } else {

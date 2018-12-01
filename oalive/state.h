@@ -26,20 +26,10 @@
 
 #pragma once
 
-#include "camera.h"
-#include "filterWheel.h"
-#include "timer.h"
 #include "viewWidget.h"
 #include "advancedSettings.h"
 #include "mainWindow.h"
 #include "cameraControls.h"
-/*
-#include "controlWidget.h"
-#include "captureWidget.h"
-#include "imageWidget.h"
-#include "zoomWidget.h"
-#include "histogramWidget.h"
-*/
 #include "settingsWidget.h"
 #include "focusOverlay.h"
 
@@ -50,16 +40,6 @@ typedef struct
   ControlsWidget*	controlsWidget;
   CameraControls*	cameraControls;
   ProcessingControls*	processingControls;
-/*
-  ControlWidget*	controlWidget;
-  CaptureWidget*	captureWidget;
-  ImageWidget*		imageWidget;
-  ZoomWidget*		zoomWidget;
-  CameraWidget*		cameraWidget;
-*/
-  Camera*		camera;
-  FilterWheel*		filterWheel;
-	Timer*					timer;
 
   SettingsWidget*	settingsWidget;
   AdvancedSettings*	advancedSettings;

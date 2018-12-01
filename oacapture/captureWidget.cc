@@ -427,7 +427,8 @@ CaptureWidget::pauseRecording ( void )
 void
 CaptureWidget::startRecording ( void )
 {
-  if ( timerConf.timerEnabled && state.timer && state.timer->isInitialised()) {
+  if ( timerConf.timerEnabled && commonState.timer &&
+			commonState.timer->isInitialised()) {
     if (( CAPTURE_FITS != config.fileTypeOption && CAPTURE_TIFF !=
         config.fileTypeOption ) || !config.limitEnabled || !config.limitType ) {
       QString msg = tr ( "\n\nWhen using timer mode the image capture type "
@@ -507,8 +508,8 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     if ( filterConf.autorunFilterSequence.count()) {
       int newFilterNum = filterConf.autorunFilterSequence [ autorunFilter ];
       // FIX ME -- this may cross threads: don't cross the threads!
-      if ( filterConf.promptForFilterChange && !( state.filterWheel &&
-          state.filterWheel->isInitialised())) {
+      if ( filterConf.promptForFilterChange && !( commonState.filterWheel &&
+          commonState.filterWheel->isInitialised())) {
         QMessageBox* changeFilter = new QMessageBox ( QMessageBox::NoIcon,
             APPLICATION_NAME, tr ( "Change to next filter: " ) +
             filterConf.filters[ newFilterNum ].filterName,
@@ -520,14 +521,14 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     }
   }
 
-  format = state.camera->videoFramePixelFormat();
+  format = commonState.camera->videoFramePixelFormat();
   if ( oaFrameFormats[ format ].rawColour && demosaicConf.demosaicOutput ) {
     format = OA_DEMOSAIC_FMT ( format );
   }
 
-  if ( timerConf.queryGPSForEachCapture && state.timer &&
-			state.timer->hasGPS()) {
-    if ( state.timer->readGPS ( &state.latitude, &state.longitude,
+  if ( timerConf.queryGPSForEachCapture && commonState.timer &&
+			commonState.timer->hasGPS()) {
+    if ( commonState.timer->readGPS ( &state.latitude, &state.longitude,
         &state.altitude, 1 ) == OA_ERR_NONE ) {
       state.gpsValid = 1;
       emit ( updateLocation());
@@ -669,16 +670,18 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     state.histogramWidget->resetStats();
   }
 
-  if ( timerConf.timerEnabled && state.timer && state.timer->isInitialised()) {
-    if ( state.timer->hasControl ( OA_TIMER_CTRL_MODE )) {
-      state.timer->setControl ( OA_TIMER_CTRL_MODE, timerConf.timerMode );
+  if ( timerConf.timerEnabled && commonState.timer &&
+			commonState.timer->isInitialised()) {
+    if ( commonState.timer->hasControl ( OA_TIMER_CTRL_MODE )) {
+      commonState.timer->setControl ( OA_TIMER_CTRL_MODE, timerConf.timerMode );
     }
-    if ( state.timer->hasControl ( OA_TIMER_CTRL_COUNT )) {
-      state.timer->setControl ( OA_TIMER_CTRL_COUNT, config.framesLimitValue );
+    if ( commonState.timer->hasControl ( OA_TIMER_CTRL_COUNT )) {
+      commonState.timer->setControl (
+					OA_TIMER_CTRL_COUNT, config.framesLimitValue );
     }
     if ( timerConf.timerMode == OA_TIMER_MODE_TRIGGER ) {
-      if ( state.timer->hasControl ( OA_TIMER_CTRL_INTERVAL )) {
-        state.timer->setControl ( OA_TIMER_CTRL_INTERVAL,
+      if ( commonState.timer->hasControl ( OA_TIMER_CTRL_INTERVAL )) {
+        commonState.timer->setControl ( OA_TIMER_CTRL_INTERVAL,
             timerConf.triggerInterval );
       }
       // FIX ME
@@ -695,12 +698,12 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     // to drain (we hope), then enable strobe mode on the timer device
     // and restart the camera
     emit writeStatusMessage ( tr ( "Pausing camera" ));
-    state.camera->stop();
+    commonState.camera->stop();
     // Default is to stop for ten times the exposure interval, up to a
     // maximum of one second.  If we don't have an absolute exposure
     // value then guess at half a second total
     exposureTime = 500000; // 500ms
-    if ( state.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
+    if ( commonState.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
       exposureTime = state.controlWidget->getCurrentExposure() * 10;
       if ( exposureTime > 1000000 ) {
         exposureTime = 1000000;
@@ -711,9 +714,9 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     }
     usleep ( exposureTime );
     emit writeStatusMessage ( tr ( "Starting timer" ));
-    state.timer->start();
+    commonState.timer->start();
     emit writeStatusMessage ( tr ( "Restarting camera" ));
-    state.camera->start ( &PreviewWidget::updatePreview, &state );
+    commonState.camera->start ( &PreviewWidget::updatePreview, &commonState );
     pauseButtonState = 0;
   }
 
@@ -1105,7 +1108,7 @@ CaptureWidget::getCurrentFilterName ( void )
 {
   int f = -1;
 
-  if ( state.filterWheel && state.filterWheel->isInitialised()) {
+  if ( commonState.filterWheel && commonState.filterWheel->isInitialised()) {
     f = filterConf.filterSlots[ config.filterOption ];
   } else {
     if ( filterConf.numFilters > 0 &&
@@ -1121,8 +1124,8 @@ void
 CaptureWidget::filterTypeChanged ( int index )
 {
   config.filterOption = index;
-  if ( state.filterWheel->isInitialised()) {
-    state.filterWheel->selectFilter ( index + 1 );
+  if ( commonState.filterWheel->isInitialised()) {
+    commonState.filterWheel->selectFilter ( index + 1 );
   }
   updateFilterSettingsFromProfile();
 }
@@ -1176,7 +1179,7 @@ CaptureWidget::reloadFilters ( void )
       SLOT( filterTypeChanged ( int )));
 
   int oldCount = filterMenu->count();
-  if ( !state.filterWheel || !state.filterWheel->isInitialised()) {
+  if ( !commonState.filterWheel || !commonState.filterWheel->isInitialised()) {
     if ( filterConf.numFilters ) {
       for ( int i = 0; i < filterConf.numFilters; i++ ) {
         if ( i < oldCount ) {
@@ -1192,7 +1195,7 @@ CaptureWidget::reloadFilters ( void )
       }
     }
   } else {
-    int numSlots = state.filterWheel->numSlots();
+    int numSlots = commonState.filterWheel->numSlots();
     if ( numSlots ) {
       for ( int i = numSlots - 1; i >= 0; i-- ) {
         if ( filterConf.filterSlots[ i ] >= 0 ) {
@@ -1350,7 +1353,7 @@ CaptureWidget::writeSettings ( OutputHandler* out )
     settings << APPLICATION_NAME << " " << VERSION_STR << std::endl;
     settings << std::endl;
     settings << tr ( "Camera: " ).toStdString().c_str() <<
-        state.camera->name() << std::endl;
+        commonState.camera->name() << std::endl;
     settings << tr ( "Time: " ).toStdString().c_str() <<
         timeStr.toStdString() << std::endl;
 
@@ -1367,7 +1370,7 @@ CaptureWidget::writeSettings ( OutputHandler* out )
       for ( int mod = 0; mod <= OA_CAM_CTRL_MODIFIER_AUTO; mod++ ) {
         int c = baseVal | ( mod ? OA_CAM_CTRL_MODIFIER_AUTO_MASK : 0 );
         int type;
-        if (( type = state.camera->hasControl ( c ))) {
+        if (( type = commonState.camera->hasControl ( c ))) {
           int v = cameraConf.CONTROL_VALUE( c );
           switch ( c ) {
             case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
@@ -1396,7 +1399,8 @@ CaptureWidget::writeSettings ( OutputHandler* out )
               break;
           }
 
-          if ( state.camera->hasControl ( OA_CAM_CTRL_MODE_ON_OFF (baseVal))) {
+          if ( commonState.camera->hasControl (
+								OA_CAM_CTRL_MODE_ON_OFF (baseVal))) {
             v = cameraConf.CONTROL_VALUE ( OA_CAM_CTRL_MODE_ON_OFF ( baseVal ));
             settings << tr ( v ? "on" : "off" ).toStdString().c_str() <<
                 std::endl;
@@ -1427,7 +1431,7 @@ CaptureWidget::writeSettings ( OutputHandler* out )
                   case OA_CAM_CTRL_TEMPERATURE:
                   {
                     QString stringVal;
-                    float temp = state.camera->getTemperature();
+                    float temp = commonState.camera->getTemperature();
                     state.cameraTempValid = 1;
                     state.cameraTemp = temp;
                     if ( !generalConf.tempsInC ) {
@@ -1439,7 +1443,8 @@ CaptureWidget::writeSettings ( OutputHandler* out )
                   }
 
                   case OA_CAM_CTRL_DROPPED:
-                    settings << state.camera->readControl( OA_CAM_CTRL_DROPPED )
+                    settings << commonState.camera->readControl(
+												OA_CAM_CTRL_DROPPED )
                       << std::endl;
                     break;
 
@@ -1494,7 +1499,7 @@ CaptureWidget::writeSettings ( OutputHandler* out )
           config.imageSizeX << "x" << config.imageSizeY << std::endl;
     }
 
-    if ( state.camera->hasFrameRateSupport()) {
+    if ( commonState.camera->hasFrameRateSupport()) {
       settings << tr ( "Frame rate/sec: " ).toStdString().c_str();
       if ( state.captureWasPaused ) {
         settings << tr ( "n/a (capture paused)" ).toStdString().c_str();

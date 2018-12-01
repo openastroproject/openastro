@@ -33,6 +33,8 @@ extern "C" {
 #include <openastro/camera.h>
 }
 
+#include "commonState.h"
+
 #include "configuration.h"
 #include "imageWidget.h"
 #include "controlWidget.h"
@@ -154,7 +156,7 @@ ImageWidget::configure ( void )
   // a QMap and some further QMap abuse to be able to find the X and Y
   // resolutions should we not have a setting that matches the config and
   // happen to choose the max size option
-  const FRAMESIZES* sizeList = state.camera->frameSizes();
+  const FRAMESIZES* sizeList = commonState.camera->frameSizes();
   QMap<int,QString> sortMap;
   QMap<int,int> xRes, yRes;
   QString showItemStr;
@@ -262,7 +264,7 @@ ImageWidget::configure ( void )
 
   // If the camera has fixed frame sizes the we want to display the crop
   // label for the frame size selector.  Otherwise it's the User ROI label
-  if ( state.camera->hasFixedFrameSizes()) {
+  if ( commonState.camera->hasFixedFrameSizes()) {
     userROI->setEnabled(0);
     roiXSize->setEnabled(0);
     roiYSize->setEnabled(0);
@@ -283,8 +285,8 @@ ImageWidget::cameraROIChanged ( int index )
 {
   // changes to this function may need to be replicated in
   // updateFromConfig()
-  if ( !state.camera || ignoreResolutionChanges ||
-      !state.camera->isInitialised()) {
+  if ( !commonState.camera || ignoreResolutionChanges ||
+      !commonState.camera->isInitialised()) {
     return;
   }
 
@@ -301,14 +303,14 @@ ImageWidget::cameraROIChanged ( int index )
 void
 ImageWidget::doResolutionChange ( int roiChanged )
 {
-  // state.camera->delayFrameRateChanges();
+  // commonState.camera->delayFrameRateChanges();
   if ( state.controlWidget ) {
     state.controlWidget->updateFrameRates();
   }
   if ( roiChanged ) {
-    state.camera->setROI ( config.imageSizeX, config.imageSizeY );
+    commonState.camera->setROI ( config.imageSizeX, config.imageSizeY );
   } else {
-    state.camera->setResolution ( config.imageSizeX, config.imageSizeY );
+    commonState.camera->setResolution ( config.imageSizeX, config.imageSizeY );
   }
   if ( state.previewWidget ) {
     state.previewWidget->updatePreviewSize();
@@ -339,7 +341,7 @@ ImageWidget::resetResolution ( void )
 void
 ImageWidget::updateFromConfig ( void )
 {
-  if ( !state.camera || !state.camera->isInitialised()) {
+  if ( !commonState.camera || !commonState.camera->isInitialised()) {
     return;
   }
   int numRes = resMenu->count();
@@ -360,14 +362,15 @@ ImageWidget::updateFromConfig ( void )
     // xSize->setText ( QString::number ( config.imageSizeX ));
     // ySize->setText ( QString::number ( config.imageSizeY ));
 
-    // if ( state.camera->isInitialised()) {
-      // state.camera->delayFrameRateChanges();
+    // if ( commonState.camera->isInitialised()) {
+      // commonState.camera->delayFrameRateChanges();
     // }
     if ( state.controlWidget ) {
       state.controlWidget->updateFrameRates();
     }
-    if ( state.camera->isInitialised()) {
-      state.camera->setResolution ( config.imageSizeX, config.imageSizeY );
+    if ( commonState.camera->isInitialised()) {
+      commonState.camera->setResolution (
+					config.imageSizeX, config.imageSizeY );
     }
     if ( state.previewWidget ) {
       state.previewWidget->updatePreviewSize();
@@ -410,7 +413,7 @@ ImageWidget::setUserROI ( void )
     // multiples of 2
     x = x + ( x % 2 );
     y = y + ( y % 2 );
-    if ( state.camera->testROISize ( x, y, &altX, &altY )) {
+    if ( commonState.camera->testROISize ( x, y, &altX, &altY )) {
       x = altX;
       y = altY;
     }

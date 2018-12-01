@@ -29,6 +29,7 @@
 #include <QtGui>
 
 #include "demosaicSettings.h"
+#include "commonState.h"
 
 #include "configuration.h"
 #include "trampoline.h"
@@ -251,21 +252,21 @@ t_destroyLayout ( QLayout* layout )
 int
 t_isCameraInitialised ( void )
 {
-	return state.camera->isInitialised();
+	return commonState.camera->isInitialised();
 }
 
 
 int
 t_isCameraInitialisedStatic ( void )
 {
-  return state.camera->Camera::isInitialised();
+  return commonState.camera->Camera::isInitialised();
 }
 
 
 int
 t_videoFramePixelFormat ( void )
 {
-	return state.camera->videoFramePixelFormat();
+	return commonState.camera->videoFramePixelFormat();
 }
 
 
@@ -300,14 +301,14 @@ t_binModeY ( void )
 int
 t_pixelSizeX ( void )
 {
-	return state.camera->pixelSizeX();
+	return commonState.camera->pixelSizeX();
 }
 
 
 int
 t_pixelSizeY ( void )
 {
-	return state.camera->pixelSizeY();
+	return commonState.camera->pixelSizeY();
 }
 
 
@@ -398,21 +399,21 @@ t_setTimerMode ( int mode )
 int
 t_isTimerInitialised ( void )
 {
-	return ( state.timer && state.timer->isInitialised() ? 1 : 0 );
+	return ( commonState.timer && commonState.timer->isInitialised() ? 1 : 0 );
 }
 
 
 int
 t_timerHasReset ( void )
 {
-	return state.timer->hasReset();
+	return commonState.timer->hasReset();
 }
 
 
 int
 t_timerHasSync ( void )
 {
-	return state.timer->hasSync();
+	return commonState.timer->hasSync();
 }
 
 
@@ -428,17 +429,17 @@ t_checkTimerWarnings ( void )
         "be FITS/TIFF/PNG and a frame-based capture limit should be set." );
     QMessageBox::warning ( state.settingsWidget, APPLICATION_NAME, msg );
   }
-  if ( state.camera && state.camera->isInitialised()) {
-    if ( state.camera->hasControl ( OA_CAM_CTRL_TRIGGER_ENABLE ) &&
+  if ( commonState.camera && commonState.camera->isInitialised()) {
+    if ( commonState.camera->hasControl ( OA_CAM_CTRL_TRIGGER_ENABLE ) &&
         timerConf.timerMode == OA_TIMER_MODE_TRIGGER &&
-        !state.camera->readControl ( OA_CAM_CTRL_TRIGGER_ENABLE )) {
+        !commonState.camera->readControl ( OA_CAM_CTRL_TRIGGER_ENABLE )) {
       msg = QCoreApplication::translate ( "SettingsWidget",
 					"\n\nThe timer is in trigger mode but the camera is "
           "not.  These two settings should be the same." );
     }
-    if ( state.camera->hasControl ( OA_CAM_CTRL_STROBE_ENABLE ) &&
+    if ( commonState.camera->hasControl ( OA_CAM_CTRL_STROBE_ENABLE ) &&
         timerConf.timerMode == OA_TIMER_MODE_STROBE &&
-        !state.camera->readControl ( OA_CAM_CTRL_STROBE_ENABLE )) {
+        !commonState.camera->readControl ( OA_CAM_CTRL_STROBE_ENABLE )) {
       msg = QCoreApplication::translate ( "SettingsWidget",
 					"\n\nThe timer is in strobe mode but the camera is "
           "not.  These two settings should be the same." );
@@ -597,14 +598,14 @@ t_timerDeviceConfig ( int interfaceType )
 void
 t_updateFilterWheelSearchFilters ( int interfaceType )
 {
-  state.filterWheel->updateSearchFilters ( interfaceType );
+  commonState.filterWheel->updateSearchFilters ( interfaceType );
 }
 
 
 void
 t_updateTimerSearchFilters ( int interfaceType )
 {
-  state.timer->updateSearchFilters ( interfaceType );
+  commonState.timer->updateSearchFilters ( interfaceType );
 }
 
 
@@ -625,8 +626,8 @@ t_showStatusMessage ( QString msg )
 int
 t_numFilterWheelSlots ( void )
 {
-  if ( state.filterWheel && state.filterWheel->isInitialised()) {
-    return state.filterWheel->numSlots();
+  if ( commonState.filterWheel && commonState.filterWheel->isInitialised()) {
+    return commonState.filterWheel->numSlots();
   }
   return 0;
 }
@@ -642,7 +643,8 @@ t_propagateNewSlotName ( int slotIndex, QString filterName )
 int
 t_isFilterWheelInitialised ( void )
 {
-  return ( state.filterWheel && state.filterWheel->isInitialised()) ? 1 : 0;
+  return ( commonState.filterWheel &&
+			commonState.filterWheel->isInitialised()) ? 1 : 0;
 }
 
 
@@ -656,7 +658,7 @@ t_slotFilterName ( int slot )
 int
 t_cameraHasControl ( int c )
 {
-  return state.camera->hasControl ( c );
+  return commonState.camera->hasControl ( c );
 }
 
 
@@ -664,42 +666,42 @@ void
 t_cameraControlRange ( int control, int64_t* min, int64_t* max,
     int64_t* step, int64_t* def )
 {
-  state.camera->controlRange ( control, min, max, step, def );
+  commonState.camera->controlRange ( control, min, max, step, def );
 }
 
 
 void
 t_cameraControlDiscreteSet ( int control, int32_t* num, int64_t** vals )
 {
-  state.camera->controlDiscreteSet ( control, num, vals );
+  commonState.camera->controlDiscreteSet ( control, num, vals );
 }
 
 
 void
 t_setCameraControl ( int control, int64_t val )
 {
-	state.camera->setControl ( control, val );
+	commonState.camera->setControl ( control, val );
 }
 
 
 const char*
 t_cameraMenuString ( int c, int v )
 {
-	state.camera->getMenuString ( c, v );
+	commonState.camera->getMenuString ( c, v );
 }
 
 
 int64_t
 t_cameraReadControl ( int c )
 {
-	state.camera->readControl ( c );
+	commonState.camera->readControl ( c );
 }
 
 
 int
 t_hasFrameRateSupport ( void )
 {
-	state.camera->hasFrameRateSupport();
+	commonState.camera->hasFrameRateSupport();
 }
 
 

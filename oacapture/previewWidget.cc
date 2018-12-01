@@ -40,6 +40,8 @@ extern "C" {
 #include <openastro/video/formats.h>
 }
 
+#include "commonState.h"
+
 #include "configuration.h"
 #include "previewWidget.h"
 #include "outputHandler.h"
@@ -640,7 +642,8 @@ PreviewWidget::setMonoPalette ( QColor colour )
 void*
 PreviewWidget::updatePreview ( void* args, void* imageData, int length )
 {
-  STATE*		state = ( STATE* ) args;
+  COMMON_STATE*		commonState = ( COMMON_STATE* ) args;
+  STATE*					state = ( STATE* ) commonState->localState;
   PreviewWidget*	self = state->previewWidget;
   struct timeval	t;
   int			doDisplay = 0;
@@ -658,8 +661,8 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
 
   // don't do anything if the length is not as expected
   if ( length != self->expectedSize ) {
-    // qWarning() << "size mismatch.  have:" << length << " expected: "
-    //    << self->expectedSize;
+    //qWarning() << "size mismatch.  have:" << length << " expected: "
+		//		<< self->expectedSize;
     return 0;
   }
 
@@ -921,8 +924,9 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
         writePixelFormat = OA_DEMOSAIC_FMT ( writePixelFormat );
       }
       // These calls should be thread-safe
-      if ( state->timer->isInitialised() && state->timer->isRunning()) {
-        oaTimerStamp* ts = state->timer->readTimestamp();
+      if ( commonState->timer->isInitialised() &&
+					commonState->timer->isRunning()) {
+        oaTimerStamp* ts = commonState->timer->readTimestamp();
         timestamp = ts->timestamp;
         comment = commentStr;
         ( void ) snprintf ( comment, 64, "Timer frame index: %d\n", ts->index );
