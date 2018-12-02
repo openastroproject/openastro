@@ -73,16 +73,11 @@ typedef struct {
 	unsigned int ( *imageSizeY )( void );
 	int ( *frameRateNumerator )( void );
 	int ( *frameRateDenominator )( void );
-	int ( *filterOption )( void );
 	int ( *numFilters )( void );
 	QString ( *filterName )( int );
 	int64_t ( *cameraControlValue )( int, int );
-	int ( *fileTypeOption )( void );
 	QString ( *frameFileNameTemplate )( void );
 	QString ( *fileNameTemplate )( void );
-	int ( *limitEnabled )( void );
-	int ( *framesLimitValue )( void );
-	int ( *secondsLimitValue )( void );
 	QString ( *captureDirectory )( void );
 	QString ( *currentDirectory )( void );
 	QList<userDeviceConfig> ( *filterWheelDeviceConfig )( int );

@@ -28,6 +28,7 @@
 
 #include <QtGui>
 
+#include "commonConfig.h"
 #include "captureSettings.h"
 #include "profileSettings.h"
 #include "targets.h"
@@ -177,13 +178,13 @@ ProfileSettings::addEntry ( void )
   }
   p.frameRateNumerator = trampolines->frameRateNumerator();
   p.frameRateDenominator = trampolines->frameRateDenominator();
-  p.filterOption = trampolines->filterOption();
-  p.fileTypeOption = trampolines->fileTypeOption();
+  p.filterOption = commonConfig.filterOption;
+  p.fileTypeOption = commonConfig.fileTypeOption;
 	p.frameFileNameTemplate = trampolines->frameFileNameTemplate();
   p.fileNameTemplate = trampolines->fileNameTemplate();
-  p.limitEnabled = trampolines->limitEnabled();
-  p.framesLimitValue = trampolines->framesLimitValue();
-  p.secondsLimitValue = trampolines->secondsLimitValue();
+  p.limitEnabled = commonConfig.limitEnabled;
+  p.framesLimitValue = commonConfig.framesLimitValue;
+  p.secondsLimitValue = commonConfig.secondsLimitValue;
   ignoreTargetChange = 1;
   targetMenu->setCurrentIndex ( 0 );
   ignoreTargetChange = 0;

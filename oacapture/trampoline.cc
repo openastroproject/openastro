@@ -345,13 +345,6 @@ t_frameRateDenominator ( void )
 
 
 int
-t_filterOption ( void )
-{
-  return commonConfig.filterOption;
-}
-
-
-int
 t_numFilters ( void )
 {
   return filterConf.numFilters;
@@ -372,13 +365,6 @@ t_cameraControlValue ( int m, int c )
 }
 
 
-int
-t_fileTypeOption ( void )
-{
-  return commonConfig.fileTypeOption;
-}
-
-
 QString
 t_frameFileNameTemplate ( void )
 {
@@ -391,27 +377,6 @@ QString
 t_fileNameTemplate ( void )
 {
   return config.fileNameTemplate;
-}
-
-
-int
-t_limitEnabled ( void )
-{
-  return commonConfig.limitEnabled;
-}
-
-
-int
-t_framesLimitValue ( void )
-{
-  return commonConfig.framesLimitValue;
-}
-
-
-int
-t_secondsLimitValue ( void )
-{
-  return commonConfig.secondsLimitValue;
 }
 
 
@@ -511,16 +476,11 @@ trampolineFuncs trampolines {
   .imageSizeY = &t_imageSizeY,
   .frameRateNumerator = &t_frameRateNumerator,
   .frameRateDenominator = &t_frameRateDenominator,
-  .filterOption = &t_filterOption,
   .numFilters = &t_numFilters,
   .filterName = &t_filterName,
   .cameraControlValue = &t_cameraControlValue,
-  .fileTypeOption = &t_fileTypeOption,
   .frameFileNameTemplate = &t_frameFileNameTemplate,
   .fileNameTemplate = &t_fileNameTemplate,
-  .limitEnabled = &t_limitEnabled,
-  .framesLimitValue = &t_framesLimitValue,
-  .secondsLimitValue = &t_secondsLimitValue,
 	.captureDirectory = &t_captureDirectory,
 	.currentDirectory = &t_currentDirectory,
 	.filterWheelDeviceConfig = &t_filterWheelDeviceConfig,
