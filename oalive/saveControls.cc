@@ -37,6 +37,7 @@ extern "C" {
 }
 
 
+#include "commonConfig.h"
 #include "captureSettings.h"
 #include "fitsSettings.h"
 #include "outputHandler.h"
@@ -70,7 +71,7 @@ SaveControls::SaveControls ( QWidget* parent ) : QWidget ( parent )
     QVariant v(i);
     typeMenu->addItem ( fileFormats[i], v );
   }
-  typeMenu->setCurrentIndex ( config.fileTypeOption - 1 );
+  typeMenu->setCurrentIndex ( commonConfig.fileTypeOption - 1 );
   connect ( typeMenu, SIGNAL( currentIndexChanged ( int )), this,
       SLOT( fileTypeChanged ( int )));
 
@@ -311,15 +312,15 @@ void
 SaveControls::fileTypeChanged ( int index )
 {
   QVariant v = typeMenu->itemData ( index );
-  config.fileTypeOption = v.toInt();
-  if ( CAPTURE_TIFF == config.fileTypeOption ||
-      CAPTURE_FITS == config.fileTypeOption ) {
+  commonConfig.fileTypeOption = v.toInt();
+  if ( CAPTURE_TIFF == commonConfig.fileTypeOption ||
+      CAPTURE_FITS == commonConfig.fileTypeOption ) {
     if ( !config.frameFileNameTemplate.contains ( "%INDEX" ) &&
         !config.frameFileNameTemplate.contains ( "%I" ) &&
         !config.processedFileNameTemplate.contains ( "%INDEX" ) &&
         !config.processedFileNameTemplate.contains ( "%I" )) {
       QMessageBox::warning ( this, APPLICATION_NAME,
-          tr ( "The " ) + fileFormats[ config.fileTypeOption ] +
+          tr ( "The " ) + fileFormats[ commonConfig.fileTypeOption ] +
           tr ( " file format is selected, but the filename templates do "
           "not both contain either the \"%INDEX\" or \"%I\" pattern.  Output "
           "files may therefore overwrite each other" ));

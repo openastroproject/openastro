@@ -35,6 +35,7 @@
 #include "outputPNG.h"
 #include "outputFITS.h"
 #include "commonState.h"
+#include "commonConfig.h"
 
 #include "version.h"
 #include "configuration.h"
@@ -406,9 +407,11 @@ ControlsWidget::doResolutionChange ( int roiChanged )
   if ( state.viewWidget ) {
     state.viewWidget->updateFrameSize();
   }
-  if ( config.profileOption >= 0 ) {
-    config.profiles[ config.profileOption ].imageSizeX = config.imageSizeX;
-    config.profiles[ config.profileOption ].imageSizeY = config.imageSizeY;
+  if ( commonConfig.profileOption >= 0 ) {
+    config.profiles[ commonConfig.profileOption ].imageSizeX =
+				config.imageSizeX;
+    config.profiles[ commonConfig.profileOption ].imageSizeY =
+				config.imageSizeY;
   }
 }
 
@@ -425,7 +428,7 @@ ControlsWidget::openOutputFiles ( void )
   }
 
   if ( config.saveEachFrame ) {
-    switch ( config.fileTypeOption ) {
+    switch ( commonConfig.fileTypeOption ) {
       case CAPTURE_TIFF:
         out = new OutputTIFF ( config.imageSizeX, config.imageSizeY,
             state.cameraControls->getFPSNumerator(),
@@ -451,9 +454,9 @@ ControlsWidget::openOutputFiles ( void )
 #endif
     }
 
-    if ( out && ( CAPTURE_TIFF == config.fileTypeOption ||
-        CAPTURE_FITS == config.fileTypeOption ||
-				CAPTURE_PNG == config.fileTypeOption )) {
+    if ( out && ( CAPTURE_TIFF == commonConfig.fileTypeOption ||
+        CAPTURE_FITS == commonConfig.fileTypeOption ||
+				CAPTURE_PNG == commonConfig.fileTypeOption )) {
       if ( !out->outputWritable()) {
         // FIX ME -- this may cross threads: don't cross the threads!
         QMessageBox::warning ( this, tr ( "Start Recording" ),
@@ -494,7 +497,7 @@ qWarning() << "have frame save handler";
   }
 
   if ( config.saveProcessedImage ) {
-    switch ( config.fileTypeOption ) {
+    switch ( commonConfig.fileTypeOption ) {
       case CAPTURE_TIFF:
         out = new OutputTIFF ( config.imageSizeX, config.imageSizeY,
             state.cameraControls->getFPSNumerator(),
@@ -520,9 +523,9 @@ qWarning() << "have frame save handler";
 #endif
     }
 
-    if ( out && ( CAPTURE_TIFF == config.fileTypeOption ||
-        CAPTURE_FITS == config.fileTypeOption ||
-				CAPTURE_PNG == config.fileTypeOption )) {
+    if ( out && ( CAPTURE_TIFF == commonConfig.fileTypeOption ||
+        CAPTURE_FITS == commonConfig.fileTypeOption ||
+				CAPTURE_PNG == commonConfig.fileTypeOption )) {
       if ( !out->outputWritable()) {
         // FIX ME -- this may cross threads: don't cross the threads!
         QMessageBox::warning ( this, tr ( "Start Recording" ),

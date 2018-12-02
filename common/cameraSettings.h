@@ -112,5 +112,3 @@ class CameraSettings : public QWidget
 
 
 #define CONTROL_VALUE(c)  controlValues[OA_CAM_CTRL_MODIFIER(c)][OA_CAM_CTRL_MODE_BASE(c)]
-
-#define SET_PROFILE_CONTROL(c,v) if ( config.profileOption >= 0 ) profileConf.profiles[ config.profileOption ].filterProfiles[ config.filterOption ].controls[OA_CAM_CTRL_MODIFIER(c)][OA_CAM_CTRL_MODE_BASE(c)] = v

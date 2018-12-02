@@ -30,6 +30,7 @@
 
 #include "demosaicSettings.h"
 #include "commonState.h"
+#include "commonConfig.h"
 
 #include "configuration.h"
 #include "trampoline.h"
@@ -268,8 +269,9 @@ t_checkTimerWarnings ( void )
 {
 	QString		msg;
 
-  if (( CAPTURE_FITS != config.fileTypeOption && CAPTURE_TIFF !=                      config.fileTypeOption ) || !config.limitEnabled ||
-      !config.limitType ) {
+  if (( CAPTURE_FITS != commonConfig.fileTypeOption && CAPTURE_TIFF !=
+			commonConfig.fileTypeOption ) || !commonConfig.limitEnabled ||
+      !commonConfig.limitType ) {
     msg = QCoreApplication::translate ( "SettingsWidget",
 				"\n\nWhen using timer mode the image capture type should "
         "be FITS/TIFF/PNG and a frame-based capture limit should be set." );
@@ -345,7 +347,7 @@ t_frameRateDenominator ( void )
 int
 t_filterOption ( void )
 {
-  return config.filterOption;
+  return commonConfig.filterOption;
 }
 
 
@@ -373,7 +375,7 @@ t_cameraControlValue ( int m, int c )
 int
 t_fileTypeOption ( void )
 {
-  return config.fileTypeOption;
+  return commonConfig.fileTypeOption;
 }
 
 
@@ -395,21 +397,21 @@ t_fileNameTemplate ( void )
 int
 t_limitEnabled ( void )
 {
-  return config.limitEnabled;
+  return commonConfig.limitEnabled;
 }
 
 
 int
 t_framesLimitValue ( void )
 {
-  return config.framesLimitValue;
+  return commonConfig.framesLimitValue;
 }
 
 
 int
 t_secondsLimitValue ( void )
 {
-  return config.secondsLimitValue;
+  return commonConfig.secondsLimitValue;
 }
 
 

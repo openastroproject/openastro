@@ -28,6 +28,7 @@
 
 #include <QtGui>
 
+#include "commonConfig.h"
 #include "fitsSettings.h"
 #include "trampoline.h"
 #include "targets.h"
@@ -323,7 +324,7 @@ t_frameRateDenominator ( void )
 int
 t_filterOption ( void )
 {
-	return config.filterOption;
+	return commonConfig.filterOption;
 }
 
 
@@ -351,7 +352,7 @@ t_cameraControlValue ( int m, int c )
 int
 t_fileTypeOption ( void )
 {
-	return config.fileTypeOption;
+	return commonConfig.fileTypeOption;
 }
 
 

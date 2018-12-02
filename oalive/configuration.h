@@ -84,9 +84,6 @@ typedef struct
   int			intervalMenuOption;
 
   // capture config
-  int			profileOption;
-  int			filterOption;
-  int			fileTypeOption;
   QString		frameFileNameTemplate;
   QString		processedFileNameTemplate;
   QString		captureDirectory;
@@ -114,5 +111,3 @@ typedef struct
 } CONFIG;
 
 extern CONFIG		config;
-
-#define CONTROL_VALUE(c)	controlValues[OA_CAM_CTRL_MODIFIER(c)][OA_CAM_CTRL_MODE_BASE(c)]

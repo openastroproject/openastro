@@ -34,6 +34,7 @@ extern "C" {
 }
 
 #include "commonState.h"
+#include "commonConfig.h"
 
 #include "configuration.h"
 #include "imageWidget.h"

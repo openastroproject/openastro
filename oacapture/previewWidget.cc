@@ -41,12 +41,13 @@ extern "C" {
 }
 
 #include "commonState.h"
+#include "commonConfig.h"
+#include "outputHandler.h"
+#include "focusOverlay.h"
 
 #include "configuration.h"
 #include "previewWidget.h"
-#include "outputHandler.h"
 #include "histogramWidget.h"
-#include "focusOverlay.h"
 #include "state.h"
 
 
@@ -997,25 +998,25 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
   }
 
   if ( output && self->recordingInProgress ) {
-    if ( config.limitEnabled ) {
+    if ( commonConfig.limitEnabled ) {
       int finished = 0;
       float percentage = 0;
       int frames = output->getFrameCount();
-      switch ( config.limitType ) {
+      switch ( commonConfig.limitType ) {
         case 0: // FIX ME -- nasty magic number
           // start and current times here are in ms, but the limit value is in
           // secs, so rather than ( current - start ) / time * 100 to get the
           // %age, we do ( current - start ) / time / 10
           percentage = ( now - state->captureWidget->recordingStartTime ) /
-              ( config.secondsLimitValue * 1000.0 +
+              ( commonConfig.secondsLimitValue * 1000.0 +
               state->captureWidget->totalTimePaused ) * 100.0;
           if ( now > state->captureWidget->recordingEndTime ) {
             finished = 1;
           }
           break;
         case 1: // FIX ME -- nasty magic number
-          percentage = ( 100.0 * frames ) / config.framesLimitValue;
-          if ( frames >= config.framesLimitValue ) {
+          percentage = ( 100.0 * frames ) / commonConfig.framesLimitValue;
+          if ( frames >= commonConfig.framesLimitValue ) {
             finished = 1;
           }
           break;
@@ -1035,7 +1036,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
           // that the GUI changes it makes must be done indirectly
           // FIX ME -- doing it with invokeMethod would be nicer though
           if ( state->captureWidget->singleAutorunFinished()) {
-            state->autorunStartNext = now + 1000 * config.autorunDelay;
+            state->autorunStartNext = now + 1000 * commonConfig.autorunDelay;
           }
         }
       } else {

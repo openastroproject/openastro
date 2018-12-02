@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * profile.h -- declaration of data structures for configuration profiles
+ * commonConfig.h -- common configuration data
  *
  * Copyright 2018
  *     James Fidell (james@openastroproject.org)
@@ -27,6 +27,8 @@
 
 #pragma once
 
+#include <oa_common.h>
+
 #if HAVE_LIMITS_H
 #include <limits.h>
 #endif
@@ -37,37 +39,26 @@ extern "C" {
 #include <openastro/userConfig.h>
 }
 
+typedef struct
+{
+  // capture config
+  int			profileOption;
+  int			filterOption;
+  int			fileTypeOption;
+  int			limitEnabled;
+  int			secondsLimitValue;
+  int			framesLimitValue;
+  int			limitType;
+  int			autorunCount;
+  int			autorunDelay;
+} COMMON_CONFIG;
 
-typedef struct {
-  QString	filterName;
-  int		controls[OA_CAM_CTRL_MODIFIERS_P1][ OA_CAM_CTRL_LAST_P1 ];
-  int		intervalMenuOption;
-} FILTER_PROFILE;
+extern COMMON_CONFIG		commonConfig;
 
-typedef struct {
-  QString       profileName;
-  int           binning2x2;
-  int           colourise;
-  int           useROI;
-  unsigned int  imageSizeX;
-  unsigned int  imageSizeY;
-  QList<FILTER_PROFILE> filterProfiles;
-  int           frameRateNumerator;
-  int           frameRateDenominator;
-  int           fileTypeOption;
-  int           filterOption;
-  int           limitEnabled;
-  int           secondsLimitValue;
-  int           framesLimitValue;
-  int           limitType;
-  QString       fileNameTemplate;
-  QString       frameFileNameTemplate;
-  QString       processedFileNameTemplate;
-  int		target;
-} PROFILE;
+#define CONTROL_VALUE(c)	controlValues[OA_CAM_CTRL_MODIFIER(c)][OA_CAM_CTRL_MODE_BASE(c)]
 
+#define	SET_PROFILE_CONTROL(c,v) if ( commonConfig.profileOption >= 0 ) profileConf.profiles[ commonConfig.profileOption ].filterProfiles[ commonConfig.filterOption ].controls[OA_CAM_CTRL_MODIFIER(c)][OA_CAM_CTRL_MODE_BASE(c)] = v
 
-// overkill, but i may want to expand this later
-typedef struct {
-  QString	filterName;
-} FILTER;
+#define	SET_PROFILE_INTERVAL(v) if ( commonConfig.profileOption >= 0 ) profileConf.profiles[ commonConfig.profileOption ].filterProfiles[ commonConfig.filterOption ].intervalMenuOption = v
+
+#define SET_PROFILE_CONFIG(n,v) if ( commonConfig.profileOption >= 0 ) profileConf.profiles[commonConfig.profileOption].n = v

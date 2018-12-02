@@ -37,25 +37,17 @@ extern "C" {
 #include <openastro/demosaic.h>
 }
 
+#include "commonState.h"
+#include "commonConfig.h"
 #include "targets.h"
 
 #include "mainWindow.h"
 #include "version.h"
 #include "configuration.h"
-#ifdef OACAPTURE
-#include "controlWidget.h"
-#include "cameraWidget.h"
-#include "imageWidget.h"
-#include "captureWidget.h"
-#include "zoomWidget.h"
-#include "previewWidget.h"
-#else
 #include "cameraControls.h"
 #include "controlsWidget.h"
-#endif
 #include "settingsWidget.h"
 #include "state.h"
-#include "commonState.h"
 
 CONFIG					config;
 cameraConfig		cameraConf;
@@ -393,9 +385,9 @@ MainWindow::readConfig ( QString configFile )
     config.selectableControl[1] = OA_CAM_CTRL_BRIGHTNESS;
     config.intervalMenuOption = 1;  // msec
 
-    config.profileOption = 0;
-    config.filterOption = 0;
-    config.fileTypeOption = 1;
+    commonConfig.profileOption = 0;
+    commonConfig.filterOption = 0;
+    commonConfig.fileTypeOption = 1;
 #ifdef OACAPTURE
     config.limitEnabled = 0;
     config.framesLimitValue = 0;
@@ -558,11 +550,12 @@ MainWindow::readConfig ( QString configFile )
     config.intervalMenuOption = settings->value (
         "control/intervalMenuOption", 1 ).toInt(); // default = msec
 
-    config.profileOption = settings->value ( "control/profileOption",
+    commonConfig.profileOption = settings->value ( "control/profileOption",
         0 ).toInt();
-    config.filterOption = settings->value ( "control/filterOption", 0 ).toInt();
+    commonConfig.filterOption = settings->value (
+				"control/filterOption", 0 ).toInt();
 #ifdef OACAPTURE
-    config.fileTypeOption = settings->value ( "control/fileTypeOption",
+    commonConfig.fileTypeOption = settings->value ( "control/fileTypeOption",
         1 ).toInt();
     config.limitEnabled = settings->value ( "control/limitEnabled", 0 ).toInt();
     config.framesLimitValue = settings->value ( "control/framesLimitValue",
@@ -575,7 +568,7 @@ MainWindow::readConfig ( QString configFile )
     config.captureDirectory = settings->value ( "control/captureDirectory",
         defaultDir ).toString();
 #else
-    config.fileTypeOption = settings->value ( "files/fileTypeOption",
+    commonConfig.fileTypeOption = settings->value ( "files/fileTypeOption",
         1 ).toInt();
     config.frameFileNameTemplate = settings->value (
         "files/frameFileNameTemplate", "oalive-%DATE-%TIME" ).toString();
@@ -709,14 +702,14 @@ MainWindow::readConfig ( QString configFile )
       }
       settings->endArray();
       filterConf.numFilters = totalFilters;
-      if ( config.filterOption >= renumberFrom && config.filterOption <=
-          renumberTo ) {
-        if ( renumberTo < numFilters && config.filterOption ==
+      if ( commonConfig.filterOption >= renumberFrom &&
+					commonConfig.filterOption <= renumberTo ) {
+        if ( renumberTo < numFilters && commonConfig.filterOption ==
             ( renumberTo + 1 )) {
           // we saw "none" and were currently using it
-          config.filterOption = 0;
+          commonConfig.filterOption = 0;
         } else {
-          config.filterOption++;
+          commonConfig.filterOption++;
         }
       }
     }
@@ -842,8 +835,8 @@ MainWindow::readConfig ( QString configFile )
 
       p.frameRateNumerator = config.frameRateNumerator;
       p.frameRateDenominator = config.frameRateDenominator;
-      p.filterOption = config.filterOption;
-      p.fileTypeOption = config.fileTypeOption;
+      p.filterOption = commonConfig.filterOption;
+      p.fileTypeOption = commonConfig.fileTypeOption;
 #ifdef OACAPTURE
       p.fileNameTemplate = config.fileNameTemplate;
       p.limitEnabled = config.limitEnabled;
@@ -1102,10 +1095,10 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "control/intervalMenuOption",
       config.intervalMenuOption );
 
-  settings->setValue ( "control/profileOption", config.profileOption );
-  settings->setValue ( "control/filterOption", config.filterOption );
+  settings->setValue ( "control/profileOption", commonConfig.profileOption );
+  settings->setValue ( "control/filterOption", commonConfig.filterOption );
 #ifdef OACAPTURE
-  settings->setValue ( "control/fileTypeOption", config.fileTypeOption );
+  settings->setValue ( "control/fileTypeOption", commonConfig.fileTypeOption );
   settings->setValue ( "control/limitEnabled", config.limitEnabled );
   settings->setValue ( "control/framesLimitValue", config.framesLimitValue );
   settings->setValue ( "control/secondsLimitValue", config.secondsLimitValue );
@@ -1127,7 +1120,7 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "histogram/split", config.splitHistogram );
   settings->setValue ( "histogram/onTop", config.histogramOnTop );
 #else
-  settings->setValue ( "files/fileTypeOption", config.fileTypeOption );
+  settings->setValue ( "files/fileTypeOption", commonConfig.fileTypeOption );
   settings->setValue ( "files/frameFileNameTemplate",
       config.frameFileNameTemplate );
   settings->setValue ( "files/processedFileNameTemplate",
@@ -1707,18 +1700,18 @@ MainWindow::connectCamera ( int deviceIndex )
   // the current profile, but the configure() functions take the current
   // values, set them in the camera and write them to the current
   // profile.
-  if ( config.profileOption >= 0 && config.profileOption <
-      config.numProfiles && config.filterOption >= 0 && config.filterOption <
-      filterConf.numFilters ) {
+  if ( commonConfig.profileOption >= 0 && commonConfig.profileOption <
+      config.numProfiles && commonConfig.filterOption >= 0 &&
+			commonConfig.filterOption < filterConf.numFilters ) {
     for ( uint8_t c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
       for ( uint8_t m = 1; m < OA_CAM_CTRL_MODIFIERS_P1; m++ ) {
         cameraConf.controlValues[ m ][ c ] =
-          config.profiles[ config.profileOption ].filterProfiles[
-              config.filterOption ].controls[ m ][ c ];
+          config.profiles[ commonConfig.profileOption ].filterProfiles[
+              commonConfig.filterOption ].controls[ m ][ c ];
       }
     }
-    config.intervalMenuOption = config.profiles[ config.profileOption ].
-        filterProfiles[ config.filterOption ].intervalMenuOption;
+    config.intervalMenuOption = config.profiles[ commonConfig.profileOption ].
+        filterProfiles[ commonConfig.filterOption ].intervalMenuOption;
   }
   configure();
   statusLine->showMessage ( commonState.camera->name() +

@@ -35,12 +35,13 @@ extern "C" {
 #include <QtCore>
 #include <QtGui>
 
-#include "commonState.h"
-#include "cameraSettings.h"
-#include "profileSettings.h"
-
 #include "configuration.h"
 #include "mainWindow.h"
+
+#include "commonState.h"
+#include "commonConfig.h"
+#include "cameraSettings.h"
+#include "profileSettings.h"
 
 #define SLIDERS_PER_ROW		2
 #define CHECKBOXES_PER_ROW	4

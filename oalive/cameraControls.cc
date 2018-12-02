@@ -31,6 +31,7 @@
 #include "captureSettings.h"
 #include "fitsSettings.h"
 #include "commonState.h"
+#include "commonConfig.h"
 
 #include "cameraControls.h"
 #include "configuration.h"

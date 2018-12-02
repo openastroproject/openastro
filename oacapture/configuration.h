@@ -88,18 +88,8 @@ typedef struct
   int			selectableControl[2];
   int			intervalMenuOption;
 
-  // capture config
-  int			profileOption;
-  int			filterOption;
-  int			fileTypeOption;
-  int			limitEnabled;
-  int			secondsLimitValue;
-  int			framesLimitValue;
-  int			limitType;
   QString		fileNameTemplate;
   QString		captureDirectory;
-  int			autorunCount;
-  int			autorunDelay;
 
   // display config
   int			preview;
@@ -113,11 +103,3 @@ typedef struct
 } CONFIG;
 
 extern CONFIG		config;
-
-#define CONTROL_VALUE(c)	controlValues[OA_CAM_CTRL_MODIFIER(c)][OA_CAM_CTRL_MODE_BASE(c)]
-
-#define	SET_PROFILE_CONTROL(c,v) if ( config.profileOption >= 0 ) profileConf.profiles[ config.profileOption ].filterProfiles[ config.filterOption ].controls[OA_CAM_CTRL_MODIFIER(c)][OA_CAM_CTRL_MODE_BASE(c)] = v
-
-#define	SET_PROFILE_INTERVAL(v) if ( config.profileOption >= 0 ) profileConf.profiles[ config.profileOption ].filterProfiles[ config.filterOption ].intervalMenuOption = v
-
-#define SET_PROFILE_CONFIG(n,v) if ( config.profileOption >= 0 ) profileConf.profiles[config.profileOption].n = v
