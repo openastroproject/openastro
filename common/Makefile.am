@@ -39,7 +39,7 @@ MOC_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/common $(MOC_CFLAGS) \
 lib_LTLIBRARIES = liboacommon.la
 liboacommon_la_SOURCES = camera.cc filterWheel.cc timer.cc targets.cc \
 	commonConfig.cc commonState.cc \
-	advancedSettings.cc autorunSettings.cc captureSettings.cc \
+	advancedSettings.cc autorunSettings.cc cameraSettings.cc captureSettings.cc \
 	demosaicSettings.cc filterSettings.cc fitsSettings.cc generalSettings.cc \
 	histogramSettings.cc profileSettings.cc timerSettings.cc \
 	focusOverlay.cc \

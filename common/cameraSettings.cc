@@ -35,9 +35,6 @@ extern "C" {
 #include <QtCore>
 #include <QtGui>
 
-#include "configuration.h"
-#include "mainWindow.h"
-
 #include "commonState.h"
 #include "commonConfig.h"
 #include "cameraSettings.h"
