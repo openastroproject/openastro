@@ -56,8 +56,7 @@ class CameraSettings : public QWidget
   Q_OBJECT
 
   public:
-    			CameraSettings ( QWidget*, QWidget*, cameraConfig*,
-							trampolineFuncs* );
+    			CameraSettings ( QWidget*, QWidget*, trampolineFuncs* );
     			~CameraSettings();
     void		configure ( void );
     void		storeSettings ( void );
@@ -98,7 +97,6 @@ class CameraSettings : public QWidget
     QHBoxLayout*	frameHBoxLayout;
 		trampolineFuncs*	trampolines;
 		QWidget*					topWidget;
-		cameraConfig*			pCameraConf;
 
   public slots:
     void		updateSliderControl ( int );

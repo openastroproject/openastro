@@ -48,9 +48,8 @@ extern "C" {
 
 
 CameraSettings::CameraSettings ( QWidget* parent, QWidget* top,
-		cameraConfig *cConf, trampolineFuncs* redirs ) :
-		QWidget ( parent ), topWidget ( top ), trampolines ( redirs ),
-		pCameraConf ( cConf )
+		trampolineFuncs* redirs ) :
+		QWidget ( parent ), topWidget ( top ), trampolines ( redirs )
 {
   layout = 0;
   sliderSignalMapper = 0;
@@ -161,11 +160,11 @@ CameraSettings::configure ( void )
                   c || OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) ==
                   c ) {
                 controlCheckbox[mod][baseVal]->setChecked (
-                    ( pCameraConf->CONTROL_VALUE(c) ==
+                    ( cameraConf.CONTROL_VALUE(c) ==
 										OA_EXPOSURE_MANUAL ) ? 0 : 1 );
               } else {
                 controlCheckbox[mod][baseVal]->setChecked (
-                    pCameraConf->CONTROL_VALUE(c));
+                    cameraConf.CONTROL_VALUE(c));
               }
               checkboxSignalMapper->setMapping (
                   controlCheckbox[mod][baseVal], c );
@@ -196,7 +195,7 @@ CameraSettings::configure ( void )
                       commonState.camera->getMenuString ( c, i )));
                 }
                 controlMenu[mod][baseVal]->setCurrentIndex (
-                    pCameraConf->CONTROL_VALUE(c));
+                    cameraConf.CONTROL_VALUE(c));
                 menuSignalMapper->setMapping ( controlMenu[mod][baseVal], c );
                 connect ( controlMenu[mod][baseVal], SIGNAL(
                     currentIndexChanged ( int )), menuSignalMapper,
@@ -223,7 +222,7 @@ CameraSettings::configure ( void )
                 controlMenu[mod][baseVal]->addItem ( tr (
                     commonState.camera->getMenuString ( c, values[i] )));
                 controlMenu[mod][baseVal]->setCurrentIndex (
-                    pCameraConf->CONTROL_VALUE(c));
+                    cameraConf.CONTROL_VALUE(c));
                 menuSignalMapper->setMapping ( controlMenu[mod][baseVal], c );
                 connect ( controlMenu[mod][baseVal], SIGNAL(
                     currentIndexChanged ( int )), menuSignalMapper,
@@ -341,7 +340,7 @@ CameraSettings::configure ( void )
             numSliderCheckboxes++;
             if ( OA_CAM_CTRL_MODIFIER_AUTO == mod ) {
               int autoMode =
-                pCameraConf->CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO ( baseVal ));
+                cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO ( baseVal ));
               if ( OA_CAM_CTRL_EXPOSURE_UNSCALED == baseVal ||
                   OA_CAM_CTRL_EXPOSURE_ABSOLUTE == baseVal ) {
                 autoMode = ( OA_EXPOSURE_MANUAL == autoMode ) ? 0 : 1;
@@ -514,7 +513,7 @@ CameraSettings::configure ( void )
   }
 
   forceFrameFormat = new QCheckBox ( tr ( "Force Input Frame Format" ), this );
-  forceFrameFormat->setChecked ( pCameraConf->forceInputFrameFormat );
+  forceFrameFormat->setChecked ( cameraConf.forceInputFrameFormat );
 
   selectedFrameFormat = new QComboBox ( this );
   for ( format = 1; format < OA_PIX_FMT_LAST_P1; format++ ) {
@@ -522,9 +521,9 @@ CameraSettings::configure ( void )
     selectedFrameFormat->setItemData ( format - 1,
           tr ( oaFrameFormats[ format ].simpleName ), Qt::ToolTipRole );
   }
-  if ( pCameraConf->forceInputFrameFormat ) {
+  if ( cameraConf.forceInputFrameFormat ) {
     selectedFrameFormat->setCurrentIndex (
-				pCameraConf->forceInputFrameFormat - 1 );
+				cameraConf.forceInputFrameFormat - 1 );
   }
   frameHBoxLayout = new QHBoxLayout();
   frameHBoxLayout->addWidget ( forceFrameFormat );
@@ -670,7 +669,7 @@ CameraSettings::buttonPushed ( int control )
 
             case OA_CTRL_TYPE_BOOLEAN:
               commonState.camera->readControl ( c );
-              pCameraConf->CONTROL_VALUE(c) = v;
+              cameraConf.CONTROL_VALUE(c) = v;
               SET_PROFILE_CONTROL( c, v );
               controlCheckbox[mod][baseVal]->setChecked ( v );
               break;
@@ -678,14 +677,14 @@ CameraSettings::buttonPushed ( int control )
             case OA_CTRL_TYPE_INT32:
             case OA_CTRL_TYPE_INT64:
               commonState.camera->readControl ( c );
-              pCameraConf->CONTROL_VALUE(c) = v;
+              cameraConf.CONTROL_VALUE(c) = v;
               SET_PROFILE_CONTROL( c, v );
               controlSpinbox[mod][baseVal]->setValue ( v );
               break;
 
             case OA_CTRL_TYPE_MENU:
               commonState.camera->readControl ( c );
-              pCameraConf->CONTROL_VALUE(c) = v;
+              cameraConf.CONTROL_VALUE(c) = v;
               SET_PROFILE_CONTROL( c, v );
               controlMenu[mod][baseVal]->setCurrentIndex ( v );
               break;
@@ -719,7 +718,7 @@ CameraSettings::buttonPushed ( int control )
           case OA_CTRL_TYPE_BOOLEAN:
             commonState.camera->controlRange ( c, &min, &max, &step, &def );
             controlCheckbox[mod][baseVal]->setChecked ( def );
-            pCameraConf->CONTROL_VALUE(c) = def;
+            cameraConf.CONTROL_VALUE(c) = def;
             SET_PROFILE_CONTROL( c, def );
             break;
 
@@ -727,14 +726,14 @@ CameraSettings::buttonPushed ( int control )
           case OA_CTRL_TYPE_INT64:
             commonState.camera->controlRange ( c, &min, &max, &step, &def );
             controlSpinbox[mod][baseVal]->setValue ( def );
-            pCameraConf->CONTROL_VALUE(c) = def;
+            cameraConf.CONTROL_VALUE(c) = def;
             SET_PROFILE_CONTROL( c, def );
             break;
 
           case OA_CTRL_TYPE_MENU:
             commonState.camera->controlRange ( c, &min, &max, &step, &def );
             controlMenu[mod][baseVal]->setCurrentIndex ( def );
-            pCameraConf->CONTROL_VALUE(c) = def;
+            cameraConf.CONTROL_VALUE(c) = def;
             SET_PROFILE_CONTROL( c, def );
             break;
 
@@ -881,15 +880,15 @@ CameraSettings::forceFrameFormatChanged ( int newState )
 {
   unsigned int oldState = 0;
 
-  oldState = pCameraConf->forceInputFrameFormat;
+  oldState = cameraConf.forceInputFrameFormat;
   if ( newState == Qt::Unchecked ) {
-    pCameraConf->forceInputFrameFormat = 0;
+    cameraConf.forceInputFrameFormat = 0;
   } else {
-    pCameraConf->forceInputFrameFormat =
+    cameraConf.forceInputFrameFormat =
 				selectedFrameFormat->currentIndex() + 1;
   }
   trampolines->updateForceFrameFormat ( oldState,
-      pCameraConf->forceInputFrameFormat );
+      cameraConf.forceInputFrameFormat );
 }
 
 
@@ -898,10 +897,10 @@ CameraSettings::selectedFrameFormatChanged ( int newIndex )
 {
   unsigned int oldState = 0;
 
-  if ( pCameraConf->forceInputFrameFormat ) {
-    oldState = pCameraConf->forceInputFrameFormat;
-    pCameraConf->forceInputFrameFormat = newIndex + 1;
+  if ( cameraConf.forceInputFrameFormat ) {
+    oldState = cameraConf.forceInputFrameFormat;
+    cameraConf.forceInputFrameFormat = newIndex + 1;
     trampolines->updateForceFrameFormat ( oldState,
-        pCameraConf->forceInputFrameFormat );
+        cameraConf.forceInputFrameFormat );
   }
 }

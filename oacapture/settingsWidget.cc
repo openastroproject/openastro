@@ -80,7 +80,7 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
 	}
 #ifdef OACAPTURE
 	if ( reqdWindows & SETTINGS_CAMERA ) {
-    cameras = new CameraSettings ( this, topWidget, &cameraConf, trampolines );
+    cameras = new CameraSettings ( this, topWidget, trampolines );
     state.cameraSettingsIndex = tabSet->addTab ( cameras,
         QIcon ( ":/qt-icons/planetary-camera.png" ), tr ( "Camera" ));
 	}
