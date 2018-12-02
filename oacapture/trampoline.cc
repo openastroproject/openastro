@@ -258,13 +258,6 @@ t_isDemosaicEnabled ( void )
 
 
 void
-t_setTimerMode ( int mode )
-{
-	timerConf.timerMode = mode;
-}
-
-
-void
 t_checkTimerWarnings ( void )
 {
 	QString		msg;
@@ -341,27 +334,6 @@ int
 t_frameRateDenominator ( void )
 {
   return config.frameRateDenominator;
-}
-
-
-int
-t_numFilters ( void )
-{
-  return filterConf.numFilters;
-}
-
-
-QString
-t_filterName ( int n )
-{
-  return filterConf.filters[n].filterName;
-}
-
-
-int64_t
-t_cameraControlValue ( int m, int c )
-{
-  return cameraConf.controlValues[m][c];
 }
 
 
@@ -467,7 +439,6 @@ trampolineFuncs trampolines {
 	.setVideoFramePixelFormat = &t_setVideoFramePixelFormat,
 	.destroyLayout = &t_destroyLayout,
   .isDemosaicEnabled = &t_isDemosaicEnabled,
-  .setTimerMode = &t_setTimerMode,
   .checkTimerWarnings = &t_checkTimerWarnings,
   .binning2x2 = &t_binning2x2,
   .colourise = &t_colourise,
@@ -476,9 +447,6 @@ trampolineFuncs trampolines {
   .imageSizeY = &t_imageSizeY,
   .frameRateNumerator = &t_frameRateNumerator,
   .frameRateDenominator = &t_frameRateDenominator,
-  .numFilters = &t_numFilters,
-  .filterName = &t_filterName,
-  .cameraControlValue = &t_cameraControlValue,
   .frameFileNameTemplate = &t_frameFileNameTemplate,
   .fileNameTemplate = &t_fileNameTemplate,
 	.captureDirectory = &t_captureDirectory,

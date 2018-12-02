@@ -39,6 +39,7 @@ extern "C" {
 #include "commonConfig.h"
 #include "cameraSettings.h"
 #include "profileSettings.h"
+#include "timerSettings.h"
 
 #define SLIDERS_PER_ROW		2
 #define CHECKBOXES_PER_ROW	4
@@ -590,7 +591,7 @@ CameraSettings::updateCheckboxControl ( int control )
       break;
 
     case OA_CAM_CTRL_TRIGGER_ENABLE:
-			trampolines->setTimerMode ( value ? OA_TIMER_MODE_TRIGGER :
+			timerConf.timerMode = ( value ? OA_TIMER_MODE_TRIGGER :
 					OA_TIMER_MODE_STROBE );
       trampolines->updateControlCheckbox ( control, value );
       break;
@@ -600,7 +601,7 @@ CameraSettings::updateCheckboxControl ( int control )
       break;
 
     case OA_CAM_CTRL_STROBE_ENABLE:
-			trampolines->setTimerMode ( value ?  OA_TIMER_MODE_STROBE :
+			timerConf.timerMode = ( value ?  OA_TIMER_MODE_STROBE :
 					OA_TIMER_MODE_TRIGGER );
       trampolines->updateControlCheckbox ( control, value );
       break;

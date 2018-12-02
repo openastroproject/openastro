@@ -38,6 +38,7 @@ extern "C" {
 #include "captureSettings.h"
 #include "filterSettings.h"
 #include "profileSettings.h"
+#include "cameraSettings.h"
 
 // This is global.  All applications using this code share it.
 
@@ -191,7 +192,7 @@ FilterSettings::storeSettings ( void )
           fp.filterName = f.filterName;
           for ( int j = 1; j <  OA_CAM_CTRL_LAST_P1; j++ ) {
             for ( int k = 0; k <  OA_CAM_CTRL_MODIFIERS_P1; k++ ) {
-              fp.controls[k][j] = trampolines->cameraControlValue ( k, j );
+              fp.controls[k][j] = cameraConf.controlValues[ k ][ j ];
             }
           }
           profileConf.profiles[i].filterProfiles.append ( fp );

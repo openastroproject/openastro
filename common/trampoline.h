@@ -64,7 +64,6 @@ typedef struct {
 	void ( *setVideoFramePixelFormat )( int );
 	void ( *destroyLayout )( QLayout* );
 	int ( *isDemosaicEnabled )( void );
-	void ( *setTimerMode )( int );
 	void ( *checkTimerWarnings )( void );
 	int ( *binning2x2 )( void );
 	int ( *colourise )( void );
@@ -73,9 +72,6 @@ typedef struct {
 	unsigned int ( *imageSizeY )( void );
 	int ( *frameRateNumerator )( void );
 	int ( *frameRateDenominator )( void );
-	int ( *numFilters )( void );
-	QString ( *filterName )( int );
-	int64_t ( *cameraControlValue )( int, int );
 	QString ( *frameFileNameTemplate )( void );
 	QString ( *fileNameTemplate )( void );
 	QString ( *captureDirectory )( void );
