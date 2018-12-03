@@ -325,16 +325,16 @@ MainWindow::readConfig ( QString configFile )
     config.darkFrame = 0;
     config.flipX = 0;
     config.flipY = 0;
-    config.demosaic = 0;
+    commonConfig.demosaic = 0;
 
-    config.binning2x2 = 0;
-    config.colourise = 0;
+    commonConfig.binning2x2 = 0;
+    commonConfig.colourise = 0;
     config.inputFrameFormat = OA_PIX_FMT_RGB24;
     cameraConf.forceInputFrameFormat = 0;
 
-    config.useROI = 0;
-    config.imageSizeX = 0;
-    config.imageSizeY = 0;
+    commonConfig.useROI = 0;
+    commonConfig.imageSizeX = 0;
+    commonConfig.imageSizeY = 0;
 
     config.zoomButton1Option = 1;
     config.zoomButton2Option = 3;
@@ -347,8 +347,8 @@ MainWindow::readConfig ( QString configFile )
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAMMA ) = -1;
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_BRIGHTNESS ) = -1;
     config.exposureMenuOption = 3;
-    config.frameRateNumerator = 0;
-    config.frameRateDenominator = 1;
+    commonConfig.frameRateNumerator = 0;
+    commonConfig.frameRateDenominator = 1;
     config.selectableControl[0] = OA_CAM_CTRL_GAMMA;
     config.selectableControl[1] = OA_CAM_CTRL_BRIGHTNESS;
     config.intervalMenuOption = 1;  // msec
@@ -360,8 +360,8 @@ MainWindow::readConfig ( QString configFile )
     commonConfig.framesLimitValue = 0;
     commonConfig.secondsLimitValue = 0;
     commonConfig.limitType = 0;
-    config.fileNameTemplate = QString ( "oaCapture-%DATE-%TIME" );
-    config.captureDirectory = QString ( defaultDir );
+    commonConfig.fileNameTemplate = QString ( "oaCapture-%DATE-%TIME" );
+    commonConfig.captureDirectory = QString ( defaultDir );
 
     autorunConf.autorunCount = 0;
     autorunConf.autorunDelay = 0;
@@ -446,21 +446,23 @@ MainWindow::readConfig ( QString configFile )
     config.darkFrame = settings->value ( "options/darkFrame", 0 ).toInt();
     config.flipX = settings->value ( "options/flipX", 0 ).toInt();
     config.flipY = settings->value ( "options/flipY", 0 ).toInt();
-    config.demosaic = settings->value ( "options/demosaic", 0 ).toInt();
+    commonConfig.demosaic = settings->value ( "options/demosaic", 0 ).toInt();
 
-    config.binning2x2 = settings->value ( "camera/binning2x2", 0 ).toInt();
-    config.colourise = settings->value ( "camera/colourise", 0 ).toInt();
+    commonConfig.binning2x2 = settings->value (
+				"camera/binning2x2", 0 ).toInt();
+    commonConfig.colourise = settings->value (
+				"camera/colourise", 0 ).toInt();
     // FIX ME -- reset these temporarily.  needs fixing properly
-    config.binning2x2 = 0;
-    config.colourise = 0;
+    commonConfig.binning2x2 = 0;
+    commonConfig.colourise = 0;
     config.inputFrameFormat = settings->value ( "camera/inputFrameFormat",
         OA_PIX_FMT_RGB24 ).toInt();
     cameraConf.forceInputFrameFormat = settings->value (
         "camera/forceInputFrameFormat", 0 ).toInt();
 
-    config.useROI = settings->value ( "image/useROI", 0 ).toInt();
-    config.imageSizeX = settings->value ( "image/imageSizeX", 0 ).toInt();
-    config.imageSizeY = settings->value ( "image/imageSizeY", 0 ).toInt();
+    commonConfig.useROI = settings->value ( "image/useROI", 0 ).toInt();
+    commonConfig.imageSizeX = settings->value ( "image/imageSizeX", 0 ).toInt();
+    commonConfig.imageSizeY = settings->value ( "image/imageSizeY", 0 ).toInt();
 
     config.zoomButton1Option = settings->value ( "image/zoomButton1Option",
         1 ).toInt();
@@ -485,9 +487,9 @@ MainWindow::readConfig ( QString configFile )
 
     config.exposureMenuOption = settings->value ( "control/exposureMenuOption",
         3 ).toInt();
-    config.frameRateNumerator = settings->value ( "control/frameRateNumerator",
-        0 ).toInt();
-    config.frameRateDenominator = settings->value (
+    commonConfig.frameRateNumerator = settings->value (
+				"control/frameRateNumerator", 0 ).toInt();
+    commonConfig.frameRateDenominator = settings->value (
         "control/frameRateDenominator", 1 ).toInt();
     config.selectableControl[0] = settings->value (
         "control/selectableControl1", OA_CAM_CTRL_GAMMA ).toInt();
@@ -512,10 +514,10 @@ MainWindow::readConfig ( QString configFile )
     commonConfig.secondsLimitValue = settings->value (
 				"control/secondsLimitValue", 0 ).toInt();
     commonConfig.limitType = settings->value ( "control/limitType", 0 ).toInt();
-    config.fileNameTemplate = settings->value ( "control/fileNameTemplate",
-        "oaCapture-%DATE-%TIME" ).toString();
-    config.captureDirectory = settings->value ( "control/captureDirectory",
-        defaultDir ).toString();
+    commonConfig.fileNameTemplate = settings->value (
+				"control/fileNameTemplate", "oaCapture-%DATE-%TIME" ).toString();
+    commonConfig.captureDirectory = settings->value (
+				"control/captureDirectory", defaultDir ).toString();
 
     autorunConf.autorunCount = settings->value ( "autorun/count", 0 ).toInt();
     autorunConf.autorunDelay = settings->value ( "autorun/delay", 0 ).toInt();
@@ -772,11 +774,11 @@ MainWindow::readConfig ( QString configFile )
 
       PROFILE p;
       p.profileName = "default";
-      p.binning2x2 = config.binning2x2;
-      p.colourise = config.colourise;
-      p.useROI = config.useROI;
-      p.imageSizeX = config.imageSizeX;
-      p.imageSizeY = config.imageSizeY;
+      p.binning2x2 = commonConfig.binning2x2;
+      p.colourise = commonConfig.colourise;
+      p.useROI = commonConfig.useROI;
+      p.imageSizeX = commonConfig.imageSizeX;
+      p.imageSizeY = commonConfig.imageSizeY;
       if ( filterConf.numFilters ) {
         for ( int k = 0; k < filterConf.numFilters; k++ ) {
           FILTER_PROFILE fp;
@@ -796,11 +798,11 @@ MainWindow::readConfig ( QString configFile )
         }
       }
 
-      p.frameRateNumerator = config.frameRateNumerator;
-      p.frameRateDenominator = config.frameRateDenominator;
+      p.frameRateNumerator = commonConfig.frameRateNumerator;
+      p.frameRateDenominator = commonConfig.frameRateDenominator;
       p.filterOption = commonConfig.filterOption;
       p.fileTypeOption = commonConfig.fileTypeOption;
-      p.fileNameTemplate = config.fileNameTemplate;
+      p.fileNameTemplate = commonConfig.fileNameTemplate;
       p.limitEnabled = commonConfig.limitEnabled;
       p.framesLimitValue = commonConfig.framesLimitValue;
       p.secondsLimitValue = commonConfig.secondsLimitValue;
@@ -853,11 +855,11 @@ MainWindow::readConfig ( QString configFile )
     }
   }
 
-  config.filterWheelConfig.clear();
+  commonConfig.filterWheelConfig.clear();
   for ( int i = 0; i < OA_FW_IF_COUNT; i++ ) {
     userConfigList	conf;
     conf.clear();
-    config.filterWheelConfig.append ( conf );
+    commonConfig.filterWheelConfig.append ( conf );
   }
   int numInterfaces = settings->beginReadArray ( "filterWheelUserConfig" );
   if ( numInterfaces ) {
@@ -878,7 +880,7 @@ MainWindow::readConfig ( QString configFile )
               0 ).toString().toStdString().c_str());
           ( void ) strcpy ( c.filesystemPath, settings->value ( "fsPath",
               0 ).toString().toStdString().c_str());
-          config.filterWheelConfig[i].append ( c );
+          commonConfig.filterWheelConfig[i].append ( c );
         }
       }
       settings->endArray();
@@ -886,11 +888,11 @@ MainWindow::readConfig ( QString configFile )
     settings->endArray();
   }
 
-  config.timerConfig.clear();
+  commonConfig.timerConfig.clear();
   for ( int i = 0; i < OA_TIMER_IF_COUNT; i++ ) {
     userConfigList      conf;
     conf.clear();
-    config.timerConfig.append ( conf );
+    commonConfig.timerConfig.append ( conf );
   }
   numInterfaces = settings->beginReadArray ( "ptrUserConfig" );
   if ( numInterfaces ) {
@@ -911,7 +913,7 @@ MainWindow::readConfig ( QString configFile )
               0 ).toString().toStdString().c_str());
           ( void ) strcpy ( c.filesystemPath, settings->value ( "fsPath",
               0 ).toString().toStdString().c_str());
-          config.timerConfig[i].append ( c );
+          commonConfig.timerConfig[i].append ( c );
         }
       }
       settings->endArray();
@@ -1012,17 +1014,17 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "options/darkFrame", config.darkFrame );
   settings->setValue ( "options/flipX", config.flipX );
   settings->setValue ( "options/flipY", config.flipY );
-  settings->setValue ( "options/demosaic", config.demosaic );
+  settings->setValue ( "options/demosaic", commonConfig.demosaic );
 
-  settings->setValue ( "camera/binning2x2", config.binning2x2 );
-  settings->setValue ( "camera/colourise", config.colourise );
+  settings->setValue ( "camera/binning2x2", commonConfig.binning2x2 );
+  settings->setValue ( "camera/colourise", commonConfig.colourise );
   settings->setValue ( "camera/inputFrameFormat", config.inputFrameFormat );
   settings->setValue ( "camera/forceInputFrameFormat",
       cameraConf.forceInputFrameFormat );
 
-  settings->setValue ( "image/useROI", config.useROI );
-  settings->setValue ( "image/imageSizeX", config.imageSizeX );
-  settings->setValue ( "image/imageSizeY", config.imageSizeY );
+  settings->setValue ( "image/useROI", commonConfig.useROI );
+  settings->setValue ( "image/imageSizeX", commonConfig.imageSizeX );
+  settings->setValue ( "image/imageSizeY", commonConfig.imageSizeY );
 
   settings->setValue ( "image/zoomButton1Option", config.zoomButton1Option );
   settings->setValue ( "image/zoomButton2Option", config.zoomButton2Option );
@@ -1032,9 +1034,9 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "control/exposureMenuOption",
       config.exposureMenuOption );
   settings->setValue ( "control/frameRateNumerator",
-      config.frameRateNumerator );
+      commonConfig.frameRateNumerator );
   settings->setValue ( "control/frameRateDenominator",
-      config.frameRateDenominator );
+      commonConfig.frameRateDenominator );
   settings->setValue ( "control/selectableControl1",
       config.selectableControl[0] );
   settings->setValue ( "control/selectableControl2",
@@ -1051,8 +1053,10 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "control/secondsLimitValue",
 			commonConfig.secondsLimitValue );
   settings->setValue ( "control/limitType", commonConfig.limitType );
-  settings->setValue ( "control/fileNameTemplate", config.fileNameTemplate );
-  settings->setValue ( "control/captureDirectory", config.captureDirectory );
+  settings->setValue ( "control/fileNameTemplate",
+			commonConfig.fileNameTemplate );
+  settings->setValue ( "control/captureDirectory",
+			commonConfig.captureDirectory );
 
   settings->setValue ( "autorun/count", autorunConf.autorunCount );
   settings->setValue ( "autorun/delay", autorunConf.autorunDelay );
@@ -1170,12 +1174,12 @@ MainWindow::writeConfig ( QString configFile )
   settings->endArray();
 
   settings->beginWriteArray ( "filterWheelUserConfig" );
-  int numInterfaces = config.filterWheelConfig.count();
+  int numInterfaces = commonConfig.filterWheelConfig.count();
   for ( int i = 0; i < numInterfaces; i++ ) {
     settings->setArrayIndex ( i );
     settings->beginWriteArray ( "matches" );
-    int numMatches = config.filterWheelConfig[i].count();
-    userConfigList confList = config.filterWheelConfig[i];
+    int numMatches = commonConfig.filterWheelConfig[i].count();
+    userConfigList confList = commonConfig.filterWheelConfig[i];
     for ( int j = 0; j < numMatches; j++ ) {
       settings->setArrayIndex ( j );
       settings->setValue ( "vendorId", confList[j].vendorId );
@@ -1190,12 +1194,12 @@ MainWindow::writeConfig ( QString configFile )
   settings->endArray();
 
   settings->beginWriteArray ( "ptrUserConfig" );
-  numInterfaces = config.timerConfig.count();
+  numInterfaces = commonConfig.timerConfig.count();
   for ( int i = 0; i < numInterfaces; i++ ) {
     settings->setArrayIndex ( i );
     settings->beginWriteArray ( "matches" );
-    int numMatches = config.timerConfig[i].count();
-    userConfigList confList = config.timerConfig[i];
+    int numMatches = commonConfig.timerConfig[i].count();
+    userConfigList confList = commonConfig.timerConfig[i];
     for ( int j = 0; j < numMatches; j++ ) {
       settings->setArrayIndex ( j );
       settings->setValue ( "vendorId", confList[j].vendorId );
@@ -1372,7 +1376,7 @@ MainWindow::createMenus ( void )
   colourise = new QAction ( tr ( "False Colour" ), this );
   colourise->setCheckable ( true );
   connect ( colourise, SIGNAL( changed()), this, SLOT( enableColouriseMode()));
-  colourise->setChecked ( config.colourise );
+  colourise->setChecked ( commonConfig.colourise );
 
   preview = new QAction ( tr ( "Preview on/off" ), this );
   preview->setCheckable ( true );
@@ -1396,7 +1400,7 @@ MainWindow::createMenus ( void )
   demosaicOpt = new QAction ( QIcon ( ":/qt-icons/mosaic.png" ),
       tr ( "Demosaic" ), this );
   demosaicOpt->setCheckable ( true );
-  demosaicOpt->setChecked ( config.demosaic );
+  demosaicOpt->setChecked ( commonConfig.demosaic );
   connect ( demosaicOpt, SIGNAL( changed()), this, SLOT( enableDemosaic()));
 
   optionsMenu = menuBar()->addMenu ( tr ( "&Options" ));
@@ -1627,12 +1631,12 @@ MainWindow::connectCamera ( int deviceIndex )
   format = commonState.camera->videoFramePixelFormat();
   state.captureWidget->enableTIFFCapture (
       ( !oaFrameFormats[ format ].rawColour ||
-      ( config.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
+      ( commonConfig.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
   state.captureWidget->enablePNGCapture (
       ( !oaFrameFormats[ format ].rawColour  ||
-      ( config.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
+      ( commonConfig.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
   state.captureWidget->enableMOVCapture (( QUICKTIME_OK( format ) || 
-      ( oaFrameFormats[ format ].rawColour && config.demosaic &&
+      ( oaFrameFormats[ format ].rawColour && commonConfig.demosaic &&
       demosaicConf.demosaicOutput )) ? 1 : 0 );
 }
 
@@ -1919,8 +1923,8 @@ MainWindow::enableNightMode ( void )
 void
 MainWindow::enableColouriseMode ( void )
 {
-  config.colourise = colourise->isChecked() ? 1 : 0;
-  SET_PROFILE_CONFIG( colourise, config.colourise );
+  commonConfig.colourise = colourise->isChecked() ? 1 : 0;
+  SET_PROFILE_CONFIG( colourise, commonConfig.colourise );
 }
 
 
@@ -2091,18 +2095,18 @@ MainWindow::enableDemosaic ( void )
   int demosaicState = demosaicOpt->isChecked() ? 1 : 0;
   int format;
 
-  config.demosaic = demosaicState;
+  commonConfig.demosaic = demosaicState;
   state.previewWidget->enableDemosaic ( demosaicState );
   if ( commonState.camera->isInitialised()) {
     format = commonState.camera->videoFramePixelFormat();
     state.captureWidget->enableTIFFCapture (
         ( !oaFrameFormats[ format ].rawColour ||
-        ( config.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
+        ( commonConfig.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
     state.captureWidget->enablePNGCapture (
         ( !oaFrameFormats[ format ].rawColour ||
-        ( config.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
+        ( commonConfig.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
     state.captureWidget->enableMOVCapture (( QUICKTIME_OK( format ) || 
-        ( oaFrameFormats[ format ].rawColour && config.demosaic &&
+        ( oaFrameFormats[ format ].rawColour && commonConfig.demosaic &&
         demosaicConf.demosaicOutput )) ? 1 : 0 );
   }
 }

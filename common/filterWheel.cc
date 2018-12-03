@@ -26,6 +26,7 @@
 
 #include <oa_common.h>
 
+#include "commonConfig.h"
 #include "filterWheel.h"
 #include "captureSettings.h"
 #include "fitsSettings.h"
@@ -329,11 +330,11 @@ FilterWheel::updateSearchFilters ( int interfaceType )
   int numIDFilters;
 
   oaClearFilterWheelIDFilters ( interfaceType );
-  numIDFilters = trampolines->filterWheelDeviceConfig ( interfaceType ).count();
+  numIDFilters = commonConfig.filterWheelConfig[ interfaceType ].count();
   if ( numIDFilters ) {
     for ( int i = 0; i < numIDFilters; i++ ) {
       oaAddFilterWheelIDFilter ( interfaceType,
-          &( trampolines->filterWheelDeviceConfig ( interfaceType )[ i ]));
+          &( commonConfig.filterWheelConfig[ interfaceType ][ i ] ));
     }
   }
 }

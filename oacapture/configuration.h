@@ -41,8 +41,6 @@ extern "C" {
 
 #include "profile.h"
 
-typedef QList<userDeviceConfig> userConfigList;
-
 typedef struct
 {
   // settings from device menu
@@ -60,20 +58,12 @@ typedef struct
   int			derotate;
   int			flipX;
   int			flipY;
-  int			demosaic;
 
   // camera config
   unsigned int		inputFrameFormat;
-  int			binning2x2;
-  int			colourise;
   QColor		currentColouriseColour;
   int			numCustomColours;
   QList<QColor>		customColours;
-
-  // image config
-  int			useROI;
-  unsigned int		imageSizeX;
-  unsigned int		imageSizeY;
 
   // zoom config
   int			zoomButton1Option;
@@ -83,22 +73,12 @@ typedef struct
 
   // control config
   int			exposureMenuOption;
-  int			frameRateNumerator;
-  int			frameRateDenominator;
   int			selectableControl[2];
   int			intervalMenuOption;
-
-  QString		fileNameTemplate;
-  QString		captureDirectory;
 
   // display config
   int			preview;
   int			nightMode;
-
-  // advanced user configuration
-
-  QList<userConfigList>	filterWheelConfig;
-  QList<userConfigList>	timerConfig;
 
 } CONFIG;
 

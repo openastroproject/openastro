@@ -32,6 +32,7 @@ extern "C" {
 #include <openastro/video/formats.h>
 }
 
+#include "commonConfig.h"
 #include "commonState.h"
 #include "trampoline.h"
 #include "captureSettings.h"
@@ -230,7 +231,7 @@ DemosaicSettings::storeSettings ( void )
 
   if ( commonState.camera->isInitialised()) {
     int format = commonState.camera->videoFramePixelFormat();
-		int enabled = trampolines->isDemosaicEnabled();
+		int enabled = commonConfig.demosaic;
     trampolines->setVideoFramePixelFormat ( format );
 		if ( demosaicOpts ) {
 			trampolines->enableTIFFCapture (

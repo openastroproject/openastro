@@ -880,15 +880,15 @@ ControlWidget::updateFrameRates ( void )
     return;
   }
 
-  if ( commonState.camera->hasFixedFrameRates ( config.imageSizeX,
-      config.imageSizeY )) {
+  if ( commonState.camera->hasFixedFrameRates ( commonConfig.imageSizeX,
+      commonConfig.imageSizeY )) {
 
     // Ugly sorting of the frame rates here.  We don't know what
     // order we'll get them in so we have to sort them into rate
     // order for the slider to work.
 
     const FRAMERATES* rates = commonState.camera->frameRates (
-				config.imageSizeX, config.imageSizeY );
+				commonConfig.imageSizeX, commonConfig.imageSizeY );
 
     // don't use the frame rate slider if there's only one frame rate
     if ( 1 == rates->numRates ) {
@@ -927,8 +927,8 @@ ControlWidget::updateFrameRates ( void )
       rateList << *j;
       frameRateNumerator << *n;
       frameRateDenominator << *d;
-      if ( *n == config.frameRateNumerator &&
-          *d == config.frameRateDenominator ) {
+      if ( *n == commonConfig.frameRateNumerator &&
+          *d == commonConfig.frameRateDenominator ) {
         showItem = numItems;
       }
       numItems++;
@@ -939,10 +939,11 @@ ControlWidget::updateFrameRates ( void )
     framerateMenu->addItems ( rateList );
     framerateSlider->setRange ( 0, numItems - 1 );
     framerateSlider->setSingleStep ( 1 );
-    config.frameRateNumerator = frameRateNumerator[ showItem ];
-    config.frameRateDenominator = frameRateDenominator[ showItem ];
-    SET_PROFILE_CONFIG( frameRateNumerator, config.frameRateNumerator );
-    SET_PROFILE_CONFIG( frameRateDenominator, config.frameRateDenominator );
+    commonConfig.frameRateNumerator = frameRateNumerator[ showItem ];
+    commonConfig.frameRateDenominator = frameRateDenominator[ showItem ];
+    SET_PROFILE_CONFIG( frameRateNumerator, commonConfig.frameRateNumerator );
+    SET_PROFILE_CONFIG( frameRateDenominator,
+				commonConfig.frameRateDenominator );
     ignoreFrameRateChanges = 0;
 
     // Handle only having one frame rate
@@ -1103,14 +1104,14 @@ ControlWidget::_doFrameRateChange ( int index, int updateUI )
   }
   */
 
-  config.frameRateNumerator = frameRateNumerator[ index ];
-  config.frameRateDenominator = frameRateDenominator[ index ];
-  SET_PROFILE_CONFIG( frameRateNumerator, config.frameRateNumerator );
-  SET_PROFILE_CONFIG( frameRateDenominator, config.frameRateDenominator );
-  theoreticalFPSNumerator = config.frameRateNumerator;
-  theoreticalFPSDenominator = config.frameRateDenominator;
-  theoreticalFPS = config.frameRateDenominator /
-      config.frameRateNumerator;
+  commonConfig.frameRateNumerator = frameRateNumerator[ index ];
+  commonConfig.frameRateDenominator = frameRateDenominator[ index ];
+  SET_PROFILE_CONFIG( frameRateNumerator, commonConfig.frameRateNumerator );
+  SET_PROFILE_CONFIG( frameRateDenominator, commonConfig.frameRateDenominator );
+  theoreticalFPSNumerator = commonConfig.frameRateNumerator;
+  theoreticalFPSDenominator = commonConfig.frameRateDenominator;
+  theoreticalFPS = commonConfig.frameRateDenominator /
+      commonConfig.frameRateNumerator;
 
   if ( updateUI && state.settingsWidget ) {
     state.settingsWidget->updateFrameRate ( index );
@@ -1122,8 +1123,8 @@ ControlWidget::_doFrameRateChange ( int index, int updateUI )
     return;
   }
 
-  commonState.camera->setFrameInterval ( config.frameRateNumerator,
-      config.frameRateDenominator );
+  commonState.camera->setFrameInterval ( commonConfig.frameRateNumerator,
+      commonConfig.frameRateDenominator );
 }
 
 

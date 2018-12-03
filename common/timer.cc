@@ -30,6 +30,7 @@ extern "C" {
 #include <openastro/timer.h>
 }
 
+#include "commonConfig.h"
 #include "timer.h"
 #include "timerSettings.h"
 
@@ -231,11 +232,11 @@ Timer::updateSearchFilters ( int interfaceType )
   int numIDFilters;
 
   oaClearPTRIDFilters();
-  numIDFilters = trampolines->timerDeviceConfig ( interfaceType ).count();
+  numIDFilters = commonConfig.timerConfig[ interfaceType ].count();
   if ( numIDFilters ) {
     for ( int i = 0; i < numIDFilters; i++ ) {
       oaAddPTRIDFilter (
-					&( trampolines->timerDeviceConfig ( interfaceType )[i]));
+					&( commonConfig.timerConfig[ interfaceType ][ i ] ));
     }
   }
 }

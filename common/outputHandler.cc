@@ -28,6 +28,7 @@
 
 #include <time.h>
 
+#include "commonConfig.h"
 #include "trampoline.h"
 #include "outputHandler.h"
 #include "captureSettings.h"
@@ -45,7 +46,7 @@ OutputHandler::OutputHandler ( int x, int y, int n, int d,
   Q_UNUSED( d );
 
 	if ( nameTemplate == "" ) {
-		filenameTemplate = trampolines->fileNameTemplate().toStdString().c_str();
+		filenameTemplate = commonConfig.fileNameTemplate.toStdString().c_str();
     generateFilename();
 	}
 }
@@ -136,7 +137,7 @@ OutputHandler::generateFilename ( void )
   filename.replace ( "%X", exposureS );
 
   if ( filename[0] != '/' ) {
-		QString d = trampolines->captureDirectory();
+		QString d = commonConfig.captureDirectory;
     if ( d == "" ) {
 			d = trampolines->currentDirectory();
     }

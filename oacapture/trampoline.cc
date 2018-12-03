@@ -250,13 +250,6 @@ t_destroyLayout ( QLayout* layout )
 }
 
 
-int
-t_isDemosaicEnabled ( void )
-{
-  return config.demosaic;
-}
-
-
 void
 t_checkTimerWarnings ( void )
 {
@@ -290,93 +283,10 @@ t_checkTimerWarnings ( void )
 }
 
 
-int
-t_binning2x2 ( void )
-{
-  return config.binning2x2;
-}
-
-int
-t_colourise ( void )
-{
-  return config.colourise;
-}
-
-int
-t_useROI ( void )
-{
-  return config.useROI;
-}
-
-
-unsigned int
-t_imageSizeX ( void )
-{
-  return config.imageSizeX;
-}
-
-
-unsigned int
-t_imageSizeY ( void )
-{
-  return config.imageSizeY;
-}
-
-
-int
-t_frameRateNumerator ( void )
-{
-  return config.frameRateNumerator;
-}
-
-
-int
-t_frameRateDenominator ( void )
-{
-  return config.frameRateDenominator;
-}
-
-
-QString
-t_frameFileNameTemplate ( void )
-{
-	qWarning() << __FUNCTION__ << "doing nothing";
-	return "";
-}
-
-
-QString
-t_fileNameTemplate ( void )
-{
-  return config.fileNameTemplate;
-}
-
-
-QString
-t_captureDirectory ( void )
-{
-  return config.captureDirectory;
-}
-
-
 QString
 t_currentDirectory ( void )
 {
   return state.currentDirectory;
-}
-
-
-QList<userDeviceConfig>
-t_filterWheelDeviceConfig ( int interfaceType )
-{
-	return config.filterWheelConfig[ interfaceType ];
-}
-
-
-QList<userDeviceConfig>
-t_timerDeviceConfig ( int interfaceType )
-{
-	return config.timerConfig[ interfaceType ];
 }
 
 
@@ -438,21 +348,8 @@ trampolineFuncs trampolines {
   .enablePNGCapture = &t_enablePNGCapture,
 	.setVideoFramePixelFormat = &t_setVideoFramePixelFormat,
 	.destroyLayout = &t_destroyLayout,
-  .isDemosaicEnabled = &t_isDemosaicEnabled,
   .checkTimerWarnings = &t_checkTimerWarnings,
-  .binning2x2 = &t_binning2x2,
-  .colourise = &t_colourise,
-  .useROI = &t_useROI,
-  .imageSizeX = &t_imageSizeX,
-  .imageSizeY = &t_imageSizeY,
-  .frameRateNumerator = &t_frameRateNumerator,
-  .frameRateDenominator = &t_frameRateDenominator,
-  .frameFileNameTemplate = &t_frameFileNameTemplate,
-  .fileNameTemplate = &t_fileNameTemplate,
-	.captureDirectory = &t_captureDirectory,
 	.currentDirectory = &t_currentDirectory,
-	.filterWheelDeviceConfig = &t_filterWheelDeviceConfig,
-	.timerDeviceConfig = &t_timerDeviceConfig,
   .updateConfig = &t_updateConfig,
   .showStatusMessage = &t_showStatusMessage,
 	.propagateNewSlotName = &t_propagateNewSlotName,

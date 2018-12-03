@@ -73,22 +73,22 @@ ImageWidget::ImageWidget ( QWidget* parent ) : QGroupBox ( parent )
   roiYSize->setMaxLength ( 4 );
   roiYSize->setFixedWidth ( 45 );
   QString xStr, yStr;
-  if ( config.imageSizeX > 0 ) {
-    xStr = QString::number ( config.imageSizeX );
+  if ( commonConfig.imageSizeX > 0 ) {
+    xStr = QString::number ( commonConfig.imageSizeX );
   } else {
     xStr = "";
-    config.imageSizeX = 0;
+    commonConfig.imageSizeX = 0;
   }
   roiXSize->setText ( xStr );
-  if ( config.imageSizeY > 0 ) {
-    yStr = QString::number ( config.imageSizeY );
+  if ( commonConfig.imageSizeY > 0 ) {
+    yStr = QString::number ( commonConfig.imageSizeY );
   } else {
     yStr = "";
-    config.imageSizeY = 0;
+    commonConfig.imageSizeY = 0;
   }
   roiYSize->setText ( yStr );
-  SET_PROFILE_CONFIG( imageSizeX, config.imageSizeX );
-  SET_PROFILE_CONFIG( imageSizeY, config.imageSizeY );
+  SET_PROFILE_CONFIG( imageSizeX, commonConfig.imageSizeX );
+  SET_PROFILE_CONFIG( imageSizeY, commonConfig.imageSizeY );
 
   roiButton = new QPushButton (
       QIcon ( ":/qt-icons/roi.png" ), "", this );
@@ -168,8 +168,8 @@ ImageWidget::configure ( void )
     int numPixels = sizeList->sizes[i].x * sizeList->sizes[i].y;
     QString resStr = QString::number ( sizeList->sizes[i].x ) + "x" +
         QString::number ( sizeList->sizes[i].y );
-    if ( sizeList->sizes[i].x == config.imageSizeX &&
-        sizeList->sizes[i].y == config.imageSizeY ) {
+    if ( sizeList->sizes[i].x == commonConfig.imageSizeX &&
+        sizeList->sizes[i].y == commonConfig.imageSizeY ) {
       showItemStr = resStr;
     }
     sortMap [ numPixels ] = resStr;
@@ -208,25 +208,25 @@ ImageWidget::configure ( void )
   ignoreResolutionChanges = 0;
 
   if ( showItem >= 0 ) {
-    config.imageSizeX = showXRes;
-    config.imageSizeY = showYRes;
+    commonConfig.imageSizeX = showXRes;
+    commonConfig.imageSizeY = showYRes;
   } else {
     showItem = ( !userROI->isChecked() && !cropRegion->isChecked()) ?
         numItems - 1: 0;
     if ( showItem ) {
-      config.imageSizeX = xRes[ lastKey ];
-      config.imageSizeY = yRes[ lastKey ];
+      commonConfig.imageSizeX = xRes[ lastKey ];
+      commonConfig.imageSizeY = yRes[ lastKey ];
     } else {
-      config.imageSizeX = xRes[ firstKey ];
-      config.imageSizeY = yRes[ firstKey ];
+      commonConfig.imageSizeX = xRes[ firstKey ];
+      commonConfig.imageSizeY = yRes[ firstKey ];
     }
   }
   maxX = xRes[ lastKey ];
   maxY = yRes[ lastKey ];
   commonState.sensorSizeX = maxX;
   commonState.sensorSizeY = maxY;
-  SET_PROFILE_CONFIG( imageSizeX, config.imageSizeX );
-  SET_PROFILE_CONFIG( imageSizeY, config.imageSizeY );
+  SET_PROFILE_CONFIG( imageSizeX, commonConfig.imageSizeX );
+  SET_PROFILE_CONFIG( imageSizeY, commonConfig.imageSizeY );
 
   // There's a gotcha here for cameras that only support a single
   // resolution, as the index won't actually change, and the slot
@@ -237,8 +237,8 @@ ImageWidget::configure ( void )
   } else {
     resMenu->setCurrentIndex ( showItem );
   }
-  // xSize->setText ( QString::number ( config.imageSizeX ));
-  // ySize->setText ( QString::number ( config.imageSizeY ));
+  // xSize->setText ( QString::number ( commonConfig.imageSizeX ));
+  // ySize->setText ( QString::number ( commonConfig.imageSizeY ));
 
   if ( !roiXValidator ) {
     roiXValidator = new QIntValidator ( 1, maxX, this );
@@ -256,8 +256,8 @@ ImageWidget::configure ( void )
   cropYValidator->setRange ( 1, maxY );
 
   if ( commonState.cropMode ) {
-    if ( config.imageSizeX > commonState.cropSizeX ||
-				config.imageSizeY > commonState.cropSizeY ) {
+    if ( commonConfig.imageSizeX > commonState.cropSizeX ||
+				commonConfig.imageSizeY > commonState.cropSizeY ) {
       commonState.cropMode = 0;
       cropRegion->setChecked ( false );
     }
@@ -293,10 +293,10 @@ ImageWidget::cameraROIChanged ( int index )
 
   userROI->setChecked ( false );
 
-  config.imageSizeX = XResolutions[ index ];
-  config.imageSizeY = YResolutions[ index ];
-  // xSize->setText ( QString::number ( config.imageSizeX ));
-  // ySize->setText ( QString::number ( config.imageSizeY ));
+  commonConfig.imageSizeX = XResolutions[ index ];
+  commonConfig.imageSizeY = YResolutions[ index ];
+  // xSize->setText ( QString::number ( commonConfig.imageSizeX ));
+  // ySize->setText ( QString::number ( commonConfig.imageSizeY ));
   doResolutionChange ( 0 );
 }
 
@@ -309,15 +309,17 @@ ImageWidget::doResolutionChange ( int roiChanged )
     state.controlWidget->updateFrameRates();
   }
   if ( roiChanged ) {
-    commonState.camera->setROI ( config.imageSizeX, config.imageSizeY );
+    commonState.camera->setROI ( commonConfig.imageSizeX,
+				commonConfig.imageSizeY );
   } else {
-    commonState.camera->setResolution ( config.imageSizeX, config.imageSizeY );
+    commonState.camera->setResolution ( commonConfig.imageSizeX,
+				commonConfig.imageSizeY );
   }
   if ( state.previewWidget ) {
     state.previewWidget->updatePreviewSize();
   }
-  SET_PROFILE_CONFIG( imageSizeX, config.imageSizeX );
-  SET_PROFILE_CONFIG( imageSizeY, config.imageSizeY );
+  SET_PROFILE_CONFIG( imageSizeX, commonConfig.imageSizeX );
+  SET_PROFILE_CONFIG( imageSizeY, commonConfig.imageSizeY );
 }
 
 
@@ -349,8 +351,8 @@ ImageWidget::updateFromConfig ( void )
   if ( numRes ) {
     int index = 0;
     for ( int i = 0; i < numRes && 0 == index; i++ ) {
-      if ( XResolutions[ i ] == config.imageSizeX && YResolutions[ i ] ==
-          config.imageSizeY ) {
+      if ( XResolutions[ i ] == commonConfig.imageSizeX && YResolutions[ i ] ==
+          commonConfig.imageSizeY ) {
         index = i;
       }
     }
@@ -360,8 +362,8 @@ ImageWidget::updateFromConfig ( void )
     ignoreResolutionChanges = 1;
     resMenu->setCurrentIndex ( index );
     ignoreResolutionChanges = 0;
-    // xSize->setText ( QString::number ( config.imageSizeX ));
-    // ySize->setText ( QString::number ( config.imageSizeY ));
+    // xSize->setText ( QString::number ( commonConfig.imageSizeX ));
+    // ySize->setText ( QString::number ( commonConfig.imageSizeY ));
 
     // if ( commonState.camera->isInitialised()) {
       // commonState.camera->delayFrameRateChanges();
@@ -371,7 +373,7 @@ ImageWidget::updateFromConfig ( void )
     }
     if ( commonState.camera->isInitialised()) {
       commonState.camera->setResolution (
-					config.imageSizeX, config.imageSizeY );
+					commonConfig.imageSizeX, commonConfig.imageSizeY );
     }
     if ( state.previewWidget ) {
       state.previewWidget->updatePreviewSize();
@@ -418,10 +420,10 @@ ImageWidget::setUserROI ( void )
       x = altX;
       y = altY;
     }
-    config.imageSizeX = x;
-    config.imageSizeY = y;
-    roiYSize->setText ( QString::number ( config.imageSizeX ));
-    roiYSize->setText ( QString::number ( config.imageSizeY ));
+    commonConfig.imageSizeX = x;
+    commonConfig.imageSizeY = y;
+    roiYSize->setText ( QString::number ( commonConfig.imageSizeX ));
+    roiYSize->setText ( QString::number ( commonConfig.imageSizeY ));
     doResolutionChange ( 1 );
     userROI->setChecked ( true );
   } else {
@@ -429,8 +431,8 @@ ImageWidget::setUserROI ( void )
   }
 
   if ( commonState.cropMode ) {
-    if ( config.imageSizeX > commonState.cropSizeX ||
-				config.imageSizeY > commonState.cropSizeY ) {
+    if ( commonConfig.imageSizeX > commonState.cropSizeX ||
+				commonConfig.imageSizeY > commonState.cropSizeY ) {
       commonState.cropMode = 0;
       cropRegion->setChecked ( false );
     }
@@ -469,7 +471,7 @@ ImageWidget::setCropSize ( void )
     // multiples of 2
     x = x + ( x % 2 );
     y = y + ( y % 2 );
-    if ( x <= config.imageSizeX && y <= config.imageSizeY ) {
+    if ( x <= commonConfig.imageSizeX && y <= commonConfig.imageSizeY ) {
       cropRegion->setChecked ( true );
       commonState.cropSizeX = x;
       commonState.cropSizeY = y;

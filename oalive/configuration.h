@@ -41,8 +41,6 @@ extern "C" {
 
 #include "profile.h"
 
-typedef QList<userDeviceConfig> userConfigList;
-
 typedef struct
 {
   // settings from device menu
@@ -102,11 +100,6 @@ typedef struct
   int			filterSlots[MAX_FILTER_SLOTS];
   int			promptForFilterChange;
   int			interFilterDelay;
-
-  // advanced user configuration
-
-  QList<userConfigList>	filterWheelConfig;
-  QList<userConfigList>	timerConfig;
 
 } CONFIG;
 

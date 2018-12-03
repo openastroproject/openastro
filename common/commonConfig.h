@@ -39,18 +39,46 @@ extern "C" {
 #include <openastro/userConfig.h>
 }
 
+#include <QtCore>
+
+typedef QList<userDeviceConfig> userConfigList;
+
 typedef struct
 {
   // capture config
-  int			profileOption;
-  int			filterOption;
-  int			fileTypeOption;
-  int			limitEnabled;
-  int			secondsLimitValue;
-  int			framesLimitValue;
-  int			limitType;
-  int			autorunCount;
-  int			autorunDelay;
+  int							profileOption;
+  int							filterOption;
+  int							fileTypeOption;
+  int							limitEnabled;
+  int							secondsLimitValue;
+  int							framesLimitValue;
+  int							limitType;
+  int							autorunCount;
+  int							autorunDelay;
+
+	// options
+	int							demosaic;
+
+	// camera config
+	int							binning2x2;
+	int							colourise;
+
+	// image config
+	int							useROI;
+	unsigned int		imageSizeX;
+	unsigned int		imageSizeY;
+
+	// control config
+	int							frameRateNumerator;
+	int							frameRateDenominator;
+	QString					fileNameTemplate;
+	QString					frameFileNameTemplate;
+	QString					captureDirectory;
+
+	// advanced user configuration
+	QList<userConfigList>		filterWheelConfig;
+	QList<userConfigList>		timerConfig;
+
 } COMMON_CONFIG;
 
 extern COMMON_CONFIG		commonConfig;

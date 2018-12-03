@@ -34,6 +34,7 @@ extern "C" {
 #include <openastro/userConfig.h>
 }
 
+#include "commonConfig.h"
 #include "commonState.h"
 #include "captureSettings.h"
 #include "advancedSettings.h"
@@ -55,8 +56,8 @@ AdvancedSettings::AdvancedSettings ( QWidget* parent, int device,
     case OA_DEVICE_FILTERWHEEL:
       ifaceStr = QString ( oaFilterWheelInterfaces[ interfaceType ].name );
       deviceStr = tr ( "Filter Wheel" );
-      if ( !trampolines->filterWheelDeviceConfig ( interfaceType ).isEmpty()) {
-        configList = trampolines->filterWheelDeviceConfig ( interfaceType );
+      if ( !commonConfig.filterWheelConfig[ interfaceType ].isEmpty()) {
+        configList = commonConfig.filterWheelConfig[ interfaceType ];
         haveItems = 1;
       }
       configFlags = oaFilterWheelInterfaces[ interfaceType ].userConfigFlags;
@@ -65,8 +66,8 @@ AdvancedSettings::AdvancedSettings ( QWidget* parent, int device,
     case OA_DEVICE_PTR:
       ifaceStr = "PTR";
       deviceStr = tr ( "Timer" );
-      if ( !trampolines->timerDeviceConfig ( 0 ).isEmpty()) {
-        configList = trampolines->timerDeviceConfig ( 0 );
+      if ( !commonConfig.timerConfig[ 0 ].isEmpty()) {
+        configList = commonConfig.timerConfig[ 0 ];
         haveItems = 1;
       }
       configFlags = OA_UDC_FLAG_USB_ALL;
@@ -445,10 +446,10 @@ AdvancedSettings::saveFilters ( void )
   switch ( deviceType ) {
 
     case OA_DEVICE_FILTERWHEEL:
-      trampolines->filterWheelDeviceConfig ( interfaceType ).clear();
+      commonConfig.filterWheelConfig[ interfaceType ].clear();
       if ( numDevices ) {
         for ( int i = 0; i < editedList.count(); i++ ) {
-          trampolines->filterWheelDeviceConfig ( interfaceType ).append (
+          commonConfig.filterWheelConfig[ interfaceType ].append (
               editedList.takeFirst());
         }
       }
@@ -456,10 +457,10 @@ AdvancedSettings::saveFilters ( void )
       break;
 
     case OA_DEVICE_PTR:
-      trampolines->timerDeviceConfig ( 0 ).clear();
+      commonConfig.timerConfig[ 0 ].clear();
       if ( numDevices ) {
         for ( int i = 0; i < editedList.count(); i++ ) {
-          trampolines->timerDeviceConfig ( 0 ).append (
+          commonConfig.timerConfig[ 0 ].append (
               editedList.takeFirst());
         }
       }

@@ -897,11 +897,11 @@ MainWindow::readConfig ( QString configFile )
     }
   }
 
-  config.filterWheelConfig.clear();
+  commonConfig.filterWheelConfig.clear();
   for ( int i = 0; i < OA_FW_IF_COUNT; i++ ) {
     userConfigList	conf;
     conf.clear();
-    config.filterWheelConfig.append ( conf );
+    commonConfig.filterWheelConfig.append ( conf );
   }
   int numInterfaces = settings->beginReadArray ( "filterWheelUserConfig" );
   if ( numInterfaces ) {
@@ -922,7 +922,7 @@ MainWindow::readConfig ( QString configFile )
               0 ).toString().toStdString().c_str());
           ( void ) strcpy ( c.filesystemPath, settings->value ( "fsPath",
               0 ).toString().toStdString().c_str());
-          config.filterWheelConfig[i].append ( c );
+          commonConfig.filterWheelConfig[i].append ( c );
         }
       }
       settings->endArray();
@@ -1240,12 +1240,12 @@ MainWindow::writeConfig ( QString configFile )
 #endif
 
   settings->beginWriteArray ( "filterWheelUserConfig" );
-  int numInterfaces = config.filterWheelConfig.count();
+  int numInterfaces = commonConfig.filterWheelConfig.count();
   for ( int i = 0; i < numInterfaces; i++ ) {
     settings->setArrayIndex ( i );
     settings->beginWriteArray ( "matches" );
-    int numMatches = config.filterWheelConfig[i].count();
-    userConfigList confList = config.filterWheelConfig[i];
+    int numMatches = commonConfig.filterWheelConfig[i].count();
+    userConfigList confList = commonConfig.filterWheelConfig[i];
     for ( int j = 0; j < numMatches; j++ ) {
       settings->setArrayIndex ( j );
       settings->setValue ( "vendorId", confList[j].vendorId );

@@ -163,11 +163,11 @@ ProfileSettings::addEntry ( void )
   } while ( found );
 
   p.profileName = newName;
-  p.binning2x2 = trampolines->binning2x2();
-  p.colourise = trampolines->colourise();
-  p.useROI = trampolines->useROI();
-  p.imageSizeX = trampolines->imageSizeX();
-  p.imageSizeY = trampolines->imageSizeY();
+  p.binning2x2 = commonConfig.binning2x2;
+  p.colourise = commonConfig.colourise;
+  p.useROI = commonConfig.useROI;
+  p.imageSizeX = commonConfig.imageSizeX;
+  p.imageSizeY = commonConfig.imageSizeY;
   for ( int j = 0; j < filterConf.numFilters; j++ ) {
     FILTER_PROFILE fp;
     fp.filterName = filterConf.filters[ j ].filterName;
@@ -178,12 +178,12 @@ ProfileSettings::addEntry ( void )
     }
     p.filterProfiles.append ( fp );
   }
-  p.frameRateNumerator = trampolines->frameRateNumerator();
-  p.frameRateDenominator = trampolines->frameRateDenominator();
+  p.frameRateNumerator = commonConfig.frameRateNumerator;
+  p.frameRateDenominator = commonConfig.frameRateDenominator;
   p.filterOption = commonConfig.filterOption;
   p.fileTypeOption = commonConfig.fileTypeOption;
-	p.frameFileNameTemplate = trampolines->frameFileNameTemplate();
-  p.fileNameTemplate = trampolines->fileNameTemplate();
+	p.frameFileNameTemplate = commonConfig.frameFileNameTemplate;
+  p.fileNameTemplate = commonConfig.fileNameTemplate;
   p.limitEnabled = commonConfig.limitEnabled;
   p.framesLimitValue = commonConfig.framesLimitValue;
   p.secondsLimitValue = commonConfig.secondsLimitValue;

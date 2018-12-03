@@ -117,7 +117,7 @@ CaptureWidget::CaptureWidget ( QWidget* parent ) : QGroupBox ( parent )
 
   fileLabel = new QLabel ( tr ( "File: " ), this );
   fileName = new QLineEdit ( this );
-  fileName->setText ( config.fileNameTemplate );
+  fileName->setText ( commonConfig.fileNameTemplate );
   QRegExp rx( "[^/; <>]+" );
   fileNameValidator = new QRegExpValidator ( rx, this );
   fileName->setValidator ( fileNameValidator );
@@ -369,8 +369,8 @@ CaptureWidget::fileTypeChanged ( int index )
   if ( CAPTURE_TIFF == commonConfig.fileTypeOption ||
       CAPTURE_PNG == commonConfig.fileTypeOption ||
       CAPTURE_FITS == commonConfig.fileTypeOption ) {
-    if ( !config.fileNameTemplate.contains ( "%INDEX" ) &&
-        !config.fileNameTemplate.contains ( "%I" )) {
+    if ( !commonConfig.fileNameTemplate.contains ( "%INDEX" ) &&
+        !commonConfig.fileNameTemplate.contains ( "%I" )) {
       QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME, tr ( "The " ) +
           fileFormats[ commonConfig.fileTypeOption ] +
           tr ( " file format is selected, but the filename template "
@@ -449,8 +449,8 @@ CaptureWidget::startRecording ( void )
 			( CAPTURE_TIFF == commonConfig.fileTypeOption ||
       CAPTURE_PNG == commonConfig.fileTypeOption ||
       CAPTURE_FITS == commonConfig.fileTypeOption ) &&
-      ( config.fileNameTemplate.contains ( "%INDEX" ) ||
-      config.fileNameTemplate.contains ( "%I" ))) {
+      ( commonConfig.fileNameTemplate.contains ( "%INDEX" ) ||
+      commonConfig.fileNameTemplate.contains ( "%I" ))) {
 
     int numRuns, numDigits;
     unsigned long long numFrames = 0, maxFrames;
@@ -543,8 +543,8 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     actualX = commonState.cropSizeX;
     actualY = commonState.cropSizeY;
   } else {
-    actualX = config.imageSizeX;
-    actualY = config.imageSizeY;
+    actualX = commonConfig.imageSizeX;
+    actualY = commonConfig.imageSizeY;
   }
   switch ( commonConfig.fileTypeOption ) {
     case CAPTURE_AVI:
@@ -932,8 +932,8 @@ CaptureWidget::setNewCaptureDirectory ( void )
 
   dialog.setFileMode ( QFileDialog::Directory );
   dialog.setOption ( QFileDialog::ShowDirsOnly );
-  if ( config.captureDirectory != "" ) {
-    dialog.setDirectory ( config.captureDirectory );
+  if ( commonConfig.captureDirectory != "" ) {
+    dialog.setDirectory ( commonConfig.captureDirectory );
   } else {
     dialog.setDirectory ( "." );
   }
@@ -943,7 +943,7 @@ CaptureWidget::setNewCaptureDirectory ( void )
     if ( dialog.exec()) {
       QStringList names = dialog.selectedFiles();
       if ( !access ( names[0].toStdString().c_str(), W_OK | R_OK )) {
-        config.captureDirectory = names[0];
+        commonConfig.captureDirectory = names[0];
         done = 1;
       } else {
         QMessageBox err;
@@ -1089,8 +1089,8 @@ CaptureWidget::openCaptureDirectory ( void )
   QFileDialog dialog( this );
 
   dialog.setFileMode ( QFileDialog::AnyFile );
-  if ( config.captureDirectory != "" ) {
-    dialog.setDirectory ( config.captureDirectory );
+  if ( commonConfig.captureDirectory != "" ) {
+    dialog.setDirectory ( commonConfig.captureDirectory );
   } else {
     dialog.setDirectory ( "." );
   }
@@ -1102,8 +1102,8 @@ CaptureWidget::openCaptureDirectory ( void )
 void
 CaptureWidget::updateFileNameTemplate ( void )
 {
-  config.fileNameTemplate = fileName->text();
-  SET_PROFILE_CONFIG( fileNameTemplate, config.fileNameTemplate );
+  commonConfig.fileNameTemplate = fileName->text();
+  SET_PROFILE_CONFIG( fileNameTemplate, commonConfig.fileNameTemplate );
 }
 
 
@@ -1259,24 +1259,24 @@ CaptureWidget::reloadProfiles ( void )
 void
 CaptureWidget::updateSettingsFromProfile ( void )
 {
-  config.binning2x2 = profileConf.profiles[
+  commonConfig.binning2x2 = profileConf.profiles[
 			commonConfig.profileOption ].binning2x2;
-  config.colourise = profileConf.profiles[
+  commonConfig.colourise = profileConf.profiles[
 			commonConfig.profileOption ].colourise;
-  config.useROI = profileConf.profiles[
+  commonConfig.useROI = profileConf.profiles[
 			commonConfig.profileOption ].useROI;
-  config.imageSizeX = profileConf.profiles[
+  commonConfig.imageSizeX = profileConf.profiles[
 			commonConfig.profileOption ].imageSizeX;
-  config.imageSizeY = profileConf.profiles[
+  commonConfig.imageSizeY = profileConf.profiles[
 			commonConfig.profileOption ].imageSizeY;
 
-  config.frameRateNumerator =
+  commonConfig.frameRateNumerator =
       profileConf.profiles[ commonConfig.profileOption ].frameRateNumerator;
-  config.frameRateDenominator =
+  commonConfig.frameRateDenominator =
       profileConf.profiles[ commonConfig.profileOption ].frameRateDenominator;
   commonConfig.fileTypeOption =
       profileConf.profiles[ commonConfig.profileOption ].fileTypeOption;
-  config.fileNameTemplate =
+  commonConfig.fileNameTemplate =
       profileConf.profiles[ commonConfig.profileOption ].fileNameTemplate;
   commonConfig.limitEnabled =
       profileConf.profiles[ commonConfig.profileOption ].limitEnabled;
@@ -1326,7 +1326,7 @@ CaptureWidget::updateFromConfig ( void )
   }
   connect ( filterMenu, SIGNAL( currentIndexChanged ( int )), this,
       SLOT( filterTypeChanged ( int )));
-  fileName->setText ( config.fileNameTemplate );
+  fileName->setText ( commonConfig.fileNameTemplate );
   if ( typeMenu->count() >= commonConfig.fileTypeOption ) {
     typeMenu->setCurrentIndex ( commonConfig.fileTypeOption - 1 );
   }
@@ -1474,7 +1474,7 @@ CaptureWidget::writeSettings ( OutputHandler* out )
                 switch ( c ) {
 
                   case OA_CAM_CTRL_BINNING:
-                    if ( config.binning2x2 ) {
+                    if ( commonConfig.binning2x2 ) {
                       settings << "2x2" << std::endl;
                     } else {
                       settings << "1x1" << std::endl;
@@ -1508,7 +1508,7 @@ CaptureWidget::writeSettings ( OutputHandler* out )
           commonState.cropSizeX << "x" << commonState.cropSizeY << std::endl;
     } else {
       settings << tr ( "Image size: " ).toStdString().c_str() <<
-          config.imageSizeX << "x" << config.imageSizeY << std::endl;
+          commonConfig.imageSizeX << "x" << commonConfig.imageSizeY << std::endl;
     }
 
     if ( commonState.camera->hasFrameRateSupport()) {
@@ -1516,9 +1516,9 @@ CaptureWidget::writeSettings ( OutputHandler* out )
       if ( state.captureWasPaused ) {
         settings << tr ( "n/a (capture paused)" ).toStdString().c_str();
       } else {
-        settings << config.frameRateNumerator;
-        if ( config.frameRateDenominator != 1 ) {
-          settings << "/" << config.frameRateDenominator;
+        settings << commonConfig.frameRateNumerator;
+        if ( commonConfig.frameRateDenominator != 1 ) {
+          settings << "/" << commonConfig.frameRateDenominator;
         }
       }
       settings << std::endl;
