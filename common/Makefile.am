@@ -41,7 +41,7 @@ liboacommon_la_SOURCES = camera.cc filterWheel.cc timer.cc targets.cc \
 	commonConfig.cc commonState.cc \
 	advancedSettings.cc autorunSettings.cc cameraSettings.cc captureSettings.cc \
 	demosaicSettings.cc filterSettings.cc fitsSettings.cc generalSettings.cc \
-	histogramSettings.cc profileSettings.cc timerSettings.cc \
+	histogramSettings.cc profileSettings.cc timerSettings.cc settingsWidget.cc \
 	focusOverlay.cc \
 	outputAVI.cc outputDIB.cc outputFFMPEG.cc outputFITS.cc outputMOV.cc \
 	outputPNG.cc outputSER.cc outputTIFF.cc outputHandler.cc \
