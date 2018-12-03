@@ -1614,7 +1614,7 @@ MainWindow::connectCamera ( int deviceIndex )
   state.previewWidget->enableDroppedDisplay ( v );
   styleStatusBarDroppedFrames ( v );
   if ( state.settingsWidget ) {
-    state.settingsWidget->enableTab ( state.cameraSettingsIndex, 1 );
+    state.settingsWidget->enableTab ( commonState.cameraSettingsIndex, 1 );
   }
   cameraOpt->setEnabled ( 1 );
 
@@ -1647,7 +1647,7 @@ MainWindow::disconnectCamera ( void )
   commonState.cameraTempValid = 0;
   commonState.binningValid = 0;
   if ( state.settingsWidget ) {
-    state.settingsWidget->enableTab ( state.cameraSettingsIndex, 0 );
+    state.settingsWidget->enableTab ( commonState.cameraSettingsIndex, 0 );
   }
   cameraOpt->setEnabled ( 0 );
   oldHistogramState = state.histogramOn;
@@ -2147,7 +2147,7 @@ void
 MainWindow::doGeneralSettings ( void )
 {
   createSettingsWidget();
-  state.settingsWidget->setActiveTab ( state.generalSettingsIndex );
+  state.settingsWidget->setActiveTab ( commonState.generalSettingsIndex );
   state.settingsWidget->show();
 }
 
@@ -2156,7 +2156,7 @@ void
 MainWindow::doCaptureSettings ( void )
 {
   createSettingsWidget();
-  state.settingsWidget->setActiveTab ( state.captureSettingsIndex );
+  state.settingsWidget->setActiveTab ( commonState.captureSettingsIndex );
   state.settingsWidget->show();
 }
 
@@ -2165,7 +2165,7 @@ void
 MainWindow::doCameraSettings ( void )
 {
   createSettingsWidget();
-  state.settingsWidget->setActiveTab ( state.cameraSettingsIndex );
+  state.settingsWidget->setActiveTab ( commonState.cameraSettingsIndex );
   state.settingsWidget->show();
 }
 
@@ -2174,7 +2174,7 @@ void
 MainWindow::doProfileSettings ( void )
 {
   createSettingsWidget();
-  state.settingsWidget->setActiveTab ( state.profileSettingsIndex );
+  state.settingsWidget->setActiveTab ( commonState.profileSettingsIndex );
   state.settingsWidget->show();
 }
 
@@ -2183,7 +2183,7 @@ void
 MainWindow::doFilterSettings ( void )
 {
   createSettingsWidget();
-  state.settingsWidget->setActiveTab ( state.filterSettingsIndex );
+  state.settingsWidget->setActiveTab ( commonState.filterSettingsIndex );
   state.settingsWidget->show();
 }
 
@@ -2192,7 +2192,7 @@ void
 MainWindow::doAutorunSettings ( void )
 {
   createSettingsWidget();
-  state.settingsWidget->setActiveTab ( state.autorunSettingsIndex );
+  state.settingsWidget->setActiveTab ( commonState.autorunSettingsIndex );
   state.settingsWidget->show();
 }
 
@@ -2201,7 +2201,7 @@ void
 MainWindow::doHistogramSettings ( void )
 {
   createSettingsWidget();
-  state.settingsWidget->setActiveTab ( state.histogramSettingsIndex );
+  state.settingsWidget->setActiveTab ( commonState.histogramSettingsIndex );
   state.settingsWidget->show();
 }
 
@@ -2210,7 +2210,7 @@ void
 MainWindow::doDemosaicSettings ( void )
 {
   createSettingsWidget();
-  state.settingsWidget->setActiveTab ( state.demosaicSettingsIndex );
+  state.settingsWidget->setActiveTab ( commonState.demosaicSettingsIndex );
   state.settingsWidget->show();
 }
 
@@ -2219,7 +2219,7 @@ void
 MainWindow::doFITSSettings ( void )
 {
   createSettingsWidget();
-  state.settingsWidget->setActiveTab ( state.fitsSettingsIndex );
+  state.settingsWidget->setActiveTab ( commonState.fitsSettingsIndex );
   state.settingsWidget->show();
 }
 
@@ -2228,7 +2228,7 @@ void
 MainWindow::doTimerSettings ( void )
 {
   createSettingsWidget();
-  state.settingsWidget->setActiveTab ( state.timerSettingsIndex );
+  state.settingsWidget->setActiveTab ( commonState.timerSettingsIndex );
   state.settingsWidget->show();
 }
 
@@ -2241,7 +2241,7 @@ MainWindow::createSettingsWidget ( void )
 				APPLICATION_NAME, OACAPTURE_SETTINGS, 1, 1, &trampolines );
     state.settingsWidget->setWindowFlags ( Qt::WindowStaysOnTopHint );
     state.settingsWidget->setAttribute ( Qt::WA_DeleteOnClose );
-    state.settingsWidget->enableTab ( state.cameraSettingsIndex,
+    state.settingsWidget->enableTab ( commonState.cameraSettingsIndex,
         commonState.camera->isInitialised() ? 1 : 0 );
     connect ( state.settingsWidget, SIGNAL( destroyed ( QObject* )), this,
         SLOT ( settingsClosed()));
@@ -2579,6 +2579,7 @@ MainWindow::createPreviewWindow()
   state.focusOverlay = focusOverlay;
   previewWidget = new PreviewWidget ( previewScroller );
   state.previewWidget = previewWidget;
+  commonState.viewerWidget = ( QWidget* ) previewWidget;
 
   // These figures are a bit arbitrary, but give a size that should work
   // initially on small displays

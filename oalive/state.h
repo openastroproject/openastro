@@ -45,21 +45,7 @@ typedef struct
   AdvancedSettings*	advancedSettings;
   FocusOverlay*		focusOverlay;
 
-  int			generalSettingsIndex;
-  int			captureSettingsIndex;
-  int			profileSettingsIndex;
-  int			filterSettingsIndex;
-  int			demosaicSettingsIndex;
-  int			fitsSettingsIndex;
-  int			timerSettingsIndex;
-/*
-  int			cameraSettingsIndex;
-  int			autorunSettingsIndex;
-  int			histogramSettingsIndex;
-
-*/
   QString		lastRecordedFile;
-  QString		currentDirectory;
 
   int			stackingMethod;
 

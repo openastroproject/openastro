@@ -72,6 +72,7 @@ DisplayWindow::DisplayWindow ( QWidget* parent ) : QWidget ( parent )
   previewScroller = new QScrollArea ( this );
   previewWidget = new PreviewWidget ( previewScroller );
   state.previewWidget = previewWidget;
+  commonState.viewerWidget = ( QWidget* ) previewWidget;
   // These figures are a bit arbitrary, but give a size that should work
   // initially on small displays
   // previewScroller->setMinimumSize ( 640, 240 );

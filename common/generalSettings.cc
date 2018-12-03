@@ -36,11 +36,11 @@
 
 generalConfig generalConf;
 
-GeneralSettings::GeneralSettings ( QWidget* parent, QWidget* top, QWidget*
-		vWidget, QString appName, int split, int fps, trampolineFuncs* redirs ) :
+GeneralSettings::GeneralSettings ( QWidget* parent, QWidget* top,
+		QString appName, int split, int fps, trampolineFuncs* redirs ) :
 		QWidget ( parent ), topWidget ( top ), applicationName ( appName ),
 		splitControls ( split ), fpsControls ( fps ), trampolines ( redirs ),
-		parentWidget ( parent ), viewerWidget ( vWidget )
+		parentWidget ( parent )
 {
 #ifdef SAVE_OPTION
   saveBox = new QCheckBox ( tr ( "Load and save settings automatically" ),
@@ -178,9 +178,9 @@ GeneralSettings::GeneralSettings ( QWidget* parent, QWidget* top, QWidget*
     connect ( fpsSlider, SIGNAL ( valueChanged ( int )), this,
         SLOT ( updateFPSLabel ( int )));
 	}
-	  connect ( recentreButton, SIGNAL ( clicked()), viewerWidget,
+	  connect ( recentreButton, SIGNAL ( clicked()), commonState.viewerWidget,
       SLOT ( recentreReticle()));
-  connect ( derotateButton, SIGNAL ( clicked()), viewerWidget,
+  connect ( derotateButton, SIGNAL ( clicked()), commonState.viewerWidget,
       SLOT ( derotateReticle()));
 }
 

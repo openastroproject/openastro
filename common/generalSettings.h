@@ -35,6 +35,7 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "commonState.h"
 #include "trampoline.h"
  
 typedef struct {
@@ -65,7 +66,7 @@ class GeneralSettings : public QWidget
   Q_OBJECT
 
   public:
-    			GeneralSettings ( QWidget*, QWidget*, QWidget*, QString, int, int,
+    			GeneralSettings ( QWidget*, QWidget*, QString, int, int,
 							trampolineFuncs* );
     			~GeneralSettings();
     void		storeSettings ( void );

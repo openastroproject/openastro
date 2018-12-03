@@ -54,17 +54,6 @@ typedef struct
   AdvancedSettings*	advancedSettings;
   FocusOverlay*		focusOverlay;
 
-  int			generalSettingsIndex;
-  int			captureSettingsIndex;
-  int			cameraSettingsIndex;
-  int			profileSettingsIndex;
-  int			filterSettingsIndex;
-  int			autorunSettingsIndex;
-  int			histogramSettingsIndex;
-  int			demosaicSettingsIndex;
-  int			fitsSettingsIndex;
-  int			timerSettingsIndex;
-
   int			autorunEnabled;
   int			autorunRemaining;
   unsigned long		autorunStartNext;
