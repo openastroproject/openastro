@@ -31,6 +31,8 @@
 #include "filterWheel.h"
 #include "timer.h"
 
+#include <QtCore>
+
 typedef struct
 {
 	void*								localState;
@@ -59,6 +61,8 @@ typedef struct
 	float								cameraTemp;
 
   unsigned long long	captureIndex;
+
+	QString							currentDirectory;
 
 	/*
   int			histogramOn;

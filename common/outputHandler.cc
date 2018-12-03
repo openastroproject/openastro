@@ -29,6 +29,7 @@
 #include <time.h>
 
 #include "commonConfig.h"
+#include "commonState.h"
 #include "trampoline.h"
 #include "outputHandler.h"
 #include "captureSettings.h"
@@ -139,7 +140,7 @@ OutputHandler::generateFilename ( void )
   if ( filename[0] != '/' ) {
 		QString d = commonConfig.captureDirectory;
     if ( d == "" ) {
-			d = trampolines->currentDirectory();
+			d = commonState.currentDirectory;
     }
     filename = d + "/" + filename;
   }

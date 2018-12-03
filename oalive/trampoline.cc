@@ -267,13 +267,6 @@ t_checkTimerWarnings ( void )
 }
 
 
-QString
-t_currentDirectory ( void )
-{
-	return state.currentDirectory;
-}
-
-
 void
 t_updateConfig ( void )
 {
@@ -333,7 +326,6 @@ trampolineFuncs trampolines {
 	.setVideoFramePixelFormat = &t_setVideoFramePixelFormat,
 	.destroyLayout = &t_destroyLayout,
 	.checkTimerWarnings = &t_checkTimerWarnings,
-  .currentDirectory = &t_currentDirectory,
 	.updateConfig = &t_updateConfig,
 	.showStatusMessage = &t_showStatusMessage,
 	.propagateNewSlotName = &t_propagateNewSlotName,

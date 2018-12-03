@@ -64,7 +64,6 @@ typedef struct {
 	void ( *setVideoFramePixelFormat )( int );
 	void ( *destroyLayout )( QLayout* );
 	void ( *checkTimerWarnings )( void );
-	QString ( *currentDirectory )( void );
 	void ( *updateConfig ) ( void );
 	void ( *showStatusMessage ) ( QString );
 	void ( *propagateNewSlotName )( int, QString );
