@@ -66,7 +66,7 @@ class SettingsWidget : public QWidget
   Q_OBJECT
 
   public:
-    			SettingsWidget ( QWidget*, QString, unsigned int, int, int,
+    			SettingsWidget ( QWidget*, QWidget*, QString, unsigned int, int, int,
 							trampolineFuncs* );
     			~SettingsWidget();
     void		setActiveTab ( int );

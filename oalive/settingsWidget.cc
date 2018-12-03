@@ -34,10 +34,6 @@
 #include "captureSettings.h"
 #include "filterSettings.h"
 #include "fitsSettings.h"
-
-#include "configuration.h"
-#include "state.h"
-#include "mainWindow.h"
 #include "profileSettings.h"
 #include "settingsWidget.h"
 #include "timerSettings.h"
@@ -47,8 +43,8 @@
 #include "demosaicSettings.h"
 
 
-SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
-		unsigned int settings, int videoFormats, int demosaicOpts,
+SettingsWidget::SettingsWidget ( QWidget* parent, QWidget* topWidget,
+		QString appName, unsigned int settings, int videoFormats, int demosaicOpts,
 		trampolineFuncs* trampolines )
 {
 	applicationName = appName;
@@ -127,7 +123,7 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
   vbox->addLayout ( buttonBox );
   setLayout ( vbox );
 
-  connect ( cancelButton, SIGNAL( clicked()), state.mainWindow,
+  connect ( cancelButton, SIGNAL( clicked()), parent,
       SLOT( closeSettingsWindow()));
   connect ( saveButton, SIGNAL( clicked()), this, SLOT( storeSettings()));
 }
@@ -135,7 +131,7 @@ SettingsWidget::SettingsWidget ( QWidget* topWidget, QString appName,
 
 SettingsWidget::~SettingsWidget()
 {
-  state.mainWindow->destroyLayout (( QLayout* ) vbox );
+  trampolines.destroyLayout (( QLayout* ) vbox );
 }
 
 
@@ -189,8 +185,8 @@ SettingsWidget::storeSettings ( void )
 	if ( reqdWindows & SETTINGS_TIMER ) {
     timer->storeSettings();
 	}
-  state.mainWindow->updateConfig();
-  state.mainWindow->showStatusMessage ( tr ( "Changes saved" ));
+  trampolines.updateConfig();
+  trampolines.showStatusMessage ( tr ( "Changes saved" ));
   cancelButton->setText ( tr ( "Close" ));
   haveUnsavedData = 0;
   saveButton->setEnabled ( 0 );

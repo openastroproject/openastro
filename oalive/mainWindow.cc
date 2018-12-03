@@ -2452,7 +2452,7 @@ void
 MainWindow::createSettingsWidget ( void )
 {
   if ( !state.settingsWidget ) {
-    state.settingsWidget = new SettingsWidget ( TOP_WIDGET,
+    state.settingsWidget = new SettingsWidget ( this, TOP_WIDGET,
         APPLICATION_NAME, OACAPTURE_SETTINGS, 0, 0, &trampolines );
     state.settingsWidget->setWindowFlags ( Qt::WindowStaysOnTopHint );
     state.settingsWidget->setAttribute ( Qt::WA_DeleteOnClose );
