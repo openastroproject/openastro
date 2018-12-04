@@ -212,6 +212,17 @@ Camera::hasFixedFrameRates ( int xRes, int yRes )
 
 
 int
+Camera::hasReadableControls ( void )
+{
+	if ( !initialised ) {
+		qWarning() << __FUNCTION__ << " called with camera uninitialised";
+		return 0;
+	}
+	return cameraFeatures.readableControls;
+}
+
+
+int
 Camera::hasControl ( int control )
 {
   if ( !initialised ) {
