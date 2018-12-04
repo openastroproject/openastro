@@ -142,6 +142,8 @@ oaMallincamInitCamera ( oaCameraDevice* device )
   // Mallincam_put_LevelRange
   // Mallincam_put_TempTint
 
+	camera->features.readableControls = 1;
+
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_CONTRAST ) = OA_CTRL_TYPE_INT32;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_CONTRAST ) = TOUPCAM_CONTRAST_MIN;
   commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_CONTRAST ) = TOUPCAM_CONTRAST_MAX;

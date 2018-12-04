@@ -126,6 +126,8 @@ oaTouptekInitCamera ( oaCameraDevice* device )
   pthread_cond_init ( &cameraInfo->commandComplete, 0 );
   cameraInfo->isStreaming = 0;
 
+	camera->features.readableControls = 1;
+
   // FIX ME -- work out how to support these
   // Toupcam_put_AutoExpoTarget
   // Toupcam_put_MaxAutoExpoTimeAGain

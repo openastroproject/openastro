@@ -274,6 +274,8 @@ oaFC2InitCamera ( oaCameraDevice* device )
 
   // There's probably a lot of work still to be done here.
 
+  camera->features.readableControls = 1;
+
   for ( i = 0; i < FC2_UNSPECIFIED_PROPERTY_TYPE; i++ ) {
     OA_CLEAR ( propertyInfo );
     propertyInfo.type = i;

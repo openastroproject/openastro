@@ -501,6 +501,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   int   autoFocusType = 0;
   uint8_t autoFocusMax, autoFocusMin, autoFocusDef, autoFocusStep;
 
+  camera->features.readableControls = 1;
   control = 1;
   flags = cameraInfo->termControlsBitmap;
   for ( k = 0; k < numPUEUVCControls; k++ ) {

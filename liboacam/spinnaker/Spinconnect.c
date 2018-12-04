@@ -104,6 +104,8 @@ oaSpinInitCamera ( oaCameraDevice* device )
   cameraInfo->initialised = 0;
   devInfo = device->_private;
 
+	camera->features.readableControls = 1;
+
   if (( *p_spinSystemGetInstance )( &systemHandle ) !=
       SPINNAKER_ERR_SUCCESS ) {
     fprintf ( stderr, "Can't get Spinnaker system instance\n" );

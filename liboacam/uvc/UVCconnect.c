@@ -866,6 +866,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
   cameraInfo->isColour = 0;
   camera->features.rawMode = camera->features.demosaicMode = 0;
   camera->features.hasReset = 1;
+  camera->features.readableControls = 1;
 
   /*
    * For the time being we know that libuvc knows about:

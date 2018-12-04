@@ -582,6 +582,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
 
   camera->features.rawMode = camera->features.demosaicMode = 0;
   camera->features.hasReset = 1;
+  camera->features.readableControls = 1;
 
   if ( cameraInfo->haveFormat7 ) {
     if ( _processFormat7Modes ( camera, iidcCam, videoModes )) {
