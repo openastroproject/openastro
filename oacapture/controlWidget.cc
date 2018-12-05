@@ -873,15 +873,14 @@ ControlWidget::configure ( void )
         cameraConf.CONTROL_VALUE( control ) =
             commonState.camera->readControl ( control );
       }
-      value = cameraConf.CONTROL_VALUE( control );
+      value = ( cameraConf.CONTROL_VALUE( control ) ==
+					OA_EXPOSURE_MANUAL ) ? 1 : 0;
       selectableControlCheckbox[ state.preferredExposureControl ]->
 					setChecked ( value );
-      if ( selectableControlSlider[ state.preferredExposureControl ] ) {
-        selectableControlSlider[ state.preferredExposureControl ]->
-						setEnabled ( !value );
-        selectableControlSpinbox[ state.preferredExposureControl ]->
-						setEnabled ( !value );
-      }
+      exposureSlider->setEnabled ( !value );
+      exposureSpinbox->setEnabled ( !value );
+      intervalSizeMenu->setEnabled ( !value );
+      expMenu->setEnabled ( !value );
       selectableControlCheckbox[ state.preferredExposureControl ]->show();
     }
   }
@@ -1209,20 +1208,30 @@ ControlWidget::updateSelectableCheckbox ( int control )
   int autoControl = oaGetAutoForControl ( control );
   int value = ( selectableControlCheckbox[ control ]->isChecked()) ? 1 : 0;
   int origValue = value;
+	int	isExposure = 0;
 
   if (( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == autoControl ||
        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == autoControl )
        && commonState.camera->hasControl ( autoControl ) ==
 			 OA_CTRL_TYPE_BOOLEAN ) {
     value = value ? OA_EXPOSURE_AUTO : OA_EXPOSURE_MANUAL;
+		isExposure = 1;
   }
   cameraConf.CONTROL_VALUE( autoControl ) = value;
   SET_PROFILE_CONTROL( autoControl, value );
   commonState.camera->setControl ( autoControl, value );
-  if ( selectableControlSlider[ control ] ) {
-    selectableControlSlider[ control ]->setEnabled ( !value );
-    selectableControlSpinbox[ control ]->setEnabled ( !value );
-  }
+	if ( isExposure ) {
+		int newVal = ( value == OA_EXPOSURE_MANUAL ? 1 : 0 );
+		exposureSlider->setEnabled ( newVal );
+		exposureSpinbox->setEnabled ( newVal );
+		expMenu->setEnabled ( newVal );
+		intervalSizeMenu->setEnabled ( newVal );
+	} else {
+		if ( selectableControlSlider[ control ] ) {
+			selectableControlSlider[ control ]->setEnabled ( !value );
+			selectableControlSpinbox[ control ]->setEnabled ( !value );
+		}
+	}
   if ( state.settingsWidget ) {
     state.settingsWidget->updateControl ( autoControl, origValue );
   }
