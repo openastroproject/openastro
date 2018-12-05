@@ -313,7 +313,12 @@ void
 ControlWidget::configure ( void )
 {
   int64_t	min, max, step, def;
-  int		minOption, maxOption, prevOption;
+  int		minOption, maxOption, prevOption, readableControls;
+
+	// There's a side-effect here in that hasReadableControls() returns 0
+	// if the camera is not initialised, so we can test this and rely on not
+	// attempting to read stuff off the camera if it isn't yet initialised.
+  readableControls = commonState.camera->hasReadableControls();
 
   // Now we need to set up the menus for the two selectable sliders
   // from the controls available.
@@ -441,10 +446,13 @@ ControlWidget::configure ( void )
         commonState.camera->controlRange ( c, &min, &max, &step, &def );
         selectableControlSlider[ c ]->setRange ( min, max );
         selectableControlSlider[ c ]->setSingleStep ( step );
-        selectableControlSlider[ c ]->setValue (
-						cameraConf.CONTROL_VALUE( c ));
         selectableControlSpinbox[ c ]->setRange ( min, max );
         selectableControlSpinbox[ c ]->setSingleStep ( step );
+        if ( readableControls ) {
+					cameraConf.CONTROL_VALUE( c ) = commonState.camera->readControl ( c );
+				}
+        selectableControlSlider[ c ]->setValue (
+						cameraConf.CONTROL_VALUE( c ));
         selectableControlSpinbox[ c ]->setValue (
 						cameraConf.CONTROL_VALUE( c ));
       }
@@ -527,8 +535,14 @@ ControlWidget::configure ( void )
       if (( autoControl = oaGetAutoForControl ( config.selectableControl[i]))) {
         if ( selectableControlCheckbox[ config.selectableControl[i]] &&
             autoControl >= 0 && commonState.camera->hasControl (
-							autoControl ) == OA_CTRL_TYPE_BOOLEAN ) { // FIX ME -- what if this is not boolean?
-          uint32_t value = cameraConf.CONTROL_VALUE( autoControl );
+						autoControl ) == OA_CTRL_TYPE_BOOLEAN ) {
+					// FIX ME -- what if this is not boolean?
+          uint32_t value;
+					if ( readableControls ) {
+						cameraConf.CONTROL_VALUE( autoControl ) =
+								commonState.camera->readControl ( autoControl );
+					}
+					value = cameraConf.CONTROL_VALUE( autoControl );
           selectableControlCheckbox[ config.selectableControl[i]]->
               setChecked ( value );
           if ( selectableControlSlider[ config.selectableControl[i]] ) {
@@ -557,17 +571,33 @@ ControlWidget::configure ( void )
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN ) = ( max - min ) / 2;
     selectableControlSlider[ OA_CAM_CTRL_GAIN ]->setRange ( min, max );
     selectableControlSlider[ OA_CAM_CTRL_GAIN ]->setSingleStep ( step );
-    // selectableControlSlider[ OA_CAM_CTRL_GAIN ]->setValue (
-    //     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN ));
     selectableControlSpinbox[ OA_CAM_CTRL_GAIN ]->setRange ( min, max );
     selectableControlSpinbox[ OA_CAM_CTRL_GAIN ]->setSingleStep ( step );
     ignoreGainChanges = 0;
+		if ( readableControls ) {
+			cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN ) =
+					commonState.camera->readControl ( OA_CAM_CTRL_GAIN );
+		}
     selectableControlSpinbox[ OA_CAM_CTRL_GAIN ]->setValue (
         cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN ));
     selectableControlSlider[ OA_CAM_CTRL_GAIN ]->show();
     selectableControlSpinbox[ OA_CAM_CTRL_GAIN ]->show();
     if ( commonState.camera->hasControl (
         OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_GAIN )) == OA_CTRL_TYPE_BOOLEAN ) {
+      // FIX ME -- what if this is not boolean?
+      uint32_t value;
+      if ( readableControls ) {
+        cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_GAIN )) =
+            commonState.camera->readControl ( OA_CAM_CTRL_MODE_AUTO (
+						OA_CAM_CTRL_GAIN ));
+      }
+      value = cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO (
+					OA_CAM_CTRL_GAIN ));
+      selectableControlCheckbox[ OA_CAM_CTRL_GAIN ]->setChecked ( value );
+      if ( selectableControlSlider[ OA_CAM_CTRL_GAIN ] ) {
+        selectableControlSlider[ OA_CAM_CTRL_GAIN ]->setEnabled ( !value );
+        selectableControlSpinbox[ OA_CAM_CTRL_GAIN ]->setEnabled ( !value );
+      }
       selectableControlCheckbox[ OA_CAM_CTRL_GAIN ]->show();
     }
   } else {
@@ -656,8 +686,10 @@ ControlWidget::configure ( void )
     intervalSizeMenu->setEnabled ( 1 );
     intervalSizeMenu->show();
 
-    // setting = commonState.camera->readControl (
-    //     OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) / 1000;
+		if ( readableControls ) {
+			cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+				commonState.camera->readControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
+		}
     setting = cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
     setting *= intervalMultipliers[ prevOption ];
 
@@ -711,7 +743,6 @@ ControlWidget::configure ( void )
         setting = max;
       }
     }
-    // cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = setting;
     updateExposureControls = 1;
     QString s = "Exp. Range (" + intervalsList[ config.intervalMenuOption ] +
         ")";
@@ -722,8 +753,10 @@ ControlWidget::configure ( void )
       usingAbsoluteExposure = 0;
       commonState.camera->controlRange ( OA_CAM_CTRL_EXPOSURE_UNSCALED,
 					&min, &max, &step, &def );
-      // setting = commonState.camera->readControl ( OA_CAM_CTRL_EXPOSURE );
-      // cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) = setting;
+			if ( readableControls ) {
+				cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
+						commonState.camera->readControl ( OA_CAM_CTRL_EXPOSURE_UNSCALED );
+			}
       setting = cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED );
       if ( setting < min ) {
         setting = min;
@@ -829,13 +862,26 @@ ControlWidget::configure ( void )
   grid->removeItem ( grid->itemAtPosition ( 5, 1 ));
   // FIX ME -- Should handle auto exposure options that aren't just
   // boolean
-  if ( commonState.camera->hasControl (
-      OA_CAM_CTRL_MODE_AUTO( state.preferredExposureControl )) ==
-          OA_CTRL_TYPE_BOOLEAN ) {
+	uint32_t control = OA_CAM_CTRL_MODE_AUTO( state.preferredExposureControl );
+  if ( commonState.camera->hasControl ( control ) == OA_CTRL_TYPE_BOOLEAN ) {
     // FIX ME -- what if there is no non-auto control?  Issue #131
     if ( commonState.camera->hasControl ( state.preferredExposureControl )) {
+      uint32_t value;
       grid->addWidget (
           selectableControlCheckbox[ state.preferredExposureControl ], 5, 1 );
+      if ( readableControls ) {
+        cameraConf.CONTROL_VALUE( control ) =
+            commonState.camera->readControl ( control );
+      }
+      value = cameraConf.CONTROL_VALUE( control );
+      selectableControlCheckbox[ state.preferredExposureControl ]->
+					setChecked ( value );
+      if ( selectableControlSlider[ state.preferredExposureControl ] ) {
+        selectableControlSlider[ state.preferredExposureControl ]->
+						setEnabled ( !value );
+        selectableControlSpinbox[ state.preferredExposureControl ]->
+						setEnabled ( !value );
+      }
       selectableControlCheckbox[ state.preferredExposureControl ]->show();
     }
   }

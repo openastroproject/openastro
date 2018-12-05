@@ -1624,7 +1624,9 @@ MainWindow::connectCamera ( int deviceIndex )
   // start regardless of whether we're displaying or capturing the
   // data
   commonState.camera->start ( &PreviewWidget::updatePreview, &commonState );
-  state.controlWidget->disableAutoControls();
+	if ( !commonState.camera->hasReadableControls()) {
+		state.controlWidget->disableAutoControls();
+	}
   state.histogramOn = oldHistogramState;
   oldHistogramState = -1;
 
