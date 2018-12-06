@@ -77,6 +77,7 @@ class ControlWidget : public QGroupBox
     void		updateSelectableCheckbox ( int );
     void		setSelectableControl1 ( int );
     void		setSelectableControl2 ( int );
+    void		doAutoControlUpdate ( void );
 
   private:
     QSlider*		exposureSlider;

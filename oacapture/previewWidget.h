@@ -87,6 +87,7 @@ class PreviewWidget : public QFrame
     void		updateDisplay ( void );
     void		stopRecording ( void );
     void		frameWriteFailed ( void );
+    void		updateAutoControls ( void );
 
   private:
     QImage		image;
@@ -103,6 +104,7 @@ class PreviewWidget : public QFrame
     unsigned long	fpsCalcPeriodStartTime;
     long		secondForTemperature;
     long		secondForDropped;
+    long		secondForAutoControls;
     int			hasTemp;
     int			hasDroppedFrames;
     int			reticleCentreX;

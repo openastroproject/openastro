@@ -67,7 +67,7 @@ PreviewWidget::PreviewWidget ( QWidget* parent ) : QFrame ( parent )
   previewEnabled = 1;
   videoFramePixelFormat = OA_PIX_FMT_RGB24;
   framesInFpsCalcPeriod = fpsCalcPeriodStartTime = 0;
-  secondForTemperature = secondForDropped = 0;
+  secondForTemperature = secondForDropped = secondForAutoControls = 0;
   flipX = flipY = 0;
   movingReticle = rotatingReticle = rotationAngle = 0;
   savedXSize = savedYSize = 0;
@@ -984,6 +984,10 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
     emit self->updateDroppedFrames();
     self->secondForTemperature = t.tv_sec;
   }
+	if ( t.tv_sec != self->secondForAutoControls ) {
+		emit self->updateAutoControls();
+		self->secondForAutoControls = t.tv_sec;
+	}
 
   if ( doDisplay ) {
     emit self->updateDisplay();

@@ -160,6 +160,8 @@ MainWindow::MainWindow ( QString configFile )
       double )), state.cameraWidget, SLOT ( setActualFrameRate ( double )));
   connect ( state.previewWidget, SIGNAL( updateTemperature ( void )),
       state.cameraWidget, SLOT ( setTemperature ( void )));
+	connect ( state.previewWidget, SIGNAL( updateAutoControls()),
+			state.controlWidget, SLOT( doAutoControlUpdate()));
 
 
   // update filters for matching filter wheels from config

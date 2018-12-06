@@ -1945,3 +1945,51 @@ ControlWidget::exposureIntervalString ( void )
 {
   return intervalsList [ config.intervalMenuOption ];
 }
+
+
+void
+ControlWidget::doAutoControlUpdate ( void )
+{
+	int				type, control, c;
+
+	if ( !commonState.camera->hasReadableControls()) {
+		return;
+	}
+
+	// First deal with the gain control
+	type = commonState.camera->hasControl ( OA_CAM_CTRL_GAIN );
+	if (( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) &&
+			commonState.camera->hasControl ( OA_CAM_CTRL_MODE_AUTO (
+			OA_CAM_CTRL_GAIN )) == OA_CTRL_TYPE_BOOLEAN ) {
+		if ( cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO (
+						OA_CAM_CTRL_GAIN ))) {
+			// we have a gain control, an auto gain control, and auto mode is on
+			cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN ) =
+          commonState.camera->readControl ( OA_CAM_CTRL_GAIN );
+			selectableControlSpinbox[ OA_CAM_CTRL_GAIN ]->setValue (
+					cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN ));
+			selectableControlSlider[ OA_CAM_CTRL_GAIN ]->setValue (
+					cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN ));
+		}
+	}
+
+	// Now check the selectable controls
+	for ( c = 0; c < 2; c++ ) {
+		control = config.selectableControl[ c ];
+		if ( control > 0 ) {
+			type = commonState.camera->hasControl ( control );
+			if (( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) &&
+					commonState.camera->hasControl ( OA_CAM_CTRL_MODE_AUTO (
+					control )) == OA_CTRL_TYPE_BOOLEAN ) {
+				if ( cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO ( control ))) {
+					cameraConf.CONTROL_VALUE( control ) =
+							commonState.camera->readControl ( control );
+					selectableControlSpinbox[ control ]->setValue (
+							cameraConf.CONTROL_VALUE( control ));
+					selectableControlSlider[ control ]->setValue (
+							cameraConf.CONTROL_VALUE( control ));
+				}
+			}
+		}
+	}
+}
