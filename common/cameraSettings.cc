@@ -153,26 +153,19 @@ CameraSettings::configure ( void )
             }
 
             case OA_CTRL_TYPE_BOOLEAN:
+						{
               numCheckboxes++;
               controlCheckbox[mod][baseVal] = new QCheckBox ( QString ( tr (
                   oaCameraControlModifierPrefix[mod] )) + QString ( tr (
                   oaCameraControlLabel[baseVal] )), this );
-              if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) ==
-                  c || OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) ==
-                  c ) {
-                controlCheckbox[mod][baseVal]->setChecked (
-                    ( cameraConf.CONTROL_VALUE(c) ==
-										OA_EXPOSURE_MANUAL ) ? 0 : 1 );
-              } else {
-                controlCheckbox[mod][baseVal]->setChecked (
-                    cameraConf.CONTROL_VALUE(c));
-              }
+              controlCheckbox[mod][baseVal]->setChecked (
+									cameraConf.CONTROL_VALUE(c));
               checkboxSignalMapper->setMapping (
                   controlCheckbox[mod][baseVal], c );
               connect ( controlCheckbox[mod][baseVal], SIGNAL (
                   stateChanged ( int )), checkboxSignalMapper, SLOT ( map()));
               break;
-
+						}
             case OA_CTRL_TYPE_BUTTON:
               numButtons++;
               controlButton[mod][baseVal] = new QPushButton ( QString ( tr (
@@ -342,10 +335,6 @@ CameraSettings::configure ( void )
             if ( OA_CAM_CTRL_MODIFIER_AUTO == mod ) {
               int autoMode =
                 cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO ( baseVal ));
-              if ( OA_CAM_CTRL_EXPOSURE_UNSCALED == baseVal ||
-                  OA_CAM_CTRL_EXPOSURE_ABSOLUTE == baseVal ) {
-                autoMode = ( OA_EXPOSURE_MANUAL == autoMode ) ? 0 : 1;
-              }
               if ( controlSlider[OA_CAM_CTRL_MODIFIER_STD][baseVal]) {
                 controlSlider[OA_CAM_CTRL_MODIFIER_STD][baseVal]->setEnabled (
                     !autoMode );
@@ -804,6 +793,13 @@ CameraSettings::updateControl ( int control, int value )
         << control << "type" << controlType[ OA_CAM_CTRL_MODIFIER( control )][
         OA_CAM_CTRL_MODE_BASE( control )];
   }
+
+	if ( OA_CAM_CTRL_IS_AUTO ( control )) {
+		controlSlider[ OA_CAM_CTRL_MODIFIER_STD ]
+			[ OA_CAM_CTRL_MODE_BASE( control )]->setEnabled ( !value );
+		controlSpinbox[ OA_CAM_CTRL_MODIFIER_STD ]
+			[ OA_CAM_CTRL_MODE_BASE( control )]->setEnabled ( !value );
+	}
 }
 
 

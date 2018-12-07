@@ -237,27 +237,15 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 
   if ( found == 2 || found == 3 ) { // auto or on/off
     uint32_t val_u32;
-    if ( OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
-        OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
-      if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
-        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, val->valueType );
-        return -OA_ERR_INVALID_CONTROL_TYPE;
-      }
-      val_u32 = val->boolean;
-      if ( val_u32 != OA_EXPOSURE_AUTO && val_u32 != OA_EXPOSURE_MANUAL ) {
-        fprintf ( stderr, "%s: control value out of range\n", __FUNCTION__ );
-        return -OA_ERR_OUT_OF_RANGE;
-      }
-      val_u32 = ( OA_EXPOSURE_AUTO == val_u32 ) ? 1 : 0;
-    } else {
-      // anything here should be a boolean value
-      if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
-        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, val->valueType );
-        return -OA_ERR_INVALID_CONTROL_TYPE;
-      }
-      val_u32 = val->boolean;
+    if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
+      fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
+          __FUNCTION__, val->valueType );
+      return -OA_ERR_INVALID_CONTROL_TYPE;
+    }
+    val_u32 = val->boolean;
+    if ( val_u32 > 1 ) {
+      fprintf ( stderr, "%s: control value out of range\n", __FUNCTION__ );
+      return -OA_ERR_OUT_OF_RANGE;
     }
 
     // I think the best way to do this is to read the current setting, then
@@ -269,9 +257,9 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
       return -OA_ERR_CAMERA_IO;
     }
     if ( found == 2 ) {
-      property.autoManualMode = val_u32 ? 1 : 0;
+      property.autoManualMode = val_u32;
     } else {
-      property.onOff = val_u32 ? 1 : 0;
+      property.onOff = val_u32;
     }
     if (( *p_fc2SetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
@@ -431,38 +419,31 @@ _processGetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
     }
   }
 
+	if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
+			OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ||
+			OA_CAM_CTRL_EXPOSURE_UNSCALED == control ) {
+		found = 1;
+		pgeControl = FC2_SHUTTER;
+	}
+
   if ( found ) {
-    if ( pgeControl != FC2_SHUTTER ||
-        OA_CAM_CTRL_EXPOSURE_UNSCALED == control ||
-        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
-        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
-      property.type = pgeControl;
-      if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
-          FC2_ERROR_OK ) {
-        fprintf ( stderr, "Can't get FC2 control %d\n", pgeControl );
-        return -OA_ERR_CAMERA_IO;
-      }
-      if ( !oaIsAuto ( control )) {
-        if ( pgeControl != FC2_TEMPERATURE ) {
-          val->valueType = OA_CTRL_TYPE_INT32;
-          val->int32 = property.valueA;
-        } else {
-          val->valueType = OA_CTRL_TYPE_READONLY;
-          val->int32 = property.valueA / 10;
-        }
+    property.type = pgeControl;
+    if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
+        FC2_ERROR_OK ) {
+      fprintf ( stderr, "Can't get FC2 control %d\n", pgeControl );
+      return -OA_ERR_CAMERA_IO;
+    }
+    if ( !oaIsAuto ( control )) {
+      if ( pgeControl != FC2_TEMPERATURE ) {
+        val->valueType = OA_CTRL_TYPE_INT32;
+        val->int32 = property.valueA;
       } else {
-        if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) ==
-            control || OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED )
-            == control ) {
-          // FIX ME -- should this be DISCRETE?
-          val->valueType = OA_CTRL_TYPE_INT32;
-          val->int32 = ( property.autoManualMode ) ?  OA_EXPOSURE_AUTO :
-              OA_EXPOSURE_MANUAL;
-        } else {
-          val->valueType = OA_CTRL_TYPE_BOOLEAN;
-          val->boolean = property.autoManualMode;
-        }
+        val->valueType = OA_CTRL_TYPE_READONLY;
+        val->int32 = property.valueA / 10;
       }
+    } else {
+      val->valueType = OA_CTRL_TYPE_BOOLEAN;
+      val->boolean = property.autoManualMode ? 1 : 0;
     }
     return OA_ERR_NONE;
   }

@@ -387,11 +387,11 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         if ( propertyInfo.autoSupported ) {
           oaAutoControl = OA_CAM_CTRL_MODE_AUTO( oaControl );
           camera->OA_CAM_CTRL_TYPE( oaAutoControl ) = OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = OA_EXPOSURE_AUTO;
-          commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = OA_EXPOSURE_MANUAL;
+          commonInfo->OA_CAM_CTRL_MIN( oaAutoControl ) = 0;
+          commonInfo->OA_CAM_CTRL_MAX( oaAutoControl ) = 1;
           commonInfo->OA_CAM_CTRL_STEP( oaAutoControl ) = 1;
-          commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) = ( property.autoManualMode ) ?
-              OA_EXPOSURE_AUTO : OA_EXPOSURE_MANUAL;
+          commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) =
+							( property.autoManualMode ) ?  1 : 0;
         }
         if ( propertyInfo.onOffSupported ) {
           camera->OA_CAM_CTRL_TYPE( onOffControl ) = OA_CTRL_TYPE_BOOLEAN;

@@ -861,26 +861,34 @@ ControlWidget::configure ( void )
 
   grid->removeItem ( grid->itemAtPosition ( 5, 1 ));
   // FIX ME -- Should handle auto exposure options that aren't just
-  // boolean
+  // boolean and menu?
 	uint32_t control = OA_CAM_CTRL_MODE_AUTO( state.preferredExposureControl );
-  if ( commonState.camera->hasControl ( control ) == OA_CTRL_TYPE_BOOLEAN ) {
+	type = commonState.camera->hasControl ( control );
+	if ( type == OA_CTRL_TYPE_BOOLEAN || type == OA_CTRL_TYPE_MENU ) {
     // FIX ME -- what if there is no non-auto control?  Issue #131
     if ( commonState.camera->hasControl ( state.preferredExposureControl )) {
-      uint32_t value;
+      uint32_t autoOn;
       grid->addWidget (
           selectableControlCheckbox[ state.preferredExposureControl ], 5, 1 );
       if ( readableControls ) {
         cameraConf.CONTROL_VALUE( control ) =
             commonState.camera->readControl ( control );
       }
-      value = ( cameraConf.CONTROL_VALUE( control ) ==
-					OA_EXPOSURE_MANUAL ) ? 1 : 0;
+			switch ( type ) {
+				case OA_CTRL_TYPE_BOOLEAN:
+					autoOn = cameraConf.CONTROL_VALUE( control );
+					break;
+				case OA_CTRL_TYPE_MENU:
+					autoOn = ( cameraConf.CONTROL_VALUE( control ) ==
+							OA_EXPOSURE_MANUAL ) ? 0 : 1;
+					break;
+			}
       selectableControlCheckbox[ state.preferredExposureControl ]->
-					setChecked ( value );
-      exposureSlider->setEnabled ( !value );
-      exposureSpinbox->setEnabled ( !value );
-      intervalSizeMenu->setEnabled ( !value );
-      expMenu->setEnabled ( !value );
+					setChecked ( autoOn );
+      exposureSlider->setEnabled ( !autoOn );
+      exposureSpinbox->setEnabled ( !autoOn );
+      intervalSizeMenu->setEnabled ( !autoOn );
+      expMenu->setEnabled ( !autoOn );
       selectableControlCheckbox[ state.preferredExposureControl ]->show();
     }
   }
@@ -1210,22 +1218,30 @@ ControlWidget::updateSelectableCheckbox ( int control )
   int origValue = value;
 	int	isExposure = 0;
 
-  if (( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == autoControl ||
-       OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == autoControl )
-       && commonState.camera->hasControl ( autoControl ) ==
-			 OA_CTRL_TYPE_BOOLEAN ) {
-    value = value ? OA_EXPOSURE_AUTO : OA_EXPOSURE_MANUAL;
+  if (( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == autoControl
+			|| OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) ==
+			autoControl )) {
+		switch ( commonState.camera->hasControl ( autoControl )) {
+			case OA_CTRL_TYPE_BOOLEAN:
+				break;
+			case OA_CTRL_TYPE_MENU:
+				value = value ? OA_EXPOSURE_AUTO : OA_EXPOSURE_MANUAL;
+				break;
+			default:
+				qWarning() << "Unhandled exposure auto type in" << __FUNCTION__;
+				return;
+				break;
+		}
 		isExposure = 1;
   }
   cameraConf.CONTROL_VALUE( autoControl ) = value;
   SET_PROFILE_CONTROL( autoControl, value );
   commonState.camera->setControl ( autoControl, value );
 	if ( isExposure ) {
-		int newVal = ( value == OA_EXPOSURE_MANUAL ? 1 : 0 );
-		exposureSlider->setEnabled ( newVal );
-		exposureSpinbox->setEnabled ( newVal );
-		expMenu->setEnabled ( newVal );
-		intervalSizeMenu->setEnabled ( newVal );
+		exposureSlider->setEnabled ( !origValue );
+		exposureSpinbox->setEnabled ( !origValue );
+		expMenu->setEnabled ( !origValue );
+		intervalSizeMenu->setEnabled ( !origValue );
 	} else {
 		if ( selectableControlSlider[ control ] ) {
 			selectableControlSlider[ control ]->setEnabled ( !value );
@@ -1950,46 +1966,70 @@ ControlWidget::exposureIntervalString ( void )
 void
 ControlWidget::doAutoControlUpdate ( void )
 {
-	int				type, control, c;
+	int				type, control, c, i;
 
 	if ( !commonState.camera->hasReadableControls()) {
 		return;
 	}
 
-	// First deal with the gain control
-	type = commonState.camera->hasControl ( OA_CAM_CTRL_GAIN );
-	if (( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) &&
-			commonState.camera->hasControl ( OA_CAM_CTRL_MODE_AUTO (
-			OA_CAM_CTRL_GAIN )) == OA_CTRL_TYPE_BOOLEAN ) {
-		if ( cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO (
-						OA_CAM_CTRL_GAIN ))) {
-			// we have a gain control, an auto gain control, and auto mode is on
-			cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN ) =
-          commonState.camera->readControl ( OA_CAM_CTRL_GAIN );
-			selectableControlSpinbox[ OA_CAM_CTRL_GAIN ]->setValue (
-					cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN ));
-			selectableControlSlider[ OA_CAM_CTRL_GAIN ]->setValue (
-					cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN ));
-		}
-	}
+  for ( c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
+		if ( c == state.preferredExposureControl ) {
+			// This is more complicated because the drop-down
+			// for the exposure range may also need to be changed, the state of the
+			// interval type (us/ms/sec) needs to be accounted for (and in fact there
+			// are two possible options for the exposure control).
 
-	// Now check the selectable controls
-	for ( c = 0; c < 2; c++ ) {
-		control = config.selectableControl[ c ];
-		if ( control > 0 ) {
-			type = commonState.camera->hasControl ( control );
+			type = commonState.camera->hasControl ( c );
+			if ( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) {
+				control = OA_CAM_CTRL_MODE_AUTO( c );
+				type = commonState.camera->hasControl ( control );
+				if ( type == OA_CTRL_TYPE_BOOLEAN || type == OA_CTRL_TYPE_MENU ) {
+					uint32_t autoOn = 0;
+					switch ( type ) {
+						case OA_CTRL_TYPE_BOOLEAN:
+							autoOn = cameraConf.CONTROL_VALUE( control );
+							break;
+						case OA_CTRL_TYPE_MENU:
+							autoOn = ( cameraConf.CONTROL_VALUE( control ) ==
+									OA_EXPOSURE_MANUAL ) ? 0 : 1;
+							break;
+					}
+					if ( autoOn ) {
+						// Now we know that auto is enabled
+						int64_t value;
+						int done = 0;
+						value = cameraConf.CONTROL_VALUE( c ) =
+								commonState.camera->readControl( c );
+						value /= intervalMultipliers [ config.intervalMenuOption ];
+						if ( value < minSettings[ expMenu->currentIndex()] ||
+								value > maxSettings[ expMenu->currentIndex()] ) {
+							for ( i = 0; !done && i < expMenu->count(); i++ ) {
+								if ( value >= minSettings[ i ] && value <= maxSettings[ i ] ) {
+									expMenu->setCurrentIndex ( i );
+									done = 1;
+								}
+							}
+						}
+						exposureSlider->setValue ( value );
+						exposureSpinbox->setValue ( value );
+					}
+				}
+			}
+		} else {
+			type = commonState.camera->hasControl ( c );
 			if (( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) &&
-					commonState.camera->hasControl ( OA_CAM_CTRL_MODE_AUTO (
-					control )) == OA_CTRL_TYPE_BOOLEAN ) {
-				if ( cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO ( control ))) {
-					cameraConf.CONTROL_VALUE( control ) =
-							commonState.camera->readControl ( control );
-					selectableControlSpinbox[ control ]->setValue (
-							cameraConf.CONTROL_VALUE( control ));
-					selectableControlSlider[ control ]->setValue (
-							cameraConf.CONTROL_VALUE( control ));
+					commonState.camera->hasControl ( OA_CAM_CTRL_MODE_AUTO ( c )) ==
+					OA_CTRL_TYPE_BOOLEAN ) {
+				if ( cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO ( c ))) {
+					// we have a control, an gain control, and auto mode is on
+					cameraConf.CONTROL_VALUE( c ) = commonState.camera->readControl ( c );
+					selectableControlSpinbox[ c ]->setValue (
+							cameraConf.CONTROL_VALUE( c ));
+					selectableControlSlider[ c ]->setValue (
+							cameraConf.CONTROL_VALUE( c ));
 				}
 			}
 		}
 	}
+
 }
