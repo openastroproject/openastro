@@ -105,8 +105,9 @@ void
 CameraWidget::configure ( void )
 {
   unsigned int format;
-  int numActions = 0, currentAction = 0;
+  int numActions = 0, currentAction = 0, binning = 0;
   int foundConfiguredFormat = 0;
+	int firstFormat = -1;
 
   if ( !inputFormatList.empty()) {
     disconnect ( inputFormatMenu, SIGNAL( currentIndexChanged ( int )), 
@@ -117,6 +118,7 @@ CameraWidget::configure ( void )
 
   for ( format = 1; format < OA_PIX_FMT_LAST_P1; format++ ) {
     if ( commonState.camera->hasFrameFormat ( format )) {
+			firstFormat = format;
       inputFormatMenu->addItem ( tr ( oaFrameFormats[ format ].name ));
       inputFormatMenu->setItemData ( numActions,
           tr ( oaFrameFormats[ format ].simpleName ), Qt::ToolTipRole );
@@ -130,7 +132,7 @@ CameraWidget::configure ( void )
     }
   }
   if ( !foundConfiguredFormat ) {
-    config.inputFrameFormat = OA_PIX_FMT_RGB24;
+    config.inputFrameFormat = firstFormat;
     currentAction = 0;
   }
 
@@ -141,7 +143,11 @@ CameraWidget::configure ( void )
   if ( cameraConf.forceInputFrameFormat ) {
     updateForceFrameFormat ( 0, cameraConf.forceInputFrameFormat );
   }
-  binning2x2->setEnabled ( commonState.camera->hasBinning ( 2 ) ? 1 : 0 );
+	binning = commonState.camera->hasBinning ( 2 ) ? 1 : 0;
+	if ( binning ) {
+		commonState.camera->setControl ( OA_CAM_CTRL_BINNING, OA_BIN_MODE_NONE );
+	}
+	binning2x2->setEnabled ( binning );
 }
 
 
