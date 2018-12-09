@@ -32,6 +32,7 @@ extern "C" {
 #include <openastro/video/formats.h>
 }
 
+#include "commonState.h"
 #include "outputHandler.h"
 #include "outputFFMPEG.h"
 #include "outputAVI.h"
@@ -39,9 +40,8 @@ extern "C" {
 
 
 OutputAVI::OutputAVI ( int x, int y, int n, int d, int fmt,
-		QString fileTemplate, unsigned long long* pcounter,
-		trampolineFuncs* trampolines) :
-    OutputFFMPEG ( x, y, n, d, fmt, fileTemplate, pcounter, trampolines )
+		QString fileTemplate, trampolineFuncs* trampolines) :
+    OutputFFMPEG ( x, y, n, d, fmt, fileTemplate, trampolines )
 {
   videoCodec = AV_CODEC_ID_UTVIDEO;
 

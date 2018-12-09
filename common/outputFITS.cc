@@ -51,8 +51,8 @@ extern "C" {
 
 OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
 		const char *appName, const char* appVer, QString fileTemplate,
-		unsigned long long* pcounter, trampolineFuncs* trampolines ) :
-		OutputHandler ( x, y, n, d, fileTemplate, pcounter, trampolines ),
+		trampolineFuncs* trampolines ) :
+		OutputHandler ( x, y, n, d, fileTemplate, trampolines ),
 		applicationName ( appName ), applicationVersion ( appVer ),
 		imageFormat ( fmt )
 {
@@ -573,7 +573,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     return -1;
   }
 
-  *pCaptureIndex++;
+  commonState.captureIndex++;
   frameCount++;
   return 0;
 }

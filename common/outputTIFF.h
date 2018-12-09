@@ -38,7 +38,7 @@ class OutputTIFF : public OutputHandler
 {
   public:
     			OutputTIFF ( int, int, int, int, int, const char*, const char*,
-							QString, unsigned long long*, trampolineFuncs* );
+							QString, trampolineFuncs* );
     			~OutputTIFF();
     int			openOutput ( void );
     int			addFrame ( void*, const char*, int64_t, const char* );

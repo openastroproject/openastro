@@ -41,8 +41,7 @@
 class OutputHandler
 {
   public:
-    			OutputHandler ( int, int, int, int, QString,
-							unsigned long long*, trampolineFuncs* );
+    			OutputHandler ( int, int, int, int, QString, trampolineFuncs* );
     virtual		~OutputHandler() {};
     unsigned int	getFrameCount ( void );
 
@@ -64,7 +63,6 @@ class OutputHandler
     QString		filenameRoot;
     void		generateFilename ( void );
 		trampolineFuncs*	trampolines;
-		unsigned long long* pCaptureIndex;
 
   private:
     QString		filename;

@@ -33,6 +33,5 @@
 class OutputMOV : public OutputFFMPEG
 {
   public:
-    			OutputMOV ( int, int, int, int, int, QString,
-							unsigned long long*, trampolineFuncs* );
+    			OutputMOV ( int, int, int, int, int, QString, trampolineFuncs* );
 };

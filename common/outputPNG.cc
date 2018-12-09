@@ -44,8 +44,8 @@ extern "C" {
 
 OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt,
 		const char* appName, const char* appVer, QString fileTemplate,
-		unsigned long long* pcounter, trampolineFuncs* trampolines ) :
-    OutputHandler ( x, y, n, d, fileTemplate, pcounter, trampolines ),
+		trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate, trampolines ),
 		applicationName ( appName ), applicationVersion ( appVer ),
 		imageFormat ( fmt )
 {
@@ -589,7 +589,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
   fclose ( handle );
   frameCount++;
-  *pCaptureIndex++;
+  commonState.captureIndex++;
   return OA_ERR_NONE;
 }
 

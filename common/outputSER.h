@@ -37,8 +37,7 @@ extern "C" {
 class OutputSER : public OutputHandler
 {
   public:
-    			OutputSER ( int, int, int, int, int, QString,
-							unsigned long long*, trampolineFuncs* );
+    			OutputSER ( int, int, int, int, int, QString, trampolineFuncs* );
     			~OutputSER();
     int			openOutput ( void );
     int			addFrame ( void*, const char*, int64_t, const char* );

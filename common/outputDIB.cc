@@ -29,14 +29,14 @@
 #include <QtGui>
 
 #include "pipp_avi_write_dib.h"
+#include "commonState.h"
 #include "outputHandler.h"
 #include "outputDIB.h"
 
 
 OutputDIB::OutputDIB ( int x, int y, int n, int d, int fmt,
-    QString fileTemplate, unsigned long long* pcounter,
-		trampolineFuncs* trampolines ) :
-    OutputHandler ( x, y, n, d, fileTemplate, pcounter, trampolines )
+    QString fileTemplate, trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate, trampolines )
 {
   writesDiscreteFiles = 0;
   frameCount = 0;
@@ -109,5 +109,5 @@ OutputDIB::closeOutput ( void )
   outputFile->close();
   delete outputFile;
   outputFile = 0;
-  *pCaptureIndex++;
+  commonState.captureIndex++;
 }

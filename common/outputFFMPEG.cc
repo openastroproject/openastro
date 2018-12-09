@@ -41,6 +41,7 @@ extern "C" {
 #include <openastro/video/formats.h>
 };
 
+#include "commonState.h"
 #include "outputHandler.h"
 #include "outputFFMPEG.h"
 #include "trampoline.h"
@@ -49,9 +50,8 @@ extern "C" {
 static int libavStarted = 0;
 
 OutputFFMPEG::OutputFFMPEG ( int x, int y, int n, int d, int fmt,
-		QString fileTemplate, unsigned long long* pcounter,
-		trampolineFuncs* trampolines ) :
-    OutputHandler ( x, y, n, d, fileTemplate, pcounter, trampolines )
+		QString fileTemplate, trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate, trampolines )
 {
   if ( !libavStarted ) {
     av_register_all();
@@ -416,7 +416,7 @@ OutputFFMPEG::closeOutput ( void )
   outputFormat = 0;
   videoStream = 0;
 
-  *pCaptureIndex++;
+  commonState.captureIndex++;
 
 #ifdef WINDOWS_RAW
   // This does not work

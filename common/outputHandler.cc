@@ -36,10 +36,8 @@
 
 
 OutputHandler::OutputHandler ( int x, int y, int n, int d,
-		QString nameTemplate, unsigned long long* pcounter,
-		trampolineFuncs* tramps ) :
-		trampolines ( tramps ), pCaptureIndex ( pcounter ),
-		filenameTemplate ( nameTemplate )
+		QString nameTemplate, trampolineFuncs* tramps ) :
+		trampolines ( tramps ), filenameTemplate ( nameTemplate )
 {
   Q_UNUSED( x );
   Q_UNUSED( y );
@@ -96,15 +94,14 @@ OutputHandler::generateFilename ( void )
 
   QString index, gain, exposureMs, exposureS;
   unsigned int exposure;
-  index = QString("%1").arg ( *pCaptureIndex, captureConf.indexDigits, 10,
-      QChar('0'));
+  index = QString("%1").arg ( commonState.captureIndex,
+			captureConf.indexDigits, 10, QChar('0'));
   gain = QString("%1").arg ( trampolines->getCurrentGain());
   exposure = trampolines->getCurrentExposure();
   exposureMs = QString("%1").arg ( exposure / 1000 );
   exposureS = QString("%1").arg (( int ) ( exposure / 1000000 ));
 
   filename = filenameTemplate;
-
   filename.replace ( "%DATE", date );
   filename.replace ( "%TIME", time );
   filename.replace ( "%YEAR", year );

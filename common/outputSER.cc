@@ -32,6 +32,7 @@ extern "C" {
 #include <openastro/video/formats.h>
 }
 
+#include "commonState.h"
 #include "outputHandler.h"
 #include "outputSER.h"
 #include "trampoline.h"
@@ -39,9 +40,8 @@ extern "C" {
 
 
 OutputSER::OutputSER ( int x, int y, int n, int d, int fmt,
-		QString fileTemplate, unsigned long long* pcounter,
-		trampolineFuncs* trampolines ) :
-    OutputHandler ( x, y, n, d, fileTemplate, pcounter, trampolines )
+		QString fileTemplate, trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate, trampolines )
 {
   // FIX ME -- I should move a load of this into liboaSER
 
@@ -213,5 +213,5 @@ OutputSER::closeOutput ( void )
 {
   oaSERWriteTrailer ( &SERContext );
   oaSERClose ( &SERContext );
-  *pCaptureIndex++;
+  commonState.captureIndex++;
 }

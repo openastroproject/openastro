@@ -32,6 +32,7 @@ extern "C" {
 #include <openastro/video/formats.h>
 };
 
+#include "commonState.h"
 #include "fitsSettings.h"
 #include "outputHandler.h"
 #include "outputTIFF.h"
@@ -40,8 +41,8 @@ extern "C" {
 
 OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
 		const char* appName, const char* appVer, QString fileTemplate,
-		unsigned long long* pcounter, trampolineFuncs* trampolines ) :
-    OutputHandler ( x, y, n, d, fileTemplate, pcounter, trampolines ),
+		trampolineFuncs* trampolines ) :
+    OutputHandler ( x, y, n, d, fileTemplate, trampolines ),
 		applicationName ( appName ), applicationVersion ( appVer )
 {
   uint16_t byteOrderTest = 0x1234;
@@ -271,7 +272,7 @@ OutputTIFF::addFrame ( void* frame, const char* timestampStr, int64_t expTime,
   ret = TIFFWriteEncodedStrip ( handle, 0, buffer, frameSize );
   TIFFClose ( handle );
   frameCount++;
-  *pCaptureIndex++;
+  commonState.captureIndex++;
   return ret;
 }
 
