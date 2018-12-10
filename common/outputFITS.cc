@@ -286,8 +286,8 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
         *t++ = *( s + 1 );
         *t++ = *s;
       }
+			outputBuffer = writeBuffer;
     }
-    outputBuffer = writeBuffer;
   }
 
   if ( 3 == bytesPerPixel ) { // RGB or BGR
@@ -516,8 +516,8 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 			applicationVersion );
   fits_write_key_str ( fptr, "SWCREATE", cString, "", &status );
 
-  fits_write_key_dbl ( fptr, "BSCALE", 1.0, -5, "", &status );
-  fits_write_key_dbl ( fptr, "BZERO", 0.0, -5, "", &status );
+  // fits_write_key_dbl ( fptr, "BSCALE", 1.0, -5, "", &status );
+  // fits_write_key_dbl ( fptr, "BZERO", 0.0, -5, "", &status );
 
   fits_write_key_dbl ( fptr, "EXPTIME", expTime / 1000000.0, -10, "", &status );
 
