@@ -59,19 +59,31 @@ OutputSER::OutputSER ( int x, int y, int n, int d, int fmt,
       break;
 
     case OA_PIX_FMT_GREY16LE:
+    case OA_PIX_FMT_GREY10_16LE:
+    case OA_PIX_FMT_GREY12_16LE:
+    case OA_PIX_FMT_GREY14_16LE:
       colourId = 0;
       littleEndian = 1;
       pixelDepth = 16;
       break;
 
     case OA_PIX_FMT_GREY16BE:
+    case OA_PIX_FMT_GREY10_16BE:
+    case OA_PIX_FMT_GREY12_16BE:
+    case OA_PIX_FMT_GREY14_16BE:
       colourId = 0;
       pixelDepth = 16;
       break;
 
     case OA_PIX_FMT_BGGR16LE:
+		case OA_PIX_FMT_BGGR10_16LE:
+		case OA_PIX_FMT_BGGR12_16LE:
+		case OA_PIX_FMT_BGGR14_16LE:
       littleEndian = 1;
     case OA_PIX_FMT_BGGR16BE:
+		case OA_PIX_FMT_BGGR10_16BE:
+		case OA_PIX_FMT_BGGR12_16BE:
+		case OA_PIX_FMT_BGGR14_16BE:
       pixelDepth = 16;
 
     case OA_PIX_FMT_BGGR8:
@@ -79,24 +91,42 @@ OutputSER::OutputSER ( int x, int y, int n, int d, int fmt,
       break;
 
     case OA_PIX_FMT_RGGB16LE:
+		case OA_PIX_FMT_RGGB10_16LE:
+		case OA_PIX_FMT_RGGB12_16LE:
+		case OA_PIX_FMT_RGGB14_16LE:
       littleEndian = 1;
     case OA_PIX_FMT_RGGB16BE:
+		case OA_PIX_FMT_RGGB10_16BE:
+		case OA_PIX_FMT_RGGB12_16BE:
+		case OA_PIX_FMT_RGGB14_16BE:
       pixelDepth = 16;
     case OA_PIX_FMT_RGGB8:
       colourId = OA_SER_BAYER_RGGB;
       break;
 
     case OA_PIX_FMT_GRBG16LE:
+		case OA_PIX_FMT_GRBG10_16LE:
+		case OA_PIX_FMT_GRBG12_16LE:
+		case OA_PIX_FMT_GRBG14_16LE:
       littleEndian = 1;
     case OA_PIX_FMT_GRBG16BE:
+		case OA_PIX_FMT_GRBG10_16BE:
+		case OA_PIX_FMT_GRBG12_16BE:
+		case OA_PIX_FMT_GRBG14_16BE:
       pixelDepth = 16;
     case OA_PIX_FMT_GRBG8:
       colourId = OA_SER_BAYER_GRBG;
       break;
 
     case OA_PIX_FMT_GBRG16LE:
+		case OA_PIX_FMT_GBRG10_16LE:
+		case OA_PIX_FMT_GBRG12_16LE:
+		case OA_PIX_FMT_GBRG14_16LE:
       littleEndian = 1;
     case OA_PIX_FMT_GBRG16BE:
+		case OA_PIX_FMT_GBRG10_16BE:
+		case OA_PIX_FMT_GBRG12_16BE:
+		case OA_PIX_FMT_GBRG14_16BE:
       pixelDepth = 16;
     case OA_PIX_FMT_GBRG8:
       colourId = OA_SER_BAYER_GBRG;
