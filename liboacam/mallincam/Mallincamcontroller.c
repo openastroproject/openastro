@@ -291,8 +291,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
             "for control %d\n", __FUNCTION__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
-      val = ( valp->boolean == OA_EXPOSURE_MANUAL ) ? 0 : 1;
-      if ((( p_Mallincam_put_AutoExpoEnable )( cameraInfo->handle, val )) < 0) {
+      if ((( p_Mallincam_put_AutoExpoEnable )( cameraInfo->handle,
+						valp->boolean )) < 0) {
         fprintf ( stderr, "Mallincam_put_AutoExpoEnable ( %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
       }
@@ -515,7 +515,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 static int
 _processGetControl ( MALLINCAM_STATE* cameraInfo, OA_COMMAND* command )
 {
-  oaControlValue	*valp = command->commandData;
+  oaControlValue	*valp = command->resultData;
   int			control = command->controlId;
   int32_t		val_s32;
   uint32_t		val_u32;

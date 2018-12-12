@@ -149,7 +149,7 @@ oaAltairCameraTestControl ( oaCamera* camera, int control,
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
       val_s32 = valp->boolean;
-      if ( val_s32 == OA_EXPOSURE_MANUAL || val_s32 == OA_EXPOSURE_AUTO ) {
+      if ( val_s32 == 0 || val_s32 == 1 ) {
         return OA_ERR_NONE;
       }
       return -OA_ERR_OUT_OF_RANGE;
