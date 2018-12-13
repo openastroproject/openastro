@@ -40,6 +40,7 @@
 
 
 static int	_processSetControl ( oaCamera*, OA_COMMAND* );
+static int	_processGetControl ( oaCamera*, OA_COMMAND* );
 static int	_processSetResolution ( ZWASI_STATE*, OA_COMMAND* );
 static int	_processStreamingStart ( ZWASI_STATE*, OA_COMMAND* );
 static int	_processStreamingStop ( ZWASI_STATE*, OA_COMMAND* );
@@ -82,6 +83,9 @@ oacamZWASI2controller ( void* param )
         switch ( command->commandType ) {
           case OA_CMD_CONTROL_SET:
             resultCode = _processSetControl ( camera, command );
+            break;
+          case OA_CMD_CONTROL_GET:
+            resultCode = _processGetControl ( camera, command );
             break;
           case OA_CMD_RESOLUTION_SET:
             resultCode = _processSetResolution ( cameraInfo, command );
@@ -400,6 +404,215 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       ASISetControlValue ( cameraInfo->cameraId, ASI_OVERCLOCK,
           cameraInfo->currentOverclock, val->boolean );
       cameraInfo->autoOverclock = val->boolean;
+      break;
+
+    default:
+      return -OA_ERR_INVALID_CONTROL;
+      break;
+  }
+  return OA_ERR_NONE;
+}
+
+
+static int
+_processGetControl ( oaCamera* camera, OA_COMMAND* command )
+{
+  ZWASI_STATE*		cameraInfo = camera->_private;
+  oaControlValue	*val = command->resultData;
+	long						ctrlVal;
+	ASI_BOOL				boolVal;
+
+  switch ( command->controlId ) {
+
+    case OA_CAM_CTRL_BRIGHTNESS:
+    case OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_BRIGHTNESS ):
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_BRIGHTNESS, &ctrlVal,
+          &cameraInfo->autoBrightness );
+			if ( OA_CAM_CTRL_BRIGHTNESS == command->controlId ) {
+				val->valueType = OA_CTRL_TYPE_INT32;
+				val->int32 = ctrlVal;
+			} else {
+				val->valueType = OA_CTRL_TYPE_BOOLEAN;
+				val->boolean = cameraInfo->autoBrightness;
+			}
+      break;
+
+    case OA_CAM_CTRL_BLUE_BALANCE:
+    case OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_BLUE_BALANCE ):
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_WB_B, &ctrlVal,
+          &cameraInfo->autoBlueBalance );
+			if ( OA_CAM_CTRL_BLUE_BALANCE == command->controlId ) {
+				val->valueType = OA_CTRL_TYPE_INT32;
+				val->int32 = ctrlVal;
+			} else {
+				val->valueType = OA_CTRL_TYPE_BOOLEAN;
+				val->boolean = cameraInfo->autoBlueBalance;
+			}
+      break;
+
+    case OA_CAM_CTRL_RED_BALANCE:
+    case OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_RED_BALANCE ):
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_WB_R, &ctrlVal,
+          &cameraInfo->autoRedBalance );
+			if ( OA_CAM_CTRL_RED_BALANCE == command->controlId ) {
+				val->valueType = OA_CTRL_TYPE_INT32;
+				val->int32 = ctrlVal;
+			} else {
+				val->valueType = OA_CTRL_TYPE_BOOLEAN;
+				val->boolean = cameraInfo->autoRedBalance;
+			}
+      break;
+
+    case OA_CAM_CTRL_GAMMA:
+    case OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_GAMMA ):
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_GAMMA, &ctrlVal,
+          &cameraInfo->autoGamma );
+			if ( OA_CAM_CTRL_GAMMA == command->controlId ) {
+				val->valueType = OA_CTRL_TYPE_INT32;
+				val->int32 = ctrlVal;
+			} else {
+				val->valueType = OA_CTRL_TYPE_BOOLEAN;
+				val->boolean = cameraInfo->autoGamma;
+			}
+      break;
+
+    case OA_CAM_CTRL_GAIN:
+    case OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_GAIN ):
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_GAIN, &ctrlVal,
+          &cameraInfo->autoGain );
+			if ( OA_CAM_CTRL_GAMMA == command->controlId ) {
+				val->valueType = OA_CTRL_TYPE_INT32;
+				val->int32 = ctrlVal;
+			} else {
+				val->valueType = OA_CTRL_TYPE_BOOLEAN;
+				val->boolean = cameraInfo->autoGain;
+			}
+      break;
+
+    case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
+    case OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_EXPOSURE, &ctrlVal,
+          &cameraInfo->autoExposure );
+			if ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE == command->controlId ) {
+				val->valueType = OA_CTRL_TYPE_INT32;
+				val->int32 = ctrlVal;
+			} else {
+				val->valueType = OA_CTRL_TYPE_BOOLEAN;
+				val->boolean = cameraInfo->autoExposure;
+			}
+      break;
+
+    case OA_CAM_CTRL_USBTRAFFIC:
+    case OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_USBTRAFFIC ):
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_BANDWIDTHOVERLOAD,
+					&ctrlVal, &cameraInfo->autoExposure );
+			if ( OA_CAM_CTRL_USBTRAFFIC == command->controlId ) {
+				val->valueType = OA_CTRL_TYPE_INT32;
+				val->int32 = ctrlVal;
+			} else {
+				val->valueType = OA_CTRL_TYPE_BOOLEAN;
+				val->boolean = cameraInfo->autoUSBTraffic;
+			}
+      break;
+
+    case OA_CAM_CTRL_OVERCLOCK:
+    case OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_OVERCLOCK ):
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_OVERCLOCK, &ctrlVal,
+					&cameraInfo->autoOverclock );
+			if ( OA_CAM_CTRL_OVERCLOCK == command->controlId ) {
+				val->valueType = OA_CTRL_TYPE_INT32;
+				val->int32 = ctrlVal;
+			} else {
+				val->valueType = OA_CTRL_TYPE_BOOLEAN;
+				val->boolean = cameraInfo->autoOverclock;
+			}
+      break;
+
+    case OA_CAM_CTRL_HIGHSPEED:
+    case OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_HIGHSPEED ):
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_HIGH_SPEED_MODE, &ctrlVal,
+					&cameraInfo->autoHighSpeed );
+			if ( OA_CAM_CTRL_HIGHSPEED == command->controlId ) {
+				val->valueType = OA_CTRL_TYPE_INT32;
+				val->int32 = ctrlVal;
+			} else {
+				val->valueType = OA_CTRL_TYPE_BOOLEAN;
+				val->boolean = cameraInfo->autoHighSpeed;
+			}
+      break;
+
+    case OA_CAM_CTRL_BINNING:
+			// Not ideal, but we can't read this one from the camera
+			val->valueType = OA_CTRL_TYPE_INT32;
+			val->int32 = cameraInfo->binMode;
+      break;
+
+    case OA_CAM_CTRL_HFLIP:
+    case OA_CAM_CTRL_VFLIP:
+    {
+      long flip;
+			ASI_BOOL autoflip;
+
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_FLIP, &flip,
+					&autoflip );
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+      if ( command->controlId == OA_CAM_CTRL_HFLIP ) {
+        val->boolean = ( flip == ASI_FLIP_HORIZ || flip == ASI_FLIP_BOTH ) ?
+						1 : 0;
+			} else {
+        val->boolean = ( flip == ASI_FLIP_VERT || flip == ASI_FLIP_BOTH ) ?
+						1 : 0;
+			}
+      break;
+    }
+
+    case OA_CAM_CTRL_COOLER:
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_COOLER_ON, &ctrlVal,
+					&boolVal );
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = ctrlVal;
+      break;
+
+    case OA_CAM_CTRL_MONO_BIN_COLOUR:
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_MONO_BIN, &ctrlVal,
+					&boolVal );
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = ctrlVal;
+      break;
+
+    case OA_CAM_CTRL_FAN:
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_FAN_ON, &ctrlVal,
+					&boolVal );
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = ctrlVal;
+      break;
+
+    case OA_CAM_CTRL_PATTERN_ADJUST:
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_PATTERN_ADJUST, &ctrlVal,
+					&boolVal );
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = ctrlVal;
+      break;
+
+    case OA_CAM_CTRL_DEW_HEATER:
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_ANTI_DEW_HEATER, &ctrlVal,
+					&boolVal );
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = ctrlVal;
+      break;
+
+    case OA_CAM_CTRL_TEMP_SETPOINT:
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_ANTI_DEW_HEATER, &ctrlVal,
+					&boolVal );
+			val->valueType = OA_CTRL_TYPE_INT32;
+			val->int32 = ctrlVal;
+      break;
+
+    case OA_CAM_CTRL_COOLER_POWER:
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_COOLER_POWER_PERC,
+					&ctrlVal, &boolVal );
+			val->valueType = OA_CTRL_TYPE_INT32;
+			val->int32 = ctrlVal;
       break;
 
     default:

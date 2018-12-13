@@ -544,6 +544,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   // All cameras support ROI according to Sam@ZWO
   camera->features.ROI = 1;
   camera->features.hasReset = 1;
+  camera->features.readableControls = 1;
 
   // Ok, now we need to find out what frame formats are supported and
   // which one we want to use
