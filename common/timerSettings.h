@@ -83,8 +83,8 @@ class TimerSettings : public QWidget
     QHBoxLayout*	drainDelayLayout;
     QHBoxLayout*	timestampDelayLayout;
     QCheckBox*		checkGPSBox;
-		QString				applicationName;
 		trampolineFuncs*	trampolines;
+		QString				applicationName;
 
   public slots:
     void		doTimerReset ( void );
