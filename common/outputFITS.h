@@ -57,7 +57,7 @@ class OutputFITS : public OutputHandler
     int                 planeDepth;
     int			elements;
     long		fitsAxes[3];
-    unsigned int	imageFormat;
 		const char*		applicationName;
 		const char*		applicationVersion;
+    unsigned int	imageFormat;
 };
