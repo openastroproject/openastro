@@ -46,8 +46,8 @@ typedef struct
 	int									binModeY;
 
 	int									cropMode;
-	int									cropSizeX;
-	int									cropSizeY;
+	unsigned int				cropSizeX;
+	unsigned int				cropSizeY;
 
 	unsigned int				sensorSizeX;
 	unsigned int				sensorSizeY;
