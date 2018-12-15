@@ -155,14 +155,14 @@ t_updateSpinbox ( int control, int value )
 QStringList
 t_getFrameRates ( void )
 {
-	state.controlWidget->getFrameRates();
+	return state.controlWidget->getFrameRates();
 }
 
 
 int
 t_getFrameRateIndex ( void )
 {
-	state.controlWidget->getFrameRateIndex();
+	return state.controlWidget->getFrameRateIndex();
 }
 
 
