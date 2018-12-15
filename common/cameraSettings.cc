@@ -658,7 +658,7 @@ CameraSettings::buttonPushed ( int control )
           switch ( controlType[mod][baseVal] ) {
 
             case OA_CTRL_TYPE_BOOLEAN:
-              commonState.camera->readControl ( c );
+              v = commonState.camera->readControl ( c );
               cameraConf.CONTROL_VALUE(c) = v;
               SET_PROFILE_CONTROL( c, v );
               controlCheckbox[mod][baseVal]->setChecked ( v );
@@ -666,14 +666,14 @@ CameraSettings::buttonPushed ( int control )
 
             case OA_CTRL_TYPE_INT32:
             case OA_CTRL_TYPE_INT64:
-              commonState.camera->readControl ( c );
+              v = commonState.camera->readControl ( c );
               cameraConf.CONTROL_VALUE(c) = v;
               SET_PROFILE_CONTROL( c, v );
               controlSpinbox[mod][baseVal]->setValue ( v );
               break;
 
             case OA_CTRL_TYPE_MENU:
-              commonState.camera->readControl ( c );
+              v = commonState.camera->readControl ( c );
               cameraConf.CONTROL_VALUE(c) = v;
               SET_PROFILE_CONTROL( c, v );
               controlMenu[mod][baseVal]->setCurrentIndex ( v );
