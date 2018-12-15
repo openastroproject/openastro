@@ -96,13 +96,12 @@ class GeneralSettings : public QWidget
     QSlider*		fpsSlider;
     QPushButton*	recentreButton;
     QPushButton*	derotateButton;
-		int						fpsControls;
-		int						splitControls;
-		QString				applicationName;
 		QWidget*			topWidget;
-		QWidget*			parentWidget;
-		QWidget*			viewerWidget;
+		QString				applicationName;
+		int						splitControls;
+		int						fpsControls;
 		trampolineFuncs*	trampolines;
+		QWidget*			parentWidget;
 
   public slots:
     void		updateFPSLabel ( int );
