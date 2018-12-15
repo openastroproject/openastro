@@ -59,7 +59,7 @@ class OutputPNG : public OutputHandler
     png_structp		pngPtr;
     png_infop		infoPtr;
     png_bytep*		rowPointers;
-    unsigned		imageFormat;
 		const char*	applicationName;
 		const char*	applicationVersion;
+    unsigned		imageFormat;
 };
