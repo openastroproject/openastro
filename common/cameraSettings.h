@@ -95,8 +95,8 @@ class CameraSettings : public QWidget
     QCheckBox*		forceFrameFormat;
     QComboBox*		selectedFrameFormat;
     QHBoxLayout*	frameHBoxLayout;
-		trampolineFuncs*	trampolines;
 		QWidget*					topWidget;
+		trampolineFuncs*	trampolines;
 
   public slots:
     void		updateSliderControl ( int );
