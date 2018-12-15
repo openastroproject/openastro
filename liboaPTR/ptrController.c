@@ -648,11 +648,10 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 {
   char		commandStr[128], buffer[128];
   int		commandLen, readBytes;
-  double	latDeg, latMin, longDeg, longMin, alt;
   double*	r = command->resultData;
-#ifndef PTRV1
-  char		longDir, latDir;
-  double	latSec, longSec;
+#ifdef PTRV1
+	double	alt;
+  double	latDeg, latMin, longDeg, longMin;
 #endif
 
 #define STRLEN_GEO 44
