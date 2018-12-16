@@ -484,8 +484,12 @@ Camera::readControl ( int control )
     return 0;
   }
 
-  cameraFuncs.readControl ( cameraContext, control, &v );
-  return unpackControlValue ( &v );
+  if ( cameraFuncs.readControl ( cameraContext, control, &v ) ==
+			OA_ERR_NONE ) {
+		return unpackControlValue ( &v );
+	}
+	qWarning() << "error trying to read control" << control;
+	return 0;
 }
 
 

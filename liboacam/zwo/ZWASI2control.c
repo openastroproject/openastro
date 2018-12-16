@@ -41,138 +41,30 @@ int
 oaZWASI2CameraReadControl ( oaCamera* camera, int control,
     oaControlValue* val )
 {
-  ZWASI_STATE*	cameraInfo = camera->_private;
+  OA_COMMAND    command;
+  ZWASI_STATE*  cameraInfo = camera->_private;
+  int     retval;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "%s: ( %d )\n", __FUNCTION__, control );
+  // Could do more validation here, but it's a bit messy to do here
+  // and in the controller too.
 
-  switch ( control ) {
+  OA_CLEAR ( command );
+  command.commandType = OA_CMD_CONTROL_GET;
+  command.controlId = control;
+  command.resultData = val;
 
-    case OA_CAM_CTRL_BRIGHTNESS:
-      val->valueType = OA_CTRL_TYPE_INT32;
-      val->int32 = cameraInfo->currentBrightness;
-      break;
-
-    case OA_CAM_CTRL_BLUE_BALANCE:
-      val->valueType = OA_CTRL_TYPE_INT32;
-      val->int32 = cameraInfo->currentBlueBalance;
-      break;
-
-    case OA_CAM_CTRL_RED_BALANCE:
-      val->valueType = OA_CTRL_TYPE_INT32;
-      val->int32 = cameraInfo->currentRedBalance;
-      break;
-
-    case OA_CAM_CTRL_GAMMA:
-      val->valueType = OA_CTRL_TYPE_INT32;
-      val->int32 = cameraInfo->currentGamma;
-      break;
-
-    case OA_CAM_CTRL_GAIN:
-      val->valueType = OA_CTRL_TYPE_INT32;
-      val->int32 = cameraInfo->currentGain;
-      break;
-
-    case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
-      val->valueType = OA_CTRL_TYPE_INT32;
-      val->int32 = cameraInfo->currentAbsoluteExposure;
-      break;
-
-    case OA_CAM_CTRL_USBTRAFFIC:
-      val->valueType = OA_CTRL_TYPE_INT32;
-      val->int32 = cameraInfo->currentUSBTraffic;
-      break;
-
-    case OA_CAM_CTRL_OVERCLOCK:
-      val->valueType = OA_CTRL_TYPE_INT32;
-      val->int32 = cameraInfo->currentOverclock;
-      break;
-
-    case OA_CAM_CTRL_HIGHSPEED:
-      val->valueType = OA_CTRL_TYPE_BOOLEAN;
-      val->boolean = cameraInfo->currentHighSpeed;
-      break;
-
-    case OA_CAM_CTRL_BINNING:
-      val->valueType = OA_CTRL_TYPE_DISCRETE;
-      val->discrete = cameraInfo->binMode;
-      break;
-
-    case OA_CAM_CTRL_HFLIP:
-      val->valueType = OA_CTRL_TYPE_BOOLEAN;
-      val->boolean = cameraInfo->currentHFlip;
-      break;
-
-    case OA_CAM_CTRL_VFLIP:
-      val->valueType = OA_CTRL_TYPE_BOOLEAN;
-      val->boolean = cameraInfo->currentVFlip;
-      break;
-
-    case OA_CAM_CTRL_TEMPERATURE:
-    {
-      ASI_BOOL dummy;
-      long temp;
-
-      val->valueType = OA_CTRL_TYPE_READONLY;
-      ASIGetControlValue ( cameraInfo->cameraId, ASI_TEMPERATURE, &temp,
-          &dummy );
-      val->readonly = temp;
-      break;
-    }
-
-    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
-      val->valueType = OA_CTRL_TYPE_BOOLEAN;
-      val->boolean = cameraInfo->autoGain;
-      break;
-
-    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA ):
-      val->valueType = OA_CTRL_TYPE_BOOLEAN;
-      val->boolean = cameraInfo->autoGamma;
-      break;
-
-    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BRIGHTNESS ):
-      val->valueType = OA_CTRL_TYPE_BOOLEAN;
-      val->boolean = cameraInfo->autoBrightness;
-      break;
-
-    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
-      val->valueType = OA_CTRL_TYPE_BOOLEAN;
-      val->boolean = cameraInfo->autoExposure;
-      break;
-
-    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_RED_BALANCE ):
-      val->valueType = OA_CTRL_TYPE_BOOLEAN;
-      val->boolean = cameraInfo->autoRedBalance;
-      break;
-
-    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLUE_BALANCE ):
-      val->valueType = OA_CTRL_TYPE_BOOLEAN;
-      val->boolean = cameraInfo->autoBlueBalance;
-      break;
-
-    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_USBTRAFFIC ):
-      val->boolean = cameraInfo->autoUSBTraffic;
-      break;
-
-    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_OVERCLOCK ):
-      val->valueType = OA_CTRL_TYPE_BOOLEAN;
-      val->boolean = cameraInfo->autoOverclock;
-      break;
-
-    case OA_CAM_CTRL_DROPPED:
-    {
-      int drops;
-      ASIGetDroppedFrames ( cameraInfo->cameraId, &drops );
-      val->valueType = OA_CTRL_TYPE_READONLY;
-      val->readonly = drops;
-      break;
-    }
-    default:
-      fprintf ( stderr,
-          "Unrecognised control %d in %s\n", control, __FUNCTION__ );
-      return -OA_ERR_INVALID_CONTROL;
-      break;
+  cameraInfo = camera->_private;
+  oaDLListAddToTail ( cameraInfo->commandQueue, &command );
+  pthread_cond_broadcast ( &cameraInfo->commandQueued );
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  while ( !command.completed ) {
+    pthread_cond_wait ( &cameraInfo->commandComplete,
+        &cameraInfo->commandQueueMutex );
   }
-  return OA_ERR_NONE;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+  retval = command.resultCode;
+
+  return retval;
 }
 
 
