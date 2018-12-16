@@ -867,7 +867,7 @@ ControlWidget::configure ( void )
 	if ( type == OA_CTRL_TYPE_BOOLEAN || type == OA_CTRL_TYPE_MENU ) {
     // FIX ME -- what if there is no non-auto control?  Issue #131
     if ( commonState.camera->hasControl ( state.preferredExposureControl )) {
-      uint32_t autoOn;
+      uint32_t autoOn = 0;
       grid->addWidget (
           selectableControlCheckbox[ state.preferredExposureControl ], 5, 1 );
       if ( readableControls ) {
@@ -1973,13 +1973,13 @@ ControlWidget::doAutoControlUpdate ( void )
 	}
 
   for ( c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
+		type = commonState.camera->hasControl ( c );
 		if ( c == state.preferredExposureControl ) {
 			// This is more complicated because the drop-down
 			// for the exposure range may also need to be changed, the state of the
 			// interval type (us/ms/sec) needs to be accounted for (and in fact there
 			// are two possible options for the exposure control).
 
-			type = commonState.camera->hasControl ( c );
 			if ( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) {
 				control = OA_CAM_CTRL_MODE_AUTO( c );
 				type = commonState.camera->hasControl ( control );
@@ -2016,7 +2016,6 @@ ControlWidget::doAutoControlUpdate ( void )
 				}
 			}
 		} else {
-			type = commonState.camera->hasControl ( c );
 			if (( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) &&
 					commonState.camera->hasControl ( OA_CAM_CTRL_MODE_AUTO ( c )) ==
 					OA_CTRL_TYPE_BOOLEAN ) {
