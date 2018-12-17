@@ -157,14 +157,6 @@ oaAtikSerialCameraTestControl ( oaCamera* camera, int control,
       return OA_ERR_NONE;
       break;
 
-    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
-      if ( val->int32 != OA_EXPOSURE_AUTO && val->int32 !=
-          OA_EXPOSURE_MANUAL ) {
-        return -OA_ERR_OUT_OF_RANGE;
-      }
-      return OA_ERR_NONE;
-      break;     
-
     case OA_CAM_CTRL_BINNING:
       return -OA_ERR_INVALID_CONTROL;
       break;
