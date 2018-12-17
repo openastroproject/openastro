@@ -24,19 +24,32 @@
  *
  *****************************************************************************/
 
+#include <QtCore>
+
 #include "targets.h"
 
 const char*	targetList[NUM_TARGETS] = {
-  "Other",
-  "Mercury",
-  "Venus",
-  "Earth",
-  "Mars",
-  "Jupiter",
-  "Saturn",
-  "Uranus",
-  "Neptune",
-  "Pluto",
-  "Moon",
-  "Sun",
+  QT_TRANSLATE_NOOP( "QObject", "Other" ),
+  QT_TRANSLATE_NOOP( "QObject", "Mercury" ),
+  QT_TRANSLATE_NOOP( "QObject", "Venus" ),
+  QT_TRANSLATE_NOOP( "QObject", "Earth" ),
+  QT_TRANSLATE_NOOP( "QObject", "Mars" ),
+  QT_TRANSLATE_NOOP( "QObject", "Jupiter" ),
+  QT_TRANSLATE_NOOP( "QObject", "Saturn" ),
+  QT_TRANSLATE_NOOP( "QObject", "Uranus" ),
+  QT_TRANSLATE_NOOP( "QObject", "Neptune" ),
+  QT_TRANSLATE_NOOP( "QObject", "Pluto" ),
+  QT_TRANSLATE_NOOP( "QObject", "Moon" ),
+  QT_TRANSLATE_NOOP( "QObject", "Sun" )
 };
+
+
+const QString
+targetName ( unsigned int targetIdx )
+{
+	if ( targetIdx >= NUM_TARGETS ) {
+		return "";
+	}
+
+	return QObject::tr ( targetList[ targetIdx ]);
+}

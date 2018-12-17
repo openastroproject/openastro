@@ -261,7 +261,8 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   int currentTargetId = trampolines->getCurrentTargetId();
   if ( currentTargetId > 0 && currentTargetId != TGT_UNKNOWN ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
-        targetList[ currentTargetId ], PNG_KEYWORD_MAX_LENGTH+1 );
+				targetName ( currentTargetId ).toStdString().c_str(),
+        PNG_KEYWORD_MAX_LENGTH+1 );
   } else {
     ( void ) strncpy ( stringBuffs[ numComments ],
         fitsConf.object.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );

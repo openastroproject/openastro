@@ -58,7 +58,7 @@ ProfileSettings::ProfileSettings ( QWidget* parent, trampolineFuncs* redirs ) :
   for ( int i = 0; i < NUM_TARGETS; i++ ) {
     if ( i != TGT_EARTH ) {
       QVariant v(i);
-      targetMenu->addItem ( tr ( targetList[i]), v );
+      targetMenu->addItem ( targetName ( i ), v );
     }
   }
   targetMenu->setEnabled ( 0 );

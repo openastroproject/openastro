@@ -40,4 +40,4 @@
 #define TGT_SUN		11
 #define NUM_TARGETS	(TGT_SUN+1)
 
-extern const char*	targetList[NUM_TARGETS];
+extern const QString targetName ( unsigned int );

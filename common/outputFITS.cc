@@ -363,7 +363,8 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   stringBuff[0] = 0;
   int currentTargetId = trampolines->getCurrentTargetId();
   if ( currentTargetId > 0 && currentTargetId != TGT_UNKNOWN ) {
-    ( void ) strncpy ( stringBuff, targetList[ currentTargetId ],
+    ( void ) strncpy ( stringBuff,
+				targetName ( currentTargetId ).toStdString().c_str(),
         FLEN_VALUE+1 );
   } else {
     ( void ) strncpy ( stringBuff,

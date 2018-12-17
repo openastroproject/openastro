@@ -1151,8 +1151,8 @@ CaptureWidget::getCurrentTargetName ( void )
 {
   if ( profileConf.numProfiles > 0 &&
 			commonConfig.profileOption < profileConf.numProfiles ) {
-    return targetList [ profileConf.profiles[
-				commonConfig.profileOption ].target ];
+    return targetName ( profileConf.profiles[
+				commonConfig.profileOption ].target );
   }
   return "";
 }
