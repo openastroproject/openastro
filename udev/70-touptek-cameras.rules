@@ -215,7 +215,7 @@ ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b122", GROUP="users", MODE="0660"
 ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b123", GROUP="users", MODE="0660"
 
 # GCMOS01200KMB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b124", GROUP="users", MODE="0660"
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b134", GROUP="users", MODE="0660"
 
 # GCMOS03100KPA
 ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b310", GROUP="users", MODE="0660"
