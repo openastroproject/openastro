@@ -375,10 +375,9 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
     {
-      int v = ( OA_EXPOSURE_AUTO == val->boolean ? 1 : 0 );
       ASISetControlValue ( cameraInfo->cameraId, ASI_EXPOSURE,
-          cameraInfo->currentAbsoluteExposure, v );
-      cameraInfo->autoExposure = v;
+          cameraInfo->currentAbsoluteExposure, val->boolean );
+      cameraInfo->autoExposure = val->boolean;
       break;
     }
 
@@ -435,6 +434,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 				val->valueType = OA_CTRL_TYPE_BOOLEAN;
 				val->boolean = cameraInfo->autoBrightness;
 			}
+      cameraInfo->currentBrightness = ctrlVal;
       break;
 
     case OA_CAM_CTRL_BLUE_BALANCE:
@@ -448,6 +448,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 				val->valueType = OA_CTRL_TYPE_BOOLEAN;
 				val->boolean = cameraInfo->autoBlueBalance;
 			}
+      cameraInfo->currentBlueBalance = ctrlVal;
       break;
 
     case OA_CAM_CTRL_RED_BALANCE:
@@ -461,6 +462,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 				val->valueType = OA_CTRL_TYPE_BOOLEAN;
 				val->boolean = cameraInfo->autoRedBalance;
 			}
+      cameraInfo->currentRedBalance = ctrlVal;
       break;
 
     case OA_CAM_CTRL_GAMMA:
@@ -474,19 +476,21 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 				val->valueType = OA_CTRL_TYPE_BOOLEAN;
 				val->boolean = cameraInfo->autoGamma;
 			}
+      cameraInfo->currentGamma = ctrlVal;
       break;
 
     case OA_CAM_CTRL_GAIN:
     case OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_GAIN ):
       ASIGetControlValue ( cameraInfo->cameraId, ASI_GAIN, &ctrlVal,
           &cameraInfo->autoGain );
-			if ( OA_CAM_CTRL_GAMMA == command->controlId ) {
+			if ( OA_CAM_CTRL_GAIN == command->controlId ) {
 				val->valueType = OA_CTRL_TYPE_INT32;
 				val->int32 = ctrlVal;
 			} else {
 				val->valueType = OA_CTRL_TYPE_BOOLEAN;
 				val->boolean = cameraInfo->autoGain;
 			}
+      cameraInfo->currentGain = ctrlVal;
       break;
 
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
@@ -500,12 +504,13 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 				val->valueType = OA_CTRL_TYPE_BOOLEAN;
 				val->boolean = cameraInfo->autoExposure;
 			}
+      cameraInfo->currentAbsoluteExposure = ctrlVal;
       break;
 
     case OA_CAM_CTRL_USBTRAFFIC:
     case OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_USBTRAFFIC ):
       ASIGetControlValue ( cameraInfo->cameraId, ASI_BANDWIDTHOVERLOAD,
-					&ctrlVal, &cameraInfo->autoExposure );
+					&ctrlVal, &cameraInfo->autoUSBTraffic );
 			if ( OA_CAM_CTRL_USBTRAFFIC == command->controlId ) {
 				val->valueType = OA_CTRL_TYPE_INT32;
 				val->int32 = ctrlVal;
@@ -513,6 +518,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 				val->valueType = OA_CTRL_TYPE_BOOLEAN;
 				val->boolean = cameraInfo->autoUSBTraffic;
 			}
+      cameraInfo->currentUSBTraffic = ctrlVal;
       break;
 
     case OA_CAM_CTRL_OVERCLOCK:
@@ -526,6 +532,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 				val->valueType = OA_CTRL_TYPE_BOOLEAN;
 				val->boolean = cameraInfo->autoOverclock;
 			}
+      cameraInfo->currentOverclock = ctrlVal;
       break;
 
     case OA_CAM_CTRL_HIGHSPEED:
@@ -539,6 +546,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 				val->valueType = OA_CTRL_TYPE_BOOLEAN;
 				val->boolean = cameraInfo->autoHighSpeed;
 			}
+      cameraInfo->currentHighSpeed = ctrlVal;
       break;
 
     case OA_CAM_CTRL_BINNING:
@@ -615,6 +623,15 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 			val->int32 = ctrlVal;
       break;
 
+		case OA_CAM_CTRL_DROPPED:
+		{
+			int	dropped;
+
+      ASIGetDroppedFrames ( cameraInfo->cameraId, &dropped );
+			val->valueType = OA_CTRL_TYPE_INT32;
+			val->int32 = dropped;
+      break;
+		}
     default:
       return -OA_ERR_INVALID_CONTROL;
       break;
