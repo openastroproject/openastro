@@ -165,8 +165,7 @@ oaFC2CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ):
-      if ( val->int32 != OA_EXPOSURE_AUTO && val->int32 !=
-          OA_EXPOSURE_MANUAL ) {
+      if ( val->int32 != 0 && val->int32 != 1 ) {
         return -OA_ERR_OUT_OF_RANGE;
       }
       return OA_ERR_NONE;
