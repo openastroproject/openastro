@@ -206,7 +206,9 @@ void		( *p_Altaircam_HotPlug )( PTOUPCAM_HOTPLUG, void* );
 
 
 static void*		_getDLSym ( void*, const char*, int );
+#if 0
 static void		_patchLibrary ( void* );
+#endif
 
 #define ALTAIR_PREFIX	1
 #define TOUPCAM_PREFIX	2
@@ -223,7 +225,10 @@ oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
   unsigned int		i;
   oaCameraDevice*       dev;
   DEVICE_INFO*		_private;
-  int                   ret, oalib, prefix;
+  int                   ret, prefix;
+#if 0
+  int                   oalib;
+#endif
   static void*		libHandle = 0;
 
   // On Linux, the only place we're going to look for this library is
@@ -832,6 +837,7 @@ oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
   }
    */
 
+#if 0
   oalib = !strcmp ( "1.8.7036.20160321", p_Altaircam_Version());
 
   if ( oalib ) {
@@ -841,6 +847,7 @@ oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
 
     _patchLibrary ( p_Altaircam_Enum );
   }
+#endif
 
   numCameras = ( p_Altaircam_Enum )( devList );
   if ( numCameras < 1 ) {
@@ -908,6 +915,7 @@ _getDLSym ( void* libHandle, const char* symbol, int prefix )
 }
 
 
+#if 0
 #ifdef DYNLIB_EXT_DYLIB
 void
 _patchLibrary ( void* p )
@@ -1114,4 +1122,5 @@ _patchLibrary ( void* p )
      */
   }
 }
+#endif
 #endif
