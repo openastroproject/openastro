@@ -217,12 +217,10 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_u32 = val->int32;
-      if ( val_u32 != OA_EXPOSURE_AUTO && val_u32 != OA_EXPOSURE_MANUAL ) {
+      if ( val_u32 != 0 && val_u32 != 1 ) {
         fprintf ( stderr, "%s: control value out of range\n", __FUNCTION__ );
         return -OA_ERR_OUT_OF_RANGE;
       }
-      // need to switch this around for the ternary operator below to work
-      val_u32 = ( OA_EXPOSURE_AUTO == val_u32 ) ? 1 : 0;
     } else {
       // anything here should be a boolean value
       if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
