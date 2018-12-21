@@ -133,10 +133,6 @@ class ViewWidget : public QFrame
     unsigned int	averageBufferLength;
     unsigned int	totalFrames;
 
-    void		processFlip ( void*, int, int );
-    void		processFlip8Bit ( uint8_t*, int );
-    void		processFlip16Bit ( uint8_t*, int );
-    void		processFlip24BitColour ( uint8_t*, int );
     unsigned int	reduceTo8Bit ( void*, void*, int, int, int );
     void		mousePressEvent ( QMouseEvent* );
     void		mouseMoveEvent ( QMouseEvent* );

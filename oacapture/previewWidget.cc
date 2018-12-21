@@ -419,207 +419,6 @@ PreviewWidget::forceRecordingStop ( void )
 
 
 void
-PreviewWidget::processFlip ( void* imageData, int length, int format )
-{
-  uint8_t* data = ( uint8_t* ) imageData;
-  int assumedFormat = format;
-
-  // fake up a format for mosaic frames here as properly flipping a
-  // mosaicked frame would be quite hairy
-
-  if ( oaFrameFormats[ format ].rawColour ) {
-    if ( oaFrameFormats[ format ].bitsPerPixel == 8 ) {
-      assumedFormat = OA_PIX_FMT_GREY8;
-    } else {
-      if ( oaFrameFormats[ format ].bitsPerPixel == 16 ) {
-        assumedFormat = OA_PIX_FMT_GREY16BE;
-      } else {
-        qWarning() << __FUNCTION__ << "No flipping idea how to handle format"
-            << format;
-      }
-    }
-  }
-
-  switch ( assumedFormat ) {
-    case OA_PIX_FMT_GREY8:
-      processFlip8Bit ( data, length );
-      break;
-    case OA_PIX_FMT_GREY16BE:
-    case OA_PIX_FMT_GREY16LE:
-      processFlip16Bit ( data, length );
-      break;
-    case OA_PIX_FMT_RGB24:
-    case OA_PIX_FMT_BGR24:
-      processFlip24BitColour ( data, length );
-      break;
-    default:
-      qWarning() << __FUNCTION__ << " unable to flip format " << format;
-      break;
-  }
-}
-
-
-void
-PreviewWidget::processFlip8Bit ( uint8_t* imageData, int length )
-{
-  if ( flipX && flipY ) {
-    uint8_t* p1 = imageData;
-    uint8_t* p2 = imageData + length - 1;
-    uint8_t s;
-    while ( p1 < p2 ) {
-      s = *p1;
-      *p1++ = *p2;
-      *p2-- = s;
-    }
-  } else {
-    if ( flipX ) {
-      uint8_t* p1;
-      uint8_t* p2;
-      uint8_t s;
-      for ( unsigned int y = 0; y < commonConfig.imageSizeY; y++ ) {
-        p1 = imageData + y * commonConfig.imageSizeX;
-        p2 = p1 + commonConfig.imageSizeX - 1;
-        while ( p1 < p2 ) {
-          s = *p1;
-          *p1++ = *p2;
-          *p2-- = s;
-        }
-      }
-    }
-    if ( flipY ) {
-      uint8_t* p1;
-      uint8_t* p2;
-      uint8_t s;
-      p1 = imageData;
-      for ( unsigned int y = commonConfig.imageSizeY - 1;
-					y >= commonConfig.imageSizeY / 2; y-- ) {
-        p2 = imageData + y * commonConfig.imageSizeX;
-        for ( unsigned int x = 0; x < commonConfig.imageSizeX; x++ ) {
-          s = *p1;
-          *p1++ = *p2;
-          *p2++ = s;
-        }
-      }
-    }
-  }
-}
-
-
-void
-PreviewWidget::processFlip16Bit ( uint8_t* imageData, int length )
-{
-  if ( flipX && flipY ) {
-    uint8_t* p1 = imageData;
-    uint8_t* p2 = imageData + length - 2;
-    uint8_t s;
-    while ( p1 < p2 ) {
-      s = *p1;
-      *p1++ = *p2;
-      *p2++ = s;
-      s = *p1;
-      *p1++ = *p2;
-      *p2 = s;
-      p2 -= 3;
-    }
-  } else {
-    if ( flipX ) {
-      uint8_t* p1;
-      uint8_t* p2;
-      uint8_t s;
-      for ( unsigned int y = 0; y < commonConfig.imageSizeY; y++ ) {
-        p1 = imageData + y * commonConfig.imageSizeX * 2;
-        p2 = p1 + ( commonConfig.imageSizeX - 1 ) * 2;
-        while ( p1 < p2 ) {
-          s = *p1;
-          *p1++ = *p2;
-          *p2++ = s;
-          s = *p1;
-          *p1++ = *p2;
-          *p2 = s;
-          p2 -= 3;
-        }
-      }
-    }
-    if ( flipY ) {
-      uint8_t* p1;
-      uint8_t* p2;
-      uint8_t s;
-      p1 = imageData;
-      for ( unsigned int y = commonConfig.imageSizeY - 1;
-					y > commonConfig.imageSizeY / 2; y-- ) {
-        p2 = imageData + y * commonConfig.imageSizeX * 2;
-        for ( unsigned int x = 0; x < commonConfig.imageSizeX * 2; x++ ) {
-          s = *p1;
-          *p1++ = *p2;
-          *p2++ = s;
-        }
-      }
-    }
-  }
-}
-
-
-void
-PreviewWidget::processFlip24BitColour ( uint8_t* imageData, int length )
-{
-  if ( flipX && flipY ) {
-    uint8_t* p1 = imageData;
-    uint8_t* p2 = imageData + length - 3;
-    uint8_t s;
-    while ( p1 < p2 ) {
-      s = *p1;
-      *p1++ = *p2;
-      *p2++ = s;
-      s = *p1;
-      *p1++ = *p2;
-      *p2++ = s;
-      s = *p1;
-      *p1++ = *p2;
-      *p2 = s;
-      p2 -= 5;
-    }
-  } else {
-    if ( flipX ) {
-      uint8_t* p1;
-      uint8_t* p2;
-      uint8_t s;
-      for ( unsigned int y = 0; y < commonConfig.imageSizeY; y++ ) {
-        p1 = imageData + y * commonConfig.imageSizeX * 3;
-        p2 = p1 + ( commonConfig.imageSizeX - 1 ) * 3;
-        while ( p1 < p2 ) {
-          s = *p1;
-          *p1++ = *p2;
-          *p2++ = s;
-          s = *p1;
-          *p1++ = *p2;
-          *p2++ = s;
-          s = *p1;
-          *p1++ = *p2;
-          *p2 = s;
-          p2 -= 5;
-        }
-      }
-    }
-    if ( flipY ) {
-      uint8_t* p1;
-      uint8_t* p2;
-      uint8_t s;
-      p1 = imageData;
-      for ( unsigned int y = commonConfig.imageSizeY - 1;
-					y > commonConfig.imageSizeY / 2; y-- ) {
-        p2 = imageData + y * commonConfig.imageSizeX * 3;
-        for ( unsigned int x = 0; x < commonConfig.imageSizeX * 3; x++ ) {
-          s = *p1;
-          *p1++ = *p2;
-          *p2++ = s;
-        }
-      }
-    }
-  }
-}
-
-
-void
 PreviewWidget::setMonoPalette ( QColor colour )
 {
   unsigned int r = colour.red();
@@ -737,16 +536,21 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
     // FIX ME -- work this out some time
 
     if ( self->flipX || self->flipY ) {
-      self->processFlip ( previewBuffer, length, previewPixelFormat );
+			int axis = ( self->flipX ? OA_FLIP_X : 0 ) | ( self->flipY ?
+					OA_FLIP_Y : 0 );
+      oaFlipImage ( previewBuffer, commonConfig.imageSizeX,
+					commonConfig.imageSizeY, previewPixelFormat, axis );
     }
   } else {
     // do a vertical/horizontal flip if required
     if ( self->flipX || self->flipY ) {
       // this is going to make a mess for data we intend to demosaic.
       // the user will have to deal with that
+			int axis = ( self->flipX ? OA_FLIP_X : 0 ) | ( self->flipY ?
+					OA_FLIP_Y : 0 );
       ( void ) memcpy ( self->writeImageBuffer[0], writeBuffer, length );
-      self->processFlip ( self->writeImageBuffer[0], length,
-          writePixelFormat );
+      oaFlipImage ( self->writeImageBuffer[0], commonConfig.imageSizeX,
+					commonConfig.imageSizeY, writePixelFormat, axis );
       // both preview and write will come from this buffer for the
       // time being.  This may change later on
       previewBuffer = self->writeImageBuffer[0];

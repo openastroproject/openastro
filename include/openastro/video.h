@@ -2,7 +2,7 @@
  *
  * video.h -- video API header
  *
- * Copyright 2014 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -27,6 +27,10 @@
 #ifndef OPENASTRO_VIDEO_H
 #define OPENASTRO_VIDEO_H
 
+#define		OA_FLIP_X	0x01
+#define		OA_FLIP_Y	0x02
+
 extern int		oaconvert ( void*, void*, int, int, int, int );
+extern int		oaFlipImage ( void*, unsigned int, unsigned int, int, int );
 
 #endif	/* OPENASTRO_VIDEO_H */

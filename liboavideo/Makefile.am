@@ -1,7 +1,8 @@
 #
 # Makefile.am -- liboavideo Makefile template
 #
-# Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+# Copyright 2013,2014,2015,2017,2018
+#   James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -27,7 +28,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/include
 lib_LTLIBRARIES = liboavideo.la
 
 liboavideo_la_SOURCES = \
-  oavideo.c yuv.c fits.c formats.c to8Bit.c
+  oavideo.c yuv.c fits.c formats.c to8Bit.c flip.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
