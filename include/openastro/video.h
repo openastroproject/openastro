@@ -32,5 +32,7 @@
 
 extern int		oaconvert ( void*, void*, int, int, int, int );
 extern int		oaFlipImage ( void*, unsigned int, unsigned int, int, int );
+extern int		oaInplaceCrop ( void*, unsigned int, unsigned int, unsigned int,
+		unsigned int, int );
 
 #endif	/* OPENASTRO_VIDEO_H */

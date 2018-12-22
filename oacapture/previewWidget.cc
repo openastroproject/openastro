@@ -703,7 +703,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
         } else {
           pixelFormat = writePixelFormat;
         }
-        self->inplaceCrop ( writeBuffer, commonConfig.imageSizeX,
+        oaInplaceCrop ( writeBuffer, commonConfig.imageSizeX,
 						commonConfig.imageSizeY, commonState->cropSizeX,
 						commonState->cropSizeY,
             oaFrameFormats[ pixelFormat ].bytesPerPixel );
@@ -938,27 +938,4 @@ PreviewWidget::reduceTo8Bit ( void* sourceData, void* targetData, int xSize,
   }
 
   return outputFormat;
-}
-
-
-void
-PreviewWidget::inplaceCrop ( void* data, int xSize, int ySize, int cropX,
-    int cropY, int bpp )
-{
-  uint8_t*  source;
-  uint8_t*  startOfRow;
-  uint8_t*  target = ( uint8_t* ) data;
-  int       origRowLength, cropRowLength, i;
-
-  origRowLength = xSize * bpp;
-  cropRowLength = cropX * bpp;
-  startOfRow = target + ( ySize - cropY ) / 2 * origRowLength +
-      ( xSize - cropX ) / 2 * bpp;
-  while ( cropY-- ) {
-    source = startOfRow;
-    for ( i = 0; i < cropRowLength; i++ ) {
-      *target++ = *source++;
-    }
-    startOfRow += origRowLength;
-  }
 }
