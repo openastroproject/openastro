@@ -40,7 +40,8 @@ enum oaFilterWheelInterfaceType {
   OA_FW_IF_XAGYL			= 1,
   OA_FW_IF_SX				  = 2,
   OA_FW_IF_ZWO				= 3,
-  OA_FW_IF_COUNT			= 4
+  OA_FW_IF_BRIGHTSTAR	= 4,
+  OA_FW_IF_COUNT			= 5
 };
 
 extern oaInterface	oaFilterWheelInterfaces[ OA_FW_IF_COUNT + 1 ];
