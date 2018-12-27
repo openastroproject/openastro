@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * brightstarfw-udev.c -- Find Brightstar filter wheels using (Linux) udev
+ * brightstarfw.c -- Find Brightstar filter wheels
  *
  * Copyright 2018 James Fidell (james@openastroproject.org)
  *
