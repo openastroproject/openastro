@@ -32,7 +32,7 @@ noinst_LTLIBRARIES = libbrightstar.la
 
 libbrightstar_la_SOURCES = \
 	brightstarfw.c brightstarControl.c brightstarController.c \
-	brightstarCallback.c brightstarConnect.c # brightstarIO.c
+	brightstarCallback.c brightstarConnect.c brightstarIO.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
