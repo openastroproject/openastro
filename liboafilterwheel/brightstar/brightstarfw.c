@@ -81,7 +81,7 @@ oaBrightstarGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
       vid = udev_device_get_sysattr_value ( dev, "idVendor" );
       pid = udev_device_get_sysattr_value ( dev, "idProduct" );
       haveWheel = 0;
-      if ( !strcmp ( "0d48", vid ) && !strcmp ( "f99f", pid )) {
+      if ( !strcmp ( "04d8", vid ) && !strcmp ( "f99f", pid )) {
         haveWheel = 1;
       }
 
