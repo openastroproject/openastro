@@ -27,7 +27,7 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/ext/libEFWFilter/include \
   $(LIBHIDAPI_CFLAGS) \
   $(LIBUSB_CFLAGS) \
-  -I./sx -I./xagyl -I./zwo \
+  -I./sx -I./xagyl -I./zwo -I./brightstar \
   $(DYNLIB_EXTN_CFLAGS)
 
 lib_LTLIBRARIES = liboafilterwheel.la

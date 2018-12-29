@@ -42,6 +42,7 @@
 #include "xagylfw.h"
 #include "sxfw.h"
 #include "zwofw.h"
+#include "brightstarfw.h"
 
 oaInterface	oaFilterWheelInterfaces[] = {
   { 0, "", "", 0, OA_UDC_FLAG_NONE },
@@ -56,6 +57,12 @@ oaInterface	oaFilterWheelInterfaces[] = {
 #ifdef HAVE_LIBZWOFW
   { OA_FW_IF_ZWO, "ZW Optical", "ZWO", oaZWOGetFilterWheels, 0,
       OA_UDC_FLAG_NONE },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if defined(HAVE_LIBUDEV)
+  { OA_FW_IF_BRIGHTSTAR, "Brightstar", "Brightstar",
+			oaBrightstarGetFilterWheels, 0, OA_UDC_FLAG_NONE },
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
