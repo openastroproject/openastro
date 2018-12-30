@@ -84,4 +84,8 @@ extern void		oafwDebugMsg ( int, const char*, ... );
 extern int		_oaCheckFilterWheelArraySize ( FILTERWHEEL_LIST* );
 extern void		_oaFreeFilterWheelDeviceList ( FILTERWHEEL_LIST* );
 
+extern int		oaWheelSetControl ( oaFilterWheel*, int, oaControlValue* );
+extern int		oaWheelReadControl ( oaFilterWheel*, int, oaControlValue* );
+extern int		oaWheelTestControl ( oaFilterWheel*, int, oaControlValue* );
+
 #endif /* OA_FWHEEL_PRIVATE_H */

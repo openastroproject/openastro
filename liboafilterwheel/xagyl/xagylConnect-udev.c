@@ -197,8 +197,8 @@ _xagylInitFunctionPointers ( oaFilterWheel* wheel )
 {
   wheel->funcs.initWheel = oaXagylInitFilterWheel;
   wheel->funcs.closeWheel = oaXagylWheelClose;
-  wheel->funcs.readControl = oaXagylWheelReadControl;
-  wheel->funcs.setControl = oaXagylWheelSetControl;
+  wheel->funcs.readControl = oaWheelReadControl;
+  wheel->funcs.setControl = oaWheelSetControl;
   // wheel->funcs.testControl = XXXX;
 }
 

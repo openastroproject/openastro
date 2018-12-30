@@ -150,8 +150,8 @@ _zwoInitFunctionPointers ( oaFilterWheel* wheel )
 {
   wheel->funcs.initWheel = oaZWOInitFilterWheel;
   wheel->funcs.closeWheel = oaZWOWheelClose;
-  wheel->funcs.readControl = oaZWOWheelReadControl;
-  wheel->funcs.setControl = oaZWOWheelSetControl;
+  wheel->funcs.setControl = oaWheelSetControl;
+  wheel->funcs.readControl = oaWheelReadControl;
   // wheel->funcs.testControl = XXXX;
 }
 

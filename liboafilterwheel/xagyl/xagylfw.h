@@ -46,12 +46,6 @@ extern int		oaXagylGetFilterWheels ( FILTERWHEEL_LIST* );
 extern oaFilterWheel*   oaXagylInitFilterWheel ( oaFilterWheelDevice* );
 extern int		oaXagylWheelClose ( oaFilterWheel* );
 
-extern int              oaXagylWheelTestControl ( oaFilterWheel*, int,
-                                oaControlValue* );
-extern int              oaXagylWheelSetControl ( oaFilterWheel*, int,
-                                oaControlValue* );
-extern int              oaXagylWheelReadControl ( oaFilterWheel*, int,
-                                oaControlValue* );
 extern int              oaXagylWheelGetControlRange ( oaFilterWheel*, int,
                                 int64_t*, int64_t*, int64_t*, int64_t* );
 

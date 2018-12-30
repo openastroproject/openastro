@@ -52,7 +52,7 @@ endif
 SUBDIRS = sx $(XAGYLDIR) $(ZWODIR) $(BRIGHTSTARDIR)
 
 liboafilterwheel_la_SOURCES = \
-	oafw.c debug.c unimplemented.c utils.c
+	oafw.c debug.c unimplemented.c utils.c genericControl.c
 
 liboafilterwheel_la_LIBADD = \
   sx/libsx.la $(XAGYLLIB) $(ZWOLIB) $(BRIGHTSTARLIB)

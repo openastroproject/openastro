@@ -30,12 +30,9 @@ AM_CPPFLAGS = \
 
 if LIBUDEV_COND
 XAGYLSRC = xagylfw-udev.c xagylConnect-udev.c xagylIO-udev.c 
-  # xagylControl-udev.c
-
 else
 if LIBFTDI_COND
 XAGYLSRC = xagylfw-ftdi.c xagylIO-ftdi.c xagylConnect-ftdi.c
-  # xagylControl-ftdi.c
 endif
 endif
 
@@ -43,8 +40,7 @@ endif
 noinst_LTLIBRARIES = libxagyl.la
 
 libxagyl_la_SOURCES = \
-	xagylControl.c xagylConfig.c xagylController.c xagylCallback.c \
-	$(XAGYLSRC)
+	xagylConfig.c xagylController.c xagylCallback.c $(XAGYLSRC)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

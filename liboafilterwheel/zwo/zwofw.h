@@ -34,12 +34,6 @@ extern int		oaZWOGetFilterWheels ( FILTERWHEEL_LIST* );
 extern oaFilterWheel*   oaZWOInitFilterWheel ( oaFilterWheelDevice* );
 extern int		oaZWOWheelClose ( oaFilterWheel* );
 
-extern int              oaZWOWheelTestControl ( oaFilterWheel*, int,
-                                oaControlValue* );
-extern int              oaZWOWheelSetControl ( oaFilterWheel*, int,
-                                oaControlValue* );
-extern int              oaZWOWheelReadControl ( oaFilterWheel*, int,
-                                oaControlValue* );
 extern int              oaZWOWheelGetControlRange ( oaFilterWheel*, int,
                                 int64_t*, int64_t*, int64_t*, int64_t* );
 

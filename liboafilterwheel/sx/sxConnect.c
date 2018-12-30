@@ -151,8 +151,8 @@ _sxInitFunctionPointers ( oaFilterWheel* wheel )
 {
   wheel->funcs.initWheel = oaSXInitFilterWheel;
   wheel->funcs.closeWheel = oaSXWheelClose;
-  wheel->funcs.readControl = oaSXWheelReadControl;
-  wheel->funcs.setControl = oaSXWheelSetControl;
+  wheel->funcs.setControl = oaWheelSetControl;
+  wheel->funcs.readControl = oaWheelReadControl;
   // wheel->funcs.testControl = XXXX;
 }
 

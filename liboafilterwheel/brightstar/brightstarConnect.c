@@ -184,8 +184,8 @@ _brightstarInitFunctionPointers ( oaFilterWheel* wheel )
 {
   wheel->funcs.initWheel = oaBrightstarInitFilterWheel;
   wheel->funcs.closeWheel = oaBrightstarWheelClose;
-  wheel->funcs.setControl = oaBrightstarWheelSetControl;
-  wheel->funcs.readControl = oaBrightstarWheelReadControl;
+  wheel->funcs.setControl = oaWheelSetControl;
+  wheel->funcs.readControl = oaWheelReadControl;
 }
 
 

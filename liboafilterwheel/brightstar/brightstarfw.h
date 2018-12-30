@@ -34,12 +34,6 @@ extern int		oaBrightstarGetFilterWheels ( FILTERWHEEL_LIST* );
 extern oaFilterWheel*   oaBrightstarInitFilterWheel ( oaFilterWheelDevice* );
 extern int		oaBrightstarWheelClose ( oaFilterWheel* );
 
-extern int		oaBrightstarWheelTestControl ( oaFilterWheel*, int,
-									oaControlValue* );
-extern int		oaBrightstarWheelSetControl ( oaFilterWheel*, int,
-									oaControlValue* );
-extern int		oaBrightstarWheelReadControl ( oaFilterWheel*, int,
-									oaControlValue* );
 extern int		oaBrightstarWheelGetControlRange ( oaFilterWheel*, int,
 									int64_t*, int64_t*, int64_t*, int64_t* );
 

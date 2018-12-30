@@ -34,7 +34,7 @@ AM_CPPFLAGS = \
 noinst_LTLIBRARIES = libzwo.la
 
 libzwo_la_SOURCES = \
-	zwofw.c zwoConnect.c zwoControl.c zwoController.c zwoCallback.c zwoConfig.c
+	zwofw.c zwoConnect.c zwoController.c zwoCallback.c zwoConfig.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
