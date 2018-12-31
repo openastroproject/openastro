@@ -2,7 +2,7 @@
  *
  * xagylInit-ftdi.c -- Initialise Xagyl filter wheels (libftdi)
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -197,7 +197,7 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
   }
 
   if ( pthread_create ( &( privateInfo->callbackThread ), 0,
-      oafwXagylcallbackHandler, ( void* ) wheel )) {
+      oafwCallbackHandler, ( void* ) wheel )) {
 
     void* dummy;
     privateInfo->stopControllerThread = 1;

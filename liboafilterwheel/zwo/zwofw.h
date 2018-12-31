@@ -28,7 +28,6 @@
 #define OA_ZWO_FW_H
 
 extern void*		oafwZWOcontroller ( void* );
-extern void*		oafwZWOcallbackHandler ( void* );
 
 extern int		oaZWOGetFilterWheels ( FILTERWHEEL_LIST* );
 extern oaFilterWheel*   oaZWOInitFilterWheel ( oaFilterWheelDevice* );

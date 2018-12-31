@@ -31,8 +31,7 @@ AM_CPPFLAGS = \
 noinst_LTLIBRARIES = libbrightstar.la
 
 libbrightstar_la_SOURCES = \
-	brightstarfw.c brightstarController.c brightstarCallback.c \
-	brightstarConnect.c brightstarIO.c
+	brightstarfw.c brightstarController.c brightstarConnect.c brightstarIO.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

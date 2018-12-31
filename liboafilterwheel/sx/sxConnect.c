@@ -2,7 +2,7 @@
  *
  * sxInit.c -- Initialise Starlight Xpress filter wheels
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -119,7 +119,7 @@ oaSXInitFilterWheel ( oaFilterWheelDevice* device )
   }
 
   if ( pthread_create ( &( privateInfo->callbackThread ), 0,
-      oafwSXcallbackHandler, ( void* ) wheel )) {
+      oafwCallbackHandler, ( void* ) wheel )) {
 
     void* dummy;
     privateInfo->stopControllerThread = 1;

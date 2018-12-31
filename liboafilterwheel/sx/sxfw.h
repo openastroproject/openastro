@@ -2,7 +2,7 @@
  *
  * sxfw.h -- header for Starlight Xpress filter wheel API
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -28,7 +28,6 @@
 #define OA_SX_FW_H
 
 extern void*		oafwSXcontroller ( void* );
-extern void*		oafwSXcallbackHandler ( void* );
 
 extern int		oaSXGetFilterWheels ( FILTERWHEEL_LIST* );
 extern oaFilterWheel*   oaSXInitFilterWheel ( oaFilterWheelDevice* );

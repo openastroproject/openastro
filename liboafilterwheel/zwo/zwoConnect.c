@@ -126,7 +126,7 @@ oaZWOInitFilterWheel ( oaFilterWheelDevice* device )
   }
 
   if ( pthread_create ( &( privateInfo->callbackThread ), 0,
-      oafwZWOcallbackHandler, ( void* ) wheel )) {
+      oafwCallbackHandler, ( void* ) wheel )) {
 
     void* dummy;
     privateInfo->stopControllerThread = 1;

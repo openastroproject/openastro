@@ -31,7 +31,7 @@ AM_CPPFLAGS = \
 noinst_LTLIBRARIES = libsx.la
 
 libsx_la_SOURCES = \
-	sxfw.c sxConnect.c sxController.c sxCallback.c sxConfig.c sxIO.c
+	sxfw.c sxConnect.c sxController.c sxConfig.c sxIO.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

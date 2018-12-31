@@ -40,7 +40,7 @@ endif
 noinst_LTLIBRARIES = libxagyl.la
 
 libxagyl_la_SOURCES = \
-	xagylConfig.c xagylController.c xagylCallback.c $(XAGYLSRC)
+	xagylConfig.c xagylController.c $(XAGYLSRC)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

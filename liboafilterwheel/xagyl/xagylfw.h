@@ -2,7 +2,7 @@
  *
  * xagylfw.h -- header for Xagyl filter wheel API
  *
- * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -40,7 +40,6 @@
 #endif
 
 extern void*		oafwXagylcontroller ( void* );
-extern void*		oafwXagylcallbackHandler ( void* );
 
 extern int		oaXagylGetFilterWheels ( FILTERWHEEL_LIST* );
 extern oaFilterWheel*   oaXagylInitFilterWheel ( oaFilterWheelDevice* );

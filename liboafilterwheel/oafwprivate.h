@@ -2,7 +2,7 @@
  *
  * oafwprivate.h -- shared declarations not exposed to the cruel world
  *
- * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -87,5 +87,7 @@ extern void		_oaFreeFilterWheelDeviceList ( FILTERWHEEL_LIST* );
 extern int		oaWheelSetControl ( oaFilterWheel*, int, oaControlValue* );
 extern int		oaWheelReadControl ( oaFilterWheel*, int, oaControlValue* );
 extern int		oaWheelTestControl ( oaFilterWheel*, int, oaControlValue* );
+
+extern void*	oafwCallbackHandler ( void* );
 
 #endif /* OA_FWHEEL_PRIVATE_H */

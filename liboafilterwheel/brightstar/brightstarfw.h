@@ -28,7 +28,6 @@
 #define OA_BRIGHTSTAR_FW_H
 
 extern void*	oafwBrightstarcontroller ( void* );
-extern void*	oafwBrightstarcallbackHandler ( void* );
 
 extern int		oaBrightstarGetFilterWheels ( FILTERWHEEL_LIST* );
 extern oaFilterWheel*   oaBrightstarInitFilterWheel ( oaFilterWheelDevice* );

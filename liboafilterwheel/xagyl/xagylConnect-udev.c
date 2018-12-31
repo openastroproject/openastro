@@ -2,7 +2,7 @@
  *
  * xagylInit-udev.c -- Initialise Xagyl filter wheels (udev)
  *
- * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -156,7 +156,7 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
   }
 
   if ( pthread_create ( &( privateInfo->callbackThread ), 0,
-      oafwXagylcallbackHandler, ( void* ) wheel )) {
+      oafwCallbackHandler, ( void* ) wheel )) {
 
     void* dummy;
     privateInfo->stopControllerThread = 1;
