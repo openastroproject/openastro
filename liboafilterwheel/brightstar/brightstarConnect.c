@@ -84,8 +84,8 @@ oaBrightstarInitFilterWheel ( oaFilterWheelDevice* device )
   privateInfo->index = -1;
 
   if (( fwDesc = open ( devInfo->sysPath, O_RDWR | O_NOCTTY )) < 0 ) {
-    fprintf ( stderr, "Can't open %s read-write, errno = %d\n",
-        devInfo->sysPath, errno );
+    fprintf ( stderr, "%s: Can't open %s read-write, errno = %d\n",
+        __FUNCTION__, devInfo->sysPath, errno );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;

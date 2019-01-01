@@ -93,8 +93,8 @@ oaPTRInit ( oaPTRDevice* device )
   privateInfo->index = -1;
 
   if (( ptrDesc = open ( devInfo->sysPath, O_RDWR | O_NOCTTY )) < 0 ) {
-    fprintf ( stderr, "Can't open %s read-write, errno = %d\n",
-        devInfo->sysPath, errno );
+    fprintf ( stderr, "%s: Can't open %s read-write, errno = %d (%s)\n",
+        __FUNCTION__, devInfo->sysPath, errno, strerror ( errno ));
     free (( void* ) ptr );
     free (( void* ) privateInfo );
     free (( void* ) commonInfo );
@@ -105,8 +105,8 @@ oaPTRInit ( oaPTRDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( ptrDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't get lock on %s, errno = %d\n", __FUNCTION__,
-        devInfo->sysPath, errnoCopy );
+    fprintf ( stderr, "%s: can't get lock on %s, errno = %d (%s)\n",
+				__FUNCTION__, devInfo->sysPath, errnoCopy, strerror ( errno ));
     free (( void* ) ptr );
     free (( void* ) privateInfo );
     free (( void* ) commonInfo );

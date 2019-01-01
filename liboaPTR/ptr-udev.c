@@ -142,8 +142,8 @@ oaPTREnumerate ( PTR_LIST* deviceList )
         // and run inquiries to get the product name and firmware version
 
         if (( ptrDesc = open ( deviceNode, O_RDWR | O_NOCTTY )) < 0 ) {
-          fprintf ( stderr, "Can't open %s read-write, errno = %d\n",
-              deviceNode, errno );
+          fprintf ( stderr, "%s: Can't open %s read-write, errno = %d (%s)\n",
+              __FUNCTION__, deviceNode, errno, strerror ( errno ));
         } else {
           if ( ioctl ( ptrDesc, TIOCEXCL )) {
             int errnoCopy = errno;
