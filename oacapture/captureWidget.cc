@@ -510,15 +510,12 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     }
     if ( filterConf.autorunFilterSequence.count()) {
       int newFilterNum = filterConf.autorunFilterSequence [ autorunFilter ];
-      // FIX ME -- this may cross threads: don't cross the threads!
       if ( filterConf.promptForFilterChange && !( commonState.filterWheel &&
           commonState.filterWheel->isInitialised())) {
-        QMessageBox* changeFilter = new QMessageBox ( QMessageBox::NoIcon,
-            APPLICATION_NAME, tr ( "Change to next filter: " ) +
-            filterConf.filters[ newFilterNum ].filterName,
-            QMessageBox::Ok, TOP_WIDGET );
-        changeFilter->exec();
-        delete changeFilter;
+				// Have to do it this way rather than calling direct to ensure
+				// thread-safety
+				QMetaObject::invokeMethod ( state.mainWindow, "promptForFilterChange",
+					 Qt::DirectConnection, Q_ARG( int, newFilterNum ));
       }
       filterTypeChanged ( newFilterNum );
     }

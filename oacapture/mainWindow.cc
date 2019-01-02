@@ -2940,3 +2940,15 @@ MainWindow::updateConfig ( void )
 {
   writeConfig ( userConfigFile );
 }
+
+
+void
+MainWindow::promptForFilterChange ( int newFilterNum )
+{
+	QMessageBox* changeFilter = new QMessageBox ( QMessageBox::NoIcon,
+		APPLICATION_NAME, tr ( "Change to next filter: " ) +
+		filterConf.filters[ newFilterNum ].filterName, QMessageBox::Ok,
+		TOP_WIDGET );
+	changeFilter->exec();
+	delete changeFilter;
+}

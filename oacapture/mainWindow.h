@@ -257,4 +257,5 @@ class MainWindow : public QMainWindow
     void		showStatusMessage ( QString );
     void		frameWriteFailedPopup ( void );
     void		setLocation ( void );
+		void		promptForFilterChange ( int );
 };
