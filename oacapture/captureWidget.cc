@@ -630,10 +630,12 @@ CaptureWidget::doStartRecording ( int autorunFlag )
   } else {
     if ( out && out->outputExists()) {
       if ( out->outputWritable()) {
-        // FIX ME -- this may cross threads: don't cross the threads!
-        if ( QMessageBox::question ( TOP_WIDGET, tr ( "Start Recording" ),
-            tr ( "Output file exists.  OK to overwrite?" ), QMessageBox::No |
-            QMessageBox::Yes, QMessageBox::No ) == QMessageBox::No ) {
+				int	result;
+				// Have to do it this way rather than calling direct to ensure
+				// thread-safety
+				QMetaObject::invokeMethod ( state.mainWindow, "outputExists",
+					Qt::DirectConnection, Q_RETURN_ARG( int, result ));
+        if ( result == QMessageBox::No ) {
           delete out;
           out = 0;
           return;

@@ -2960,3 +2960,12 @@ MainWindow::outputUnwritable ( void )
 	QMessageBox::warning ( TOP_WIDGET, tr ( "Start Recording" ),
 			tr ( "Output is not writable" ));
 }
+
+
+int
+MainWindow::outputExists ( void )
+{
+	return QMessageBox::question ( TOP_WIDGET, tr ( "Start Recording" ),
+			tr ( "Output file exists.  OK to overwrite?" ), QMessageBox::No |
+			QMessageBox::Yes, QMessageBox::No );
+}

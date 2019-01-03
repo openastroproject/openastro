@@ -259,4 +259,5 @@ class MainWindow : public QMainWindow
     void		setLocation ( void );
 		void		promptForFilterChange ( int );
 		void		outputUnwritable ( void );
+		int			outputExists ( void );
 };
