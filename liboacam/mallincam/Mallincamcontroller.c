@@ -199,7 +199,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 {
   MALLINCAM_STATE*	cameraInfo = camera->_private;
   oaControlValue	*valp = command->commandData;
-  int			control = command->controlId, val;
+  int			control = command->controlId, val = 0;
 
   switch ( control ) {
 

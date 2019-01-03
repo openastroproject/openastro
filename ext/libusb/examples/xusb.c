@@ -613,7 +613,8 @@ static int get_hid_record_size(uint8_t *hid_report_descriptor, int size, int typ
 
 static int test_hid(libusb_device_handle *handle, uint8_t endpoint_in)
 {
-	int r, size, descriptor_size;
+	int r, size;
+	unsigned int descriptor_size;
 	uint8_t hid_report_descriptor[256];
 	uint8_t *report_buffer;
 	FILE *fd;

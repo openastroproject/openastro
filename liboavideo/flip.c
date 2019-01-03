@@ -102,7 +102,8 @@ _processFlip8Bit ( uint8_t* imageData, unsigned int xSize, unsigned int ySize,
       uint8_t* p1;
       uint8_t* p2;
       uint8_t s;
-      for ( unsigned int y = 0; y < ySize; y++ ) {
+      unsigned int y;
+      for ( y = 0; y < ySize; y++ ) {
         p1 = imageData + y * xSize;
         p2 = p1 + xSize - 1;
         while ( p1 < p2 ) {
@@ -116,10 +117,11 @@ _processFlip8Bit ( uint8_t* imageData, unsigned int xSize, unsigned int ySize,
       uint8_t* p1;
       uint8_t* p2;
       uint8_t s;
+      unsigned int x, y;
       p1 = imageData;
-      for ( unsigned int y = ySize - 1; y >= ySize / 2; y-- ) {
+      for ( y = ySize - 1; y >= ySize / 2; y-- ) {
         p2 = imageData + y * xSize;
-        for ( unsigned int x = 0; x < xSize; x++ ) {
+        for ( x = 0; x < xSize; x++ ) {
           s = *p1;
           *p1++ = *p2;
           *p2++ = s;
@@ -154,7 +156,8 @@ _processFlip16Bit ( uint8_t* imageData, unsigned int xSize, unsigned int ySize,
       uint8_t* p1;
       uint8_t* p2;
       uint8_t s;
-      for ( unsigned int y = 0; y < ySize; y++ ) {
+      unsigned int y;
+      for ( y = 0; y < ySize; y++ ) {
         p1 = imageData + y * xSize * 2;
         p2 = p1 + ( xSize - 1 ) * 2;
         while ( p1 < p2 ) {
@@ -172,10 +175,11 @@ _processFlip16Bit ( uint8_t* imageData, unsigned int xSize, unsigned int ySize,
       uint8_t* p1;
       uint8_t* p2;
       uint8_t s;
+      unsigned int x, y;
       p1 = imageData;
-      for ( unsigned int y = ySize - 1; y > ySize / 2; y-- ) {
+      for ( y = ySize - 1; y > ySize / 2; y-- ) {
         p2 = imageData + y * xSize * 2;
-        for ( unsigned int x = 0; x < xSize * 2; x++ ) {
+        for ( x = 0; x < xSize * 2; x++ ) {
           s = *p1;
           *p1++ = *p2;
           *p2++ = s;
@@ -213,7 +217,8 @@ _processFlip24BitColour ( uint8_t* imageData, unsigned int xSize,
       uint8_t* p1;
       uint8_t* p2;
       uint8_t s;
-      for ( unsigned int y = 0; y < ySize; y++ ) {
+      unsigned int y;
+      for ( y = 0; y < ySize; y++ ) {
         p1 = imageData + y * xSize * 3;
         p2 = p1 + ( xSize - 1 ) * 3;
         while ( p1 < p2 ) {
@@ -234,10 +239,11 @@ _processFlip24BitColour ( uint8_t* imageData, unsigned int xSize,
       uint8_t* p1;
       uint8_t* p2;
       uint8_t s;
+      unsigned int x, y;
       p1 = imageData;
-      for ( unsigned int y = ySize - 1; y > ySize / 2; y-- ) {
+      for ( y = ySize - 1; y > ySize / 2; y-- ) {
         p2 = imageData + y * xSize * 3;
-        for ( unsigned int x = 0; x < xSize * 3; x++ ) {
+        for ( x = 0; x < xSize * 3; x++ ) {
           s = *p1;
           *p1++ = *p2;
           *p2++ = s;

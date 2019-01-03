@@ -212,7 +212,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   const uint8_t*			data;
   uint8_t				dataLeft, blockSize, subtype;
   uint64_t				flags;
-  int32_t				puCaps, colourFormats;
+  int32_t				puCaps, colourFormats = 0;
   uint16_t				termCaps;
   uint8_t				buff[4];
 
