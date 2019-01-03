@@ -2,7 +2,8 @@
  *
  * flip.c -- flip an image in X and/or Y
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *

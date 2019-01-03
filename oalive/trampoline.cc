@@ -2,7 +2,7 @@
  *
  * trampoline.cc -- redirected function calls
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -296,38 +296,38 @@ t_slotFilterName ( int slot )
 
 
 trampolineFuncs trampolines {
-	.getCurrentGain = &t_getCurrentGain,
-	.getCurrentExposure = &t_getCurrentExposure,
-	.getCurrentTargetId = &t_getCurrentTargetId,
-	.getCurrentFilterName = &t_getCurrentFilterName,
-	.getCurrentProfileName = &t_getCurrentProfileName,
-	.setFilterSlotCount = &t_setFilterSlotCount,
-  .reloadFilters = &t_reloadFilters,
-	.updateHistogramLayout = &t_updateHistogramLayout,
-  .resetAutorun = &t_resetAutorun,
-  .updateControlCheckbox = &t_updateControlCheckbox,
-  .getSpinboxMinimum = &t_getSpinboxMinimum,
-  .getSpinboxMaximum = &t_getSpinboxMaximum,
-  .getSpinboxStep = &t_getSpinboxStep,
-  .getSpinboxValue = &t_getSpinboxValue,
-	.updateSpinbox = &t_updateSpinbox,
-	.getFrameRates = &t_getFrameRates,
-	.getFrameRateIndex = &t_getFrameRateIndex,
-	.updateFrameRate = &t_updateFrameRate,
-	.setFlipX = &t_setFlipX,
-	.setFlipY = &t_setFlipY,
-	.updateForceFrameFormat = &t_updateForceFrameFormat,
-  .reloadProfiles = &t_reloadProfiles,
-  .resetTemperatureLabel = &t_resetTemperatureLabel,
-  .setDisplayFPS = &t_setDisplayFPS,
-  .enableTIFFCapture = &t_enableTIFFCapture,
-  .enableMOVCapture = &t_enableMOVCapture,
-  .enablePNGCapture = &t_enablePNGCapture,
-	.setVideoFramePixelFormat = &t_setVideoFramePixelFormat,
-	.destroyLayout = &t_destroyLayout,
-	.checkTimerWarnings = &t_checkTimerWarnings,
-	.updateConfig = &t_updateConfig,
-	.showStatusMessage = &t_showStatusMessage,
-	.propagateNewSlotName = &t_propagateNewSlotName,
-	.slotFilterName = &t_slotFilterName
+	t_getCurrentGain,
+	t_getCurrentExposure,
+	t_getCurrentTargetId,
+	t_getCurrentFilterName,
+	t_getCurrentProfileName,
+	t_setFilterSlotCount,
+	t_reloadFilters,
+	t_updateHistogramLayout,
+	t_resetAutorun,
+	t_updateControlCheckbox,
+	t_getSpinboxMinimum,
+	t_getSpinboxMaximum,
+	t_getSpinboxStep,
+	t_getSpinboxValue,
+	t_updateSpinbox,
+	t_getFrameRates,
+	t_getFrameRateIndex,
+	t_updateFrameRate,
+	t_setFlipX,
+	t_setFlipY,
+	t_updateForceFrameFormat,
+	t_reloadProfiles,
+	t_resetTemperatureLabel,
+	t_setDisplayFPS,
+	t_enableTIFFCapture,
+	t_enableMOVCapture,
+	t_enablePNGCapture,
+	t_setVideoFramePixelFormat,
+	t_destroyLayout,
+	t_checkTimerWarnings,
+	t_updateConfig,
+	t_showStatusMessage,
+	t_propagateNewSlotName,
+	t_slotFilterName
 };

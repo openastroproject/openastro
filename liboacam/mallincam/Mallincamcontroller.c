@@ -2,7 +2,8 @@
  *
  * Mallincamcontroller.c -- Main camera controller thread
  *
- * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
