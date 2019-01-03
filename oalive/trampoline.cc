@@ -295,7 +295,7 @@ t_slotFilterName ( int slot )
 }
 
 
-trampolineFuncs trampolines {
+trampolineFuncs trampolines = {
 	t_getCurrentGain,
 	t_getCurrentExposure,
 	t_getCurrentTargetId,
