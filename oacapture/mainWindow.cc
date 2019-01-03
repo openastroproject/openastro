@@ -2,7 +2,7 @@
  *
  * mainWindow.cc -- the main controlling window class
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -2951,4 +2951,12 @@ MainWindow::promptForFilterChange ( int newFilterNum )
 		TOP_WIDGET );
 	changeFilter->exec();
 	delete changeFilter;
+}
+
+
+void
+MainWindow::outputUnwritable ( void )
+{
+	QMessageBox::warning ( TOP_WIDGET, tr ( "Start Recording" ),
+			tr ( "Output is not writable" ));
 }

@@ -2,7 +2,7 @@
  *
  * captureWidget.cc -- class for the capture widget in the UI
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -619,9 +619,10 @@ CaptureWidget::doStartRecording ( int autorunFlag )
       CAPTURE_PNG == commonConfig.fileTypeOption ||
       CAPTURE_FITS == commonConfig.fileTypeOption )) {
     if ( !out->outputWritable()) {
-      // FIX ME -- this may cross threads: don't cross the threads!
-      QMessageBox::warning ( TOP_WIDGET, tr ( "Start Recording" ),
-          tr ( "Output is not writable" ));
+			// Have to do it this way rather than calling direct to ensure
+			// thread-safety
+			QMetaObject::invokeMethod ( state.mainWindow, "outputUnwritable",
+				 Qt::DirectConnection );
       delete out;
       out = 0;
       return;

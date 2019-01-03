@@ -2,7 +2,7 @@
  *
  * mainWindow.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -258,4 +258,5 @@ class MainWindow : public QMainWindow
     void		frameWriteFailedPopup ( void );
     void		setLocation ( void );
 		void		promptForFilterChange ( int );
+		void		outputUnwritable ( void );
 };
