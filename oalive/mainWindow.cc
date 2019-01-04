@@ -2,7 +2,7 @@
  *
  * mainWindow.cc -- the main controlling window class
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -3183,4 +3183,37 @@ void
 MainWindow::updateConfig ( void )
 {
   writeConfig ( userConfigFile );
+}
+
+
+void
+MainWindow::outputUnwritable ( void )
+{
+  QMessageBox::warning ( TOP_WIDGET, tr ( "Start Recording" ),
+      tr ( "Output is not writable" ));
+}
+
+
+int
+MainWindow::outputExists ( void )
+{
+  return QMessageBox::question ( TOP_WIDGET, tr ( "Start Recording" ),
+      tr ( "Output file exists.  OK to overwrite?" ), QMessageBox::No |
+      QMessageBox::Yes, QMessageBox::No );
+}
+
+
+void
+MainWindow::outputExistsUnwritable ( void )
+{
+  QMessageBox::warning ( TOP_WIDGET, tr ( "Start Recording" ),
+      tr ( "Output file exists and is not writable" ));
+}
+
+
+void
+MainWindow::createFileFailed ( void )
+{
+  QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+      tr ( "Unable to create file for output" ));
 }

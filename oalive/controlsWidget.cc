@@ -2,7 +2,8 @@
  *
  * controlsWidget.cc -- the tab block for the controls
  *
- * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -458,9 +459,10 @@ ControlsWidget::openOutputFiles ( void )
         CAPTURE_FITS == commonConfig.fileTypeOption ||
 				CAPTURE_PNG == commonConfig.fileTypeOption )) {
       if ( !out->outputWritable()) {
-        // FIX ME -- this may cross threads: don't cross the threads!
-        QMessageBox::warning ( this, tr ( "Start Recording" ),
-          tr ( "Output is not writable" ));
+				// Have to do it this way rather than calling direct to ensure
+				// thread-safety
+				QMetaObject::invokeMethod ( state.mainWindow, "outputUnwritable",
+						Qt::DirectConnection );
         delete out;
         out = 0;
         return;
@@ -468,31 +470,32 @@ ControlsWidget::openOutputFiles ( void )
     } else {
       if ( out && out->outputExists()) {
         if ( out->outputWritable()) {
-          // FIX ME -- this may cross threads: don't cross the threads!
-          if ( QMessageBox::question ( this, tr ( "Start Recording" ),
-              tr ( "Output file exists.  OK to overwrite?" ), QMessageBox::No |
-              QMessageBox::Yes, QMessageBox::No ) == QMessageBox::No ) {
+					int result;
+					// Have to do it this way rather than calling direct to ensure
+					// thread-safety
+					QMetaObject::invokeMethod ( state.mainWindow, "outputExists",
+							Qt::DirectConnection, Q_RETURN_ARG( int, result ));
+					if ( result == QMessageBox::No ) {
             delete out;
             out = 0;
             return;
           }
         } else {
-          // FIX ME -- this may cross threads: don't cross the threads!
-          QMessageBox::warning ( this, tr ( "Start Recording" ),
-            tr ( "Output file exists and is not writable" ));
+					// Have to do it this way rather than calling direct to ensure
+					// thread-safety
+					QMetaObject::invokeMethod ( state.mainWindow,
+							"outputExistsUnwritable", Qt::DirectConnection );
           delete out;
           return;
         }
       }
     }
     if ( !out || out->openOutput()) {
-      // FIX ME -- this may cross threads: don't cross the threads!
-      QMessageBox::warning ( this, APPLICATION_NAME,
-          tr ( "Unable to create file for output" ));
+			QMetaObject::invokeMethod ( state.mainWindow, "createFileFailed",
+					Qt::DirectConnection );
       return;
     }
 
-qWarning() << "have frame save handler";
     frameOutputHandler = out;
   }
 
@@ -527,9 +530,8 @@ qWarning() << "have frame save handler";
         CAPTURE_FITS == commonConfig.fileTypeOption ||
 				CAPTURE_PNG == commonConfig.fileTypeOption )) {
       if ( !out->outputWritable()) {
-        // FIX ME -- this may cross threads: don't cross the threads!
-        QMessageBox::warning ( this, tr ( "Start Recording" ),
-          tr ( "Output is not writable" ));
+				QMetaObject::invokeMethod ( state.mainWindow, "outputUnwritable",
+						Qt::DirectConnection );
         delete out;
         out = 0;
         return;
@@ -537,27 +539,29 @@ qWarning() << "have frame save handler";
     } else {
       if ( out && out->outputExists()) {
         if ( out->outputWritable()) {
-          // FIX ME -- this may cross threads: don't cross the threads!
-          if ( QMessageBox::question ( this, tr ( "Start Recording" ),
-              tr ( "Output file exists.  OK to overwrite?" ), QMessageBox::No |
-              QMessageBox::Yes, QMessageBox::No ) == QMessageBox::No ) {
+					int result;
+					// Have to do it this way rather than calling direct to ensure
+					// thread-safety
+					QMetaObject::invokeMethod ( state.mainWindow, "outputExists",
+							Qt::DirectConnection, Q_RETURN_ARG( int, result ));
+					if ( result == QMessageBox::No ) {
             delete out;
             out = 0;
             return;
           }
         } else {
-          // FIX ME -- this may cross threads: don't cross the threads!
-          QMessageBox::warning ( this, tr ( "Start Recording" ),
-            tr ( "Output file exists and is not writable" ));
+					// Have to do it this way rather than calling direct to ensure
+					// thread-safety
+					QMetaObject::invokeMethod ( state.mainWindow,
+							"outputExistsUnwritable", Qt::DirectConnection );
           delete out;
           return;
         }
       }
     }
     if ( !out || out->openOutput()) {
-      // FIX ME -- this may cross threads: don't cross the threads!
-      QMessageBox::warning ( this, APPLICATION_NAME,
-          tr ( "Unable to create file for output" ));
+			QMetaObject::invokeMethod ( state.mainWindow, "createFileFailed",
+					Qt::DirectConnection );
       return;
     }
 
