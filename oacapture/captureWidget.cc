@@ -634,16 +634,17 @@ CaptureWidget::doStartRecording ( int autorunFlag )
 				// Have to do it this way rather than calling direct to ensure
 				// thread-safety
 				QMetaObject::invokeMethod ( state.mainWindow, "outputExists",
-					Qt::DirectConnection, Q_RETURN_ARG( int, result ));
+						Qt::DirectConnection, Q_RETURN_ARG( int, result ));
         if ( result == QMessageBox::No ) {
           delete out;
           out = 0;
           return;
         }
       } else {
-        // FIX ME -- this may cross threads: don't cross the threads!
-        QMessageBox::warning ( TOP_WIDGET, tr ( "Start Recording" ),
-            tr ( "Output file exists and is not writable" ));
+				// Have to do it this way rather than calling direct to ensure
+				// thread-safety
+				QMetaObject::invokeMethod ( state.mainWindow, "outputExistsUnwritable",
+						Qt::DirectConnection );
         delete out;
         out = 0;
         return;
@@ -652,9 +653,8 @@ CaptureWidget::doStartRecording ( int autorunFlag )
   }
 
   if ( !out || out->openOutput()) {
-    // FIX ME -- this may cross threads: don't cross the threads!
-    QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
-        tr ( "Unable to create file for output" ));
+		QMetaObject::invokeMethod ( state.mainWindow, "createFileFailed",
+				Qt::DirectConnection );
     if ( state.autorunEnabled ) {
       state.autorunRemaining = 1; // force timeout
       filterSequenceRemaining = 1;

@@ -2969,3 +2969,19 @@ MainWindow::outputExists ( void )
 			tr ( "Output file exists.  OK to overwrite?" ), QMessageBox::No |
 			QMessageBox::Yes, QMessageBox::No );
 }
+
+
+void
+MainWindow::outputExistsUnwritable ( void )
+{
+	QMessageBox::warning ( TOP_WIDGET, tr ( "Start Recording" ),
+			tr ( "Output file exists and is not writable" ));
+}
+
+
+void
+MainWindow::createFileFailed ( void )
+{
+	QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+			tr ( "Unable to create file for output" ));
+}

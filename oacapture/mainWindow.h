@@ -260,4 +260,6 @@ class MainWindow : public QMainWindow
 		void		promptForFilterChange ( int );
 		void		outputUnwritable ( void );
 		int			outputExists ( void );
+		void		outputExistsUnwritable ( void );
+		void		createFileFailed ( void );
 };
