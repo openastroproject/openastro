@@ -22,14 +22,6 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-ICONS = oacapture16.png oacapture24.png oacapture256.png oacapture32.png \
-				oacapture48.png oacapture.svg oacapture.xpm
-
-BUILT_SOURCES = $(ICONS)
-
-$(ICONS):
-	cp ../../icons/$@ .
-
 install-icons:
 	mkdir -p $(DESTDIR)${datarootdir}/pixmaps
 	$(INSTALL_DATA) oacapture.xpm $(DESTDIR)${datarootdir}/pixmaps

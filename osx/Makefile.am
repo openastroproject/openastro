@@ -1,5 +1,5 @@
 #
-# Makefile.am -- icons Makefile template
+# Makefile.am -- lib Makefile template
 #
 # Copyright 2019 James Fidell (james@openastroproject.org)
 #
@@ -22,25 +22,4 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-ICONS = oacapture16.png oacapture24.png oacapture256.png oacapture32.png \
-				oacapture48.png oacapture.svg oacapture.xpm
-
-BUILT_SOURCES = $(ICONS)
-
-$(ICONS):
-	cp ../../icons/$@ .
-
-install-icons:
-	mkdir -p $(DESTDIR)${datarootdir}/pixmaps
-	$(INSTALL_DATA) oacapture.xpm $(DESTDIR)${datarootdir}/pixmaps
-	mkdir -p $(DESTDIR)${datarootdir}/icons/hicolor/scalable/apps
-	$(INSTALL_DATA) oacapture.svg \
-		$(DESTDIR)${datarootdir}/icons/hicolor/scalable/apps
-
-	for s in 16 24 32 48 256; do \
-		d=$(DESTDIR)${datarootdir}/icons/hicolor/$$s"x"$$s/apps; \
-		$(MKDIR_P) $$d || exit 1; \
-		$(INSTALL_DATA) oacapture$$s.png $$d/oacapture.png || exit $$?; \
-	done
-
-install-data-local: install-icons
+SUBDIRS = oaCapture.iconset oalive.iconset
