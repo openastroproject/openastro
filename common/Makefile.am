@@ -1,7 +1,7 @@
 #
 # Makefile.am -- oacapture Makefile template
 #
-# Copyright 2013,2014,2015,2016,2017,2018
+# Copyright 2013,2014,2015,2016,2017,2018,2019
 #   James Fidell (james@openastroproject.org)
 #
 # License:
@@ -45,7 +45,7 @@ liboacommon_la_SOURCES = camera.cc filterWheel.cc timer.cc targets.cc \
 	focusOverlay.cc \
 	outputAVI.cc outputDIB.cc outputFFMPEG.cc outputFITS.cc outputMOV.cc \
 	outputPNG.cc outputSER.cc outputTIFF.cc outputHandler.cc \
-	moc_camera.cc moc_filterWheel.cc \
+	moc_camera.cc \
 	moc_focusOverlay.cc moc_settingsWidget.cc \
 	moc_advancedSettings.cc moc_autorunSettings.cc moc_cameraSettings.cc \
 	moc_captureSettings.cc moc_demosaicSettings.cc moc_filterSettings.cc \

@@ -2,7 +2,8 @@
  *
  * filterwheel.h -- class declaration
  *
- * Copyright 2014,2016,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2016,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -28,12 +29,6 @@
 
 #include <oa_common.h>
 
-#ifdef HAVE_QT5
-#include <QtWidgets>
-#endif
-#include <QtCore>
-#include "QtGui"
-
 extern "C" {
 #include <openastro/filterwheel.h>
 }
@@ -43,8 +38,6 @@ extern "C" {
 
 class FilterWheel // : public QObject
 {
-  // Q_OBJECT
-
   public:
     			FilterWheel ( trampolineFuncs* );
     			~FilterWheel();
