@@ -22,17 +22,11 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-install-icons:
-	mkdir -p $(DESTDIR)${datarootdir}/pixmaps
-	$(INSTALL_DATA) oacapture.xpm $(DESTDIR)${datarootdir}/pixmaps
-	mkdir -p $(DESTDIR)${datarootdir}/icons/hicolor/scalable/apps
-	$(INSTALL_DATA) oacapture.svg \
-		$(DESTDIR)${datarootdir}/icons/hicolor/scalable/apps
+ICONS = icon_128x128@2x.png icon_128x128.png icon_16x16@2x.png icon_16x16.png \
+				icon_256x256@2x.png icon_256x256.png icon_32x32@2x.png icon_32x32.png \
+				icon_512x512@2x.png icon_512x512.png
 
-	for s in 16 24 32 48 256; do \
-		d=$(DESTDIR)${datarootdir}/icons/hicolor/$$s"x"$$s/apps; \
-		$(MKDIR_P) $$d || exit 1; \
-		$(INSTALL_DATA) oacapture$$s.png $$d/oacapture.png || exit $$?; \
-	done
+BUILT_SOURCES = $(ICONS)
 
-install-data-local: install-icons
+$(ICONS):
+	cp ../../icons/oalive`echo $@ | sed 's/^.*[0-9][0-9]x//'` ./$@

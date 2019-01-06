@@ -9,7 +9,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>org.openastroproject.oalive</string>
 	<key>CFBundleVersion</key>
-	<string>0.5.0</string>
+	<string>0.6.0</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
@@ -17,7 +17,7 @@
 	<key>CFBundleExecutable</key>
 	<string>oalive</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.5.0</string>
+	<string>0.6.0</string>
 	<key>CFBundleIconFile</key>
 	<string>oalive.icns</string>
 </dict>

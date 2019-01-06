@@ -30,7 +30,3 @@ BUILT_SOURCES = $(ICONS)
 
 $(ICONS):
 	cp ../../icons/oacapture`echo $@ | sed 's/^.*[0-9][0-9]x//'` ./$@
-
-#$(ICONS):
-#	n=`echo $@ | sed 's/^.*x//'`; \
-#	cp ../../icons/oacapture$$n ./$@
