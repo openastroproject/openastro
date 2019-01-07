@@ -3,22 +3,22 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleName</key>
-	<string>oalive</string>
+	<string>oaCapture</string>
 	<key>CFBundleDisplayName</key>
-	<string>oalive</string>
+	<string>oaCapture</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.openastroproject.oalive</string>
+	<string>org.openastroproject.oacapture</string>
 	<key>CFBundleVersion</key>
-	<string>0.6.0</string>
+	<string>##MAJOR_VERSION##.##MINOR_VERSION##.##REVISION##</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
-	<string>oalv</string>
+	<string>oacp</string>
 	<key>CFBundleExecutable</key>
-	<string>oalive</string>
+	<string>oaCapture</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.6.0</string>
+	<string>##MAJOR_VERSION##.##MINOR_VERSION##.##REVISION##</string>
 	<key>CFBundleIconFile</key>
-	<string>oalive.icns</string>
+	<string>oaCapture.icns</string>
 </dict>
 </plist>

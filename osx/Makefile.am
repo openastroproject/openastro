@@ -23,3 +23,14 @@
 #
 
 SUBDIRS = oaCapture.iconset oalive.iconset
+
+BUILT_SOURCES = oacapture.plist oalive.plist
+
+%.plist: %.plist.in $(top_srcdir)/version
+	-rm -f -f $@.tmp
+	maj=`cat $(top_srcdir)/version | cut -d. -f1`; \
+	min=`cat $(top_srcdir)/version | cut -d. -f2`; \
+	rev=`cat $(top_srcdir)/version | cut -d. -f3`; \
+	sed -e "s/##MAJOR_VERSION##/$$maj/g" -e "s/##MINOR_VERSION##/$$min/g" \
+		-e "s/##REVISION##/$$rev/g" >$@.tmp $<
+	cmp -s $@.tmp $@ || ( rm -f $@ && mv $@.tmp $@ )

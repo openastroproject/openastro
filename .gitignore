@@ -166,3 +166,5 @@ ui_*.h
 /osx/oalive.iconset/icon_32x32@2x.png
 /osx/oalive.iconset/icon_512x512.png
 /osx/oalive.iconset/icon_512x512@2x.png
+/osx/oacapture.plist
+/osx/oalive.plist
