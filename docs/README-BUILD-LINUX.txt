@@ -1,7 +1,7 @@
 To build the binaries a few prerequisites are required.
 
 The binaries link against the ZWO ASI camera and ffmpeg libraries as
-well as libusb1, the dc1394 library libv4l and Qt4.  The latter tthree
+well as libusb1, the dc1394 library libv4l and Qt4.  The latter three
 should be fairly easy to find the development packages for in most
 distributions.  On Ubuntu, Mint (and perhaps Debian) you probably need:
 
@@ -11,6 +11,7 @@ distributions.  On Ubuntu, Mint (and perhaps Debian) you probably need:
   libcfitsio3-dev
   libudev-dev
   libtiff-dev
+	libsdl1.2-dev
   qt4-dev-tools
   qt4-qmake
   gawk
@@ -37,6 +38,7 @@ On Fedora I found these to be sufficient:
   yasm
   autoconf
   libtool
+	SDL
 
 As of release 0.0.6 the external libraries fmpeg and libusb are
 included with the sources and build with them to make life a little
