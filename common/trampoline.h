@@ -2,7 +2,7 @@
  *
  * trampoline.h -- functions redirecting to class function calls
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <QtCore>
 #include <QtGui>
 
 #include <oa_common.h>
