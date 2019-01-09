@@ -2,7 +2,7 @@
  *
  * cameraWidget.cc -- class for the camera widget in the UI
  *
- * Copyright 2013,2014,2015,2017,2018
+ * Copyright 2013,2014,2015,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -139,7 +139,11 @@ CameraWidget::configure ( void )
   connect ( inputFormatMenu, SIGNAL( currentIndexChanged ( int )), 
       this, SLOT( changeFrameFormat ( int )));
 
-  changeFrameFormat ( currentAction );
+	// Shouldn't need to do this is there's only one possible frame format
+	if ( numActions > 1 ) {
+		changeFrameFormat ( currentAction );
+	}
+
   if ( cameraConf.forceInputFrameFormat ) {
     updateForceFrameFormat ( 0, cameraConf.forceInputFrameFormat );
   }
