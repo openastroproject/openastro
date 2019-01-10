@@ -26,10 +26,13 @@
 
 #pragma once
 
-#include <QtCore>
-#include <QtGui>
-
 #include <oa_common.h>
+
+#ifdef HAVE_QT5
+#include <QtWidgets>
+#else
+#include <QtGui>
+#endif
 
 #include <openastro/userConfig.h>
 
