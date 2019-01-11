@@ -2,7 +2,7 @@
  *
  * SXstate.h -- Starlight Xpress state header
  *
- * Copyright 2014,2015,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -30,6 +30,8 @@
 #include <sys/types.h>
 #include <libusb-1.0/libusb.h>
 #include <pthread.h>
+
+#include <openastro/util.h>
 
 struct SXbuffer {
   void   *start;
@@ -67,6 +69,8 @@ typedef struct SX_STATE {
   // camera settings
   unsigned int          xSize;
   unsigned int          ySize;
+  unsigned int          xOffset;
+  unsigned int          yOffset;
   unsigned int          binMode;
   // image settings
   uint32_t              maxResolutionX;

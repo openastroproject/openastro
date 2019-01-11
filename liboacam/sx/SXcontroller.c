@@ -2,7 +2,7 @@
  *
  * SXcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -49,7 +49,7 @@ static int	_doReadExposure ( SX_STATE* );
 
 static int	_clearFrame ( SX_STATE*, unsigned int );
 static int	_latchFrame ( SX_STATE*, unsigned int, unsigned int,
-			unsigned int );
+			unsigned int, unsigned int, unsigned int );
 static int	_readFrame ( SX_STATE*, unsigned char*, int );
 static int	_readTemperature ( SX_STATE* );
 
@@ -294,6 +294,8 @@ _processSetResolution ( oaCamera* camera, OA_COMMAND* command )
 
   cameraInfo->xSize = size->x;
   cameraInfo->ySize = size->y;
+	cameraInfo->xOffset = ( cameraInfo->maxResolutionX - size->x ) / 2;
+	cameraInfo->yOffset = ( cameraInfo->maxResolutionY - size->y ) / 2;
 
   cameraInfo->imageBufferLength = size->x * size->y *
       cameraInfo->bytesPerPixel;
@@ -389,15 +391,15 @@ _doReadExposure ( SX_STATE* cameraInfo )
     oddFrame = cameraInfo->xferBuffer + halfFrameSize;
 
     _latchFrame ( cameraInfo, CCD_EXP_FLAGS_FIELD_EVEN, cameraInfo->xSize,
-        numRows );
+        numRows, cameraInfo->xOffset, cameraInfo->yOffset );
     _readFrame ( cameraInfo, evenFrame, halfFrameSize );
     _latchFrame ( cameraInfo, CCD_EXP_FLAGS_FIELD_ODD, cameraInfo->xSize,
-        numRows );
+        numRows, cameraInfo->xOffset, cameraInfo->yOffset );
     _readFrame ( cameraInfo, oddFrame, halfFrameSize );
 
   } else {
     _latchFrame ( cameraInfo, CCD_EXP_FLAGS_FIELD_BOTH, cameraInfo->xSize,
-        cameraInfo->ySize );
+        cameraInfo->ySize, cameraInfo->xOffset, cameraInfo->yOffset );
     _readFrame ( cameraInfo, cameraInfo->xferBuffer,
         cameraInfo->imageBufferLength );
   }
@@ -462,7 +464,7 @@ _clearFrame ( SX_STATE* cameraInfo, unsigned int flags )
 
 static int
 _latchFrame ( SX_STATE* cameraInfo, unsigned int flags, unsigned int x,
-    unsigned int y )
+    unsigned int y, unsigned int xoff, unsigned int yoff )
 {
   unsigned char	buff [ SXUSB_READ_BUFSIZE ];
   int		ret, transferred, xbin, ybin;
@@ -483,10 +485,10 @@ _latchFrame ( SX_STATE* cameraInfo, unsigned int flags, unsigned int x,
   buff[ SXUSB_REQ_INDEX_H ] = 0;
   buff[ SXUSB_REQ_LENGTH_L ] = 10;
   buff[ SXUSB_REQ_LENGTH_H ] = 0;
-  buff[ SXUSB_REQ_DATA + 0] = 0;
-  buff[ SXUSB_REQ_DATA + 1] = 0;
-  buff[ SXUSB_REQ_DATA + 2] = 0;
-  buff[ SXUSB_REQ_DATA + 3] = 0;
+  buff[ SXUSB_REQ_DATA + 0] = xoff & 0xff;
+  buff[ SXUSB_REQ_DATA + 1] = ( xoff >> 8 ) & 0xff;
+  buff[ SXUSB_REQ_DATA + 2] = yoff & 0xff;
+  buff[ SXUSB_REQ_DATA + 3] = ( yoff >> 8 ) & 0xff;
   buff[ SXUSB_REQ_DATA + 4] = x & 0xff;
   buff[ SXUSB_REQ_DATA + 5] = ( x >> 8 ) & 0xff;
   buff[ SXUSB_REQ_DATA + 6] = y & 0xff;

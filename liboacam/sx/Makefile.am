@@ -32,7 +32,7 @@ noinst_LTLIBRARIES = libsx.la
 
 libsx_la_SOURCES = \
   SXoacam.c SXconnect.c SXcallback.c SXcontroller.c SXcontrol.c \
-  SXgetState.c
+  SXgetState.c SXroi.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

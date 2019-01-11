@@ -2,7 +2,8 @@
  *
  * SXconnect.c -- Initialise Starlight Xpress cameras
  *
- * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -299,6 +300,7 @@ oaSXInitCamera ( oaCameraDevice* device )
   }
   cameraInfo->binMode = cameraInfo->requestedBinMode = OA_BIN_MODE_NONE;
 
+	camera->features.ROI = 1;
   camera->features.hasReset = 1;
   switch ( devInfo->devType ) {
     case CAM_LODESTAR:
@@ -356,7 +358,7 @@ oaSXInitCamera ( oaCameraDevice* device )
 
   cameraInfo->xSize = cameraInfo->maxResolutionX;
   cameraInfo->ySize = cameraInfo->maxResolutionY;
-  camera->features.fixedFrameSizes = 1;
+  camera->features.fixedFrameSizes = 0;
 
 
   cameraInfo->buffers = 0;
@@ -477,12 +479,14 @@ _SXInitFunctionPointers ( oaCamera* camera )
   camera->funcs.isStreaming = oaSXCameraIsStreaming;
 
   camera->funcs.setResolution = oaSXCameraSetResolution;
+  camera->funcs.setROI = oaSXCameraSetResolution;
 
   camera->funcs.hasAuto = oacamHasAuto;
   // camera->funcs.isAuto = _isAuto;
 
   camera->funcs.enumerateFrameSizes = oaSXCameraGetFrameSizes;
   camera->funcs.getFramePixelFormat = oaSXCameraGetFramePixelFormat;
+	camera->funcs.testROISize = oaSXCameraTestROISize;
 }
 
 
