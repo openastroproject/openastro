@@ -21,6 +21,7 @@ distributions.  On Ubuntu, Mint (and perhaps Debian) you probably need:
   autoconf
   autoconf-archive
   libtool
+	libusb-1.0-0-dev
 
 On Fedora I found these to be sufficient:
 
