@@ -22,6 +22,7 @@ distributions.  On Ubuntu, Mint (and perhaps Debian) you probably need:
   autoconf-archive
   libtool
 	libusb-1.0-0-dev
+	libhidapi-dev
 
 On Fedora I found these to be sufficient:
 
