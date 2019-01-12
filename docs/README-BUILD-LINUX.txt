@@ -19,6 +19,7 @@ distributions.  On Ubuntu, Mint (and perhaps Debian) you probably need:
   g++
   yasm
   autoconf
+  autoconf-archive
   libtool
 
 On Fedora I found these to be sufficient:
