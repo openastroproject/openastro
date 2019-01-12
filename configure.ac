@@ -995,7 +995,7 @@ case $host in
     AC_CONFIG_LINKS([$ext9/libASICamera/libASICamera2.a:ext/libASICamera/x64/libASICamera2.a])
     AC_CONFIG_LINKS([$extA/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/x64/libEFWFilter.a])
     ;;
-  armv8l-*-*)
+  armv8l-*-*|aarch64-*-*)
     AC_CONFIG_LINKS([$extB/libASICamera/libASICamera2.a:ext/libASICamera/armv8/libASICamera2.a])
     AC_CONFIG_LINKS([$extC/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv8/libEFWFilter.a])
     ;;
