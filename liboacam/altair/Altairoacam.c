@@ -54,7 +54,7 @@ HRESULT		( *p_Altaircam_PullStillImage )( HToupCam, void*, int,
 HRESULT		( *p_Altaircam_StartPushMode )( HToupCam,
 		    PTOUPCAM_DATA_CALLBACK, void* );
 HRESULT		( *p_Altaircam_Stop )( HToupCam );
-HRESULT		( *p_Altaircam_Pause )( HToupCam, BOOL );
+HRESULT		( *p_Altaircam_Pause )( HToupCam, int );
 HRESULT		( *p_Altaircam_Snap )( HToupCam, unsigned );
 HRESULT		( *p_Altaircam_Trigger )( HToupCam );
 HRESULT		( *p_Altaircam_get_Size )( HToupCam, int*, int* );
@@ -68,10 +68,10 @@ HRESULT		( *p_Altaircam_get_ResolutionRatio )( HToupCam, unsigned, int*,
 		    int* );
 HRESULT		( *p_Altaircam_get_RawFormat )( HToupCam, unsigned*,
 		    unsigned* );
-HRESULT		( *p_Altaircam_get_AutoExpoEnable )( HToupCam, BOOL* );
+HRESULT		( *p_Altaircam_get_AutoExpoEnable )( HToupCam, int* );
 HRESULT		( *p_Altaircam_get_AutoExpoTarget )( HToupCam,
 		    unsigned short* );
-HRESULT		( *p_Altaircam_put_AutoExpoEnable )( HToupCam, BOOL );
+HRESULT		( *p_Altaircam_put_AutoExpoEnable )( HToupCam, int );
 HRESULT		( *p_Altaircam_put_AutoExpoTarget )( HToupCam, unsigned short );
 HRESULT		( *p_Altaircam_get_ExpoTime )( HToupCam, unsigned* );
 HRESULT		( *p_Altaircam_get_ExpTimeRange )( HToupCam, unsigned*,
@@ -101,22 +101,22 @@ HRESULT		( *p_Altaircam_get_Contrast )( HToupCam, int* );
 HRESULT		( *p_Altaircam_put_Contrast )( HToupCam, int );
 HRESULT		( *p_Altaircam_get_Gamma )( HToupCam, int* );
 HRESULT		( *p_Altaircam_put_Gamma )( HToupCam, int );
-HRESULT		( *p_Altaircam_get_Chrome )( HToupCam, BOOL* );
-HRESULT		( *p_Altaircam_put_Chrome )( HToupCam, BOOL );
-HRESULT		( *p_Altaircam_get_VFlip )( HToupCam, BOOL* );
-HRESULT		( *p_Altaircam_put_VFlip )( HToupCam, BOOL );
-HRESULT		( *p_Altaircam_get_HFlip )( HToupCam, BOOL* );
-HRESULT		( *p_Altaircam_put_HFlip )( HToupCam, BOOL );
-HRESULT		( *p_Altaircam_get_Negative )( HToupCam, BOOL* );
-HRESULT		( *p_Altaircam_put_Negative )( HToupCam, BOOL );
+HRESULT		( *p_Altaircam_get_Chrome )( HToupCam, int* );
+HRESULT		( *p_Altaircam_put_Chrome )( HToupCam, int );
+HRESULT		( *p_Altaircam_get_VFlip )( HToupCam, int* );
+HRESULT		( *p_Altaircam_put_VFlip )( HToupCam, int );
+HRESULT		( *p_Altaircam_get_HFlip )( HToupCam, int* );
+HRESULT		( *p_Altaircam_put_HFlip )( HToupCam, int );
+HRESULT		( *p_Altaircam_get_Negative )( HToupCam, int* );
+HRESULT		( *p_Altaircam_put_Negative )( HToupCam, int );
 HRESULT		( *p_Altaircam_get_MaxSpeed )( HToupCam );
 HRESULT		( *p_Altaircam_get_Speed )( HToupCam, unsigned short* );
 HRESULT		( *p_Altaircam_put_Speed )( HToupCam, unsigned short );
 HRESULT		( *p_Altaircam_get_MaxBitDepth )( HToupCam );
 HRESULT		( *p_Altaircam_get_HZ )( HToupCam, int* );
 HRESULT		( *p_Altaircam_put_HZ )( HToupCam, int );
-HRESULT		( *p_Altaircam_get_Mode )( HToupCam, BOOL* );
-HRESULT		( *p_Altaircam_put_Mode )( HToupCam, BOOL );
+HRESULT		( *p_Altaircam_get_Mode )( HToupCam, int* );
+HRESULT		( *p_Altaircam_put_Mode )( HToupCam, int );
 HRESULT		( *p_Altaircam_get_AWBAuxRect )( HToupCam, RECT* );
 HRESULT		( *p_Altaircam_put_AWBAuxRect )( HToupCam, const RECT* );
 HRESULT		( *p_Altaircam_get_AEAuxRect )( HToupCam, RECT* );
@@ -125,8 +125,8 @@ HRESULT		( *p_Altaircam_get_MonoMode )( HToupCam );
 HRESULT		( *p_Altaircam_get_StillResolution )( HToupCam, unsigned, int*,
 		    int* );
 HRESULT		( *p_Altaircam_get_StillResolutionNumber )( HToupCam );
-HRESULT		( *p_Altaircam_get_RealTime )( HToupCam, BOOL* );
-HRESULT		( *p_Altaircam_put_RealTime )( HToupCam, BOOL );
+HRESULT		( *p_Altaircam_get_RealTime )( HToupCam, int* );
+HRESULT		( *p_Altaircam_put_RealTime )( HToupCam, int );
 HRESULT		( *p_Altaircam_Flush )( HToupCam );
 HRESULT		( *p_Altaircam_get_Temperature )( HToupCam, short* );
 HRESULT		( *p_Altaircam_put_Temperature )( HToupCam, short );

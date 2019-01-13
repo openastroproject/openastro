@@ -54,7 +54,7 @@ HRESULT		( *p_Mallincam_PullStillImage )( HToupCam, void*, int,
 HRESULT		( *p_Mallincam_StartPushMode )( HToupCam,
 		    PTOUPCAM_DATA_CALLBACK, void* );
 HRESULT		( *p_Mallincam_Stop )( HToupCam );
-HRESULT		( *p_Mallincam_Pause )( HToupCam, BOOL );
+HRESULT		( *p_Mallincam_Pause )( HToupCam, int );
 HRESULT		( *p_Mallincam_Snap )( HToupCam, unsigned );
 HRESULT		( *p_Mallincam_Trigger )( HToupCam );
 HRESULT		( *p_Mallincam_get_Size )( HToupCam, int*, int* );
@@ -68,10 +68,10 @@ HRESULT		( *p_Mallincam_get_ResolutionRatio )( HToupCam, unsigned, int*,
 		    int* );
 HRESULT		( *p_Mallincam_get_RawFormat )( HToupCam, unsigned*,
 		    unsigned* );
-HRESULT		( *p_Mallincam_get_AutoExpoEnable )( HToupCam, BOOL* );
+HRESULT		( *p_Mallincam_get_AutoExpoEnable )( HToupCam, int* );
 HRESULT		( *p_Mallincam_get_AutoExpoTarget )( HToupCam,
 		    unsigned short* );
-HRESULT		( *p_Mallincam_put_AutoExpoEnable )( HToupCam, BOOL );
+HRESULT		( *p_Mallincam_put_AutoExpoEnable )( HToupCam, int );
 HRESULT		( *p_Mallincam_put_AutoExpoTarget )( HToupCam, unsigned short );
 HRESULT		( *p_Mallincam_get_ExpoTime )( HToupCam, unsigned* );
 HRESULT		( *p_Mallincam_get_ExpTimeRange )( HToupCam, unsigned*,
@@ -101,22 +101,22 @@ HRESULT		( *p_Mallincam_get_Contrast )( HToupCam, int* );
 HRESULT		( *p_Mallincam_put_Contrast )( HToupCam, int );
 HRESULT		( *p_Mallincam_get_Gamma )( HToupCam, int* );
 HRESULT		( *p_Mallincam_put_Gamma )( HToupCam, int );
-HRESULT		( *p_Mallincam_get_Chrome )( HToupCam, BOOL* );
-HRESULT		( *p_Mallincam_put_Chrome )( HToupCam, BOOL );
-HRESULT		( *p_Mallincam_get_VFlip )( HToupCam, BOOL* );
-HRESULT		( *p_Mallincam_put_VFlip )( HToupCam, BOOL );
-HRESULT		( *p_Mallincam_get_HFlip )( HToupCam, BOOL* );
-HRESULT		( *p_Mallincam_put_HFlip )( HToupCam, BOOL );
-HRESULT		( *p_Mallincam_get_Negative )( HToupCam, BOOL* );
-HRESULT		( *p_Mallincam_put_Negative )( HToupCam, BOOL );
+HRESULT		( *p_Mallincam_get_Chrome )( HToupCam, int* );
+HRESULT		( *p_Mallincam_put_Chrome )( HToupCam, int );
+HRESULT		( *p_Mallincam_get_VFlip )( HToupCam, int* );
+HRESULT		( *p_Mallincam_put_VFlip )( HToupCam, int );
+HRESULT		( *p_Mallincam_get_HFlip )( HToupCam, int* );
+HRESULT		( *p_Mallincam_put_HFlip )( HToupCam, int );
+HRESULT		( *p_Mallincam_get_Negative )( HToupCam, int* );
+HRESULT		( *p_Mallincam_put_Negative )( HToupCam, int );
 HRESULT		( *p_Mallincam_get_MaxSpeed )( HToupCam );
 HRESULT		( *p_Mallincam_get_Speed )( HToupCam, unsigned short* );
 HRESULT		( *p_Mallincam_put_Speed )( HToupCam, unsigned short );
 HRESULT		( *p_Mallincam_get_MaxBitDepth )( HToupCam );
 HRESULT		( *p_Mallincam_get_HZ )( HToupCam, int* );
 HRESULT		( *p_Mallincam_put_HZ )( HToupCam, int );
-HRESULT		( *p_Mallincam_get_Mode )( HToupCam, BOOL* );
-HRESULT		( *p_Mallincam_put_Mode )( HToupCam, BOOL );
+HRESULT		( *p_Mallincam_get_Mode )( HToupCam, int* );
+HRESULT		( *p_Mallincam_put_Mode )( HToupCam, int );
 HRESULT		( *p_Mallincam_get_AWBAuxRect )( HToupCam, RECT* );
 HRESULT		( *p_Mallincam_put_AWBAuxRect )( HToupCam, const RECT* );
 HRESULT		( *p_Mallincam_get_AEAuxRect )( HToupCam, RECT* );
@@ -125,8 +125,8 @@ HRESULT		( *p_Mallincam_get_MonoMode )( HToupCam );
 HRESULT		( *p_Mallincam_get_StillResolution )( HToupCam, unsigned, int*,
 		    int* );
 HRESULT		( *p_Mallincam_get_StillResolutionNumber )( HToupCam );
-HRESULT		( *p_Mallincam_get_RealTime )( HToupCam, BOOL* );
-HRESULT		( *p_Mallincam_put_RealTime )( HToupCam, BOOL );
+HRESULT		( *p_Mallincam_get_RealTime )( HToupCam, int* );
+HRESULT		( *p_Mallincam_put_RealTime )( HToupCam, int );
 HRESULT		( *p_Mallincam_Flush )( HToupCam );
 HRESULT		( *p_Mallincam_get_Temperature )( HToupCam, short* );
 HRESULT		( *p_Mallincam_put_Temperature )( HToupCam, short );

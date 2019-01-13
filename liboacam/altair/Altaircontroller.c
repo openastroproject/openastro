@@ -126,7 +126,7 @@ oacamAltaircontroller ( void* param )
 
 void
 _AltairFrameCallback ( const void *frame, const BITMAPINFOHEADER*
-    bitmapHeader, BOOL bSnap, void *ptr )
+    bitmapHeader, int bSnap, void *ptr )
 {
   ALTAIRCAM_STATE*	cameraInfo = ptr;
   int			buffersFree, nextBuffer, shiftBits, bitsPerPixel;
@@ -446,7 +446,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       }
       val = valp->boolean ? 0 : 1;
       if ((( p_Altaircam_put_Option )( cameraInfo->handle,
-          TOUPCAM_OPTION_COOLER, 1 )) < 0 ) {
+          TOUPCAM_OPTION_TEC, 1 )) < 0 ) {
         fprintf ( stderr, "Altaircam_put_Option ( cooler, %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
       }
@@ -921,7 +921,7 @@ _setFrameFormat ( ALTAIRCAM_STATE* cameraInfo, int format )
       return -OA_ERR_CAMERA_IO;
     }
 
-    if ((( p_Altaircam_put_Option )( cameraInfo->handle, TOUPCAM_OPTION_RGB48,
+    if ((( p_Altaircam_put_Option )( cameraInfo->handle, TOUPCAM_OPTION_RGB,
         format == OA_PIX_FMT_RGB48LE ? 1 : 0 )) < 0 ) {
       fprintf ( stderr, "Altaircam_put_Option ( raw, %d ) failed\n", raw );
       return -OA_ERR_CAMERA_IO;
