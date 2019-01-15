@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([openastro], [1.1.0], [james@openastro.org])
+AC_INIT([openastro], [1.1.0], [james@openastroproject.org])
 AC_CONFIG_SRCDIR([liboademosaic/oademosaic.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -43,6 +43,8 @@ checkSystemLibuvc=0
 checkSystemLibhidapi=0
 checkSystemLibasicamera=0
 checkSystemLibefwfilter=0
+checkSystemLibtoupcam=0
+checkSystemLibaltaircam=0
 useisystemInclude=0
 build_libusb=no
 zwoSupportedArch=1
@@ -55,6 +57,8 @@ case $host in
     checkSystemLibhidapi=1
     checkSystemLibasicamera=1
     checkSystemLibefwfilter=1
+    checkSystemLibtoupcam=1
+    checkSystemLibaltaircam=1
     ;;
   *-apple-*)
     useisystemInclude=1
@@ -622,6 +626,66 @@ then
   fi
 fi
 
+use_system_libtoupcam=no
+if test $checkSystemLibtoupcam -eq 1
+then
+  if `$PKG_CONFIG --exists libtoupcam`; then
+    AC_MSG_NOTICE([Using system libtoupcam library])
+    flags=`$PKG_CONFIG --cflags-only-I libtoupcam`
+    if test $useisystemInclude -eq 1; then
+      flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+    fi
+    LIBTOUPCAM_CFLAGS="$flags"
+    # can't use shared libtoupcam if we're not using the system libusb
+    # because it will try to pull it in anyhow
+    if test "x$use_system_libusb" == "xyes"; then
+      LIBTOUPCAM_LDFLAGS="`$PKG_CONFIG --libs-only-L libtoupcam`"
+      LIBTOUPCAM_LIBS="`$PKG_CONFIG --libs-only-l libtoupcam`"
+    else
+      AC_MSG_WARN([libtoupcam not compatible with internal libusb.  No support for Touptek cameras.])
+    fi
+    use_system_libtoupcam=yes
+    AC_DEFINE([HAVE_LIBTOUPCAM],[1],[Have libtoupcam])
+  else
+    AC_CHECK_LIB([toupcam],[Toupcam_Open],[
+      LIBS="-ltoupcam $LIBS"
+      AC_DEFINE([HAVE_LIBTOUPCAM],[1],[Have libtoupcam])
+    ],[
+      AC_MSG_WARN([libtoupcam not found.  Dynamic support for Touptek cameras.])
+    ])
+  fi
+fi
+
+use_system_libaltaircam=no
+if test $checkSystemLibaltaircam -eq 1
+then
+  if `$PKG_CONFIG --exists libaltaircam`; then
+    AC_MSG_NOTICE([Using system libaltaircam library])
+    flags=`$PKG_CONFIG --cflags-only-I libaltaircam`
+    if test $useisystemInclude -eq 1; then
+      flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+    fi
+    LIBALTAIRCAM_CFLAGS="$flags"
+    # can't use shared libaltaircam if we're not using the system libusb
+    # because it will try to pull it in anyhow
+    if test "x$use_system_libusb" == "xyes"; then
+      LIBALTAIRCAM_LDFLAGS="`$PKG_CONFIG --libs-only-L libaltaircam`"
+      LIBALTAIRCAM_LIBS="`$PKG_CONFIG --libs-only-l libaltaircam`"
+    else
+      AC_MSG_WARN([libaltaircam not compatible with internal libusb.  No support for Altair cameras.])
+    fi
+    use_system_libaltaircam=yes
+    AC_DEFINE([HAVE_LIBALTAIRCAM],[1],[Have libaltaircam])
+  else
+    AC_CHECK_LIB([altaircam],[Altaircam_Open],[
+      LIBS="-laltaircam $LIBS"
+      AC_DEFINE([HAVE_LIBALTAIRCAM],[1],[Have libaltaircam])
+    ],[
+      AC_MSG_WARN([libaltaircam not found.  Dynamic support for Altair cameras.])
+    ])
+  fi
+fi
+
 AC_CHECK_LIB([m],[exp10],[
   AC_DEFINE([HAVE_EXP10],[1],[Have exp10 function in libm])
 ],[
@@ -961,24 +1025,12 @@ ext7=ext; ext8=ext; ext9=ext; extA=ext; extB=ext; extC=ext
 extD=ext; extE=ext; extF=ext; extG=ext; extH=ext; extI=ext
 extJ=ext; extK=ext; extL=ext; extM=ext
 case $host in
-  x86_64-apple-*)
+  *-apple-*)
     AC_CONFIG_LINKS([$ext1/libASICamera/libASICamera2.a:ext/libASICamera/mac/libASICamera2.a])
     AC_CONFIG_LINKS([$ext2/libtoupcam/libtoupcam.dylib:ext/libtoupcam/mac64/libtoupcam.dylib])
     AC_CONFIG_LINKS([$ext3/libaltaircam/libaltaircam.dylib:ext/libaltaircam/mac64/libaltaircam.dylib])
     AC_CONFIG_LINKS([$ext4/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/mac/libEFWFilter.a])
     OSX_FRAMEWORKS="-framework Carbon -framework VideoDecodeAcceleration -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
-    FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
-    LIBHIDAPI_LIBS="\$(top_builddir)/ext/libhidapi/mac/libhidapi.la"
-    APP_PATH_CFLAGS="-DUSE_APP_PATH=1"
-    DEFAULT_PATH_CFLAGS="-DUSE_HOME_DEFAULT=1"
-    DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_DYLIB"
-    OSX_WARNINGS="-Qunused-arguments"
-    AC_DEFINE([USB_OVERFLOW_HANGS],[1],[USB overflow causes hang])
-    ;;
-  i?86-apple-*)
-    AC_CONFIG_LINKS([$ext5/libASICamera/libASICamera2.a:ext/libASICamera/mac/libASICamera2.a])
-    AC_CONFIG_LINKS([$ext6/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/mac/libEFWFilter.a])
-    OSX_FRAMEWORKS="-framework Carbon -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
     FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
     LIBHIDAPI_LIBS="\$(top_builddir)/ext/libhidapi/mac/libhidapi.la"
     APP_PATH_CFLAGS="-DUSE_APP_PATH=1"
@@ -1060,43 +1112,27 @@ if test "x$with_libudev" != "xno"; then
     AC_MSG_WARN([No udev library found.  Xagyl filter wheels can not be supported using libudev])])
 fi
 
-## Deal with Toupcam libtoupcam library
-#
-#AC_ARG_WITH(toupcam_cflags,
-#  AC_HELP_STRING([--with-toupcam-cflags="xxx"],
-#  [CFLAGS for toupcam library]),,
-#  with_toupcam_cflags=no)
-#AC_ARG_WITH(toupcam_ldflags,
-#  AC_HELP_STRING([--with-toupcam-ldflags="xxx"],
-#  [LDFLAGS for toupcam library]),,
-#  with_toupcam_ldflags=no)
-
-#LIBTOUPCAM_LDFLAGS="-L \$(top_srcdir)/ext/libtoupcam"
-#if test "x$with_toupcam_cflags" != "xno"
-#then
-#  LIBTOUPCAM_CFLAGS="$with_toupcam_cflags"
-#fi
-#if test "x$with_toupcam_ldflags" != "xno"
-#then
-#  LIBTOUPCAM_LDFLAGS="$with_toupcam_ldflags"
-#fi
-
-#oldLIBS=$LIBS
-#LIBS="$LIBTOUPCAM_LDFLAGS $LIBS"
-#AC_CHECK_LIB([toupcam],[Toupcam_Enum],[
-#  LIBS="-lv4l2 $LIBS"
-if test "x$have_toupcam" != "xno"
+if test "x$use_system_libtoupcam" == "xno"
 then
-  LIBTOUPCAM_CFLAGS="-I \$(top_srcdir)/ext/libtoupcam/include"
-  AC_DEFINE([HAVE_LIBTOUPCAM],[1],[Have Toupcam library support])
-  AC_DEFINE([HAVE_LIBMALLINCAM],[1],[Have Mallincam library support])
-  AC_DEFINE([HAVE_LIBALTAIRCAM],[1],[Have Altair camera library support])
-#],[
-#  AC_MSG_WARN([No toupcam library found.  Touptek cameras will not be supported])])
+	if test "x$have_toupcam" != "xno"
+	then
+		LIBTOUPCAM_CFLAGS="-I \$(top_srcdir)/ext/libtoupcam/include"
+		LIBTOUPCAM_LIBS=""
+		AC_DEFINE([HAVE_LIBTOUPCAM],[1],[Have Toupcam library support])
+	fi
 fi
-#LIBS=$oldLIBS
-AC_SUBST(LIBTOUPCAM_CFLAGS)
-#AC_SUBST(LIBTOUPCAM_LDFLAGS)
+
+if test "x$use_system_libaltaircam" == "xno"
+then
+	if test "x$have_altaircam" != "xno"
+	then
+		LIBALTAIRCAM_CFLAGS="-I \$(top_srcdir)/ext/libaltaircam/include"
+		LIBALTAIRCAM_LIBS=""
+		AC_DEFINE([HAVE_LIBALTAIRCAM],[1],[Have Altair camera library support])
+	fi
+fi
+
+AC_DEFINE([HAVE_LIBMALLINCAM],[1],[Have Mallincam library support])
 
 AC_SUBST(OSX_FRAMEWORKS)
 AC_SUBST(OSX_WARNINGS)
@@ -1106,6 +1142,10 @@ AC_SUBST(LIBUVC_CFLAGS)
 AC_SUBST(LIBUVC_LIBS)
 AC_SUBST(LIBASI2_CFLAGS)
 AC_SUBST(LIBASI2_LIBS)
+AC_SUBST(LIBTOUPCAM_CFLAGS)
+AC_SUBST(LIBTOUPCAM_LIBS)
+AC_SUBST(LIBALTAIRCAM_CFLAGS)
+AC_SUBST(LIBALTAIRCAM_LIBS)
 AC_SUBST(LIBZWOFW_LIBS)
 AC_SUBST(LIBFTDI_CFLAGS)
 AC_SUBST(LIBFTDI_LIBS)

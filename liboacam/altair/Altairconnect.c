@@ -2,7 +2,7 @@
  *
  * Altairconnect.c -- Initialise Altair cameras
  *
- * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -27,7 +27,7 @@
 #include <oa_common.h>
 
 #include <openastro/camera.h>
-#include <toupcam.h>
+#include <altaircam.h>
 #include <pthread.h>
 #include <openastro/camera.h>
 #include <openastro/util.h>
@@ -55,10 +55,10 @@ oaAltairInitCamera ( oaCameraDevice* device )
   oaCamera*			camera;
   ALTAIRCAM_STATE*		cameraInfo;
   COMMON_INFO*			commonInfo;
-  ToupcamInst			devList[ TOUPCAM_MAX ];
+  AltaircamInst			devList[ ALTAIRCAM_MAX ];
   unsigned int			numCameras, min, max, def;
   unsigned short		smin, smax, sdef;
-  HToupCam			handle;
+  HAltairCam			handle;
   DEVICE_INFO*			devInfo;
   unsigned int			i, j, numResolutions, numStillResolutions;
   unsigned int			fourcc, depth, binX, binY;
@@ -102,7 +102,7 @@ oaAltairInitCamera ( oaCameraDevice* device )
 
   camera->interface = device->interface;
   cameraInfo->colour = ( devList[ devInfo->devIndex ].model->flag &
-      TOUPCAM_FLAG_MONO ) ? 0 : 1;
+      ALTAIRCAM_FLAG_MONO ) ? 0 : 1;
 
   if ( cameraInfo->colour ) {
     // Add "@" to use "RGB gain mode".  Ick :(
@@ -145,16 +145,16 @@ oaAltairInitCamera ( oaCameraDevice* device )
   // Altaircam_put_TempTint
 
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_CONTRAST ) = OA_CTRL_TYPE_INT32;
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_CONTRAST ) = TOUPCAM_CONTRAST_MIN;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_CONTRAST ) = TOUPCAM_CONTRAST_MAX;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_CONTRAST ) = ALTAIRCAM_CONTRAST_MIN;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_CONTRAST ) = ALTAIRCAM_CONTRAST_MAX;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_CONTRAST ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_CONTRAST ) = TOUPCAM_CONTRAST_DEF;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_CONTRAST ) = ALTAIRCAM_CONTRAST_DEF;
 
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAMMA ) = OA_CTRL_TYPE_INT32;
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA ) = TOUPCAM_GAMMA_MIN;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA ) = TOUPCAM_GAMMA_MAX;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA ) = ALTAIRCAM_GAMMA_MIN;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA ) = ALTAIRCAM_GAMMA_MAX;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAMMA ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) = TOUPCAM_GAMMA_DEF;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) = ALTAIRCAM_GAMMA_DEF;
 
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HFLIP ) = OA_CTRL_TYPE_BOOLEAN;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HFLIP ) = 0;
@@ -183,7 +183,8 @@ oaAltairInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = OA_CTRL_TYPE_INT32;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+			OA_CTRL_TYPE_INT32;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = min;
   commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = max;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
@@ -220,7 +221,7 @@ oaAltairInitCamera ( oaCameraDevice* device )
   commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SPEED ) = cameraInfo->speedMax;
 
   if ( devList[ devInfo->devIndex ].model->flag &
-      TOUPCAM_FLAG_PUTTEMPERATURE ) {
+      ALTAIRCAM_FLAG_PUTTEMPERATURE ) {
     fprintf ( stderr, "Altaircam supports setting temperature, but we "
         "don't know how to get the range\n" );
     /*
@@ -233,11 +234,11 @@ oaAltairInitCamera ( oaCameraDevice* device )
   }
 
   if ( devList[ devInfo->devIndex ].model->flag &
-      TOUPCAM_FLAG_GETTEMPERATURE ) {
+      ALTAIRCAM_FLAG_GETTEMPERATURE ) {
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
   }
 
-  if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_TEC_ONOFF ) {
+  if ( devList[ devInfo->devIndex ].model->flag & ALTAIRCAM_FLAG_TEC_ONOFF ) {
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COOLER ) = OA_CTRL_TYPE_BOOLEAN;
     commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_COOLER ) = 0;
     commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_COOLER ) = 1;
@@ -245,7 +246,7 @@ oaAltairInitCamera ( oaCameraDevice* device )
     commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER ) = 0;
   }
 
-  if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_FAN ) {
+  if ( devList[ devInfo->devIndex ].model->flag & ALTAIRCAM_FLAG_FAN ) {
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FAN ) = OA_CTRL_TYPE_BOOLEAN;
     commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_FAN ) = 0;
     commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_FAN ) = 1;
@@ -255,44 +256,59 @@ oaAltairInitCamera ( oaCameraDevice* device )
 
   if ( cameraInfo->colour ) {
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HUE ) = OA_CTRL_TYPE_INT32;
-    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HUE ) = TOUPCAM_HUE_MIN;
-    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HUE ) = TOUPCAM_HUE_MAX;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HUE ) = ALTAIRCAM_HUE_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HUE ) = ALTAIRCAM_HUE_MAX;
     commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HUE ) = 1;
-    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HUE ) = TOUPCAM_HUE_DEF;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HUE ) = ALTAIRCAM_HUE_DEF;
 
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SATURATION ) = OA_CTRL_TYPE_INT32;
-    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SATURATION ) = TOUPCAM_SATURATION_MIN;
-    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SATURATION ) = TOUPCAM_SATURATION_MAX;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SATURATION ) =
+				ALTAIRCAM_SATURATION_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SATURATION ) =
+				ALTAIRCAM_SATURATION_MAX;
     commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SATURATION ) = 1;
-    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SATURATION ) = TOUPCAM_SATURATION_DEF;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SATURATION ) =
+				ALTAIRCAM_SATURATION_DEF;
 
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RED_BALANCE ) = OA_CTRL_TYPE_INT32;
-    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) = TOUPCAM_WBGAIN_MIN;
-    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE ) = TOUPCAM_WBGAIN_MAX;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) =
+				ALTAIRCAM_WBGAIN_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_RED_BALANCE ) =
+				ALTAIRCAM_WBGAIN_MAX;
     commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RED_BALANCE ) = 1;
-    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) = TOUPCAM_WBGAIN_DEF;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) =
+				ALTAIRCAM_WBGAIN_DEF;
 
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GREEN_BALANCE ) = OA_CTRL_TYPE_INT32;
-    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GREEN_BALANCE ) = TOUPCAM_WBGAIN_MIN;
-    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GREEN_BALANCE ) = TOUPCAM_WBGAIN_MAX;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GREEN_BALANCE ) =
+				ALTAIRCAM_WBGAIN_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GREEN_BALANCE ) =
+				ALTAIRCAM_WBGAIN_MAX;
     commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GREEN_BALANCE ) = 1;
-    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GREEN_BALANCE ) = TOUPCAM_WBGAIN_DEF;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GREEN_BALANCE ) =
+				ALTAIRCAM_WBGAIN_DEF;
 
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) = OA_CTRL_TYPE_INT32;
-    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) = TOUPCAM_WBGAIN_MIN;
-    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) = TOUPCAM_WBGAIN_MAX;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) =
+				ALTAIRCAM_WBGAIN_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) =
+				ALTAIRCAM_WBGAIN_MAX;
     commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLUE_BALANCE ) = 1;
-    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) = TOUPCAM_WBGAIN_DEF;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) =
+				ALTAIRCAM_WBGAIN_DEF;
 
     // I don't see why this should be colour only, but it does appear to be
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BRIGHTNESS ) = OA_CTRL_TYPE_INT32;
-    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BRIGHTNESS ) = TOUPCAM_BRIGHTNESS_MIN;
-    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BRIGHTNESS ) = TOUPCAM_BRIGHTNESS_MAX;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BRIGHTNESS ) =
+				ALTAIRCAM_BRIGHTNESS_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BRIGHTNESS ) =
+				ALTAIRCAM_BRIGHTNESS_MAX;
     commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BRIGHTNESS ) = 1;
-    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) = TOUPCAM_BRIGHTNESS_DEF;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) =
+				ALTAIRCAM_BRIGHTNESS_DEF;
 
     // force the camera out of raw mode
-    if ((( p_Altaircam_put_Option )( handle, TOUPCAM_OPTION_RAW, 0 )) < 0 ) {
+    if ((( p_Altaircam_put_Option )( handle, ALTAIRCAM_OPTION_RAW, 0 )) < 0 ) {
       fprintf ( stderr, "Altaircam_put_Option ( raw, 0 ) returns error\n" );
       ( p_Altaircam_Close )( handle );
       free (( void* ) commonInfo );
@@ -306,7 +322,7 @@ oaAltairInitCamera ( oaCameraDevice* device )
     // It looks like mono cameras return RGB frames by default.  That
     // seems wasteful, so try to turn it off.
 
-    if ((( p_Altaircam_put_Option )( handle, TOUPCAM_OPTION_RAW, 1 )) < 0 ) {
+    if ((( p_Altaircam_put_Option )( handle, ALTAIRCAM_OPTION_RAW, 1 )) < 0 ) {
       fprintf ( stderr, "Altaircam_put_Option ( raw, 1 ) returns error\n" );
       ( p_Altaircam_Close )( handle );
       free (( void* ) commonInfo );
@@ -337,7 +353,8 @@ oaAltairInitCamera ( oaCameraDevice* device )
       cameraInfo->ledState = 500;
 */
 
-  if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_ROI_HARDWARE ) {
+  if ( devList[ devInfo->devIndex ].model->flag &
+			ALTAIRCAM_FLAG_ROI_HARDWARE ) {
     camera->features.ROI = 1;
   }
 
@@ -358,7 +375,8 @@ oaAltairInitCamera ( oaCameraDevice* device )
   // colour cameras.
   if ( !cameraInfo->colour ) {
   if ( cameraInfo->maxBitDepth > 8 ) {
-    if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH10 ) {
+    if ( devList[ devInfo->devIndex ].model->flag &
+				ALTAIRCAM_FLAG_BITDEPTH10 ) {
       if ( 10 == cameraInfo->maxBitDepth ) {
         camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB30LE :
             OA_PIX_FMT_GREY10_16LE ] = 1;
@@ -367,7 +385,8 @@ oaAltairInitCamera ( oaCameraDevice* device )
             "-bit is available\n", cameraInfo->maxBitDepth );
       }
     }
-    if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH12 ) {
+    if ( devList[ devInfo->devIndex ].model->flag &
+				ALTAIRCAM_FLAG_BITDEPTH12 ) {
       if ( 12 == cameraInfo->maxBitDepth ) {
         camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB36LE :
             OA_PIX_FMT_GREY12_16LE ] = 1;
@@ -376,7 +395,8 @@ oaAltairInitCamera ( oaCameraDevice* device )
             "-bit is available\n", cameraInfo->maxBitDepth );
       }
     }
-    if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH14 ) {
+    if ( devList[ devInfo->devIndex ].model->flag &
+				ALTAIRCAM_FLAG_BITDEPTH14 ) {
       if ( 14 == cameraInfo->maxBitDepth ) {
         camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB42LE :
             OA_PIX_FMT_GREY14_16LE ] = 1;
@@ -385,7 +405,8 @@ oaAltairInitCamera ( oaCameraDevice* device )
             "-bit is available\n", cameraInfo->maxBitDepth );
       }
     }
-    if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_BITDEPTH16 ) {
+    if ( devList[ devInfo->devIndex ].model->flag &
+				ALTAIRCAM_FLAG_BITDEPTH16 ) {
       if ( 16 == cameraInfo->maxBitDepth ) {
         camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB48LE :
             OA_PIX_FMT_GREY16LE ] = 1;
@@ -401,7 +422,7 @@ oaAltairInitCamera ( oaCameraDevice* device )
 
   if ( cameraInfo->maxBitDepth > 8 ) {
     if ((( p_Altaircam_put_Option )( handle,
-        TOUPCAM_OPTION_BITDEPTH, 0 )) < 0 ) {
+        ALTAIRCAM_OPTION_BITDEPTH, 0 )) < 0 ) {
       fprintf ( stderr,
           "Altaircam_put_Option ( bitdepth, 0 ) returns error\n" );
       ( p_Altaircam_Close )( handle );
@@ -416,7 +437,7 @@ oaAltairInitCamera ( oaCameraDevice* device )
   cameraInfo->currentBitsPerPixel = 8;
 
   if ( devList[ devInfo->devIndex ].model->flag &
-      TOUPCAM_FLAG_BINSKIP_SUPPORTED ) {
+      ALTAIRCAM_FLAG_BINSKIP_SUPPORTED ) {
     fprintf ( stderr, "bin/skip mode supported but not handled\n" );
   }
 

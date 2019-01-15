@@ -2,7 +2,7 @@
  *
  * Altairstate.h -- Altair camera state header
  *
- * Copyright 2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -27,7 +27,7 @@
 #ifndef OA_ALTAIRCAM_STATE_H
 #define OA_ALTAIRCAM_STATE_H
 
-#include <toupcam.h>
+#include <altaircam.h>
 #include <openastro/util.h>
 
 struct Altairbuffer {
@@ -39,7 +39,7 @@ typedef struct Altaircam_STATE {
   int			initialised;
 
   // connection handle
-  HToupCam		handle;
+  HAltairCam		handle;
   // video mode settings
   int			maxBytesPerPixel;
   float			currentBytesPerPixel;

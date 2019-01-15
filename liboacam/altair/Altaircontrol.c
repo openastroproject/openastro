@@ -2,7 +2,7 @@
  *
  * Altaircontrol.c -- control functions for Altair cameras
  *
- * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -116,8 +116,8 @@ oaAltairCameraTestControl ( oaCamera* camera, int control,
 
     case OA_CAM_CTRL_BRIGHTNESS:
       val_s32 = valp->int32;
-      if ( val_s32 < TOUPCAM_BRIGHTNESS_MIN ||
-          val_s32 > TOUPCAM_BRIGHTNESS_MAX ) {
+      if ( val_s32 < ALTAIRCAM_BRIGHTNESS_MIN ||
+          val_s32 > ALTAIRCAM_BRIGHTNESS_MAX ) {
         return -OA_ERR_OUT_OF_RANGE;
       }
       return OA_ERR_NONE;
@@ -125,7 +125,8 @@ oaAltairCameraTestControl ( oaCamera* camera, int control,
 
     case OA_CAM_CTRL_CONTRAST:
       val_s32 = valp->int32;
-      if ( val_s32 < TOUPCAM_CONTRAST_MIN || val_s32 > TOUPCAM_CONTRAST_MAX ) {
+      if ( val_s32 < ALTAIRCAM_CONTRAST_MIN ||
+					val_s32 > ALTAIRCAM_CONTRAST_MAX ) {
         return -OA_ERR_OUT_OF_RANGE;
       }
       return OA_ERR_NONE;
@@ -133,7 +134,7 @@ oaAltairCameraTestControl ( oaCamera* camera, int control,
 
     case OA_CAM_CTRL_GAMMA:
       val_s32 = valp->int32;
-      if ( val_s32 >= TOUPCAM_GAMMA_MIN || val_s32 <= TOUPCAM_GAMMA_MAX ) {
+      if ( val_s32 >= ALTAIRCAM_GAMMA_MIN || val_s32 <= ALTAIRCAM_GAMMA_MAX ) {
         return -OA_ERR_OUT_OF_RANGE;
       }
       return OA_ERR_NONE;
@@ -179,15 +180,15 @@ oaAltairCameraTestControl ( oaCamera* camera, int control,
 
     case OA_CAM_CTRL_HUE:
       val_s32 = valp->int32;
-      if ( val_s32 < TOUPCAM_HUE_MIN || val_s32 > TOUPCAM_HUE_MAX ) {
+      if ( val_s32 < ALTAIRCAM_HUE_MIN || val_s32 > ALTAIRCAM_HUE_MAX ) {
         return -OA_ERR_OUT_OF_RANGE;
       }
       return OA_ERR_NONE;
 
     case OA_CAM_CTRL_SATURATION:
       val_s32 = valp->int32;
-      if ( val_s32 < TOUPCAM_SATURATION_MIN ||
-          val_s32 > TOUPCAM_SATURATION_MAX ) {
+      if ( val_s32 < ALTAIRCAM_SATURATION_MIN ||
+          val_s32 > ALTAIRCAM_SATURATION_MAX ) {
         return -OA_ERR_OUT_OF_RANGE;
       }
       return OA_ERR_NONE;
@@ -196,7 +197,7 @@ oaAltairCameraTestControl ( oaCamera* camera, int control,
     case OA_CAM_CTRL_BLUE_BALANCE:
     case OA_CAM_CTRL_GREEN_BALANCE:
       val_s32 = valp->int32;
-      if ( val_s32 < TOUPCAM_WBGAIN_MIN || val_s32 > TOUPCAM_WBGAIN_MAX ) {
+      if ( val_s32 < ALTAIRCAM_WBGAIN_MIN || val_s32 > ALTAIRCAM_WBGAIN_MAX ) {
         return -OA_ERR_OUT_OF_RANGE;
       }
       return OA_ERR_NONE;
