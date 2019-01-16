@@ -29,6 +29,7 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/ext/libASICamera/include \
   -I$(top_srcdir)/ext/libtoupcam/include \
   $(LIBUSB_CFLAGS) $(LIBUVC_CFLAGS) \
+  $(LIBALTAIRCAM_CFLAGS) $(LIBTOUPCAM_CFLAGS) \
   -I./euvc -I./iidc -I./pwc -I./qhy -I./sx -I./altair -I./atik -I./mallincam \
   -I./flycap2 -I./spinnaker -I./toupcam -I./uvc -I./v4l2 -I./zwo \
   $(DYNLIB_EXTN_CFLAGS)
