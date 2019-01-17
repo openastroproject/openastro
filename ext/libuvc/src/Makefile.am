@@ -1,6 +1,6 @@
 AM_CPPFLAGS = \
   -I$(top_srcdir)/include \
-  $(LIBUSB_CFLAGS) \
+  $(LIBUSB_CFLAGS_SUBDIR) \
   $(LIBUVC_CFLAGS)
 
 lib_LTLIBRARIES = libuvc.la

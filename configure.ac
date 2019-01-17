@@ -389,6 +389,7 @@ then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     LIBUSB_CFLAGS="$flags"
+    LIBUSB_CFLAGS_SUBDIR="$flags"
     LIBUSB_LDFLAGS="`$PKG_CONFIG --libs-only-L libusb-1.0`"
     LIBUSB_LIBS="`$PKG_CONFIG --libs-only-l libusb-1.0`"
     use_system_libusb=yes
@@ -831,9 +832,17 @@ AC_SUBST(FFMPEG_SUBDIRS)
 if test "$use_system_libusb" == "no" -o "$build_libusb" == "yes"
 then
 
-  LIBUSB_CFLAGS="-I \$(top_srcdir)/ext/libusb/libusb"
+  LIBUSB_CFLAGS="-I \$(top_srcdir)/ext/libusb"
+  LIBUSB_CFLAGS_SUBDIR="-I \$(top_srcdir)/ext/libusb/libusb"
   LIBUSB_LDFLAGS=""
   LIBUSB_LIBS="\$(top_builddir)/ext/libusb/libusb/libusb-1.0.la"
+
+  # Should be done with AS_LN_S in all probability, but I can't find
+  # any documentation
+  if ! test -e "$ac_top_build_prefix"ext/libusb/libusb-1.0
+  then
+    ln -s ./libusb "$ac_top_build_prefix"ext/libusb/libusb-1.0
+  fi
 
   AC_ARG_WITH(libusb-extra-configure, 
     AC_HELP_STRING([--with-libusb-extra-configure="xxx"],
@@ -878,6 +887,7 @@ then
 fi
 
 AC_SUBST(LIBUSB_CFLAGS)
+AC_SUBST(LIBUSB_CFLAGS_SUBDIR)
 AC_SUBST(LIBUSB_LDFLAGS)
 AC_SUBST(LIBUSB_LIBS)
 
@@ -948,11 +958,15 @@ then
   LIBDC1394_CFLAGS="-I \$(top_srcdir)/ext/libdc1394"
   LIBDC1394_LIBS="\$(top_builddir)/ext/libdc1394/dc1394/libdc1394.la"
 
-  if test "$use_system_libusb" == "no"; then
-    export LIBUSB_CFLAGS="-I "`pwd`"/ext/libusb/libusb"
-    export LIBUSB_LDFLAGS=""
-    export LIBUSB_LIBS=`pwd`"/ext/libusb/libusb/libusb-1.0.la"
-  fi
+# save_LIBUSB_CFLAGS="$LIBUSB_CFLAGS"
+# save_LIBUSB_LDFLAGS="$LIBUSB_LDFLAGS"
+# save_LIBUSB_LIBS="$LIBUSB_LIBS"
+
+# if test "$use_system_libusb" == "no"; then
+#   export LIBUSB_CFLAGS="-I "`pwd`"/ext/libusb/libusb"
+#   export LIBUSB_LDFLAGS=""
+#   export LIBUSB_LIBS=`pwd`"/ext/libusb/libusb/libusb-1.0.la"
+# fi
 
   AC_ARG_WITH(libdc1394-extra-configure,
     AC_HELP_STRING([--with-libdc1394-extra-configure="xxx"],
@@ -988,7 +1002,10 @@ then
      fi
 
      AS_MKDIR_P(["$ac_top_build_prefix"ext/libdc1394])
-    cd "$ac_top_build_prefix"ext/libdc1394 &&
+     export LIBUSB_CFLAGS="-I $origdir/ext/libusb/libusb"
+     export LIBUSB_LDFLAGS=""
+     export LIBUSB_LIBS="$origdir/ext/libusb/libusb/libusb-1.0.la"
+     cd "$ac_top_build_prefix"ext/libdc1394 &&
          $confcmd $emblibdc1394_configure_args ||
          AC_MSG_ERROR([Failed to configure embedded libdc1394 tree])
      cd "$origdir"
@@ -996,6 +1013,9 @@ then
     [emblibdc1394_configure_args="$emblibdc1394_configure_args"])
   AC_DEFINE([HAVE_LIBDC1394],[1],[Using included libdc1394 library])
 
+# LIBUSB_CFLAGS="$save_LIBUSB_CFLAGS"
+# LIBUSB_LDFLAGS="$save_LIBUSB_LDFLAGS"
+# LIBUSB_LIBS="$save_LIBUSB_LIBS"
 fi
 
 AC_SUBST(LIBDC1394_CFLAGS)
