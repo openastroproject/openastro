@@ -2,7 +2,7 @@
  *
  * Touptekconnect.c -- Initialise Touptek cameras
  *
- * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -55,7 +55,7 @@ oaTouptekInitCamera ( oaCameraDevice* device )
   oaCamera*			camera;
   TOUPTEK_STATE*		cameraInfo;
   COMMON_INFO*			commonInfo;
-  ToupcamInst			devList[ TOUPCAM_MAX ];
+  ToupcamInstV2			devList[ TOUPCAM_MAX ];
   unsigned int			numCameras, min, max, def;
   unsigned short		smin, smax, sdef;
   HToupCam			handle;
@@ -65,7 +65,7 @@ oaTouptekInitCamera ( oaCameraDevice* device )
   int				x, y;
   char				toupcamId[128]; // must be longer than 64
 
-  numCameras = ( p_Toupcam_Enum )( devList );
+  numCameras = ( p_Toupcam_EnumV2 )( devList );
   devInfo = device->_private;
   if ( numCameras < 1 || devInfo->devIndex > numCameras ) {
     return 0;

@@ -41,18 +41,18 @@
 // Pointers to libaltaircam functions so we can use them via libdl.
 
 const char*	( *p_Altaircam_Version )();
-unsigned	( *p_Altaircam_Enum )( AltaircamInst* );
+unsigned	( *p_Altaircam_EnumV2 )( AltaircamInstV2* );
 HAltairCam	( *p_Altaircam_Open )( const char* );
 HAltairCam	( *p_Altaircam_OpenByIndex )( unsigned );
 void		( *p_Altaircam_Close )( HAltairCam );
 HRESULT		( *p_Altaircam_StartPullModeWithCallback )( HAltairCam,
 		    PALTAIRCAM_EVENT_CALLBACK, void* );
-HRESULT		( *p_Altaircam_PullImage )( HAltairCam, void*, int, unsigned*,
-		    unsigned* );
-HRESULT		( *p_Altaircam_PullStillImage )( HAltairCam, void*, int,
-		    unsigned*, unsigned* );
-HRESULT		( *p_Altaircam_StartPushMode )( HAltairCam,
-		    PALTAIRCAM_DATA_CALLBACK, void* );
+HRESULT		( *p_Altaircam_PullImageV2 )( HAltairCam, void*, int,
+		    AltaircamFrameInfoV2* );
+HRESULT		( *p_Altaircam_PullStillImageV2 )( HAltairCam, void*, int,
+		    AltaircamFrameInfoV2* );
+HRESULT		( *p_Altaircam_StartPushModeV2 )( HAltairCam,
+		    PALTAIRCAM_DATA_CALLBACK_V2, void* );
 HRESULT		( *p_Altaircam_Stop )( HAltairCam );
 HRESULT		( *p_Altaircam_Pause )( HAltairCam, int );
 HRESULT		( *p_Altaircam_Snap )( HAltairCam, unsigned );
@@ -160,7 +160,7 @@ HRESULT		( *p_Altaircam_ST4PlusGuide )( HAltairCam, unsigned, unsigned );
 HRESULT		( *p_Altaircam_ST4PlusGuideState )( HAltairCam );
 double		( *p_Altaircam_calc_ClarityFactor )( const void*, int,
 		    unsigned, unsigned );
-void		( *p_Altaircam_deBayer )( unsigned, int, int, const void*,
+void		( *p_Altaircam_deBayerV2 )( unsigned, int, int, const void*,
 		    void*, unsigned char );
 void		( *p_Altaircam_HotPlug )( PALTAIRCAM_HOTPLUG, void* );
 
@@ -214,7 +214,7 @@ static void*		_getDLSym ( void*, const char* );
 int
 oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
 {
-  AltaircamInst		devList[ ALTAIRCAM_MAX ];
+  AltaircamInstV2		devList[ ALTAIRCAM_MAX ];
   unsigned int		numCameras;
   unsigned int		i;
   oaCameraDevice*       dev;
@@ -268,13 +268,13 @@ oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
     return 0;
   }
 
-  if (!( *( void** )( &p_Altaircam_deBayer ) = _getDLSym ( libHandle,
-      "Altaircam_deBayer" ))) {
+  if (!( *( void** )( &p_Altaircam_deBayerV2 ) = _getDLSym ( libHandle,
+      "Altaircam_deBayerV2" ))) {
     return 0;
   }
 
-  if (!( *( void** )( &p_Altaircam_Enum ) = _getDLSym ( libHandle,
-      "Altaircam_Enum" ))) {
+  if (!( *( void** )( &p_Altaircam_EnumV2 ) = _getDLSym ( libHandle,
+      "Altaircam_EnumV2" ))) {
     return 0;
   }
 
@@ -566,13 +566,13 @@ oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
     return 0;
   }
 
-  if (!( *( void** )( &p_Altaircam_PullImage ) = _getDLSym ( libHandle,
-      "Altaircam_PullImage" ))) {
+  if (!( *( void** )( &p_Altaircam_PullImageV2 ) = _getDLSym ( libHandle,
+      "Altaircam_PullImageV2" ))) {
     return 0;
   }
 
-  if (!( *( void** )( &p_Altaircam_PullStillImage ) = _getDLSym ( libHandle,
-      "Altaircam_PullStillImage" ))) {
+  if (!( *( void** )( &p_Altaircam_PullStillImageV2 ) = _getDLSym ( libHandle,
+      "Altaircam_PullStillImageV2" ))) {
     return 0;
   }
 
@@ -787,8 +787,8 @@ oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
     return 0;
   }
 
-  if (!( *( void** )( &p_Altaircam_StartPushMode ) = _getDLSym ( libHandle,
-      "Altaircam_StartPushMode" ))) {
+  if (!( *( void** )( &p_Altaircam_StartPushModeV2 ) = _getDLSym ( libHandle,
+      "Altaircam_StartPushModeV2" ))) {
     return 0;
   }
 
@@ -819,7 +819,7 @@ oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
   }
    */
 
-  numCameras = ( p_Altaircam_Enum )( devList );
+  numCameras = ( p_Altaircam_EnumV2 )( devList );
   if ( numCameras < 1 ) {
     return 0;
   }

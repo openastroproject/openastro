@@ -2,7 +2,7 @@
  *
  * Touptekoacam.h -- header for Touptek camera API
  *
- * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -84,18 +84,18 @@ extern const char*      oaTouptekCameraGetMenuString ( oaCamera*, int, int );
 
 
 extern const char*	( *p_Toupcam_Version )();
-extern unsigned		( *p_Toupcam_Enum )( ToupcamInst* );
+extern unsigned		( *p_Toupcam_EnumV2 )( ToupcamInstV2* );
 extern HToupCam		( *p_Toupcam_Open )( const char* );
 extern HToupCam		( *p_Toupcam_OpenByIndex )( unsigned );
 void			( *p_Toupcam_Close )( HToupCam );
 extern HRESULT		( *p_Toupcam_StartPullModeWithCallback )( HToupCam,
 			    PTOUPCAM_EVENT_CALLBACK, void* );
-extern HRESULT		( *p_Toupcam_PullImage )( HToupCam, void*, int,
-			    unsigned*, unsigned* );
-extern HRESULT		( *p_Toupcam_PullStillImage )( HToupCam, void*, int,
-			    unsigned*, unsigned* );
-extern HRESULT		( *p_Toupcam_StartPushMode )( HToupCam,
-			    PTOUPCAM_DATA_CALLBACK, void* );
+extern HRESULT		( *p_Toupcam_PullImageV2 )( HToupCam, void*, int,
+			    ToupcamFrameInfoV2* );
+extern HRESULT		( *p_Toupcam_PullStillImageV2 )( HToupCam, void*, int,
+			    ToupcamFrameInfoV2* );
+extern HRESULT		( *p_Toupcam_StartPushModeV2 )( HToupCam,
+			    PTOUPCAM_DATA_CALLBACK_V2, void* );
 extern HRESULT		( *p_Toupcam_Stop )( HToupCam );
 extern HRESULT		( *p_Toupcam_Pause )( HToupCam, int );
 extern HRESULT		( *p_Toupcam_Snap )( HToupCam, unsigned );
@@ -210,7 +210,7 @@ extern HRESULT		( *p_Toupcam_ST4PlusGuide )( HToupCam, unsigned,
 extern HRESULT		( *p_Toupcam_ST4PlusGuideState )( HToupCam );
 extern double		( *p_Toupcam_calc_ClarityFactor )( const void*, int,
 			    unsigned, unsigned );
-extern void		( *p_Toupcam_deBayer )( unsigned, int, int,
+extern void		( *p_Toupcam_deBayerV2 )( unsigned, int, int,
 			    const void*, void*, unsigned char );
 extern void		( *p_Toupcam_HotPlug )( PTOUPCAM_HOTPLUG, void* );
 

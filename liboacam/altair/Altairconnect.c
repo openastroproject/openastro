@@ -55,7 +55,7 @@ oaAltairInitCamera ( oaCameraDevice* device )
   oaCamera*			camera;
   ALTAIRCAM_STATE*		cameraInfo;
   COMMON_INFO*			commonInfo;
-  AltaircamInst			devList[ ALTAIRCAM_MAX ];
+  AltaircamInstV2			devList[ ALTAIRCAM_MAX ];
   unsigned int			numCameras, min, max, def;
   unsigned short		smin, smax, sdef;
   HAltairCam			handle;
@@ -65,7 +65,7 @@ oaAltairInitCamera ( oaCameraDevice* device )
   int				x, y;
   char				toupcamId[128]; // must be longer than 64
 
-  numCameras = ( p_Altaircam_Enum )( devList );
+  numCameras = ( p_Altaircam_EnumV2 )( devList );
   devInfo = device->_private;
   if ( numCameras < 1 || devInfo->devIndex > numCameras ) {
     return 0;

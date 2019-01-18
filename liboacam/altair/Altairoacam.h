@@ -84,18 +84,18 @@ extern const char*      oaAltairCameraGetMenuString ( oaCamera*, int, int );
 
 
 extern const char*	( *p_Altaircam_Version )();
-extern unsigned		( *p_Altaircam_Enum )( AltaircamInst* );
+extern unsigned		( *p_Altaircam_EnumV2 )( AltaircamInstV2* );
 extern HAltairCam		( *p_Altaircam_Open )( const char* );
 extern HAltairCam		( *p_Altaircam_OpenByIndex )( unsigned );
 void			( *p_Altaircam_Close )( HAltairCam );
 extern HRESULT		( *p_Altaircam_StartPullModeWithCallback )( HAltairCam,
 			    PALTAIRCAM_EVENT_CALLBACK, void* );
-extern HRESULT		( *p_Altaircam_PullImage )( HAltairCam, void*, int,
-			    unsigned*, unsigned* );
-extern HRESULT		( *p_Altaircam_PullStillImage )( HAltairCam, void*, int,
-			    unsigned*, unsigned* );
-extern HRESULT		( *p_Altaircam_StartPushMode )( HAltairCam,
-			    PALTAIRCAM_DATA_CALLBACK, void* );
+extern HRESULT		( *p_Altaircam_PullImageV2 )( HAltairCam, void*, int,
+			    AltaircamFrameInfoV2* );
+extern HRESULT		( *p_Altaircam_PullStillImageV2 )( HAltairCam, void*, int,
+			    AltaircamFrameInfoV2* );
+extern HRESULT		( *p_Altaircam_StartPushModeV2 )( HAltairCam,
+			    PALTAIRCAM_DATA_CALLBACK_V2, void* );
 extern HRESULT		( *p_Altaircam_Stop )( HAltairCam );
 extern HRESULT		( *p_Altaircam_Pause )( HAltairCam, int );
 extern HRESULT		( *p_Altaircam_Snap )( HAltairCam, unsigned );
@@ -210,7 +210,7 @@ extern HRESULT		( *p_Altaircam_ST4PlusGuide )( HAltairCam, unsigned,
 extern HRESULT		( *p_Altaircam_ST4PlusGuideState )( HAltairCam );
 extern double		( *p_Altaircam_calc_ClarityFactor )( const void*, int,
 			    unsigned, unsigned );
-extern void		( *p_Altaircam_deBayer )( unsigned, int, int,
+extern void		( *p_Altaircam_deBayerV2 )( unsigned, int, int,
 			    const void*, void*, unsigned char );
 extern void		( *p_Altaircam_HotPlug )( PALTAIRCAM_HOTPLUG, void* );
 

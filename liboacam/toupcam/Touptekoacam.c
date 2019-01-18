@@ -41,17 +41,17 @@
 // Pointers to libtoupcam functions so we can use them via libdl.
 
 const char*	( *p_Toupcam_Version )();
-unsigned	( *p_Toupcam_Enum )( ToupcamInst* );
+unsigned	( *p_Toupcam_EnumV2 )( ToupcamInstV2* );
 HToupCam	( *p_Toupcam_Open )( const char* );
 HToupCam	( *p_Toupcam_OpenByIndex )( unsigned );
 void		( *p_Toupcam_Close )( HToupCam );
 HRESULT		( *p_Toupcam_StartPullModeWithCallback )( HToupCam,
 		    PTOUPCAM_EVENT_CALLBACK, void* );
-HRESULT		( *p_Toupcam_PullImage )( HToupCam, void*, int, unsigned*,
-		    unsigned* );
-HRESULT		( *p_Toupcam_PullStillImage )( HToupCam, void*, int, unsigned*,
-		    unsigned* );
-HRESULT		( *p_Toupcam_StartPushMode )( HToupCam, PTOUPCAM_DATA_CALLBACK,
+HRESULT		( *p_Toupcam_PullImageV2 )( HToupCam, void*, int,
+		    ToupcamFrameInfoV2* );
+HRESULT		( *p_Toupcam_PullStillImageV2 )( HToupCam, void*, int,
+		    ToupcamFrameInfoV2* );
+HRESULT		( *p_Toupcam_StartPushModeV2 )( HToupCam, PTOUPCAM_DATA_CALLBACK_V2,
 		    void* );
 HRESULT		( *p_Toupcam_Stop )( HToupCam );
 HRESULT		( *p_Toupcam_Pause )( HToupCam, int );
@@ -157,7 +157,7 @@ HRESULT		( *p_Toupcam_ST4PlusGuide )( HToupCam, unsigned, unsigned );
 HRESULT		( *p_Toupcam_ST4PlusGuideState )( HToupCam );
 double		( *p_Toupcam_calc_ClarityFactor )( const void*, int, unsigned,
 		    unsigned );
-void		( *p_Toupcam_deBayer )( unsigned, int, int, const void*, void*,
+void		( *p_Toupcam_deBayerV2 )( unsigned, int, int, const void*, void*,
 		    unsigned char );
 void		( *p_Toupcam_HotPlug )( PTOUPCAM_HOTPLUG, void* );
 
@@ -188,7 +188,7 @@ static void*		_getDLSym ( void*, const char* );
 int
 oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
 {
-  ToupcamInst		devList[ TOUPCAM_MAX ];
+  ToupcamInstV2		devList[ TOUPCAM_MAX ];
   unsigned int		numCameras;
   unsigned int		i;
   oaCameraDevice*       dev;
@@ -234,13 +234,13 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
     return 0;
   }
 
-  if (!( *( void** )( &p_Toupcam_deBayer ) = _getDLSym ( libHandle,
-      "Toupcam_deBayer" ))) {
+  if (!( *( void** )( &p_Toupcam_deBayerV2 ) = _getDLSym ( libHandle,
+      "Toupcam_deBayerV2" ))) {
     return 0;
   }
 
-  if (!( *( void** )( &p_Toupcam_Enum ) = _getDLSym ( libHandle,
-      "Toupcam_Enum" ))) {
+  if (!( *( void** )( &p_Toupcam_EnumV2 ) = _getDLSym ( libHandle,
+      "Toupcam_EnumV2" ))) {
     return 0;
   }
 
@@ -532,13 +532,13 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
     return 0;
   }
 
-  if (!( *( void** )( &p_Toupcam_PullImage ) = _getDLSym ( libHandle,
-      "Toupcam_PullImage" ))) {
+  if (!( *( void** )( &p_Toupcam_PullImageV2 ) = _getDLSym ( libHandle,
+      "Toupcam_PullImageV2" ))) {
     return 0;
   }
 
-  if (!( *( void** )( &p_Toupcam_PullStillImage ) = _getDLSym ( libHandle,
-      "Toupcam_PullStillImage" ))) {
+  if (!( *( void** )( &p_Toupcam_PullStillImageV2 ) = _getDLSym ( libHandle,
+      "Toupcam_PullStillImageV2" ))) {
     return 0;
   }
 
@@ -753,8 +753,8 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
     return 0;
   }
 
-  if (!( *( void** )( &p_Toupcam_StartPushMode ) = _getDLSym ( libHandle,
-      "Toupcam_StartPushMode" ))) {
+  if (!( *( void** )( &p_Toupcam_StartPushModeV2 ) = _getDLSym ( libHandle,
+      "Toupcam_StartPushModeV2" ))) {
     return 0;
   }
 
@@ -785,7 +785,7 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
   }
    */
 
-  numCameras = ( p_Toupcam_Enum )( devList );
+  numCameras = ( p_Toupcam_EnumV2 )( devList );
   if ( numCameras < 1 ) {
     return 0;
   }

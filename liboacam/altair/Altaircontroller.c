@@ -125,8 +125,8 @@ oacamAltaircontroller ( void* param )
 
 
 void
-_AltairFrameCallback ( const void *frame, const BITMAPINFOHEADER*
-    bitmapHeader, int bSnap, void *ptr )
+_AltairFrameCallback ( const void *frame, const AltaircamFrameInfoV2*
+    frameInfo, int bSnap, void *ptr )
 {
   ALTAIRCAM_STATE*	cameraInfo = ptr;
   int			buffersFree, nextBuffer, shiftBits, bitsPerPixel;
@@ -137,11 +137,8 @@ _AltairFrameCallback ( const void *frame, const BITMAPINFOHEADER*
   bitsPerPixel = cameraInfo->currentBitsPerPixel;
   pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
 
-  if ( frame && buffersFree && bitmapHeader->biSizeImage ) {
-    if (( dataLength = bitmapHeader->biSizeImage ) >
-        cameraInfo->imageBufferLength ) {
-      dataLength = cameraInfo->imageBufferLength;
-    }
+  if ( frame && buffersFree ) {
+    dataLength = cameraInfo->imageBufferLength;
     nextBuffer = cameraInfo->nextBuffer;
 
     // Now here's the fun...
@@ -815,9 +812,9 @@ _doStart ( ALTAIRCAM_STATE* cameraInfo )
 {
   int			ret;
 
-  if (( ret = ( p_Altaircam_StartPushMode )( cameraInfo->handle,
+  if (( ret = ( p_Altaircam_StartPushModeV2 )( cameraInfo->handle,
       _AltairFrameCallback, cameraInfo )) < 0 ) {
-    fprintf ( stderr, "%s: Altaircam_StartPushMode failed: 0x%x\n",
+    fprintf ( stderr, "%s: Altaircam_StartPushModeV2 failed: 0x%x\n",
         __FUNCTION__, ret );
     return -OA_ERR_CAMERA_IO;
   }
