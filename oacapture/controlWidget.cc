@@ -2,7 +2,7 @@
  *
  * controlWidget.cc -- class for the control widget in the UI
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -313,7 +313,7 @@ void
 ControlWidget::configure ( void )
 {
   int64_t	min, max, step, def;
-  int		minOption, maxOption, prevOption, readableControls;
+  int		minOption, maxOption, readableControls;
 
 	// There's a side-effect here in that hasReadableControls() returns 0
 	// if the camera is not initialised, so we can test this and rely on not
@@ -450,6 +450,8 @@ ControlWidget::configure ( void )
         selectableControlSpinbox[ c ]->setSingleStep ( step );
         if ( readableControls ) {
 					cameraConf.CONTROL_VALUE( c ) = commonState.camera->readControl ( c );
+				} else {
+					cameraConf.CONTROL_VALUE( c ) = def;
 				}
         selectableControlSlider[ c ]->setValue (
 						cameraConf.CONTROL_VALUE( c ));
@@ -541,6 +543,9 @@ ControlWidget::configure ( void )
 					if ( readableControls ) {
 						cameraConf.CONTROL_VALUE( autoControl ) =
 								commonState.camera->readControl ( autoControl );
+					} else {
+						// Turn all the auto stuff off by default
+						cameraConf.CONTROL_VALUE( autoControl ) = 0;
 					}
 					value = cameraConf.CONTROL_VALUE( autoControl );
           selectableControlCheckbox[ config.selectableControl[i]]->
@@ -590,7 +595,11 @@ ControlWidget::configure ( void )
         cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_GAIN )) =
             commonState.camera->readControl ( OA_CAM_CTRL_MODE_AUTO (
 						OA_CAM_CTRL_GAIN ));
-      }
+      } else {
+				// Turn it off by default
+        cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_GAIN )) =
+						0;
+			}
       value = cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO (
 					OA_CAM_CTRL_GAIN ));
       selectableControlCheckbox[ OA_CAM_CTRL_GAIN ]->setChecked ( value );
@@ -622,7 +631,6 @@ ControlWidget::configure ( void )
 				&min, &max, &step, &def );
     usingAbsoluteExposure = 1;
 
-    prevOption = config.intervalMenuOption;
     int currIndex = 0, newIndex = 0;
     QStringList opts;
 
@@ -689,9 +697,10 @@ ControlWidget::configure ( void )
 		if ( readableControls ) {
 			cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
 				commonState.camera->readControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
+		} else {
+			cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = def;
 		}
     setting = cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
-    setting *= intervalMultipliers[ prevOption ];
 
     switch ( config.intervalMenuOption ) {
       case INTERVAL_USEC:
@@ -756,6 +765,8 @@ ControlWidget::configure ( void )
 			if ( readableControls ) {
 				cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) =
 						commonState.camera->readControl ( OA_CAM_CTRL_EXPOSURE_UNSCALED );
+			} else {
+				cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) = def;
 			}
       setting = cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED );
       if ( setting < min ) {
