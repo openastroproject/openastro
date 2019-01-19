@@ -2,7 +2,7 @@
  *
  * ZWASIcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -611,6 +611,13 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 
     case OA_CAM_CTRL_TEMP_SETPOINT:
       ASIGetControlValue ( cameraInfo->cameraId, ASI_ANTI_DEW_HEATER, &ctrlVal,
+					&boolVal );
+			val->valueType = OA_CTRL_TYPE_INT32;
+			val->int32 = ctrlVal;
+      break;
+
+    case OA_CAM_CTRL_TEMPERATURE:
+      ASIGetControlValue ( cameraInfo->cameraId, ASI_TEMPERATURE, &ctrlVal,
 					&boolVal );
 			val->valueType = OA_CTRL_TYPE_INT32;
 			val->int32 = ctrlVal;
