@@ -1033,6 +1033,7 @@ AC_CANONICAL_HOST
 OSX_FRAMEWORKS=""
 OSX_WARNINGS=""
 FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"\$(bindir)/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/lib/firmware/qhy\\\""
+SHLIBS_CFLAGS=""
 
 APP_PATH_CFLAGS=""
 DEFAULT_PATH_CFLAGS=""
@@ -1052,6 +1053,7 @@ case $host in
     AC_CONFIG_LINKS([$ext4/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/mac/libEFWFilter.a])
     OSX_FRAMEWORKS="-framework Carbon -framework VideoDecodeAcceleration -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
     FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
+		SHLIBS_CFLAGS="-DSHLIB_PATH=\\\"/MacOS/\\\""
     LIBHIDAPI_LIBS="\$(top_builddir)/ext/libhidapi/mac/libhidapi.la"
     APP_PATH_CFLAGS="-DUSE_APP_PATH=1"
     DEFAULT_PATH_CFLAGS="-DUSE_HOME_DEFAULT=1"
@@ -1173,6 +1175,7 @@ AC_SUBST(APP_PATH_CFLAGS)
 AC_SUBST(DEFAULT_PATH_CFLAGS)
 AC_SUBST(DYNLIB_EXTN_CFLAGS)
 AC_SUBST(MOC_CFLAGS)
+AC_SUBST(SHLIBS_CFLAGS)
 
 AM_CONDITIONAL([LIBASI2_COND], [test "x$LIBASI2_LIBS" != "x"])
 AM_CONDITIONAL([LIBZWOFW_COND], [test "x$LIBZWOFW_LIBS" != "x"])

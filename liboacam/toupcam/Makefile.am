@@ -1,7 +1,7 @@
 #
 # Makefile.am -- liboacam Toupcam Makefile template
 #
-# Copyright 2018 James Fidell (james@openastroproject.org)
+# Copyright 2018,2019 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -25,16 +25,14 @@
 AM_CPPFLAGS = \
   -I$(top_srcdir)/include \
   -I$(top_srcdir)/ext/libusb \
-  -I$(top_srcdir)/ext/libtoupcam/include \
   -I$(top_srcdir)/liboacam \
-  $(LIBUSB_CFLAGS) $(LIBTOUPCAM_CFLAGS) \
+  $(LIBUSB_CFLAGS) $(SHLIBS_CFLAGS) $(LIBTOUPCAM_CFLAGS) \
   $(DYNLIB_EXTN_CFLAGS)
 
 noinst_LTLIBRARIES = libtoupcam.la
 
-libtoupcam_la_SOURCES = TOUPCAMSRC = Touptekoacam.c Touptekconnect.c \
-  Touptekcallback.c Touptekcontrol.c Touptekcontroller.c TouptekgetState.c \
-  Touptekroi.c
+libtoupcam_la_SOURCES = Touptekoacam.c Touptekconnect.c Touptekcallback.c \
+	Touptekcontrol.c Touptekcontroller.c TouptekgetState.c Touptekroi.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

@@ -221,32 +221,30 @@ oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
   DEVICE_INFO*		_private;
   int                   ret;
   static void*		libHandle = 0;
-
-  // On MacOS we just try /Applications/AltairCapture.app/Contents/MacOS
+	char						libPath[ PATH_MAX+1 ];
 
 #if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
-  const char*		libName = "/Applications/AltairCapture.app/Contents/"
-                            "MacOS/libaltaircam.dylib";
+  const char*		libName = "libaltaircam.dylib";
 #else
   const char*		libName = "libaltaircam.so.1";
 #endif
 
   if ( !libHandle ) {
-    if (!( libHandle = dlopen ( libName, RTLD_LAZY ))) {
-      fprintf ( stderr, "can't load %s\n", libName );
+		if ( installPathRoot ) {
+			( void ) strncpy ( libPath, installPathRoot, PATH_MAX );
+		}
+#ifdef SHLIB_PATH
+		( void ) strncat ( libPath, SHLIB_PATH, PATH_MAX );
+#endif
+		( void ) strncat ( libPath, libName, PATH_MAX );
+
+    if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
+      fprintf ( stderr, "can't load %s\n", libPath );
       return 0;
     }
   }
 
   dlerror();
-
-  // At some point the Altair library changed.  All the old Toupcam_
-  // functions appear to be compiled using C++ now, and the entrypoints
-  // names changed to be "Altair_...".  Handling both possibilities leads
-  // to the less than desirable mess that we have here...
-
-  // First we look for the "Altaircam_" prefix.  If that isn't found then
-  // try the "Toupcam_" prefix.  And if that is also missing, give up
 
   if (!( *( void** )( &p_Altaircam_AwbInit ) = _getDLSym ( libHandle,
       "Altaircam_AwbInit" ))) {
