@@ -66,8 +66,8 @@ oaPTRcontroller ( void* param )
   int			resultCode, running = 0;
   fd_set		readable;
   struct timeval	timeout;
-  // use the longest version here
-  char			readBuffer[ PTR_TIMESTAMP_BUFFER_LEN_V2 + 1 ];
+  // use the longest version here, and pad it a bit
+  char			readBuffer[ PTR_TIMESTAMP_BUFFER_LEN_V2 + 16 ];
   char			numberBuffer[ 8 ];
   int			frameNumber, numRead, available, i;
   int			timestampLength, timestampOffset;
@@ -618,14 +618,15 @@ _readTimestamp ( uint32_t version, int fd, char* buffer )
 {
   int		readChars, maxlen, i;
 
+	// pad the buffer size a bit
   if ( version < 0x0101 ) {
-    maxlen = PTR_TIMESTAMP_BUFFER_LEN_V1_0;
+    maxlen = PTR_TIMESTAMP_BUFFER_LEN_V1_0 + 8;
   }
   else {
     if ( version < 0x0200 ) {
-      maxlen = PTR_TIMESTAMP_BUFFER_LEN_V1_1;
+      maxlen = PTR_TIMESTAMP_BUFFER_LEN_V1_1 + 8;
     } else {
-      maxlen = PTR_TIMESTAMP_BUFFER_LEN_V2;
+      maxlen = PTR_TIMESTAMP_BUFFER_LEN_V2 + 8;
     }
   }
   memset ( buffer, 0, maxlen + 1 );

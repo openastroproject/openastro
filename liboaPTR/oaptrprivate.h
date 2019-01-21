@@ -101,6 +101,6 @@ extern void		_oaFreePTRDeviceList ( PTR_LIST* );
 
 #define PTR_TIMESTAMP_BUFFER_LEN_V1_0 28
 #define PTR_TIMESTAMP_BUFFER_LEN_V1_1 32
-#define PTR_TIMESTAMP_BUFFER_LEN_V2   65
+#define PTR_TIMESTAMP_BUFFER_LEN_V2   64
 
 #endif /* OA_PTR_PRIVATE_H */
