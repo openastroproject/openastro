@@ -762,9 +762,8 @@ static int
 _processTimestampGPSData ( PRIVATE_INFO* deviceInfo, const char* buffer )
 {
 	const char		*p = buffer;
-
 	if ( !*p ) return 0;
-	if ( *p == '+' ) {
+  if ( *p == '+' || *p == ':' ) {
 		p++;
 	}
 	if ( !*p ) return 0;
@@ -772,29 +771,32 @@ _processTimestampGPSData ( PRIVATE_INFO* deviceInfo, const char* buffer )
 	if ( sscanf ( p, "%lf", &deviceInfo->latitude ) != 1 ) {
 		return 0;
 	}
-	while ( isdigit ( *p ) || *p == '.' || *p == ':' ) {
+	while ( isdigit ( *p ) || *p == '.' || *p == '-' ) {
 		p++;
 	}
   if ( !*p ) return 0;
-  if ( *p == '+' ) {
+  if ( *p == '+' || *p == ':' ) {
     p++;
   }
   if ( !*p ) return 0;
   if ( sscanf ( p, "%lf", &deviceInfo->longitude ) != 1 ) {
     return 0;
   }
-  while ( isdigit ( *p ) || *p == '.' || *p == ':' ) {
+  while ( isdigit ( *p ) || *p == '.' || *p == '-' ) {
     p++;
   }
   if ( !*p ) return 0;
-  if ( *p == '+' ) {
+  if ( *p == '+' || *p == ':' ) {
     p++;
   }
   if ( !*p ) return 0;
   if ( sscanf ( p, "%lf", &deviceInfo->altitude ) != 1 ) {
     return 0;
   }
-  while ( isdigit ( *p ) || *p == '.' || *p == ':' ) {
+  while ( isdigit ( *p ) || *p == '.' || *p == '-' || *p == '+' ) {
+    p++;
+  }
+  if ( *p == ':' ) {
     p++;
   }
   deviceInfo->validGPS = 1;
