@@ -108,6 +108,7 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, int flags )
   DEVICE_INFO*		_private;
   int                   numFound, ret;
 	char						buffer[61];
+	FILE*						fd;
 
 #if HAVE_LIBDL
   static void*		libHandle = 0;
@@ -446,6 +447,20 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, int flags )
 
   ( *p_fc2DestroyContext )( pgeContext );
   ( void ) free (( void* ) devList );
+
+	if (( fd = fopen ( "/proc/sys/net/core/rmem_default", "r" ))) {
+		unsigned long	val;
+		if ( fscanf ( fd, "%ld", &val ) == 1 ) {
+			if ( val <= 10485760 ) {
+				fprintf ( stderr, "**************\nIt may be necessary to raise "
+						"rmem_default and rmem_max to a larger value\n(for example, "
+						"10000000) for best performance with GigE cameras.\n"
+						"**************\n" );
+			}
+		}
+		fclose ( fd );
+	}
+
   return numFound;
 }
 
