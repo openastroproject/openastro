@@ -2,7 +2,8 @@
  *
  * EUVCcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -347,16 +348,37 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       break;
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
-      cameraInfo->autoExposure = val->boolean << 1;
-      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
-          USB_RECIP_INTERFACE, REQ_SET_CUR, EUVC_CT_AE_MODE_CONTROL << 8,
-          EUVC_CAM_TERMINAL << 8, ( unsigned char* ) &cameraInfo->autoExposure,
-          sizeof ( cameraInfo->autoExposure ), USB_CTRL_TIMEOUT ) !=
-          sizeof ( cameraInfo->autoExposure )) {
-        fprintf ( stderr, "set auto exposure failed\n" );
-        return -OA_ERR_SYSTEM_ERROR;
-      }
+		{
+			int		e = -1;
+			switch ( val->menu ) {
+				case OA_EXPOSURE_MANUAL:
+					e = 1;
+					break;
+				case OA_EXPOSURE_AUTO:
+					e = 2;
+					break;
+				case OA_EXPOSURE_SHUTTER_PRIORITY:
+					e = 4;
+					break;
+				case OA_EXPOSURE_APERTURE_PRIORITY:
+					e = 8;
+					break;
+			}
+			if ( e > 0 ) {
+				cameraInfo->autoExposure = e;
+				if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+						USB_RECIP_INTERFACE, REQ_SET_CUR, EUVC_CT_AE_MODE_CONTROL << 8,
+						EUVC_CAM_TERMINAL << 8, ( unsigned char* )
+						&cameraInfo->autoExposure, sizeof ( cameraInfo->autoExposure ),
+						USB_CTRL_TIMEOUT ) != sizeof ( cameraInfo->autoExposure )) {
+					fprintf ( stderr, "set auto exposure failed\n" );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+      } else {
+				return -OA_ERR_OUT_OF_RANGE;
+			}
       break;
+		}
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ):
       cameraInfo->autoWhiteBalance = val->boolean;
@@ -648,6 +670,35 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       val->int32 = val_u16;
       break;
     }
+
+    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
+		{
+      uint8_t	val_u8;
+
+      if ( euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT | USB_CTRL_TYPE_CLASS |
+          USB_RECIP_INTERFACE, REQ_GET_CUR, EUVC_CT_AE_MODE_CONTROL << 8,
+					cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u8, 1,
+					USB_CTRL_TIMEOUT ) != 1 ) {
+        fprintf ( stderr, "get auto exposure failed\n" );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+      val->valueType = OA_CTRL_TYPE_MENU;
+      switch ( val_u8 ) {
+				case 1:
+					val->menu = OA_EXPOSURE_MANUAL;
+          break;
+				case 2:
+					val->menu = OA_EXPOSURE_AUTO;
+          break;
+				case 4:
+					val->menu = OA_EXPOSURE_SHUTTER_PRIORITY;
+          break;
+				case 8:
+					val->menu = OA_EXPOSURE_APERTURE_PRIORITY;
+          break;
+      }
+      break;
+		}
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE_TEMP ):
     {

@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * SXcontrol.c -- control functions for SX cameras
+ * EUVCcontrol.c -- control functions for EUVC cameras
  *
- * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -152,8 +152,8 @@ oaEUVCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
       break;
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
-      if ( val->int32 != OA_EXPOSURE_AUTO && val->int32 !=
-          OA_EXPOSURE_MANUAL ) {
+      if ( val->menu < OA_EXPOSURE_AUTO && val->menu >
+          OA_EXPOSURE_APERTURE_PRIORITY ) {
         return -OA_ERR_OUT_OF_RANGE;
       }
       return OA_ERR_NONE;
