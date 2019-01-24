@@ -2,7 +2,8 @@
  *
  * IIDCcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -209,14 +210,12 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     uint32_t val_u32;
     if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
         OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
-      // FIX ME -- actually perhaps this should be DISCRETE
-      // This should be INT32, though actually non-negative
       if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
             __FUNCTION__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
-      val_u32 = val->int32;
+      val_u32 = val->boolean;
       if ( val_u32 != 0 && val_u32 != 1 ) {
         fprintf ( stderr, "%s: control value out of range\n", __FUNCTION__ );
         return -OA_ERR_OUT_OF_RANGE;
@@ -587,16 +586,8 @@ _processGetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
               __FUNCTION__, iidcControl );
           return -OA_ERR_CAMERA_IO;
         } else {
-          if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ) ==
-              control ) {
-            // FIX ME -- should this be DISCRETE?
-            val->valueType = OA_CTRL_TYPE_INT32;
-            val->int32 = ( mode == DC1394_FEATURE_MODE_AUTO ) ?
-                OA_EXPOSURE_AUTO : OA_EXPOSURE_MANUAL;
-          } else {
-            val->valueType = OA_CTRL_TYPE_BOOLEAN;
-            val->boolean = ( mode == DC1394_FEATURE_MODE_AUTO ) ? 1 : 0;
-          }
+          val->valueType = OA_CTRL_TYPE_BOOLEAN;
+          val->boolean = ( mode == DC1394_FEATURE_MODE_AUTO ) ? 1 : 0;
         }
       }
     }

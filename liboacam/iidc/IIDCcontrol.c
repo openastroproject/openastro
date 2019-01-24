@@ -2,7 +2,8 @@
  *
  * IIDCcontrol.c -- control functions for IIDC cameras
  *
- * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -151,6 +152,9 @@ oaIIDCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
       return OA_ERR_NONE;
       break;
 
+			/*
+			 * This is not yet supported
+			 *
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
       if ( val->int32 != OA_EXPOSURE_AUTO && val->int32 !=
           OA_EXPOSURE_MANUAL ) {
@@ -158,6 +162,7 @@ oaIIDCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
       }
       return OA_ERR_NONE;
       break;     
+			 */
 
     case OA_CAM_CTRL_BINNING:
       return -OA_ERR_INVALID_CONTROL;
