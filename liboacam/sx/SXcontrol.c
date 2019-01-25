@@ -2,7 +2,8 @@
  *
  * SXcontrol.c -- control functions for SX cameras
  *
- * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -150,14 +151,6 @@ oaSXCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
       // These just need to be boolean and we've already checked that
       return OA_ERR_NONE;
       break;
-
-    case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
-      if ( val->int32 != OA_EXPOSURE_AUTO && val->int32 !=
-          OA_EXPOSURE_MANUAL ) {
-        return -OA_ERR_OUT_OF_RANGE;
-      }
-      return OA_ERR_NONE;
-      break;     
 
     case OA_CAM_CTRL_BINNING:
       return -OA_ERR_INVALID_CONTROL;
