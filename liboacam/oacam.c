@@ -2,7 +2,7 @@
  *
  * oacam.c -- main camera library entrypoint
  *
- * Copyright 2013,2014,2015,2016,2018
+ * Copyright 2013,2014,2015,2016,2018,2019
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -43,42 +43,45 @@
 #include "oacamprivate.h"
 
 #if HAVE_LIBV4L2
-#include "V4L2oacam.h"
+#include "v4l2/V4L2oacam.h"
 #endif
 #if HAVE_LIBDC1394
-#include "IIDCoacam.h"
+#include "iidc/IIDCoacam.h"
 #endif
-#include "PWCoacam.h"
+#include "pwc/PWCoacam.h"
 #if HAVE_LIBASI2
-#include "ZWASI2oacam.h"
+#include "zwo/ZWASI2oacam.h"
 #endif
-#include "QHYoacam.h"
+#include "qhy/QHYoacam.h"
 #if HAVE_LIBUVC
-#include "UVCoacam.h"
+#include "uvc/UVCoacam.h"
 #endif
-#include "SX.h"
-#include "SXstate.h"
-#include "SXoacam.h"
-#include "EUVC.h"
-#include "EUVCstate.h"
-#include "EUVCoacam.h"
+#include "sx/SX.h"
+#include "sx/SXstate.h"
+#include "sx/SXoacam.h"
+#include "euvc/EUVC.h"
+#include "euvc/EUVCstate.h"
+#include "euvc/EUVCoacam.h"
 #if HAVE_LIBUDEV || HAVE_LIBFTDI
-#include "atikSerialoacam.h"
+#include "atik/atikSerialoacam.h"
 #endif
 #if HAVE_LIBFLYCAPTURE2
-#include "FC2oacam.h"
+#include "flycap2/FC2oacam.h"
 #endif
 #if HAVE_LIBTOUPCAM
-#include "Touptekoacam.h"
+#include "toupcam/Touptekoacam.h"
 #endif
 #if HAVE_LIBMALLINCAM
-#include "Mallincamoacam.h"
+#include "mallincam/Mallincamoacam.h"
 #endif
 #if HAVE_LIBALTAIRCAM
-#include "Altairoacam.h"
+#include "altair/Altairoacam.h"
+#endif
+#if HAVE_LIBALTAIRCAM_LEGACY
+#include "altair-legacy/Altairoacam.h"
 #endif
 #if HAVE_LIBSPINNAKER
-#include "Spinoacam.h"
+#include "spinnaker/Spinoacam.h"
 #endif
 
 
@@ -224,6 +227,18 @@ oaInterface	oaCameraInterfaces[] = {
     "Altair",
     "AACAM",
     oaAltairGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if HAVE_LIBALTAIRCAM_LEGACY
+  {
+    OA_CAM_IF_ALTAIRCAM_LEGACY,
+    "Legacy Altair",
+    "AALEG",
+    oaAltairLegacyGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },

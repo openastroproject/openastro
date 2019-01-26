@@ -45,6 +45,7 @@ checkSystemLibasicamera=0
 checkSystemLibefwfilter=0
 checkSystemLibtoupcam=0
 checkSystemLibaltaircam=0
+checkSystemLibaltaircamlegacy=0
 useisystemInclude=0
 build_libusb=no
 zwoSupportedArch=1
@@ -59,6 +60,7 @@ case $host in
     checkSystemLibefwfilter=1
     checkSystemLibtoupcam=1
     checkSystemLibaltaircam=1
+    checkSystemLibaltaircamlegacy=1
     ;;
   *-apple-*)
     useisystemInclude=1
@@ -128,6 +130,7 @@ have_dl=no
 have_toupcam=yes
 have_mallincam=yes
 have_altaircam=yes
+have_altaircamlegacy=yes
 have_libavformat=no
 have_libavutil=no
 have_libavcodec=no
@@ -687,6 +690,36 @@ then
   fi
 fi
 
+use_system_libaltaircamlegacy=no
+if test $checkSystemLibaltaircamlegacy -eq 1
+then
+  if `$PKG_CONFIG --exists libaltaircamlegacy`; then
+    AC_MSG_NOTICE([Using system libaltaircamlegacy library])
+    flags=`$PKG_CONFIG --cflags-only-I libaltaircamlegacy`
+    if test $useisystemInclude -eq 1; then
+      flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+    fi
+    LIBALTAIRCAM_LEGACY_CFLAGS="$flags"
+    # can't use shared libaltaircamlegacy if we're not using the system libusb
+    # because it will try to pull it in anyhow
+    if test "x$use_system_libusb" == "xyes"; then
+      LIBALTAIRCAM_LEGACY_LDFLAGS="`$PKG_CONFIG --libs-only-L libaltaircamlegacy`"
+      LIBALTAIRCAM_LEGACY_LIBS="`$PKG_CONFIG --libs-only-l libaltaircamlegacy`"
+    else
+      AC_MSG_WARN([libaltaircamlegacy not compatible with internal libusb.  No support for legacy Altair cameras.])
+    fi
+    use_system_libaltaircamlegacy=yes
+    AC_DEFINE([HAVE_LIBALTAIRCAM_LEGACY],[1],[Have libaltaircamlegacy])
+  else
+    AC_CHECK_LIB([altaircamlegacy],[Altaircam_Open],[
+      LIBS="-laltaircamlegacy $LIBS"
+      AC_DEFINE([HAVE_LIBALTAIRCAM_LEGACY],[1],[Have libaltaircamlegacy])
+    ],[
+      AC_MSG_WARN([libaltaircamlegacy not found.  Dynamic support for legacy Altair cameras.])
+    ])
+  fi
+fi
+
 AC_CHECK_LIB([m],[exp10],[
   AC_DEFINE([HAVE_EXP10],[1],[Have exp10 function in libm])
 ],[
@@ -1051,6 +1084,7 @@ case $host in
     AC_CONFIG_LINKS([$ext2/libtoupcam/libtoupcam.dylib:ext/libtoupcam/mac64/libtoupcam.dylib])
     AC_CONFIG_LINKS([$ext3/libaltaircam/libaltaircam.dylib:ext/libaltaircam/mac64/libaltaircam.dylib])
     AC_CONFIG_LINKS([$ext4/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/mac/libEFWFilter.a])
+    AC_CONFIG_LINKS([$ext5/libaltaircamlegacy/libaltaircamlegacy.dylib:ext/libaltaircamlegacy/mac64/libaltaircamlegacy.dylib])
     OSX_FRAMEWORKS="-framework Carbon -framework VideoDecodeAcceleration -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
     FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
 		SHLIBS_CFLAGS="-DSHLIB_PATH=\\\"/MacOS/\\\""
@@ -1154,6 +1188,16 @@ then
 	fi
 fi
 
+if test "x$use_system_libaltaircamlegacy" == "xno"
+then
+	if test "x$have_altaircamlegacy" != "xno"
+	then
+		LIBALTAIRCAM_LEGACY_CFLAGS="-I \$(top_srcdir)/ext/libaltaircamlegacy/include"
+		LIBALTAIRCAM_LEGACY_LIBS=""
+		AC_DEFINE([HAVE_LIBALTAIRCAM_LEGACY],[1],[Have legacy Altair camera library support])
+	fi
+fi
+
 AC_DEFINE([HAVE_LIBMALLINCAM],[1],[Have Mallincam library support])
 
 AC_SUBST(OSX_FRAMEWORKS)
@@ -1168,6 +1212,8 @@ AC_SUBST(LIBTOUPCAM_CFLAGS)
 AC_SUBST(LIBTOUPCAM_LIBS)
 AC_SUBST(LIBALTAIRCAM_CFLAGS)
 AC_SUBST(LIBALTAIRCAM_LIBS)
+AC_SUBST(LIBALTAIRCAM_LEGACY_CFLAGS)
+AC_SUBST(LIBALTAIRCAM_LEGACY_LIBS)
 AC_SUBST(LIBZWOFW_LIBS)
 AC_SUBST(LIBFTDI_CFLAGS)
 AC_SUBST(LIBFTDI_LIBS)
@@ -1190,11 +1236,12 @@ AM_CONDITIONAL([LIBDL_COND], [test "x$have_dl" == "xyes"])
 AM_CONDITIONAL([LIBTOUPCAM_COND], [test "x$have_toupcam" == "xyes"])
 AM_CONDITIONAL([LIBMALLINCAM_COND], [test "x$have_mallincam" == "xyes"])
 AM_CONDITIONAL([LIBALTAIRCAM_COND], [test "x$have_altaircam" == "xyes"])
+AM_CONDITIONAL([LIBALTAIRCAM_LEGACY_COND], [test "x$have_altaircamlegacy" == "xyes"])
 AM_CONDITIONAL([LIBFFMPEG_COND], [test "x$use_system_ffmpeg" == "xno"])
 AM_CONDITIONAL([LIBUSB_COND], [test "x$use_system_libusb" == "xno"])
 AM_CONDITIONAL([BUILD_LIBUSB_COND], [test "x$build_libusb" == "xyes"])
 AM_CONDITIONAL([LIBHIDAPI_COND], [test "x$use_system_libhidapi" == "xno"])
 AM_CONDITIONAL([INT_LIBUVC_COND], [test "x$internal_uvc" == "xyes"])
 
-AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/qhy/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
+AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/altair-legacy/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/qhy/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
 AC_OUTPUT
