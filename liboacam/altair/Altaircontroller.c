@@ -292,7 +292,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       }
       if ((( p_Altaircam_put_AutoExpoEnable )( cameraInfo->handle,
 						valp->boolean )) < 0) {
-        fprintf ( stderr, "Altaircam_put_AutoExpoEnable ( %d ) failed\n", val );
+        fprintf ( stderr, "Altaircam_put_AutoExpoEnable ( %d ) failed\n",
+						valp->boolean );
         return -OA_ERR_CAMERA_IO;
       }
       return OA_ERR_NONE;
