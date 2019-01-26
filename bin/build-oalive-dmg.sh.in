@@ -57,6 +57,15 @@ cp lib/firmware/qhy/SLAVEFIFO.HEX \
 
 /opt/local/bin/macdeployqt $APPDIR
 
+for lib in toupcam mallincam altaircam altaircamlegacy
+do
+  libfile=ext/lib$lib/mac64/lib$lib.dylib
+  if [ -f $libfile ]
+  then
+    cp $libfile $APPDIR/Contents/MacOS
+  fi
+done
+
 # These are for compatibility with older releases of OSX
 
 install_name_tool -change /System/Library/Frameworks/CoreText.framework/Versions/A/CoreText  /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreText.framework/Versions/A/CoreText $APPDIR/Contents/Frameworks/QtGui.framework/Versions/4/QtGui

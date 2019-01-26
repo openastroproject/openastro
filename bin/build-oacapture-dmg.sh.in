@@ -61,7 +61,7 @@ cp oacapture/translations/*.qm $APPDIR/Contents/Resources/translations
 
 /opt/local/bin/macdeployqt $APPDIR
 
-for lib in toupcam mallincam altaircam
+for lib in toupcam mallincam altaircam altaircamlegacy
 do
   libfile=ext/lib$lib/mac64/lib$lib.dylib
   if [ -f $libfile ]
