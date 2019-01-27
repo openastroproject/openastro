@@ -203,6 +203,7 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
   const char*   libName = "libtoupcam.so.1";
 #endif
 
+  *libPath = 0;
   if ( !libHandle ) {
 		if ( installPathRoot ) {
 			( void ) strncpy ( libPath, installPathRoot, PATH_MAX );
