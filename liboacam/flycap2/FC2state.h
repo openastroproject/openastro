@@ -2,7 +2,7 @@
  *
  * FC2state.h -- Point Grey Gig-E camera state header
  *
- * Copyright 2015,2016,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -109,40 +109,6 @@ typedef struct FC2_STATE {
   // streaming
   int			isStreaming;
   CALLBACK		streamingCallback;
-
-  // pointers to shared library functions so we can use them if they are
-  // present
-
-  void*                 p_fc2Connect;
-  void*                 p_fc2CreateGigEContext;
-  void*                 p_fc2DestroyContext;
-  void*                 p_fc2DiscoverGigECameras;
-  void*                 p_fc2GetCameraFromIndex;
-  void*                 p_fc2GetCameraInfo;
-  void*                 p_fc2GetGigEImageBinningSettings;
-  void*                 p_fc2GetGigEImageSettings;
-  void*                 p_fc2GetGigEImageSettingsInfo;
-  void*                 p_fc2GetInterfaceTypeFromGuid;
-  void*                 p_fc2GetNumOfCameras;
-  void*                 p_fc2GetProperty;
-  void*                 p_fc2GetPropertyInfo;
-  void*                 p_fc2GetStrobe;
-  void*                 p_fc2GetStrobeInfo;
-  void*                 p_fc2GetTriggerDelay;
-  void*                 p_fc2GetTriggerDelayInfo;
-  void*                 p_fc2GetTriggerMode;
-  void*                 p_fc2GetTriggerModeInfo;
-  void*                 p_fc2QueryGigEImagingMode;
-  void*                 p_fc2ReadRegister;
-  void*                 p_fc2SetGigEImageBinningSettings;
-  void*                 p_fc2SetGigEImageSettings;
-  void*                 p_fc2SetGigEImagingMode;
-  void*                 p_fc2SetProperty;
-  void*                 p_fc2SetStrobe;
-  void*                 p_fc2SetTriggerDelay;
-  void*                 p_fc2SetTriggerMode;
-  void*                 p_fc2StartCaptureCallback;
-  void*                 p_fc2StopCapture;
 
 } FC2_STATE;
 
