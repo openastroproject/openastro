@@ -206,7 +206,6 @@ void		( *pl_Altaircam_HotPlug )( PTOUPCAM_HOTPLUG, void* );
 
 
 static void*		_getDLSym ( void*, const char*, int );
-static void		_patchLibrary ( void* );
 
 #define ALTAIR_PREFIX	1
 #define TOUPCAM_PREFIX	2
@@ -223,7 +222,7 @@ oaAltairLegacyGetCameras ( CAMERA_LIST* deviceList, int flags )
   unsigned int		i;
   oaCameraDevice*       dev;
   DEVICE_INFO*		_private;
-  int                   ret, oalib, prefix;
+  int             ret, prefix;
   static void*		libHandle = 0;
 	char						libPath[ PATH_MAX+1 ];
 
@@ -835,18 +834,7 @@ oaAltairLegacyGetCameras ( CAMERA_LIST* deviceList, int flags )
   }
    */
 
-  oalib = !strcmp ( "1.8.7036.20160321", pl_Altaircam_Version());
-
-  if ( oalib ) {
-    // Now comes the really ugly bit.  Patch the data section of the loaded
-    // Altair library to match the new USB product IDs.  Actually, this
-    // probably even gives "ugly" a bad name.
-
-    _patchLibrary ( pl_Altaircam_Enum );
-  }
-
   numCameras = ( pl_Altaircam_Enum )( devList );
-fprintf ( stderr, "%s: num cameras = %d\n", __FUNCTION__, numCameras );
   if ( numCameras < 1 ) {
     return 0;
   }
@@ -910,212 +898,3 @@ _getDLSym ( void* libHandle, const char* symbol, int prefix )
 
   return addr;
 }
-
-
-#ifdef DYNLIB_EXT_DYLIB
-void
-_patchLibrary ( void* p )
-{
-  uint8_t*		enumFunction;
-  uint8_t*		lea;
-  uint8_t*		rip;
-  uint8_t*		cmp;
-  uint8_t*		pidTableStart = 0;
-  uint8_t*		pidPos;
-  int32_t		offset;
-  int			entries = 0, entry;
-  uint16_t		pid, newPid;
-
-  enumFunction = (uint8_t*) p;
-
-  lea = enumFunction + 0x64;
-  rip = enumFunction + 0x6b;
-
-  if ( *lea == 0x48 && *(lea+1) == 0x8d && *(lea+2) == 0x15 ) {
-    lea += 3;
-    offset = *lea++;
-    offset |= ( *lea++ ) << 8;
-    offset |= ( *lea++ ) << 16;
-    offset |= ( *lea++ ) << 24;
-
-    // fprintf ( stderr, "offset = %04x\n", offset );
-
-    pidTableStart = rip + offset;
-  }
-
-  cmp = enumFunction + 0x0167;
-
-  if ( *cmp == 0x49 && *(cmp+1) == 0x81 && *(cmp+2) == 0xfe ) {
-    cmp += 3;
-    entries = *cmp++;
-    entries |= ( *cmp++ ) << 8;
-    entries |= ( *cmp++ ) << 16;
-    entries |= ( *cmp++ ) << 24;
-
-    // fprintf ( stderr, "entries = %04x\n", entries );
-  }
-
-  if ( pidTableStart && entries ) {
-    // fprintf ( stderr, "pid = %p to %p\n", pidTableStart, pidTableStart +
-    //     entries );
-
-    pidPos = pidTableStart;
-    entry = 0;
-    while ( entry < entries ) {
-      pid = *pidPos;
-      pid |= *( pidPos + 1 ) << 8;
-      newPid = 0;
-      switch ( pid ) {
-        case 0xb135: // GCMOS01200KMA
-          newPid = 0x0b2a; // GPCAMMT9M034M
-          break;
-        // From here on down it's all guesses
-        case 0xb133: // GCMOS01200KPB
-          newPid = 0x0b2b; // GPCAMAR0130C
-          break;
-        case 0x1005: // GPCMOS01200KPC
-          newPid = 0x0b4f; // ALTAIRGP130C
-          break;
-        case 0xffff: // no idea what this one should be
-          newPid = 0x0b8b; // ALTAIRGP130M
-          break;
-        case 0x1008: // G3CMOS02300KPB
-          newPid = 0x0b2c; // AAGFIMX185C
-          break;
-        case 0xe317: // G3CMOS02300KPB (USB2)
-          newPid = 0x0b2d; // AAGFIMX185C (USB2)
-          break;
-        case 0x0000: // no idea what this one should be
-          newPid = 0x0b8c; // ALTAIRGP224C
-          break;
-        default:
-          break;
-      }
-      if ( newPid ) {
-        *pidPos = newPid & 0xff;
-        *( pidPos + 1 ) = newPid >> 8;
-      }
-      pidPos += 0x20;
-      entry++;
-    }
-/*
-    i = 0;
-    while ( i < ( 0x20 * entries )) {
-      if ( i % 16 == 0 ) {
-        fprintf ( stderr, "%04x  ", i );
-      }
-      fprintf ( stderr, "%02x ", *pidTableStart++ );
-      i++;
-      if ( i % 16 == 0 ) {
-        fprintf ( stderr, "\n" );
-      }
-    }
-*/
-  }
-}
-
-#else
-void
-_patchLibrary ( void* p )
-{
-  uint8_t*		enumFunction;
-  uint8_t*		lea;
-  uint8_t*		rip;
-  uint8_t*		pidTableStart = 0;
-  uint8_t*		pidTableEnd = 0;
-  uint8_t*		pidPos;
-  int32_t		offset;
-  uint16_t		pid, newPid;
-
-  enumFunction = (uint8_t*) p;
-
-  lea = enumFunction + 0x91;
-  rip = enumFunction + 0x98;
-
-  if ( *lea == 0x48 && *(lea+1) == 0x8d && *(lea+2) == 0x1d ) {
-    lea += 3;
-    offset = *lea++;
-    offset |= ( *lea++ ) << 8;
-    offset |= ( *lea++ ) << 16;
-    offset |= ( *lea++ ) << 24;
-
-    // fprintf ( stderr, "offset = %04x\n", offset );
-
-    pidTableStart = rip + offset;
-  }
-
-  lea = enumFunction + 0x79;
-  rip = enumFunction + 0x80;
-
-  if ( *lea == 0x4c && *(lea+1) == 0x8d && *(lea+2) == 0x25 ) {
-    lea += 3;
-    offset = *lea++;
-    offset |= ( *lea++ ) << 8;
-    offset |= ( *lea++ ) << 16;
-    offset |= ( *lea++ ) << 24;
-
-    // fprintf ( stderr, "offset = %04x\n", offset );
-
-    pidTableEnd = rip + offset;
-  } else {
-    lea = enumFunction + 0x79;
-    // fprintf ( stderr, "lea = %02x %02x %02x\n", *lea, *(lea+1), *(lea+2));
-  }
-
-  if ( pidTableStart && pidTableEnd ) {
-    // fprintf ( stderr, "pid = %p to %p\n", pidTableStart, pidTableEnd );
-
-    pidPos = pidTableStart + 8;
-    while ( pidPos < pidTableEnd ) {
-      pid = *pidPos;
-      pid |= *( pidPos + 1 ) << 8;
-      newPid = 0;
-      switch ( pid ) {
-        case 0xb135: // GCMOS01200KMA
-          newPid = 0x0b2a; // GPCAMMT9M034M
-          break;
-        // From here on down it's all guesses
-        case 0xb133: // GCMOS01200KPB
-          newPid = 0x0b2b; // GPCAMAR0130C
-          break;
-        case 0x1005: // GPCMOS01200KPC
-          newPid = 0x0b4f; // ALTAIRGP130C
-          break;
-        case 0xffff: // no idea what this one should be
-          newPid = 0x0b8b; // ALTAIRGP130M
-          break;
-        case 0x1008: // G3CMOS02300KPB
-          newPid = 0x0b2c; // AAGFIMX185C
-          break;
-        case 0xe317: // G3CMOS02300KPB (USB2)
-          newPid = 0x0b2d; // AAGFIMX185C (USB2)
-          break;
-        case 0x0000: // no idea what this one should be
-          newPid = 0x0b8c; // ALTAIRGP224C
-          break;
-        default:
-          break;
-      }
-      if ( newPid ) {
-        *pidPos = newPid & 0xff;
-        *( pidPos + 1 ) = newPid >> 8;
-      }
-      pidPos += 0x20;
-    }
-
-    /*
-    i = 0;
-    while ( pidTableStart < pidTableEnd ) {
-      if ( i % 16 == 0 ) {
-        fprintf ( stderr, "%04x  ", i );
-      }
-      fprintf ( stderr, "%02x ", *pidTableStart++ );
-      i++;
-      if ( i % 16 == 0 ) {
-        fprintf ( stderr, "\n" );
-      }
-    }
-     */
-  }
-}
-#endif
