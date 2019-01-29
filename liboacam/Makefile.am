@@ -29,7 +29,7 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/ext/libASICamera/include \
   -I$(top_srcdir)/ext/libtoupcam/include \
   $(LIBUSB_CFLAGS) $(LIBUVC_CFLAGS) \
-  $(LIBALTAIRCAM_CFLAGS) $(LIBALTARCAM_LEGACY_CFLAGS) $(LIBTOUPCAM_CFLAGS) \
+  $(LIBALTAIRCAM_CFLAGS) $(LIBALTAIRCAM_LEGACY_CFLAGS) $(LIBTOUPCAM_CFLAGS) \
   $(DYNLIB_EXTN_CFLAGS)
 
 lib_LTLIBRARIES = liboacam.la
