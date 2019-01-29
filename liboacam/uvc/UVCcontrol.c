@@ -2,7 +2,8 @@
  *
  * UVCcontrol.c -- control functions for UVC cameras
  *
- * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -153,8 +154,8 @@ oaUVCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
       break;
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
-      if ( val->int32 != OA_EXPOSURE_AUTO && val->int32 !=
-          OA_EXPOSURE_MANUAL ) {
+      if ( val->int32 < OA_EXPOSURE_AUTO ||
+					val->int32 > OA_EXPOSURE_APERTURE_PRIORITY ) {
         return -OA_ERR_OUT_OF_RANGE;
       }
       return OA_ERR_NONE;

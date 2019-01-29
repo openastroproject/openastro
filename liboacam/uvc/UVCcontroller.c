@@ -2,7 +2,8 @@
  *
  * UVCcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -235,14 +236,29 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
     {
-      // FIX ME -- more error checking might be good?
-      uint8_t data = valp->menu & 0xff;
+      uint8_t data = 0;
 
-      if (( err = uvc_set_ae_mode ( cameraInfo->uvcHandle, data ))
-          != UVC_SUCCESS ) {
-        fprintf ( stderr, "uvc_set_ae_mode( %d ) failed in %s, err %d\n",
-            data, __FUNCTION__, err );
+      switch ( valp->menu ) {
+        case OA_EXPOSURE_MANUAL:
+          data = 1;
+          break;
+        case OA_EXPOSURE_AUTO:
+          data = 2;
+          break;
+        case OA_EXPOSURE_SHUTTER_PRIORITY:
+          data = 4;
+          break;
+        case OA_EXPOSURE_APERTURE_PRIORITY:
+          data = 8;
+          break;
       }
+			if ( data ) {
+				if (( err = uvc_set_ae_mode ( cameraInfo->uvcHandle, data ))
+						!= UVC_SUCCESS ) {
+					fprintf ( stderr, "uvc_set_ae_mode( %d ) failed in %s, err %d\n",
+							data, __FUNCTION__, err );
+				}
+			}
       break;
     }
 
@@ -490,10 +506,10 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
             __FUNCTION__ );
       }
       switch ( data ) {
-        case 2:
+        case 1:
           data = OA_EXPOSURE_MANUAL;
           break;
-        case 1:
+        case 2:
           data = OA_EXPOSURE_AUTO;
           break;
         case 4:
