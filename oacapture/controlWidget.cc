@@ -2,7 +2,8 @@
  *
  * controlWidget.cc -- class for the control widget in the UI
  *
- * Copyright 2013,2014,2015,2017,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -1728,15 +1729,23 @@ ControlWidget::disableAutoControls ( void )
     SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ),
        OA_EXPOSURE_MANUAL );
   }
-  if ( commonState.camera->hasControl (
+	int newval = -1;
+	switch ( commonState.camera->hasControl ( 
       OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ))) {
+		case OA_CTRL_TYPE_BOOLEAN:
+			newval = 0;
+			break;
+		case OA_CTRL_TYPE_MENU:
+			newval = OA_EXPOSURE_MANUAL;
+			break;
+	}
+	if ( newval >= 0 ) {
     commonState.camera->setControl (
-        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ),
-        OA_EXPOSURE_MANUAL );
+        OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ), newval );
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO(
-        OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) = OA_EXPOSURE_MANUAL;
+        OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) = newval;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ),
-       OA_EXPOSURE_MANUAL );
+       newval );
   }
   if ( commonState.camera->hasControl (
 				OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAMMA ))) {

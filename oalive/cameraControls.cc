@@ -2,7 +2,7 @@
  *
  * cameraControls.cc -- class for the camera tab in the settings dialog
  *
- * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -192,6 +192,7 @@ CameraControls::configure ( void )
                 oaCameraControlLabel[c] )), this );
             if ( OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == c ||
                 OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == c ) {
+							// Boolean here, so the value set is 0 or 1
               controlCheckbox[ c ]->setChecked (
                   ( cameraConf.CONTROL_VALUE( c ) ==
 									OA_EXPOSURE_MANUAL ) ? 0 : 1 );
@@ -588,11 +589,15 @@ CameraControls::updateCheckboxControl ( int control )
   int value = ( controlCheckbox[ control ]->isChecked()) ? 1 : 0;
   int baseControl, controlType;
 
+	/*
+	 * Misthink here?  If this is boolean, we just leave it as is.
+	 *
   if (( OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == control ||
     OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) &&
        commonState.camera->hasControl ( control ) == OA_CTRL_TYPE_BOOLEAN ) {
     value = value ? OA_EXPOSURE_AUTO : OA_EXPOSURE_MANUAL;
   }
+	 */
   cameraConf.CONTROL_VALUE( control ) = value;
   SET_PROFILE_CONTROL( control, value );
   commonState.camera->setControl ( control, value );
