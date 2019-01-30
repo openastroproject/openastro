@@ -806,7 +806,6 @@ _processSetTriggerControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
       cameraInfo->triggerCurrentPolarity = val->menu;
       break;
   }
-
   if ( OA_CAM_CTRL_TRIGGER_ENABLE == control || cameraInfo->triggerEnabled ||
       !cameraInfo->triggerEnable ) {
     OA_CLEAR ( triggerMode );
@@ -978,6 +977,8 @@ _processSetStrobeControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
       break;
   }
 
+	// strobeEnable means the strobe can be switched on and off
+	// strobeEnabled means we want to switch it on
   if ( OA_CAM_CTRL_STROBE_ENABLE == control || cameraInfo->strobeEnabled ||
       !cameraInfo->strobeEnable ) {
     OA_CLEAR ( strobeControl );
