@@ -675,6 +675,9 @@ CaptureWidget::doStartRecording ( int autorunFlag )
 
   if ( timerConf.timerEnabled && commonState.timer &&
 			commonState.timer->isInitialised()) {
+
+		int disableTrigger = 0;
+
     if ( commonState.timer->hasControl ( OA_TIMER_CTRL_MODE )) {
       commonState.timer->setControl ( OA_TIMER_CTRL_MODE, timerConf.timerMode );
     }
@@ -695,13 +698,28 @@ CaptureWidget::doStartRecording ( int autorunFlag )
       // do this with a liboaPTR function?
     }
 
-    // The camera should already be running, but we don't know when it
-    // is going to start sending the frames that correspond to the sync
-    // pulses.  So, temporarily we stop the camera, allow the frames
-    // to drain (we hope), then enable strobe mode on the timer device
-    // and restart the camera
-    emit writeStatusMessage ( tr ( "Pausing camera" ));
-    commonState.camera->stop();
+		// This may all be rather more complex than I first thought.  Point Grey
+		// cameras, for example, continue to expose frames and generate strobe
+		// pulses even once the driver has been called to stop capturing.
+		// The only way I can see to fix this is to assume that if we're using
+		// the camera in strobe mode then we enable trigger mode as well, to
+		// stop frames being exposed.  Then the drain period can swallow any
+		// frames in transit and captures started again by turning off trigger
+		// mode
+
+		if ( timerConf.timerMode == OA_TIMER_MODE_STROBE &&
+				commonState.camera->hasControl ( OA_CAM_CTRL_TRIGGER_ENABLE ) ==
+				OA_CTRL_TYPE_BOOLEAN ) {
+			emit writeStatusMessage ( tr ( "Pausing camera" ));
+			if ( commonState.camera->hasControl ( OA_CAM_CTRL_TRIGGER_MODE ) ==
+				OA_CTRL_TYPE_DISC_MENU ) {
+				commonState.camera->setControl ( OA_CAM_CTRL_TRIGGER_MODE,
+						OA_TRIGGER_EXTERNAL );
+			}
+			commonState.camera->setControl ( OA_CAM_CTRL_TRIGGER_ENABLE, 1 );
+			disableTrigger = 1;
+		}
+
     // Default is to stop for ten times the exposure interval, up to a
     // maximum of one second.  If we don't have an absolute exposure
     // value then guess at half a second total
@@ -716,10 +734,14 @@ CaptureWidget::doStartRecording ( int autorunFlag )
       exposureTime = timerConf.drainDelay * 1000;
     }
     usleep ( exposureTime );
+
     emit writeStatusMessage ( tr ( "Starting timer" ));
     commonState.timer->start();
-    emit writeStatusMessage ( tr ( "Restarting camera" ));
-    commonState.camera->start ( &PreviewWidget::updatePreview, &commonState );
+
+		if ( disableTrigger ) {
+			emit writeStatusMessage ( tr ( "Restarting camera" ));
+			commonState.camera->setControl ( OA_CAM_CTRL_TRIGGER_ENABLE, 0 );
+		}
     pauseButtonState = 0;
   }
 
@@ -1426,15 +1448,8 @@ CaptureWidget::writeSettings ( OutputHandler* out )
                 break;
 
               case OA_CTRL_TYPE_BOOLEAN:
-                if ( OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED )
-                    == c || OA_CAM_CTRL_MODE_AUTO(
-                    OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == c ) {
-                  settings << tr ( OA_EXPOSURE_AUTO == v ? "on" :
-                      "off" ).toStdString().c_str() << std::endl;
-                } else {
-                  settings << tr ( v ? "on" : "off" ).toStdString().c_str() <<
-                      std::endl;
-                }
+                settings << tr ( v ? "on" : "off" ).toStdString().c_str() <<
+										std::endl;
                 break;
 
               case OA_CTRL_TYPE_READONLY:
