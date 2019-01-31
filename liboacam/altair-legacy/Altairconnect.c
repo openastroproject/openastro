@@ -34,6 +34,7 @@
 
 #include "unimplemented.h"
 #include "oacamprivate.h"
+#include "Altairprivate.h"
 #include "Altairoacam.h"
 #include "Altairstate.h"
 

@@ -2,7 +2,7 @@
  *
  * Altaircontroller.c -- Main camera controller thread
  *
- * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -33,6 +33,7 @@
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
+#include "Altairprivate.h"
 #include "Altairoacam.h"
 #include "Altairstate.h"
 

@@ -1,5 +1,5 @@
-#ifndef __toupcam_h__
-#define __toupcam_h__
+#ifndef __altaircamlegacy_h__
+#define __altaircamlegacy_h__
 
 /* Version: 1.6.5660.20150520 */
 
