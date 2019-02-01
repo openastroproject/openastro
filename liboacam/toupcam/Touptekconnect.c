@@ -34,6 +34,7 @@
 
 #include "unimplemented.h"
 #include "oacamprivate.h"
+#include "Touptekprivate.h"
 #include "Touptekoacam.h"
 #include "Touptekstate.h"
 

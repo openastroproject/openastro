@@ -2,7 +2,7 @@
  *
  * Mallincamconnect.c -- Initialise Mallincam cameras
  *
- * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -34,6 +34,7 @@
 
 #include "unimplemented.h"
 #include "oacamprivate.h"
+#include "Mallincamprivate.h"
 #include "Mallincamoacam.h"
 #include "Mallincamstate.h"
 

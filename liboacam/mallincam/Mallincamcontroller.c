@@ -34,6 +34,7 @@
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
+#include "Mallincamprivate.h"
 #include "Mallincamoacam.h"
 #include "Mallincamstate.h"
 
