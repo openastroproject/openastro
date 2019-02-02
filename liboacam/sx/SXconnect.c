@@ -262,8 +262,6 @@ oaSXInitCamera ( oaCameraDevice* device )
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED ) = OA_CTRL_TYPE_READONLY;
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_DROPPED_RESET ) = OA_CTRL_TYPE_BUTTON;
 
-  // camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;
-
   if ( extraCaps & SXUSB_CAPS_COOLER ) {
     // These are just made up as I have no documentation
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMP_SETPOINT ) = OA_CTRL_TYPE_INT32;
@@ -301,7 +299,9 @@ oaSXInitCamera ( oaCameraDevice* device )
       camera->frameFormats[ OA_PIX_FMT_GREY16LE ] = 1;
     }
   }
-  cameraInfo->binMode = cameraInfo->requestedBinMode = OA_BIN_MODE_NONE;
+
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;
+  cameraInfo->binMode = OA_BIN_MODE_NONE;
 
 	camera->features.ROI = 1;
   camera->features.hasReset = 1;
@@ -359,15 +359,18 @@ oaSXInitCamera ( oaCameraDevice* device )
   cameraInfo->frameSizes[2].sizes[0].y = cameraInfo->maxResolutionY / 2;
   cameraInfo->frameSizes[2].numSizes = 1;
 
-  cameraInfo->xSize = cameraInfo->maxResolutionX;
-  cameraInfo->ySize = cameraInfo->maxResolutionY;
+  cameraInfo->xSubframeSize = cameraInfo->xImageSize =
+			cameraInfo->maxResolutionX;
+  cameraInfo->ySubframeSize = cameraInfo->yImageSize =
+			cameraInfo->maxResolutionY;
   camera->features.fixedFrameSizes = 0;
 
 
   cameraInfo->buffers = 0;
   cameraInfo->configuredBuffers = 0;
-  cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
-      cameraInfo->maxResolutionY * cameraInfo->bytesPerPixel;
+  cameraInfo->actualImageLength = cameraInfo->imageBufferLength =
+			cameraInfo->maxResolutionX * cameraInfo->maxResolutionY *
+			cameraInfo->bytesPerPixel;
   if (!( cameraInfo->xferBuffer = malloc ( cameraInfo->imageBufferLength ))) {
     fprintf ( stderr, "malloc of transfer buffer failed in %s\n",
         __FUNCTION__ );

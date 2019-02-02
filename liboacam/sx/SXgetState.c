@@ -2,7 +2,8 @@
  *
  * SXgetState.c -- state querying for Starlight Xpress cameras
  *
- * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -57,7 +58,7 @@ oaSXCameraGetFrameSizes ( oaCamera* camera )
 {
   SX_STATE*	cameraInfo = camera->_private;
 
-  switch ( cameraInfo->requestedBinMode ) {
+  switch ( cameraInfo->binMode ) {
     case OA_BIN_MODE_NONE:
       return &cameraInfo->frameSizes[1];
       break;

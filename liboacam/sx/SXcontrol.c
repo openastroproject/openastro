@@ -153,7 +153,11 @@ oaSXCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
       break;
 
     case OA_CAM_CTRL_BINNING:
-      return -OA_ERR_INVALID_CONTROL;
+			if ( val->discrete == OA_BIN_MODE_NONE ||
+					val->discrete == OA_BIN_MODE_2x2 ) {
+				return OA_ERR_NONE;
+			}
+      return -OA_ERR_OUT_OF_RANGE;
       break;
 
     default:
