@@ -2,7 +2,7 @@
  *
  * brightstarIO.c -- Brightstar filter wheel IO routines
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -78,6 +78,13 @@ _brightstarWheelRead ( int fd, char* buffer, int maxlen )
 int
 oaBrightstarMoveTo ( PRIVATE_INFO* wheelInfo, int slot, int nodelay )
 {
+	int			moveComplete = 0;
+
+	slot--;
+	if ( slot < 0 || slot > 6 ) {
+		return -1;
+	}
+
   pthread_mutex_lock ( &wheelInfo->ioMutex );
 
   if ( nodelay ) {
@@ -93,27 +100,38 @@ oaBrightstarMoveTo ( PRIVATE_INFO* wheelInfo, int slot, int nodelay )
 
   tcflush ( wheelInfo->fd, TCIFLUSH );
 
-  if ( _brightstarWheelWrite ( wheelInfo->fd, buffer, 2 )) {
+  if ( _brightstarWheelWrite ( wheelInfo->fd, buffer, 5 )) {
     fprintf ( stderr, "%s: write error on command '%s'\n", __FUNCTION__,
         buffer );
     pthread_mutex_unlock ( &wheelInfo->ioMutex );
     return -1;
   }
 
-  numRead = _brightstarWheelRead ( wheelInfo->fd, buffer, 50 );
-  if ( numRead > 0 ) {
-    if ( strncmp ( buffer, expected, 2 )) {
-      fprintf ( stderr, "%s: '%s' failed to match expecting string '%s'\n",
-          __FUNCTION__, buffer, expected );
-      pthread_mutex_unlock ( &wheelInfo->ioMutex );
-      return -1;
-    }
-  } else {
-    fprintf ( stderr, "%s: no data read from wheel interface\n",
-        __FUNCTION__ );
-    pthread_mutex_unlock ( &wheelInfo->ioMutex );
-    return -1;
-  }
+	// The filter wheel appears to respond with "M" followed by "+" or "-"
+	// depending on which way the wheel is turning, then successive "P<digit>"
+	// strings as it passes each filter position until it reaches the
+	// correct one.
+
+	do {
+		numRead = _brightstarWheelRead ( wheelInfo->fd, buffer, 50 );
+		if ( numRead > 0 ) {
+			if ( strncmp ( buffer, expected, 2 )) {
+				if ( !strncmp ( buffer, "M-", 2 ) && !strncmp ( buffer, "M+", 2 )) {
+					fprintf ( stderr, "%s: '%s' failed to match expected string '%s'\n",
+							__FUNCTION__, buffer, expected );
+					pthread_mutex_unlock ( &wheelInfo->ioMutex );
+					return -1;
+				}
+			} else {
+				moveComplete = 1;
+			}
+		} else {
+			fprintf ( stderr, "%s: no data read from wheel interface\n",
+					__FUNCTION__ );
+			pthread_mutex_unlock ( &wheelInfo->ioMutex );
+			return -1;
+		}
+	} while ( !moveComplete );
 
   pthread_mutex_unlock ( &wheelInfo->ioMutex );
 
