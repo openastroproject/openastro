@@ -223,573 +223,795 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
 
   if (!( *( void** )( &p_Toupcam_AwbInit ) = _getDLSym ( libHandle,
       "Toupcam_AwbInit" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_AwbOnePush ) = _getDLSym ( libHandle,
       "Toupcam_AwbOnePush" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_calc_ClarityFactor ) = _getDLSym ( libHandle,
       "Toupcam_calc_ClarityFactor" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_Close ) = _getDLSym ( libHandle,
       "Toupcam_Close" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
 	/*
   if (!( *( void** )( &p_Toupcam_deBayerV2 ) = _getDLSym ( libHandle,
       "Toupcam_deBayerV2" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
     return 0;
   }
 	*/
 
   if (!( *( void** )( &p_Toupcam_EnumV2 ) = _getDLSym ( libHandle,
       "Toupcam_EnumV2" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_Flush ) = _getDLSym ( libHandle,
       "Toupcam_Flush" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_AEAuxRect ) = _getDLSym ( libHandle,
       "Toupcam_get_AEAuxRect" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_AutoExpoEnable ) = _getDLSym ( libHandle,
       "Toupcam_get_AutoExpoEnable" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_AutoExpoTarget ) = _getDLSym ( libHandle,
       "Toupcam_get_AutoExpoTarget" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_AWBAuxRect ) = _getDLSym ( libHandle,
       "Toupcam_get_AWBAuxRect" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_Brightness ) = _getDLSym ( libHandle,
       "Toupcam_get_Brightness" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_Chrome ) = _getDLSym ( libHandle,
       "Toupcam_get_Chrome" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_Contrast ) = _getDLSym ( libHandle,
       "Toupcam_get_Contrast" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_eSize ) = _getDLSym ( libHandle,
       "Toupcam_get_eSize" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_ExpoAGain ) = _getDLSym ( libHandle,
       "Toupcam_get_ExpoAGain" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_ExpoAGainRange ) = _getDLSym ( libHandle,
       "Toupcam_get_ExpoAGainRange" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_ExpoTime ) = _getDLSym ( libHandle,
       "Toupcam_get_ExpoTime" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_ExpTimeRange ) = _getDLSym ( libHandle,
       "Toupcam_get_ExpTimeRange" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   /*
   if (!( *( void** )( &p_Toupcam_get_FanMaxSpeed ) = _getDLSym ( libHandle,
       "Toupcam_get_FanMaxSpeed" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_Field ) = _getDLSym ( libHandle,
       "Toupcam_get_Field" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
     return 0;
   }
    */
 
   if (!( *( void** )( &p_Toupcam_get_FwVersion ) = _getDLSym ( libHandle,
       "Toupcam_get_FwVersion" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_Gamma ) = _getDLSym ( libHandle,
       "Toupcam_get_Gamma" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_HFlip ) = _getDLSym ( libHandle,
       "Toupcam_get_HFlip" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_GetHistogram ) = _getDLSym ( libHandle,
       "Toupcam_GetHistogram" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_Hue ) = _getDLSym ( libHandle,
       "Toupcam_get_Hue" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_HwVersion ) = _getDLSym ( libHandle,
       "Toupcam_get_HwVersion" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_HZ ) = _getDLSym ( libHandle,
       "Toupcam_get_HZ" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_LevelRange ) = _getDLSym ( libHandle,
       "Toupcam_get_LevelRange" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_MaxBitDepth ) = _getDLSym ( libHandle,
       "Toupcam_get_MaxBitDepth" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_MaxSpeed ) = _getDLSym ( libHandle,
       "Toupcam_get_MaxSpeed" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_Mode ) = _getDLSym ( libHandle,
       "Toupcam_get_Mode" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_MonoMode ) = _getDLSym ( libHandle,
       "Toupcam_get_MonoMode" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_Negative ) = _getDLSym ( libHandle,
       "Toupcam_get_Negative" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_Option ) = _getDLSym ( libHandle,
       "Toupcam_get_Option" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   /*
   if (!( *( void** )( &p_Toupcam_get_PixelSize ) = _getDLSym ( libHandle,
       "Toupcam_get_PixelSize" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
     return 0;
   }
    */
 
   if (!( *( void** )( &p_Toupcam_get_ProductionDate ) = _getDLSym ( libHandle,
       "Toupcam_get_ProductionDate" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_RawFormat ) = _getDLSym ( libHandle,
       "Toupcam_get_RawFormat" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_RealTime ) = _getDLSym ( libHandle,
       "Toupcam_get_RealTime" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_Resolution ) = _getDLSym ( libHandle,
       "Toupcam_get_Resolution" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_ResolutionNumber ) = _getDLSym ( libHandle,
       "Toupcam_get_ResolutionNumber" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_ResolutionRatio ) = _getDLSym ( libHandle,
       "Toupcam_get_ResolutionRatio" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_Roi ) = _getDLSym ( libHandle,
       "Toupcam_get_Roi" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   /*
   if (!( *( void** )( &p_Toupcam_get_RoiMode ) = _getDLSym ( libHandle,
       "Toupcam_get_RoiMode" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
     return 0;
   }
    */
 
   if (!( *( void** )( &p_Toupcam_get_Saturation ) = _getDLSym ( libHandle,
       "Toupcam_get_Saturation" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_SerialNumber ) = _getDLSym ( libHandle,
       "Toupcam_get_SerialNumber" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_Size ) = _getDLSym ( libHandle,
       "Toupcam_get_Size" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_Speed ) = _getDLSym ( libHandle,
       "Toupcam_get_Speed" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_StillResolution ) = _getDLSym ( libHandle,
       "Toupcam_get_StillResolution" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_StillResolutionNumber ) = _getDLSym (
       libHandle, "Toupcam_get_StillResolutionNumber" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_Temperature ) = _getDLSym ( libHandle,
       "Toupcam_get_Temperature" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_TempTint ) = _getDLSym ( libHandle,
       "Toupcam_get_TempTint" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_VFlip ) = _getDLSym ( libHandle,
       "Toupcam_get_VFlip" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   /*
   if (!( *( void** )( &p_Toupcam_get_VignetAmountInt ) = _getDLSym ( libHandle,
       "Toupcam_get_VignetAmountInt" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_VignetEnable ) = _getDLSym ( libHandle,
       "Toupcam_get_VignetEnable" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_get_VignetMidPointInt ) = _getDLSym (
       libHandle, "Toupcam_get_VignetMidPointInt" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
     return 0;
   }
    */
 
   if (!( *( void** )( &p_Toupcam_get_WhiteBalanceGain ) = _getDLSym ( libHandle,
       "Toupcam_get_WhiteBalanceGain" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_HotPlug ) = _getDLSym ( libHandle,
       "Toupcam_HotPlug" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_LevelRangeAuto ) = _getDLSym ( libHandle,
       "Toupcam_LevelRangeAuto" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_Open ) = _getDLSym ( libHandle,
       "Toupcam_Open" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_OpenByIndex ) = _getDLSym ( libHandle,
       "Toupcam_OpenByIndex" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_Pause ) = _getDLSym ( libHandle,
       "Toupcam_Pause" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_PullImageV2 ) = _getDLSym ( libHandle,
       "Toupcam_PullImageV2" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_PullStillImageV2 ) = _getDLSym ( libHandle,
       "Toupcam_PullStillImageV2" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_AEAuxRect ) = _getDLSym ( libHandle,
       "Toupcam_put_AEAuxRect" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_AutoExpoEnable ) = _getDLSym ( libHandle,
       "Toupcam_put_AutoExpoEnable" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_AutoExpoTarget ) = _getDLSym ( libHandle,
       "Toupcam_put_AutoExpoTarget" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_AWBAuxRect ) = _getDLSym ( libHandle,
       "Toupcam_put_AWBAuxRect" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_Brightness ) = _getDLSym ( libHandle,
       "Toupcam_put_Brightness" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_Chrome ) = _getDLSym ( libHandle,
       "Toupcam_put_Chrome" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_ChromeCallback ) = _getDLSym ( libHandle,
       "Toupcam_put_ChromeCallback" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_Contrast ) = _getDLSym ( libHandle,
       "Toupcam_put_Contrast" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_eSize ) = _getDLSym ( libHandle,
       "Toupcam_put_eSize" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_ExpoAGain ) = _getDLSym ( libHandle,
       "Toupcam_put_ExpoAGain" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_ExpoCallback ) = _getDLSym ( libHandle,
       "Toupcam_put_ExpoCallback" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_ExpoTime ) = _getDLSym ( libHandle,
       "Toupcam_put_ExpoTime" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_Gamma ) = _getDLSym ( libHandle,
       "Toupcam_put_Gamma" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_HFlip ) = _getDLSym ( libHandle,
       "Toupcam_put_HFlip" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_Hue ) = _getDLSym ( libHandle,
       "Toupcam_put_Hue" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_HZ ) = _getDLSym ( libHandle,
       "Toupcam_put_HZ" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_LEDState ) = _getDLSym ( libHandle,
       "Toupcam_put_LEDState" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_LevelRange ) = _getDLSym ( libHandle,
       "Toupcam_put_LevelRange" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_MaxAutoExpoTimeAGain ) = _getDLSym (
       libHandle, "Toupcam_put_MaxAutoExpoTimeAGain" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_Mode ) = _getDLSym ( libHandle,
       "Toupcam_put_Mode" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_Negative ) = _getDLSym ( libHandle,
       "Toupcam_put_Negative" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_Option ) = _getDLSym ( libHandle,
       "Toupcam_put_Option" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_RealTime ) = _getDLSym ( libHandle,
       "Toupcam_put_RealTime" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_Roi ) = _getDLSym ( libHandle,
       "Toupcam_put_Roi" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   /*
   if (!( *( void** )( &p_Toupcam_put_RoiMode ) = _getDLSym ( libHandle,
       "Toupcam_put_RoiMode" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
     return 0;
   }
    */
 
   if (!( *( void** )( &p_Toupcam_put_Saturation ) = _getDLSym ( libHandle,
       "Toupcam_put_Saturation" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_Size ) = _getDLSym ( libHandle,
       "Toupcam_put_Size" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_Speed ) = _getDLSym ( libHandle,
       "Toupcam_put_Speed" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_Temperature ) = _getDLSym ( libHandle,
       "Toupcam_put_Temperature" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_TempTint ) = _getDLSym ( libHandle,
       "Toupcam_put_TempTint" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_VFlip ) = _getDLSym ( libHandle,
       "Toupcam_put_VFlip" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   /*
   if (!( *( void** )( &p_Toupcam_put_VignetAmountInt ) = _getDLSym ( libHandle,
       "Toupcam_put_VignetAmountInt" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_VignetEnable ) = _getDLSym ( libHandle,
       "Toupcam_put_VignetEnable" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_put_VignetMidPointInt ) = _getDLSym (
       libHandle, "Toupcam_put_VignetMidPointInt" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
     return 0;
   }
    */
 
   if (!( *( void** )( &p_Toupcam_put_WhiteBalanceGain ) = _getDLSym ( libHandle,
       "Toupcam_put_WhiteBalanceGain" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_read_EEPROM ) = _getDLSym ( libHandle,
       "Toupcam_read_EEPROM" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   /*
   if (!( *( void** )( &p_Toupcam_read_UART ) = _getDLSym ( libHandle,
       "Toupcam_read_UART" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
     return 0;
   }
    */
 
   if (!( *( void** )( &p_Toupcam_Snap ) = _getDLSym ( libHandle,
       "Toupcam_Snap" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_ST4PlusGuide ) = _getDLSym ( libHandle,
       "Toupcam_ST4PlusGuide" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_ST4PlusGuideState ) = _getDLSym ( libHandle,
       "Toupcam_ST4PlusGuideState" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_StartPullModeWithCallback ) = _getDLSym (
       libHandle, "Toupcam_StartPullModeWithCallback" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_StartPushModeV2 ) = _getDLSym ( libHandle,
       "Toupcam_StartPushModeV2" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_Stop ) = _getDLSym ( libHandle,
       "Toupcam_Stop" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_Trigger ) = _getDLSym ( libHandle,
       "Toupcam_Trigger" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_Version ) = _getDLSym ( libHandle,
       "Toupcam_Version" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   if (!( *( void** )( &p_Toupcam_write_EEPROM ) = _getDLSym ( libHandle,
       "Toupcam_write_EEPROM" ))) {
+		dlclose ( libHandle );
+		libHandle = 0;
     return 0;
   }
 
   /*
   if (!( *( void** )( &p_Toupcam_write_UART ) = _getDLSym ( libHandle,
       "Toupcam_write_UART" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
     return 0;
   }
    */
