@@ -249,573 +249,795 @@ oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
 
 	  if (!( *( void** )( &p_Altaircam_AwbInit ) = _getDLSym ( libHandle,
 	      "Altaircam_AwbInit" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_AwbOnePush ) = _getDLSym ( libHandle,
 	      "Altaircam_AwbOnePush" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_calc_ClarityFactor ) = _getDLSym ( libHandle,
 	      "Altaircam_calc_ClarityFactor" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_Close ) = _getDLSym ( libHandle,
 	      "Altaircam_Close" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 		/*
 	  if (!( *( void** )( &p_Altaircam_deBayerV2 ) = _getDLSym ( libHandle,
 	      "Altaircam_deBayerV2" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
 	    return 0;
 	  }
 		 */
 
 	  if (!( *( void** )( &p_Altaircam_EnumV2 ) = _getDLSym ( libHandle,
 	      "Altaircam_EnumV2" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_Flush ) = _getDLSym ( libHandle,
 	      "Altaircam_Flush" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_AEAuxRect ) = _getDLSym ( libHandle,
 	      "Altaircam_get_AEAuxRect" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_AutoExpoEnable ) = _getDLSym ( libHandle,
 	      "Altaircam_get_AutoExpoEnable" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_AutoExpoTarget ) = _getDLSym ( libHandle,
 	      "Altaircam_get_AutoExpoTarget" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_AWBAuxRect ) = _getDLSym ( libHandle,
 	      "Altaircam_get_AWBAuxRect" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_Brightness ) = _getDLSym ( libHandle,
 	      "Altaircam_get_Brightness" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_Chrome ) = _getDLSym ( libHandle,
 	      "Altaircam_get_Chrome" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_Contrast ) = _getDLSym ( libHandle,
 	      "Altaircam_get_Contrast" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_eSize ) = _getDLSym ( libHandle,
 	      "Altaircam_get_eSize" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_ExpoAGain ) = _getDLSym ( libHandle,
 	      "Altaircam_get_ExpoAGain" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_ExpoAGainRange ) = _getDLSym ( libHandle,
 	      "Altaircam_get_ExpoAGainRange" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_ExpoTime ) = _getDLSym ( libHandle,
 	      "Altaircam_get_ExpoTime" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_ExpTimeRange ) = _getDLSym ( libHandle,
 	      "Altaircam_get_ExpTimeRange" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  /*
 	  if (!( *( void** )( &p_Altaircam_get_FanMaxSpeed ) = _getDLSym ( libHandle,
 	      "Altaircam_get_FanMaxSpeed" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_Field ) = _getDLSym ( libHandle,
 	      "Altaircam_get_Field" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
 	    return 0;
 	  }
 	   */
 
 	  if (!( *( void** )( &p_Altaircam_get_FwVersion ) = _getDLSym ( libHandle,
 	      "Altaircam_get_FwVersion" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_Gamma ) = _getDLSym ( libHandle,
 	      "Altaircam_get_Gamma" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_HFlip ) = _getDLSym ( libHandle,
 	      "Altaircam_get_HFlip" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_GetHistogram ) = _getDLSym ( libHandle,
 	      "Altaircam_GetHistogram" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_Hue ) = _getDLSym ( libHandle,
 	      "Altaircam_get_Hue" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_HwVersion ) = _getDLSym ( libHandle,
 	      "Altaircam_get_HwVersion" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_HZ ) = _getDLSym ( libHandle,
 	      "Altaircam_get_HZ" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_LevelRange ) = _getDLSym ( libHandle,
 	      "Altaircam_get_LevelRange" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_MaxBitDepth ) = _getDLSym ( libHandle,
 	      "Altaircam_get_MaxBitDepth" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_MaxSpeed ) = _getDLSym ( libHandle,
 	      "Altaircam_get_MaxSpeed" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_Mode ) = _getDLSym ( libHandle,
 	      "Altaircam_get_Mode" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_MonoMode ) = _getDLSym ( libHandle,
 	      "Altaircam_get_MonoMode" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_Negative ) = _getDLSym ( libHandle,
 	      "Altaircam_get_Negative" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_Option ) = _getDLSym ( libHandle,
 	      "Altaircam_get_Option" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  /*
 	  if (!( *( void** )( &p_Altaircam_get_PixelSize ) = _getDLSym ( libHandle,
 	      "Altaircam_get_PixelSize" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
 	    return 0;
 	  }
 	   */
 
 	  if (!( *( void** )( &p_Altaircam_get_ProductionDate ) = _getDLSym ( libHandle,
 	      "Altaircam_get_ProductionDate" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_RawFormat ) = _getDLSym ( libHandle,
 	      "Altaircam_get_RawFormat" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_RealTime ) = _getDLSym ( libHandle,
 	      "Altaircam_get_RealTime" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_Resolution ) = _getDLSym ( libHandle,
 	      "Altaircam_get_Resolution" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_ResolutionNumber ) = _getDLSym (
 	      libHandle, "Altaircam_get_ResolutionNumber" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_ResolutionRatio ) = _getDLSym (
 	      libHandle, "Altaircam_get_ResolutionRatio" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_Roi ) = _getDLSym ( libHandle,
 	      "Altaircam_get_Roi" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  /*
 	  if (!( *( void** )( &p_Altaircam_get_RoiMode ) = _getDLSym ( libHandle,
 	      "Altaircam_get_RoiMode" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
 	    return 0;
 	  }
 	   */
 
 	  if (!( *( void** )( &p_Altaircam_get_Saturation ) = _getDLSym ( libHandle,
 	      "Altaircam_get_Saturation" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_SerialNumber ) = _getDLSym ( libHandle,
 	      "Altaircam_get_SerialNumber" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_Size ) = _getDLSym ( libHandle,
 	      "Altaircam_get_Size" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_Speed ) = _getDLSym ( libHandle,
 	      "Altaircam_get_Speed" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_StillResolution ) = _getDLSym (
 	      libHandle, "Altaircam_get_StillResolution" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_StillResolutionNumber ) = _getDLSym (
 	      libHandle, "Altaircam_get_StillResolutionNumber" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_Temperature ) = _getDLSym ( libHandle,
 	      "Altaircam_get_Temperature" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_TempTint ) = _getDLSym ( libHandle,
 	      "Altaircam_get_TempTint" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_VFlip ) = _getDLSym ( libHandle,
 	      "Altaircam_get_VFlip" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  /*
 	  if (!( *( void** )( &p_Altaircam_get_VignetAmountInt ) = _getDLSym (
 	      libHandle, "Altaircam_get_VignetAmountInt" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_VignetEnable ) = _getDLSym ( libHandle,
 	      "Altaircam_get_VignetEnable" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_get_VignetMidPointInt ) = _getDLSym (
 	      libHandle, "Altaircam_get_VignetMidPointInt" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
 	    return 0;
 	  }
 	   */
 
 	  if (!( *( void** )( &p_Altaircam_get_WhiteBalanceGain ) = _getDLSym (
 	      libHandle, "Altaircam_get_WhiteBalanceGain" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_HotPlug ) = _getDLSym ( libHandle,
 	      "Altaircam_HotPlug" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_LevelRangeAuto ) = _getDLSym ( libHandle,
 	      "Altaircam_LevelRangeAuto" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_Open ) = _getDLSym ( libHandle,
 	      "Altaircam_Open" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_OpenByIndex ) = _getDLSym ( libHandle,
 	      "Altaircam_OpenByIndex" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_Pause ) = _getDLSym ( libHandle,
 	      "Altaircam_Pause" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_PullImageV2 ) = _getDLSym ( libHandle,
 	      "Altaircam_PullImageV2" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_PullStillImageV2 ) = _getDLSym ( libHandle,
 	      "Altaircam_PullStillImageV2" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_AEAuxRect ) = _getDLSym ( libHandle,
 	      "Altaircam_put_AEAuxRect" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_AutoExpoEnable ) = _getDLSym ( libHandle,
 	      "Altaircam_put_AutoExpoEnable" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_AutoExpoTarget ) = _getDLSym ( libHandle,
 	      "Altaircam_put_AutoExpoTarget" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_AWBAuxRect ) = _getDLSym ( libHandle,
 	      "Altaircam_put_AWBAuxRect" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_Brightness ) = _getDLSym ( libHandle,
 	      "Altaircam_put_Brightness" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_Chrome ) = _getDLSym ( libHandle,
 	      "Altaircam_put_Chrome" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_ChromeCallback ) = _getDLSym ( libHandle,
 	      "Altaircam_put_ChromeCallback" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_Contrast ) = _getDLSym ( libHandle,
 	      "Altaircam_put_Contrast" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_eSize ) = _getDLSym ( libHandle,
 	      "Altaircam_put_eSize" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_ExpoAGain ) = _getDLSym ( libHandle,
 	      "Altaircam_put_ExpoAGain" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_ExpoCallback ) = _getDLSym ( libHandle,
 	      "Altaircam_put_ExpoCallback" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_ExpoTime ) = _getDLSym ( libHandle,
 	      "Altaircam_put_ExpoTime" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_Gamma ) = _getDLSym ( libHandle,
 	      "Altaircam_put_Gamma" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_HFlip ) = _getDLSym ( libHandle,
 	      "Altaircam_put_HFlip" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_Hue ) = _getDLSym ( libHandle,
 	      "Altaircam_put_Hue" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_HZ ) = _getDLSym ( libHandle,
 	      "Altaircam_put_HZ" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_LEDState ) = _getDLSym ( libHandle,
 	      "Altaircam_put_LEDState" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_LevelRange ) = _getDLSym ( libHandle,
 	      "Altaircam_put_LevelRange" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_MaxAutoExpoTimeAGain ) = _getDLSym (
 	      libHandle, "Altaircam_put_MaxAutoExpoTimeAGain" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_Mode ) = _getDLSym ( libHandle,
 	      "Altaircam_put_Mode" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_Negative ) = _getDLSym ( libHandle,
 	      "Altaircam_put_Negative" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_Option ) = _getDLSym ( libHandle,
 	      "Altaircam_put_Option" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_RealTime ) = _getDLSym ( libHandle,
 	      "Altaircam_put_RealTime" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_Roi ) = _getDLSym ( libHandle,
 	      "Altaircam_put_Roi" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  /*
 	  if (!( *( void** )( &p_Altaircam_put_RoiMode ) = _getDLSym ( libHandle,
 	      "Altaircam_put_RoiMode" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
 	    return 0;
 	  }
 	   */
 
 	  if (!( *( void** )( &p_Altaircam_put_Saturation ) = _getDLSym ( libHandle,
 	      "Altaircam_put_Saturation" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_Size ) = _getDLSym ( libHandle,
 	      "Altaircam_put_Size" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_Speed ) = _getDLSym ( libHandle,
 	      "Altaircam_put_Speed" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_Temperature ) = _getDLSym ( libHandle,
 	      "Altaircam_put_Temperature" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_TempTint ) = _getDLSym ( libHandle,
 	      "Altaircam_put_TempTint" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_VFlip ) = _getDLSym ( libHandle,
 	      "Altaircam_put_VFlip" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  /*
 	  if (!( *( void** )( &p_Altaircam_put_VignetAmountInt ) = _getDLSym (
 	      libHandle, "Altaircam_put_VignetAmountInt" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_VignetEnable ) = _getDLSym ( libHandle,
 	      "Altaircam_put_VignetEnable" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_put_VignetMidPointInt ) = _getDLSym (
 	      libHandle, "Altaircam_put_VignetMidPointInt" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
 	    return 0;
 	  }
 	   */
 
 	  if (!( *( void** )( &p_Altaircam_put_WhiteBalanceGain ) = _getDLSym (
 	      libHandle, "Altaircam_put_WhiteBalanceGain" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_read_EEPROM ) = _getDLSym ( libHandle,
 	      "Altaircam_read_EEPROM" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  /*
 	  if (!( *( void** )( &p_Altaircam_read_UART ) = _getDLSym ( libHandle,
 	      "Altaircam_read_UART" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
 	    return 0;
 	  }
 	   */
 
 	  if (!( *( void** )( &p_Altaircam_Snap ) = _getDLSym ( libHandle,
 	      "Altaircam_Snap" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_ST4PlusGuide ) = _getDLSym ( libHandle,
 	      "Altaircam_ST4PlusGuide" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_ST4PlusGuideState ) = _getDLSym ( libHandle,
 	      "Altaircam_ST4PlusGuideState" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_StartPullModeWithCallback ) = _getDLSym (
 	      libHandle, "Altaircam_StartPullModeWithCallback" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_StartPushModeV2 ) = _getDLSym ( libHandle,
 	      "Altaircam_StartPushModeV2" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_Stop ) = _getDLSym ( libHandle,
 	      "Altaircam_Stop" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_Trigger ) = _getDLSym ( libHandle,
 	      "Altaircam_Trigger" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_Version ) = _getDLSym ( libHandle,
 	      "Altaircam_Version" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  if (!( *( void** )( &p_Altaircam_write_EEPROM ) = _getDLSym ( libHandle,
 	      "Altaircam_write_EEPROM" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
 	    return 0;
 	  }
 
 	  /*
 	  if (!( *( void** )( &p_Altaircam_write_UART ) = _getDLSym ( libHandle,
 	      "Altaircam_write_UART" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
 	    return 0;
 	  }
 	   */
