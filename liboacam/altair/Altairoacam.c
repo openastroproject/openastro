@@ -179,7 +179,6 @@ void		( *p_Altaircam_HotPlug )( PALTAIRCAM_HOTPLUG, void* );
 //
 // Altaircam_AbbOnePush(ToupcamT*, void (*)(unsigned short const*, void*), void*)
 // Altaircam_DfcOnePush(ToupcamT*)
-// Altaircam_EnumV2(AltaircamInstV2*)
 // Altaircam_FfcOnePush(ToupcamT*)
 // Altaircam_get_ABBAuxRect(ToupcamT*, RECT*)
 // Altaircam_get_BlackBalance(ToupcamT*, unsigned short*)
@@ -268,10 +267,12 @@ oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
 	    return 0;
 	  }
 
+		/*
 	  if (!( *( void** )( &p_Altaircam_deBayerV2 ) = _getDLSym ( libHandle,
 	      "Altaircam_deBayerV2" ))) {
 	    return 0;
 	  }
+		 */
 
 	  if (!( *( void** )( &p_Altaircam_EnumV2 ) = _getDLSym ( libHandle,
 	      "Altaircam_EnumV2" ))) {

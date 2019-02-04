@@ -241,10 +241,12 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
     return 0;
   }
 
+	/*
   if (!( *( void** )( &p_Toupcam_deBayerV2 ) = _getDLSym ( libHandle,
       "Toupcam_deBayerV2" ))) {
     return 0;
   }
+	*/
 
   if (!( *( void** )( &p_Toupcam_EnumV2 ) = _getDLSym ( libHandle,
       "Toupcam_EnumV2" ))) {
