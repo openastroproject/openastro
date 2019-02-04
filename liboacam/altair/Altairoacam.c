@@ -242,7 +242,7 @@ oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
 		( void ) strncat ( libPath, libName, PATH_MAX );
 
     if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
-      fprintf ( stderr, "can't load %s\n", libPath );
+      // fprintf ( stderr, "can't load %s\n", libPath );
       return 0;
     }
 
