@@ -839,6 +839,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
   numResolutions = 0;
   firstMode = 0; // by definition
+  camera->features.fixedFrameSizes = 1;
   for ( mode = FC2_MODE_0; mode < FC2_NUM_MODES; mode++ ) {
 
     // skip modes unsupported by code
@@ -897,6 +898,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       cameraInfo->availableBinModes |= ( 1 << ( xbin - 1 ));
       if ( imageInfo.imageHStepSize || imageInfo.imageVStepSize ) {
         camera->features.ROI = 1;
+				camera->features.fixedFrameSizes = 0;
       }
 
       found = 0;
@@ -939,7 +941,6 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       }
     }
   }
-  camera->features.fixedFrameSizes = 1;
   maxBinMode = numBinModes = 0;
   i = cameraInfo->availableBinModes;
   while ( i ) {

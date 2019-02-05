@@ -464,6 +464,20 @@ _processGetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
     return OA_ERR_NONE;
   }
 
+	if ( OA_CAM_CTRL_BINNING == control ) {
+		int		xbin, ybin;
+
+	  if (( *p_fc2GetGigEImageBinningSettings )( cameraInfo->pgeContext, &xbin,
+				&ybin ) != FC2_ERROR_OK ) {
+			fprintf ( stderr, "Can't get binning state\n" );
+			return -OA_ERR_CAMERA_IO;
+		}
+
+		val->valueType = OA_CTRL_TYPE_INT32;
+		val->int32 = xbin;
+		return OA_ERR_NONE;
+  }
+
   fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
 
   return -OA_ERR_INVALID_CONTROL;
