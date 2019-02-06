@@ -2,7 +2,8 @@
  *
  * FC2connect.c -- Initialise Point Grey Gig-E cameras
  *
- * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -451,6 +452,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         break;
 
       case FC2_FRAME_RATE:
+				// FIX ME
         fprintf ( stderr, "Need to set up frame rates for FC2 camera\n" );
         break;
 

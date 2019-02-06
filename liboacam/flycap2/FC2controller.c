@@ -2,7 +2,8 @@
  *
  * FC2controller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -489,6 +490,7 @@ _processSetResolution ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 {
   FRAMESIZE*			size = command->commandData;
   unsigned int			binMode, s, mode, restart = 0;
+	fc2GigEImageSettingsInfo	imageInfo;
   fc2GigEImageSettings		settings;
   int				found;
 
@@ -498,9 +500,10 @@ _processSetResolution ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 
   found = -1;
   binMode = cameraInfo->binMode;
-  for ( s = 0; s < cameraInfo->frameSizes[ binMode ].numSizes; s++ ) {
-    if ( cameraInfo->frameSizes[ binMode ].sizes[ s ].x == size->x &&
-        cameraInfo->frameSizes[ binMode ].sizes[ s ].y == size->y ) {
+  for ( s = 0; s < cameraInfo->frameSizes[ binMode ].numSizes && found < 0;
+			s++ ) {
+    if ( cameraInfo->frameSizes[ binMode ].sizes[ s ].x >= size->x &&
+        cameraInfo->frameSizes[ binMode ].sizes[ s ].y >= size->y ) {
       found = s;
       break;
     }
@@ -513,6 +516,12 @@ _processSetResolution ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 
   mode = cameraInfo->frameModes[ binMode ][ found ].mode;
 
+  if (( *p_fc2GetGigEImageSettingsInfo )( cameraInfo->pgeContext,
+      &imageInfo ) != FC2_ERROR_OK ) {
+    fprintf ( stderr, "Can't get image settings info\n" );
+    return -OA_ERR_CAMERA_IO;
+  }
+
   if (( *p_fc2GetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
     fprintf ( stderr, "Can't get FC2 image settings\n" );
@@ -520,8 +529,8 @@ _processSetResolution ( FC2_STATE* cameraInfo, OA_COMMAND* command )
   }
   settings.width = size->x;
   settings.height = size->y;
-  settings.offsetX = 0;
-  settings.offsetY = 0;
+  settings.offsetX = ( imageInfo.maxWidth - size->x ) / 2;
+  settings.offsetY = ( imageInfo.maxHeight - size->y ) / 2;
 
   if ( cameraInfo->isStreaming ) {
     restart = 1;
@@ -1032,8 +1041,8 @@ _doBinning ( FC2_STATE* cameraInfo, int binMode )
 
   found = -1;
   for ( s = 0; s < cameraInfo->frameSizes[ binMode ].numSizes; s++ ) {
-    if ( cameraInfo->frameSizes[ binMode ].sizes[ s ].x == newX &&
-        cameraInfo->frameSizes[ binMode ].sizes[ s ].y == newY ) {
+    if ( cameraInfo->frameSizes[ binMode ].sizes[ s ].x >= newX &&
+        cameraInfo->frameSizes[ binMode ].sizes[ s ].y >= newY ) {
       found = s;
       break;
     }
