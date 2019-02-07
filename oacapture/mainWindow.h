@@ -89,6 +89,7 @@ class MainWindow : public QMainWindow
     QMenu*		advancedMenu;
     QMenu*		helpMenu;
     QAction*		disconnectCam;
+    QAction*		resetCam;
     QAction*		rescanCam;
     QAction*		cameraMenuSeparator;
     QAction*		disconnectWheel;
@@ -208,6 +209,7 @@ class MainWindow : public QMainWindow
   public slots:
     void		connectCamera( int );
     void		disconnectCamera ( void );
+    void		resetCamera ( void );
     void		rescanCameras ( void );
     void		connectFilterWheel( int );
     void		disconnectFilterWheel ( void );

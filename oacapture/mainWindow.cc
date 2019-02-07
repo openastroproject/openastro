@@ -84,7 +84,7 @@ MainWindow::MainWindow ( QString configFile )
   timerSignalMapper = 0;
   timerStatus = wheelStatus = locationLabel = 0;
   advancedFilterWheelSignalMapper = 0;
-  rescanCam = disconnectCam = 0;
+  resetCam = rescanCam = disconnectCam = 0;
   rescanWheel = disconnectWheel = warmResetWheel = coldResetWheel = 0;
   rescanTimer = disconnectTimerDevice = resetTimerDevice = 0;
   connectedCameras = cameraMenuCreated = 0;
@@ -92,9 +92,8 @@ MainWindow::MainWindow ( QString configFile )
   connectedTimers = timerMenuCreated = 0;
   doingQuit = 0;
   cameraDevs = 0;
-	// FIX ME -- clearly wrong.  Should be for filter wheel and timer?
-  cameraDevs = 0;
-  cameraDevs = 0;
+  filterWheelDevs = 0;
+  timerDevs = 0;
   state.histogramOn = 0;
   state.histogramWidget = 0;
   state.needGroupBoxBorders = 0;
@@ -221,6 +220,9 @@ MainWindow::~MainWindow()
     delete timerSignalMapper;
   }
   delete exit;
+  if ( resetCam ) {
+    delete resetCam;
+  }
   if ( rescanCam ) {
     delete rescanCam;
   }
@@ -1578,6 +1580,7 @@ MainWindow::connectCamera ( int deviceIndex )
 
   disconnectCam->setEnabled( 1 );
   rescanCam->setEnabled( 0 );
+  resetCam->setEnabled( 1 );
   // Now it gets a bit messy.  The camera should get the settings from
   // the current profile, but the configure() functions take the current
   // values, set them in the camera and write them to the current
@@ -1665,6 +1668,14 @@ MainWindow::disconnectCamera ( void )
 
 
 void
+MainWindow::resetCamera ( void )
+{
+  state.controlWidget->resetCamera();
+  statusLine->showMessage ( tr ( "Camera reset" ), 5000 );
+}
+
+
+void
 MainWindow::doDisconnectCam ( void )
 {
   if ( commonState.camera && commonState.camera->isInitialised()) {
@@ -1675,6 +1686,7 @@ MainWindow::doDisconnectCam ( void )
     commonState.camera->disconnect();
     disconnectCam->setEnabled( 0 );
     rescanCam->setEnabled( 1 );
+    resetCam->setEnabled( 0 );
   }
 }
 
@@ -2306,13 +2318,19 @@ MainWindow::doCameraMenu ( int replaceSingleItem )
 
     if ( !cameraMenuCreated ) {
       cameraMenuSeparator = cameraMenu->addSeparator();
+			resetCam = new QAction ( tr ( "Reset" ), this );
+			resetCam->setStatusTip ( tr ( "Reset camera controls" ));
+      connect ( resetCam, SIGNAL( triggered()), this,
+          SLOT( resetCamera()));
       rescanCam = new QAction ( tr ( "Rescan" ), this );
       rescanCam->setStatusTip ( tr ( "Scan for newly connected devices" ));
       connect ( rescanCam, SIGNAL( triggered()), this, SLOT( rescanCameras() ));
       disconnectCam = new QAction ( tr ( "Disconnect" ), this );
       connect ( disconnectCam, SIGNAL( triggered()), this,
           SLOT( disconnectCamera()));
+      resetCam->setEnabled( 0 );
       disconnectCam->setEnabled( 0 );
+      cameraMenu->addAction ( resetCam );
       cameraMenu->addAction ( rescanCam );
       cameraMenu->addAction ( disconnectCam );
     }

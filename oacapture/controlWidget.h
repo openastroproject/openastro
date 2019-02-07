@@ -2,7 +2,8 @@
  *
  * controlWidget.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -66,6 +67,7 @@ class ControlWidget : public QGroupBox
     unsigned int	getCurrentGain ( void );
     unsigned int	getCurrentExposure ( void );
     QString		exposureIntervalString ( void );
+		void		resetCamera ( void );
 
   public slots:
     void		exposureMenuChanged ( int );

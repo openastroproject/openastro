@@ -905,6 +905,31 @@ ControlWidget::configure ( void )
     }
   }
 
+	// Now run through all possible controls and set all of those that are
+	// boolean and we haven't already dealt with to their default values
+
+  for ( int c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
+		for ( int m = OA_CAM_CTRL_MODIFIER_STD; m < OA_CAM_CTRL_MODIFIERS_P1;
+        m++ ) {
+			int control = ( m << 8 ) + c;
+			if ( OA_CTRL_TYPE_BOOLEAN == commonState.camera->hasControl ( control )) {
+				if ( c != OA_CAM_CTRL_GAIN && c != state.preferredExposureControl &&
+						c != config.selectableControl[0] &&
+						c != config.selectableControl[1] ) {
+					int64_t min, max, step, def;
+
+					commonState.camera->controlRange ( c, &min, &max, &step, &def );
+          cameraConf.CONTROL_VALUE( control ) = def;
+				  SET_PROFILE_CONTROL( control, def );
+					commonState.camera->setControl ( control, def );
+					if ( state.settingsWidget ) {
+						state.settingsWidget->updateControl ( control, def );
+					}
+				}
+			}
+		}
+	}
+
   updateFrameRates();
 
   if ( !commonState.camera->hasFrameRateSupport()) {
@@ -2050,5 +2075,99 @@ ControlWidget::doAutoControlUpdate ( void )
 			}
 		}
 	}
+}
 
+
+void
+ControlWidget::resetCamera ( void )
+{
+  int64_t min, max, step, def;
+	int	type;
+
+	// FIX ME -- should do something about a reset here if the camera
+	// features say it has a reset function
+
+  // Do checkboxes first in case their current settings would cause them
+	// to ignore any of the slider settings
+
+  for ( int c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
+		for ( int m = OA_CAM_CTRL_MODIFIER_STD; m < OA_CAM_CTRL_MODIFIERS_P1;
+        m++ ) {
+			int control = ( m << 8 ) + c;
+			commonState.camera->controlRange ( control, &min, &max, &step, &def );
+			if ( OA_CTRL_TYPE_BOOLEAN == commonState.camera->hasControl ( control )) {
+				if (( c == OA_CAM_CTRL_GAIN || c == state.preferredExposureControl ||
+						c == config.selectableControl[0] ||
+						c == config.selectableControl[1] ) &&
+						OA_CAM_CTRL_MODIFIER_STD == m ) {
+					selectableControlCheckbox[ c ]->setChecked ( def ? 1 : 0 );
+				} else {
+          cameraConf.CONTROL_VALUE( control ) = def;
+				  SET_PROFILE_CONTROL( control, def );
+					commonState.camera->setControl ( control, def );
+					if ( state.settingsWidget ) {
+						state.settingsWidget->updateControl ( control, def );
+					}
+				}
+			}
+		}
+	}
+
+  for ( int c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
+    type = commonState.camera->hasControl ( c );
+    if ( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) {
+      commonState.camera->controlRange ( c, &min, &max, &step, &def );
+			int64_t displayedValue = def;
+			if ( c == OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) {
+				int newUnit, newIndex;
+				if ( def >= intervalMultipliers[ INTERVAL_MIN ]) {
+					newUnit = INTERVAL_MIN;
+					displayedValue /= intervalMultipliers[ INTERVAL_MIN ];
+				} else {
+					if ( def >= intervalMultipliers[ INTERVAL_SEC ]) {
+						newUnit = INTERVAL_SEC;
+						displayedValue /= intervalMultipliers[ INTERVAL_SEC ];
+					} else {
+						if ( def >= intervalMultipliers[ INTERVAL_MSEC ]) {
+							newUnit = INTERVAL_MSEC;
+							displayedValue /= intervalMultipliers[ INTERVAL_MSEC ];
+						} else {
+							newUnit = INTERVAL_USEC;
+						}
+					}
+				}
+				if ( useExposureDropdown ) {
+					int foundDropdownValue = -1;
+					int numItems = expMenu->count();
+					for ( int i = 0; i < numItems; i++ ) {
+						if ( displayedValue >= minSettings[i] && displayedValue <=
+								maxSettings[i] ) {
+							foundDropdownValue = i;
+						}
+					}
+					if ( foundDropdownValue >= 0 ) {
+						expMenu->setCurrentIndex ( foundDropdownValue );
+					}
+				}
+				if ( newUnit != config.intervalMenuOption ) {
+					newIndex = 0;
+					while ( enabledIntervals[ newIndex ] != newUnit ) {
+						newIndex++;
+					}
+					config.intervalMenuOption = newUnit;
+					intervalSizeMenu->setCurrentIndex ( newIndex );
+				}
+			}
+			if ( c == OA_CAM_CTRL_EXPOSURE_ABSOLUTE || c ==
+					OA_CAM_CTRL_EXPOSURE_UNSCALED ) {
+				exposureSlider->setValue ( displayedValue );
+				exposureSpinbox->setValue ( displayedValue );
+			} else {
+				selectableControlSlider[ c ]->setValue ( displayedValue );
+				selectableControlSpinbox[ c ]->setValue ( displayedValue );
+			}
+    }
+  }
+
+	// FIX ME -- also need to handle MENU, DISCRETE AND DISC_MENU types?
 }
