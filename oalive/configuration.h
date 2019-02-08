@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * config.h -- declaration of data structures for configuration data
+ * configuration.h -- declaration of data structures for configuration data
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -89,17 +89,6 @@ typedef struct
   int			saveProcessedImage;
   int			saveCaptureSettings;
   int			indexDigits;
-
-  // saved profiles
-  int			numProfiles;
-  QList<PROFILE>	profiles;
-
-  // filters
-  int			numFilters;
-  QList<FILTER>		filters;
-  int			filterSlots[MAX_FILTER_SLOTS];
-  int			promptForFilterChange;
-  int			interFilterDelay;
 
 } CONFIG;
 

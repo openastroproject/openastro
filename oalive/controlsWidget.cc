@@ -409,9 +409,9 @@ ControlsWidget::doResolutionChange ( int roiChanged )
     state.viewWidget->updateFrameSize();
   }
   if ( commonConfig.profileOption >= 0 ) {
-    config.profiles[ commonConfig.profileOption ].imageSizeX =
+    profileConf.profiles[ commonConfig.profileOption ].imageSizeX =
 				config.imageSizeX;
-    config.profiles[ commonConfig.profileOption ].imageSizeY =
+    profileConf.profiles[ commonConfig.profileOption ].imageSizeY =
 				config.imageSizeY;
   }
 }
