@@ -111,7 +111,7 @@ oaTouptekInitCamera ( oaCameraDevice* device )
   } else {
     *toupcamId = 0;
   }
-  ( void ) strcat ( toupcamId, devInfo->toupcamId );
+  ( void ) strcat ( toupcamId, devInfo->deviceId );
   if (!( handle = ( p_Toupcam_Open )( toupcamId ))) {
     fprintf ( stderr, "Can't get Toupcam handle\n" );
     free (( void* ) commonInfo );

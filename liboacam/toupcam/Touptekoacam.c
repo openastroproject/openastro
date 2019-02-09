@@ -1037,7 +1037,7 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
     ( void ) strncpy ( dev->deviceName, devList[i].displayname,
         OA_MAX_NAME_LEN+1 );
     _private->devIndex = i;
-    ( void ) strcpy ( _private->toupcamId, devList[i].id );
+    ( void ) strcpy ( _private->deviceId, devList[i].id );
     dev->_private = _private;
     dev->initCamera = oaTouptekInitCamera;
     dev->hasLoadableFirmware = 0;

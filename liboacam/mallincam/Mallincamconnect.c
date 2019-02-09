@@ -111,7 +111,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
   } else {
     *toupcamId = 0;
   }
-  ( void ) strcat ( toupcamId, devInfo->toupcamId );
+  ( void ) strcat ( toupcamId, devInfo->deviceId );
   if (!( handle = ( p_Mallincam_Open )( toupcamId ))) {
     fprintf ( stderr, "Can't get Mallincam handle\n" );
     free (( void* ) commonInfo );

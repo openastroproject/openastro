@@ -111,7 +111,7 @@ oaAltairInitCamera ( oaCameraDevice* device )
   } else {
     *toupcamId = 0;
   }
-  ( void ) strcat ( toupcamId, devInfo->toupcamId );
+  ( void ) strcat ( toupcamId, devInfo->deviceId );
   if (!( handle = ( p_Altaircam_Open )( toupcamId ))) {
     fprintf ( stderr, "Can't get Altaircam handle\n" );
     free (( void* ) commonInfo );

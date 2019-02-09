@@ -51,7 +51,8 @@ enum oaCameraInterfaceType {
   OA_CAM_IF_ALTAIRCAM			= 14,
   OA_CAM_IF_ALTAIRCAM_LEGACY			= 15,
   OA_CAM_IF_SPINNAKER			= 16,
-  OA_CAM_IF_COUNT			= 17
+  OA_CAM_IF_QHYCCD			= 17,
+  OA_CAM_IF_COUNT			= 18
 };
 
 extern oaInterface	oaCameraInterfaces[ OA_CAM_IF_COUNT + 1 ];
