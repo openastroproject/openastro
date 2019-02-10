@@ -47,7 +47,7 @@
 // This is required because the bitmap of known controls in the
 // processing units does not match the id of the control.  Gah!!!
 
-struct puCtrl controlData[] = {
+struct puCtrl UVCControlData[] = {
   {
     .uvcControl		= UVC_PU_BRIGHTNESS_CONTROL,
     .oaControl		= OA_CAM_CTRL_BRIGHTNESS,
@@ -146,7 +146,8 @@ struct puCtrl controlData[] = {
   }
 };
 
-unsigned int numPUControls = sizeof ( controlData ) / sizeof ( struct puCtrl );
+unsigned int numPUControls = sizeof ( UVCControlData ) /
+		sizeof ( struct puCtrl );
 
 static void _UVCInitFunctionPointers ( oaCamera* );
 static void _getUVCControlValues ( oaCamera*, uvc_device_handle_t*,
@@ -794,12 +795,12 @@ oaUVCInitCamera ( oaCameraDevice* device )
 
   flags = unit->bmControls;
   cameraInfo->haveComponentWhiteBalance = 0;
-  numPUControls = sizeof ( controlData ) / sizeof ( struct puCtrl );
+  numPUControls = sizeof ( UVCControlData ) / sizeof ( struct puCtrl );
   for ( i = 0; i < numPUControls; i++ ) {
     if ( flags & 1 ) {
       // FIX ME -- remove these two temp variables
-      uvcControl = controlData[ i ].uvcControl;
-      oaControl = controlData[ i ].oaControl;
+      uvcControl = UVCControlData[ i ].uvcControl;
+      oaControl = UVCControlData[ i ].oaControl;
       // if oaControl == 0 we don't support this yet, but white balance
       // component is a special case because it is red and blue balance
       // combined
@@ -1232,9 +1233,9 @@ _getUVCControlValues ( oaCamera* camera, uvc_device_handle_t* uvcHandle,
   enum uvc_pu_ctrl_selector	uvcControl;
   COMMON_INFO*			commonInfo = camera->_common;
 
-  uvcControl = controlData[ index ].uvcControl;
-  oaControl = controlData[ index ].oaControl;
-  len = controlData[ index ].size;
+  uvcControl = UVCControlData[ index ].uvcControl;
+  oaControl = UVCControlData[ index ].oaControl;
+  len = UVCControlData[ index ].size;
 
   // special case for white component control
   if ( UVC_PU_WHITE_BALANCE_COMPONENT_CONTROL == uvcControl ) {
@@ -1275,7 +1276,8 @@ _getUVCControlValues ( oaCamera* camera, uvc_device_handle_t* uvcHandle,
 
     int val;
 
-    camera->OA_CAM_CTRL_TYPE( oaControl ) = controlData[ index ].oaControlType;
+    camera->OA_CAM_CTRL_TYPE( oaControl ) =
+				UVCControlData[ index ].oaControlType;
 
     switch ( camera->OA_CAM_CTRL_TYPE( oaControl )) {
       case OA_CTRL_TYPE_INT32:

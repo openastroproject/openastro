@@ -85,7 +85,7 @@ struct puCtrl {
   int		size;
 };
 
-extern struct puCtrl controlData[];
+extern struct puCtrl UVCControlData[];
 extern unsigned int numPUControls;
 
 #endif	/* OA_UVC_H */

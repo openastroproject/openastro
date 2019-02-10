@@ -176,12 +176,12 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
   UVC_STATE*		cameraInfo = camera->_private;
 
   for ( i = 0, found = 0; !found && i < numPUControls; i++ ) {
-    if ( controlData[i].oaControl == control ) {
-      uvcControl = controlData[i].uvcControl;
-      len = controlData[i].size;
+    if ( UVCControlData[i].oaControl == control ) {
+      uvcControl = UVCControlData[i].uvcControl;
+      len = UVCControlData[i].size;
       found = 1;
       // make all non-zero boolean values 1
-      if ( OA_CTRL_TYPE_BOOLEAN == controlData[i].oaControlType ) {
+      if ( OA_CTRL_TYPE_BOOLEAN == UVCControlData[i].oaControlType ) {
         val_s32 = valp->boolean ? 1 : 0;
       } else {
         val_s32 = valp->int32;
@@ -427,9 +427,9 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
   UVC_STATE*		cameraInfo = camera->_private;
 
   for ( i = 0, found = 0; !found && i < numPUControls; i++ ) {
-    if ( controlData[i].oaControl == control ) {
-      uvcControl = controlData[i].uvcControl;
-      len = controlData[i].size;
+    if ( UVCControlData[i].oaControl == control ) {
+      uvcControl = UVCControlData[i].uvcControl;
+      len = UVCControlData[i].size;
       found = 1;
     }
   }
