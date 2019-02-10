@@ -2,7 +2,8 @@
  *
  * openastro.h -- Main Open Astro Project API header
  *
- * Copyright 2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2017,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -63,12 +64,7 @@ typedef struct {
 #ifdef HAVE_LIBFLYCAPTURE2
   fc2PGRGuid		pgeGuid;
 #endif
-#ifdef HAVE_LIBSPINNAKER
-  char			deviceId[ 256 ]; // FIX ME -- magic no.
-#endif
-#ifdef HAVE_LIBTOUPCAM
-  char			toupcamId[65];
-#endif
+  char			deviceId[ 256 ]; // FIX ME -- magic no. spinnaker probably biggest
   uint32_t		majorVersion;
   uint32_t		minorVersion;
 } DEVICE_INFO;
