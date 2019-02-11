@@ -83,6 +83,9 @@
 #if HAVE_LIBSPINNAKER
 #include "spinnaker/Spinoacam.h"
 #endif
+#if HAVE_LIBSPINNAKER
+#include "qhyccd/qhyccdoacam.h"
+#endif
 
 
 oaInterface	oaCameraInterfaces[] = {
@@ -251,6 +254,18 @@ oaInterface	oaCameraInterfaces[] = {
     "Spinnaker",
     "SPIN",
     oaSpinGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if HAVE_LIBQHYCCD
+  {
+    OA_CAM_IF_QHYCCD,
+    "libqhyccd",
+    "QHYCCD",
+    oaQHYCCDGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },

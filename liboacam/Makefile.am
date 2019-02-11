@@ -28,8 +28,10 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/ext/libusb \
   -I$(top_srcdir)/ext/libASICamera/include \
   -I$(top_srcdir)/ext/libtoupcam/include \
+  -I$(top_srcdir)/ext/libqhyccd/include \
   $(LIBUSB_CFLAGS) $(LIBUVC_CFLAGS) \
   $(LIBALTAIRCAM_CFLAGS) $(LIBALTAIRCAM_LEGACY_CFLAGS) $(LIBTOUPCAM_CFLAGS) \
+	$(LIBQHYCCD_CFLAGS) \
   $(DYNLIB_EXTN_CFLAGS)
 
 lib_LTLIBRARIES = liboacam.la
@@ -79,9 +81,14 @@ ALTAIRLEGACYDIR= altair-legacy
 ALTAIRLEGACYLIB= $(ALTAIRLEGACYDIR)/libaltairlegacy.la
 endif
 
+if LIBTOUPCAM_COND
+QHYCCDDIR = qhyccd
+QHYCCDLIB = $(QHYCCDDIR)/libqhyccd.la
+endif
+
 SUBDIRS	= euvc iidc pwc qhy sx uvc $(ALTAIRDIR) $(ATIKDIR) $(MALLINCAMDIR) \
   $(FC2DIR) $(SPINDIR) $(TOUPCAMDIR) $(V4L2DIR) $(ZWODIR) \
-	$(ALTAIRLEGACYDIR) .
+	$(ALTAIRLEGACYDIR) $(QHYCCDDIR) .
 
 liboacam_la_SOURCES = \
   control.c debug.c oacam.c unimplemented.c utils.c
@@ -89,7 +96,7 @@ liboacam_la_SOURCES = \
 liboacam_la_LIBADD = euvc/libeuvc.la iidc/libiidc.la pwc/libpwc.la \
   qhy/libqhy.la sx/libsx.la uvc/libuvc.la $(ALTAIRLIB) $(ATIKLIB) \
   $(MALLINCAMLIB) $(FC2LIB) $(SPINLIB) $(TOUPCAMLIB) $(V4L2LIB) $(ZWOLIB) \
-	$(ALTAIRLEGACYLIB)
+	$(ALTAIRLEGACYLIB) $(QHYCCDLIB)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
