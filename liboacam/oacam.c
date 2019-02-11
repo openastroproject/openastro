@@ -83,7 +83,7 @@
 #if HAVE_LIBSPINNAKER
 #include "spinnaker/Spinoacam.h"
 #endif
-#if HAVE_LIBSPINNAKER
+#if HAVE_LIBQHYCCD
 #include "qhyccd/qhyccdoacam.h"
 #endif
 
