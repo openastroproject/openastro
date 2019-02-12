@@ -78,7 +78,7 @@
 #include "altair/Altairoacam.h"
 #endif
 #if HAVE_LIBALTAIRCAM_LEGACY
-#include "altair-legacy/Altairoacam.h"
+#include "altair-legacy/LegacyAltairoacam.h"
 #endif
 #if HAVE_LIBSPINNAKER
 #include "spinnaker/Spinoacam.h"

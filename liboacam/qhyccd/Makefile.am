@@ -27,7 +27,7 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/ext/libusb \
   -I$(top_srcdir)/liboacam \
   $(LIBUSB_CFLAGS) $(SHLIBS_CFLAGS) $(LIBQHYCCD_CFLAGS) \
-  $(DYNLIB_EXTN_CFLAGS)
+  $(DYNLIB_EXTN_CFLAGS) $(FXLOAD_CFLAGS)
 
 noinst_LTLIBRARIES = libqhyccd.la
 

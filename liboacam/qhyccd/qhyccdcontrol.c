@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * QHYCCDcontrol.c -- control functions for libqhyccd cameras
+ * qhyccdcontrol.c -- control functions for libqhyccd cameras
  *
  * Copyright 2019 James Fidell (james@openastroproject.org)
  *
@@ -103,7 +103,8 @@ int
 oaQHYCCDCameraTestControl ( oaCamera* camera, int control,
     oaControlValue* valp )
 {
-	int						i, found;
+	unsigned int	i, found;
+	QHYCCD_STATE*	cameraInfo = camera->_private;
 	COMMON_INFO*	commonInfo = camera->_common;
 	int32_t				val_s32;
 	int64_t				val_s64;
@@ -115,6 +116,15 @@ oaQHYCCDCameraTestControl ( oaCamera* camera, int control,
   if ( camera->OA_CAM_CTRL_TYPE( control ) != valp->valueType ) {
     return -OA_ERR_INVALID_CONTROL_TYPE;
   }
+
+	if ( OA_CAM_CTRL_BINNING == control ) {
+		val_s32 = valp->discrete;
+		if ( val_s32 < 0 || val_s32 > OA_MAX_BINNING ||
+				cameraInfo->frameSizes[ val_s32 ].numSizes < 1 ) {
+			return -OA_ERR_OUT_OF_RANGE;
+		}
+		return OA_ERR_NONE;
+	}
 
 	found = 0;
 	for ( i = 0; i < numQHYControls && !found; i++ ) {

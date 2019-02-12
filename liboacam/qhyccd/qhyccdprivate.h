@@ -53,7 +53,7 @@ extern uint32_t			( *p_SetQHYCCDResolution )( qhyccd_handle*, uint32_t,
 extern uint32_t			( *p_GetQHYCCDMemLength )( qhyccd_handle* );
 extern uint32_t			( *p_ExpQHYCCDSingleFrame )( qhyccd_handle* );
 extern uint32_t			( *p_GetQHYCCDSingleFrame )( qhyccd_handle*, uint32_t*,
-												uint32_t*, uint32_t*, uint32_t*, uint8_t );
+												uint32_t*, uint32_t*, uint32_t*, uint8_t* );
 extern uint32_t			( *p_CancelQHYCCDExposing )( qhyccd_handle* );
 extern uint32_t			( *p_CancelQHYCCDExposingAndReadout )( qhyccd_handle* );
 extern uint32_t			( *p_BeginQHYCCDLive )( qhyccd_handle* );

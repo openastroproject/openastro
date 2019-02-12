@@ -48,10 +48,6 @@ static int	_doStart ( QHYCCD_STATE* );
 static int	_doStop ( QHYCCD_STATE* );
 static int	_setBinning ( QHYCCD_STATE*, int );
 static int	_setFrameFormat ( QHYCCD_STATE*, int );
-/*
-static int	_setColourMode ( QHYCCD_STATE*, int );
-static int	_setBitDepth ( QHYCCD_STATE*, int );
-*/
 
 
 void*
@@ -148,7 +144,7 @@ oacamQHYCCDcontroller ( void* param )
         nextBuffer = cameraInfo->nextBuffer;
         haveFrame = 0;
         if ( p_GetQHYCCDLiveFrame ( cameraInfo->handle, &w, &h, &bpp,
-						&channels, (uint8_t*) cameraInfo->buffers[ nextBuffer ].start ) !=
+						&channels, (uint8_t*) cameraInfo->buffers[ nextBuffer ].start ) ==
 						QHYCCD_SUCCESS ) {
           haveFrame = 1;
         }
@@ -157,25 +153,29 @@ oacamQHYCCDcontroller ( void* param )
         exitThread = cameraInfo->stopControllerThread;
         pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
-        if ( !exitThread && haveFrame ) {
-          cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
-              OA_CALLBACK_NEW_FRAME;
-          cameraInfo->frameCallbacks[ nextBuffer ].callback =
-              cameraInfo->streamingCallback.callback;
-          cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =
-              cameraInfo->streamingCallback.callbackArg;
-          cameraInfo->frameCallbacks[ nextBuffer ].buffer =
-              cameraInfo->buffers[ nextBuffer ].start;
-          cameraInfo->frameCallbacks[ nextBuffer ].bufferLen =
-              imageBufferLength;
-          oaDLListAddToTail ( cameraInfo->callbackQueue,
-              &cameraInfo->frameCallbacks[ nextBuffer ]);
-          pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
-          cameraInfo->buffersFree--;
-          cameraInfo->nextBuffer = ( nextBuffer + 1 ) %
-              cameraInfo->configuredBuffers;
-          pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
-          pthread_cond_broadcast ( &cameraInfo->callbackQueued );
+        if ( !exitThread ) {
+					if ( haveFrame ) {
+						cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
+								OA_CALLBACK_NEW_FRAME;
+						cameraInfo->frameCallbacks[ nextBuffer ].callback =
+								cameraInfo->streamingCallback.callback;
+						cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =
+								cameraInfo->streamingCallback.callbackArg;
+						cameraInfo->frameCallbacks[ nextBuffer ].buffer =
+								cameraInfo->buffers[ nextBuffer ].start;
+						cameraInfo->frameCallbacks[ nextBuffer ].bufferLen =
+								imageBufferLength;
+						oaDLListAddToTail ( cameraInfo->callbackQueue,
+								&cameraInfo->frameCallbacks[ nextBuffer ]);
+						pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+						cameraInfo->buffersFree--;
+						cameraInfo->nextBuffer = ( nextBuffer + 1 ) %
+								cameraInfo->configuredBuffers;
+						pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+						pthread_cond_broadcast ( &cameraInfo->callbackQueued );
+					} else {
+						usleep ( frameWait );
+					}
         }
       }
     }
@@ -190,9 +190,33 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 {
   QHYCCD_STATE*	cameraInfo = camera->_private;
   oaControlValue	*valp = command->commandData;
-  int			control = command->controlId, val = 0;
-	int			found, i;
+  int			control = command->controlId;
+	int								val;
+	unsigned int			found, i;
 	float		val_s32, val_s64;
+
+	if ( OA_CAM_CTRL_FRAME_FORMAT == control ) {
+		if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
+			fprintf ( stderr, "%s: invalid control type %d where discrete "
+					"expected\n", __FUNCTION__, valp->valueType );
+			return -OA_ERR_INVALID_CONTROL_TYPE;
+		}
+		val = valp->discrete;
+		if ( !camera->frameFormats[ val ] ) {
+			return -OA_ERR_OUT_OF_RANGE;
+		}
+		return _setFrameFormat ( cameraInfo, val );
+	}
+
+	if ( OA_CAM_CTRL_BINNING == control ) {
+		if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
+			fprintf ( stderr, "%s: invalid control type %d where discrete "
+					"expected\n", __FUNCTION__, valp->valueType );
+			return -OA_ERR_INVALID_CONTROL_TYPE;
+		}
+		val = valp->discrete;
+		return _setBinning ( cameraInfo, val );
+	}
 
 	found = 0;
   for ( i = 0; i < numQHYControls && !found; i++ ) {
@@ -205,10 +229,10 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 
-			switch ( QHYControlData[ found ].oaControlType ) {
+			switch ( QHYControlData[i].oaControlType ) {
 				case OA_CTRL_TYPE_INT32:
 					val_s32 = valp->int32;
-					val_s32 /= QHYControlData[ found ].multiplier;
+					val_s32 /= QHYControlData[i].multiplier;
 					if ( p_SetQHYCCDParam ( cameraInfo->handle,
 							QHYControlData[i].qhyControl, val_s32 ) != QHYCCD_SUCCESS ) {
 						fprintf ( stderr, "QHYCCD: Set control %d to %f failed\n",
@@ -219,7 +243,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 					break;
 				case OA_CTRL_TYPE_INT64:
 					val_s64 = valp->int64;
-					val_s64 /= QHYControlData[ found ].multiplier;
+					val_s64 /= QHYControlData[i].multiplier;
 					if ( p_SetQHYCCDParam ( cameraInfo->handle,
 							QHYControlData[i].qhyControl, val_s64 ) != QHYCCD_SUCCESS ) {
 						fprintf ( stderr, "QHYCCD: Set control %d to %f failed\n",
@@ -245,41 +269,23 @@ _processGetControl ( QHYCCD_STATE* cameraInfo, OA_COMMAND* command )
 {
   oaControlValue	*valp = command->resultData;
   int			control = command->controlId;
-	float		val_s32, val_s64;
-	int			i, found;
+	float		qhyccdval;
+	unsigned int			i, found;
 
 	found = 0;
   for ( i = 0; i < numQHYControls && !found; i++ ) {
 		if ( QHYControlData[i].oaControl == control ) {
 			found = 1;
-			if ( valp->valueType != QHYControlData[i].oaControlType ) {
-				fprintf ( stderr, "%s: invalid control type %d where %d expected "
-						"for control %d\n", __FUNCTION__, valp->valueType,
-						QHYControlData[i].oaControlType, control );
-				return -OA_ERR_INVALID_CONTROL_TYPE;
-			}
-
+			valp->valueType = QHYControlData[i].oaControlType;
+			qhyccdval = p_GetQHYCCDParam ( cameraInfo->handle,
+					QHYControlData[i].qhyControl );
 			switch ( QHYControlData[ found ].oaControlType ) {
 				case OA_CTRL_TYPE_INT32:
-					val_s32 = valp->int32;
-					val_s32 /= QHYControlData[ found ].multiplier;
-					if ( p_SetQHYCCDParam ( cameraInfo->handle,
-							QHYControlData[i].qhyControl, val_s32 ) != QHYCCD_SUCCESS ) {
-						fprintf ( stderr, "QHYCCD: Set control %d to %f failed\n",
-								QHYControlData[i].qhyControl, val_s32 );
-						return -OA_ERR_CAMERA_IO;
-					}
+					valp->int32 = qhyccdval * QHYControlData[ found ].multiplier;
 					return OA_ERR_NONE;
 					break;
 				case OA_CTRL_TYPE_INT64:
-					val_s64 = valp->int64;
-					val_s64 /= QHYControlData[ found ].multiplier;
-					if ( p_SetQHYCCDParam ( cameraInfo->handle,
-							QHYControlData[i].qhyControl, val_s64 ) != QHYCCD_SUCCESS ) {
-						fprintf ( stderr, "QHYCCD: Set control %d to %f failed\n",
-								QHYControlData[i].qhyControl, val_s64 );
-						return -OA_ERR_CAMERA_IO;
-					}
+					valp->int64 = qhyccdval * QHYControlData[ found ].multiplier;
 					return OA_ERR_NONE;
 					break;
 			}
@@ -410,9 +416,8 @@ _doStart ( QHYCCD_STATE* cameraInfo )
 {
   int			ret;
 
-	p_SetQHYCCDStreamMode ( cameraInfo->handle, 1 );
   if (( ret = p_BeginQHYCCDLive ( cameraInfo->handle )) != QHYCCD_SUCCESS ) {
-    fprintf ( stderr, "%s: StopQHYCCDLive failed: %d\n", __FUNCTION__, ret );
+    fprintf ( stderr, "%s: BeginQHYCCDLive failed: %d\n", __FUNCTION__, ret );
     return -OA_ERR_CAMERA_IO;
 	}
 
@@ -450,43 +455,28 @@ _doStop ( QHYCCD_STATE* cameraInfo )
   return OA_ERR_NONE;
 }
 
-/*
+
 static int
 _setBinning ( QHYCCD_STATE* cameraInfo, int binMode )
 {
-  int		restart = 0, x, y;
+  int		x, y;
 
   if ( binMode < 0 || binMode > OA_MAX_BINNING ||
       cameraInfo->frameSizes[ binMode ].numSizes < 1 ) {
     return -OA_ERR_OUT_OF_RANGE;
   }
 
-  // Reset the ROI
-
-  if ((( p_Altaircam_put_Roi )( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
-    fprintf ( stderr, "Can't clear Altaircam ROI\n" );
-    return -OA_ERR_CAMERA_IO;
-  }
-
-  if ( cameraInfo->isStreaming ) {
-    restart = 1;
-    _doStop ( cameraInfo );
-  }
-
   x = cameraInfo->frameSizes[ binMode ].sizes[0].x;
   y = cameraInfo->frameSizes[ binMode ].sizes[0].y;
-  if ((( p_Altaircam_put_Size )( cameraInfo->handle, x, y )) < 0 ) {
-    fprintf ( stderr, "Can't set Altaircam frame size\n" );
+	if ( p_SetQHYCCDBinMode ( cameraInfo->handle, binMode, binMode ) !=
+			QHYCCD_SUCCESS ) {
+    fprintf ( stderr, "Can't set bin mode %d\n", binMode );
     return -OA_ERR_CAMERA_IO;
   }
 
   cameraInfo->binMode = binMode;
   cameraInfo->currentXSize = cameraInfo->currentXResolution = x;
   cameraInfo->currentYSize = cameraInfo->currentYResolution = y;
-
-  if ( restart ) {
-    _doStart ( cameraInfo );
-  }
 
   return OA_ERR_NONE;
 }
@@ -495,47 +485,24 @@ _setBinning ( QHYCCD_STATE* cameraInfo, int binMode )
 static int
 _setFrameFormat ( QHYCCD_STATE* cameraInfo, int format )
 {
-  int           restart = 0;
-  int           raw = 0, bitspp;
+  int           bitspp;
 
-  // Only need to do this if we're dealing with a colour camera
+	// Handle change of bit depth
+	bitspp = oaFrameFormats[ format ].bitsPerPixel;
+   if ( p_SetQHYCCDBitsMode ( cameraInfo->handle, bitspp ) != QHYCCD_SUCCESS ) {
+     fprintf ( stderr, "SetQHYCCDBitsMode ( transferbit, %d ) fails\n",
+				bitspp );
+		return -OA_ERR_CAMERA_IO;
+	}
 
-  if ( !oaFrameFormats[ format ].monochrome ) {
-
-    // FIX ME -- could make this more effcient by doing nothing here unless
-    // we need to change it
-
-    if ( cameraInfo->isStreaming ) {
-      restart = 1;
-      _doStop ( cameraInfo );
-    }
-
-    raw = oaFrameFormats[ format ].rawColour ? 1 : 0;
-    if ((( p_Altaircam_put_Option )( cameraInfo->handle, QHYCCD_OPTION_RAW,
-        raw  )) < 0 ) {
-      fprintf ( stderr, "Altaircam_put_Option ( raw, %d ) failed\n", raw );
-      return -OA_ERR_CAMERA_IO;
-    }
-
-    if ((( p_Altaircam_put_Option )( cameraInfo->handle, QHYCCD_OPTION_RGB,
-        format == OA_PIX_FMT_RGB48LE ? 1 : 0 )) < 0 ) {
-      fprintf ( stderr, "Altaircam_put_Option ( raw, %d ) failed\n", raw );
-      return -OA_ERR_CAMERA_IO;
-    }
-    if ( restart ) {
-      _doStart ( cameraInfo );
-    }
-  }
-
-  // FIX ME -- don't do this if we don't need to
-  // And now change the bit depth
-
-  bitspp = oaFrameFormats[ format ].bitsPerPixel;
-  if ((( p_Altaircam_put_Option )( cameraInfo->handle, QHYCCD_OPTION_BITDEPTH,
-      ( bitspp > 8 ) ? 1 : 0  )) < 0 ) {
-    fprintf ( stderr, "Altaircam_put_Option ( depth, %d ) failed\n",
-        bitspp > 8 ? 1 : 0 );
-    return -OA_ERR_CAMERA_IO;
+	if ( cameraInfo->colour ) {
+		// Colour can also switch between raw and RGB
+    if ( p_SetQHYCCDDebayerOnOff ( cameraInfo->handle,
+					oaFrameFormats[ format ].rawColour ? 0 : 1 ) != QHYCCD_SUCCESS ) {
+      fprintf ( stderr, "p_SetQHYCCDDebayerOnOff ( %d ) returns error\n",
+          cameraInfo->colour );
+			return -OA_ERR_CAMERA_IO;
+		}
   }
 
   cameraInfo->currentVideoFormat = format;
@@ -547,4 +514,3 @@ _setFrameFormat ( QHYCCD_STATE* cameraInfo, int format )
 
   return OA_ERR_NONE;
 }
-*/

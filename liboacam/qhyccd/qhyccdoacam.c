@@ -63,7 +63,7 @@ uint32_t				( *p_SetQHYCCDResolution )( qhyccd_handle*, uint32_t, uint32_t,
 uint32_t				( *p_GetQHYCCDMemLength )( qhyccd_handle* );
 uint32_t				( *p_ExpQHYCCDSingleFrame )( qhyccd_handle* );
 uint32_t				( *p_GetQHYCCDSingleFrame )( qhyccd_handle*, uint32_t*,
-										uint32_t*, uint32_t*, uint32_t*, uint8_t );
+										uint32_t*, uint32_t*, uint32_t*, uint8_t* );
 uint32_t				( *p_CancelQHYCCDExposing )( qhyccd_handle* );
 uint32_t				( *p_CancelQHYCCDExposingAndReadout )( qhyccd_handle* );
 uint32_t				( *p_BeginQHYCCDLive )( qhyccd_handle* );
@@ -123,6 +123,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	char						qhyccdModel[ 64 ]; // size is a guess
 
 #if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
+	char					firmwarePath[ PATH_MAX+1 ];
   const char*		libName = "libqhyccd.dylib";
 #else
   const char*		libName = "libqhyccd.so.4";
@@ -495,6 +496,17 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 		fprintf ( stderr, "can't init libqhyccd\n" );
 		return 0;
 	}
+
+#if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
+  if ( installPathRoot ) {
+		( void ) strcpy ( firmwarePath, installPathRoot );
+  }
+	( void ) strcat ( firmwarePath, FIRMWARE_QHY_PATH );
+	// because, stupidly, the firmware directory has to be called "firmware"
+	( void ) strcat ( firmwarePath, "/firmware" );
+	OSXInitQHYCCDFirmware ( firmwarePath );
+#endif
+
   numCameras = ( p_ScanQHYCCD )();
   if ( numCameras < 1 ) {
 		p_ReleaseQHYCCDResource();

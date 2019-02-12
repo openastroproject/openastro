@@ -56,12 +56,15 @@ cp lib/firmware/qhy/QHY{5,5II,5LOADER,6}.HEX \
     $APPDIR/Contents/Resources/firmware/qhy
 cp lib/firmware/qhy/SLAVEFIFO.HEX \
     $APPDIR/Contents/Resources/firmware/qhy
+# This is an attempt to keep libqhyccd's daft restriction on the name
+# of the firmware directory happy
+ln -s . $APPDIR/Contents/Resources/firmware/qhy/firmware
 
 cp oacapture/translations/*.qm $APPDIR/Contents/Resources/translations
 
 /opt/local/bin/macdeployqt $APPDIR
 
-for lib in toupcam mallincam altaircam altaircamlegacy
+for lib in toupcam mallincam altaircam altaircamlegacy libqhyccd
 do
   libfile=ext/lib$lib/mac64/lib$lib.dylib
   if [ -f $libfile ]

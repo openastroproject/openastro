@@ -178,19 +178,40 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 
   if (!( handle = ( p_OpenQHYCCD )( cameraInfo->qhyccdId ))) {
     p_ReleaseQHYCCDResource();
-    fprintf ( stderr, "Can't get QHYCCDcam handle\n" );
+    fprintf ( stderr, "Can't get QHYCCD handle\n" );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
     return 0;
   }
 
+	if ( p_SetQHYCCDStreamMode ( handle, 1 ) != QHYCCD_SUCCESS ) {
+		p_CloseQHYCCD ( handle );
+    p_ReleaseQHYCCDResource();
+    fprintf ( stderr, "Can't set streaming mode\n" );
+    free (( void* ) commonInfo );
+    free (( void* ) cameraInfo );
+    free (( void* ) camera );
+    return 0;
+	}
+
+	if ( p_InitQHYCCD ( handle ) != QHYCCD_SUCCESS ) {
+		p_CloseQHYCCD ( handle );
+    p_ReleaseQHYCCDResource();
+    fprintf ( stderr, "Can't init camera\n" );
+    free (( void* ) commonInfo );
+    free (( void* ) cameraInfo );
+    free (( void* ) camera );
+    return 0;
+	}
+
 	camera->features.readableControls = 1; // allegedy
 
 	for ( i = 0; i < numQHYControls; i++ ) {
-		int m = 1;
-		if ( p_IsQHYCCDControlAvailable ( handle, i ) == QHYCCD_SUCCESS ) {
-      p_GetQHYCCDParamMinMaxStep ( handle, i, &min, &max, &step );
+		int m = 1, qhyControl = QHYControlData[i].qhyControl;
+		if ( p_IsQHYCCDControlAvailable ( handle, qhyControl ) == QHYCCD_SUCCESS ) {
+      p_GetQHYCCDParamMinMaxStep ( handle, qhyControl, &min, &max, &step );
+			// fprintf ( stderr, "qhy control: %d, min: %f, max: %f, step: %f ", qhyControl, min, max, step );
 			while (( step - (( int ) step )) != 0 ) {
 				step *= 10;
 				m *= 10;
@@ -203,8 +224,8 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 			commonInfo->OA_CAM_CTRL_STEP( oactrl ) = step;
 			// this is just a best guess, really.
 			commonInfo->OA_CAM_CTRL_DEF( oactrl ) = p_GetQHYCCDParam (
-					handle, i ) * m;
-fprintf ( stderr, "control %d, min %f, max %f, step %f, default %ld, multiplier %d\n", i, min, max, step, commonInfo->OA_CAM_CTRL_DEF( oactrl ), m );
+					handle, qhyControl ) * m;
+			//fprintf ( stderr, "def: %f\n", p_GetQHYCCDParam ( handle, qhyControl ));
 		}
 	}
 
@@ -219,8 +240,10 @@ fprintf ( stderr, "control %d, min %f, max %f, step %f, default %ld, multiplier 
 		cameraInfo->colour = 0;
 	}
 
-	cameraInfo->has8Bit = p_IsQHYCCDControlAvailable ( handle, CAM_8BITS );
-	cameraInfo->has16Bit = p_IsQHYCCDControlAvailable ( handle, CAM_16BITS );
+	cameraInfo->has8Bit = ( p_IsQHYCCDControlAvailable ( handle, CAM_8BITS ) ==
+			QHYCCD_SUCCESS ) ? 1 : 0;
+	cameraInfo->has16Bit = ( p_IsQHYCCDControlAvailable ( handle, CAM_16BITS ) ==
+		QHYCCD_SUCCESS ) ? 1 : 0;
 
 	// Assuming all 16-bit modes are big-endian here...
 
@@ -231,31 +254,32 @@ fprintf ( stderr, "control %d, min %f, max %f, step %f, default %ld, multiplier 
 			camera->frameFormats[ OA_PIX_FMT_RGB24 ] = 1;
 		}
 		if ( cameraInfo->has16Bit ) {
-			camera->frameFormats[ OA_PIX_FMT_RGB48BE ] = 1;
+			camera->frameFormats[ OA_PIX_FMT_RGB48LE ] = 1;
 		}
     camera->features.rawMode = camera->features.demosaicMode = 1;
 		switch ( cfaMask ) {
 			case BAYER_GB:
 				camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
-				camera->frameFormats[ OA_PIX_FMT_GBRG16BE ] = 1;
+				camera->frameFormats[ OA_PIX_FMT_GBRG16LE ] = 1;
 				break;
 			case BAYER_GR:
 				camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
-				camera->frameFormats[ OA_PIX_FMT_GRBG16BE ] = 1;
+				camera->frameFormats[ OA_PIX_FMT_GRBG16LE ] = 1;
 				break;
 			case BAYER_BG:
 				camera->frameFormats[ OA_PIX_FMT_BGGR8 ] = 1;
-				camera->frameFormats[ OA_PIX_FMT_BGGR16BE ] = 1;
+				camera->frameFormats[ OA_PIX_FMT_BGGR16LE ] = 1;
 				break;
 			case BAYER_RG:
 				camera->frameFormats[ OA_PIX_FMT_RGGB8 ] = 1;
-				camera->frameFormats[ OA_PIX_FMT_RGGB16BE ] = 1;
+				camera->frameFormats[ OA_PIX_FMT_RGGB16LE ] = 1;
 				break;
 		}
-		// Force RGB images for startup
-		if ( p_SetQHYCCDDebayerOnOff ( handle, 1 ) != QHYCCD_SUCCESS ) {
-      fprintf ( stderr,
-          "p_SetQHYCCDDebayerOnOff ( 1 ) returns error\n" );
+		// Force RGB images for startup of colour cameras
+		if ( p_SetQHYCCDDebayerOnOff ( handle, cameraInfo->colour ) !=
+				QHYCCD_SUCCESS ) {
+      fprintf ( stderr, "p_SetQHYCCDDebayerOnOff ( %d ) returns error\n",
+					cameraInfo->colour );
 			p_CloseQHYCCD ( handle );
 			p_ReleaseQHYCCDResource();
       free (( void* ) commonInfo );
@@ -268,7 +292,7 @@ fprintf ( stderr, "control %d, min %f, max %f, step %f, default %ld, multiplier 
 			camera->frameFormats[ OA_PIX_FMT_GREY8 ] = 1;
 		}
 		if ( cameraInfo->has16Bit ) {
-			camera->frameFormats[ OA_PIX_FMT_GREY16BE ] = 1;
+			camera->frameFormats[ OA_PIX_FMT_GREY16LE ] = 1;
 		}
 	}
 
@@ -304,11 +328,11 @@ fprintf ( stderr, "control %d, min %f, max %f, step %f, default %ld, multiplier 
 		}
 	} else {
 		if ( cameraInfo->colour ) {
-			cameraInfo->currentVideoFormat = OA_PIX_FMT_RGB48BE;
+			cameraInfo->currentVideoFormat = OA_PIX_FMT_RGB48LE;
 			cameraInfo->currentBitsPerPixel = 48;
 			cameraInfo->currentBytesPerPixel = 6;
 		} else {
-			cameraInfo->currentVideoFormat = OA_PIX_FMT_GREY16BE;
+			cameraInfo->currentVideoFormat = OA_PIX_FMT_GREY16LE;
 			cameraInfo->currentBitsPerPixel = 16;
 			cameraInfo->currentBytesPerPixel = 2;
 		}
@@ -328,20 +352,9 @@ fprintf ( stderr, "control %d, min %f, max %f, step %f, default %ld, multiplier 
 	}
 	camera->features.pixelSizeX = pixelSizeX;
 	camera->features.pixelSizeY = pixelSizeY;
-
-  if ( p_GetQHYCCDEffectiveArea ( handle, &dummy, &dummy, &x, &y ) !=
-      QHYCCD_SUCCESS ) {
-    fprintf ( stderr, "GetQHYCCDEffectiveArea returns error\n" );
-    p_CloseQHYCCD ( handle );
-    p_ReleaseQHYCCDResource();
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
-    return 0;
-  }
-
 	cameraInfo->maxResolutionX = cameraInfo->currentXSize = x;
 	cameraInfo->maxResolutionY = cameraInfo->currentYSize = y;
+
 	cameraInfo->frameSizes[1].numSizes = 1;
 	if (!( cameraInfo->frameSizes[1].sizes = malloc ( sizeof ( FRAMESIZE )))) {
     fprintf ( stderr, "malloc for frame sizes failed\n" );
