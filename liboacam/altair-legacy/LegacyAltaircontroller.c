@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * Altaircontroller.c -- Main camera controller thread
+ * LegacyAltaircontroller.c -- Main camera controller thread
  *
  * Copyright 2016,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
@@ -33,9 +33,9 @@
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
-#include "Altairprivate.h"
-#include "Altairoacam.h"
-#include "Altairstate.h"
+#include "LegacyAltairprivate.h"
+#include "LegacyAltairoacam.h"
+#include "LegacyAltairstate.h"
 
 
 static int	_processSetControl ( oaCamera*, OA_COMMAND* );

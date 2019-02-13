@@ -31,8 +31,9 @@ AM_CPPFLAGS = \
 
 noinst_LTLIBRARIES = libaltairlegacy.la
 
-libaltairlegacy_la_SOURCES = Altairoacam.c Altairconnect.c Altaircallback.c \
-  Altaircontrol.c Altaircontroller.c AltairgetState.c Altairroi.c
+libaltairlegacy_la_SOURCES = LegacyAltairoacam.c LegacyAltairconnect.c \
+	LegacyAltaircallback.c LegacyAltaircontrol.c LegacyAltaircontroller.c \
+	LegacyAltairgetState.c LegacyAltairroi.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

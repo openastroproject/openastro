@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * Altairroi.c -- region of interest management for Altair cameras
+ * LegacyAltairroi.c -- region of interest management for Altair cameras
  *
- * Copyright 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -30,8 +30,8 @@
 #include <openastro/util.h>
 
 #include "oacamprivate.h"
-#include "Altairstate.h"
-#include "Altairoacam.h"
+#include "LegacyAltairstate.h"
+#include "LegacyAltairoacam.h"
 
 
 int

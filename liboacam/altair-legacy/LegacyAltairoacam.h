@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * Altairoacam.h -- header for Altair camera API
+ * LegacyAltairoacam.h -- header for Altair camera API
  *
  * Copyright 2016,2017,2018,2019 James Fidell (james@openastroproject.org)
  *

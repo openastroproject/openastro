@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * AltairgetState.c -- state querying for Altair cameras
+ * LegacyAltairgetState.c -- state querying for Altair cameras
  *
- * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -29,8 +29,8 @@
 #include <openastro/camera.h>
 
 #include "oacamprivate.h"
-#include "Altairoacam.h"
-#include "Altairstate.h"
+#include "LegacyAltairoacam.h"
+#include "LegacyAltairstate.h"
 
 
 int

@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * Altairconnect.c -- Initialise Altair cameras
+ * LegacyAltairconnect.c -- Initialise Altair cameras
  *
  * Copyright 2016,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
@@ -34,9 +34,9 @@
 
 #include "unimplemented.h"
 #include "oacamprivate.h"
-#include "Altairprivate.h"
-#include "Altairoacam.h"
-#include "Altairstate.h"
+#include "LegacyAltairprivate.h"
+#include "LegacyAltairoacam.h"
+#include "LegacyAltairstate.h"
 
 // From the Touptek docs
 #ifndef MAKEFOURCC

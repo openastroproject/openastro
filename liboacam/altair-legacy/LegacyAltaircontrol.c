@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * Altaircontrol.c -- control functions for Altair cameras
+ * LegacyAltaircontrol.c -- control functions for Altair cameras
  *
  * Copyright 2016,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
@@ -30,8 +30,8 @@
 #include <openastro/camera.h>
 
 #include "oacamprivate.h"
-#include "Altairoacam.h"
-#include "Altairstate.h"
+#include "LegacyAltairoacam.h"
+#include "LegacyAltairstate.h"
 
 int
 oaAltairLegacyCameraSetControl ( oaCamera* camera, int control,

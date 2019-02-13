@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * Altaircallback.c -- Thread for handling callbacks to user code
+ * LegacyAltaircallback.c -- Thread for handling callbacks to user code
  *
- * Copyright 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -32,8 +32,8 @@
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
-#include "Altairoacam.h"
-#include "Altairstate.h"
+#include "LegacyAltairoacam.h"
+#include "LegacyAltairstate.h"
 
 
 void*

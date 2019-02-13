@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * Altairprivate.h -- private header for legacy Altair camera API
+ * LegacyAltairprivate.h -- private header for legacy Altair camera API
  *
  * Copyright 2019 James Fidell (james@openastroproject.org)
  *

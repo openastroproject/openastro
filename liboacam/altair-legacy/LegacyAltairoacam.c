@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * Altairoacam.c -- main entrypoint for Altair cameras
+ * LegacyAltairoacam.c -- main entrypoint for Altair cameras
  *
  * Copyright 2016,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
@@ -36,7 +36,7 @@
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
-#include "Altairoacam.h"
+#include "LegacyAltairoacam.h"
 
 // Pointers to libaltaircamlegacy functions so we can use them via libdl.
 
