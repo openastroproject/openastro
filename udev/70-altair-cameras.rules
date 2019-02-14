@@ -1,7 +1,7 @@
 #
 # 70-altair-cameras.rules -- Udev rules for Altair cameras
 #
-# Copyright 2016 James Fidell (james@openastroproject.org)
+# Copyright 2016,2018,2019 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -21,94 +21,89 @@
 # along with the Open Astro Project.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-
-ACTION!="add", GOTO="altair_end"
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", GOTO="altair_test"
-SUBSYSTEM!="usb_device", GOTO="altair_end"
-
-LABEL="altair_test"
+# Set new minimum value for usbfs memory
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="0547", RUN+="/bin/sh -c 'test -f /sys/module/usbcore/parameters/usbfs_memory_mb && test `cat /sys/module/usbcore/parameters/usbfs_memory_mb` -lt 256 && echo 256 >/sys/module/usbcore/parameters/usbfs_memory_mb'"
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="16d0", RUN+="/bin/sh -c 'test -f /sys/module/usbcore/parameters/usbfs_memory_mb && test `cat /sys/module/usbcore/parameters/usbfs_memory_mb` -lt 256 && echo 256 >/sys/module/usbcore/parameters/usbfs_memory_mb'"
 
 # AAIMX185C
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3723", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3723", TAG+="uaccess"
 
 # AAIMX178C
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4000", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4000", TAG+="uaccess"
 
 # AAIMX178C (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4001", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4001", TAG+="uaccess"
 
 # AAIMX302C
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4006", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4006", TAG+="uaccess"
 
 # AAIMX302C (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4007", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4007", TAG+="uaccess"
 
 # AAIMX185C (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4723", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4723", TAG+="uaccess"
 
 # AAICX618M
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8031", GROUP="users", MODE="0660"
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8306", GROUP="users", MODE="0660"
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8307", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8031", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8306", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8307", TAG+="uaccess"
 
 # AAICX429C
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8044", GROUP="users", MODE="0660"
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="804b", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8044", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="804b", TAG+="uaccess"
 
 # AAICX429M
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8045", GROUP="users", MODE="0660"
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="804d", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8045", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="804d", TAG+="uaccess"
 
 # AAICX829C
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8046", GROUP="users", MODE="0660"
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="804a", GROUP="users", MODE="0660"
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="804c", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8046", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="804a", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="804c", TAG+="uaccess"
 
 # AAICX829M
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8047", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8047", TAG+="uaccess"
 
 # GPCAMMT9M034M
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b121", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b121", TAG+="uaccess"
 
 # GPCAMAR0130C
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b122", GROUP="users", MODE="0660"
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b123", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b122", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b123", TAG+="uaccess"
 
 # GPCAMAR0130M
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b124", GROUP="users", MODE="0660"
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b134", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b124", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b134", TAG+="uaccess"
 
 # GPCAMAR0330C
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b310", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b310", TAG+="uaccess"
 
 # AAGFIMX185C (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e217", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e217", TAG+="uaccess"
 
 # AAGFIMX185C
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e317", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e317", TAG+="uaccess"
 
 # 16d0 appears to belong to Systemax, so I've no idea why these cameras use
 # that vendor ID
 
 # GPCAMMT9M034M
-ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b2a", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b2a", TAG+="uaccess"
 
 # GPCAMAR0130C
-ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b2b", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b2b", TAG+="uaccess"
 
 # ALTAIRGP130C
-ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b4f", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b4f", TAG+="uaccess"
 
 # ALTAIRGP130M
-ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b8b", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b8b", TAG+="uaccess"
 
 # ALTAIRGP224C
-ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b8c", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b8c", TAG+="uaccess"
 
 # AAGFIMX185C
-ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b2c", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b2c", TAG+="uaccess"
 
 # AAGFIMX185C (USB2)
-ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b2d", GROUP="users", MODE="0660"
-
-LABEL="altair_end"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0b2d", TAG+="uaccess"

@@ -1,7 +1,7 @@
 #
 # 70-asi-fw.rules -- Udev rules for ZWO ASI filter wheel
 #
-# Copyright 2018 James Fidell (james@openastroproject.org)
+# Copyright 2018,2019 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -23,4 +23,4 @@
 #
 
 # There is only one
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="1f01" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="1f01" TAG+="uaccess"

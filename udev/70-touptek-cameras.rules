@@ -1,7 +1,7 @@
 #
 # 70-touptek-cameras.rules -- Udev rules for Touptek cameras
 #
-# Copyright 2016 James Fidell (james@openastroproject.org)
+# Copyright 2016,2018,2019 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -22,436 +22,428 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-ACTION!="add", GOTO="tt_end"
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", GOTO="tt_test"
-SUBSYSTEM!="usb_device", GOTO="tt_end"
-
-LABEL="tt_test"
-
 # UCMOS00350KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6035", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6035", TAG+="uaccess"
 
 # UCMOS01200KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6122", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6122", TAG+="uaccess"
 
 # UCMOS01300KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6130", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6130", TAG+="uaccess"
 
 # UCMOS02000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6200", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6200", TAG+="uaccess"
 
 # UCMOS02000KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6201", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6201", TAG+="uaccess"
 
 # UCMOS03100KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6310", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6310", TAG+="uaccess"
 
 # UCMOS05100KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6510", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6510", TAG+="uaccess"
 
 # UCMOS05100KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6512", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6512", TAG+="uaccess"
 
 # UCMOS08000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6800", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6800", TAG+="uaccess"
 
 # UCMOS08000KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6801", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6801", TAG+="uaccess"
 
 # UCMOS09000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6900", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6900", TAG+="uaccess"
 
 # UCMOS09000KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6901", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6901", TAG+="uaccess"
 
 # UCMOS10000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6010", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6010", TAG+="uaccess"
 
 # WCMOS10000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6b10", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6b10", TAG+="uaccess"
 
 # UCMOS14000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6014", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6014", TAG+="uaccess"
 
 # UCMOS01200KMA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6121", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6121", TAG+="uaccess"
 
 # UCMOS01300KMA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6131", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6131", TAG+="uaccess"
 
 # UCMOS05100KMA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6511", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="6511", TAG+="uaccess"
 
 # LCMOS01300KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f130", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f130", TAG+="uaccess"
 
 # LCMOS01200KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f132", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f132", TAG+="uaccess"
 
 # LCMOS02000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f200", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f200", TAG+="uaccess"
 
 # LCMOS03100KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f310", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f310", TAG+="uaccess"
 
 # LCMOS03100KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f312", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f312", TAG+="uaccess"
 
 # LCMOS05100KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f510", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f510", TAG+="uaccess"
 
 # LCMOS08000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f800", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f800", TAG+="uaccess"
 
 # LCMOS09000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f900", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f900", TAG+="uaccess"
 
 # LCMOS10000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f010", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f010", TAG+="uaccess"
 
 # LCMOS14000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f014", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="f014", TAG+="uaccess"
 
 # LCMOS14000KPC
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="fc14", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="fc14", TAG+="uaccess"
 
 # LECCD01300KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e130", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e130", TAG+="uaccess"
 
 # UHCCD00800KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8080", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8080", TAG+="uaccess"
 
 # UHCCD01400KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8140", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8140", TAG+="uaccess"
 
 # UHCCD01400KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8146", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8146", TAG+="uaccess"
 
 # EXCCD01400KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8141", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8141", TAG+="uaccess"
 
 # EXCCD00300KMA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8031", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8031", TAG+="uaccess"
 
 # EXCCD00300KMA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8306", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8306", TAG+="uaccess"
 
 # UHCCD02000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8200", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8200", TAG+="uaccess"
 
 # UHCCD02000KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8201", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8201", TAG+="uaccess"
 
 # UHCCD03100KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8311", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8311", TAG+="uaccess"
 
 # UHCCD05000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8500", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8500", TAG+="uaccess"
 
 # UHCCD05100KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8510", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8510", TAG+="uaccess"
 
 # UHCCD05200KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8520", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8520", TAG+="uaccess"
 
 # UHCCD06000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8600", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8600", TAG+="uaccess"
 
 # UHCCD08000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8800", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8800", TAG+="uaccess"
 
 # UHCCD03150KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8315", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8315", TAG+="uaccess"
 
 # UHCCD00800KMA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="7800", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="7800", TAG+="uaccess"
 
 # UHCCD01400KMA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="7140", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="7140", TAG+="uaccess"
 
 # UHCCD01400KMB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="7141", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="7141", TAG+="uaccess"
 
 # UHCCD02000KMA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="7200", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="7200", TAG+="uaccess"
 
 # UHCCD03150KMA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="7315", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="7315", TAG+="uaccess"
 
 # EXCCD01400KMA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8142", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8142", TAG+="uaccess"
 
 # SCCCD01400KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="9141", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="9141", TAG+="uaccess"
 
 # SCCCD01400KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="9146", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="9146", TAG+="uaccess"
 
 # SCCCD05200KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="9520", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="9520", TAG+="uaccess"
 
 # SCCCD01400KMA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="9142", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="9142", TAG+="uaccess"
 
 # SCCCD01400KMB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="9143", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="9143", TAG+="uaccess"
 
 # ICMOS03100KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="a310", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="a310", TAG+="uaccess"
 
 # ICMOS01300KMA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="a131", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="a131", TAG+="uaccess"
 
 # ICMOS10000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="a010", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="a010", TAG+="uaccess"
 
 # ICMOS14000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="a014", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="a014", TAG+="uaccess"
 
 # GCMOS01200KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b122", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b122", TAG+="uaccess"
 
 # GCMOS01200KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b123", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b123", TAG+="uaccess"
 
 # GCMOS01200KMB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b134", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b134", TAG+="uaccess"
 
 # GCMOS03100KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b310", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b310", TAG+="uaccess"
 
 # U3CMOS18000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3018", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3018", TAG+="uaccess"
 
 # U3CMOS16000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3016", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3016", TAG+="uaccess"
 
 # U3CMOS10000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3010", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3010", TAG+="uaccess"
 
 # U3CMOS14000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3014", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3014", TAG+="uaccess"
 
 # U3CMOS14000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3b14", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3b14", TAG+="uaccess"
 
 # U3CMOS14000KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3bb4", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3bb4", TAG+="uaccess"
 
 # U3CMOS03100KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3310", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3310", TAG+="uaccess"
 
 # U3CMOS03100KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3312", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3312", TAG+="uaccess"
 
 # U3CMOS05100KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3510", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3510", TAG+="uaccess"
 
 # U3CMOS08500KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3850", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3850", TAG+="uaccess"
 
 # U3CMOS01300KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3130", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3130", TAG+="uaccess"
 
 # U3CMOS03100KPC
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3314", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3314", TAG+="uaccess"
 
 # UHCCD01400KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8148", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8148", TAG+="uaccess"
 
 # UHCCD01400KMB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8149", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8149", TAG+="uaccess"
 
 # UHCCD02000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8206", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8206", TAG+="uaccess"
 
 # UHCCD03100KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8316", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8316", TAG+="uaccess"
 
 # UHCCD05000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8506", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8506", TAG+="uaccess"
 
 # UHCCD05100KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8516", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8516", TAG+="uaccess"
 
 # UHCCD05200KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8526", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8526", TAG+="uaccess"
 
 # EXCCD01400KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="814e", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="814e", TAG+="uaccess"
 
 # EXCCD01400KMA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="814f", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="814f", TAG+="uaccess"
 
 # U3CMOS18000KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4018", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4018", TAG+="uaccess"
 
 # U3CMOS16000KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4016", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4016", TAG+="uaccess"
 
 # U3CMOS10000KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4010", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4010", TAG+="uaccess"
 
 # U3CMOS14000KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4014", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4014", TAG+="uaccess"
 
 # U3CMOS14000KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4b14", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4b14", TAG+="uaccess"
 
 # U3CMOS14000KPB (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4bb4", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4bb4", TAG+="uaccess"
 
 # U3CMOS03100KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4310", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4310", TAG+="uaccess"
 
 # U3CMOS03100KPB (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4312", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4312", TAG+="uaccess"
 
 # U3CMOS05100KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4510", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4510", TAG+="uaccess"
 
 # U3CMOS08500KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4850", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4850", TAG+="uaccess"
 
 # U3CMOS01300KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4130", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4130", TAG+="uaccess"
 
 # U3CMOS03100KPC (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4314", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4314", TAG+="uaccess"
 
 # L3CMOS14000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c014", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c014", TAG+="uaccess"
 
 # L3CMOS14000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="cb14", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="cb14", TAG+="uaccess"
 
 # L3CMOS10000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c010", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c010", TAG+="uaccess"
 
 # L3CMOS08500KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c850", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c850", TAG+="uaccess"
 
 # L3CMOS05100KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c510", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c510", TAG+="uaccess"
 
 # L3CMOS03100KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c310", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c310", TAG+="uaccess"
 
 # L3CMOS03000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c300", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c300", TAG+="uaccess"
 
 # L3CMOS01300KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c130", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c130", TAG+="uaccess"
 
 # L3CMOS03100KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c312", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="c312", TAG+="uaccess"
 
 # L3CMOS14000KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d014", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d014", TAG+="uaccess"
 
 # L3CMOS14000KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="db14", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="db14", TAG+="uaccess"
 
 # L3CMOS10000KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d010", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d010", TAG+="uaccess"
 
 # L3CMOS08500KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d850", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d850", TAG+="uaccess"
 
 # L3CMOS05100KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d510", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d510", TAG+="uaccess"
 
 # L3CMOS03100KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d310", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d310", TAG+="uaccess"
 
 # L3CMOS03000KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d300", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d300", TAG+="uaccess"
 
 # L3CMOS01300KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d130", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d130", TAG+="uaccess"
 
 # L3CMOS03100KPB (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d312", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="d312", TAG+="uaccess"
 
 # E3CMOS16000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e316", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e316", TAG+="uaccess"
 
 # E3CMOS16000KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e216", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e216", TAG+="uaccess"
 
 # E3CMOS18000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e318", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e318", TAG+="uaccess"
 
 # E3CMOS18000KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e218", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="e218", TAG+="uaccess"
 
 # EXCCD00440KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8044", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8044", TAG+="uaccess"
 
 # EXCCD00440KMA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8045", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8045", TAG+="uaccess"
 
 # EXCCD00440KPB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8046", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8046", TAG+="uaccess"
 
 # EXCCD00440KMB
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8047", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="8047", TAG+="uaccess"
 
 # U3ISPM14000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3714", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3714", TAG+="uaccess"
 
 # E3CMOS03100KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3731", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3731", TAG+="uaccess"
 
 # E3CMOS02300KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3723", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="3723", TAG+="uaccess"
 
 # U3ISPM14000KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4714", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4714", TAG+="uaccess"
 
 # E3CMOS03100KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4731", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4731", TAG+="uaccess"
 
 # E3CMOS02300KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4723", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="4723", TAG+="uaccess"
 
 # E3CMOS06300KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2000", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2000", TAG+="uaccess"
 
 # E3CMOS06300KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2001", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2001", TAG+="uaccess"
 
 # E3CMOS12000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2002", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2002", TAG+="uaccess"
 
 # E3CMOS12000KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2003", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2003", TAG+="uaccess"
 
 # U3CCD02800KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2004", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2004", TAG+="uaccess"
 
 # U3CCD02800KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2005", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2005", TAG+="uaccess"
 
 # U3CCD06000KPA
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2006", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2006", TAG+="uaccess"
 
 # U3CCD06000KPA (USB2)
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2007", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="2007", TAG+="uaccess"
 
 # Auto Focus Controller
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="1010", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0547", ATTRS{idProduct}=="1010", TAG+="uaccess"
 
 
 # Can't match a vendor ID for these ones
 
 # UCMOS03100KPB
-ATTRS{idVendor}=="232f", ATTRS{idProduct}=="5003", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="232f", ATTRS{idProduct}=="5003", TAG+="uaccess"
 
 # UCMOS02000KPC
-ATTRS{idVendor}=="232f", ATTRS{idProduct}=="5002", GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="232f", ATTRS{idProduct}=="5002", TAG+="uaccess"
 
 # UCMOS01300KPB
-ATTRS{idVendor}=="232f", ATTRS{idProduct}=="5001", GROUP="users", MODE="0660"
-
-LABEL="tt_end"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="232f", ATTRS{idProduct}=="5001", TAG+="uaccess"

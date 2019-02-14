@@ -25,11 +25,12 @@
 
 # The rules for ASI cameras should be installed with the ASI libraries
 # so we don't need them here
-RULESFILES = 70-altair-cameras.rules 70-atik.rules 70-celestron-camera.rules \
+RULESFILES = 70-atik.rules 70-celestron-camera.rules \
 	70-iidc-cameras.rules 70-opticstar-cameras.rules \
 	70-starlight-xpress.rules 70-tis-cameras-euvc.rules \
 	70-tis-cameras.rules 70-tis-cameras-uvc.rules \
-	70-touptek-cameras.rules 70-xagyl-ftdi.rules
+	70-touptek-cameras.rules 70-xagyl-ftdi.rules \
+	85-qhy-cameras.rules
 
 udevrulesdir = ${sysconfdir}/../lib/udev/rules.d
 udevrules_DATA = $(RULESFILES)

@@ -1,0 +1,109 @@
+#
+# 85-qhy-cameras.rules -- udev rules file for QHY cameras
+#
+# Copyright 2013,2014 James Fidell (james@openastroproject.org)
+#
+# License:
+#
+# This file is part of the Open Astro Project.
+#
+# The Open Astro Project is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# The Open Astro Project is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with the Open Astro Project.  If not, see
+# <http://www.gnu.org/licenses/>.
+#
+
+# This file has been merged from numerous sources of different vintages
+# and tweaked a fair bit to get it to work with udev on recent releasess
+# of Linux.  THere seems to be a fair bit of inconsistent data.  I've tried
+# to get this version as correct as I'm able to test
+
+# This section is matched the first time through, before the firmware is
+# loaded into the camera
+
+ACTION!="add", GOTO="qhy_end"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", GOTO="qhy_test"
+SUBSYSTEM!="usb_device", GOTO="qhy_end"
+
+LABEL="qhy_test"
+
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="0412", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY2.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="0901", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY5.HEX -D $env{DEVNAME} -s /lib/firmware/qhy/QHY5LOADER.HEX"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="1002", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY5.HEX -D $env{DEVNAME} -s /lib/firmware/qhy/QHY5LOADER.HEX"
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="1002", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY5.HEX -D $env{DEVNAME} -s /lib/firmware/qhy/QHY5LOADER.HEX"
+ATTRS{idVendor}=="04b4", ATTRS{idProduct}=="8613", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY5.HEX -D $env{DEVNAME} -s /lib/firmware/qhy/QHY5LOADER.HEX"
+ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="081a", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY5.HEX -D $env{DEVNAME} -s /lib/firmware/qhy/QHY5LOADER.HEX"
+ATTRS{idVendor}=="1856", ATTRS{idProduct}=="0011", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY5.HEX -D $env{DEVNAME} -s /lib/firmware/qhy/QHY5LOADER.HEX"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="0932", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY5V.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="0259", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY6.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="2980", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY6PRO.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="4022", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY7.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="6000", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY8.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="6002", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY8PRO.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="6004", RUN+="/sbin/fxload -t fx2lp -I /lib/firmware/qhy/QHY8L.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="8300", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY9.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="8310", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY9L.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="1000", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY10.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="1100", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/qhy11.hex -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="6740", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY21.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="6940", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY22.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="8140", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY23.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="04b4", ATTRS{idProduct}=="8613", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY16000.HEX -D $env{DEVNAME}"
+
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="b618", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/IMG0H.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="2850", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/IMG2PRO.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="b285", RUN+="/sbin/fxload -t fx2lp -I /lib/firmware/qhy/IMG2S.HEX -D $env{DEVNAME}"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="0005", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/IMG132E.HEX -D $env{DEVNAME}"
+
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="0920", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/QHY5II.HEX -D $env{DEVNAME}"
+
+ATTRS{idVendor}=="1856", ATTRS{idProduct}=="0011", RUN+="/sbin/fxload -t fx2 -I /lib/firmware/qhy/ORIONG.HEX -D $env{DEVNAME}"
+
+LABEL="qhy_end"
+
+# This section is reached after the device has loaded the firmware and reset
+
+ACTION!="add", GOTO="qhy_fw_end"
+SUBSYSTEMS=="usb", GOTO="qhy_fw"
+GOTO="qhy_fw_end"
+
+LABEL="qhy_fw"
+
+ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="081e*", OWNER="root", GROUP="users", MODE="0660", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY2-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY2-%c"
+ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="296d*", OWNER="root", GROUP="users", MODE="0660", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY5-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY5-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="0931*", OWNER="root", GROUP="users", MODE="0660", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY5V-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY5V-%c"
+ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="081d*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY6o-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY6o-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="025a*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY6-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY6-%c"
+ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="2981*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY6pro-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY6pro-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="4023*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY7-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY7-%c"
+ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="2972*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY8-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY8-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="6003*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY8PRO-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY8PRO-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="6005*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY8L-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY8L-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="8301*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY9-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY9-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="8311*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY9L-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY9L-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="1001*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY10-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY10-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="1111*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY11-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY11-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="6741*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY21-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY21-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="6941*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY22-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY22-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="8141*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY23-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY23-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="1611*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY16000-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY16000-%c"
+
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="b618", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e IMG0H-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="IMG0H-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="2851*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e IMG2PRO-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="IMG2PRO-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="a285*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e IMG2S-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="IMG2S-%c"
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="666a*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e IMG132E-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="IMG132E-%c"
+
+ATTRS{idVendor}=="1618", ATTRS{idProduct}=="0921*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e QHY5II-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="QHY5II-%c"
+
+ATTRS{idVendor}=="1856", ATTRS{idProduct}=="0021*", OWNER="root", GROUP="users", MODE="0664", PROGRAM="/bin/sh -c 'i=0;while [ -e STARSHOOT-$i ]; do i=$(($i+1)); done; echo $i'", SYMLINK+="STARSHOOT-%c"
+
+LABEL="qhy_fw_end"

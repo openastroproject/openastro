@@ -1,7 +1,8 @@
 #
 # 70-asi-cameras.rules -- Udev rules for ZWO ASI cameras
 #
-# Copyright 2013,2014,2015,2016,2018 James Fidell (james@openastroproject.org)
+# Copyright 2013,2014,2015,2016,2018,2019
+#   James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -23,118 +24,118 @@
 #
 
 # Set new minimum value for usbfs memory
-ACTION=="add", ATTR{idVendor}=="03c3", RUN+="/bin/sh -c 'test -f /sys/module/usbcore/parameters/usbfs_memory_mb && test `cat /sys/module/usbcore/parameters/usbfs_memory_mb` -lt 200 && echo 200 >/sys/module/usbcore/parameters/usbfs_memory_mb'"
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="03c3", RUN+="/bin/sh -c 'test -f /sys/module/usbcore/parameters/usbfs_memory_mb && test `cat /sys/module/usbcore/parameters/usbfs_memory_mb` -lt 200 && echo 200 >/sys/module/usbcore/parameters/usbfs_memory_mb'"
 
 # ASI030MC
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="030a" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="030a" TAG+="uaccess"
 # ASI031MC & ASI031MM
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="031a" GROUP="users", MODE="0666"
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="031b" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="031a" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="031b" TAG+="uaccess"
 # ASI034MC
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="034b" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="034b" TAG+="uaccess"
 # ASI035MC
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="035a" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="035a" TAG+="uaccess"
 # ASI035MM
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="035b" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="035b" TAG+="uaccess"
 # ASI071MC Cool & ASI071MC Pro
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="071a" GROUP="users", MODE="0666"
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="071b" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="071a" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="071b" TAG+="uaccess"
 # ASI094MC Cool & ASI094MC Pro
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="094a" GROUP="users", MODE="0666"
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="094b" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="094a" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="094b" TAG+="uaccess"
 # ASI120MM
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="120a" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="120a" TAG+="uaccess"
 # ASI120MC
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="120b" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="120b" TAG+="uaccess"
 # ASI120MM Mini?
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="120c" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="120c" TAG+="uaccess"
 # ASI120MM-S
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="120d" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="120d" TAG+="uaccess"
 # ASI120MC-S
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="120e" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="120e" TAG+="uaccess"
 # ASI128MC Cool & Pro
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="128a" GROUP="users", MODE="0666"
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="128f" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="128a" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="128f" TAG+="uaccess"
 # ASI130MM
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="130a" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="130a" TAG+="uaccess"
 # ASI136MC
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="136a" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="136a" TAG+="uaccess"
 # ASI174MM Mini?
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="1749" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="1749" TAG+="uaccess"
 # ASI174MC
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="174a" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="174a" TAG+="uaccess"
 # ASI174MM
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="174b" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="174b" TAG+="uaccess"
 # ASI174MC-Cool
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="174c" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="174c" TAG+="uaccess"
 # ASI174MM-Cool
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="174d" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="174d" TAG+="uaccess"
 # ASI178MC
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="178a" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="178a" TAG+="uaccess"
 # ASI178MC-Cool
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="178b" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="178b" TAG+="uaccess"
 # ASI178MM
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="178c" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="178c" TAG+="uaccess"
 # ASI178MM-Cool
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="178d" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="178d" TAG+="uaccess"
 # ASI178 MC Pro & MM Pro
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="178d" GROUP="users", MODE="0666"
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="178d" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="178d" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="178d" TAG+="uaccess"
 # ASI183 models (MC, MM, MC Pro, MM Pro, MC Cool
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="183a" GROUP="users", MODE="0666"
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="183b" GROUP="users", MODE="0666"
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="183d" GROUP="users", MODE="0666"
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="183e" GROUP="users", MODE="0666"
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="183f" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="183a" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="183b" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="183d" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="183e" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="183f" TAG+="uaccess"
 # ASI185MC
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="185a" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="185a" TAG+="uaccess"
 # ASI185MC-Cool
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="185b" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="185b" TAG+="uaccess"
 # ASI224MC
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="224a" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="224a" TAG+="uaccess"
 # ASI224MC-Cool
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="224b" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="224b" TAG+="uaccess"
 # ASI226MC
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="226a" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="226a" TAG+="uaccess"
 # ASI252MC
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="252a" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="252a" TAG+="uaccess"
 # ASI252MM
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="252b" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="252b" TAG+="uaccess"
 # ASI290MC
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="290a" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="290a" TAG+="uaccess"
 # ASI290MM
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="290b" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="290b" TAG+="uaccess"
 # ASI290MC-Cool
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="290c" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="290c" TAG+="uaccess"
 # ASI290MM-Cool
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="290d" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="290d" TAG+="uaccess"
 # ASI290MM Mini
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="290f" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="290f" TAG+="uaccess"
 # ASI294MC
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="294b" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="294b" TAG+="uaccess"
 # ASI294MC Cool
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="294c" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="294c" TAG+="uaccess"
 # ASI294MC Pro
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="29fc" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="29fc" TAG+="uaccess"
 # ASI385MC
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="385b" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="385b" TAG+="uaccess"
 # ASI385MC Cool
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="385d" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="385d" TAG+="uaccess"
 # ASI1600MC
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="1600" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="1600" TAG+="uaccess"
 # ASI1600MC-Cool
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="1601" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="1601" TAG+="uaccess"
 # ASI1600MM
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="1602" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="1602" TAG+="uaccess"
 # ASI1600MM-Cool
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="1603" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="1603" TAG+="uaccess"
 # ASI1600MM Pro
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="1604" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="1604" TAG+="uaccess"
 # ASI1600MC Pro?
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="1605" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="1605" TAG+="uaccess"
 # ASI1600GT?
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="1606" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="1606" TAG+="uaccess"
 # ASI2400MM Pro
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="2404" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="2404" TAG+="uaccess"
 # ASI2400MC Pro?
-ATTR{idVendor}=="03c3" ATTR{idProduct}=="2405" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="2405" TAG+="uaccess"
