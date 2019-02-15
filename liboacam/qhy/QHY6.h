@@ -36,7 +36,7 @@ extern void		oaQHY6RecalculateSizes ( QHY_STATE* );
 #define QHY6_OFFSET_X		120
 
 #define	QHY6_DEFAULT_SPEED	1
-#define	QHY6_DEFAULT_GAIN	31
+#define	QHY6_DEFAULT_GAIN	0
 #define QHY6_DEFAULT_EXPOSURE	500
 
 #define QHY6_AMP_MODE_OFF	0

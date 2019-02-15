@@ -110,31 +110,37 @@ _QHY5IIInitCamera ( oaCamera* camera )
   cameraInfo->xSize = cameraInfo->maxResolutionX;
   cameraInfo->ySize = cameraInfo->maxResolutionY;
 
+	// FIX ME -- According to libqhyccd, the camera supports brightness,
+	// contrast, gamma, row noise reduction
+
+	// libqhyccd: min 0, max 100, step 1, def 50
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_INT32;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = QHY5II_MONO_GAIN_MIN;
   commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = QHY5II_MONO_GAIN_MAX;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = 20; // completely arbitrary
-  cameraInfo->currentGain = 20;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = 50;
+  cameraInfo->currentGain = 50;
 
+	// libqhyccd: min 1, max 1800000000, step 1000, def 20000
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
       OA_CTRL_TYPE_INT64;
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 0;
-  // made up
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 100000000;
-  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1800000000;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1000;
   // convert msec to usec
   commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
       QHY5II_DEFAULT_EXPOSURE * 1000;
   cameraInfo->currentExposure = QHY5II_DEFAULT_EXPOSURE;
 
+	// libqhyccd: min 0, max 2, step 1, def 0
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HIGHSPEED ) = OA_CTRL_TYPE_BOOLEAN;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HIGHSPEED ) = 0;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HIGHSPEED ) = 1;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HIGHSPEED ) = 2;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HIGHSPEED ) = 1;
   commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HIGHSPEED ) = QHY5II_DEFAULT_SPEED;
   cameraInfo->currentHighSpeed = QHY5II_DEFAULT_SPEED;
 
+	// libqhyccd: min 0, max 255, step 1, def 30
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_USBTRAFFIC ) = OA_CTRL_TYPE_INT32;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_USBTRAFFIC ) = 0;
   commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_USBTRAFFIC ) = 255;

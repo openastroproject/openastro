@@ -107,36 +107,45 @@ _QHY5LIIInitCamera ( oaCamera* camera )
   _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xc1, 0, 0, buf, 4,
       USB2_TIMEOUT );
 
+	// FIX ME -- according to libqhyccd this camera also supports
+	// brightness, contrast and gamma controls
+
+	// libqhyccd says gain is 1 to 29 step 1 default 1
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_INT32;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = 1;
   commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = 1000;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = 500; // completely arbitrary
-  cameraInfo->currentGain = 500;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = 1;
+  cameraInfo->currentGain = 1;
 
+	// libqhyccd: min 1, max 1800000000, step 1, def 20000
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = OA_CTRL_TYPE_INT64;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 0;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 100000000; // made up
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1800000000;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
   // convert msec to usec
   commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
       QHY5LII_DEFAULT_EXPOSURE * 1000;
   cameraInfo->currentExposure = QHY5LII_DEFAULT_EXPOSURE;
 
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HIGHSPEED ) = OA_CTRL_TYPE_BOOLEAN;
+	// libqhyccd: min 0, max 2, step 1, def 0
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HIGHSPEED ) = OA_CTRL_TYPE_INT32;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HIGHSPEED ) = 0;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HIGHSPEED ) = 1;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HIGHSPEED ) = 2;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HIGHSPEED ) = 1;
   commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HIGHSPEED ) = QHY5LII_DEFAULT_SPEED;
   cameraInfo->currentHighSpeed = QHY5LII_DEFAULT_SPEED;
 
+	// libqhyccd: min 0, max 255, step 1, def 30
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_USBTRAFFIC ) = OA_CTRL_TYPE_INT32;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_USBTRAFFIC ) = 0;
   commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_USBTRAFFIC ) = 255;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_USBTRAFFIC ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_USBTRAFFIC ) = QHY5LII_DEFAULT_USBTRAFFIC;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_USBTRAFFIC ) =
+			QHY5LII_DEFAULT_USBTRAFFIC;
   cameraInfo->currentUSBTraffic = QHY5LII_DEFAULT_USBTRAFFIC;
 
+	// this doesn't appear in libqhyccd
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HDR ) = OA_CTRL_TYPE_BOOLEAN;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HDR ) = 0;
   commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HDR ) = 1;
