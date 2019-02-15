@@ -504,7 +504,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	( void ) strcat ( firmwarePath, FIRMWARE_QHY_PATH );
 	// because, stupidly, the firmware directory has to be called "firmware"
 	( void ) strcat ( firmwarePath, "/firmware" );
-	OSXInitQHYCCDFirmware ( firmwarePath );
+	p_OSXInitQHYCCDFirmware ( firmwarePath );
 #endif
 
   numCameras = ( p_ScanQHYCCD )();
