@@ -2,7 +2,7 @@
  *
  * zwofw.c -- Control ZWO filter wheels
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -31,9 +31,6 @@
 #include <openastro/util.h>
 #include <openastro/filterwheel.h>
 
-// This bit of nastiness is because the ZWO SDK uses this type without
-// it being defined
-typedef uint8_t bool;
 #include <EFW_filter.h>
 
 #include "oafwprivate.h"

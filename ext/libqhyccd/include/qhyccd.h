@@ -1,17 +1,17 @@
 #ifndef __QHYCCD_H__
 #define __QHYCCD_H__
 
+#include <stdint.h>
 #include <qhyccderr.h>
 #include <qhyccdcamdef.h>
 #include <qhyccdstruct.h>
-#include <stdint.h>
-//#include "config.h"
-//#include <functional>
+#if defined(_WIN32) || defined(__cplusplus)
+#include <functional>
+#endif
 
 #if defined (_WIN32)
 #include "cyapi.h"
 #endif
-
 
 #if defined (_WIN32)
 typedef CCyUSBDevice qhyccd_handle;
@@ -24,13 +24,15 @@ typedef struct libusb_device_handle qhyccd_handle;
 EXPORTC void STDCALL SetQHYCCDLogLevel(uint8_t logLevel);
 
 #if defined(__linux__ )&&!defined (__ANDROID__)
-
-EXPORTC void STDCALL SetQHYCCDLogFunction( void* logFunction);
-
+#ifdef __cplusplus
+EXPORTC void STDCALL SetQHYCCDLogFunction(std::function<void(const std::string &message)> logFunction);
+#else
+EXPORTC void STDCALL SetQHYCCDLogFunction(void (*) ( const char* ));
+#endif
 #endif
 
-EXPORTC void STDCALL EnableQHYCCDMessage(bool enable);
-EXPORTC void STDCALL EnableQHYCCDLogFile(bool enable);
+EXPORTC void STDCALL EnableQHYCCDMessage(bool);
+EXPORTC void STDCALL EnableQHYCCDLogFile(bool);
 
 EXPORTC const char* STDCALL GetTimeStamp();
 
@@ -69,7 +71,7 @@ EXPORTC uint32_t STDCALL ScanQHYCCD(void);
 	  on success,return QHYCCD_SUCCESS \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL GetQHYCCDId(uint32_t index,char *id);
+EXPORTC uint32_t STDCALL GetQHYCCDId(uint32_t,char *);
 
 /** \fn uint32_t GetQHYCCDModel(char *id, char *model)
       \brief get camera model name by id
@@ -79,7 +81,7 @@ EXPORTC uint32_t STDCALL GetQHYCCDId(uint32_t index,char *id);
           on success,return QHYCCD_SUCCESS \n
           another QHYCCD_ERROR code in failure
   */
-EXPORTC uint32_t STDCALL GetQHYCCDModel(char *id, char *model);
+EXPORTC uint32_t STDCALL GetQHYCCDModel(char *, char *);
 
 /** \fn qhyccd_handle *OpenQHYCCD(char *id)
       \brief open camera by camera id
@@ -88,7 +90,7 @@ EXPORTC uint32_t STDCALL GetQHYCCDModel(char *id, char *model);
 	  on success,return QHYCCD_SUCCESS \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC qhyccd_handle * STDCALL OpenQHYCCD(char *id);
+EXPORTC qhyccd_handle * STDCALL OpenQHYCCD(char *);
 
 /** \fn uint32_t CloseQHYCCD(qhyccd_handle *handle)
       \brief close camera by handle
@@ -97,7 +99,7 @@ EXPORTC qhyccd_handle * STDCALL OpenQHYCCD(char *id);
 	  on success,return QHYCCD_SUCCESS \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL CloseQHYCCD(qhyccd_handle *handle);
+EXPORTC uint32_t STDCALL CloseQHYCCD(qhyccd_handle *);
 
 /**
  @fn uint32_t SetQHYCCDStreamMode(qhyccd_handle *handle,uint8_t mode)
@@ -110,7 +112,7 @@ EXPORTC uint32_t STDCALL CloseQHYCCD(qhyccd_handle *handle);
  on success,return QHYCCD_SUCCESS \n
  another QHYCCD_ERROR code on other failures
  */
-EXPORTC uint32_t STDCALL SetQHYCCDStreamMode(qhyccd_handle *handle,uint8_t mode);
+EXPORTC uint32_t STDCALL SetQHYCCDStreamMode(qhyccd_handle *,uint8_t );
 
 /** \fn uint32_t InitQHYCCD(qhyccd_handle *handle)
       \brief initialization specified camera by camera handle
@@ -120,7 +122,7 @@ EXPORTC uint32_t STDCALL SetQHYCCDStreamMode(qhyccd_handle *handle,uint8_t mode)
 	  on failed,return QHYCCD_ERROR_INITCAMERA \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL InitQHYCCD(qhyccd_handle *handle);
+EXPORTC uint32_t STDCALL InitQHYCCD(qhyccd_handle *);
 
 /** @fn uint32_t IsQHYCCDControlAvailable(qhyccd_handle *handle,CONTROL_ID controlId)
     @brief check the camera has the queried function or not
@@ -131,7 +133,7 @@ EXPORTC uint32_t STDCALL InitQHYCCD(qhyccd_handle *handle);
 	  on do not have,return QHYCCD_ERROR_NOTSUPPORT \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL IsQHYCCDControlAvailable(qhyccd_handle *handle,CONTROL_ID controlId);
+EXPORTC uint32_t STDCALL IsQHYCCDControlAvailable(qhyccd_handle *,CONTROL_ID );
 
 /** \fn uint32_t SetQHYCCDParam(qhyccd_handle *handle,CONTROL_ID controlId,double value)
       \brief set params to camera
@@ -144,7 +146,7 @@ EXPORTC uint32_t STDCALL IsQHYCCDControlAvailable(qhyccd_handle *handle,CONTROL_
 	  QHYCCD_ERROR_SETPARAMS,if set params to camera failed \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL SetQHYCCDParam(qhyccd_handle *handle,CONTROL_ID controlId, double value);
+EXPORTC uint32_t STDCALL SetQHYCCDParam(qhyccd_handle *,CONTROL_ID , double );
 
 /** \fn double GetQHYCCDParam(qhyccd_handle *handle,CONTROL_ID controlId)
       \brief get the params value from camera
@@ -156,7 +158,7 @@ EXPORTC uint32_t STDCALL SetQHYCCDParam(qhyccd_handle *handle,CONTROL_ID control
 	  QHYCCD_ERROR_GETPARAMS,if get camera params'value failed \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC double STDCALL GetQHYCCDParam(qhyccd_handle *handle,CONTROL_ID controlId);
+EXPORTC double STDCALL GetQHYCCDParam(qhyccd_handle *,CONTROL_ID );
 
 /** \fn uint32_t GetQHYCCDParamMinMaxStep(qhyccd_handle *handle,CONTROL_ID controlId,double *min,double *max,double *step)
       \brief get the params value from camera
@@ -170,7 +172,7 @@ EXPORTC double STDCALL GetQHYCCDParam(qhyccd_handle *handle,CONTROL_ID controlId
 	  QHYCCD_ERROR_NOTSUPPORT,if the camera do not have the function \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL GetQHYCCDParamMinMaxStep(qhyccd_handle *handle,CONTROL_ID controlId,double *min,double *max,double *step);
+EXPORTC uint32_t STDCALL GetQHYCCDParamMinMaxStep(qhyccd_handle *,CONTROL_ID,double *,double *,double *);
 
 /** @fn uint32_t SetQHYCCDResolution(qhyccd_handle *handle,uint32_t x,uint32_t y,uint32_t xsize,uint32_t ysize)
     @brief set camera ouput resolution
@@ -183,7 +185,7 @@ EXPORTC uint32_t STDCALL GetQHYCCDParamMinMaxStep(qhyccd_handle *handle,CONTROL_
         on success,return QHYCCD_SUCCESS\n
         another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL SetQHYCCDResolution(qhyccd_handle *handle,uint32_t x,uint32_t y,uint32_t xsize,uint32_t ysize);
+EXPORTC uint32_t STDCALL SetQHYCCDResolution(qhyccd_handle *,uint32_t,uint32_t,uint32_t,uint32_t);
 
 /** \fn uint32_t GetQHYCCDMemLength(qhyccd_handle *handle)
       \brief get the minimum memory space for image data to save(byte)
@@ -192,7 +194,7 @@ EXPORTC uint32_t STDCALL SetQHYCCDResolution(qhyccd_handle *handle,uint32_t x,ui
 	  on success,return the total memory space for image data(byte) \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL GetQHYCCDMemLength(qhyccd_handle *handle);
+EXPORTC uint32_t STDCALL GetQHYCCDMemLength(qhyccd_handle *);
 
 /** \fn uint32_t ExpQHYCCDSingleFrame(qhyccd_handle *handle)
       \brief start to expose one frame
@@ -203,7 +205,7 @@ EXPORTC uint32_t STDCALL GetQHYCCDMemLength(qhyccd_handle *handle);
 	  QHYCCD_ERROR_EXPFAILED,if start failed \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL ExpQHYCCDSingleFrame(qhyccd_handle *handle);
+EXPORTC uint32_t STDCALL ExpQHYCCDSingleFrame(qhyccd_handle *);
 
 /**
    @fn uint32_t GetQHYCCDSingleFrame(qhyccd_handle *handle,uint32_t *w,uint32_t *h,uint32_t *bpp,uint32_t *channels,uint8_t *imgdata)
@@ -219,7 +221,7 @@ EXPORTC uint32_t STDCALL ExpQHYCCDSingleFrame(qhyccd_handle *handle);
    QHYCCD_ERROR_GETTINGFAILED,if get data failed \n
    another QHYCCD_ERROR code on other failures
  */
-EXPORTC uint32_t STDCALL GetQHYCCDSingleFrame(qhyccd_handle *handle,uint32_t *w,uint32_t *h,uint32_t *bpp,uint32_t *channels,uint8_t *imgdata);
+EXPORTC uint32_t STDCALL GetQHYCCDSingleFrame(qhyccd_handle *,uint32_t *,uint32_t *,uint32_t *,uint32_t *,uint8_t *);
 
 /**
   @fn uint32_t CancelQHYCCDExposing(qhyccd_handle *handle)
@@ -228,7 +230,7 @@ EXPORTC uint32_t STDCALL GetQHYCCDSingleFrame(qhyccd_handle *handle,uint32_t *w,
   on success,return QHYCCD_SUCCESS \n
   another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL CancelQHYCCDExposing(qhyccd_handle *handle);
+EXPORTC uint32_t STDCALL CancelQHYCCDExposing(qhyccd_handle *);
 
 /**
   @fn uint32_t CancelQHYCCDExposingAndReadout(qhyccd_handle *handle)
@@ -247,7 +249,7 @@ EXPORTC uint32_t STDCALL CancelQHYCCDExposingAndReadout(qhyccd_handle *handle);
 	  on success,return QHYCCD_SUCCESS \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL BeginQHYCCDLive(qhyccd_handle *handle);
+EXPORTC uint32_t STDCALL BeginQHYCCDLive(qhyccd_handle *);
 
 /**
       @fn uint32_t GetQHYCCDLiveFrame(qhyccd_handle *handle,uint32_t *w,uint32_t *h,uint32_t *bpp,uint32_t *channels,uint8_t *imgdata)
@@ -263,7 +265,7 @@ EXPORTC uint32_t STDCALL BeginQHYCCDLive(qhyccd_handle *handle);
 	  QHYCCD_ERROR_GETTINGFAILED,if get data failed \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL GetQHYCCDLiveFrame(qhyccd_handle *handle,uint32_t *w,uint32_t *h,uint32_t *bpp,uint32_t *channels,uint8_t *imgdata);
+EXPORTC uint32_t STDCALL GetQHYCCDLiveFrame(qhyccd_handle *,uint32_t *,uint32_t *,uint32_t *,uint32_t *,uint8_t *);
 
 /** \fn uint32_t StopQHYCCDLive(qhyccd_handle *handle)
       \brief stop the camera continue exposing
@@ -272,7 +274,7 @@ EXPORTC uint32_t STDCALL GetQHYCCDLiveFrame(qhyccd_handle *handle,uint32_t *w,ui
 	  on success,return QHYCCD_SUCCESS \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL StopQHYCCDLive(qhyccd_handle *handle);
+EXPORTC uint32_t STDCALL StopQHYCCDLive(qhyccd_handle *);
 
 /** \
   @fn uint32_t SetQHYCCDBinMode(qhyccd_handle *handle,uint32_t wbin,uint32_t hbin)
@@ -284,7 +286,7 @@ EXPORTC uint32_t STDCALL StopQHYCCDLive(qhyccd_handle *handle);
   on success,return QHYCCD_SUCCESS \n
   another QHYCCD_ERROR code on other failures
 */
-EXPORTC uint32_t STDCALL SetQHYCCDBinMode(qhyccd_handle *handle,uint32_t wbin,uint32_t hbin);
+EXPORTC uint32_t STDCALL SetQHYCCDBinMode(qhyccd_handle *,uint32_t,uint32_t);
 
 /**
    @fn uint32_t SetQHYCCDBitsMode(qhyccd_handle *handle,uint32_t bits)
@@ -295,7 +297,7 @@ EXPORTC uint32_t STDCALL SetQHYCCDBinMode(qhyccd_handle *handle,uint32_t wbin,ui
    on success,return QHYCCD_SUCCESS \n
    another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL SetQHYCCDBitsMode(qhyccd_handle *handle,uint32_t bits);
+EXPORTC uint32_t STDCALL SetQHYCCDBitsMode(qhyccd_handle *,uint32_t);
 
 /** \fn uint32_t ControlQHYCCDTemp(qhyccd_handle *handle,double targettemp)
       \brief This is a auto temprature control for QHYCCD cameras. \n
@@ -306,7 +308,7 @@ EXPORTC uint32_t STDCALL SetQHYCCDBitsMode(qhyccd_handle *handle,uint32_t bits);
           on success,return QHYCCD_SUCCESS \n
           another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL ControlQHYCCDTemp(qhyccd_handle *handle,double targettemp);
+EXPORTC uint32_t STDCALL ControlQHYCCDTemp(qhyccd_handle *,double);
 
 /** \fn uint32_t ControlQHYCCDGuide(qhyccd_handle *handle,uint32_t direction,uint16_t duration)
       \brief control the camera' guide port
@@ -321,7 +323,7 @@ EXPORTC uint32_t STDCALL ControlQHYCCDTemp(qhyccd_handle *handle,double targette
 	  on success,return QHYCCD_SUCCESS \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL ControlQHYCCDGuide(qhyccd_handle *handle,uint32_t direction,uint16_t duration);
+EXPORTC uint32_t STDCALL ControlQHYCCDGuide(qhyccd_handle *,uint32_t,uint16_t);
 
 /**
  @fn uint32_t SendOrder2QHYCCDCFW(qhyccd_handle *handle,char *order,uint32_t length)
@@ -333,7 +335,7 @@ EXPORTC uint32_t STDCALL ControlQHYCCDGuide(qhyccd_handle *handle,uint32_t direc
  on success,return QHYCCD_SUCCESS \n
  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL SendOrder2QHYCCDCFW(qhyccd_handle *handle,char *order,uint32_t length);
+EXPORTC uint32_t STDCALL SendOrder2QHYCCDCFW(qhyccd_handle *,char *,uint32_t);
 
 /**
  @fn 	uint32_t GetQHYCCDCFWStatus(qhyccd_handle *handle,char *status)
@@ -344,7 +346,7 @@ EXPORTC uint32_t STDCALL SendOrder2QHYCCDCFW(qhyccd_handle *handle,char *order,u
  on success,return QHYCCD_SUCCESS \n
  another QHYCCD_ERROR code on other failures
   */
-EXPORTC	uint32_t STDCALL GetQHYCCDCFWStatus(qhyccd_handle *handle,char *status);
+EXPORTC	uint32_t STDCALL GetQHYCCDCFWStatus(qhyccd_handle *,char *);
 
 /**
  @fn 	uint32_t IsQHYCCDCFWPlugged(qhyccd_handle *handle)
@@ -354,7 +356,7 @@ EXPORTC	uint32_t STDCALL GetQHYCCDCFWStatus(qhyccd_handle *handle,char *status);
  on success,return QHYCCD_SUCCESS \n
  another QHYCCD_ERROR code on other failures
   */
-EXPORTC	uint32_t STDCALL IsQHYCCDCFWPlugged(qhyccd_handle *handle);
+EXPORTC	uint32_t STDCALL IsQHYCCDCFWPlugged(qhyccd_handle *);
 
 /**
  \fn   uint32_t SetQHYCCDTrigerMode(qhyccd_handle *handle,uint32_t trigerMode)
@@ -365,7 +367,7 @@ EXPORTC	uint32_t STDCALL IsQHYCCDCFWPlugged(qhyccd_handle *handle);
 on success,return QHYCCD_SUCCESS \n
 another QHYCCD_ERROR code on other failures
 */
-EXPORTC uint32_t STDCALL SetQHYCCDTrigerMode(qhyccd_handle *handle,uint32_t trigerMode);
+EXPORTC uint32_t STDCALL SetQHYCCDTrigerMode(qhyccd_handle *,uint32_t);
 
 /** \fn void Bits16ToBits8(qhyccd_handle *h,uint8_t *InputData16,uint8_t *OutputData8,uint32_t imageX,uint32_t imageY,uint16_t B,uint16_t W)
       \brief turn 16bits data into 8bits
@@ -377,7 +379,7 @@ EXPORTC uint32_t STDCALL SetQHYCCDTrigerMode(qhyccd_handle *handle,uint32_t trig
       \param B for stretch balck
       \param W for stretch white
   */
-EXPORTC void STDCALL Bits16ToBits8(qhyccd_handle *h,uint8_t *InputData16,uint8_t *OutputData8,uint32_t imageX,uint32_t imageY,uint16_t B,uint16_t W);
+EXPORTC void STDCALL Bits16ToBits8(qhyccd_handle *,uint8_t *,uint8_t *,uint32_t,uint32_t,uint16_t,uint16_t);
 
 /**
    @fn void HistInfo192x130(qhyccd_handle *h,uint32_t x,uint32_t y,uint8_t *InBuf,uint8_t *OutBuf)
@@ -388,7 +390,7 @@ EXPORTC void STDCALL Bits16ToBits8(qhyccd_handle *h,uint8_t *InputData16,uint8_t
    @param InBuf for the raw image data
    @param OutBuf for 192x130 8bits 3 channels image
   */
-EXPORTC void  STDCALL HistInfo192x130(qhyccd_handle *h,uint32_t x,uint32_t y,uint8_t *InBuf,uint8_t *OutBuf);
+EXPORTC void  STDCALL HistInfo192x130(qhyccd_handle *,uint32_t,uint32_t,uint8_t *,uint8_t *);
 
 
 /**
@@ -396,7 +398,7 @@ EXPORTC void  STDCALL HistInfo192x130(qhyccd_handle *h,uint32_t x,uint32_t y,uin
     @brief download the firmware to camera.(this api just need call in OSX system)
     @param path path to HEX file
   */
-EXPORTC uint32_t STDCALL OSXInitQHYCCDFirmware(char *path);
+EXPORTC uint32_t STDCALL OSXInitQHYCCDFirmware(char *);
 
 /**
     @fn uint32_t OSXInitQHYCCDFirmware(char *path)
@@ -407,8 +409,7 @@ EXPORTC uint32_t STDCALL OSXInitQHYCCDFirmwareArray();
 
 
 
-EXPORTC uint32_t STDCALL OSXInitQHYCCDAndroidFirmwareArray(int idVendor,int idProduct,
-    qhyccd_handle *h);
+EXPORTC uint32_t STDCALL OSXInitQHYCCDAndroidFirmwareArray(int,int, qhyccd_handle *);
 
 
 
@@ -423,7 +424,7 @@ EXPORTC uint32_t STDCALL OSXInitQHYCCDAndroidFirmwareArray(int idVendor,int idPr
       @param pixelh chip pixel size height
       @param bpp chip pixel depth
   */
-EXPORTC uint32_t STDCALL GetQHYCCDChipInfo(qhyccd_handle *h,double *chipw,double *chiph,uint32_t *imagew,uint32_t *imageh,double *pixelw,double *pixelh,uint32_t *bpp);
+EXPORTC uint32_t STDCALL GetQHYCCDChipInfo(qhyccd_handle *,double *,double *,uint32_t *,uint32_t *,double *,double *,uint32_t *);
 
 /** @fn uint32_t GetQHYCCDEffectiveArea(qhyccd_handle *h,uint32_t *startX, uint32_t *startY, uint32_t *sizeX, uint32_t *sizeY)
       @brief get the camera's ccd/cmos chip info
@@ -436,7 +437,7 @@ EXPORTC uint32_t STDCALL GetQHYCCDChipInfo(qhyccd_handle *h,double *chipw,double
 	  on success,return QHYCCD_SUCCESS \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL GetQHYCCDEffectiveArea(qhyccd_handle *h,uint32_t *startX, uint32_t *startY, uint32_t *sizeX, uint32_t *sizeY);
+EXPORTC uint32_t STDCALL GetQHYCCDEffectiveArea(qhyccd_handle *,uint32_t *, uint32_t *, uint32_t *, uint32_t *);
 
 /** @fn uint32_t GetQHYCCDOverScanArea(qhyccd_handle *h,uint32_t *startX, uint32_t *startY, uint32_t *sizeX, uint32_t *sizeY)
       @brief get the camera's ccd/cmos chip info
@@ -449,7 +450,7 @@ EXPORTC uint32_t STDCALL GetQHYCCDEffectiveArea(qhyccd_handle *h,uint32_t *start
 	  on success,return QHYCCD_SUCCESS \n
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL GetQHYCCDOverScanArea(qhyccd_handle *h,uint32_t *startX, uint32_t *startY, uint32_t *sizeX, uint32_t *sizeY);
+EXPORTC uint32_t STDCALL GetQHYCCDOverScanArea(qhyccd_handle *,uint32_t *, uint32_t *, uint32_t *, uint32_t *);
 
 
 /** @fn uint32_t SetQHYCCDFocusSetting(qhyccd_handle *h,uint32_t focusCenterX, uint32_t focusCenterY)
@@ -462,7 +463,7 @@ EXPORTC uint32_t STDCALL GetQHYCCDOverScanArea(qhyccd_handle *h,uint32_t *startX
  
 	  another QHYCCD_ERROR code on other failures
   */
-EXPORTC uint32_t STDCALL SetQHYCCDFocusSetting(qhyccd_handle *h,uint32_t focusCenterX, uint32_t focusCenterY);
+EXPORTC uint32_t STDCALL SetQHYCCDFocusSetting(qhyccd_handle *,uint32_t, uint32_t);
 
 /** @fn uint32_t GetQHYCCDExposureRemaining(qhyccd_handle *h)
       @brief Get remaining ccd/cmos expose time
@@ -471,7 +472,7 @@ EXPORTC uint32_t STDCALL SetQHYCCDFocusSetting(qhyccd_handle *h,uint32_t focusCe
       100 or less 100,it means exposoure is over \n
       another is remaining time
  */
-EXPORTC uint32_t STDCALL GetQHYCCDExposureRemaining(qhyccd_handle *h);
+EXPORTC uint32_t STDCALL GetQHYCCDExposureRemaining(qhyccd_handle *);
 
 /** @fn uint32_t GetQHYCCDFWVersion(qhyccd_handle *h,uint8_t *buf)
       @brief Get the QHYCCD's firmware version
@@ -482,7 +483,7 @@ EXPORTC uint32_t STDCALL GetQHYCCDExposureRemaining(qhyccd_handle *h);
  
 	  another QHYCCD_ERROR code on other failures
  */
-EXPORTC uint32_t STDCALL GetQHYCCDFWVersion(qhyccd_handle *h,uint8_t *buf);
+EXPORTC uint32_t STDCALL GetQHYCCDFWVersion(qhyccd_handle *,uint8_t *);
 
 /** @fn uint32_t SetQHYCCDInterCamSerialParam(qhyccd_handle *h,uint32_t opt)
       @brief Set InterCam serial2 params
@@ -499,7 +500,7 @@ EXPORTC uint32_t STDCALL GetQHYCCDFWVersion(qhyccd_handle *h,uint8_t *buf);
  
 	  another QHYCCD_ERROR code on other failures
  */
-EXPORTC uint32_t STDCALL SetQHYCCDInterCamSerialParam(qhyccd_handle *h,uint32_t opt);
+EXPORTC uint32_t STDCALL SetQHYCCDInterCamSerialParam(qhyccd_handle *,uint32_t);
 
 /** @fn uint32_t QHYCCDInterCamSerialTX(qhyccd_handle *h,char *buf,uint32_t length)
       @brief Send data to InterCam serial2
@@ -511,7 +512,7 @@ EXPORTC uint32_t STDCALL SetQHYCCDInterCamSerialParam(qhyccd_handle *h,uint32_t 
  
 	  another QHYCCD_ERROR code on other failures
  */
-EXPORTC uint32_t STDCALL QHYCCDInterCamSerialTX(qhyccd_handle *h,char *buf,uint32_t length);
+EXPORTC uint32_t STDCALL QHYCCDInterCamSerialTX(qhyccd_handle *,char *,uint32_t);
 
 /** @fn uint32_t QHYCCDInterCamSerialRX(qhyccd_handle *h,char *buf)
       @brief Get data from InterCam serial2
@@ -522,7 +523,7 @@ EXPORTC uint32_t STDCALL QHYCCDInterCamSerialTX(qhyccd_handle *h,char *buf,uint3
  
 	  another QHYCCD_ERROR code on other failures
  */
-EXPORTC uint32_t STDCALL QHYCCDInterCamSerialRX(qhyccd_handle *h,char *buf);
+EXPORTC uint32_t STDCALL QHYCCDInterCamSerialRX(qhyccd_handle *,char *);
 
 /** @fn uint32_t QHYCCDInterCamOledOnOff(qhyccd_handle *handle,uint8_t onoff)
      @brief turn off or turn on the InterCam's Oled
@@ -534,7 +535,7 @@ EXPORTC uint32_t STDCALL QHYCCDInterCamSerialRX(qhyccd_handle *h,char *buf);
   on success,return QHYCCD_SUCCESS \n
   another QHYCCD_ERROR code on other failures
    */
-EXPORTC uint32_t STDCALL QHYCCDInterCamOledOnOff(qhyccd_handle *handle,uint8_t onoff);
+EXPORTC uint32_t STDCALL QHYCCDInterCamOledOnOff(qhyccd_handle *,uint8_t);
 
 /**
   @fn uint32_t SetQHYCCDInterCamOledBrightness(qhyccd_handle *handle,uint8_t brightness)
@@ -545,7 +546,7 @@ EXPORTC uint32_t STDCALL QHYCCDInterCamOledOnOff(qhyccd_handle *handle,uint8_t o
   on success,return QHYCCD_SUCCESS \n
   another QHYCCD_ERROR code on other failures
 */
-EXPORTC uint32_t STDCALL SetQHYCCDInterCamOledBrightness(qhyccd_handle *handle,uint8_t brightness);
+EXPORTC uint32_t STDCALL SetQHYCCDInterCamOledBrightness(qhyccd_handle *,uint8_t);
 
 /**
   @fn uint32_t SendFourLine2QHYCCDInterCamOled(qhyccd_handle *handle,char *messagetemp,char *messageinfo,char *messagetime,char *messagemode)
@@ -559,7 +560,7 @@ EXPORTC uint32_t STDCALL SetQHYCCDInterCamOledBrightness(qhyccd_handle *handle,u
   on success,return QHYCCD_SUCCESS \n
   another QHYCCD_ERROR code on other failures
 */
-EXPORTC uint32_t STDCALL SendFourLine2QHYCCDInterCamOled(qhyccd_handle *handle,char *messagetemp,char *messageinfo,char *messagetime,char *messagemode);
+EXPORTC uint32_t STDCALL SendFourLine2QHYCCDInterCamOled(qhyccd_handle *,char *,char *,char *,char *);
 /**
   @fn uint32_t SendTwoLine2QHYCCDInterCamOled(qhyccd_handle *handle,char *messageTop,char *messageBottom)
   @brief spilit the message to two line,send to camera
@@ -570,7 +571,7 @@ EXPORTC uint32_t STDCALL SendFourLine2QHYCCDInterCamOled(qhyccd_handle *handle,c
   on success,return QHYCCD_SUCCESS \n
   another QHYCCD_ERROR code on other failures
 */
-EXPORTC uint32_t STDCALL SendTwoLine2QHYCCDInterCamOled(qhyccd_handle *handle,char *messageTop,char *messageBottom);
+EXPORTC uint32_t STDCALL SendTwoLine2QHYCCDInterCamOled(qhyccd_handle *,char *,char *);
 
 /**
   @fn uint32_t SendOneLine2QHYCCDInterCamOled(qhyccd_handle *handle,char *messageTop)
@@ -581,7 +582,7 @@ EXPORTC uint32_t STDCALL SendTwoLine2QHYCCDInterCamOled(qhyccd_handle *handle,ch
   on success,return QHYCCD_SUCCESS \n
   another QHYCCD_ERROR code on other failures
 */
-EXPORTC uint32_t STDCALL SendOneLine2QHYCCDInterCamOled(qhyccd_handle *handle,char *messageTop);
+EXPORTC uint32_t STDCALL SendOneLine2QHYCCDInterCamOled(qhyccd_handle *,char *);
 
 /**
   @fn uint32_t GetQHYCCDCameraStatus(qhyccd_handle *h,uint8_t *buf)
@@ -592,7 +593,7 @@ EXPORTC uint32_t STDCALL SendOneLine2QHYCCDInterCamOled(qhyccd_handle *handle,ch
   on success,return QHYCCD_SUCCESS \n
   another QHYCCD_ERROR code on other failures
  */
-EXPORTC uint32_t STDCALL GetQHYCCDCameraStatus(qhyccd_handle *h,uint8_t *buf);
+EXPORTC uint32_t STDCALL GetQHYCCDCameraStatus(qhyccd_handle *,uint8_t *);
 
 /**
  @fn uint32_t GetQHYCCDShutterStatus(qhyccd_handle *handle)
@@ -607,7 +608,7 @@ EXPORTC uint32_t STDCALL GetQHYCCDCameraStatus(qhyccd_handle *h,uint8_t *buf);
  0xff:IDLE \n
  another QHYCCD_ERROR code on other failures
 */
-EXPORTC uint32_t STDCALL GetQHYCCDShutterStatus(qhyccd_handle *handle);
+EXPORTC uint32_t STDCALL GetQHYCCDShutterStatus(qhyccd_handle *);
 
 /**
   @fn uint32_t ControlQHYCCDShutter(qhyccd_handle *handle,uint8_t status)
@@ -623,7 +624,7 @@ EXPORTC uint32_t STDCALL GetQHYCCDShutterStatus(qhyccd_handle *handle);
   on success,return QHYCCD_SUCCESS \n
   another QHYCCD_ERROR code on other failures
 */
-EXPORTC uint32_t STDCALL ControlQHYCCDShutter(qhyccd_handle *handle,uint8_t status);
+EXPORTC uint32_t STDCALL ControlQHYCCDShutter(qhyccd_handle *,uint8_t);
 
 /**
   @fn uint32_t GetQHYCCDHumidity(qhyccd_handle *handle,double *hd)
@@ -634,7 +635,7 @@ EXPORTC uint32_t STDCALL ControlQHYCCDShutter(qhyccd_handle *handle,uint8_t stat
   on success,return QHYCCD_SUCCESS \n
   another QHYCCD_ERROR code on other failures
 */
-EXPORTC uint32_t STDCALL GetQHYCCDHumidity(qhyccd_handle *handle,double *hd);
+EXPORTC uint32_t STDCALL GetQHYCCDHumidity(qhyccd_handle *,double *);
 
 /**
   @fn uint32_t QHYCCDI2CTwoWrite(qhyccd_handle *handle,uint16_t addr,uint16_t value)
@@ -646,7 +647,7 @@ EXPORTC uint32_t STDCALL GetQHYCCDHumidity(qhyccd_handle *handle,double *hd);
   on success,return QHYCCD_SUCCESS \n
   another QHYCCD_ERROR code on other failures
 */
-EXPORTC uint32_t STDCALL QHYCCDI2CTwoWrite(qhyccd_handle *handle,uint16_t addr,uint16_t value);
+EXPORTC uint32_t STDCALL QHYCCDI2CTwoWrite(qhyccd_handle *,uint16_t,uint16_t);
 
 /**
   @fn uint32_t QHYCCDI2CTwoRead(qhyccd_handle *handle,uint16_t addr)
@@ -655,7 +656,7 @@ EXPORTC uint32_t STDCALL QHYCCDI2CTwoWrite(qhyccd_handle *handle,uint16_t addr,u
   @param addr the address of register
   @return value of the addr register
 */
-EXPORTC uint32_t STDCALL QHYCCDI2CTwoRead(qhyccd_handle *handle,uint16_t addr);
+EXPORTC uint32_t STDCALL QHYCCDI2CTwoRead(qhyccd_handle *,uint16_t);
 
 /**
   @fn double GetQHYCCDReadingProgress(qhyccd_handle *handle)
@@ -663,47 +664,47 @@ EXPORTC uint32_t STDCALL QHYCCDI2CTwoRead(qhyccd_handle *handle,uint16_t addr);
   @param handle camera control handle
   @return current progress
 */
-EXPORTC double STDCALL GetQHYCCDReadingProgress(qhyccd_handle *handle);
+EXPORTC double STDCALL GetQHYCCDReadingProgress(qhyccd_handle *);
 
 
 /**
   test pid parameters
 */
-EXPORTC uint32_t STDCALL TestQHYCCDPIDParas(qhyccd_handle *h, double p, double i, double d);
+EXPORTC uint32_t STDCALL TestQHYCCDPIDParas(qhyccd_handle *, double, double, double);
 
-EXPORTC uint32_t STDCALL SetQHYCCDTrigerFunction(qhyccd_handle *h,bool value);
+EXPORTC uint32_t STDCALL SetQHYCCDTrigerFunction(qhyccd_handle *,bool);
 
-EXPORTC uint32_t STDCALL DownloadFX3FirmWare(uint16_t vid,uint16_t pid,char *imgpath);
+EXPORTC uint32_t STDCALL DownloadFX3FirmWare(uint16_t,uint16_t,char *);
 
-EXPORTC uint32_t STDCALL GetQHYCCDType(qhyccd_handle *h);
+EXPORTC uint32_t STDCALL GetQHYCCDType(qhyccd_handle *);
 
-EXPORTC uint32_t STDCALL SetQHYCCDDebayerOnOff(qhyccd_handle *h,bool onoff);
+EXPORTC uint32_t STDCALL SetQHYCCDDebayerOnOff(qhyccd_handle *,bool);
 
-EXPORTC uint32_t STDCALL SetQHYCCDFineTone(qhyccd_handle *h,uint8_t setshporshd,uint8_t shdloc,uint8_t shploc,uint8_t shwidth);
+EXPORTC uint32_t STDCALL SetQHYCCDFineTone(qhyccd_handle *,uint8_t,uint8_t,uint8_t,uint8_t);
 
-EXPORTC uint32_t STDCALL SetQHYCCDGPSVCOXFreq(qhyccd_handle *handle,uint16_t i);
+EXPORTC uint32_t STDCALL SetQHYCCDGPSVCOXFreq(qhyccd_handle *,uint16_t);
 
-EXPORTC uint32_t STDCALL SetQHYCCDGPSLedCalMode(qhyccd_handle *handle,uint8_t i);
+EXPORTC uint32_t STDCALL SetQHYCCDGPSLedCalMode(qhyccd_handle *,uint8_t);
 
-EXPORTC void STDCALL SetQHYCCDGPSLedCal(qhyccd_handle *handle,uint32_t pos,uint8_t width);
+EXPORTC void STDCALL SetQHYCCDGPSLedCal(qhyccd_handle *,uint32_t,uint8_t);
 
-EXPORTC void STDCALL SetQHYCCDGPSPOSA(qhyccd_handle *handle,uint8_t is_slave,uint32_t pos,uint8_t width);
+EXPORTC void STDCALL SetQHYCCDGPSPOSA(qhyccd_handle *,uint8_t,uint32_t,uint8_t);
 
-EXPORTC void STDCALL SetQHYCCDGPSPOSB(qhyccd_handle *handle,uint8_t is_slave,uint32_t pos,uint8_t width);
+EXPORTC void STDCALL SetQHYCCDGPSPOSB(qhyccd_handle *,uint8_t,uint32_t,uint8_t);
 
-EXPORTC uint32_t STDCALL SetQHYCCDGPSMasterSlave(qhyccd_handle *handle,uint8_t i);
+EXPORTC uint32_t STDCALL SetQHYCCDGPSMasterSlave(qhyccd_handle *,uint8_t);
 
-EXPORTC void STDCALL SetQHYCCDGPSSlaveModeParameter(qhyccd_handle *handle,uint32_t target_sec,uint32_t target_us,uint32_t deltaT_sec,uint32_t deltaT_us,uint32_t expTime);
+EXPORTC void STDCALL SetQHYCCDGPSSlaveModeParameter(qhyccd_handle *,uint32_t,uint32_t,uint32_t,uint32_t,uint32_t);
 
 EXPORTFUNC void STDCALL SetQHYCCDQuit();
 
-EXPORTC uint32_t STDCALL QHYCCDVendRequestWrite(qhyccd_handle *h,uint8_t req,uint16_t value,uint16_t index1,uint32_t length,uint8_t *data);
+EXPORTC uint32_t STDCALL QHYCCDVendRequestWrite(qhyccd_handle *,uint8_t,uint16_t,uint16_t,uint32_t,uint8_t *);
 
-EXPORTC uint32_t STDCALL QHYCCDReadUSB_SYNC(qhyccd_handle *pDevHandle, uint8_t endpoint, uint32_t length, uint8_t *data, uint32_t timeout);
+EXPORTC uint32_t STDCALL QHYCCDReadUSB_SYNC(qhyccd_handle *, uint8_t, uint32_t, uint8_t *, uint32_t);
 
-EXPORTC uint32_t STDCALL QHYCCDLibusbBulkTransfer(qhyccd_handle *pDevHandle, uint8_t endpoint, uint8_t *data, uint32_t length, int32_t *transferred, uint32_t timeout);
+EXPORTC uint32_t STDCALL QHYCCDLibusbBulkTransfer(qhyccd_handle *, uint8_t, uint8_t *, uint32_t, int32_t *, uint32_t);
 
-EXPORTC uint32_t STDCALL GetQHYCCDSDKVersion(uint32_t *year,uint32_t *month,uint32_t *day,uint32_t *subday);
+EXPORTC uint32_t STDCALL GetQHYCCDSDKVersion(uint32_t *,uint32_t *,uint32_t *,uint32_t *);
 
 
 
@@ -714,15 +715,15 @@ EXPORTC uint32_t STDCALL GetQHYCCDSDKVersion(uint32_t *year,uint32_t *month,uint
 //readout mode to set it. The host application need to get the readout mode and select one to set it. The sequece that call this fucntion need to be(......)
 
 
-EXPORTC uint32_t STDCALL GetQHYCCDNumberOfReadModes(qhyccd_handle *h,uint32_t *numModes);
+EXPORTC uint32_t STDCALL GetQHYCCDNumberOfReadModes(qhyccd_handle *,uint32_t *);
 // Get the maximum resolution for a read mode
-EXPORTC uint32_t STDCALL GetQHYCCDReadModeResolution(qhyccd_handle *h,uint32_t modeNumber, uint32_t* width, uint32_t* height);
+EXPORTC uint32_t STDCALL GetQHYCCDReadModeResolution(qhyccd_handle *,uint32_t, uint32_t*, uint32_t*);
 // Get the name of a read mode
-EXPORTC uint32_t STDCALL GetQHYCCDReadModeName(qhyccd_handle *h,uint32_t modeNumber, char* name);
+EXPORTC uint32_t STDCALL GetQHYCCDReadModeName(qhyccd_handle *,uint32_t, char*);
 // Set the read mode
-EXPORTC uint32_t STDCALL SetQHYCCDReadMode(qhyccd_handle *h,uint32_t modeNumber);
+EXPORTC uint32_t STDCALL SetQHYCCDReadMode(qhyccd_handle *,uint32_t);
 // Get the read mode
-EXPORTC uint32_t STDCALL GetQHYCCDReadMode(qhyccd_handle *h,uint32_t* modeNumber);
+EXPORTC uint32_t STDCALL GetQHYCCDReadMode(qhyccd_handle *,uint32_t*);
 
 
 #endif

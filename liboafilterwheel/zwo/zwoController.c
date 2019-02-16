@@ -32,9 +32,6 @@
 #include <openastro/util.h>
 #include <openastro/filterwheel.h>
 
-// This bit of nastiness is because the ZWO SDK uses this type without
-// it being defined
-typedef uint8_t bool;
 #include <EFW_filter.h>
 
 #include "oafwprivate.h"

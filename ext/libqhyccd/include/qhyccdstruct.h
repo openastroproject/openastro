@@ -1,8 +1,6 @@
 #ifndef __QHYCCDSTRUCTDEF_H__
 #define __QHYCCDSTRUCTDEF_H__
 
-#include <stdint.h>
-
 #if defined (_WIN32)
 #include <windows.h>
 #endif
@@ -18,10 +16,18 @@
 #define EXPORTC extern "C"
 #endif
 #else
+#ifdef __cplusplus
+#define EXPORTFUNC extern "C"
+#define STDCALL
+#define EXPORTC extern "C"
+#else
 #define EXPORTFUNC
 #define STDCALL
 #define EXPORTC
-typedef uint8_t bool;
+#ifdef __linux__
+typedef char bool;
+#endif
+#endif
 #endif
 
 /**
