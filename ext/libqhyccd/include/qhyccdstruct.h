@@ -24,9 +24,6 @@
 #define EXPORTFUNC
 #define STDCALL
 #define EXPORTC
-#ifdef __linux__
-typedef char bool;
-#endif
 #endif
 #endif
 
