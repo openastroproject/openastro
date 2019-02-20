@@ -1,3 +1,4 @@
+
 #ifndef __QHYCCDERR_H__
 #define __QHYCCDERR_H__
 

@@ -1,5 +1,9 @@
+
+
 #ifndef __QHYCCDCAMDEF_H__
 #define __QHYCCDCAMDEF_H__
+
+
 
 /* IMG series */
 
