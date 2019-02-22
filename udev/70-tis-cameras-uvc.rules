@@ -1,7 +1,7 @@
 #
 # 70-tis-cameras-uvc.rules -- Udev rules for true UVC TIS cameras
 #
-# Copyright 2013,2014 James Fidell (james@openastroproject.org)
+# Copyright 2013,2014,2019 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -35,41 +35,41 @@ LABEL="tis_uvc_test"
 # DFK 51
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8102", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # DFK 22 USB3
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8302", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # DFK 42 USB3
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8308", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # DFK 72 USB3
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8307", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # DFK 23U618
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8411", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # DFK 23U445
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8412", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # DFK 23U274
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8413", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # DFK 27AUJ003 ?
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8619", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 LABEL="tis_uvc_end"

@@ -1,7 +1,7 @@
 #
 # 70-celestron-camera.rules -- Udev rules for TIS CCD cameras
 #
-# Copyright 2014,2015 James Fidell (james@openastroproject.org)
+# Copyright 2014,2015,2019 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -31,61 +31,61 @@ LABEL="celestron_test"
 # Neximage 5 ?
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8207", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # Neximage 5 ?
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8307", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # Neximage Burst M and Neximage Burst C
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8208", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # Neximage 10
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8619", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # Skyris ???
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8441", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # Skyris ???
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8442", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # Skyris 274M
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8443", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # Skyris ???
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8448", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # Skyris ???
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8451", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # Skyris ???
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8452", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # Skyris ???
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8453", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # Skyris 132C
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8458", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 LABEL="celestron_end"

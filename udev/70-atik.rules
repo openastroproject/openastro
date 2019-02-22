@@ -1,7 +1,7 @@
 #
 # 70-atik.rules -- Udev rules for Atik CCD cameras
 #
-# Copyright 2014 James Fidell (james@openastroproject.org)
+# Copyright 2014,2019 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -31,10 +31,10 @@ SUBSYSTEM!="usb_device", GOTO="atik_add_id"
 
 LABEL="atik_pid_test"
 
-ATTR{idVendor}=="0403", ATTR{idProduct}=="df2c", OWNER="root", GROUP="video", MODE="0666", RUN+="/sbin/modprobe -b ftdi_sio"
-ATTR{idVendor}=="0403", ATTR{idProduct}=="df2d", OWNER="root", GROUP="video", MODE="0666", RUN+="/sbin/modprobe -b ftdi_sio"
-ATTR{idVendor}=="0403", ATTR{idProduct}=="df34", OWNER="root", GROUP="video", MODE="0666", RUN+="/sbin/modprobe -b ftdi_sio"
-ATTR{idVendor}=="0403", ATTR{idProduct}=="df36", OWNER="root", GROUP="video", MODE="0666", SYMLINK+="atik_16ic_c", RUN+="/sbin/modprobe -b ftdi_sio"
+ATTR{idVendor}=="0403", ATTR{idProduct}=="df2c", TAG+="uaccess", RUN+="/sbin/modprobe -b ftdi_sio"
+ATTR{idVendor}=="0403", ATTR{idProduct}=="df2d", TAG+="uaccess", RUN+="/sbin/modprobe -b ftdi_sio"
+ATTR{idVendor}=="0403", ATTR{idProduct}=="df34", TAG+="uaccess", RUN+="/sbin/modprobe -b ftdi_sio"
+ATTR{idVendor}=="0403", ATTR{idProduct}=="df36", TAG+="uaccess", SYMLINK+="atik_16ic_c", RUN+="/sbin/modprobe -b ftdi_sio"
 
 LABEL="atik_add_id"
 SUBSYSTEM!="drivers", GOTO="atik_rules_end"

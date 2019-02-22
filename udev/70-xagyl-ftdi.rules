@@ -1,7 +1,7 @@
 #
 # 70-xagyl-ftdi.rules -- Udev rules for Xagyl filter wheels
 #
-# Copyright 2014 James Fidell (james@openastroproject.org)
+# Copyright 2014,2019 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -24,7 +24,7 @@
 
 ACTION!="add", GOTO="xagyl_rules_end"
 
-ATTR{idVendor}=="0403", ATTR{idProduct}=="6001", OWNER="root", GROUP="users", MODE="0666"
-ATTR{idVendor}=="0403", ATTR{idProduct}=="6015", OWNER="root", GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6001", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6015", TAG+="uaccess"
 
 LABEL="xagyl_rules_end"

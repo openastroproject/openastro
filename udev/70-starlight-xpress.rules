@@ -1,7 +1,7 @@
 #
 # 70-starlight-xpress.rules -- Udev rules for Starlight Express devices
 #
-# Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+# Copyright 2013,2014,2015,2016,2019 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -22,21 +22,21 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0100" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0105" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0107" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0109" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0119" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0126" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0128" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0135" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0136" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0305" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0307" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0308" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0319" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0325" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0326" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0507" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0517" GROUP="users", MODE="0660"
-ATTRS{idVendor}=="1278" ATTRS{idProduct}=="0920" GROUP="users", MODE="0660"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0100", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0105", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0107", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0109", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0119", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0126", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0128", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0135", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0136", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0305", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0307", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0308", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0319", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0325", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0326", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0507", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0517", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1278", ATTRS{idProduct}=="0920", TAG+="uaccess"

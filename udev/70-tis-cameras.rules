@@ -1,7 +1,7 @@
 #
 # 70-tis-cameras.rules -- Udev rules for TIS CCD cameras
 #
-# Copyright 2013,2014 James Fidell (james@openastroproject.org)
+# Copyright 2013,2014,2019 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -27,7 +27,7 @@
 
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8101", \
-  GROUP="users", MODE="0660", \
+  TAG+="uaccess", \
   RUN+="/sbin/modprobe -b uvcvideo"
 
 # This sets up the TIS UVC camera ids in the driver when it is loaded

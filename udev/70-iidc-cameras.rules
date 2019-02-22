@@ -1,7 +1,7 @@
 #
 # 70-iidc-cameras.rules -- Udev rules for IEEE1394/IIDC/DCAM cameras
 #
-# Copyright 2014 James Fidell (james@openastroproject.org)
+# Copyright 2014,2019 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -23,14 +23,14 @@
 #
 
 # Point Grey Firefly MV Color
-ATTR{idVendor}=="1e10" ATTR{idProduct}=="2000" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10" ATTR{idProduct}=="2000" TAG+="uaccess"
 # Point Grey Firefly MV Mono
-ATTR{idVendor}=="1e10" ATTR{idProduct}=="2001" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10" ATTR{idProduct}=="2001" TAG+="uaccess"
 # Point Grey High Res Firefly MV Color
-ATTR{idVendor}=="1e10" ATTR{idProduct}=="2002" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10" ATTR{idProduct}=="2002" TAG+="uaccess"
 # Point Grey High Res Firefly MV Mono
-ATTR{idVendor}=="1e10" ATTR{idProduct}=="2003" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10" ATTR{idProduct}=="2003" TAG+="uaccess"
 # Point Grey Chameleon Color
-ATTR{idVendor}=="1e10" ATTR{idProduct}=="2004" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10" ATTR{idProduct}=="2004" TAG+="uaccess"
 # Point Grey Chameleon Mono
-ATTR{idVendor}=="1e10" ATTR{idProduct}=="2005" GROUP="users", MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10" ATTR{idProduct}=="2005" TAG+="uaccess"

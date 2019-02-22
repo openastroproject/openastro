@@ -1,7 +1,7 @@
 #
 # 70-opticstar-cameras.rules -- Udev rules for Opticstar cameras
 #
-# Copyright 2016 James Fidell (james@openastroproject.org)
+# Copyright 2016,2019 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -29,10 +29,10 @@ SUBSYSTEM!="usb_device", GOTO="opticstar_end"
 LABEL="opticstar_test"
 
 # PX-125C
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b122", GROUP="users", MODE="0660"
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b123", GROUP="users", MODE="0660"
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b122", TAG+="uaccess"
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b123", TAG+="uaccess"
 
 # PX-125M
-ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b124", GROUP="users", MODE="0660"
+ATTRS{idVendor}=="0547", ATTRS{idProduct}=="b124", TAG+="uaccess"
 
 LABEL="opticstar_end"

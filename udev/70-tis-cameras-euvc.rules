@@ -1,7 +1,7 @@
 #
 # 70-tis-cameras-euvc.rules -- Udev rules for true UVC TIS cameras
 #
-# Copyright 2013,2014 James Fidell (james@openastroproject.org)
+# Copyright 2013,2014,2019 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -35,41 +35,41 @@ LABEL="tis_euvc_test"
 # ???
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8201", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # DFK 22
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8202", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # DFK 61
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8203", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # DFK 41
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8204", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # DFx 51
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8205", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # DFx 41
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8206", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # DFK 72
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8207", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 # DFK 42
 ATTRS{idVendor}=="199e", \
 ATTRS{idProduct}=="8208", \
-  GROUP="users", MODE="0660"
+  TAG+="uaccess"
 
 LABEL="tis_euvc_end"
