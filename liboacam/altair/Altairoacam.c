@@ -1117,14 +1117,13 @@ _patchLibrary ( void* p )
   uint8_t*		enumFunction;
   uint8_t*		lea;
   uint8_t*		rip;
-  uint8_t*		cmp;
   uint8_t*		pidTableStart = 0;
   uint8_t*		pidTableEnd = 0;
   uint8_t*		pidPos;
   uint8_t*		nextPid;
   int32_t		offset;
 	int					found = 0;
-  uint16_t		pid, newPid;
+  uint16_t		pid;
 
   enumFunction = (uint8_t*) p;
 
