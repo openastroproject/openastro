@@ -502,7 +502,10 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 		( void ) strcpy ( firmwarePath, installPathRoot );
   }
 	( void ) strcat ( firmwarePath, FIRMWARE_QHY_PATH );
-	// because, stupidly, the firmware directory has to be called "firmware"
+	// because, stupidly, the firmware directory has to be called
+	// "firmware"
+	// This may in fact have changed in the v4.0.14 release, but it's
+	// not entirely clear from the "documentation"
 	( void ) strcat ( firmwarePath, "/firmware" );
 	p_OSXInitQHYCCDFirmware ( firmwarePath );
 #endif
