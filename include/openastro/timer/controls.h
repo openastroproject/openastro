@@ -2,7 +2,7 @@
  *
  * timer/controls.h -- TIMER API (sub)header for controls
  *
- * Copyright 2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -33,7 +33,8 @@
 #define	OA_TIMER_CTRL_COUNT		0x04
 #define	OA_TIMER_CTRL_INTERVAL		0x05
 #define	OA_TIMER_CTRL_MODE		0x06
+#define	OA_TIMER_CTRL_EXT_LED_ENABLE		0x07
 
-#define	OA_TIMER_CTRL_LAST_P1		OA_TIMER_CTRL_MODE+1
+#define	OA_TIMER_CTRL_LAST_P1		OA_TIMER_CTRL_EXT_LED_ENABLE+1
 
 #endif	/* OPENASTRO_TIMER_CONTROLS_H */

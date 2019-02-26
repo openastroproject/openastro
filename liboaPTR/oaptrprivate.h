@@ -2,7 +2,8 @@
  *
  * oaptrprivate.h -- shared declarations not exposed to the cruel world
  *
- * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -64,6 +65,7 @@ typedef struct {
   int32_t		requestedCount;
   int32_t		requestedInterval;
   int32_t		requestedMode;
+	int8_t		externalLEDState;
   // thread management
   pthread_t             controllerThread;
   pthread_mutex_t       commandQueueMutex;
