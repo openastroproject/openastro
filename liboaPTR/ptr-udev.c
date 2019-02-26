@@ -2,7 +2,7 @@
  *
  * ptr-udev.c -- Find PTR devices using (Linux) udev
  *
- * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -26,6 +26,7 @@
 
 #include <oa_common.h>
 
+#include <stdio.h>
 #include <libudev.h>
 #include <errno.h>
 #include <sys/ioctl.h>
@@ -251,11 +252,14 @@ oaPTREnumerate ( PTR_LIST* deviceList )
 					//
 					// and that appears to be it
 
+					// Set a sentinel value for nameBuffer.  Mostly for debugging
+					( void ) strcpy ( nameBuffer, "unnamed" );
           result = 0;
 #ifdef PTRV1
           for ( i = 0; i < 7 && !result; i++ ) {
 #else
-          for ( i = 0; i < 4 && !result; i++ ) {
+					// 20 here just to give a bit of headroom for software changes
+          for ( i = 0; i < 20 && !result; i++ ) {
 #endif
             FD_ZERO ( &readable );
             FD_SET ( ptrDesc, &readable );
