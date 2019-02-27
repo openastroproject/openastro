@@ -31,6 +31,7 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <pthread.h>
+#include <sys/select.h>
 
 #include <openastro/util.h>
 #include <openastro/timer.h>
@@ -41,6 +42,7 @@
 
 
 static void _ptrInitFunctionPointers ( oaPTR*, uint32_t );
+static void _getSysInfo ( PRIVATE_INFO* );
 
 
 /**
@@ -222,6 +224,12 @@ oaPTRInit ( oaPTRDevice* device )
   commonInfo->def [ OA_TIMER_CTRL_MODE ] = OA_TIMER_MODE_TRIGGER;
   privateInfo->requestedMode = OA_TIMER_MODE_TRIGGER;
 
+  ptr->controls [ OA_TIMER_CTRL_EXT_LED_ENABLE ] = OA_CTRL_TYPE_BOOLEAN;
+  commonInfo->min [ OA_TIMER_CTRL_EXT_LED_ENABLE ] = 0;
+  commonInfo->max [ OA_TIMER_CTRL_EXT_LED_ENABLE ] = 1;
+  commonInfo->step [ OA_TIMER_CTRL_EXT_LED_ENABLE ] = 1;
+  commonInfo->def [ OA_TIMER_CTRL_EXT_LED_ENABLE ] = 0;
+
   if ( privateInfo->version >= 0x0101 ) {
     ptr->features.gps = 1;
   }
@@ -230,6 +238,8 @@ oaPTRInit ( oaPTRDevice* device )
 
   usleep ( 500000 );
   tcflush ( ptrDesc, TCIFLUSH );
+
+	_getSysInfo ( privateInfo );
 
   return ptr;
 }
@@ -275,4 +285,56 @@ oaPTRClose ( oaPTR* device )
   }
 
   return -OA_ERR_INVALID_TIMER;
+}
+
+
+static void
+_getSysInfo ( PRIVATE_INFO* privateInfo )
+{
+	char			buffer[ 512 ];
+	int				seenCRC = 0, numRead;
+	int				fd = privateInfo->fd;
+	char*			pos;
+	char*			state;
+	fd_set		readable;
+	struct timeval	timeout;
+
+	if ( _ptrWrite ( fd, "sysconfig\r", 10 )) {
+		fprintf ( stderr, "%s: failed to write sysinfo to PTR\n", __FUNCTION__ );
+		return;
+	}
+
+	do {
+		FD_ZERO ( &readable );
+		FD_SET ( fd, &readable );
+		timeout.tv_sec = 2;
+		timeout.tv_usec = 0;
+		if ( select ( fd + 1, &readable, 0, 0, &timeout ) == 0 ) {
+			fprintf ( stderr, "%s: PTR select #1 timed out\n", __FUNCTION__ );
+			numRead = -1;
+		} else {
+			numRead = _ptrRead ( fd, buffer, sizeof ( buffer ) - 1 );
+			if ( numRead > 0 ) {
+				if (( pos = strstr ( buffer, "External LED control" ))) {
+					state = pos + 22;
+					if ( !strncmp ( state, "Enabled", 7 )) {
+						privateInfo->externalLEDState = 1;
+					} else {
+						if ( !strncmp ( state, "Disabled", 8 )) {
+							privateInfo->externalLEDState = 0;
+						} else {
+							fprintf ( stderr, "Unrecognised LED '%s' state in:\n  %s\n",
+									state, buffer );
+						}
+					}
+				} else {
+					if ( strstr ( buffer, "CRC:" )) {
+						seenCRC = 1;
+					}
+				}
+			}
+		}
+	} while ( numRead > 0 && !seenCRC );
+
+  tcflush ( fd, TCIFLUSH );
 }
