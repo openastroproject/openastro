@@ -962,6 +962,8 @@ MainWindow::readConfig ( QString configFile )
       50 ).toInt();
   timerConf.queryGPSForEachCapture = settings->value (
       "timer/queryGPSForEachCapture", 0 ).toInt();
+  timerConf.externalLEDEnabled = settings->value (
+      "timer/externalLEDEnabled", 0 ).toInt();
 
   delete settings;
 }
@@ -1260,6 +1262,8 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "timer/timestampDelay", timerConf.timestampDelay );
   settings->setValue ( "timer/queryGPSForEachCapture",
       timerConf.queryGPSForEachCapture );
+  settings->setValue ( "timer/externalLEDEnabled",
+			timerConf.externalLEDEnabled );
   settings->sync();
 }
 
