@@ -2,7 +2,7 @@
  *
  * timerSettings.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -46,6 +46,7 @@ typedef struct {
 	int			drainDelay;
 	int			timestampDelay;
 	int			queryGPSForEachCapture;
+	int			externalLEDEnabled;
 } timerConfig;
 
 extern timerConfig timerConf;
@@ -66,7 +67,8 @@ class TimerSettings : public QWidget
     QButtonGroup*       modeButtons;
     QRadioButton*       strobeModeButton;
     QRadioButton*       triggerModeButton;
-    QVBoxLayout*	box;
+    QVBoxLayout*	lBox;
+    QHBoxLayout*	box;
     QPushButton*        resetButton;
     QPushButton*        syncButton;
     QLabel*             intervalLabel;
@@ -82,9 +84,11 @@ class TimerSettings : public QWidget
     QHBoxLayout*	intervalLayout;
     QHBoxLayout*	drainDelayLayout;
     QHBoxLayout*	timestampDelayLayout;
+    QHBoxLayout*	timerModeLayout;
     QCheckBox*		checkGPSBox;
 		trampolineFuncs*	trampolines;
 		QString				applicationName;
+		QCheckBox*		externalLEDEnabled;
 
   public slots:
     void		doTimerReset ( void );

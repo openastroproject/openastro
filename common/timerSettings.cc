@@ -2,7 +2,7 @@
  *
  * timerSettings.cc -- class for the timer settings in the settings UI
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -94,6 +94,10 @@ TimerSettings::TimerSettings ( QWidget* parent, QString appName,
 
   checkGPSBox = new QCheckBox ( tr ( "Read GPS for every capture run" ));
   checkGPSBox->setChecked ( timerConf.queryGPSForEachCapture );
+
+	externalLEDEnabled = new QCheckBox ( tr ( "Enable external LED" ));
+	externalLEDEnabled->setChecked ( timerConf.externalLEDEnabled );
+
   /*
    * Not sure we need this for the moment
    *
@@ -124,34 +128,38 @@ TimerSettings::TimerSettings ( QWidget* parent, QString appName,
   timestampDelayLayout->addStretch ( 1 );
    */
 
-  box = new QVBoxLayout ( this );
-  box->addWidget ( timerEnableBox );
-  box->addSpacing ( 15 );
+	timerModeLayout = new QHBoxLayout();
+	timerModeLayout->addWidget ( modeLabel );
+	timerModeLayout->addWidget ( strobeModeButton );
+	timerModeLayout->addWidget ( triggerModeButton );
+
+  box = new QHBoxLayout ( this );
+  lBox = new QVBoxLayout();
+  lBox->addWidget ( timerEnableBox );
   if ( resetButton || syncButton ) {
     if ( resetButton ) {
-      box->addWidget ( resetButton );
+      lBox->addWidget ( resetButton );
     }
     if ( syncButton ) {
-      box->addWidget ( syncButton );
+      lBox->addWidget ( syncButton );
     }
-    box->addSpacing ( 15 );
   }
+  lBox->addLayout ( timerModeLayout );
+  lBox->addLayout ( intervalLayout );
+  lBox->addWidget ( enableUserDrainBox );
+  lBox->addLayout ( drainDelayLayout );
+  lBox->addWidget ( checkGPSBox );
+  lBox->addWidget ( externalLEDEnabled );
+  lBox->addStretch ( 1 );
 
-  box->addWidget ( modeLabel );
-  box->addWidget ( strobeModeButton );
-  box->addWidget ( triggerModeButton );
-  box->addSpacing ( 15 );
-  box->addLayout ( intervalLayout );
-  box->addSpacing ( 15 );
-  box->addWidget ( enableUserDrainBox );
-  box->addLayout ( drainDelayLayout );
-  box->addSpacing ( 15 );
-  box->addWidget ( checkGPSBox );
   /*
-  box->addLayout ( timestampDelayLayout );
+  lBox->addLayout ( timestampDelayLayout );
    */
-  box->addStretch ( 1 );
+
+	box->addLayout ( lBox );
+	box->addStretch ( 1 );
   setLayout ( box );
+
   connect ( timerEnableBox, SIGNAL ( stateChanged ( int )), parent,
       SLOT ( dataChanged()));
   connect ( modeButtons, SIGNAL ( buttonClicked ( int )), parent,
@@ -163,6 +171,8 @@ TimerSettings::TimerSettings ( QWidget* parent, QString appName,
   connect ( drainDelay, SIGNAL ( textEdited ( const QString& )), parent,
       SLOT ( dataChanged()));
   connect ( checkGPSBox, SIGNAL ( stateChanged ( int )), parent,
+      SLOT ( dataChanged()));
+  connect ( externalLEDEnabled, SIGNAL ( stateChanged ( int )), parent,
       SLOT ( dataChanged()));
   /*
   connect ( timestampDelay, SIGNAL ( textEdited ( const QString& )), parent,
@@ -199,6 +209,8 @@ TimerSettings::storeSettings ( void )
     }
   }
 
+qDebug() << "Set external LED on/off";
+
   timerConf.userDrainDelayEnabled = enableUserDrainBox->isChecked() ? 1 : 0;
 
   QString intervalStr = interval->text();
@@ -219,6 +231,7 @@ TimerSettings::storeSettings ( void )
    */
 
   timerConf.queryGPSForEachCapture = checkGPSBox->isChecked() ? 1 : 0;
+	timerConf.externalLEDEnabled = externalLEDEnabled->isChecked() ? 1 : 0;
 }
 
 
