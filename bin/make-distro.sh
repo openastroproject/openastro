@@ -22,7 +22,7 @@ fi
 
 if [ ! -d $distroDir ]
 then
-  echo "$source does not exist"
+  echo "$distroDir does not exist"
   exit 2
 fi
 
