@@ -4,3 +4,7 @@ override_dh_auto_install:
 	rm -fr $(CURDIR)/debian/oacapture/usr/include
 	rm -fr $(CURDIR)/debian/oacapture/usr/lib
 	rm -f $(CURDIR)/debian/oacapture/usr/bin/oalive
+	rm -f $(CURDIR)/debian/oacapture/usr/share/applications/oalive.desktop
+	rm -f $(CURDIR)/debian/oacapture/usr/share/icons/hicolor/*x*/apps/oalive.png
+	rm -f $(CURDIR)/debian/oacapture/usr/share/icons/hicolor/scalable/apps/oalive.svg
+	rm -f $(CURDIR)/debian/oacapture/usr/share/pixmaps/oalive.xpm
