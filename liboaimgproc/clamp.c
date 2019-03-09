@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * errno.h -- header for API error codes
+ * clamp.c -- clamp functions for fixing pixel values
  *
- * Copyright 2014,2015,2016,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -24,30 +24,19 @@
  *
  *****************************************************************************/
 
-#ifndef OPENASTRO_ERRNO_H
-#define OPENASTRO_ERRNO_H
+#include <oa_common.h>
+#include <openastro/imgproc.h>
 
-#define OA_ERR_NONE			0
-#define OA_ERR_OUT_OF_RANGE		1
-#define OA_ERR_INVALID_CONTROL		2
-#define OA_ERR_INVALID_SIZE		3
-#define OA_ERR_SYSTEM_ERROR		4
-#define OA_ERR_INVALID_BIT_DEPTH	5
-#define OA_ERR_RESCAN_BUS		6
-#define OA_ERR_MANUAL_FIRMWARE		7
-#define OA_ERR_FXLOAD_NOT_FOUND		8
-#define OA_ERR_FXLOAD_ERROR		9
-#define OA_ERR_FIRMWARE_UNKNOWN		10
-#define OA_ERR_INVALID_CONTROL_TYPE	11
-#define OA_ERR_UNIMPLEMENTED		12
-#define OA_ERR_INVALID_COMMAND		13
-#define OA_ERR_INVALID_CAMERA		14
-#define OA_ERR_IGNORED			15
-#define OA_ERR_CAMERA_IO		16
-#define OA_ERR_MEM_ALLOC		17
-#define OA_ERR_INVALID_TIMER		18
-#define OA_ERR_TIMER_RUNNING		19
-#define OA_ERR_INVALID_TIMER_MODE	20
-#define	OA_ERR_UNSUPPORTED_FORMAT	21
 
-#endif	/* OPENASTRO_ERRNO_H */
+int
+oaclamp ( int min, int max, int val )
+{
+	return ( val < min ) ? min : (( val > max ) ? max : val );
+}
+
+
+double
+oadclamp ( double min, double max, double val )
+{
+	return ( val < min ) ? min : (( val > max ) ? max : val );
+}

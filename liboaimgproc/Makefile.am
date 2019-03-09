@@ -25,7 +25,7 @@
 AM_CPPFLAGS = -I$(top_srcdir)/include
 lib_LTLIBRARIES = liboaimgproc.la
 liboaimgproc_la_SOURCES = focus.c sobel.c scharr.c gauss.c stackSum.c \
-  stackMean.c
+  stackMean.c contrast.c clamp.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
