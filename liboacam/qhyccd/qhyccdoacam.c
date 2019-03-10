@@ -490,6 +490,13 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 			libHandle = 0;
 	    return 0;
 	  }
+
+	  if (!( *( void** )( &p_SetQHYCCDDebayerOnOff ) = _getDLSym ( libHandle,
+	      "SetQHYCCDDebayerOnOff" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return 0;
+	  }
 	}
 	
 	if ( p_InitQHYCCDResource() != QHYCCD_SUCCESS ) {
