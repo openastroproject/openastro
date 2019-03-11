@@ -131,7 +131,7 @@ _QHY5LIIInitCamera ( oaCamera* camera )
 	// libqhyccd: min 0, max 2, step 1, def 0
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HIGHSPEED ) = OA_CTRL_TYPE_INT32;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HIGHSPEED ) = 0;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HIGHSPEED ) = 2;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HIGHSPEED ) = 1;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HIGHSPEED ) = 1;
   commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HIGHSPEED ) = QHY5LII_DEFAULT_SPEED;
   cameraInfo->currentHighSpeed = QHY5LII_DEFAULT_SPEED;

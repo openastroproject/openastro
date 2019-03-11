@@ -239,14 +239,12 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     }
 
     case OA_CAM_CTRL_HIGHSPEED:
-      if ( valp->valueType != OA_CTRL_TYPE_BOOLEAN ) {
+      if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
             __FUNCTION__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
-      val_s32 = valp->boolean;
-
-      cameraInfo->currentHighSpeed = val_s32;
+      cameraInfo->currentHighSpeed = valp->int32;
       _doSetHighSpeed ( cameraInfo, cameraInfo->currentHighSpeed );
       break;
 
