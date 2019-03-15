@@ -105,7 +105,7 @@ t_resetAutorun ( void )
 
 
 void
-t_updateControlCheckbox ( int, int )
+t_updateCameraControlCheckbox ( int, int )
 {
 	qWarning() << __FUNCTION__ << "doing nothing";
 	return;
@@ -113,7 +113,7 @@ t_updateControlCheckbox ( int, int )
 
 
 int
-t_getSpinboxMinimum ( int control )
+t_getCameraSpinboxMinimum ( int control )
 {
 	qWarning() << __FUNCTION__ << "doing nothing";
   return 0;
@@ -121,7 +121,7 @@ t_getSpinboxMinimum ( int control )
 
 
 int
-t_getSpinboxMaximum ( int control )
+t_getCameraSpinboxMaximum ( int control )
 {
 	qWarning() << __FUNCTION__ << "doing nothing";
   return 0;
@@ -129,7 +129,7 @@ t_getSpinboxMaximum ( int control )
 
 
 int
-t_getSpinboxStep ( int control )
+t_getCameraSpinboxStep ( int control )
 {
 	qWarning() << __FUNCTION__ << "doing nothing";
   return 0;
@@ -137,7 +137,7 @@ t_getSpinboxStep ( int control )
 
 
 int
-t_getSpinboxValue ( int control )
+t_getCameraSpinboxValue ( int control )
 {
 	qWarning() << __FUNCTION__ << "doing nothing";
   return 0;
@@ -145,14 +145,14 @@ t_getSpinboxValue ( int control )
 
 
 void
-t_updateSpinbox ( int control, int value )
+t_updateCameraSpinbox ( int control, int value )
 {
 	qWarning() << __FUNCTION__ << "doing nothing";
 }
 
 
 QStringList
-t_getFrameRates ( void )
+t_getCameraFrameRates ( void )
 {
 	qWarning() << __FUNCTION__ << "doing nothing";
 	QStringList l;
@@ -161,7 +161,7 @@ t_getFrameRates ( void )
 
 
 int
-t_getFrameRateIndex ( void )
+t_getCameraFrameRateIndex ( void )
 {
 	qWarning() << __FUNCTION__ << "doing nothing";
 	return 0;
@@ -169,21 +169,21 @@ t_getFrameRateIndex ( void )
 
 
 void
-t_updateFrameRate ( int rate )
+t_updateCameraFrameRate ( int rate )
 {
 	qWarning() << __FUNCTION__ << "doing nothing";
 }
 
 
 void
-t_setFlipX ( int val )
+t_setCameraFlipX ( int val )
 {
 	qWarning() << __FUNCTION__ << "doing nothing";
 }
 
 
 void
-t_setFlipY ( int val )
+t_setCameraFlipY ( int val )
 {
 	qWarning() << __FUNCTION__ << "doing nothing";
 }
@@ -295,6 +295,21 @@ t_slotFilterName ( int slot )
 }
 
 
+void
+t_enableTimerExternalLED ( int state )
+{
+	qWarning() << __FUNCTION__ << "doing nothing";
+}
+
+
+int
+t_getTimerExternalLED ( void )
+{
+	qWarning() << __FUNCTION__ << "doing nothing";
+	return 0;
+}
+
+
 trampolineFuncs trampolines = {
 	t_getCurrentGain,
 	t_getCurrentExposure,
@@ -305,17 +320,17 @@ trampolineFuncs trampolines = {
 	t_reloadFilters,
 	t_updateHistogramLayout,
 	t_resetAutorun,
-	t_updateControlCheckbox,
-	t_getSpinboxMinimum,
-	t_getSpinboxMaximum,
-	t_getSpinboxStep,
-	t_getSpinboxValue,
-	t_updateSpinbox,
-	t_getFrameRates,
-	t_getFrameRateIndex,
-	t_updateFrameRate,
-	t_setFlipX,
-	t_setFlipY,
+	t_updateCameraControlCheckbox,
+	t_getCameraSpinboxMinimum,
+	t_getCameraSpinboxMaximum,
+	t_getCameraSpinboxStep,
+	t_getCameraSpinboxValue,
+	t_updateCameraSpinbox,
+	t_getCameraFrameRates,
+	t_getCameraFrameRateIndex,
+	t_updateCameraFrameRate,
+	t_setCameraFlipX,
+	t_setCameraFlipY,
 	t_updateForceFrameFormat,
 	t_reloadProfiles,
 	t_resetTemperatureLabel,
@@ -329,5 +344,7 @@ trampolineFuncs trampolines = {
 	t_updateConfig,
 	t_showStatusMessage,
 	t_propagateNewSlotName,
-	t_slotFilterName
+	t_slotFilterName,
+	t_enableTimerExternalLED,
+	t_getTimerExternalLED
 };

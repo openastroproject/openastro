@@ -2,7 +2,8 @@
  *
  * timer.cc -- timer device interface class
  *
- * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -279,6 +280,24 @@ Timer::setControl ( int control, int64_t value )
 
   populateControlValue ( &v, control, value );
   return timerFuncs.setControl ( timerContext, control, &v );
+}
+
+
+int
+Timer::readControl ( int control )
+{
+  oaControlValue v;
+
+  if ( !initialised ) {
+    qWarning() << __FUNCTION__ << " called with timer uninitialised";
+    return 0;
+  }
+
+  if ( timerFuncs.readControl ( timerContext, control, &v ) == OA_ERR_NONE ) {
+    return unpackControlValue ( &v );
+  }
+  qWarning() << "error trying to timer control" << control;
+  return 0;
 }
 
 

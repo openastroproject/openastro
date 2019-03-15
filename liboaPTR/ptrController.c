@@ -2,7 +2,8 @@
  *
  * ptrController.c -- PTR device control functions
  *
- * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -276,6 +277,22 @@ _processSetControl ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
       }
       deviceInfo->requestedMode = val->menu;
       break;
+
+		case OA_TIMER_CTRL_EXT_LED_ENABLE:
+      if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
+        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
+            __FUNCTION__, val->valueType );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+			deviceInfo->externalLEDState = val->boolean;
+			if ( _ptrWrite ( deviceInfo->fd, deviceInfo->externalLEDState ?
+						"\022" : "\024", 1 )) {
+				fprintf ( stderr, "%s: failed to write ctrl-C to %s\n",
+				__FUNCTION__, deviceInfo->devicePath );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			break;
+
   }
   return OA_ERR_NONE;
 }
@@ -285,7 +302,7 @@ static int
 _processGetControl ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 {
   int			control = command->controlId;
-  oaControlValue*	val = command->commandData;
+  oaControlValue*	val = command->resultData;
 
   switch ( control ) {
 
@@ -303,6 +320,11 @@ _processGetControl ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
       val->valueType = OA_CTRL_TYPE_MENU;
       val->menu = deviceInfo->requestedMode;
       break;
+
+		case OA_TIMER_CTRL_EXT_LED_ENABLE:
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = deviceInfo->externalLEDState;
+			break;
 
     default:
       return -OA_ERR_INVALID_CONTROL;

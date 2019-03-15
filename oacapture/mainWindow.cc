@@ -1830,6 +1830,7 @@ MainWindow::connectTimer ( int deviceIndex )
   }
   statusLine->showMessage ( commonState.timer->name() +
 			tr ( " connected" ), 5000 );
+	timerConf.externalLEDEnabled = getTimerExternalLEDState();
 }
 
 
@@ -3006,4 +3007,19 @@ MainWindow::createFileFailed ( void )
 {
 	QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
 			tr ( "Unable to create file for output" ));
+}
+
+
+void
+MainWindow::enableTimerExternalLED ( int state )
+{
+	timerConf.externalLEDEnabled = state;
+	commonState.timer->setControl ( OA_TIMER_CTRL_EXT_LED_ENABLE, state );
+}
+
+
+int
+MainWindow::getTimerExternalLEDState ( void )
+{
+	return commonState.timer->readControl ( OA_TIMER_CTRL_EXT_LED_ENABLE );
 }

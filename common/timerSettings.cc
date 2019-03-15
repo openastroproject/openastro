@@ -172,8 +172,8 @@ TimerSettings::TimerSettings ( QWidget* parent, QString appName,
       SLOT ( dataChanged()));
   connect ( checkGPSBox, SIGNAL ( stateChanged ( int )), parent,
       SLOT ( dataChanged()));
-  connect ( externalLEDEnabled, SIGNAL ( stateChanged ( int )), parent,
-      SLOT ( dataChanged()));
+  connect ( externalLEDEnabled, SIGNAL ( stateChanged ( int )), this,
+      SLOT ( externalLEDCheckboxChanged()));
   /*
   connect ( timestampDelay, SIGNAL ( textEdited ( const QString& )), parent,
       SLOT ( dataChanged()));
@@ -248,4 +248,12 @@ TimerSettings::doTimerSync ( void )
 {
   // FIX ME
   qWarning() << "Implement TimerSettings::doTimerSync";
+}
+
+
+void
+TimerSettings::externalLEDCheckboxChanged ( void )
+{
+	trampolines->enableTimerExternalLED (
+			externalLEDEnabled->isChecked() ? 1 : 0 );
 }

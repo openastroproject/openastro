@@ -111,77 +111,77 @@ t_resetAutorun ( void )
 
 
 void
-t_updateControlCheckbox ( int control, int value )
+t_updateCameraControlCheckbox ( int control, int value )
 {
 	state.controlWidget->updateCheckbox ( control, value );
 }
 
 
 int
-t_getSpinboxMinimum ( int control )
+t_getCameraSpinboxMinimum ( int control )
 {
 	return state.controlWidget->getSpinboxMinimum ( control );
 }
 
 
 int
-t_getSpinboxMaximum ( int control )
+t_getCameraSpinboxMaximum ( int control )
 {
 	return state.controlWidget->getSpinboxMaximum ( control );
 }
 
 
 int
-t_getSpinboxStep ( int control )
+t_getCameraSpinboxStep ( int control )
 {
 	return state.controlWidget->getSpinboxStep ( control );
 }
 
 
 int
-t_getSpinboxValue ( int control )
+t_getCameraSpinboxValue ( int control )
 {
 	return state.controlWidget->getSpinboxValue ( control );
 }
 
 
 void
-t_updateSpinbox ( int control, int value )
+t_updateCameraSpinbox ( int control, int value )
 {
 	state.controlWidget->updateSpinbox ( control, value );
 }
 
 
 QStringList
-t_getFrameRates ( void )
+t_getCameraFrameRates ( void )
 {
 	return state.controlWidget->getFrameRates();
 }
 
 
 int
-t_getFrameRateIndex ( void )
+t_getCameraFrameRateIndex ( void )
 {
 	return state.controlWidget->getFrameRateIndex();
 }
 
 
 void
-t_updateFrameRate ( int rate )
+t_updateCameraFrameRate ( int rate )
 {
 	state.controlWidget->updateFrameRate ( rate );
 }
 
 
 void
-t_setFlipX ( int val )
+t_setCameraFlipX ( int val )
 {
 	state.mainWindow->setFlipX ( val );
 }
 
 
 void
-t_setFlipY ( int val )
+t_setCameraFlipY ( int val )
 {
 	state.mainWindow->setFlipY ( val );
 }
@@ -311,39 +311,55 @@ t_slotFilterName ( int slot )
 }
 
 
+void
+t_enableTimerExternalLED ( int value )
+{
+	state.mainWindow->enableTimerExternalLED ( value );
+}
+
+
+int
+t_getTimerExternalLED ( void )
+{
+	return state.mainWindow->getTimerExternalLEDState();
+}
+
+
 trampolineFuncs trampolines = {
-	t_getCurrentGain,
-	t_getCurrentExposure,
-	t_getCurrentTargetId,
-	t_getCurrentFilterName,
-	t_getCurrentProfileName,
-	t_setFilterSlotCount,
-	t_reloadFilters,
-	t_updateHistogramLayout,
-	t_resetAutorun,
-	t_updateControlCheckbox,
-	t_getSpinboxMinimum,
-	t_getSpinboxMaximum,
-	t_getSpinboxStep,
-	t_getSpinboxValue,
-	t_updateSpinbox,
-	t_getFrameRates,
-	t_getFrameRateIndex,
-	t_updateFrameRate,
-	t_setFlipX,
-	t_setFlipY,
-	t_updateForceFrameFormat,
-	t_reloadProfiles,
-	t_resetTemperatureLabel,
-	t_setDisplayFPS,
-	t_enableTIFFCapture,
-	t_enableMOVCapture,
-	t_enablePNGCapture,
-	t_setVideoFramePixelFormat,
-	t_destroyLayout,
-	t_checkTimerWarnings,
-	t_updateConfig,
-	t_showStatusMessage,
-	t_propagateNewSlotName,
-	t_slotFilterName
+  t_getCurrentGain,
+  t_getCurrentExposure,
+  t_getCurrentTargetId,
+  t_getCurrentFilterName,
+  t_getCurrentProfileName,
+  t_setFilterSlotCount,
+  t_reloadFilters,
+  t_updateHistogramLayout,
+  t_resetAutorun,
+  t_updateCameraControlCheckbox,
+  t_getCameraSpinboxMinimum,
+  t_getCameraSpinboxMaximum,
+  t_getCameraSpinboxStep,
+  t_getCameraSpinboxValue,
+  t_updateCameraSpinbox,
+  t_getCameraFrameRates,
+  t_getCameraFrameRateIndex,
+  t_updateCameraFrameRate,
+  t_setCameraFlipX,
+  t_setCameraFlipY,
+  t_updateForceFrameFormat,
+  t_reloadProfiles,
+  t_resetTemperatureLabel,
+  t_setDisplayFPS,
+  t_enableTIFFCapture,
+  t_enableMOVCapture,
+  t_enablePNGCapture,
+  t_setVideoFramePixelFormat,
+  t_destroyLayout,
+  t_checkTimerWarnings,
+  t_updateConfig,
+  t_showStatusMessage,
+  t_propagateNewSlotName,
+  t_slotFilterName,
+	t_enableTimerExternalLED,
+	t_getTimerExternalLED
 };

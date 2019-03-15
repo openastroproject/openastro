@@ -264,4 +264,6 @@ class MainWindow : public QMainWindow
 		int			outputExists ( void );
 		void		outputExistsUnwritable ( void );
 		void		createFileFailed ( void );
+		void		enableTimerExternalLED ( int );
+		int			getTimerExternalLEDState ( void );
 };

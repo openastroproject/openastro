@@ -2,7 +2,8 @@
  *
  * timer.h -- class declaration
  *
- * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -69,6 +70,7 @@ class Timer
 				int64_t );
     int64_t		unpackControlValue ( oaControlValue* );
     int			setControl ( int, int64_t );
+		int			readControl ( int );
   private:
     int			initialised;
     oaTimer*		timerContext;

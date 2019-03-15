@@ -2,7 +2,7 @@
  *
  * cameraSettings.cc -- class for the camera tab in the settings dialog
  *
- * Copyright 2014,2015,2016,2017,2018
+ * Copyright 2014,2015,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -130,19 +130,19 @@ CameraSettings::configure ( void )
                   valueChanged ( int )), controlSlider[mod][baseVal],
                   SLOT( setValue( int )));
 
-              int min = trampolines->getSpinboxMinimum ( c );
+              int min = trampolines->getCameraSpinboxMinimum ( c );
               controlSlider[mod][baseVal]->setMinimum ( min );
               controlSpinbox[mod][baseVal]->setMinimum ( min );
 
-              int max = trampolines-> getSpinboxMaximum ( c );
+              int max = trampolines-> getCameraSpinboxMaximum ( c );
               controlSlider[mod][baseVal]->setMaximum ( max );
               controlSpinbox[mod][baseVal]->setMaximum ( max );
 
-              int step = trampolines-> getSpinboxStep ( c );
+              int step = trampolines-> getCameraSpinboxStep ( c );
               controlSlider[mod][baseVal]->setSingleStep ( step );
               controlSpinbox[mod][baseVal]->setSingleStep ( step );
 
-              int val = trampolines-> getSpinboxValue ( c );
+              int val = trampolines-> getCameraSpinboxValue ( c );
               controlSlider[mod][baseVal]->setValue ( val );
               controlSpinbox[mod][baseVal]->setValue ( val );
 
@@ -270,11 +270,11 @@ CameraSettings::configure ( void )
     frameRateLabel = new QLabel ( tr ( "Framerate (fps)" ), this );
     frameRateMenu = new QComboBox ( this );
     frameRateSlider->setFocusPolicy ( Qt::TabFocus );
-    QStringList rateList = trampolines->getFrameRates();
+    QStringList rateList = trampolines->getCameraFrameRates();
     frameRateSlider->setRange ( 0, rateList.count());
     frameRateSlider->setSingleStep ( 1 );
     frameRateMenu->addItems ( rateList );
-    frameRateIndex = trampolines->getFrameRateIndex();
+    frameRateIndex = trampolines->getCameraFrameRateIndex();
     frameRateSlider->setValue ( frameRateIndex );
     frameRateMenu->setCurrentIndex ( frameRateIndex );
 
@@ -559,7 +559,7 @@ CameraSettings::~CameraSettings()
 void
 CameraSettings::updateSliderControl ( int control )
 {
-	trampolines->updateSpinbox ( control, controlSpinbox[
+	trampolines->updateCameraSpinbox ( control, controlSpinbox[
       OA_CAM_CTRL_MODIFIER(control)][OA_CAM_CTRL_MODE_BASE(control)]->value());
 }
 
@@ -572,31 +572,31 @@ CameraSettings::updateCheckboxControl ( int control )
 
   switch ( control ) {
     case OA_CAM_CTRL_HFLIP:
-      trampolines->setFlipX ( value );
+      trampolines->setCameraFlipX ( value );
       break;
 
     case OA_CAM_CTRL_VFLIP:
-      trampolines->setFlipY ( value );
+      trampolines->setCameraFlipY ( value );
       break;
 
     case OA_CAM_CTRL_TRIGGER_ENABLE:
 			timerConf.timerMode = ( value ? OA_TIMER_MODE_TRIGGER :
 					OA_TIMER_MODE_STROBE );
-      trampolines->updateControlCheckbox ( control, value );
+      trampolines->updateCameraControlCheckbox ( control, value );
       break;
 
     case OA_CAM_CTRL_TRIGGER_DELAY_ENABLE:
-      trampolines->updateControlCheckbox ( control, value );
+      trampolines->updateCameraControlCheckbox ( control, value );
       break;
 
     case OA_CAM_CTRL_STROBE_ENABLE:
 			timerConf.timerMode = ( value ?  OA_TIMER_MODE_STROBE :
 					OA_TIMER_MODE_TRIGGER );
-      trampolines->updateControlCheckbox ( control, value );
+      trampolines->updateCameraControlCheckbox ( control, value );
       break;
 
     default:
-      trampolines->updateControlCheckbox ( control, value );
+      trampolines->updateCameraControlCheckbox ( control, value );
       break;
   }
 
@@ -839,32 +839,32 @@ CameraSettings::updateFrameRate ( int index )
 void
 CameraSettings::frameRateChanged ( void )
 {
-  trampolines->updateFrameRate ( frameRateMenu->currentIndex());
+  trampolines->updateCameraFrameRate ( frameRateMenu->currentIndex());
 }
 
 
 void
 CameraSettings::reconfigureControl ( int control )
 {
-  int min = trampolines->getSpinboxMinimum ( control );
+  int min = trampolines->getCameraSpinboxMinimum ( control );
   controlSlider[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
       control )]->setMinimum ( min );
   controlSpinbox[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
       control )]->setMinimum ( min );
 
-  int max = trampolines->getSpinboxMaximum ( control );
+  int max = trampolines->getCameraSpinboxMaximum ( control );
   controlSlider[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
       control )]->setMaximum ( max );
   controlSpinbox[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
       control )]->setMaximum ( max );
 
-  int step = trampolines->getSpinboxStep ( control );
+  int step = trampolines->getCameraSpinboxStep ( control );
   controlSlider[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
       control )]->setSingleStep ( step );
   controlSpinbox[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
       control )]->setSingleStep ( step );
 
-  int val = trampolines->getSpinboxValue ( control );
+  int val = trampolines->getCameraSpinboxValue ( control );
   controlSlider[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(
       control )]->setValue ( val );
   controlSpinbox[ OA_CAM_CTRL_MODIFIER( control )][ OA_CAM_CTRL_MODE_BASE(

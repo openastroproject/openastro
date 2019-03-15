@@ -47,17 +47,17 @@ typedef struct {
 	void ( *reloadFilters )( void );
 	void ( *updateHistogramLayout )( void );
 	void ( *resetAutorun )( void );
-	void ( *updateControlCheckbox )( int, int );
-	int ( *getSpinboxMinimum )( int );
-	int ( *getSpinboxMaximum )( int );
-	int ( *getSpinboxStep )( int );
-	int ( *getSpinboxValue )( int );
-	void ( *updateSpinbox )( int, int );
-	QStringList ( *getFrameRates )( void );
-	int ( *getFrameRateIndex )( void );
-	void ( *updateFrameRate )( int );
-	void ( *setFlipX )( int );
-	void ( *setFlipY )( int );
+	void ( *updateCameraControlCheckbox )( int, int );
+	int ( *getCameraSpinboxMinimum )( int );
+	int ( *getCameraSpinboxMaximum )( int );
+	int ( *getCameraSpinboxStep )( int );
+	int ( *getCameraSpinboxValue )( int );
+	void ( *updateCameraSpinbox )( int, int );
+	QStringList ( *getCameraFrameRates )( void );
+	int ( *getCameraFrameRateIndex )( void );
+	void ( *updateCameraFrameRate )( int );
+	void ( *setCameraFlipX )( int );
+	void ( *setCameraFlipY )( int );
 	void ( *updateForceFrameFormat )( unsigned int, unsigned int );
 	void ( *reloadProfiles )( void );
 	void ( *resetTemperatureLabel )( void );
@@ -72,6 +72,8 @@ typedef struct {
 	void ( *showStatusMessage ) ( QString );
 	void ( *propagateNewSlotName )( int, QString );
 	QString ( *slotFilterName )( int );
+	void ( *enableTimerExternalLED )( int );
+	int ( *getTimerExternalLED )( void );
 } trampolineFuncs;
 
 extern trampolineFuncs trampolines;

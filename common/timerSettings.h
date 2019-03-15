@@ -93,4 +93,5 @@ class TimerSettings : public QWidget
   public slots:
     void		doTimerReset ( void );
     void		doTimerSync ( void );
+		void		externalLEDCheckboxChanged ( void );
 };
