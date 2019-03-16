@@ -456,12 +456,17 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	    return 0;
 	  }
 
+		/*
+		 * This function isn't used and isn't present in some releases of
+		 * libqhyccd, so skip it for now
+		 *
 	  if (!( *( void** )( &p_GetQHYCCDNumberOfReadModes ) = _getDLSym ( libHandle,
 	      "GetQHYCCDNumberOfReadModes" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return 0;
 	  }
+		 */
 
 	  if (!( *( void** )( &p_GetQHYCCDReadModeResolution ) = _getDLSym ( libHandle,
 	      "GetQHYCCDReadModeResolution" ))) {
