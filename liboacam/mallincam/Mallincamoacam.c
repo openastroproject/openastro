@@ -41,17 +41,17 @@
 // Pointers to libmallincam functions so we can use them via libdl.
 
 const char*	( *p_Mallincam_Version )();
-unsigned	( *p_Mallincam_Enum )( ToupcamInst* );
+unsigned	( *p_Mallincam_EnumV2 )( ToupcamInst* );
 HToupCam	( *p_Mallincam_Open )( const char* );
 HToupCam	( *p_Mallincam_OpenByIndex )( unsigned );
 void		( *p_Mallincam_Close )( HToupCam );
 HRESULT		( *p_Mallincam_StartPullModeWithCallback )( HToupCam,
 		    PTOUPCAM_EVENT_CALLBACK, void* );
-HRESULT		( *p_Mallincam_PullImage )( HToupCam, void*, int, unsigned*,
+HRESULT		( *p_Mallincam_PullImageV2 )( HToupCam, void*, int, unsigned*,
 		    unsigned* );
-HRESULT		( *p_Mallincam_PullStillImage )( HToupCam, void*, int,
+HRESULT		( *p_Mallincam_PullStillImageV2 )( HToupCam, void*, int,
 		    unsigned*, unsigned* );
-HRESULT		( *p_Mallincam_StartPushMode )( HToupCam,
+HRESULT		( *p_Mallincam_StartPushModeV2 )( HToupCam,
 		    PTOUPCAM_DATA_CALLBACK, void* );
 HRESULT		( *p_Mallincam_Stop )( HToupCam );
 HRESULT		( *p_Mallincam_Pause )( HToupCam, int );
@@ -278,8 +278,8 @@ oaMallincamGetCameras ( CAMERA_LIST* deviceList, int flags )
     return 0;
   }
 
-  if (!( *( void** )( &p_Mallincam_Enum ) = _getDLSym ( libHandle,
-      "Toupcam_Enum" ))) {
+  if (!( *( void** )( &p_Mallincam_EnumV2 ) = _getDLSym ( libHandle,
+      "Toupcam_EnumV2" ))) {
 		dlclose ( libHandle );
 		libHandle = 0;
     return 0;
@@ -685,15 +685,15 @@ oaMallincamGetCameras ( CAMERA_LIST* deviceList, int flags )
     return 0;
   }
 
-  if (!( *( void** )( &p_Mallincam_PullImage ) = _getDLSym ( libHandle,
-      "Toupcam_PullImage" ))) {
+  if (!( *( void** )( &p_Mallincam_PullImageV2 ) = _getDLSym ( libHandle,
+      "Toupcam_PullImageV2" ))) {
 		dlclose ( libHandle );
 		libHandle = 0;
     return 0;
   }
 
-  if (!( *( void** )( &p_Mallincam_PullStillImage ) = _getDLSym ( libHandle,
-      "Toupcam_PullStillImage" ))) {
+  if (!( *( void** )( &p_Mallincam_PullStillImageV2 ) = _getDLSym ( libHandle,
+      "Toupcam_PullStillImageV2" ))) {
 		dlclose ( libHandle );
 		libHandle = 0;
     return 0;
@@ -992,8 +992,8 @@ oaMallincamGetCameras ( CAMERA_LIST* deviceList, int flags )
     return 0;
   }
 
-  if (!( *( void** )( &p_Mallincam_StartPushMode ) = _getDLSym ( libHandle,
-      "Toupcam_StartPushMode" ))) {
+  if (!( *( void** )( &p_Mallincam_StartPushModeV2 ) = _getDLSym ( libHandle,
+      "Toupcam_StartPushModeV2" ))) {
 		dlclose ( libHandle );
 		libHandle = 0;
     return 0;
@@ -1036,7 +1036,7 @@ oaMallincamGetCameras ( CAMERA_LIST* deviceList, int flags )
   }
    */
 
-  numCameras = ( p_Mallincam_Enum )( devList );
+  numCameras = ( p_Mallincam_EnumV2 )( devList );
   if ( numCameras < 1 ) {
     return 0;
   }

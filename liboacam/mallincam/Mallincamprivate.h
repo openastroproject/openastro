@@ -49,18 +49,18 @@
 #endif
 
 extern const char*	( *p_Mallincam_Version )();
-extern unsigned		( *p_Mallincam_Enum )( ToupcamInst* );
+extern unsigned		( *p_Mallincam_EnumV2 )( ToupcamInstV2* );
 extern HToupCam		( *p_Mallincam_Open )( const char* );
 extern HToupCam		( *p_Mallincam_OpenByIndex )( unsigned );
 void			( *p_Mallincam_Close )( HToupCam );
 extern HRESULT		( *p_Mallincam_StartPullModeWithCallback )( HToupCam,
 			    PTOUPCAM_EVENT_CALLBACK, void* );
-extern HRESULT		( *p_Mallincam_PullImage )( HToupCam, void*, int,
-			    unsigned*, unsigned* );
-extern HRESULT		( *p_Mallincam_PullStillImage )( HToupCam, void*, int,
-			    unsigned*, unsigned* );
-extern HRESULT		( *p_Mallincam_StartPushMode )( HToupCam,
-			    PTOUPCAM_DATA_CALLBACK, void* );
+extern HRESULT		( *p_Mallincam_PullImageV2 )( HToupCam, void*, int,
+			    ToupcamFrameInfoV2* );
+extern HRESULT		( *p_Mallincam_PullStillImageV2 )( HToupCam, void*, int,
+			    ToupcamFrameInfoV2* );
+extern HRESULT		( *p_Mallincam_StartPushModeV2 )( HToupCam,
+			    PTOUPCAM_DATA_CALLBACK_V2, void* );
 extern HRESULT		( *p_Mallincam_Stop )( HToupCam );
 extern HRESULT		( *p_Mallincam_Pause )( HToupCam, int );
 extern HRESULT		( *p_Mallincam_Snap )( HToupCam, unsigned );
@@ -175,7 +175,7 @@ extern HRESULT		( *p_Mallincam_ST4PlusGuide )( HToupCam, unsigned,
 extern HRESULT		( *p_Mallincam_ST4PlusGuideState )( HToupCam );
 extern double		( *p_Mallincam_calc_ClarityFactor )( const void*, int,
 			    unsigned, unsigned );
-extern void		( *p_Mallincam_deBayer )( unsigned, int, int,
+extern void		( *p_Mallincam_deBayerV2 )( unsigned, int, int,
 			    const void*, void*, unsigned char );
 extern void		( *p_Mallincam_HotPlug )( PTOUPCAM_HOTPLUG, void* );
 

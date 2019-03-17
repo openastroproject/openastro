@@ -126,8 +126,8 @@ oacamMallincamcontroller ( void* param )
 
 
 void
-_MallincamFrameCallback ( const void *frame, const BITMAPINFOHEADER*
-    bitmapHeader, int bSnap, void *ptr )
+_MallincamFrameCallback ( const void *frame, const ToupcamFrameInfoV2*
+    frameInfo, int bSnap, void *ptr )
 {
   MALLINCAM_STATE*	cameraInfo = ptr;
   int			buffersFree, nextBuffer, shiftBits, bitsPerPixel;
@@ -138,11 +138,8 @@ _MallincamFrameCallback ( const void *frame, const BITMAPINFOHEADER*
   bitsPerPixel = cameraInfo->currentBitsPerPixel;
   pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
 
-  if ( frame && buffersFree && bitmapHeader->biSizeImage ) {
-    if (( dataLength = bitmapHeader->biSizeImage ) >
-        cameraInfo->imageBufferLength ) {
-      dataLength = cameraInfo->imageBufferLength;
-    }
+  if ( frame && buffersFree ) {
+    dataLength = cameraInfo->imageBufferLength;
     nextBuffer = cameraInfo->nextBuffer;
 
     // Now here's the fun...
@@ -818,9 +815,9 @@ _doStart ( MALLINCAM_STATE* cameraInfo )
 {
   int			ret;
 
-  if (( ret = ( p_Mallincam_StartPushMode )( cameraInfo->handle,
+  if (( ret = ( p_Mallincam_StartPushModeV2 )( cameraInfo->handle,
       _MallincamFrameCallback, cameraInfo )) < 0 ) {
-    fprintf ( stderr, "%s: Mallincam_StartPushMode failed: 0x%x\n",
+    fprintf ( stderr, "%s: Mallincam_StartPushModeV2 failed: 0x%x\n",
         __FUNCTION__, ret );
     return -OA_ERR_CAMERA_IO;
   }
