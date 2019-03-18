@@ -2,7 +2,7 @@
 #
 # build-oalive-dmg.sh.in -- Build a DMG install file from built binaries
 #
-# Copyright 2013,2014,2015,2018 James Fidell (james@openastroproject.org)
+# Copyright 2013,2014,2015,2018,2019 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -50,10 +50,8 @@ strip $APPDIR/Contents/MacOS/oalive
 cp ext/libusb/examples/fxload $APPDIR/Contents/MacOS
 strip $APPDIR/Contents/MacOS/fxload
 
-cp lib/firmware/qhy/QHY{5,5II,5LOADER,6}.HEX \
-    $APPDIR/Contents/Resources/firmware/qhy
-cp lib/firmware/qhy/SLAVEFIFO.HEX \
-    $APPDIR/Contents/Resources/firmware/qhy
+cp lib/firmware/qhy/*.HEX $APPDIR/Contents/Resources/firmware/qhy
+cp lib/firmware/qhy/*.img $APPDIR/Contents/Resources/firmware/qhy
 # This is an attempt to keep libqhyccd's daft restriction on the name
 # of the firmware directory happy
 ln -s . $APPDIR/Contents/Resources/firmware/qhy/firmware
