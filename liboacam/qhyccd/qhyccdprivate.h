@@ -86,6 +86,7 @@ extern uint32_t			( *p_QHYCCDI2CTwoWrite )( qhyccd_handle*, uint16_t,
 												uint16_t );
 extern uint32_t			( *p_QHYCCDI2CTwoRead )( qhyccd_handle*, uint16_t );
 extern uint32_t			( *p_GetQHYCCDReadingProgress )( qhyccd_handle* );
+/*
 extern uint32_t			( *p_GetQHYCCDNumberOfReadModes )( qhyccd_handle*,
 												int32_t* );
 extern uint32_t			( *p_GetQHYCCDReadModeResolution )( qhyccd_handle*, int32_t,
@@ -94,6 +95,7 @@ extern uint32_t			( *p_GetQHYCCDReadModeName )( qhyccd_handle*, int32_t,
 												char* );
 extern uint32_t			( *p_SetQHYCCDReadMode )( qhyccd_handle*, int32_t );
 extern uint32_t			( *p_GetQHYCCDReadMode )( qhyccd_handle*, int32_t* );
+*/
 extern uint32_t			( *p_SetQHYCCDDebayerOnOff )( qhyccd_handle*, bool );
 
 struct qhyCtrl {

@@ -93,6 +93,7 @@ uint32_t				( *p_GetQHYCCDHumidity )( qhyccd_handle*, double* );
 uint32_t				( *p_QHYCCDI2CTwoWrite )( qhyccd_handle*, uint16_t, uint16_t );
 uint32_t				( *p_QHYCCDI2CTwoRead )( qhyccd_handle*, uint16_t );
 uint32_t				( *p_GetQHYCCDReadingProgress )( qhyccd_handle* );
+/*
 uint32_t				( *p_GetQHYCCDNumberOfReadModes )( qhyccd_handle*, int32_t* );
 uint32_t				( *p_GetQHYCCDReadModeResolution )( qhyccd_handle*, int32_t,
 										uint32_t*, uint32_t* );
@@ -100,6 +101,7 @@ uint32_t				( *p_GetQHYCCDReadModeName )( qhyccd_handle*, int32_t,
 										char* );
 uint32_t				( *p_SetQHYCCDReadMode )( qhyccd_handle*, int32_t );
 uint32_t				( *p_GetQHYCCDReadMode )( qhyccd_handle*, int32_t* );
+*/
 uint32_t				( *p_SetQHYCCDDebayerOnOff )( qhyccd_handle*, bool );
 
 
@@ -457,7 +459,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	  }
 
 		/*
-		 * This function isn't used and isn't present in some releases of
+		 * This function isn't used and isn't present in some releases (4.0.1?) of
 		 * libqhyccd, so skip it for now
 		 *
 	  if (!( *( void** )( &p_GetQHYCCDNumberOfReadModes ) = _getDLSym ( libHandle,
@@ -468,20 +470,31 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	  }
 		 */
 
+		/*
+		 * Ditto this one
+		 *
 	  if (!( *( void** )( &p_GetQHYCCDReadModeResolution ) = _getDLSym ( libHandle,
 	      "GetQHYCCDReadModeResolution" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return 0;
 	  }
+		 */
 
+		/*
+		 * And this
+		 *
 	  if (!( *( void** )( &p_GetQHYCCDReadModeName ) = _getDLSym ( libHandle,
 	      "GetQHYCCDReadModeName" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return 0;
 	  }
+		 */
 
+		/*
+		 * And these two...
+		 *
 	  if (!( *( void** )( &p_SetQHYCCDReadMode ) = _getDLSym ( libHandle,
 	      "SetQHYCCDReadMode" ))) {
 			dlclose ( libHandle );
@@ -495,6 +508,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 			libHandle = 0;
 	    return 0;
 	  }
+		 */
 
 	  if (!( *( void** )( &p_SetQHYCCDDebayerOnOff ) = _getDLSym ( libHandle,
 	      "SetQHYCCDDebayerOnOff" ))) {
