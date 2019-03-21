@@ -32,15 +32,29 @@ srcdir=oacapture-$version
 debdir=debian
 debsrc=$debdir/source
 
+debversion=`cat /etc/debian_version`
+case $debversion in
+  jessie/sid)
+    compatversion=9
+    ;;
+  stretch/sid)
+    compatversion=9
+    ;;
+  *)
+    compatversion=10
+    ;;
+esac
+echo $compatversion > debfiles/compat
+
 tar jxf oacapture-$version.tar.bz2
 cd $srcdir
 dh_make -y -s -f ../oacapture-$version.tar.bz2
 
-cp ../debfiles/control $debdir
+sed -e "s/@@COMPAT@@/$compatversion/" < ../debfiles/control > $debdir/control
 cp ../debfiles/copyright $debdir
+cp ../debfiles/compat $debdir
 cp ../debfiles/changelog $debdir
 cp ../debfiles/oacapture.menu $debdir
-echo 9 >> $debdir/compat
 sed -e '/purge\|remove/a\
       service udev restart' < $debdir/postinst.ex > $debdir/postinst
 chmod +x $debdir/postinst
