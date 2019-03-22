@@ -23,6 +23,8 @@
 # <http://www.gnu.org/licenses/>.
 #
 
+set -e
+
 export DEBEMAIL=james@openastro.org
 export DEBFULLNAME="James Fidell"
 
@@ -78,11 +80,29 @@ if [ $? -ne 0 ]; then
   rm $debdir/control.orig
 fi
 
-export QUILT_PATCHES="debian/patches"
-export QUILT_PATCH_OPTS="--reject-format=unified"
-export QUILT_DIFF_ARGS="-p ab --no-timestamps --no-index --color=auto"
-export QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index"
-mkdir -p $QUILT_PATCHES
+case $debversion in
+  jessie/sid)
+    export QUILT_PATCHES="debian/patches"
+    export QUILT_PATCH_OPTS="--reject-format=unified"
+    export QUILT_DIFF_ARGS="-p ab --no-timestamps --no-index --color=auto"
+    export QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index"
+    mkdir -p $QUILT_PATCHES
+
+    for p in `ls -1 ../debfiles/patches`
+    do
+      quilt --quiltrc=$quiltconf new $p
+      for f in `egrep '^\+\+\+' ../debfiles/patches/$p | awk '{ print $2; }'`
+      do
+        quilt --quiltrc=$quiltconf add $f
+      done
+    pwd
+      patch -p0 < ../debfiles/patches/$p
+      quilt --quiltrc=$quiltconf refresh
+    done
+  ;;
+  *)
+  ;;
+esac
 
 test -f $debdir/README.Debian && rm $debdir/README.Debian
 test -f $debdir/README.Debian && rm $debdir/README.Debian

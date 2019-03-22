@@ -27,3 +27,4 @@ version="##FULL_VERSION##"
 
 rm -fr oacapture-$version
 rm -fr oacapture_*
+rm -f debfiles/compat
