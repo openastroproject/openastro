@@ -1068,9 +1068,11 @@ then
      fi
 
      AS_MKDIR_P(["$ac_top_build_prefix"ext/libdc1394])
-     export LIBUSB_CFLAGS="-I $origdir/ext/libusb/libusb"
-     export LIBUSB_LDFLAGS=""
-     export LIBUSB_LIBS="$origdir/ext/libusb/libusb/libusb-1.0.la"
+     if test "$use_system_libusb" == "no"; then
+       export LIBUSB_CFLAGS="-I $origdir/ext/libusb/libusb"
+       export LIBUSB_LDFLAGS=""
+       export LIBUSB_LIBS="$origdir/ext/libusb/libusb/libusb-1.0.la"
+		 fi
      cd "$ac_top_build_prefix"ext/libdc1394 &&
          $confcmd $emblibdc1394_configure_args ||
          AC_MSG_ERROR([Failed to configure embedded libdc1394 tree])
