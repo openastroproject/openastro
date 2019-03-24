@@ -66,15 +66,13 @@ chmod +x $debdir/postrm
 echo "3.0 (quilt)" > $debsrc/format
 cat ../debfiles/rules.overrides >> $debdir/rules
 
-dpkg-query -l cfitsio-dev 2>&1 >/dev/null
-if [ $? -eq 0 ]; then
+if dpkg-query -l cfitsio-dev 2>&1 >/dev/null; then
   cp $debdir/control $debdir/control.orig
   sed -e 's/libcfitsio-dev/cfitsio-dev/g' < $debdir/control.orig > $debdir/control
   rm $debdir/control.orig
 fi
 
-dpkg-query -l libhidapi-dev 2>&1 >/dev/null
-if [ $? -ne 0 ]; then
+if dpkg-query -l libhidapi-dev 2>&1 >/dev/null; then
   cp $debdir/control $debdir/control.orig
   sed -e 's/, libhidapi-dev//g' < $debdir/control.orig > $debdir/control
   rm $debdir/control.orig
