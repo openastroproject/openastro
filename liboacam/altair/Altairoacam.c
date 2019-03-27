@@ -1137,8 +1137,6 @@ _patchLibrary ( void* p )
     offset |= ( *lea++ ) << 16;
     offset |= ( *lea++ ) << 24;
 
-    fprintf ( stderr, "offset = %04x\n", offset );
-
     pidTableStart = rip + offset;
   } else {
     fprintf ( stderr, "lea instruction not found at address %p\n", lea );
