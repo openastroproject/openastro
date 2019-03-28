@@ -132,6 +132,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 #endif
 
 	*libPath = 0;
+	dlerror();
   if ( !libHandle ) {
 		if ( installPathRoot ) {
 			( void ) strncpy ( libPath, installPathRoot, PATH_MAX );
@@ -142,11 +143,9 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 		( void ) strncat ( libPath, libName, PATH_MAX );
 
     if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
-      // fprintf ( stderr, "can't load %s\n", libPath );
+      // fprintf ( stderr, "can't load %s:\n%s\n", libPath, dlerror());
       return 0;
     }
-
-	  dlerror();
 
 	  if (!( *( void** )( &p_SetQHYCCDLogLevel ) = _getDLSym ( libHandle,
 	      "SetQHYCCDLogLevel" ))) {
@@ -534,6 +533,9 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	// not entirely clear from the "documentation"
 	( void ) strcat ( firmwarePath, "/firmware" );
 	p_OSXInitQHYCCDFirmware ( firmwarePath );
+	// Don't really know how long this should be, but a short delay appears
+	// to be required to allow the camera(s) to reset
+	sleep ( 3 );
 #endif
 
   numCameras = ( p_ScanQHYCCD )();
