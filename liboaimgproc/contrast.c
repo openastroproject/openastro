@@ -132,7 +132,7 @@ _contrastTransform16BitLE ( void* source, void* target, unsigned int frameSize,
 		pixelValue += ( *s++ ) << 8;
 		pixelValue *= transformFactor;
 		newValue = ( uint16_t ) oadclamp ( 0, 65535, pixelValue );
-		*t++ = newValue && 0xff;
+		*t++ = newValue & 0xff;
 		*t++ = newValue >> 8;
 	}
 }
@@ -161,6 +161,6 @@ _contrastTransform16BitBE ( void* source, void* target, unsigned int frameSize,
 		pixelValue *= transformFactor;
 		newValue = ( uint16_t ) oadclamp ( 0, 65535, pixelValue );
 		*t++ = newValue >> 8;
-		*t++ = newValue && 0xff;
+		*t++ = newValue & 0xff;
 	}
 }

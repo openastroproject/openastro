@@ -132,7 +132,7 @@ _gammaTransform16BitLE ( void* source, void* target, unsigned int frameSize,
 		pixelValue += gamma;
 		newValue = ( uint16_t ) oaclamp ( 0, 255, pow ( pixelValue,
 				gammaExponent ));
-		*t++ = newValue && 0xff;
+		*t++ = newValue & 0xff;
 		*t++ = newValue >> 8;
 	}
 }
@@ -158,6 +158,6 @@ _gammaTransform16BitBE ( void* source, void* target, unsigned int frameSize,
 		newValue = ( uint16_t ) oaclamp ( 0, 255, pow ( pixelValue,
 				gammaExponent ));
 		*t++ = newValue >> 8;
-		*t++ = newValue && 0xff;
+		*t++ = newValue & 0xff;
 	}
 }

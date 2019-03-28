@@ -123,7 +123,7 @@ _brightnessTransform16BitLE ( void* source, void* target,
 		pixelValue += ( *s++ ) << 8;
 		pixelValue += brightness;
 		newValue = ( uint16_t ) oaclamp ( 0, 65535, pixelValue );
-		*t++ = newValue && 0xff;
+		*t++ = newValue & 0xff;
 		*t++ = newValue >> 8;
 	}
 }
@@ -148,6 +148,6 @@ _brightnessTransform16BitBE ( void* source, void* target,
 		pixelValue += brightness;
 		newValue = ( uint16_t ) oaclamp ( 0, 65535, pixelValue );
 		*t++ = newValue >> 8;
-		*t++ = newValue && 0xff;
+		*t++ = newValue & 0xff;
 	}
 }
