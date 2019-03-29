@@ -79,7 +79,7 @@ if dpkg-query -l libhidapi-dev 2>&1 >/dev/null; then
 fi
 
 case $debversion in
-  jessie/sid|8.*)
+  jessie/sid|stretch/sid|8.*)
     export QUILT_PATCHES="debian/patches"
     export QUILT_PATCH_OPTS="--reject-format=unified"
     export QUILT_DIFF_ARGS="-p ab --no-timestamps --no-index --color=auto"
