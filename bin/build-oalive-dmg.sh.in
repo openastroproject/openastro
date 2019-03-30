@@ -58,12 +58,14 @@ ln -s . $APPDIR/Contents/Resources/firmware/qhy/firmware
 
 /opt/local/bin/macdeployqt $APPDIR
 
-for lib in toupcam mallincam altaircam altaircamlegacy libqhyccd
+for lib in toupcam mallincam altaircam altaircamlegacy qhyccd
 do
   libfile=ext/lib$lib/mac64/lib$lib.dylib
   if [ -f $libfile ]
   then
     cp $libfile $APPDIR/Contents/MacOS
+	else
+		echo "Can't find $libfile"
   fi
 done
 
@@ -76,6 +78,13 @@ install_name_tool -change /System/Library/Frameworks/CoreGraphics.framework/Vers
 install_name_tool -change /System/Library/Frameworks/ImageIO.framework/Versions/A/ImageIO /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/ImageIO $APPDIR/Contents/Frameworks/QtGui.framework/Versions/4/QtGui
 
 install_name_tool -change /System/Library/Frameworks/CFNetwork.framework/Versions/A/CFNetwork /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CFNetwork.framework/CFNetwork $APPDIR/Contents/Frameworks/QtNetwork.framework/Versions/4/QtNetwork
+
+# This one is because libqhyccd has a hard-coded path to the library
+# /usr/local/lib/libusb-1.0.0.dylib
+if [ -f $APPDIR/Contents/MacOS/libqhyccd.dylib ]
+then
+  install_name_tool -change /usr/local/lib/libusb-1.0.0.dylib $APPDIR/Contents/Frameworks/libusb-1.0.0.dylib $APPDIR/Contents/MacOS/libqhyccd.dylib
+fi
 
 cd $ROOT
 rm -f ../oalive-$VERSION.dmg
