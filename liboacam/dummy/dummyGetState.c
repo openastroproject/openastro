@@ -40,3 +40,46 @@ oaDummyCameraGetFramePixelFormat ( oaCamera *camera )
   return cameraInfo->cameraType ? OA_PIX_FMT_GREY16BE :
 			OA_PIX_FMT_GRBG;
 }
+
+
+int
+oaDummyCameraGetControlRange ( oaCamera* camera, int control, int64_t* min,
+    int64_t* max, int64_t* step, int64_t* def )
+{
+  COMMON_INFO*	commonInfo = camera->_common;
+
+  if ( !camera->OA_CAM_CTRL_TYPE( control )) {
+    return -OA_ERR_INVALID_CONTROL;
+  }
+
+  *min = commonInfo->OA_CAM_CTRL_MIN( control );
+  *max = commonInfo->OA_CAM_CTRL_MAX( control );
+  *step = commonInfo->OA_CAM_CTRL_STEP( control );
+  *def = commonInfo->OA_CAM_CTRL_DEF( control );
+  return OA_ERR_NONE;
+}
+
+
+const FRAMESIZES*
+oaDummyCameraGetFrameSizes ( oaCamera* camera )
+{
+  DUMMY_STATE*		cameraInfo = camera->_private;
+
+  switch ( cameraInfo->binMode ) {
+    case OA_BIN_MODE_NONE:
+      return &cameraInfo->frameSizes[1];
+      break;
+    case OA_BIN_MODE_2x2:
+      return &cameraInfo->frameSizes[2];
+      break;
+    case OA_BIN_MODE_3x3:
+      return &cameraInfo->frameSizes[3];
+      break;
+    case OA_BIN_MODE_4x4:
+      return &cameraInfo->frameSizes[4];
+      break;
+    default:
+      return &cameraInfo->frameSizes[1];
+      break;
+  }
+}
