@@ -2,7 +2,7 @@
  *
  * zwofw.h -- header for ZWO filter wheel API
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -41,9 +41,6 @@ extern void		oaZWOAddIDFilter ( userDeviceConfig* );
 
 extern int		_zwoWheelWrite ( PRIVATE_INFO*, unsigned char* );
 extern int		_zwoWheelRead ( PRIVATE_INFO*, unsigned char* );
-
-#define	STARLIGHT_XPRESS_VID			0x1278
-#define STARLIGHT_XPRESS_FILTERWHEEL_PID	0x0920
 
 #define FW_UNKNOWN      0
 #define ZWO_UNIVERSAL    1
