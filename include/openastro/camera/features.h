@@ -2,7 +2,8 @@
  *
  * oacam-features.h -- camera API (sub)header for camera features
  *
- * Copyright 2014,2015,2016,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -38,8 +39,10 @@ typedef struct oaCameraFeatures {
   unsigned int strobeOutput : 1;
   unsigned int fixedFrameSizes : 1;
   unsigned int readableControls : 1;
+  unsigned int fixedReadNoise : 1;
   unsigned int pixelSizeX;
   unsigned int pixelSizeY;
+	unsigned float readNoise;
 } oaCameraFeatures;
 
 #endif	/* OPENASTRO_CAMERA_FEATURES_H */
