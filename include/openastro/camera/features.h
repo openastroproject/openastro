@@ -43,6 +43,7 @@ typedef struct oaCameraFeatures {
   unsigned int pixelSizeX;
   unsigned int pixelSizeY;
 	unsigned float readNoise;
+	unsigned float QE;
 } oaCameraFeatures;
 
 #endif	/* OPENASTRO_CAMERA_FEATURES_H */
