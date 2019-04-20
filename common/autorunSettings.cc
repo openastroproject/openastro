@@ -2,7 +2,7 @@
  *
  * autorunSettings.cc -- class for autorun settings in the settings widget
  *
- * Copyright 2013,2014,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -268,7 +268,7 @@ AutorunSettings::addFilter ( void )
   connect ( filterMenus[ sequenceLength - 1 ], SIGNAL (
     currentIndexChanged ( int )), parentWidget, SLOT ( dataChanged()));
   QMetaObject::invokeMethod ( parentWidget, "dataChanged",
-			Qt::BlockingQueuedConnection );
+		Qt::QueuedConnection );
 }
 
 
@@ -302,7 +302,7 @@ AutorunSettings::removeFilter ( int filterIndex )
   filterMenus.removeLast();
 
   QMetaObject::invokeMethod ( parentWidget, "dataChanged",
-			Qt::BlockingQueuedConnection );
+			Qt::QueuedConnection );
 }
 
 
