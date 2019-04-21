@@ -248,5 +248,5 @@ GeneralSettings::showRestartWarning ( void )
 
   QMessageBox::warning ( topWidget, applicationName, msg1 + msg2 );
 	QMetaObject::invokeMethod ( parentWidget, "dataChanged",
-			Qt::BlockingQueuedConnection );
+			Qt::QueuedConnection );
 }
