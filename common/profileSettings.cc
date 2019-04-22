@@ -268,6 +268,6 @@ ProfileSettings::targetChanged ( int index )
     changedProfiles[ currentProfile ].target = v.toInt();
     listAltered = 1;
 		QMetaObject::invokeMethod ( parentWidget, "dataChanged",
-        Qt::BlockingQueuedConnection );
+        Qt::QueuedConnection );
   }
 }
