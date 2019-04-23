@@ -505,8 +505,8 @@ MainWindow::readConfig ( QString configFile )
     config.intervalMenuOption = settings->value (
         "control/intervalMenuOption", 1 ).toInt(); // default = msec
 
-    commonConfig.profileOption = settings->value ( "control/profileOption",
-        0 ).toInt();
+    // commonConfig.profileOption = settings->value ( "control/profileOption",
+    //     0 ).toInt();
     commonConfig.filterOption = settings->value (
 				"control/filterOption", 0 ).toInt();
     commonConfig.fileTypeOption = settings->value ( "control/fileTypeOption",
