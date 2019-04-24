@@ -1127,7 +1127,7 @@ MainWindow::writeConfig ( QString configFile )
               profileConf.profiles[i].filterProfiles[ j ].intervalMenuOption );
           settings->beginWriteArray ( "controls" );
           for ( int k = 1; k < OA_CAM_CTRL_LAST_P1; k++ ) {
-            settings->setArrayIndex ( k );
+            settings->setArrayIndex ( k - 1 );
             settings->beginWriteArray ( "modifiers" );
             for ( int l = 0; l < OA_CAM_CTRL_MODIFIERS_P1; l++ ) {
               settings->setArrayIndex ( l );
