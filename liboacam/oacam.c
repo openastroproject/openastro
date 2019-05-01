@@ -116,6 +116,18 @@ oaInterface	oaCameraInterfaces[] = {
 #endif
 	// This used to be for the original ZWO ASI SDK
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#if HAVE_LIBQHYCCD
+  {
+    OA_CAM_IF_QHYCCD,
+    "libqhyccd",
+    "QHYCCD",
+    oaQHYCCDGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
   {
     OA_CAM_IF_QHY,
     "QHYCCD",
@@ -254,18 +266,6 @@ oaInterface	oaCameraInterfaces[] = {
     "Spinnaker",
     "SPIN",
     oaSpinGetCameras,
-    0,
-    OA_UDC_FLAG_NONE
-  },
-#else
-  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
-#endif
-#if HAVE_LIBQHYCCD
-  {
-    OA_CAM_IF_QHYCCD,
-    "libqhyccd",
-    "QHYCCD",
-    oaQHYCCDGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },
