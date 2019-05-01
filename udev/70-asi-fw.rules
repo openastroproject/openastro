@@ -23,4 +23,4 @@
 #
 
 # There is only one
-SUBSYSTEM=="usb", ATTR{idVendor}=="03c3" ATTR{idProduct}=="1f01" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="03c3", ATTR{idProduct}=="1f01", TAG+="uaccess"
