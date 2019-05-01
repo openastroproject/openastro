@@ -131,6 +131,8 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
   const char*		libName = "libqhyccd.so.4";
 #endif
 
+  FILE* errdesc = fopen ( "/var/tmp/out-qhy.txt", "w" );
+
 	*libPath = 0;
 	dlerror();
   if ( !libHandle ) {
@@ -143,7 +145,8 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 		( void ) strncat ( libPath, libName, PATH_MAX );
 
     if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
-      // fprintf ( stderr, "can't load %s:\n%s\n", libPath, dlerror());
+      fprintf ( errdesc, "can't load %s:\n%s\n", libPath, dlerror());
+fclose ( errdesc );
       return 0;
     }
 
@@ -151,6 +154,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "SetQHYCCDLogLevel" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -158,6 +162,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "EnableQHYCCDMessage" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -165,6 +170,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "EnableQHYCCDLogFile" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -172,6 +178,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetTimeStamp" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -179,6 +186,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "InitQHYCCDResource" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -186,6 +194,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "ReleaseQHYCCDResource" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -193,6 +202,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "ScanQHYCCD" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -200,6 +210,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDId" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -207,6 +218,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDModel" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -214,6 +226,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "OpenQHYCCD" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -221,6 +234,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "CloseQHYCCD" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -228,6 +242,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "SetQHYCCDStreamMode" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -235,6 +250,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "InitQHYCCD" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -242,6 +258,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "IsQHYCCDControlAvailable" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -249,6 +266,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "SetQHYCCDParam" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -256,6 +274,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDParam" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -263,6 +282,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDParamMinMaxStep" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -270,6 +290,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "SetQHYCCDResolution" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -277,6 +298,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDMemLength" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -284,6 +306,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "ExpQHYCCDSingleFrame" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -291,6 +314,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDSingleFrame" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -298,6 +322,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "CancelQHYCCDExposing" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -305,6 +330,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 				libHandle, "CancelQHYCCDExposingAndReadout" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -312,6 +338,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "BeginQHYCCDLive" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -319,6 +346,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDLiveFrame" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -326,6 +354,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "StopQHYCCDLive" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -333,6 +362,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "SetQHYCCDBinMode" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -340,6 +370,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "SetQHYCCDBitsMode" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -347,6 +378,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "ControlQHYCCDTemp" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -354,6 +386,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "ControlQHYCCDGuide" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -361,6 +394,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "SetQHYCCDTrigerMode" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -369,6 +403,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "OSXInitQHYCCDFirmware" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 #endif
@@ -377,6 +412,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDChipInfo" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -384,6 +420,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDEffectiveArea" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -391,6 +428,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDOverScanArea" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -398,6 +436,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDExposureRemaining" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -405,6 +444,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDFWVersion" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -412,6 +452,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDCameraStatus" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -419,6 +460,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDShutterStatus" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -426,6 +468,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "ControlQHYCCDShutter" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -433,6 +476,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDHumidity" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -440,6 +484,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "QHYCCDI2CTwoWrite" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -447,6 +492,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "QHYCCDI2CTwoRead" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -454,6 +500,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDReadingProgress" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -465,6 +512,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDNumberOfReadModes" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 		 */
@@ -476,6 +524,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDReadModeResolution" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 		 */
@@ -487,6 +536,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDReadModeName" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 		 */
@@ -498,6 +548,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "SetQHYCCDReadMode" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 
@@ -505,6 +556,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "GetQHYCCDReadMode" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 		 */
@@ -513,12 +565,14 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	      "SetQHYCCDDebayerOnOff" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
+fclose ( errdesc );
 	    return 0;
 	  }
 	}
 	
 	if ( p_InitQHYCCDResource() != QHYCCD_SUCCESS ) {
-		fprintf ( stderr, "can't init libqhyccd\n" );
+		fprintf ( errdesc, "can't init libqhyccd\n" );
+fclose ( errdesc );
 		return 0;
 	}
 
@@ -532,6 +586,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	// This may in fact have changed in the v4.0.14 release, but it's
 	// not entirely clear from the "documentation"
 	( void ) strcat ( firmwarePath, "/firmware" );
+fprintf ( errdesc, "initialising firmware from path %s\n", firmwarePath );
 	p_OSXInitQHYCCDFirmware ( firmwarePath );
 	// Don't really know how long this should be, but a short delay appears
 	// to be required to allow the camera(s) to reset
@@ -539,8 +594,10 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 #endif
 
   numCameras = ( p_ScanQHYCCD )();
+fprintf ( errdesc, "num QHYCCD cameras = %d\n", numCameras );
   if ( numCameras < 1 ) {
 		p_ReleaseQHYCCDResource();
+fclose ( errdesc );
     return 0;
   }
 
@@ -548,24 +605,28 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 
     if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
 			p_ReleaseQHYCCDResource();
+fclose ( errdesc );
       return -OA_ERR_MEM_ALLOC;
     }
 
     if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
       ( void ) free (( void* ) dev );
 			p_ReleaseQHYCCDResource();
+fclose ( errdesc );
       return -OA_ERR_MEM_ALLOC;
     }
 
 		if ( p_GetQHYCCDId ( i, qhyccdId ) != QHYCCD_SUCCESS ) {
 			p_ReleaseQHYCCDResource();
-			fprintf ( stderr, "can't get id for camera %d\n", i );
+			fprintf ( errdesc, "can't get id for camera %d\n", i );
+fclose ( errdesc );
 			return 0;
 		} 
 
 		if ( p_GetQHYCCDModel ( qhyccdId, qhyccdModel ) != QHYCCD_SUCCESS ) {
 			p_ReleaseQHYCCDResource();
-			fprintf ( stderr, "can't get model for camera %d\n", i );
+			fprintf ( errdesc, "can't get model for camera %d\n", i );
+fclose ( errdesc );
 			return 0;
 		} 
 
@@ -581,12 +642,14 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 			p_ReleaseQHYCCDResource();
       ( void ) free (( void* ) dev );
       ( void ) free (( void* ) _private );
+fclose ( errdesc );
       return ret;
     }
     deviceList->cameraList[ deviceList->numCameras++ ] = dev;
   }
 
 	p_ReleaseQHYCCDResource();
+fclose ( errdesc );
   return numCameras;
 }
 

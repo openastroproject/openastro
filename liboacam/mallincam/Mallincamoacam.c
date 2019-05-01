@@ -236,7 +236,7 @@ oaMallincamGetCameras ( CAMERA_LIST* deviceList, int flags )
 
   if ( !libHandle ) {
     if (!( libHandle = dlopen ( libName, RTLD_LAZY ))) {
-      // fprintf ( stderr, "can't load %s\n", libraryPath );
+      fprintf ( stderr, "can't load %s:\n%s\n", libName, dlerror());
       return 0;
     }
   }
