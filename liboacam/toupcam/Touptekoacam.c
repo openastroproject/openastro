@@ -203,8 +203,6 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
   const char*   libName = "libtoupcam.so.1";
 #endif
 
-  FILE* errdesc = fopen ( "/var/tmp/out-toupcam.txt", "w" );
-
   *libPath = 0;
   if ( !libHandle ) {
 		if ( installPathRoot ) {
@@ -216,7 +214,7 @@ oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
 		( void ) strncat ( libPath, libName, PATH_MAX );
 
     if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
-      fprintf ( errdesc, "can't load %s:\n%s\n", libPath, dlerror());
+      fprintf ( stderr, "can't load %s:\n%s\n", libPath, dlerror());
       return 0;
     }
   }
