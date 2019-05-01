@@ -83,7 +83,7 @@ install_name_tool -change /System/Library/Frameworks/CFNetwork.framework/Version
 # /usr/local/lib/libusb-1.0.0.dylib
 if [ -f $APPDIR/Contents/MacOS/libqhyccd.dylib ]
 then
-  install_name_tool -change /usr/local/lib/libusb-1.0.0.dylib $APPDIR/Contents/Frameworks/libusb-1.0.0.dylib $APPDIR/Contents/MacOS/libqhyccd.dylib
+  install_name_tool -change /usr/local/lib/libusb-1.0.0.dylib @executable_path/../Frameworks/libusb-1.0.0.dylib $APPDIR/Contents/MacOS/libqhyccd.dylib
 fi
 
 cd $ROOT
