@@ -26,7 +26,7 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/include \
   -I$(top_srcdir)/ext/libusb \
   -I$(top_srcdir)/liboacam \
-  $(LIBUSB_CFLAGS) $(LIBALTAIRCAM_LEGACY_CFLAGS) \
+  $(LIBUSB_CFLAGS) $(SHLIBS_CFLAGS) $(LIBALTAIRCAM_LEGACY_CFLAGS) \
   $(DYNLIB_EXTN_CFLAGS)
 
 noinst_LTLIBRARIES = libaltairlegacy.la
