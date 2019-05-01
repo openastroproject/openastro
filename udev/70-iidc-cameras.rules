@@ -23,14 +23,14 @@
 #
 
 # Point Grey Firefly MV Color
-SUBSYSTEM=="usb", ATTR{idVendor}=="1e10" ATTR{idProduct}=="2000" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="2000", TAG+="uaccess"
 # Point Grey Firefly MV Mono
-SUBSYSTEM=="usb", ATTR{idVendor}=="1e10" ATTR{idProduct}=="2001" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="2001", TAG+="uaccess"
 # Point Grey High Res Firefly MV Color
-SUBSYSTEM=="usb", ATTR{idVendor}=="1e10" ATTR{idProduct}=="2002" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="2002", TAG+="uaccess"
 # Point Grey High Res Firefly MV Mono
-SUBSYSTEM=="usb", ATTR{idVendor}=="1e10" ATTR{idProduct}=="2003" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="2003", TAG+="uaccess"
 # Point Grey Chameleon Color
-SUBSYSTEM=="usb", ATTR{idVendor}=="1e10" ATTR{idProduct}=="2004" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="2004", TAG+="uaccess"
 # Point Grey Chameleon Mono
-SUBSYSTEM=="usb", ATTR{idVendor}=="1e10" ATTR{idProduct}=="2005" TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="2005", TAG+="uaccess"
