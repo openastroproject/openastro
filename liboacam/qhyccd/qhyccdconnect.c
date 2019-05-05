@@ -27,7 +27,7 @@
 #include <oa_common.h>
 
 #include <openastro/camera.h>
-#include <qhyccd.h>
+#include <qhyccd/qhyccd.h>
 #include <pthread.h>
 #include <openastro/camera.h>
 #include <openastro/util.h>

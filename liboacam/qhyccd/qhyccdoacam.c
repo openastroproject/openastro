@@ -32,7 +32,7 @@
 #endif
 #endif
 #include <openastro/camera.h>
-#include <qhyccd.h>
+#include <qhyccd/qhyccd.h>
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
