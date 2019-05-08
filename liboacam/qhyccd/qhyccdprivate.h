@@ -27,7 +27,7 @@
 #ifndef OA_QHYCCD_PRIVATE_H
 #define OA_QHYCCD_PRIVATE_H
 
-#include <qhyccd.h>
+#include <qhyccd/qhyccd.h>
 
 extern void					( *p_SetQHYCCDLogLevel )( uint8_t );
 extern void					( *p_EnableQHYCCDMessage )( bool );
