@@ -27,7 +27,7 @@
 #ifndef OA_QHYCCD_STATE_H
 #define OA_QHYCCD_STATE_H
 
-#include <qhyccd.h>
+#include <qhyccd/qhyccd.h>
 #include <openastro/util.h>
 
 struct qhyccdbuffer {
