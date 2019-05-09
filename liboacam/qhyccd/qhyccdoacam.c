@@ -128,7 +128,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
 	char					firmwarePath[ PATH_MAX+1 ];
   const char*		libName = "libqhyccd.dylib";
 #else
-  const char*		libName = "libqhyccd.so.4";
+  const char*		libName = "libqhyccd.so.5";
 #endif
 
 	*libPath = 0;
