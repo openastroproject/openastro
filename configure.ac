@@ -818,6 +818,7 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([getcwd gettimeofday select sqrt])
 AC_CHECK_FUNCS([bzero memset memcpy])
+AC_CHECK_FUNCS([creat64 open64 lseek64])
 AC_CHECK_FUNCS([fopen64 fseeko64 ftello64 stat64 freopen64])
 AC_CHECK_FUNCS([fseeki64 ftelli64])
 AC_CHECK_FUNCS([clock_gettime mkdir pow strcasecmp strchr strcspn strdup])

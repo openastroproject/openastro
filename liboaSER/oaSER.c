@@ -2,7 +2,7 @@
  *
  * oaser.c -- main SER library entrypoint
  *
- * Copyright 2013,2014,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2016,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -46,12 +46,19 @@ static int64_t _offsetFromGMT      = 0;
 #define TIMESTAMP_BLOCK_COUNT 1024
 #define FRAME_COUNT_POSN      38
 
+#if !HAVE_CREAT64
+#define creat64 creat
+#endif
+#if !HAVE_LSEEK64
+#define lseek64 lseek
+#endif
+
 int
 oaSEROpen ( const char* filename, oaSERContext* context )
 {
   int fd;
 
-  if (( fd = creat ( filename, 0644 )) < 0 ) {
+  if (( fd = creat64 ( filename, 0644 )) < 0 ) {
     return fd;
   }
   context->SERfd = fd;
@@ -249,7 +256,7 @@ oaSERWriteTrailer ( oaSERContext* context )
   if ( ret2 != bufferSize ) {
     return -1;
   }
-  if ( !lseek ( context->SERfd, FRAME_COUNT_POSN, SEEK_SET )) {
+  if ( !lseek64 ( context->SERfd, FRAME_COUNT_POSN, SEEK_SET )) {
     return -1;
   }
   _oaSER32BitToLittleEndian ( context->frames, buffer );
