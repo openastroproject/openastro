@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([openastro], [1.6.0], [james@openastroproject.org])
+AC_INIT([openastro], [1.7.0], [james@openastroproject.org])
 AC_CONFIG_SRCDIR([liboademosaic/oademosaic.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
