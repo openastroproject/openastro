@@ -31,6 +31,10 @@
 #include <config.h>
 #endif
 
+#if HAVE_CREAT64 || HAVE_LSEEK64
+#define _LARGEFILE64_SOURCE
+#endif
+
 #include <stdio.h>
 #include <sys/types.h>
 
