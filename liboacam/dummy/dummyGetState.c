@@ -38,7 +38,7 @@ oaDummyCameraGetFramePixelFormat ( oaCamera *camera )
   DUMMY_STATE*		cameraInfo = camera->_private;
 
   return cameraInfo->cameraType ? OA_PIX_FMT_GREY16BE :
-			OA_PIX_FMT_GRBG;
+			OA_PIX_FMT_GRBG8;
 }
 
 

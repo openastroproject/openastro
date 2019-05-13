@@ -33,13 +33,24 @@ extern int              oaDummyCloseCamera ( oaCamera* );
 
 extern int		oaDummyCameraTestControl ( oaCamera*, int,
 				oaControlValue* );
+extern int		oaDummyCameraSetControl ( oaCamera*, int,
+				oaControlValue*, int );
 extern int		oaDummyCameraReadControl ( oaCamera*, int,
 				oaControlValue* );
 extern int		oaDummyCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
 
-extern void*		oacamDummycontroller ( void* );
+extern int		oaDummyCameraStartStreaming ( oaCamera*,
+								void* (*)(void*, void*, int), void* );
+extern int		oaDummyCameraStopStreaming ( oaCamera* );
+extern int		oaDummyCameraIsStreaming ( oaCamera* );
 
+extern void*		oacamDummyController ( void* );
+extern void*		oacamDummyCallbackHandler ( void* );
+
+extern const FRAMESIZES*	oaDummyCameraGetFrameSizes ( oaCamera* );
 extern int		oaDummyCameraGetFramePixelFormat ( oaCamera* );
+extern int    oaDummyCameraTestROISize ( oaCamera*, unsigned int,
+								unsigned int, unsigned int*, unsigned int* );
 
 #endif	/* DUMMY_OACAM_H */

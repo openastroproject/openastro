@@ -39,6 +39,8 @@ typedef struct DUMMY_STATE {
   int			initialised;
   // camera details
   int			cameraType;
+	int			index;
+	int			binModes[16];
   // buffering for image transfers
   struct dummyBuffer*	buffers;
   int			configuredBuffers;
@@ -48,10 +50,16 @@ typedef struct DUMMY_STATE {
   int			binMode;
   uint32_t		xSize;
   uint32_t		ySize;
+  uint32_t		currentBrightness;
+  uint32_t		currentGain;
+  uint32_t		currentAbsoluteExposure;
+  uint32_t		currentHFlip;
+  uint32_t		currentVFlip;
   // image settings
   uint32_t		maxResolutionX;
   uint32_t		maxResolutionY;
   FRAMESIZES		frameSizes[ OA_MAX_BINNING+1 ];
+	uint32_t		imageBufferLength;
   // thread management
   pthread_t		controllerThread;
   pthread_mutex_t	commandQueueMutex;

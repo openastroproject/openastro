@@ -51,8 +51,7 @@ oaDummyInitCamera ( oaCameraDevice* device )
   DEVICE_INFO*		devInfo;
   DUMMY_STATE*		cameraInfo;
   COMMON_INFO*		commonInfo;
-  int          		c, f, i, j, bin, multiplier, numControls;
-  long			currentValue;
+  int          		i, j, multiplier;
 
   oacamDebugMsg ( DEBUG_CAM_INIT, "dummy: init: %s ()\n", __FUNCTION__ );
 
@@ -100,7 +99,7 @@ oaDummyInitCamera ( oaCameraDevice* device )
   cameraInfo->isStreaming = 0;
 
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_INT32;
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = 0
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = 0;
   commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = 100;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
   commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) =
@@ -110,7 +109,6 @@ oaDummyInitCamera ( oaCameraDevice* device )
       OA_CTRL_TYPE_INT64;
 	// this is in microseconds
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1000;
-      controlCaps.MinValue;
   commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
 			cameraInfo->cameraType ? 300000000 : 30000000;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
@@ -180,7 +178,6 @@ oaDummyInitCamera ( oaCameraDevice* device )
   camera->features.fixedFrameSizes = 0;
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
   cameraInfo->binMode = OA_BIN_MODE_NONE;
-  cameraInfo->usb3Cam = 1;
 
   for ( i = 1; i <= 4; i++ ) {
     cameraInfo->frameSizes[i].numSizes = 0;
@@ -189,7 +186,7 @@ oaDummyInitCamera ( oaCameraDevice* device )
 
 	switch ( cameraInfo->cameraType ) {
 		case 0:  // planetary
-      camera->frameFormats[ OA_PIX_FMT_GRBG ] = 1;
+      camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
       camera->features.rawMode = 1;
 			cameraInfo->maxResolutionX = 1280;
 			cameraInfo->maxResolutionY = 960;
@@ -298,10 +295,7 @@ oaDummyInitCamera ( oaCameraDevice* device )
   cameraInfo->buffers = 0;
   cameraInfo->configuredBuffers = 0;
 
-  // The largest buffer size we should need
-  // RGB colour is 3 bytes per pixel, mono one for 8-bit, two for 16-bit,
-  // RAW is one for 8-bit, 2 for 16-bit.
-  multiplier = cameraInfo->maxBitDepth / 8;
+  multiplier = cameraInfo->cameraType ? 2 : 1;
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY * multiplier;
   cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct dummyBuffer ));
@@ -394,8 +388,8 @@ _dummyInitFunctionPointers ( oaCamera* camera )
   camera->funcs.stopStreaming = oaDummyCameraStopStreaming;
   camera->funcs.isStreaming = oaDummyCameraIsStreaming;
 
-  camera->funcs.setResolution = oaDummyCameraSetResolution;
-  camera->funcs.setROI = oaDummyCameraSetResolution;
+  // camera->funcs.setResolution = oaDummyCameraSetResolution;
+  // camera->funcs.setROI = oaDummyCameraSetResolution;
 
   camera->funcs.hasAuto = oacamHasAuto;
   //  camera->funcs.isAuto = oaIsAuto;

@@ -35,21 +35,30 @@
 int
 oaDummyGetCameras ( CAMERA_LIST* deviceList, int flags )
 {
-  unsigned int		numFound = 0, i;
+  unsigned int		i;
   int							ret;
-  const char*			currName;
   oaCameraDevice*	dev[2];
   DEVICE_INFO*		_private[2];
-  int							j, cameraType, found;
 
 	// Create two cameras -- one for planetary and one for DSO
 
-	if (!( dev = calloc ( sizeof ( oaCameraDevice ), 2 ))) {
+	if (!( dev[0] = malloc ( sizeof ( oaCameraDevice )))) {
+    return -OA_ERR_MEM_ALLOC;
+  }
+	if (!( dev[1] = malloc ( sizeof ( oaCameraDevice )))) {
+    ( void ) free (( void* ) dev[0] );
     return -OA_ERR_MEM_ALLOC;
   }
 
-  if (!( _private = calloc ( sizeof ( DEVICE_INFO ), 2 ))) {
-    ( void ) free (( void* ) dev );
+  if (!( _private[0] = malloc ( sizeof ( DEVICE_INFO )))) {
+    ( void ) free (( void* ) dev[0] );
+    ( void ) free (( void* ) dev[1] );
+    return -OA_ERR_MEM_ALLOC;
+  }
+  if (!( _private[1] = malloc ( sizeof ( DEVICE_INFO )))) {
+    ( void ) free (( void* ) dev[0] );
+    ( void ) free (( void* ) dev[1] );
+    ( void ) free (( void* ) _private[0] );
     return -OA_ERR_MEM_ALLOC;
   }
 
@@ -68,8 +77,10 @@ oaDummyGetCameras ( CAMERA_LIST* deviceList, int flags )
 
 	for ( i = 0; i < 2; i++ ) {
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
-      ( void ) free (( void* ) dev );
-      ( void ) free (( void* ) _private );
+      ( void ) free (( void* ) dev[0] );
+      ( void ) free (( void* ) dev[1] );
+      ( void ) free (( void* ) _private[0] );
+      ( void ) free (( void* ) _private[1] );
       return ret;
     }
     deviceList->cameraList[ deviceList->numCameras++ ] = dev[i];
