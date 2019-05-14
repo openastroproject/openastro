@@ -29,7 +29,7 @@ AM_CPPFLAGS = \
 noinst_LTLIBRARIES = libdummy.la
 
 libdummy_la_SOURCES = dummyoacam.c dummyCallback.c dummyroi.c	\
-	dummycontroller.c dummyGetState.c dummyControl.c dummyconnect.c
+	dummyController.c dummyGetState.c dummyControl.c dummyconnect.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
