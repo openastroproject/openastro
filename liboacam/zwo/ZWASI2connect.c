@@ -1090,6 +1090,15 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
         free (( void* ) camera );
         return 0;
       }
+      if (!( cameraInfo->frameSizes[2].sizes =
+          ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
+        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+        free (( void* ) cameraInfo->frameSizes[1].sizes );
+        free (( void* ) camera->_common );
+        free (( void* ) camera->_private );
+        free (( void* ) camera );
+        return 0;
+      }
 
       cameraInfo->frameSizes[1].sizes[0].x = 4656;
       cameraInfo->frameSizes[1].sizes[0].y = 3520;
@@ -1247,6 +1256,15 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           6, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+        free (( void* ) camera->_common );
+        free (( void* ) camera->_private );
+        free (( void* ) camera );
+        return 0;
+      }
+      if (!( cameraInfo->frameSizes[2].sizes =
+          ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
+        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+        free (( void* ) cameraInfo->frameSizes[1].sizes );
         free (( void* ) camera->_common );
         free (( void* ) camera->_private );
         free (( void* ) camera );
