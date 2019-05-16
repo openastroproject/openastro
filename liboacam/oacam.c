@@ -272,6 +272,14 @@ oaInterface	oaCameraInterfaces[] = {
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
+  {
+		0,
+		"Dummy Camera",
+		"",
+		0,
+		0,
+		OA_UDC_FLAG_NONE
+	},
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE }
 };
 

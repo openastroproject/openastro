@@ -86,17 +86,17 @@ QHYCCDDIR = qhyccd
 QHYCCDLIB = $(QHYCCDDIR)/libqhyccd.la
 endif
 
-SUBDIRS	= euvc iidc pwc qhy sx uvc $(ALTAIRDIR) $(ATIKDIR) $(MALLINCAMDIR) \
-  $(FC2DIR) $(SPINDIR) $(TOUPCAMDIR) $(V4L2DIR) $(ZWODIR) \
+SUBDIRS	= euvc iidc pwc qhy sx uvc dummy $(ALTAIRDIR) $(ATIKDIR) \
+	$(MALLINCAMDIR) $(FC2DIR) $(SPINDIR) $(TOUPCAMDIR) $(V4L2DIR) $(ZWODIR) \
 	$(ALTAIRLEGACYDIR) $(QHYCCDDIR) .
 
 liboacam_la_SOURCES = \
   control.c debug.c oacam.c unimplemented.c utils.c
 
 liboacam_la_LIBADD = euvc/libeuvc.la iidc/libiidc.la pwc/libpwc.la \
-  qhy/libqhy.la sx/libsx.la uvc/libuvc.la $(ALTAIRLIB) $(ATIKLIB) \
-  $(MALLINCAMLIB) $(FC2LIB) $(SPINLIB) $(TOUPCAMLIB) $(V4L2LIB) $(ZWOLIB) \
-	$(ALTAIRLEGACYLIB) $(QHYCCDLIB)
+  qhy/libqhy.la sx/libsx.la uvc/libuvc.la dummy/libdummy.la $(ALTAIRLIB) \
+	$(ATIKLIB) $(MALLINCAMLIB) $(FC2LIB) $(SPINLIB) $(TOUPCAMLIB) $(V4L2LIB) \
+	$(ZWOLIB) $(ALTAIRLEGACYLIB) $(QHYCCDLIB)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
