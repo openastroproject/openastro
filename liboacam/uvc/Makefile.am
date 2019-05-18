@@ -32,7 +32,8 @@ AM_CPPFLAGS = \
 noinst_LTLIBRARIES = libuvc.la
 
 libuvc_la_SOURCES = UVCoacam.c UVCconnect.c UVCgetState.c UVCcontrol.c \
-  UVCcontroller.c UVCcallback.c UVCExtnUnits.c TISExtensionUnits.c
+  UVCcontroller.c UVCcallback.c UVCExtnUnits.c UVCdynloader.c \
+	TISExtensionUnits.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

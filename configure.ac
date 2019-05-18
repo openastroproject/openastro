@@ -469,6 +469,7 @@ then
       AC_MSG_NOTICE([Using static libuvc to avoid system libusb])
       LIBUVC_LDFLAGS=""
       mylibdir="`$PKG_CONFIG --variable=libdir libuvc`"
+			AC_DEFINE([HAVE_STATIC_LIBUVC],[1],[Using static libuvc])
       LIBUVC_LIBS="$mylibdir/libuvc.a"
     fi
     use_system_libuvc=yes
@@ -481,11 +482,13 @@ then
   #  ],[
       AC_MSG_WARN([No suitable version of system libuvc library found.  Using internal version.])
       AC_DEFINE([HAVE_LIBUVC],[1],[Have libuvc library])
+			AC_DEFINE([HAVE_STATIC_LIBUVC],[1],[Using static libuvc])
   # ])
   fi
 else
   # we'll always have this, because we use a local copy
   AC_DEFINE([HAVE_LIBUVC],[1],[Have libuvc library])
+	AC_DEFINE([HAVE_STATIC_LIBUVC],[1],[Using static libuvc])
 fi
 
 use_system_libhidapi=no

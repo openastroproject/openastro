@@ -29,6 +29,9 @@
 #define OA_UVC_OACAM_H
 
 #include <libuvc/libuvc.h>
+#include <openastro/camera.h>
+
+#include "oacamprivate.h"
 
 extern int		oaUVCGetCameras ( CAMERA_LIST*, int );
 extern oaCamera*	oaUVCInitCamera ( oaCameraDevice* );
