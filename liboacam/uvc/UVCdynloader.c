@@ -168,7 +168,7 @@ void				( *p_uvc_print_stream_ctrl )( uvc_stream_ctrl_t *, FILE* );
 uvc_frame_t* ( *p_uvc_allocate_frame )( size_t );
 void				( *p_uvc_free_frame )( uvc_frame_t *frame );
 
-#if HAVE_LIBDL
+#if HAVE_LIBDL && !HAVE_STATIC_LIBUVC
 static void*    _getDLSym ( void*, const char* );
 #endif
 
@@ -968,7 +968,7 @@ _uvcInitFunctionPointers ( void )
 	return OA_ERR_NONE;
 }
 
-#if HAVE_LIBDL
+#if HAVE_LIBDL && !HAVE_STATIC_LIBUVC
 static void*
 _getDLSym ( void* libHandle, const char* symbol )
 {
