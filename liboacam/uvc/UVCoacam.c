@@ -2,7 +2,8 @@
  *
  * UVCoacam.c -- main entrypoint for UVC Cameras
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -34,6 +35,7 @@
 #include "oacamprivate.h"
 #include "unimplemented.h"
 #include "UVCoacam.h"
+#include "UVCprivate.h"
 
 
 int
@@ -49,6 +51,10 @@ oaUVCGetCameras ( CAMERA_LIST* deviceList, int flags )
   uvc_device_descriptor_t*	desc;
   oaCameraDevice*		dev;
   DEVICE_INFO*			_private;
+
+	if (( ret = _uvcInitLibraryFunctionPointers()) != OA_ERR_NONE ) {
+		return ret;
+	}
 
   if ( uvc_init ( &ctx, 0 ) != UVC_SUCCESS ) {
     fprintf ( stderr, "uvc_init failed\n" );

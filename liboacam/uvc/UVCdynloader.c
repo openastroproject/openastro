@@ -173,7 +173,7 @@ static void*    _getDLSym ( void*, const char* );
 #endif
 
 int
-_uvcInitFunctionPointers ( void )
+_uvcInitLibraryFunctionPointers ( void )
 {
 #if HAVE_LIBDL && !HAVE_STATIC_LIBUVC
 	static void*		libHandle = 0;
