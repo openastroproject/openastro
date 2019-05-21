@@ -454,7 +454,7 @@ use_system_libuvc=no
 if test $checkSystemLibuvc -eq 1
 then
   if `$PKG_CONFIG --exists 'libuvc >= 0.0.5'`; then
-    AC_MSG_NOTICE([Using system libuvc library])
+    AC_MSG_NOTICE([Using system libuvc library for build])
     flags=`$PKG_CONFIG --cflags-only-I libuvc`
     if test $useisystemInclude -eq 1; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
@@ -463,8 +463,10 @@ then
     # can't use shared libuvc if we're not using the system libusb because
     # it will try to pull it in anyhow
     if test "x$use_system_libusb" == "xyes"; then
-      LIBUVC_LDFLAGS="`$PKG_CONFIG --libs-only-L libuvc`"
-      LIBUVC_LIBS="`$PKG_CONFIG --libs-only-l libuvc`"
+		# skipping this because libuvc is now dynamically loaded
+		#  LIBUVC_LDFLAGS="`$PKG_CONFIG --libs-only-L libuvc`"
+		#  LIBUVC_LIBS="`$PKG_CONFIG --libs-only-l libuvc`"
+			:
     else
       AC_MSG_NOTICE([Using static libuvc to avoid system libusb])
       LIBUVC_LDFLAGS=""

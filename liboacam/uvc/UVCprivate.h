@@ -43,7 +43,7 @@ extern uvc_error_t	( *p_uvc_find_device )( uvc_context_t*, uvc_device_t**, int, 
 extern uvc_error_t	( *p_uvc_find_devices )( uvc_context_t*, uvc_device_t***, int, int, const char* );
 extern uvc_error_t	( *p_uvc_open )( uvc_device_t*, uvc_device_handle_t** );
 extern void				( *p_uvc_close )( uvc_device_handle_t* );
-extern uvc_device_t ( *p_uvc_get_device )( uvc_device_handle_t* );
+extern uvc_device_t* ( *p_uvc_get_device )( uvc_device_handle_t* );
 extern struct libusb_device_handle* ( *p_uvc_get_libusb_handle )(uvc_device_handle_t* );
 extern void				( *p_uvc_ref_device )( uvc_device_t* );
 extern void				( *p_uvc_unref_device )(uvc_device_t* );

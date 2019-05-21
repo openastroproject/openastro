@@ -52,7 +52,7 @@ uvc_error_t	( *p_uvc_find_device )( uvc_context_t*, uvc_device_t**, int, int, co
 uvc_error_t	( *p_uvc_find_devices )( uvc_context_t*, uvc_device_t***, int, int, const char* );
 uvc_error_t	( *p_uvc_open )( uvc_device_t*, uvc_device_handle_t** );
 void				( *p_uvc_close )( uvc_device_handle_t* );
-uvc_device_t ( *p_uvc_get_device )( uvc_device_handle_t* );
+uvc_device_t* ( *p_uvc_get_device )( uvc_device_handle_t* );
 struct libusb_device_handle* ( *p_uvc_get_libusb_handle )(uvc_device_handle_t* );
 void				( *p_uvc_ref_device )( uvc_device_t* );
 void				( *p_uvc_unref_device )(uvc_device_t* );
