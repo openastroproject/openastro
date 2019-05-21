@@ -37,6 +37,7 @@
 #include <libuvc/libuvc.h>
 
 #include "UVCoacam.h"
+#include "UVCprivate.h"
 
 
 uvc_error_t	( *p_uvc_init )( uvc_context_t**, struct libusb_context * );
@@ -51,7 +52,7 @@ uvc_error_t	( *p_uvc_find_device )( uvc_context_t*, uvc_device_t**, int, int, co
 uvc_error_t	( *p_uvc_find_devices )( uvc_context_t*, uvc_device_t***, int, int, const char* );
 uvc_error_t	( *p_uvc_open )( uvc_device_t*, uvc_device_handle_t** );
 void				( *p_uvc_close )( uvc_device_handle_t* );
-uvc_device_t* ( *p_uvc_get_device )( uvc_device_handle_t* );
+uvc_device_t ( *p_uvc_get_device )( uvc_device_handle_t* );
 struct libusb_device_handle* ( *p_uvc_get_libusb_handle )(uvc_device_handle_t* );
 void				( *p_uvc_ref_device )( uvc_device_t* );
 void				( *p_uvc_unref_device )(uvc_device_t* );
@@ -166,7 +167,7 @@ const char*	( *p_uvc_strerror )( uvc_error_t );
 void				( *p_uvc_print_diag )( uvc_device_handle_t*, FILE* );
 void				( *p_uvc_print_stream_ctrl )( uvc_stream_ctrl_t *, FILE* );
 uvc_frame_t* ( *p_uvc_allocate_frame )( size_t );
-void				( *p_uvc_free_frame )( uvc_frame_t *frame );
+void				( *p_uvc_free_frame )( uvc_frame_t* );
 
 #if HAVE_LIBDL && !HAVE_STATIC_LIBUVC
 static void*    _getDLSym ( void*, const char* );

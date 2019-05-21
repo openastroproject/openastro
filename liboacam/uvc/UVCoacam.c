@@ -56,47 +56,47 @@ oaUVCGetCameras ( CAMERA_LIST* deviceList, int flags )
 		return ret;
 	}
 
-  if ( uvc_init ( &ctx, 0 ) != UVC_SUCCESS ) {
+  if ( p_uvc_init ( &ctx, 0 ) != UVC_SUCCESS ) {
     fprintf ( stderr, "uvc_init failed\n" );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
-  if ( uvc_get_device_list ( ctx, &devlist ) != UVC_SUCCESS ) {
+  if ( p_uvc_get_device_list ( ctx, &devlist ) != UVC_SUCCESS ) {
     fprintf ( stderr, "uvc_get_device_list failed\n" );
     return -OA_ERR_SYSTEM_ERROR;
   }
   while ( devlist[numUVCDevices] ) { numUVCDevices++; }
   if ( numUVCDevices < 1 ) {
-    uvc_free_device_list ( devlist, 1 );
-    uvc_exit ( ctx );
+    p_uvc_free_device_list ( devlist, 1 );
+    p_uvc_exit ( ctx );
     return 0;
   }
 
   for ( i = 0; i < numUVCDevices; i++ ) {
     device = devlist[i];
-    if ( uvc_get_device_descriptor ( device, &desc )) {
-      uvc_free_device_list ( devlist, 1 );
-      uvc_exit ( ctx );
+    if ( p_uvc_get_device_descriptor ( device, &desc )) {
+      p_uvc_free_device_list ( devlist, 1 );
+      p_uvc_exit ( ctx );
       return -OA_ERR_SYSTEM_ERROR;
     }
-    busNum = uvc_get_bus_number ( device );
-    addr = uvc_get_device_address ( device );
+    busNum = p_uvc_get_bus_number ( device );
+    addr = p_uvc_get_device_address ( device );
     index = ( busNum << 8 ) | addr;
 
     // fprintf ( stderr, "found %s %s camera at %d, %d\n", desc->manufacturer ? desc->manufacturer : "unknown", desc->product ? desc->product: "unknown", busNum, addr );
     // now we can drop the data into the list
     if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
-      uvc_free_device_descriptor ( desc );
-      uvc_free_device_list ( devlist, 1 );
-      uvc_exit ( ctx );
+      p_uvc_free_device_descriptor ( desc );
+      p_uvc_free_device_list ( devlist, 1 );
+      p_uvc_exit ( ctx );
       return -OA_ERR_MEM_ALLOC;
     }
 
     if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
       ( void ) free (( void* ) dev );
-      uvc_free_device_descriptor ( desc );
-      uvc_free_device_list ( devlist, 1 );
-      uvc_exit ( ctx );
+      p_uvc_free_device_descriptor ( desc );
+      p_uvc_free_device_list ( devlist, 1 );
+      p_uvc_exit ( ctx );
       _oaFreeCameraDeviceList ( deviceList );
       return -OA_ERR_MEM_ALLOC;
     }
@@ -119,19 +119,19 @@ oaUVCGetCameras ( CAMERA_LIST* deviceList, int flags )
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
       ( void ) free (( void* ) dev );
       ( void ) free (( void* ) _private );
-      uvc_free_device_descriptor ( desc );
-      uvc_free_device_list ( devlist, 1 );
-      uvc_exit ( ctx );
+      p_uvc_free_device_descriptor ( desc );
+      p_uvc_free_device_list ( devlist, 1 );
+      p_uvc_exit ( ctx );
       return ret;
     }
     deviceList->cameraList[ deviceList->numCameras++ ] = dev;
     numFound++;
 
-    uvc_free_device_descriptor ( desc );
+    p_uvc_free_device_descriptor ( desc );
   }
 
-  uvc_free_device_list ( devlist, 1 );
-  uvc_exit ( ctx );
+  p_uvc_free_device_list ( devlist, 1 );
+  p_uvc_exit ( ctx );
   return numFound;
 }
 

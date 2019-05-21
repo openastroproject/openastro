@@ -2,7 +2,7 @@
  *
  * UVCoacam.h -- header for UVC camera API
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:

@@ -81,12 +81,12 @@ extern uvc_error_t	( *p_uvc_get_ae_priority )( uvc_device_handle_t*, uint8_t*, e
 extern uvc_error_t	( *p_uvc_set_ae_priority )( uvc_device_handle_t*, uint8_t );
 extern uvc_error_t	( *p_uvc_get_exposure_abs )( uvc_device_handle_t*, uint32_t*, enum uvc_req_code );
 extern uvc_error_t	( *p_uvc_set_exposure_abs )( uvc_device_handle_t*, uint32_t );
-extern uvc_error_t	( *p_uvc_get_exposure_rel )( uvc_device_handle_t*, uint8_t*, enum uvc_req_code );
-extern uvc_error_t	( *p_uvc_set_exposure_rel )( uvc_device_handle_t*, uint8_t );
+extern uvc_error_t	( *p_uvc_get_exposure_rel )( uvc_device_handle_t*, int8_t*, enum uvc_req_code );
+extern uvc_error_t	( *p_uvc_set_exposure_rel )( uvc_device_handle_t*, int8_t );
 extern uvc_error_t	( *p_uvc_get_focus_abs )( uvc_device_handle_t*, uint16_t*, enum uvc_req_code );
 extern uvc_error_t	( *p_uvc_set_focus_abs )( uvc_device_handle_t*, uint16_t );
-extern uvc_error_t	( *p_uvc_get_focus_rel )( uvc_device_handle_t*, uint8_t*, enum uvc_req_code );
-extern uvc_error_t	( *p_uvc_set_focus_rel )( uvc_device_handle_t*, uint8_t );
+extern uvc_error_t	( *p_uvc_get_focus_rel )( uvc_device_handle_t*, int8_t*, uint8_t*, enum uvc_req_code );
+extern uvc_error_t	( *p_uvc_set_focus_rel )( uvc_device_handle_t*, int8_t, uint8_t );
 extern uvc_error_t	( *p_uvc_get_focus_simple_range )( uvc_device_handle_t*, uint8_t*, enum uvc_req_code );
 extern uvc_error_t	( *p_uvc_set_focus_simple_range )( uvc_device_handle_t*, uint8_t );
 extern uvc_error_t	( *p_uvc_get_focus_auto )( uvc_device_handle_t*, uint8_t*, enum uvc_req_code );
@@ -97,16 +97,16 @@ extern uvc_error_t	( *p_uvc_get_iris_rel )( uvc_device_handle_t*, uint8_t*, enum
 extern uvc_error_t	( *p_uvc_set_iris_rel )( uvc_device_handle_t*, uint8_t );
 extern uvc_error_t	( *p_uvc_get_zoom_abs )( uvc_device_handle_t*, uint16_t*, enum uvc_req_code );
 extern uvc_error_t	( *p_uvc_set_zoom_abs )( uvc_device_handle_t*, uint16_t );
-extern uvc_error_t	( *p_uvc_get_zoom_rel )( uvc_device_handle_t*, uint8_t*, enum uvc_req_code );
-extern uvc_error_t	( *p_uvc_set_zoom_rel )( uvc_device_handle_t*, uint8_t );
-extern uvc_error_t	( *p_uvc_get_pantilt_abs )( uvc_device_handle_t*, uint32_t*, enum uvc_req_code );
-extern uvc_error_t	( *p_uvc_set_pantilt_abs )( uvc_device_handle_t*, uint32_t );
-extern uvc_error_t	( *p_uvc_get_pantilt_rel )( uvc_device_handle_t*, uint8_t*, enum uvc_req_code );
-extern uvc_error_t	( *p_uvc_set_pantilt_rel )( uvc_device_handle_t*, uint8_t );
-extern uvc_error_t	( *p_uvc_get_roll_abs )( uvc_device_handle_t*, uint16_t*, enum uvc_req_code );
-extern uvc_error_t	( *p_uvc_set_roll_abs )( uvc_device_handle_t*, uint16_t );
-extern uvc_error_t	( *p_uvc_get_roll_rel )( uvc_device_handle_t*, uint8_t*, enum uvc_req_code );
-extern uvc_error_t	( *p_uvc_set_roll_rel )( uvc_device_handle_t*, uint8_t );
+extern uvc_error_t	( *p_uvc_get_zoom_rel )( uvc_device_handle_t*, int8_t*, uint8_t*, uint8_t*, enum uvc_req_code );
+extern uvc_error_t	( *p_uvc_set_zoom_rel )( uvc_device_handle_t*, int8_t, uint8_t, uint8_t );
+extern uvc_error_t	( *p_uvc_get_pantilt_abs )( uvc_device_handle_t*, int32_t*, int32_t*, enum uvc_req_code );
+extern uvc_error_t	( *p_uvc_set_pantilt_abs )( uvc_device_handle_t*, int32_t, int32_t );
+extern uvc_error_t	( *p_uvc_get_pantilt_rel )( uvc_device_handle_t*, int8_t*, uint8_t*, int8_t*, uint8_t*, enum uvc_req_code );
+extern uvc_error_t	( *p_uvc_set_pantilt_rel )( uvc_device_handle_t*, int8_t, uint8_t, int8_t, uint8_t );
+extern uvc_error_t	( *p_uvc_get_roll_abs )( uvc_device_handle_t*, int16_t*, enum uvc_req_code );
+extern uvc_error_t	( *p_uvc_set_roll_abs )( uvc_device_handle_t*, int16_t );
+extern uvc_error_t	( *p_uvc_get_roll_rel )( uvc_device_handle_t*, int8_t*, uint8_t*, enum uvc_req_code );
+extern uvc_error_t	( *p_uvc_set_roll_rel )( uvc_device_handle_t*, int8_t, uint8_t );
 extern uvc_error_t	( *p_uvc_get_privacy )( uvc_device_handle_t*, uint8_t*, enum uvc_req_code );
 extern uvc_error_t	( *p_uvc_set_privacy )( uvc_device_handle_t*, uint8_t );
 extern uvc_error_t	( *p_uvc_get_digital_window )( uvc_device_handle_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*, enum uvc_req_code );
@@ -115,8 +115,8 @@ extern uvc_error_t	( *p_uvc_get_digital_roi )( uvc_device_handle_t*, uint16_t*, 
 extern uvc_error_t	( *p_uvc_set_digital_roi )( uvc_device_handle_t*, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t );
 extern uvc_error_t	( *p_uvc_get_backlight_compensation )( uvc_device_handle_t*, uint16_t*, enum uvc_req_code );
 extern uvc_error_t	( *p_uvc_set_backlight_compensation )( uvc_device_handle_t*, uint16_t );
-extern uvc_error_t	( *p_uvc_get_brightness )( uvc_device_handle_t*, uint16_t*, enum uvc_req_code );
-extern uvc_error_t	( *p_uvc_set_brightness )( uvc_device_handle_t*, uint16_t );
+extern uvc_error_t	( *p_uvc_get_brightness )( uvc_device_handle_t*, int16_t*, enum uvc_req_code );
+extern uvc_error_t	( *p_uvc_set_brightness )( uvc_device_handle_t*, int16_t );
 extern uvc_error_t	( *p_uvc_get_contrast )( uvc_device_handle_t*, uint16_t*, enum uvc_req_code );
 extern uvc_error_t	( *p_uvc_set_contrast )( uvc_device_handle_t*, uint16_t );
 extern uvc_error_t	( *p_uvc_get_contrast_auto )( uvc_device_handle_t*, uint8_t*, enum uvc_req_code );
@@ -125,8 +125,8 @@ extern uvc_error_t	( *p_uvc_get_gain )( uvc_device_handle_t*, uint16_t*, enum uv
 extern uvc_error_t	( *p_uvc_set_gain )( uvc_device_handle_t*, uint16_t );
 extern uvc_error_t	( *p_uvc_get_power_line_frequency )( uvc_device_handle_t*, uint8_t*, enum uvc_req_code );
 extern uvc_error_t	( *p_uvc_set_power_line_frequency )( uvc_device_handle_t*, uint8_t );
-extern uvc_error_t	( *p_uvc_get_hue )( uvc_device_handle_t*, uint16_t*, enum uvc_req_code );
-extern uvc_error_t	( *p_uvc_set_hue )( uvc_device_handle_t*, uint16_t );
+extern uvc_error_t	( *p_uvc_get_hue )( uvc_device_handle_t*, int16_t*, enum uvc_req_code );
+extern uvc_error_t	( *p_uvc_set_hue )( uvc_device_handle_t*, int16_t );
 extern uvc_error_t	( *p_uvc_get_hue_auto )( uvc_device_handle_t*, uint8_t*, enum uvc_req_code );
 extern uvc_error_t	( *p_uvc_set_hue_auto )( uvc_device_handle_t*, uint8_t );
 extern uvc_error_t	( *p_uvc_get_saturation )( uvc_device_handle_t*, uint16_t*, enum uvc_req_code );
@@ -139,8 +139,8 @@ extern uvc_error_t	( *p_uvc_get_white_balance_temperature )( uvc_device_handle_t
 extern uvc_error_t	( *p_uvc_set_white_balance_temperature )( uvc_device_handle_t*, uint16_t );
 extern uvc_error_t	( *p_uvc_get_white_balance_temperature_auto )( uvc_device_handle_t*, uint8_t*, enum uvc_req_code );
 extern uvc_error_t	( *p_uvc_set_white_balance_temperature_auto )( uvc_device_handle_t*, uint8_t );
-extern uvc_error_t	( *p_uvc_get_white_balance_component )( uvc_device_handle_t*, uint16_t*, enum uvc_req_code );
-extern uvc_error_t	( *p_uvc_set_white_balance_component )( uvc_device_handle_t*, uint16_t );
+extern uvc_error_t	( *p_uvc_get_white_balance_component )( uvc_device_handle_t*, uint16_t*, uint16_t*, enum uvc_req_code );
+extern uvc_error_t	( *p_uvc_set_white_balance_component )( uvc_device_handle_t*, uint16_t, uint16_t );
 extern uvc_error_t	( *p_uvc_get_white_balance_component_auto )( uvc_device_handle_t*, uint8_t*, enum uvc_req_code );
 extern uvc_error_t	( *p_uvc_set_white_balance_component_auto )( uvc_device_handle_t*, uint8_t );
 extern uvc_error_t	( *p_uvc_get_digital_multiplier )( uvc_device_handle_t*, uint16_t*, enum uvc_req_code );
@@ -158,7 +158,7 @@ extern const char*	( *p_uvc_strerror )( uvc_error_t );
 extern void				( *p_uvc_print_diag )( uvc_device_handle_t*, FILE* );
 extern void				( *p_uvc_print_stream_ctrl )( uvc_stream_ctrl_t *, FILE* );
 extern uvc_frame_t* ( *p_uvc_allocate_frame )( size_t );
-extern void				( p_uvc_free_frame )( uvc_frame_t *frame );
+extern void				( *p_uvc_free_frame )( uvc_frame_t* );
 
 
 #endif	/* OA_UVC_PRIVATE_H */
