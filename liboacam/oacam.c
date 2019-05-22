@@ -299,10 +299,13 @@ oaGetCameras( oaCameraDevice*** deviceList )
     if ( oaCameraInterfaces[i].interfaceType ) {
       if (( err = oaCameraInterfaces[i].enumerate ( &list,
           oaCameraInterfaces[i].flags )) < 0 ) {
-        _oaFreeCameraDeviceList ( &list );
-        list.numCameras = 0;
-        list.cameraList = 0;
-        return err;
+				if ( err != OA_ERR_LIBRARY_NOT_FOUND && err !=
+						OA_ERR_SYMBOL_NOT_FOUND ) {
+					_oaFreeCameraDeviceList ( &list );
+					list.numCameras = 0;
+					list.cameraList = 0;
+					return err;
+				}
       }
     }
   }
