@@ -486,8 +486,8 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       uint32_t data32;
       int64_t data64;
 
-      if ( p_uvc_get_exposure_abs ( cameraInfo->uvcHandle, &data32, UVC_GET_CUR )
-          != UVC_SUCCESS ) {
+      if ( p_uvc_get_exposure_abs ( cameraInfo->uvcHandle, &data32,
+					UVC_GET_CUR ) != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_get_exposure_abs() failed in %s\n",
             __FUNCTION__ );
       }

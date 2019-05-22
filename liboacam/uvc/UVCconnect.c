@@ -431,7 +431,8 @@ oaUVCInitCamera ( oaCameraDevice* device )
               UVC_SUCCESS ) {
             fprintf ( stderr, "failed to get min value for exposure\n" );
           }
-          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = val_u32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+							val_u32;
           if ( p_uvc_get_exposure_abs ( uvcHandle, &val_u32, UVC_GET_MAX ) !=
               UVC_SUCCESS ) {
             fprintf ( stderr, "failed to get max value for exposure\n" );
