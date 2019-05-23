@@ -33,7 +33,7 @@ noinst_LTLIBRARIES = libmallincam.la
 
 libmallincam_la_SOURCES = MALLINCAMSRC = Mallincamoacam.c Mallincamconnect.c \
   Mallincamcallback.c Mallincamcontrol.c Mallincamcontroller.c \
-  MallincamgetState.c Mallincamroi.c
+  MallincamgetState.c Mallincamroi.c MallincamDynloader.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

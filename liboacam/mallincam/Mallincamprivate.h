@@ -48,6 +48,8 @@
 #endif
 #endif
 
+extern int				_mallincamInitLibraryFunctionPointers ( void );
+
 extern const char*	( *p_Mallincam_Version )();
 extern unsigned		( *p_Mallincam_EnumV2 )( ToupcamInstV2* );
 extern HToupCam		( *p_Mallincam_Open )( const char* );
