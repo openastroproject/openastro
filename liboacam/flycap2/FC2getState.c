@@ -2,7 +2,7 @@
  *
  * FC2getState.c -- state querying for Point Grey Gig-E cameras
  *
- * Copyright 2015,2016,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -32,6 +32,7 @@
 #include "oacamprivate.h"
 #include "FC2oacam.h"
 #include "FC2state.h"
+#include "FC2private.h"
 
 
 int

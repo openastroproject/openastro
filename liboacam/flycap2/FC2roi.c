@@ -33,6 +33,7 @@
 #include "FC2.h"
 #include "FC2state.h"
 #include "FC2oacam.h"
+#include "FC2private.h"
 
 
 int

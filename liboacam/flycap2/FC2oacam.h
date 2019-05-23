@@ -84,49 +84,4 @@ extern unsigned int numFC2FrameRates;
 #define		FC2_REG_DATA_DEPTH		0x0630
 #define		FC2_REG_IMAGE_DATA_FORMAT	0x1048
 
-extern fc2Error       ( *p_fc2Connect )( fc2Context, fc2PGRGuid* );
-extern fc2Error       ( *p_fc2CreateGigEContext )( fc2Context* );
-extern fc2Error       ( *p_fc2DestroyContext )( fc2Context );
-extern fc2Error       ( *p_fc2DiscoverGigECameras )( fc2Context, fc2CameraInfo*,
-                          unsigned int* );
-extern fc2Error       ( *p_fc2GetCameraFromIndex )( fc2Context, unsigned int,
-                          fc2PGRGuid* );
-extern fc2Error       ( *p_fc2GetCameraInfo )( fc2Context, fc2CameraInfo* );
-extern fc2Error       ( *p_fc2GetGigEImageBinningSettings )( fc2Context,
-                          unsigned int*, unsigned int* );
-extern fc2Error       ( *p_fc2GetGigEImageSettings )( fc2Context,
-                          fc2GigEImageSettings* );
-extern fc2Error       ( *p_fc2GetGigEImageSettingsInfo )( fc2Context,
-                          fc2GigEImageSettingsInfo* );
-extern fc2Error       ( *p_fc2GetInterfaceTypeFromGuid )( fc2Context,
-                          fc2PGRGuid*, fc2InterfaceType* );
-extern fc2Error       ( *p_fc2GetNumOfCameras )( fc2Context, unsigned int* );
-extern fc2Error       ( *p_fc2GetProperty )( fc2Context, fc2Property* );
-extern fc2Error       ( *p_fc2GetPropertyInfo )( fc2Context, fc2PropertyInfo* );
-extern fc2Error       ( *p_fc2GetStrobe )( fc2Context, fc2StrobeControl* );
-extern fc2Error       ( *p_fc2GetStrobeInfo )( fc2Context, fc2StrobeInfo* );
-extern fc2Error       ( *p_fc2GetTriggerDelay )( fc2Context, fc2TriggerDelay* );
-extern fc2Error       ( *p_fc2GetTriggerDelayInfo )( fc2Context,
-                          fc2TriggerDelayInfo* );
-extern fc2Error       ( *p_fc2GetTriggerMode )( fc2Context, fc2TriggerMode* );
-extern fc2Error       ( *p_fc2GetTriggerModeInfo )( fc2Context,
-                          fc2TriggerModeInfo* );
-extern fc2Error       ( *p_fc2QueryGigEImagingMode )( fc2Context, fc2Mode,
-                          BOOL* );
-extern fc2Error       ( *p_fc2ReadRegister )( fc2Context, unsigned int,
-                          unsigned int* );
-extern fc2Error       ( *p_fc2SetGigEImageBinningSettings )( fc2Context,
-                          unsigned int, unsigned int );
-extern fc2Error       ( *p_fc2SetGigEImageSettings )( fc2Context,
-                          const fc2GigEImageSettings* );
-extern fc2Error       ( *p_fc2SetGigEImagingMode )( fc2Context, fc2Mode );
-extern fc2Error       ( *p_fc2SetProperty )( fc2Context, fc2Property* );
-extern fc2Error       ( *p_fc2SetStrobe )( fc2Context, fc2StrobeControl* );
-extern fc2Error       ( *p_fc2SetTriggerDelay )( fc2Context, fc2TriggerDelay* );
-extern fc2Error       ( *p_fc2SetTriggerMode )( fc2Context, fc2TriggerMode* );
-extern fc2Error       ( *p_fc2StartCaptureCallback )( fc2Context,
-                          fc2ImageEventCallback, void* );
-extern fc2Error       ( *p_fc2StopCapture )( fc2Context );
-
-
 #endif	/* OA_FC2_OACAM_H */

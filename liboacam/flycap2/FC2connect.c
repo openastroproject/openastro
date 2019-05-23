@@ -36,6 +36,7 @@
 #include "unimplemented.h"
 #include "oacamprivate.h"
 #include "FC2oacam.h"
+#include "FC2private.h"
 #include "FC2.h"
 #include "FC2state.h"
 

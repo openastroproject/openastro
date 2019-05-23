@@ -38,6 +38,7 @@
 #include "FC2.h"
 #include "FC2oacam.h"
 #include "FC2state.h"
+#include "FC2private.h"
 
 
 static int	_processSetControl ( FC2_STATE*, OA_COMMAND* );

@@ -30,7 +30,7 @@ AM_CPPFLAGS = \
 noinst_LTLIBRARIES = libflycap2.la
 
 libflycap2_la_SOURCES = FC2oacam.c FC2connect.c FC2getState.c FC2control.c \
-  FC2controller.c FC2callback.c FC2roi.c
+  FC2controller.c FC2callback.c FC2roi.c FC2dynloader.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
