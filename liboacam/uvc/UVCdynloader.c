@@ -32,11 +32,14 @@
 #if HAVE_DLFCN_H
 #include <dlfcn.h>
 #endif
+#if HAVE_LIMITS_H
+#include <limits.h>
+#endif
 #endif
 
+#include <openastro/errno.h>
 #include <libuvc/libuvc.h>
 
-#include "UVCoacam.h"
 #include "UVCprivate.h"
 
 
