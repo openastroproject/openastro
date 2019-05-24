@@ -29,135 +29,138 @@
 
 #include <altaircamlegacy.h>
 
-extern const char*	( *pl_Altaircam_Version )();
-extern unsigned		( *pl_Altaircam_Enum )( ToupcamInst* );
-extern HToupCam		( *pl_Altaircam_Open )( const char* );
-extern HToupCam		( *pl_Altaircam_OpenByIndex )( unsigned );
-void			( *pl_Altaircam_Close )( HToupCam );
-extern HRESULT		( *pl_Altaircam_StartPullModeWithCallback )( HToupCam,
+
+extern int				_altairLegacyInitLibraryFunctionPointers ( void );
+
+extern const char*	( *p_legacyAltaircam_Version )();
+extern unsigned		( *p_legacyAltaircam_Enum )( ToupcamInst* );
+extern HToupCam		( *p_legacyAltaircam_Open )( const char* );
+extern HToupCam		( *p_legacyAltaircam_OpenByIndex )( unsigned );
+void			( *p_legacyAltaircam_Close )( HToupCam );
+extern HRESULT		( *p_legacyAltaircam_StartPullModeWithCallback )( HToupCam,
 			    PTOUPCAM_EVENT_CALLBACK, void* );
-extern HRESULT		( *pl_Altaircam_PullImage )( HToupCam, void*, int,
+extern HRESULT		( *p_legacyAltaircam_PullImage )( HToupCam, void*, int,
 			    unsigned*, unsigned* );
-extern HRESULT		( *pl_Altaircam_PullStillImage )( HToupCam, void*, int,
+extern HRESULT		( *p_legacyAltaircam_PullStillImage )( HToupCam, void*, int,
 			    unsigned*, unsigned* );
-extern HRESULT		( *pl_Altaircam_StartPushMode )( HToupCam,
+extern HRESULT		( *p_legacyAltaircam_StartPushMode )( HToupCam,
 			    PTOUPCAM_DATA_CALLBACK, void* );
-extern HRESULT		( *pl_Altaircam_Stop )( HToupCam );
-extern HRESULT		( *pl_Altaircam_Pause )( HToupCam, BOOL );
-extern HRESULT		( *pl_Altaircam_Snap )( HToupCam, unsigned );
-extern HRESULT		( *pl_Altaircam_Trigger )( HToupCam );
-extern HRESULT		( *pl_Altaircam_get_Size )( HToupCam, int*, int* );
-extern HRESULT		( *pl_Altaircam_put_Size )( HToupCam, int, int );
-extern HRESULT		( *pl_Altaircam_get_eSize )( HToupCam, unsigned* );
-extern HRESULT		( *pl_Altaircam_put_eSize )( HToupCam, unsigned );
-extern HRESULT		( *pl_Altaircam_get_Resolution )( HToupCam, unsigned,
+extern HRESULT		( *p_legacyAltaircam_Stop )( HToupCam );
+extern HRESULT		( *p_legacyAltaircam_Pause )( HToupCam, BOOL );
+extern HRESULT		( *p_legacyAltaircam_Snap )( HToupCam, unsigned );
+extern HRESULT		( *p_legacyAltaircam_Trigger )( HToupCam );
+extern HRESULT		( *p_legacyAltaircam_get_Size )( HToupCam, int*, int* );
+extern HRESULT		( *p_legacyAltaircam_put_Size )( HToupCam, int, int );
+extern HRESULT		( *p_legacyAltaircam_get_eSize )( HToupCam, unsigned* );
+extern HRESULT		( *p_legacyAltaircam_put_eSize )( HToupCam, unsigned );
+extern HRESULT		( *p_legacyAltaircam_get_Resolution )( HToupCam, unsigned,
 			    int*, int* );
-extern HRESULT		( *pl_Altaircam_get_ResolutionNumber )( HToupCam );
-extern HRESULT		( *pl_Altaircam_get_ResolutionRatio )( HToupCam, unsigned,
+extern HRESULT		( *p_legacyAltaircam_get_ResolutionNumber )( HToupCam );
+extern HRESULT		( *p_legacyAltaircam_get_ResolutionRatio )( HToupCam, unsigned,
 			    int*, int* );
-extern HRESULT		( *pl_Altaircam_get_RawFormat )( HToupCam, unsigned*,
+extern HRESULT		( *p_legacyAltaircam_get_RawFormat )( HToupCam, unsigned*,
 			    unsigned* );
-extern HRESULT		( *pl_Altaircam_get_AutoExpoEnable )( HToupCam, BOOL* );
-extern HRESULT		( *pl_Altaircam_get_AutoExpoTarget )( HToupCam,
+extern HRESULT		( *p_legacyAltaircam_get_AutoExpoEnable )( HToupCam, BOOL* );
+extern HRESULT		( *p_legacyAltaircam_get_AutoExpoTarget )( HToupCam,
 			    unsigned short* );
-extern HRESULT		( *pl_Altaircam_put_AutoExpoEnable )( HToupCam, BOOL );
-extern HRESULT		( *pl_Altaircam_put_AutoExpoTarget )( HToupCam,
+extern HRESULT		( *p_legacyAltaircam_put_AutoExpoEnable )( HToupCam, BOOL );
+extern HRESULT		( *p_legacyAltaircam_put_AutoExpoTarget )( HToupCam,
 			    unsigned short );
-extern HRESULT		( *pl_Altaircam_get_ExpoTime )( HToupCam, unsigned* );
-extern HRESULT		( *pl_Altaircam_get_ExpTimeRange )( HToupCam, unsigned*,
+extern HRESULT		( *p_legacyAltaircam_get_ExpoTime )( HToupCam, unsigned* );
+extern HRESULT		( *p_legacyAltaircam_get_ExpTimeRange )( HToupCam, unsigned*,
 			    unsigned*, unsigned* );
-extern HRESULT		( *pl_Altaircam_put_ExpoTime )( HToupCam, unsigned );
-extern HRESULT		( *pl_Altaircam_put_MaxAutoExpoTimeAGain )( HToupCam,
+extern HRESULT		( *p_legacyAltaircam_put_ExpoTime )( HToupCam, unsigned );
+extern HRESULT		( *p_legacyAltaircam_put_MaxAutoExpoTimeAGain )( HToupCam,
 			    unsigned, unsigned short );
-extern HRESULT		( *pl_Altaircam_get_ExpoAGain )( HToupCam,
+extern HRESULT		( *p_legacyAltaircam_get_ExpoAGain )( HToupCam,
 			    unsigned short* );
-extern HRESULT		( *pl_Altaircam_put_ExpoAGain )( HToupCam,
+extern HRESULT		( *p_legacyAltaircam_put_ExpoAGain )( HToupCam,
 			    unsigned short );
-extern HRESULT		( *pl_Altaircam_get_ExpoAGainRange )( HToupCam,
+extern HRESULT		( *p_legacyAltaircam_get_ExpoAGainRange )( HToupCam,
 			    unsigned short*, unsigned short*, unsigned short* );
-extern HRESULT		( *pl_Altaircam_AwbInit )( HToupCam,
+extern HRESULT		( *p_legacyAltaircam_AwbInit )( HToupCam,
 			    PITOUPCAM_WHITEBALANCE_CALLBACK, void* );
-extern HRESULT		( *pl_Altaircam_AwbOnePush )( HToupCam,
+extern HRESULT		( *p_legacyAltaircam_AwbOnePush )( HToupCam,
 			    PITOUPCAM_TEMPTINT_CALLBACK, void* );
-extern HRESULT		( *pl_Altaircam_get_TempTint )( HToupCam, int*, int* );
-extern HRESULT		( *pl_Altaircam_put_TempTint )( HToupCam, int, int );
-extern HRESULT		( *pl_Altaircam_get_WhiteBalanceGain )( HToupCam, int* );
-extern HRESULT		( *pl_Altaircam_put_WhiteBalanceGain )( HToupCam, int* );
-extern HRESULT		( *pl_Altaircam_get_Hue )( HToupCam, int* );
-extern HRESULT		( *pl_Altaircam_put_Hue )( HToupCam, int );
-extern HRESULT		( *pl_Altaircam_get_Saturation )( HToupCam, int* );
-extern HRESULT		( *pl_Altaircam_put_Saturation )( HToupCam, int );
-extern HRESULT		( *pl_Altaircam_get_Brightness )( HToupCam, int* );
-extern HRESULT		( *pl_Altaircam_put_Brightness )( HToupCam, int );
-extern HRESULT		( *pl_Altaircam_get_Contrast )( HToupCam, int* );
-extern HRESULT		( *pl_Altaircam_put_Contrast )( HToupCam, int );
-extern HRESULT		( *pl_Altaircam_get_Gamma )( HToupCam, int* );
-extern HRESULT		( *pl_Altaircam_put_Gamma )( HToupCam, int );
-extern HRESULT		( *pl_Altaircam_get_Chrome )( HToupCam, BOOL* );
-extern HRESULT		( *pl_Altaircam_put_Chrome )( HToupCam, BOOL );
-extern HRESULT		( *pl_Altaircam_get_VFlip )( HToupCam, BOOL* );
-extern HRESULT		( *pl_Altaircam_put_VFlip )( HToupCam, BOOL );
-extern HRESULT		( *pl_Altaircam_get_HFlip )( HToupCam, BOOL* );
-extern HRESULT		( *pl_Altaircam_put_HFlip )( HToupCam, BOOL );
-extern HRESULT		( *pl_Altaircam_get_Negative )( HToupCam, BOOL* );
-extern HRESULT		( *pl_Altaircam_put_Negative )( HToupCam, BOOL );
-extern HRESULT		( *pl_Altaircam_get_MaxSpeed )( HToupCam );
-extern HRESULT		( *pl_Altaircam_get_Speed )( HToupCam, unsigned short* );
-extern HRESULT		( *pl_Altaircam_put_Speed )( HToupCam, unsigned short );
-extern HRESULT		( *pl_Altaircam_get_MaxBitDepth )( HToupCam );
-extern HRESULT		( *pl_Altaircam_get_HZ )( HToupCam, int* );
-extern HRESULT		( *pl_Altaircam_put_HZ )( HToupCam, int );
-extern HRESULT		( *pl_Altaircam_get_Mode )( HToupCam, BOOL* );
-extern HRESULT		( *pl_Altaircam_put_Mode )( HToupCam, BOOL );
-extern HRESULT		( *pl_Altaircam_get_AWBAuxRect )( HToupCam, RECT* );
-extern HRESULT		( *pl_Altaircam_put_AWBAuxRect )( HToupCam, const RECT* );
-extern HRESULT		( *pl_Altaircam_get_AEAuxRect )( HToupCam, RECT* );
-extern HRESULT		( *pl_Altaircam_put_AEAuxRect )( HToupCam, const RECT* );
-extern HRESULT		( *pl_Altaircam_get_MonoMode )( HToupCam );
-extern HRESULT		( *pl_Altaircam_get_StillResolution )( HToupCam,
+extern HRESULT		( *p_legacyAltaircam_get_TempTint )( HToupCam, int*, int* );
+extern HRESULT		( *p_legacyAltaircam_put_TempTint )( HToupCam, int, int );
+extern HRESULT		( *p_legacyAltaircam_get_WhiteBalanceGain )( HToupCam, int* );
+extern HRESULT		( *p_legacyAltaircam_put_WhiteBalanceGain )( HToupCam, int* );
+extern HRESULT		( *p_legacyAltaircam_get_Hue )( HToupCam, int* );
+extern HRESULT		( *p_legacyAltaircam_put_Hue )( HToupCam, int );
+extern HRESULT		( *p_legacyAltaircam_get_Saturation )( HToupCam, int* );
+extern HRESULT		( *p_legacyAltaircam_put_Saturation )( HToupCam, int );
+extern HRESULT		( *p_legacyAltaircam_get_Brightness )( HToupCam, int* );
+extern HRESULT		( *p_legacyAltaircam_put_Brightness )( HToupCam, int );
+extern HRESULT		( *p_legacyAltaircam_get_Contrast )( HToupCam, int* );
+extern HRESULT		( *p_legacyAltaircam_put_Contrast )( HToupCam, int );
+extern HRESULT		( *p_legacyAltaircam_get_Gamma )( HToupCam, int* );
+extern HRESULT		( *p_legacyAltaircam_put_Gamma )( HToupCam, int );
+extern HRESULT		( *p_legacyAltaircam_get_Chrome )( HToupCam, BOOL* );
+extern HRESULT		( *p_legacyAltaircam_put_Chrome )( HToupCam, BOOL );
+extern HRESULT		( *p_legacyAltaircam_get_VFlip )( HToupCam, BOOL* );
+extern HRESULT		( *p_legacyAltaircam_put_VFlip )( HToupCam, BOOL );
+extern HRESULT		( *p_legacyAltaircam_get_HFlip )( HToupCam, BOOL* );
+extern HRESULT		( *p_legacyAltaircam_put_HFlip )( HToupCam, BOOL );
+extern HRESULT		( *p_legacyAltaircam_get_Negative )( HToupCam, BOOL* );
+extern HRESULT		( *p_legacyAltaircam_put_Negative )( HToupCam, BOOL );
+extern HRESULT		( *p_legacyAltaircam_get_MaxSpeed )( HToupCam );
+extern HRESULT		( *p_legacyAltaircam_get_Speed )( HToupCam, unsigned short* );
+extern HRESULT		( *p_legacyAltaircam_put_Speed )( HToupCam, unsigned short );
+extern HRESULT		( *p_legacyAltaircam_get_MaxBitDepth )( HToupCam );
+extern HRESULT		( *p_legacyAltaircam_get_HZ )( HToupCam, int* );
+extern HRESULT		( *p_legacyAltaircam_put_HZ )( HToupCam, int );
+extern HRESULT		( *p_legacyAltaircam_get_Mode )( HToupCam, BOOL* );
+extern HRESULT		( *p_legacyAltaircam_put_Mode )( HToupCam, BOOL );
+extern HRESULT		( *p_legacyAltaircam_get_AWBAuxRect )( HToupCam, RECT* );
+extern HRESULT		( *p_legacyAltaircam_put_AWBAuxRect )( HToupCam, const RECT* );
+extern HRESULT		( *p_legacyAltaircam_get_AEAuxRect )( HToupCam, RECT* );
+extern HRESULT		( *p_legacyAltaircam_put_AEAuxRect )( HToupCam, const RECT* );
+extern HRESULT		( *p_legacyAltaircam_get_MonoMode )( HToupCam );
+extern HRESULT		( *p_legacyAltaircam_get_StillResolution )( HToupCam,
 			    unsigned, int*, int* );
-extern HRESULT		( *pl_Altaircam_get_StillResolutionNumber )( HToupCam );
-extern HRESULT		( *pl_Altaircam_get_RealTime )( HToupCam, BOOL* );
-extern HRESULT		( *pl_Altaircam_put_RealTime )( HToupCam, BOOL );
-extern HRESULT		( *pl_Altaircam_Flush )( HToupCam );
-extern HRESULT		( *pl_Altaircam_get_Temperature )( HToupCam, short* );
-extern HRESULT		( *pl_Altaircam_put_Temperature )( HToupCam, short );
-extern HRESULT		( *pl_Altaircam_get_SerialNumber )( HToupCam, char* );
-extern HRESULT		( *pl_Altaircam_get_FwVersion )( HToupCam, char* );
-extern HRESULT		( *pl_Altaircam_get_HwVersion )( HToupCam, char* );
-extern HRESULT		( *pl_Altaircam_get_ProductionDate )( HToupCam, char* );
-extern HRESULT		( *pl_Altaircam_get_LevelRange )( HToupCam,
+extern HRESULT		( *p_legacyAltaircam_get_StillResolutionNumber )( HToupCam );
+extern HRESULT		( *p_legacyAltaircam_get_RealTime )( HToupCam, BOOL* );
+extern HRESULT		( *p_legacyAltaircam_put_RealTime )( HToupCam, BOOL );
+extern HRESULT		( *p_legacyAltaircam_Flush )( HToupCam );
+extern HRESULT		( *p_legacyAltaircam_get_Temperature )( HToupCam, short* );
+extern HRESULT		( *p_legacyAltaircam_put_Temperature )( HToupCam, short );
+extern HRESULT		( *p_legacyAltaircam_get_SerialNumber )( HToupCam, char* );
+extern HRESULT		( *p_legacyAltaircam_get_FwVersion )( HToupCam, char* );
+extern HRESULT		( *p_legacyAltaircam_get_HwVersion )( HToupCam, char* );
+extern HRESULT		( *p_legacyAltaircam_get_ProductionDate )( HToupCam, char* );
+extern HRESULT		( *p_legacyAltaircam_get_LevelRange )( HToupCam,
 			    unsigned short*, unsigned short* );
-extern HRESULT		( *pl_Altaircam_put_LevelRange )( HToupCam,
+extern HRESULT		( *p_legacyAltaircam_put_LevelRange )( HToupCam,
 			    unsigned short*, unsigned short* );
-extern HRESULT		( *pl_Altaircam_put_ExpoCallback )( HToupCam,
+extern HRESULT		( *p_legacyAltaircam_put_ExpoCallback )( HToupCam,
 			    PITOUPCAM_EXPOSURE_CALLBACK, void* );
-extern HRESULT		( *pl_Altaircam_put_ChromeCallback )( HToupCam,
+extern HRESULT		( *p_legacyAltaircam_put_ChromeCallback )( HToupCam,
 			    PITOUPCAM_CHROME_CALLBACK, void* );
-extern HRESULT		( *pl_Altaircam_LevelRangeAuto )( HToupCam );
-extern HRESULT		( *pl_Altaircam_GetHistogram )( HToupCam,
+extern HRESULT		( *p_legacyAltaircam_LevelRangeAuto )( HToupCam );
+extern HRESULT		( *p_legacyAltaircam_GetHistogram )( HToupCam,
 			    PITOUPCAM_HISTOGRAM_CALLBACK, void* );
-extern HRESULT		( *pl_Altaircam_put_LEDState )( HToupCam, unsigned short,
+extern HRESULT		( *p_legacyAltaircam_put_LEDState )( HToupCam, unsigned short,
 			    unsigned short, unsigned short );
-extern HRESULT		( *pl_Altaircam_read_EEPROM )( HToupCam, unsigned,
+extern HRESULT		( *p_legacyAltaircam_read_EEPROM )( HToupCam, unsigned,
 			    unsigned char*, unsigned );
-extern HRESULT		( *pl_Altaircam_write_EEPROM )( HToupCam, unsigned,
+extern HRESULT		( *p_legacyAltaircam_write_EEPROM )( HToupCam, unsigned,
 			    const unsigned char*, unsigned );
-extern HRESULT		( *pl_Altaircam_get_Option )( HToupCam, unsigned,
+extern HRESULT		( *p_legacyAltaircam_get_Option )( HToupCam, unsigned,
 			    unsigned* );
-extern HRESULT		( *pl_Altaircam_put_Option )( HToupCam, unsigned,
+extern HRESULT		( *p_legacyAltaircam_put_Option )( HToupCam, unsigned,
 			    unsigned );
-extern HRESULT		( *pl_Altaircam_get_Roi )( HToupCam, unsigned*,
+extern HRESULT		( *p_legacyAltaircam_get_Roi )( HToupCam, unsigned*,
 			    unsigned* );
-extern HRESULT		( *pl_Altaircam_put_Roi )( HToupCam, unsigned, unsigned,
+extern HRESULT		( *p_legacyAltaircam_put_Roi )( HToupCam, unsigned, unsigned,
                             unsigned, unsigned );
-extern HRESULT		( *pl_Altaircam_ST4PlusGuide )( HToupCam, unsigned,
+extern HRESULT		( *p_legacyAltaircam_ST4PlusGuide )( HToupCam, unsigned,
 			    unsigned );
-extern HRESULT		( *pl_Altaircam_ST4PlusGuideState )( HToupCam );
-extern double		( *pl_Altaircam_calc_ClarityFactor )( const void*, int,
+extern HRESULT		( *p_legacyAltaircam_ST4PlusGuideState )( HToupCam );
+extern double		( *p_legacyAltaircam_calc_ClarityFactor )( const void*, int,
 			    unsigned, unsigned );
-extern void		( *pl_Altaircam_deBayer )( unsigned, int, int,
+extern void		( *p_legacyAltaircam_deBayer )( unsigned, int, int,
 			    const void*, void*, unsigned char );
-extern void		( *pl_Altaircam_HotPlug )( PTOUPCAM_HOTPLUG, void* );
+extern void		( *p_legacyAltaircam_HotPlug )( PTOUPCAM_HOTPLUG, void* );
 
 #endif	/* OA_ALTAIRCAM_LEGACY_PRIVATE_H */

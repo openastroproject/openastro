@@ -33,7 +33,7 @@ noinst_LTLIBRARIES = libaltairlegacy.la
 
 libaltairlegacy_la_SOURCES = LegacyAltairoacam.c LegacyAltairconnect.c \
 	LegacyAltaircallback.c LegacyAltaircontrol.c LegacyAltaircontroller.c \
-	LegacyAltairgetState.c LegacyAltairroi.c
+	LegacyAltairgetState.c LegacyAltairroi.c LegacyAltairDynloader.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

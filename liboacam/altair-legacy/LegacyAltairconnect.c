@@ -66,7 +66,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
   int				x, y;
   char				toupcamId[128]; // must be longer than 64
 
-  numCameras = ( pl_Altaircam_Enum )( devList );
+  numCameras = ( p_legacyAltaircam_Enum )( devList );
   devInfo = device->_private;
   if ( numCameras < 1 || devInfo->devIndex > numCameras ) {
     return 0;
@@ -112,7 +112,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
     *toupcamId = 0;
   }
   ( void ) strcat ( toupcamId, devInfo->deviceId );
-  if (!( handle = ( pl_Altaircam_Open )( toupcamId ))) {
+  if (!( handle = ( p_legacyAltaircam_Open )( toupcamId ))) {
     fprintf ( stderr, "Can't get Altaircam handle\n" );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
@@ -176,15 +176,16 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
   commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
   commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 0;
 
-  if (( pl_Altaircam_get_ExpTimeRange )( handle, &min, &max, &def ) < 0 ) {
-    ( pl_Altaircam_Close )( handle );
+  if (( p_legacyAltaircam_get_ExpTimeRange )( handle, &min, &max, &def ) < 0 ) {
+    ( p_legacyAltaircam_Close )( handle );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
     return 0;
   }
 
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = OA_CTRL_TYPE_INT32;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+			OA_CTRL_TYPE_INT32;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = min;
   commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = max;
   commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
@@ -193,9 +194,10 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
   cameraInfo->exposureMin = min;
   cameraInfo->exposureMax = max;
 
-  if (( pl_Altaircam_get_ExpoAGainRange )( handle, &smin, &smax, &sdef ) < 0 ) {
+  if (( p_legacyAltaircam_get_ExpoAGainRange )( handle, &smin, &smax, &sdef )
+			< 0 ) {
     fprintf ( stderr, "Altaircam_get_ExpoAGainRange() failed\n" );
-    ( pl_Altaircam_Close )( handle );
+    ( p_legacyAltaircam_Close )( handle );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
@@ -262,10 +264,13 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
     commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HUE ) = TOUPCAM_HUE_DEF;
 
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SATURATION ) = OA_CTRL_TYPE_INT32;
-    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SATURATION ) = TOUPCAM_SATURATION_MIN;
-    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SATURATION ) = TOUPCAM_SATURATION_MAX;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SATURATION ) =
+				TOUPCAM_SATURATION_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SATURATION ) =
+				TOUPCAM_SATURATION_MAX;
     commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SATURATION ) = 1;
-    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SATURATION ) = TOUPCAM_SATURATION_DEF;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SATURATION ) =
+				TOUPCAM_SATURATION_DEF;
 
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_RED_BALANCE ) = OA_CTRL_TYPE_INT32;
     commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_RED_BALANCE ) = TOUPCAM_WBGAIN_MIN;
@@ -274,28 +279,38 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
     commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) = TOUPCAM_WBGAIN_DEF;
 
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GREEN_BALANCE ) = OA_CTRL_TYPE_INT32;
-    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GREEN_BALANCE ) = TOUPCAM_WBGAIN_MIN;
-    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GREEN_BALANCE ) = TOUPCAM_WBGAIN_MAX;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GREEN_BALANCE ) =
+				TOUPCAM_WBGAIN_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GREEN_BALANCE ) =
+				TOUPCAM_WBGAIN_MAX;
     commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GREEN_BALANCE ) = 1;
-    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GREEN_BALANCE ) = TOUPCAM_WBGAIN_DEF;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GREEN_BALANCE ) =
+				TOUPCAM_WBGAIN_DEF;
 
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLUE_BALANCE ) = OA_CTRL_TYPE_INT32;
-    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) = TOUPCAM_WBGAIN_MIN;
-    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) = TOUPCAM_WBGAIN_MAX;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLUE_BALANCE ) =
+				TOUPCAM_WBGAIN_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLUE_BALANCE ) =
+				TOUPCAM_WBGAIN_MAX;
     commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLUE_BALANCE ) = 1;
-    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) = TOUPCAM_WBGAIN_DEF;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) =
+				TOUPCAM_WBGAIN_DEF;
 
     // I don't see why this should be colour only, but it does appear to be
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BRIGHTNESS ) = OA_CTRL_TYPE_INT32;
-    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BRIGHTNESS ) = TOUPCAM_BRIGHTNESS_MIN;
-    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BRIGHTNESS ) = TOUPCAM_BRIGHTNESS_MAX;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BRIGHTNESS ) =
+				TOUPCAM_BRIGHTNESS_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BRIGHTNESS ) =
+				TOUPCAM_BRIGHTNESS_MAX;
     commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BRIGHTNESS ) = 1;
-    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) = TOUPCAM_BRIGHTNESS_DEF;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) =
+				TOUPCAM_BRIGHTNESS_DEF;
 
     // force the camera out of raw mode
-    if ((( pl_Altaircam_put_Option )( handle, TOUPCAM_OPTION_RAW, 0 )) < 0 ) {
+    if ((( p_legacyAltaircam_put_Option )( handle, TOUPCAM_OPTION_RAW, 0 ))
+				< 0 ) {
       fprintf ( stderr, "Altaircam_put_Option ( raw, 0 ) returns error\n" );
-      ( pl_Altaircam_Close )( handle );
+      ( p_legacyAltaircam_Close )( handle );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -307,9 +322,10 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
     // It looks like mono cameras return RGB frames by default.  That
     // seems wasteful, so try to turn it off.
 
-    if ((( pl_Altaircam_put_Option )( handle, TOUPCAM_OPTION_RAW, 1 )) < 0 ) {
+    if ((( p_legacyAltaircam_put_Option )( handle, TOUPCAM_OPTION_RAW, 1 ))
+				< 0 ) {
       fprintf ( stderr, "Altaircam_put_Option ( raw, 1 ) returns error\n" );
-      ( pl_Altaircam_Close )( handle );
+      ( p_legacyAltaircam_Close )( handle );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -342,7 +358,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
     camera->features.ROI = 1;
   }
 
-  cameraInfo->maxBitDepth = pl_Altaircam_get_MaxBitDepth ( handle );
+  cameraInfo->maxBitDepth = p_legacyAltaircam_get_MaxBitDepth ( handle );
   if ( cameraInfo->colour ) {
     camera->frameFormats[ OA_PIX_FMT_RGB24 ] = 1;
   } else {
@@ -401,11 +417,11 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
   // force camera into 8-bit mode
 
   if ( cameraInfo->maxBitDepth > 8 ) {
-    if ((( pl_Altaircam_put_Option )( handle,
+    if ((( p_legacyAltaircam_put_Option )( handle,
         TOUPCAM_OPTION_BITDEPTH, 0 )) < 0 ) {
       fprintf ( stderr,
           "Altaircam_put_Option ( bitdepth, 0 ) returns error\n" );
-      ( pl_Altaircam_Close )( handle );
+      ( p_legacyAltaircam_Close )( handle );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -435,9 +451,9 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
   if ( cameraInfo->colour ) {
     int found = 0;
 
-    if ((( pl_Altaircam_get_RawFormat )( handle, &fourcc, &depth )) < 0 ) {
+    if ((( p_legacyAltaircam_get_RawFormat )( handle, &fourcc, &depth )) < 0 ) {
       fprintf ( stderr, "get_RawFormat returns error\n" );
-      ( pl_Altaircam_Close )( handle );
+      ( p_legacyAltaircam_Close )( handle );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -541,9 +557,10 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
 
   if (( numStillResolutions = devList[ devInfo->devIndex ].model->still )) {
     for ( i = 0; i < numStillResolutions; i++ ) {
-      if ((( pl_Altaircam_get_StillResolution )( handle, i, &x, &y )) < 0 ) {
+      if ((( p_legacyAltaircam_get_StillResolution )( handle, i, &x, &y ))
+					< 0 ) {
         fprintf ( stderr, "failed to get still resolution %d\n", i );
-        ( pl_Altaircam_Close )( handle );
+        ( p_legacyAltaircam_Close )( handle );
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
         free (( void* ) camera );
@@ -567,9 +584,9 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
   }
 
   for ( i = 0; i < numResolutions; i++ ) {
-    if ((( pl_Altaircam_get_Resolution )( handle, i, &x, &y )) < 0 ) {
+    if ((( p_legacyAltaircam_get_Resolution )( handle, i, &x, &y )) < 0 ) {
       fprintf ( stderr, "failed to get resolution %d\n", i );
-      ( pl_Altaircam_Close )( handle );
+      ( p_legacyAltaircam_Close )( handle );
       // FIX ME -- free the other sizes here too
       free (( void* ) cameraInfo->frameSizes[1].sizes );
       free (( void* ) commonInfo );
@@ -593,7 +610,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
       if (!(  cameraInfo->frameSizes[ binX ].sizes = realloc (
           cameraInfo->frameSizes[ binX ].sizes, sizeof ( FRAMESIZE ) * 2 ))) {
         fprintf ( stderr, "malloc for frame sizes failed\n" );
-        ( pl_Altaircam_Close )( handle );
+        ( p_legacyAltaircam_Close )( handle );
         // FIX ME -- free the other sizes here too
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
@@ -638,7 +655,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
         }
       }
       // FIX ME -- free frame data
-      ( pl_Altaircam_Close )( handle );
+      ( p_legacyAltaircam_Close )( handle );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -732,7 +749,7 @@ oaAltairLegacyCloseCamera ( oaCamera* camera )
     pthread_cond_broadcast ( &cameraInfo->callbackQueued );
     pthread_join ( cameraInfo->callbackThread, &dummy );
 
-    ( pl_Altaircam_Close ) ( cameraInfo->handle );
+    ( p_legacyAltaircam_Close ) ( cameraInfo->handle );
 
     free (( void* ) cameraInfo->frameSizes[1].sizes );
 

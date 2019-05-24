@@ -212,7 +212,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= TOUPCAM_BRIGHTNESS_MIN && val <= TOUPCAM_BRIGHTNESS_MAX ) {
-        if ((( pl_Altaircam_put_Brightness )( cameraInfo->handle, val )) < 0 ) {
+        if ((( p_legacyAltaircam_put_Brightness )( cameraInfo->handle, val ))
+						< 0 ) {
           fprintf ( stderr, "Altaircam_put_Brightness ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -230,7 +231,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= TOUPCAM_CONTRAST_MIN && val <= TOUPCAM_CONTRAST_MAX ) {
-        if ((( pl_Altaircam_put_Contrast )( cameraInfo->handle, val )) < 0 ) {
+        if ((( p_legacyAltaircam_put_Contrast )( cameraInfo->handle, val ))
+						< 0 ) {
           fprintf ( stderr, "Altaircam_put_Contrast ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -248,7 +250,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= TOUPCAM_GAMMA_MIN && val <= TOUPCAM_GAMMA_MAX ) {
-        if ((( pl_Altaircam_put_Gamma )( cameraInfo->handle, val )) < 0 ) {
+        if ((( p_legacyAltaircam_put_Gamma )( cameraInfo->handle, val ))
+						< 0 ) {
           fprintf ( stderr, "Altaircam_put_Gamma ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -265,7 +268,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 1 : 0;
-      if ((( pl_Altaircam_put_HFlip )( cameraInfo->handle, val )) < 0 ) {
+      if ((( p_legacyAltaircam_put_HFlip )( cameraInfo->handle, val )) < 0 ) {
         fprintf ( stderr, "Altaircam_put_HFlip ( %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
       }
@@ -279,7 +282,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 1 : 0;
-      if ((( pl_Altaircam_put_VFlip )( cameraInfo->handle, val )) < 0 ) {
+      if ((( p_legacyAltaircam_put_VFlip )( cameraInfo->handle, val )) < 0 ) {
         fprintf ( stderr, "Altaircam_put_VFlip ( %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
       }
@@ -292,7 +295,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
             "for control %d\n", __FUNCTION__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
-      if ((( pl_Altaircam_put_AutoExpoEnable )( cameraInfo->handle,
+      if ((( p_legacyAltaircam_put_AutoExpoEnable )( cameraInfo->handle,
 					valp->boolean )) < 0) {
         fprintf ( stderr, "Altaircam_put_AutoExpoEnable ( %d ) failed\n",
 						valp->boolean );
@@ -309,7 +312,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= cameraInfo->exposureMin && val <= cameraInfo->exposureMax ) {
-        if ((( pl_Altaircam_put_ExpoTime )( cameraInfo->handle, val )) < 0 ) {
+        if ((( p_legacyAltaircam_put_ExpoTime )( cameraInfo->handle, val ))
+						< 0 ) {
           fprintf ( stderr, "Altaircam_put_ExpoTime ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -327,7 +331,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= cameraInfo->gainMin && val <= cameraInfo->gainMax ) {
-        if ((( pl_Altaircam_put_ExpoAGain )( cameraInfo->handle, val )) < 0 ) {
+        if ((( p_legacyAltaircam_put_ExpoAGain )( cameraInfo->handle, val ))
+						< 0 ) {
           fprintf ( stderr, "Altaircam_put_ExpoAGain ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -345,7 +350,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= 0 && val <= cameraInfo->speedMax ) {
-        if ((( pl_Altaircam_put_Speed )( cameraInfo->handle, val )) < 0 ) {
+        if ((( p_legacyAltaircam_put_Speed )( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, "Altaircam_put_Speed ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -363,7 +368,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= TOUPCAM_HUE_MIN && val <= TOUPCAM_HUE_MAX ) {
-        if ((( pl_Altaircam_put_Hue )( cameraInfo->handle, val )) < 0 ) {
+        if ((( p_legacyAltaircam_put_Hue )( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, "Altaircam_put_Hue ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -381,7 +386,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= TOUPCAM_SATURATION_MIN && val <= TOUPCAM_SATURATION_MAX ) {
-        if ((( pl_Altaircam_put_Saturation )( cameraInfo->handle, val )) < 0 ) {
+        if ((( p_legacyAltaircam_put_Saturation )( cameraInfo->handle, val ))
+						< 0 ) {
           fprintf ( stderr, "Altaircam_put_Saturation ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -402,9 +408,10 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       val = valp->int32;
       if ( val >= TOUPCAM_WBGAIN_MIN && val <= TOUPCAM_WBGAIN_MAX ) {
         int gain[3];
-        if ((( pl_Altaircam_get_WhiteBalanceGain )( cameraInfo->handle,
+        if ((( p_legacyAltaircam_get_WhiteBalanceGain )( cameraInfo->handle,
             gain )) < 0 ) {
-          fprintf ( stderr, "Altaircam_get_WhiteBalanceGain (gain[3]) failed\n" );
+          fprintf ( stderr,
+							"Altaircam_get_WhiteBalanceGain (gain[3]) failed\n" );
           return -OA_ERR_CAMERA_IO;
         }
         switch ( control ) {
@@ -418,9 +425,10 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
             gain[1] = val;
             break;
         }
-        if ((( pl_Altaircam_put_WhiteBalanceGain )( cameraInfo->handle,
+        if ((( p_legacyAltaircam_put_WhiteBalanceGain )( cameraInfo->handle,
             gain )) < 0 ) {
-          fprintf ( stderr, "Altaircam_put_WhiteBalanceGain (gain[3]) failed\n" );
+          fprintf ( stderr,
+							"Altaircam_put_WhiteBalanceGain (gain[3]) failed\n" );
           return -OA_ERR_CAMERA_IO;
         }
       } else {
@@ -446,7 +454,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 0 : 1;
-      if ((( pl_Altaircam_put_Option )( cameraInfo->handle,
+      if ((( p_legacyAltaircam_put_Option )( cameraInfo->handle,
           TOUPCAM_OPTION_COOLER, 1 )) < 0 ) {
         fprintf ( stderr, "Altaircam_put_Option ( cooler, %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
@@ -461,7 +469,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 0 : 1;
-      if ((( pl_Altaircam_put_Option )( cameraInfo->handle,
+      if ((( p_legacyAltaircam_put_Option )( cameraInfo->handle,
           TOUPCAM_OPTION_FAN, 1 )) < 0 ) {
         fprintf ( stderr, "Altaircam_put_Option ( fan, %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
@@ -499,7 +507,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         }
         cameraInfo->ledPeriod = valp->int32;
       }
-      if ((( pl_Altaircam_put_LEDState )( cameraInfo->handle, 0,
+      if ((( p_legacyAltaircam_put_LEDState )( cameraInfo->handle, 0,
           cameraInfo->ledState, cameraInfo->ledPeriod )) < 0 ) {
         fprintf ( stderr, "Altaircam_put_LEDState ( 0, %d, %d ) failed\n",
             cameraInfo->ledState, cameraInfo->ledPeriod );
@@ -528,7 +536,7 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_BRIGHTNESS:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( pl_Altaircam_get_Brightness )( cameraInfo->handle,
+      if ((( p_legacyAltaircam_get_Brightness )( cameraInfo->handle,
           &val_s32 )) < 0 ) {
         fprintf ( stderr, "Altaircam_get_Brightness failed\n" );
         return -OA_ERR_CAMERA_IO;
@@ -539,7 +547,8 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_CONTRAST:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( pl_Altaircam_get_Contrast )( cameraInfo->handle, &val_s32 )) < 0 ) {
+      if ((( p_legacyAltaircam_get_Contrast )( cameraInfo->handle, &val_s32 ))
+					< 0 ) {
         fprintf ( stderr, "Altaircam_get_Contrast failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -549,7 +558,8 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_GAMMA:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( pl_Altaircam_get_Gamma )( cameraInfo->handle, &val_s32 )) < 0 ) {
+      if ((( p_legacyAltaircam_get_Gamma )( cameraInfo->handle, &val_s32 ))
+					< 0 ) {
         fprintf ( stderr, "Altaircam_get_Gamma failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -559,7 +569,8 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_HFLIP:
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
-      if ((( pl_Altaircam_get_HFlip )( cameraInfo->handle, &val_s32 )) < 0 ) {
+      if ((( p_legacyAltaircam_get_HFlip )( cameraInfo->handle, &val_s32 ))
+					< 0 ) {
         fprintf ( stderr, "Altaircam_get_HFlip failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -569,7 +580,8 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_VFLIP:
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
-      if ((( pl_Altaircam_get_VFlip )( cameraInfo->handle, &val_s32 )) < 0 ) {
+      if ((( p_legacyAltaircam_get_VFlip )( cameraInfo->handle, &val_s32 ))
+					< 0 ) {
         fprintf ( stderr, "Altaircam_get_VFlip failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -579,7 +591,7 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
-      if ((( pl_Altaircam_get_AutoExpoEnable )( cameraInfo->handle,
+      if ((( p_legacyAltaircam_get_AutoExpoEnable )( cameraInfo->handle,
           &val_s32 )) < 0 ) {
         fprintf ( stderr, "Altaircam_get_AutoExpoEnable failed\n" );
         return -OA_ERR_CAMERA_IO;
@@ -590,7 +602,8 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( pl_Altaircam_get_ExpoTime )( cameraInfo->handle, &val_u32 )) < 0 ) {
+      if ((( p_legacyAltaircam_get_ExpoTime )( cameraInfo->handle, &val_u32 ))
+					< 0 ) {
         fprintf ( stderr, "Altaircam_get_ExpoTime failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -600,7 +613,7 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_GAIN:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( pl_Altaircam_get_ExpoAGain )( cameraInfo->handle,
+      if ((( p_legacyAltaircam_get_ExpoAGain )( cameraInfo->handle,
           &val_u16 )) < 0 ) {
         fprintf ( stderr, "Altaircam_get_ExpoAGain failed\n" );
         return -OA_ERR_CAMERA_IO;
@@ -611,7 +624,8 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_SPEED:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( pl_Altaircam_get_Speed )( cameraInfo->handle, &val_u16 )) < 0 ) {
+      if ((( p_legacyAltaircam_get_Speed )( cameraInfo->handle, &val_u16 ))
+					< 0 ) {
         fprintf ( stderr, "Altaircam_get_Speed failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -621,7 +635,8 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_HUE:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( pl_Altaircam_get_Hue )( cameraInfo->handle, &val_s32 )) < 0 ) {
+      if ((( p_legacyAltaircam_get_Hue )( cameraInfo->handle, &val_s32 ))
+					< 0 ) {
         fprintf ( stderr, "Altaircam_get_Hue failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -631,7 +646,7 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_SATURATION:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( pl_Altaircam_get_Saturation )( cameraInfo->handle,
+      if ((( p_legacyAltaircam_get_Saturation )( cameraInfo->handle,
           &val_s32 )) < 0 ){
         fprintf ( stderr, "Altaircam_get_Saturation failed\n" );
         return -OA_ERR_CAMERA_IO;
@@ -646,7 +661,7 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
     {
       int gain[3];
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( pl_Altaircam_get_WhiteBalanceGain )( cameraInfo->handle,
+      if ((( p_legacyAltaircam_get_WhiteBalanceGain )( cameraInfo->handle,
           gain )) < 0 ) {
         fprintf ( stderr, "Altaircam_get_WhiteBalanceGain (gain[3]) failed\n" );
         return -OA_ERR_CAMERA_IO;
@@ -669,7 +684,7 @@ _processGetControl ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_TEMPERATURE:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( pl_Altaircam_get_Temperature )( cameraInfo->handle,
+      if ((( p_legacyAltaircam_get_Temperature )( cameraInfo->handle,
           &val_s16 )) < 0 ) {
         fprintf ( stderr, "Altaircam_get_Temperature failed\n" );
         return -OA_ERR_CAMERA_IO;
@@ -726,12 +741,12 @@ _processSetResolution ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
 
   // Reset the ROI
 
-  if ((( pl_Altaircam_put_Roi )( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
+  if ((( p_legacyAltaircam_put_Roi )( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
     fprintf ( stderr, "Can't clear Altaircam ROI\n" );
     return -OA_ERR_CAMERA_IO;
   }
 
-  if ((( pl_Altaircam_put_Size )( cameraInfo->handle, size->x, size->y )) < 0 ) {
+  if ((( p_legacyAltaircam_put_Size )( cameraInfo->handle, size->x, size->y )) < 0 ) {
     fprintf ( stderr, "Can't set Altaircam frame size %dx%d\n", size->x,
       size->y );
     return -OA_ERR_CAMERA_IO;
@@ -774,7 +789,7 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
   offsetX = (( cameraInfo->currentXResolution - x ) / 2 ) & ~1;
   offsetY = (( cameraInfo->currentYResolution - y ) / 2 ) & ~1;
 
-  if ((( pl_Altaircam_put_Roi )( cameraInfo->handle, offsetX, offsetY, x,
+  if ((( p_legacyAltaircam_put_Roi )( cameraInfo->handle, offsetX, offsetY, x,
       y )) < 0 ) {
     fprintf ( stderr, "Can't set Altaircam ROI ( %d, %d, %d, %d )\n",
         offsetX, offsetY, x, y );
@@ -814,7 +829,7 @@ _doStart ( ALTAIRCAM_STATE* cameraInfo )
 {
   int			ret;
 
-  if (( ret = ( pl_Altaircam_StartPushMode )( cameraInfo->handle,
+  if (( ret = ( p_legacyAltaircam_StartPushMode )( cameraInfo->handle,
       _AltairLegacyFrameCallback, cameraInfo )) < 0 ) {
     fprintf ( stderr, "%s: Altaircam_StartPushMode failed: 0x%x\n",
         __FUNCTION__, ret );
@@ -848,7 +863,7 @@ _doStop ( ALTAIRCAM_STATE* cameraInfo )
   cameraInfo->isStreaming = 0;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
-  if (( ret = ( pl_Altaircam_Stop )( cameraInfo->handle )) < 0 ) {
+  if (( ret = ( p_legacyAltaircam_Stop )( cameraInfo->handle )) < 0 ) {
     fprintf ( stderr, "%s: Altaircam_Stop failed: %d\n", __FUNCTION__, ret );
     return -OA_ERR_CAMERA_IO;
   }
@@ -868,7 +883,7 @@ _setBinning ( ALTAIRCAM_STATE* cameraInfo, int binMode )
 
   // Reset the ROI
 
-  if ((( pl_Altaircam_put_Roi )( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
+  if ((( p_legacyAltaircam_put_Roi )( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
     fprintf ( stderr, "Can't clear Altaircam ROI\n" );
     return -OA_ERR_CAMERA_IO;
   }
@@ -880,7 +895,7 @@ _setBinning ( ALTAIRCAM_STATE* cameraInfo, int binMode )
 
   x = cameraInfo->frameSizes[ binMode ].sizes[0].x;
   y = cameraInfo->frameSizes[ binMode ].sizes[0].y;
-  if ((( pl_Altaircam_put_Size )( cameraInfo->handle, x, y )) < 0 ) {
+  if ((( p_legacyAltaircam_put_Size )( cameraInfo->handle, x, y )) < 0 ) {
     fprintf ( stderr, "Can't set Altaircam frame size\n" );
     return -OA_ERR_CAMERA_IO;
   }
@@ -916,14 +931,14 @@ _setFrameFormat ( ALTAIRCAM_STATE* cameraInfo, int format )
     }
 
     raw = oaFrameFormats[ format ].rawColour ? 1 : 0;
-    if ((( pl_Altaircam_put_Option )( cameraInfo->handle, TOUPCAM_OPTION_RAW,
-        raw  )) < 0 ) {
+    if ((( p_legacyAltaircam_put_Option )( cameraInfo->handle,
+				TOUPCAM_OPTION_RAW, raw  )) < 0 ) {
       fprintf ( stderr, "Altaircam_put_Option ( raw, %d ) failed\n", raw );
       return -OA_ERR_CAMERA_IO;
     }
 
-    if ((( pl_Altaircam_put_Option )( cameraInfo->handle, TOUPCAM_OPTION_RGB48,
-        format == OA_PIX_FMT_RGB48LE ? 1 : 0 )) < 0 ) {
+    if ((( p_legacyAltaircam_put_Option )( cameraInfo->handle,
+				TOUPCAM_OPTION_RGB48, format == OA_PIX_FMT_RGB48LE ? 1 : 0 )) < 0 ) {
       fprintf ( stderr, "Altaircam_put_Option ( raw, %d ) failed\n", raw );
       return -OA_ERR_CAMERA_IO;
     }
@@ -936,8 +951,8 @@ _setFrameFormat ( ALTAIRCAM_STATE* cameraInfo, int format )
   // And now change the bit depth
 
   bitspp = oaFrameFormats[ format ].bitsPerPixel;
-  if ((( pl_Altaircam_put_Option )( cameraInfo->handle, TOUPCAM_OPTION_BITDEPTH,
-      ( bitspp > 8 ) ? 1 : 0  )) < 0 ) {
+  if ((( p_legacyAltaircam_put_Option )( cameraInfo->handle,
+			TOUPCAM_OPTION_BITDEPTH, ( bitspp > 8 ) ? 1 : 0  )) < 0 ) {
     fprintf ( stderr, "Altaircam_put_Option ( depth, %d ) failed\n",
         bitspp > 8 ? 1 : 0 );
     return -OA_ERR_CAMERA_IO;
