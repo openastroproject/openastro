@@ -2,7 +2,7 @@
  *
  * oacamprivate.h -- shared declarations not exposed to the cruel world
  *
- * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -28,6 +28,7 @@
 #define OA_CAM_PRIVATE_H
 
 #include <oa_common.h>
+#include <openastro/camera.h>
 #include <openastro/controller.h>
 
 #define OA_CLEAR(x)	memset ( &(x), 0, sizeof ( x ))
