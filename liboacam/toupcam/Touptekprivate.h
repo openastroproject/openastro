@@ -48,6 +48,8 @@
 #endif
 #endif
 
+extern int				_toupcamInitLibraryFunctionPointers ( void );
+
 extern const char*	( *p_Toupcam_Version )();
 extern unsigned		( *p_Toupcam_EnumV2 )( ToupcamInstV2* );
 extern HToupCam		( *p_Toupcam_Open )( const char* );

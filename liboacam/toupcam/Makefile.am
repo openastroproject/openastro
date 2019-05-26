@@ -32,7 +32,8 @@ AM_CPPFLAGS = \
 noinst_LTLIBRARIES = libtoupcam.la
 
 libtoupcam_la_SOURCES = Touptekoacam.c Touptekconnect.c Touptekcallback.c \
-	Touptekcontrol.c Touptekcontroller.c TouptekgetState.c Touptekroi.c
+	Touptekcontrol.c Touptekcontroller.c TouptekgetState.c Touptekroi.c \
+	TouptekDynloader.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
