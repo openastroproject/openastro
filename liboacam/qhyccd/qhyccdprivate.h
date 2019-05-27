@@ -29,6 +29,7 @@
 
 #include <qhyccd/qhyccd.h>
 
+extern int					_qhyccdInitLibraryFunctionPointers ( void );
 extern void					( *p_SetQHYCCDLogLevel )( uint8_t );
 extern void					( *p_EnableQHYCCDMessage )( bool );
 extern void					( *p_EnableQHYCCDLogFile )( bool );

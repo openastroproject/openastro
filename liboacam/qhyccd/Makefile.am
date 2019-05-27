@@ -32,7 +32,8 @@ AM_CPPFLAGS = \
 noinst_LTLIBRARIES = libqhyccd.la
 
 libqhyccd_la_SOURCES = qhyccdoacam.c qhyccdconnect.c qhyccdcontroller.c \
-	qhyccdcontrol.c qhyccdgetState.c qhyccdroi.c qhyccdcallback.c
+	qhyccdcontrol.c qhyccdgetState.c qhyccdroi.c qhyccdcallback.c \
+	qhyccdDynloader.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
