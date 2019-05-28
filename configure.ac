@@ -588,6 +588,7 @@ then
       AC_MSG_NOTICE([Using static libASICamera2 to avoid system libusb])
       LIBASI2_LDFLAGS=""
       mylibdir="`$PKG_CONFIG --variable=libdir libasicamera2`"
+			AC_DEFINE([HAVE_STATIC_LIBASICAMERA2],[1],[Using static libasicamera2])
       LIBASI2_LIBS="$mylibdir/libASICamera2.a"
     fi
     use_system_libasicamera2=yes
@@ -598,6 +599,7 @@ then
       AC_DEFINE([HAVE_LIBASI2],[1],[Have libASICamera2])
     ],[
       AC_DEFINE([HAVE_LIBASI2],[1],[Have libASICamera2])
+			AC_DEFINE([HAVE_STATIC_LIBASICAMERA2],[1],[Using static libasicamera2])
       AC_MSG_WARN([No suitable version of system libASICamera2 found.  Using internal version.])
     ])
   fi
@@ -1179,6 +1181,7 @@ if test $zwoSupportedArch -eq 1
 then
   if test "x$use_system_libasicamera2" == "xno"; then
     AC_DEFINE([HAVE_LIBASI2],[1],[Have libASICamera2])
+		AC_DEFINE([HAVE_STATIC_LIBASICAMERA2],[1],[Using static libasicamera2])
     LIBASI2_CFLAGS="-DHAVE_LIBASI2=1"
     LIBASI2_LIBS="\$(top_builddir)/ext/libASICamera/libASICamera2.a"
   fi
