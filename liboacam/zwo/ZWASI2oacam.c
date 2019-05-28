@@ -2,7 +2,8 @@
  *
  * ZWASI2oacam.c -- main entrypoint for ZW ASI Cameras, API v2
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -33,6 +34,8 @@
 #include "oacamprivate.h"
 #include "ZWASI.h"
 #include "ZWASI2oacam.h"
+#include "ZWASI2private.h"
+
 
 static const char *cameraNames[ ZWO_NUM_CAMERAS ] = {
   "ZWO ASI030MC", "ZWO ASI031MC", "ZWO ASI031MM", "ZWO ASI034MC",
@@ -70,7 +73,11 @@ oaZWASI2GetCameras ( CAMERA_LIST* deviceList, int flags )
   unsigned int		typesFound[ ZWO_NUM_CAMERAS + 1 ];
   int			j, cameraType, found;
 
-  if (( numFound = ASIGetNumOfConnectedCameras()) < 1 ) {
+	if (( ret = _asiInitLibraryFunctionPointers()) != OA_ERR_NONE ) {
+		return ret;
+	}
+
+  if (( numFound = p_ASIGetNumOfConnectedCameras()) < 1 ) {
     return 0;
   }
 
@@ -79,7 +86,7 @@ oaZWASI2GetCameras ( CAMERA_LIST* deviceList, int flags )
   }
 
   for ( i = 0; i < numFound; i++ ) {
-    ASIGetCameraProperty ( &camInfo, i );
+    p_ASIGetCameraProperty ( &camInfo, i );
     currName = camInfo.Name;
     found = 0;
     for ( j = 0; !found && j < ZWO_NUM_CAMERAS; j++ ) {

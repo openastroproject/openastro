@@ -33,7 +33,7 @@ noinst_LTLIBRARIES = libzwo.la
 
 if LIBASI2_COND
 ASI2SRC = ZWASI2oacam.c ZWASI2connect.c ZWASI2controller.c ZWASI2getState.c \
-  ZWASI2control.c
+  ZWASI2control.c ZWASI2dynloader.c
 endif
 
 libzwo_la_SOURCES = $(ASI2SRC) ZWASIcommonControl.c ZWASIcallback.c \

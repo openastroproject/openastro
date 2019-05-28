@@ -2,7 +2,7 @@
  *
  * ZWASI2connect.c -- Initialise ZW ASI cameras APIv2
  *
- * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -39,6 +39,7 @@
 #include "ZWASIoacam.h"
 #include "ZWASI2oacam.h"
 #include "ZWASIstate.h"
+#include "ZWASI2private.h"
 
 
 static void _ZWASIInitFunctionPointers ( oaCamera* );
@@ -92,13 +93,13 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   cameraInfo->index = devInfo->devIndex;
   cameraInfo->cameraType = devInfo->devType;
 
-  ASIGetCameraProperty ( &camInfo, cameraInfo->index );
+  p_ASIGetCameraProperty ( &camInfo, cameraInfo->index );
   cameraInfo->cameraId = camInfo.CameraID;
 
   OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
   
-  if ( ASIOpenCamera ( cameraInfo->cameraId )) {
+  if ( p_ASIOpenCamera ( cameraInfo->cameraId )) {
     fprintf ( stderr, "open of camera %ld failed\n", cameraInfo->cameraId );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
@@ -106,7 +107,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  if ( ASIInitCamera ( cameraInfo->cameraId )) {
+  if ( p_ASIInitCamera ( cameraInfo->cameraId )) {
     fprintf ( stderr, "init of camera %ld failed\n", cameraInfo->cameraId );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
@@ -124,7 +125,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   pthread_cond_init ( &cameraInfo->commandComplete, 0 );
   cameraInfo->isStreaming = 0;
 
-  if ( ASIGetNumOfControls ( cameraInfo->cameraId, &numControls )) {
+  if ( p_ASIGetNumOfControls ( cameraInfo->cameraId, &numControls )) {
     fprintf ( stderr, "%s: ASIGetNumOfControls returns error\n",
       __FUNCTION__ );
     free (( void* ) commonInfo );
@@ -134,7 +135,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   }
 
   for ( c = 0; c < numControls; c++ ) {
-    if ( !ASIGetControlCaps ( cameraInfo->cameraId, c, &controlCaps )) {
+    if ( !p_ASIGetControlCaps ( cameraInfo->cameraId, c, &controlCaps )) {
 
       switch ( controlCaps.ControlType ) {
 
@@ -147,7 +148,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) =
               controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentGain = currentValue;
           if ( controlCaps.IsAutoSupported ) {
@@ -171,7 +172,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentAbsoluteExposure = currentValue;
           if ( controlCaps.IsAutoSupported ) {
@@ -197,7 +198,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAMMA ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) =
               controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentGamma = currentValue;
           if ( controlCaps.IsAutoSupported ) {
@@ -221,7 +222,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_RED_BALANCE ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RED_BALANCE ) =
               controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentRedBalance = currentValue;
           if ( controlCaps.IsAutoSupported ) {
@@ -245,7 +246,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLUE_BALANCE ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLUE_BALANCE ) =
               controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentBlueBalance = currentValue;
           if ( controlCaps.IsAutoSupported ) {
@@ -269,7 +270,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BRIGHTNESS ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) =
               controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentBrightness = currentValue;
           if ( controlCaps.IsAutoSupported ) {
@@ -293,7 +294,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_USBTRAFFIC ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_USBTRAFFIC ) =
               controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentUSBTraffic = currentValue;
           if ( controlCaps.IsAutoSupported ) {
@@ -317,7 +318,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_OVERCLOCK ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_OVERCLOCK ) =
               controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentOverclock = currentValue;
           if ( controlCaps.IsAutoSupported ) {
@@ -341,7 +342,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HIGHSPEED ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HIGHSPEED ) =
               controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentHighSpeed = currentValue;
           /*
@@ -389,7 +390,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_COOLER ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER ) =
                 controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->coolerEnabled = currentValue;
           break;
@@ -404,7 +405,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_MONO_BIN_COLOUR ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_MONO_BIN_COLOUR ) =
               controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->monoBinning = currentValue;
           break;
@@ -417,7 +418,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_FAN ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FAN ) =
                 controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->fanEnabled = currentValue;
           break;
@@ -432,7 +433,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_PATTERN_ADJUST ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_PATTERN_ADJUST ) =
               controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->patternAdjust = currentValue;
           break;
@@ -447,7 +448,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_DEW_HEATER ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_DEW_HEATER ) =
               controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->dewHeater = currentValue;
           break;
@@ -466,7 +467,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_MAX_AUTO_EXPOSURE ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_MAX_AUTO_EXPOSURE ) =
               controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentSetPoint = currentValue;
           break;
@@ -481,7 +482,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TEMP_SETPOINT ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) =
               controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentSetPoint = currentValue;
           break;
@@ -498,7 +499,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_COOLER_POWER ) = 1;
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER_POWER ) =
               controlCaps.DefaultValue;
-          ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
+          p_ASIGetControlValue ( cameraInfo->cameraId, c, &currentValue,
               &autoSetting );
           cameraInfo->currentCoolerPower = currentValue;
 */
@@ -1335,7 +1336,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   cameraInfo->configuredBuffers = 0;
   camera->features.fixedFrameSizes = 0;
 
-  ASISetROIFormat ( cameraInfo->cameraId, cameraInfo->xSize,
+  p_ASISetROIFormat ( cameraInfo->cameraId, cameraInfo->xSize,
       cameraInfo->ySize, cameraInfo->binMode, cameraInfo->currentMode );
 
   // The largest buffer size we should need
@@ -1465,7 +1466,7 @@ oaZWASI2CloseCamera ( oaCamera* camera )
     pthread_cond_broadcast ( &cameraInfo->callbackQueued );
     pthread_join ( cameraInfo->callbackThread, &dummy );
 
-    ASICloseCamera ( cameraInfo->cameraId );
+    p_ASICloseCamera ( cameraInfo->cameraId );
 
     if ( cameraInfo->buffers ) {
       for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
