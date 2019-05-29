@@ -48,6 +48,7 @@
 #endif
 #endif
 
+extern int				_altairInitLibraryFunctionPointers ( void );
 
 extern const char*	( *p_Altaircam_Version )();
 extern unsigned		( *p_Altaircam_EnumV2 )( AltaircamInstV2* );

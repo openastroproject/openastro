@@ -32,7 +32,8 @@ AM_CPPFLAGS = \
 noinst_LTLIBRARIES = libaltair.la
 
 libaltair_la_SOURCES = Altairoacam.c Altairconnect.c Altaircallback.c \
-  Altaircontrol.c Altaircontroller.c AltairgetState.c Altairroi.c
+  Altaircontrol.c Altaircontroller.c AltairgetState.c Altairroi.c \
+	Altairdynloader.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

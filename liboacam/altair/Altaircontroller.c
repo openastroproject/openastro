@@ -404,7 +404,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         int gain[3];
         if ((( p_Altaircam_get_WhiteBalanceGain )( cameraInfo->handle,
             gain )) < 0 ) {
-          fprintf ( stderr, "Altaircam_get_WhiteBalanceGain (gain[3]) failed\n" );
+          fprintf ( stderr,
+							"Altaircam_get_WhiteBalanceGain (gain[3]) failed\n" );
           return -OA_ERR_CAMERA_IO;
         }
         switch ( control ) {
@@ -420,7 +421,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         }
         if ((( p_Altaircam_put_WhiteBalanceGain )( cameraInfo->handle,
             gain )) < 0 ) {
-          fprintf ( stderr, "Altaircam_put_WhiteBalanceGain (gain[3]) failed\n" );
+          fprintf ( stderr,
+							"Altaircam_put_WhiteBalanceGain (gain[3]) failed\n" );
           return -OA_ERR_CAMERA_IO;
         }
       } else {
@@ -936,8 +938,8 @@ _setFrameFormat ( ALTAIRCAM_STATE* cameraInfo, int format )
   // And now change the bit depth
 
   bitspp = oaFrameFormats[ format ].bitsPerPixel;
-  if ((( p_Altaircam_put_Option )( cameraInfo->handle, ALTAIRCAM_OPTION_BITDEPTH,
-      ( bitspp > 8 ) ? 1 : 0  )) < 0 ) {
+  if ((( p_Altaircam_put_Option )( cameraInfo->handle,
+			ALTAIRCAM_OPTION_BITDEPTH, ( bitspp > 8 ) ? 1 : 0  )) < 0 ) {
     fprintf ( stderr, "Altaircam_put_Option ( depth, %d ) failed\n",
         bitspp > 8 ? 1 : 0 );
     return -OA_ERR_CAMERA_IO;
