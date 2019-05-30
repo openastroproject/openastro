@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * zwoInit.c -- Initialise ZWO filter wheels
+ * zwoConnect.c -- Initialise ZWO filter wheels
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -37,6 +37,7 @@
 #include "oafwprivate.h"
 #include "unimplemented.h"
 #include "zwofw.h"
+#include "zwofwprivate.h"
 
 
 static void _zwoInitFunctionPointers ( oaFilterWheel* );
@@ -56,27 +57,28 @@ oaZWOInitFilterWheel ( oaFilterWheelDevice* device )
 
   devInfo = device->_private;
 
-  if (( err = EFWGetID ( devInfo->devIndex, &wheelInfo.ID )) != EFW_SUCCESS ) {
+  if (( err = p_EFWGetID ( devInfo->devIndex, &wheelInfo.ID )) !=
+			EFW_SUCCESS ) {
     fprintf ( stderr, "%s: EFWGetID returns error %d\n", __FUNCTION__, err );
     return 0;
   }
-  if (( err = EFWOpen ( wheelInfo.ID )) != EFW_SUCCESS ) {
+  if (( err = p_EFWOpen ( wheelInfo.ID )) != EFW_SUCCESS ) {
     fprintf ( stderr, "%s: EFWOpen returns error %d\n", __FUNCTION__, err );
     return 0;
   }
-  if (( err = EFWGetProperty ( wheelInfo.ID, &wheelInfo )) != EFW_SUCCESS ) {
+  if (( err = p_EFWGetProperty ( wheelInfo.ID, &wheelInfo )) != EFW_SUCCESS ) {
     fprintf ( stderr, "%s: EFWGetProperty returns error %d\n",
         __FUNCTION__, err );
     return 0;
   }
 
   if (!( wheel = ( oaFilterWheel* ) malloc ( sizeof ( oaFilterWheel )))) {
-    EFWClose ( wheelInfo.ID );
+    p_EFWClose ( wheelInfo.ID );
     perror ( "malloc oaFilterWheel failed" );
     return 0;
   }
   if (!( privateInfo = ( PRIVATE_INFO* ) malloc ( sizeof ( PRIVATE_INFO )))) {
-    EFWClose ( wheelInfo.ID );
+    p_EFWClose ( wheelInfo.ID );
     ( void ) free (( void* ) wheel );
     perror ( "malloc oaFilterWheel failed" );
     return 0;
@@ -159,7 +161,7 @@ oaZWOWheelClose ( oaFilterWheel* wheel )
   PRIVATE_INFO*		privateInfo;
 
   privateInfo = wheel->_private;
-  EFWClose ( privateInfo->index );
+  p_EFWClose ( privateInfo->index );
   privateInfo->initialised = 0;
   return 0;
 }

@@ -49,7 +49,7 @@ checkSystemLibaltaircamlegacy=0
 checkSystemLibqhyccd=0
 useisystemInclude=0
 build_libusb=no
-zwoSupportedArch=1
+zwoSupportedArch=yes
 case $host in
   *-linux-*)
     checkQtForPIC=1
@@ -582,13 +582,14 @@ then
     # can't use shared libASICamera2 if we're not using the system libusb
     # because it will try to pull it in anyhow
     if test "x$use_system_libusb" == "xyes"; then
-      LIBASI2_LDFLAGS="`$PKG_CONFIG --libs-only-L libasicamera2`"
-      LIBASI2_LIBS="`$PKG_CONFIG --libs-only-l libasicamera2`"
+			# LIBASI2_LDFLAGS="`$PKG_CONFIG --libs-only-L libasicamera2`"
+			# LIBASI2_LIBS="`$PKG_CONFIG --libs-only-l libasicamera2`"
+			:
     else
       AC_MSG_NOTICE([Using static libASICamera2 to avoid system libusb])
       LIBASI2_LDFLAGS=""
       mylibdir="`$PKG_CONFIG --variable=libdir libasicamera2`"
-			AC_DEFINE([HAVE_STATIC_LIBASICAMERA2],[1],[Using static libasicamera2])
+			AC_DEFINE([HAVE_STATIC_LIBASICAMERA2],[1],[Using static libASICamera2])
       LIBASI2_LIBS="$mylibdir/libASICamera2.a"
     fi
     use_system_libasicamera2=yes
@@ -599,7 +600,7 @@ then
       AC_DEFINE([HAVE_LIBASI2],[1],[Have libASICamera2])
     ],[
       AC_DEFINE([HAVE_LIBASI2],[1],[Have libASICamera2])
-			AC_DEFINE([HAVE_STATIC_LIBASICAMERA2],[1],[Using static libasicamera2])
+			AC_DEFINE([HAVE_STATIC_LIBASICAMERA2],[1],[Using static libASICamera2])
       AC_MSG_WARN([No suitable version of system libASICamera2 found.  Using internal version.])
     ])
   fi
@@ -618,24 +619,26 @@ then
     # can't use shared libEFWFilter if we're not using the system libusb
     # because it will try to pull it in anyhow
     if test "x$use_system_libusb" == "xyes"; then
-      LIBZWOFW_LDFLAGS="`$PKG_CONFIG --libs-only-L libefwfilter`"
-      LIBZWOFW_LIBS="`$PKG_CONFIG --libs-only-l libefwfilter`"
+			# LIBZWOFW_LDFLAGS="`$PKG_CONFIG --libs-only-L libefwfilter`"
+			# LIBZWOFW_LIBS="`$PKG_CONFIG --libs-only-l libefwfilter`"
+			:
     else
       AC_MSG_NOTICE([Using static libEFWFilter to avoid system libusb])
       LIBZWOFW_LDFLAGS=""
       mylibdir="`$PKG_CONFIG --variable=libdir libefwfilter`"
+			AC_DEFINE([HAVE_STATIC_LIBEFWFILTER],[1],[Using static libEFWFilter])
       LIBZWOFW_LIBS="$mylibdir/libEFWFilter.a"
     fi
-    have_libefwfilter=yes
     use_system_libefwfilter=yes
     AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
   else
     AC_CHECK_LIB([EFWFilter],[EFWGetNum],[
       LIBS="-lEFWFilter $LIBS"
       AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
-      have_libefwfilter=yes
     ],[
-      AC_MSG_WARN([No system libEFWFilter found. Using internal version.])
+			AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
+			AC_DEFINE([HAVE_STATIC_LIBEFWFILTER],[1],[Using static libEFWFilter])
+      AC_MSG_WARN([No suitable version of system libEFWFilter found. Using internal version.])
     ])
   fi
 fi
@@ -1166,7 +1169,7 @@ case $host in
   *)
     if test "x$use_system_libasicamera2" != "xyes" -o "x$use_system_libefwfilter" != "xyes"
     then
-      zwoSupportedArch=0
+      zwoSupportedArch=no
       AC_MSG_NOTICE([No compatible ASI library for architecture $host.])
       LIBASI2_CFLAGS="-DHAVE_LIBASI2=0"
       AC_MSG_NOTICE([No compatible ASI2 library for architecture $host.  Support for ASI cameras not included])
@@ -1177,16 +1180,17 @@ case $host in
     ;;
 esac
 
-if test $zwoSupportedArch -eq 1
+if test "x$zwoSupportedArch" == "xyes"
 then
   if test "x$use_system_libasicamera2" == "xno"; then
     AC_DEFINE([HAVE_LIBASI2],[1],[Have libASICamera2])
-		AC_DEFINE([HAVE_STATIC_LIBASICAMERA2],[1],[Using static libasicamera2])
+		AC_DEFINE([HAVE_STATIC_LIBASICAMERA2],[1],[Using static libASICamera2])
     LIBASI2_CFLAGS="-DHAVE_LIBASI2=1"
     LIBASI2_LIBS="\$(top_builddir)/ext/libASICamera/libASICamera2.a"
   fi
   if test "x$use_system_libefwfilter" == "xno"; then
     AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
+		AC_DEFINE([HAVE_STATIC_LIBEFWFILTER],[1],[Using static libEFWFilter])
     LIBZWOFW_CFLAGS="-DHAVE_LIBZWOFW=1"
     LIBZWOFW_LIBS="\$(top_builddir)/ext/libEFWFilter/libEFWFilter.a"
   fi
@@ -1280,8 +1284,8 @@ AC_SUBST(DYNLIB_EXTN_CFLAGS)
 AC_SUBST(MOC_CFLAGS)
 AC_SUBST(SHLIBS_CFLAGS)
 
-AM_CONDITIONAL([LIBASI2_COND], [test "x$LIBASI2_LIBS" != "x"])
-AM_CONDITIONAL([LIBZWOFW_COND], [test "x$LIBZWOFW_LIBS" != "x"])
+AM_CONDITIONAL([LIBASI2_COND], [test "x$zwoSupportedArch" == "xyes"])
+AM_CONDITIONAL([LIBZWOFW_COND], [test "x$zwoSupportedArch" == "xyes"])
 AM_CONDITIONAL([LIBV4L2_COND], [test "x$have_v4l2" == "xyes"])
 AM_CONDITIONAL([LIBDC1394_COND], [test "x$use_system_dc1394" == "xno"])
 AM_CONDITIONAL([LIBUDEV_COND], [test "x$have_udev" == "xyes"])

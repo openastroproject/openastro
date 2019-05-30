@@ -37,6 +37,7 @@
 #include "oafwprivate.h"
 #include "unimplemented.h"
 #include "zwofw.h"
+#include "zwofwprivate.h"
 
 
 static int	_processSetControl ( PRIVATE_INFO*, OA_COMMAND* );
@@ -157,7 +158,7 @@ _oaZWOMoveTo ( PRIVATE_INFO* wheelInfo, int slot )
 {
   pthread_mutex_lock ( &wheelInfo->ioMutex );
   // FIX ME -- check for errors
-  EFWSetPosition ( wheelInfo->index, slot - 1 );
+  p_EFWSetPosition ( wheelInfo->index, slot - 1 );
   pthread_mutex_unlock ( &wheelInfo->ioMutex );
 
   return 0;

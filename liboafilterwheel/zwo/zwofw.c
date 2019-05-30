@@ -36,6 +36,7 @@
 #include "oafwprivate.h"
 #include "unimplemented.h"
 #include "zwofw.h"
+#include "zwofwprivate.h"
 
 int
 oaZWOGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
@@ -47,25 +48,30 @@ oaZWOGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
   EFW_INFO              wheelInfo;
   EFW_ERROR_CODE        err;
 
-  if (( numFound = EFWGetNum()) < 1 ) {
+	if (( ret = _zwofwInitLibraryFunctionPointers()) != OA_ERR_NONE ) {
+		return ret;
+	}
+
+  if (( numFound = p_EFWGetNum()) < 1 ) {
     return 0;
   }
 
   for ( i = 0; i < numFound; i++ ) {
-    if (( err = EFWGetID ( i, &wheelInfo.ID )) != EFW_SUCCESS ) {
+    if (( err = p_EFWGetID ( i, &wheelInfo.ID )) != EFW_SUCCESS ) {
       fprintf ( stderr, "%s: EFWGetID returns error %d\n", __FUNCTION__, err );
       return 0;
     }
-    if (( err = EFWOpen ( wheelInfo.ID )) != EFW_SUCCESS ) {
+    if (( err = p_EFWOpen ( wheelInfo.ID )) != EFW_SUCCESS ) {
       fprintf ( stderr, "%s: EFWOpen returns error %d\n", __FUNCTION__, err );
       return 0;
     }
-    if (( err = EFWGetProperty ( wheelInfo.ID, &wheelInfo )) != EFW_SUCCESS ) {
+    if (( err = p_EFWGetProperty ( wheelInfo.ID, &wheelInfo )) !=
+				EFW_SUCCESS ) {
       fprintf ( stderr, "%s: EFWGetProperty returns error %d\n",
           __FUNCTION__, err );
       return 0;
     }
-    EFWClose ( wheelInfo.ID );
+    p_EFWClose ( wheelInfo.ID );
 
     if (!( wheel = malloc ( sizeof ( oaFilterWheelDevice )))) {
       return -OA_ERR_MEM_ALLOC;

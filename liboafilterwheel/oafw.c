@@ -84,9 +84,12 @@ oaGetFilterWheels( oaFilterWheelDevice*** deviceList )
     if ( oaFilterWheelInterfaces[i].interfaceType ) {
       if (( err = oaFilterWheelInterfaces[i].enumerate ( &list )) < 0 ) {
         _oaFreeFilterWheelDeviceList ( &list );
-        list.numFilterWheels = 0;
-        list.wheelList = 0;
-        return err;
+				if ( err != OA_ERR_LIBRARY_NOT_FOUND && err !=
+						OA_ERR_SYMBOL_NOT_FOUND ) {
+					list.numFilterWheels = 0;
+					list.wheelList = 0;
+					return err;
+				}
       }
     }
   }
