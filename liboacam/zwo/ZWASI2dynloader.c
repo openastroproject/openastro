@@ -428,7 +428,7 @@ _getDLSym ( void* libHandle, const char* symbol )
 
   addr = dlsym ( libHandle, symbol );
   if (( error = dlerror())) {
-    fprintf ( stderr, "libuvc DL error: %s\n", error );
+    fprintf ( stderr, "libASICamera2 DL error: %s\n", error );
     addr = 0;
   }
 

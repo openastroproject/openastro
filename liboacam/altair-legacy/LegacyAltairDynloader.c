@@ -1079,7 +1079,7 @@ _getDLSym ( void* libHandle, const char* symbol, int prefix )
 
   addr = dlsym ( libHandle, symbolBuffer );
   if (( error = dlerror())) {
-    fprintf ( stderr, "libaltaircam DL error: %s\n", error );
+    fprintf ( stderr, "libaltaircamlegacy DL error: %s\n", error );
     addr = 0;
   }
 
