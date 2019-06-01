@@ -429,13 +429,15 @@ then
     # can't use shared dc1394 if we're not using the system libusb because
     # it will try to pull it in anyhow
     if test "x$use_system_libusb" == "xyes"; then
-      LIBDC1394_LDFLAGS="`$PKG_CONFIG --libs-only-L libdc1394-2`"
-      LIBDC1394_LIBS="`$PKG_CONFIG --libs-only-l libdc1394-2`"
+			# LIBDC1394_LDFLAGS="`$PKG_CONFIG --libs-only-L libdc1394-2`"
+			# LIBDC1394_LIBS="`$PKG_CONFIG --libs-only-l libdc1394-2`"
+			:
       use_system_dc1394=yes
     else
       AC_MSG_NOTICE([Using static libdc1394 to avoid system libusb])
       LIBDC1394_LDFLAGS=""
       mylibdir="`$PKG_CONFIG --variable=libdir libdc1394-2`"
+			AC_DEFINE([HAVE_STATIC_LIBDC1394],[1],[Using static libdc1394])
       LIBDC1394_LIBS="$mylibdir/libdc1394.a $mylibdir/libraw1394.a"
     fi
     AC_DEFINE([HAVE_LIBDC1394],[1],[Have dc1394 library])

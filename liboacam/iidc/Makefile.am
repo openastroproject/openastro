@@ -33,7 +33,7 @@ AM_CPPFLAGS = \
 noinst_LTLIBRARIES = libiidc.la
 
 libiidc_la_SOURCES = IIDCoacam.c IIDCconnect.c IIDCgetState.c IIDCcontrol.c \
-  IIDCcontroller.c IIDCcallback.c
+  IIDCcontroller.c IIDCcallback.c IIDCdynloader.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

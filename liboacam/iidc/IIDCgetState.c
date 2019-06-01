@@ -2,7 +2,7 @@
  *
  * IIDCgetState.c -- state querying for IEEE1394/IIDC cameras
  *
- * Copyright 2013,2014,2015,2017,2018
+ * Copyright 2013,2014,2015,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -35,6 +35,7 @@
 #include "oacamprivate.h"
 #include "IIDCoacam.h"
 #include "IIDCstate.h"
+#include "IIDCprivate.h"
 
 
 int
@@ -72,7 +73,7 @@ oaIIDCCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
   int			numRates, numerator, denominator;
   unsigned int		i, matched;
 
-  if ( dc1394_video_get_supported_framerates ( cameraInfo->iidcHandle,
+  if ( p_dc1394_video_get_supported_framerates ( cameraInfo->iidcHandle,
       cameraInfo->currentIIDCMode, &framerates ) != DC1394_SUCCESS ) {
     fprintf ( stderr, "%s: dc1394_video_get_supported_framerates failed\n",
          __FUNCTION__ );
