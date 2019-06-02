@@ -586,7 +586,7 @@ then
     if test "x$use_system_libusb" == "xyes"; then
 			# LIBASI2_LDFLAGS="`$PKG_CONFIG --libs-only-L libasicamera2`"
 			# LIBASI2_LIBS="`$PKG_CONFIG --libs-only-l libasicamera2`"
-			:
+			use_system_libasicamera2=yes
     else
       AC_MSG_NOTICE([Using static libASICamera2 to avoid system libusb])
       LIBASI2_LDFLAGS=""
@@ -594,7 +594,6 @@ then
 			AC_DEFINE([HAVE_STATIC_LIBASICAMERA2],[1],[Using static libASICamera2])
       LIBASI2_LIBS="$mylibdir/libASICamera2.a"
     fi
-    use_system_libasicamera2=yes
     AC_DEFINE([HAVE_LIBASI2],[1],[Have libASICamera2])
   else
     AC_CHECK_LIB([ASICamera2],[ASIGetNumOfConnectedCameras],[
