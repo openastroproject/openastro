@@ -622,7 +622,7 @@ then
     if test "x$use_system_libusb" == "xyes"; then
 			# LIBZWOFW_LDFLAGS="`$PKG_CONFIG --libs-only-L libefwfilter`"
 			# LIBZWOFW_LIBS="`$PKG_CONFIG --libs-only-l libefwfilter`"
-			:
+			use_system_libefwfilter=yes
     else
       AC_MSG_NOTICE([Using static libEFWFilter to avoid system libusb])
       LIBZWOFW_LDFLAGS=""
@@ -630,7 +630,6 @@ then
 			AC_DEFINE([HAVE_STATIC_LIBEFWFILTER],[1],[Using static libEFWFilter])
       LIBZWOFW_LIBS="$mylibdir/libEFWFilter.a"
     fi
-    use_system_libefwfilter=yes
     AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
   else
     AC_CHECK_LIB([EFWFilter],[EFWGetNum],[
