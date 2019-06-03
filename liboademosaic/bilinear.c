@@ -2,7 +2,7 @@
  *
  * bilinear.c -- bilinear demosaic method
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -25,6 +25,8 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
+#include <stdint.h>
 #include <openastro/demosaic.h>
 
 #include "bilinear.h"
@@ -254,29 +256,283 @@ _bilinearGBRG8 ( void* source, void* target, int xSize, int ySize )
 }
 
 
+static void
+_bilinearRGGB16 ( void* source, void* target, int xSize, int ySize )
+{
+  int row, col, lastX, lastY;
+  uint16_t* s;
+  uint16_t* t;
+
+  // FIX ME -- handle first row/column
+  // FIX ME -- handle last row/column
+
+  // odd rows
+  // odd pixels, R avg(diagonals), G avg(vert/horiz), B direct copy
+  // even pixels, R avg(verticals), G direct copy, B avg(horizontals)
+  
+  lastX = xSize - 2;
+  lastY = ySize - 1;
+  for ( row = 1; row < lastY; row += 2 ) {
+    s = ( uint16_t* ) source + row * xSize + 1;
+    t = ( uint16_t* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col < lastX; col += 2 ) {
+      *t++ = ( *( s - xSize - 1 ) + *( s - xSize + 1 ) + *( s + xSize - 1 ) +
+          *( s + xSize + 1 )) / 4;  // R
+      *t++ = ( *( s - xSize ) + *( s - 1 ) + *( s + 1 ) +
+          *( s + xSize )) / 4;  // G
+      *t++ = *s;  // B
+      s++;
+      *t++ = ( *( s - xSize ) + *( s + xSize )) / 2;  // R
+      *t++ = *s;  // G
+      *t++ = ( *( s - 1 ) + *( s + 1 )) / 2;  // B
+      s++;
+    }
+  }
+
+  // even rows
+  // odd pixels, R avg(horizontals), G direct copy, B avg(verticals)
+  // even pixels, R direct copy, G avg(vert/horiz), B avg(diagonals)
+
+  for ( row = 2; row < lastY; row += 2 ) {
+    s = ( uint16_t* ) source + row * xSize + 1;
+    t = ( uint16_t* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col < lastX; col += 2 ) {
+      *t++ = ( *( s - 1 ) + *( s + 1 )) / 2;  // R
+      *t++ = *s;  // G
+      *t++ = ( *( s - xSize ) + *( s + xSize )) / 2;  // B
+      s++;
+      *t++ = *s;  // R
+      *t++ = ( *( s - xSize ) + *( s - 1 ) + *( s + 1 ) +
+          *( s + xSize )) / 4;  // G
+      *t++ = ( *( s - xSize - 1 ) + *( s - xSize + 1 ) + *( s + xSize - 1 ) +
+          *( s + xSize + 1 )) / 4;  // B
+      s++;
+    }
+  }
+}
+
+
+static void
+_bilinearBGGR16 ( void* source, void* target, int xSize, int ySize )
+{
+  int row, col, lastX, lastY;
+  uint16_t* s;
+  uint16_t* t;
+
+  // FIX ME -- handle first row/column
+  // FIX ME -- handle last row/column
+
+  // odd rows
+  // odd pixels, R direct copy, G avg(vert/horiz), B avg(diagonals)
+  // even pixels, R avg(horizontals), G direct copy, B avg(verticals)
+  
+  lastX = xSize - 2;
+  lastY = ySize - 1;
+  for ( row = 1; row < lastY; row += 2 ) {
+    s = ( uint16_t* ) source + row * xSize + 1;
+    t = ( uint16_t* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col < lastX; col += 2 ) {
+      *t++ = *s;  // R
+      *t++ = ( *( s - xSize ) + *( s - 1 ) + *( s + 1 ) +
+          *( s + xSize )) / 4;  // G
+      *t++ = ( *( s - xSize - 1 ) + *( s - xSize + 1 ) + *( s + xSize - 1 ) +
+          *( s + xSize + 1 )) / 4;  // B
+      s++;
+      *t++ = ( *( s - 1 ) + *( s + 1 )) / 2;  // R
+      *t++ = *s;  // G
+      *t++ = ( *( s - xSize ) + *( s + xSize )) / 2;  // B
+      s++;
+    }
+  }
+
+  // even rows
+  // odd pixels, R avg(verticals), G direct copy, B avg(horizontals)
+  // even pixels, R avg(diagonals), G avg(vert/horiz), B direct copy
+
+  for ( row = 2; row < lastY; row += 2 ) {
+    s = ( uint16_t* ) source + row * xSize + 1;
+    t = ( uint16_t* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col < lastX; col += 2 ) {
+      *t++ = ( *( s - xSize ) + *( s + xSize )) / 2;  // R
+      *t++ = *s;  // G
+      *t++ = ( *( s - 1 ) + *( s + 1 )) / 2;  // B
+      s++;
+      *t++ = ( *( s - xSize - 1 ) + *( s - xSize + 1 ) + *( s + xSize - 1 ) +
+          *( s + xSize + 1 )) / 4;  // R
+      *t++ = ( *( s - xSize ) + *( s - 1 ) + *( s + 1 ) +
+          *( s + xSize )) / 4;  // G
+      *t++ = *s;  // B
+      s++;
+    }
+  }
+}
+
+
+static void
+_bilinearGRBG16 ( void* source, void* target, int xSize, int ySize )
+{
+  int row, col, lastX, lastY;
+  uint16_t* s;
+  uint16_t* t;
+
+  // FIX ME -- handle first row/column
+  // FIX ME -- handle last row/column
+
+  // odd rows
+  // odd pixels, R avg(verticals), G direct copy, B avg(horizontals)
+  // even pixels, R avg(diagonals), G avg(vert/horiz), B direct copy
+  
+  lastX = xSize - 2;
+  lastY = ySize - 1;
+  for ( row = 1; row < lastY; row += 2 ) {
+    s = ( uint16_t* ) source + row * xSize + 1;
+    t = ( uint16_t* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col < lastX; col += 2 ) {
+      *t++ = ( *( s - xSize ) + *( s + xSize )) / 2;  // R
+      *t++ = *s;  // G
+      *t++ = ( *( s - 1 ) + *( s + 1 )) / 2;  // B
+      s++;
+      *t++ = ( *( s - xSize - 1 ) + *( s - xSize + 1 ) + *( s + xSize - 1 ) +
+          *( s + xSize + 1 )) / 4;  // R
+      *t++ = ( *( s - xSize ) + *( s - 1 ) + *( s + 1 ) +
+          *( s + xSize )) / 4;  // G
+      *t++ = *s;  // B
+      s++;
+    }
+  }
+
+  // even rows
+  // odd pixels, R direct copy, G avg(vert/horiz), B avg(diagonals)
+  // even pixels, R avg(horizontals), G direct copy, B avg(verticals)
+
+  for ( row = 2; row < lastY; row += 2 ) {
+    s = ( uint16_t* ) source + row * xSize + 1;
+    t = ( uint16_t* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col < lastX; col += 2 ) {
+      *t++ = *s;  // R
+      *t++ = ( *( s - xSize ) + *( s - 1 ) + *( s + 1 ) +
+          *( s + xSize )) / 4;  // G
+      *t++ = ( *( s - xSize - 1 ) + *( s - xSize + 1 ) + *( s + xSize - 1 ) +
+          *( s + xSize + 1 )) / 4;  // B
+      s++;
+      *t++ = ( *( s - 1 ) + *( s + 1 )) / 2;  // R
+      *t++ = *s;  // G
+      *t++ = ( *( s - xSize ) + *( s + xSize )) / 2;  // B
+      s++;
+    }
+  }
+}
+
+
+static void
+_bilinearGBRG16 ( void* source, void* target, int xSize, int ySize )
+{
+  int row, col, lastX, lastY;
+  uint16_t* s;
+  uint16_t* t;
+
+  // FIX ME -- handle first row/column
+  // FIX ME -- handle last row/column
+
+  // odd rows
+  // odd pixels, R avg(horizontals), G direct copy, B avg(verticals)
+  // even pixels, R direct copy, G avg(vert/horiz), B avg(diagonals)
+  
+  lastX = xSize - 2;
+  lastY = ySize - 1;
+  for ( row = 1; row < lastY; row += 2 ) {
+    s = ( uint16_t* ) source + row * xSize + 1;
+    t = ( uint16_t* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col < lastX; col += 2 ) {
+      *t++ = ( *( s - 1 ) + *( s + 1 )) / 2;  // R
+      *t++ = *s;  // G
+      *t++ = ( *( s - xSize ) + *( s + xSize )) / 2;  // B
+      s++;
+      *t++ = *s;  // R
+      *t++ = ( *( s - xSize ) + *( s - 1 ) + *( s + 1 ) +
+          *( s + xSize )) / 4;  // G
+      *t++ = ( *( s - xSize - 1 ) + *( s - xSize + 1 ) + *( s + xSize - 1 ) +
+          *( s + xSize + 1 )) / 4;  // B
+      s++;
+    }
+  }
+
+  // even rows
+  // odd pixels, R avg(diagonals), G avg(vert/horiz), B direct copy
+  // even pixels, R avg(verticals), G direct copy, B avg(horizontals)
+
+  for ( row = 2; row < lastY; row += 2 ) {
+    s = ( uint16_t* ) source + row * xSize + 1;
+    t = ( uint16_t* ) target + ( row * xSize + 1 ) * 3;
+    for ( col = 1; col < lastX; col += 2 ) {
+      *t++ = ( *( s - xSize - 1 ) + *( s - xSize + 1 ) + *( s + xSize - 1 ) +
+          *( s + xSize + 1 )) / 4;  // R
+      *t++ = ( *( s - xSize ) + *( s - 1 ) + *( s + 1 ) +
+          *( s + xSize )) / 4;  // G
+      *t++ = *s;  // B
+      s++;
+      *t++ = ( *( s - xSize ) + *( s + xSize )) / 2;  // R
+      *t++ = *s;  // G
+      *t++ = ( *( s - 1 ) + *( s + 1 )) / 2;  // B
+      s++;
+    }
+  }
+}
+
+
 void
 oadBilinear ( void* source, void* target, int xSize, int ySize,
     int bitDepth, int format )
 {
-  // FIX ME
-  if ( bitDepth != 8 ) {
-    fprintf ( stderr, "demosaic: %s can only handle 8-bit data\n",
-        __FUNCTION__ );
-    return;
-  }
+	int done = 0;
 
-  switch ( format ) {
-    case OA_DEMOSAIC_RGGB:
-      _bilinearRGGB8 ( source, target, xSize, ySize );
-      break;
-    case OA_DEMOSAIC_BGGR:
-      _bilinearBGGR8 ( source, target, xSize, ySize );
-      break;
-    case OA_DEMOSAIC_GRBG:
-      _bilinearGRBG8 ( source, target, xSize, ySize );
-      break;
-    case OA_DEMOSAIC_GBRG:
-      _bilinearGBRG8 ( source, target, xSize, ySize );
-      break;
-  }
+
+	if ( bitDepth == 8 ) {
+		switch ( format ) {
+			case OA_DEMOSAIC_RGGB:
+				_bilinearRGGB8 ( source, target, xSize, ySize );
+				done = 1;
+				break;
+			case OA_DEMOSAIC_BGGR:
+				_bilinearBGGR8 ( source, target, xSize, ySize );
+				done = 1;
+				break;
+			case OA_DEMOSAIC_GRBG:
+				_bilinearGRBG8 ( source, target, xSize, ySize );
+				done = 1;
+				break;
+			case OA_DEMOSAIC_GBRG:
+				_bilinearGBRG8 ( source, target, xSize, ySize );
+				done = 1;
+				break;
+		}
+	}
+
+	if ( bitDepth == 16 ) {
+		switch ( format ) {
+			case OA_DEMOSAIC_RGGB:
+				_bilinearRGGB16 ( source, target, xSize, ySize );
+				done = 1;
+				break;
+			case OA_DEMOSAIC_BGGR:
+				_bilinearBGGR16 ( source, target, xSize, ySize );
+				done = 1;
+				break;
+			case OA_DEMOSAIC_GRBG:
+				_bilinearGRBG16 ( source, target, xSize, ySize );
+				done = 1;
+				break;
+			case OA_DEMOSAIC_GBRG:
+				_bilinearGBRG16 ( source, target, xSize, ySize );
+				done = 1;
+				break;
+		}
+	}
+
+	if ( !done ) {
+    fprintf ( stderr, "demosaic: %s cannot handle %d-bit data for format %d\n",
+        __FUNCTION__, bitDepth, format );
+	}
+
+	return;
 }
