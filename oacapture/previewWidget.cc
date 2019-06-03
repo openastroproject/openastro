@@ -598,7 +598,9 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
               self->previewImageBuffer[ currentPreviewBuffer ],
               commonConfig.imageSizeX, commonConfig.imageSizeY, 8, cfaPattern,
               demosaicConf.demosaicMethod );
-          if ( demosaicConf.demosaicOutput && previewBuffer == writeBuffer ) {
+          if ( demosaicConf.demosaicOutput && previewBuffer == writeBuffer
+							&& oaFrameFormats[ self->videoFramePixelFormat ].bytesPerPixel
+							== 1 ) {
             writeDemosaicPreviewBuffer = 1;
           }
           previewPixelFormat = OA_DEMOSAIC_FMT ( previewPixelFormat );
@@ -719,15 +721,16 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length )
           // cause harm
           writeBuffer = previewBuffer;
         } else {
-          // we can use the preview buffer here because we're done with it
-          // for actual preview purposes
+          // we can use the preview buffer here for the output image because
+					// we're done with it for actual preview purposes
           // If it's possible that the write CFA pattern is not the same
           // as the preview one, this code will need fixing to reset
           // cfaPattern, but I can't see that such a thing is possible
           // at the moment
           ( void ) oademosaic ( writeBuffer,
-              self->previewImageBuffer[0], actualX, actualY, 8, cfaPattern,
-              demosaicConf.demosaicMethod );
+              self->previewImageBuffer[0], actualX, actualY,
+							oaFrameFormats[ self->videoFramePixelFormat ].bitsPerPixel,
+							cfaPattern, demosaicConf.demosaicMethod );
           writeBuffer = self->previewImageBuffer[0];
         }
         writePixelFormat = OA_DEMOSAIC_FMT ( writePixelFormat );
