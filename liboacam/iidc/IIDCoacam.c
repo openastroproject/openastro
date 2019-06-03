@@ -57,6 +57,10 @@ oaIIDCGetCameras ( CAMERA_LIST* deviceList, int flags )
   oaCameraDevice*       dev;
   DEVICE_INFO*		_private;
 
+  if (( ret = _iidcInitLibraryFunctionPointers()) != OA_ERR_NONE ) {
+    return ret;
+  }
+
   iidcContext = p_dc1394_new();
   if ( !iidcContext ) {
     fprintf ( stderr, "Can't get IIDC context\n" );

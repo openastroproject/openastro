@@ -27,6 +27,8 @@
 #ifndef OA_IIDC_PRIVATE_H
 #define OA_IIDC_PRIVATE_H
 
+extern int							_iidcInitLibraryFunctionPointers ( void );
+
 extern dc1394error_t		( *p_dc1394_camera_enumerate )( dc1394_t*,
 														dc1394camera_list_t ** );
 extern void							( *p_dc1394_camera_free )( dc1394camera_t* );
