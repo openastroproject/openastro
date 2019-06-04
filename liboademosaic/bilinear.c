@@ -486,7 +486,6 @@ oadBilinear ( void* source, void* target, int xSize, int ySize,
 {
 	int done = 0;
 
-
 	if ( bitDepth == 8 ) {
 		switch ( format ) {
 			case OA_DEMOSAIC_RGGB:
