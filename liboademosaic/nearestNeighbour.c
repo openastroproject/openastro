@@ -930,7 +930,6 @@ oadNearestNeighbour ( void* source, void* target, int xSize, int ySize,
 {
 	int	done = 0;
 
-fprintf ( stderr, "nn\n" );
 	if ( bitDepth == 8 ) {
 		switch ( format ) {
 			case OA_DEMOSAIC_RGGB:
