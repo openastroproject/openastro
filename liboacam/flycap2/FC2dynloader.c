@@ -88,6 +88,10 @@ fc2Error              ( *p_fc2StartCaptureCallback )( fc2Context,
 fc2Error              ( *p_fc2StopCapture )( fc2Context );
 fc2Error				      ( *p_fc2GetImageMetadata )( fc2Image*,
 													fc2ImageMetadata* );
+fc2Error							( *p_fc2GetEmbeddedImageInfo )( fc2Context,
+													fc2EmbeddedImageInfo* );
+fc2Error							( *p_fc2SetEmbeddedImageInfo )( fc2Context,
+													fc2EmbeddedImageInfo* );
 
 #if HAVE_LIBDL
 static void*		_getDLSym ( void*, const char* );
@@ -303,6 +307,18 @@ _fc2InitLibraryFunctionPointers ( void )
 		libHandle = 0;
 		return OA_ERR_SYMBOL_NOT_FOUND;
   }
+  if (!( *( void** )( &p_fc2GetEmbeddedImageInfo ) = _getDLSym ( libHandle,
+      "fc2GetEmbeddedImageInfo" ))) {
+    dlclose ( libHandle );
+		libHandle = 0;
+		return OA_ERR_SYMBOL_NOT_FOUND;
+  }
+  if (!( *( void** )( &p_fc2SetEmbeddedImageInfo ) = _getDLSym ( libHandle,
+      "fc2SetEmbeddedImageInfo" ))) {
+    dlclose ( libHandle );
+		libHandle = 0;
+		return OA_ERR_SYMBOL_NOT_FOUND;
+  }
 
 #else /* HAVE_LIBDL */
 
@@ -338,6 +354,8 @@ _fc2InitLibraryFunctionPointers ( void )
   p_fc2StartCaptureCallback = fc2StartCaptureCallback;
   p_fc2StopCapture = fc2StopCapture;
   p_fc2GetImageMetadata = fc2GetImageMetadata;
+  p_fc2GetEmbeddedImageInfo = fc2GetEmbeddedImageInfo;
+  p_fc2SetEmbeddedImageInfo = fc2SetEmbeddedImageInfo;
 
 #endif /* HAVE_LIBDL */
 

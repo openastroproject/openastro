@@ -153,7 +153,8 @@ _FC2FrameCallback ( fc2Image *frame, void *ptr )
       dataLength = cameraInfo->imageBufferLength;
     }
     nextBuffer = cameraInfo->nextBuffer;
-		if ( p_fc2GetImageMetadata ( frame, &metadata ) != FC2_ERROR_OK ) {
+		if ( !cameraInfo->haveFrameCounter || p_fc2GetImageMetadata ( frame,
+				&metadata ) != FC2_ERROR_OK ) {
 			cameraInfo->metadataBuffers[ nextBuffer ].frameCounterValid = 0;
 		} else {
 			cameraInfo->metadataBuffers[ nextBuffer ].frameCounter =

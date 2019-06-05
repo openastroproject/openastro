@@ -76,6 +76,10 @@ extern fc2Error       ( *p_fc2StartCaptureCallback )( fc2Context,
 extern fc2Error       ( *p_fc2StopCapture )( fc2Context );
 extern fc2Error       ( *p_fc2GetImageMetadata )( fc2Image*,
 													fc2ImageMetadata* );
+extern fc2Error				( *p_fc2GetEmbeddedImageInfo )( fc2Context,
+													fc2EmbeddedImageInfo* );
+extern fc2Error				( *p_fc2SetEmbeddedImageInfo )( fc2Context,
+													fc2EmbeddedImageInfo* );
 
 
 #endif	/* OA_FC2_OACAM_H */

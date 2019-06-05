@@ -116,6 +116,7 @@ oaFC2InitCamera ( oaCameraDevice* device )
   fc2StrobeInfo			strobeInfo;
   fc2StrobeControl		strobeControl;
   fc2CameraInfo			camInfo;
+	fc2EmbeddedImageInfo	embeddedInfo;
   unsigned int			i, j, numResolutions, found, xbin = 1;
   BOOL				supported;
   uint16_t			mask16;
@@ -1258,6 +1259,31 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     fprintf ( stderr, "Unsupported pixel formats exist: 0x%04x\n",
         imageInfo.pixelFormatBitField );
   }
+
+  if (( *p_fc2GetEmbeddedImageInfo )( pgeContext, &embeddedInfo ) !=
+      FC2_ERROR_OK ) {
+		fprintf ( stderr, "fc2GetEmbeddedImageInfo failed\n" );
+    ( *p_fc2DestroyContext )( pgeContext );
+    free (( void* ) commonInfo );
+    free (( void* ) cameraInfo );
+    free (( void* ) camera );
+    return 0;
+	}
+	if ( embeddedInfo.frameCounter.available ) {
+		cameraInfo->haveFrameCounter = 1;
+		if ( !embeddedInfo.frameCounter.onOff ) {
+			embeddedInfo.frameCounter.onOff = 1;
+			if (( *p_fc2SetEmbeddedImageInfo )( pgeContext, &embeddedInfo ) !=
+					FC2_ERROR_OK ) {
+				fprintf ( stderr, "fc2SetEmbeddedImageInfo failed\n" );
+				( *p_fc2DestroyContext )( pgeContext );
+				free (( void* ) commonInfo );
+				free (( void* ) cameraInfo );
+				free (( void* ) camera );
+				return 0;
+			}
+		}
+	}
 
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
 

@@ -59,6 +59,7 @@ typedef struct FC2_STATE {
   uint32_t		maxResolutionY;
   int			colour;
   int			cfaPattern;
+	int			haveFrameCounter;
   // image settings
   FRAMESIZES		frameSizes[ OA_MAX_BINNING+1 ];
   struct modeInfo*	frameModes[ OA_MAX_BINNING+1 ];
