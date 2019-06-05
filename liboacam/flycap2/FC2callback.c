@@ -2,7 +2,7 @@
  *
  * FC2callback.c -- Thread for handling callbacks to user code
  *
- * Copyright 2015,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -44,7 +44,7 @@ oacamFC2callbackHandler ( void* param )
   FC2_STATE*		cameraInfo = camera->_private;
   int			exitThread = 0;
   CALLBACK*		callback;
-  void*			(*callbackFunc)( void*, void*, int);
+  void*			(*callbackFunc)( void*, void*, int, void* );
 
   do {
     pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
@@ -69,7 +69,7 @@ oacamFC2callbackHandler ( void* param )
         case OA_CALLBACK_NEW_FRAME:
           callbackFunc = callback->callback;
           callbackFunc ( callback->callbackArg, callback->buffer,
-              callback->bufferLen );
+              callback->bufferLen, 0 );
           pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
           cameraInfo->buffersFree++;
           pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );

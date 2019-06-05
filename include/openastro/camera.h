@@ -2,7 +2,7 @@
  *
  * camera.h -- camera API header
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -97,7 +97,7 @@ typedef struct oaCameraFuncs {
                        int64_t** );
 
   int              ( *startStreaming )( struct oaCamera*,
-                       void* (*)(void*, void*, int), void* );
+                       void* (*)(void*, void*, int, void* ), void* );
   int              ( *stopStreaming )( struct oaCamera* );
   int              ( *isStreaming )( struct oaCamera* );
 

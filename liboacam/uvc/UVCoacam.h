@@ -49,7 +49,7 @@ extern int		oaUVCCameraGetControlDiscreteSet ( oaCamera*, int,
 				int32_t*, int64_t** );
 
 extern int		oaUVCCameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int), void* );
+				void* (*)(void*, void*, int, void* ), void* );
 extern int              oaUVCCameraStopStreaming ( oaCamera* );
 extern int              oaUVCCameraIsStreaming ( oaCamera* );
 

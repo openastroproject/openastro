@@ -44,7 +44,7 @@ extern int              oaTouptekCameraGetControlDiscreteSet ( oaCamera*, int,
                                 int32_t*, int64_t** );
 
 extern int		oaTouptekCameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int), void* );
+				void* (*)(void*, void*, int, void* ), void* );
 extern int		oaTouptekCameraStopStreaming ( oaCamera* );
 extern int		oaTouptekCameraIsStreaming ( oaCamera* );
 

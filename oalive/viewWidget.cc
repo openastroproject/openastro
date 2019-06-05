@@ -2,7 +2,7 @@
  *
  * viewWidget.cc -- class for the preview window in the UI (and more)
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -507,9 +507,10 @@ ViewWidget::setMonoPalette ( QColor colour )
 
 void*
 #ifdef OACAPTURE
-PreviewWidget::updatePreview ( void* args, void* imageData, int length )
+PreviewWidget::updatePreview ( void* args, void* imageData, int length,
+		void* metadata )
 #else
-ViewWidget::addImage ( void* args, void* imageData, int length )
+ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 #endif
 {
 	COMMON_STATE*	commonState = ( COMMON_STATE* ) args;

@@ -44,7 +44,7 @@ extern int              oaMallincamCameraGetControlDiscreteSet ( oaCamera*, int,
                                 int32_t*, int64_t** );
 
 extern int		oaMallincamCameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int), void* );
+				void* (*)(void*, void*, int, void* ), void* );
 extern int		oaMallincamCameraStopStreaming ( oaCamera* );
 extern int		oaMallincamCameraIsStreaming ( oaCamera* );
 

@@ -44,7 +44,7 @@ extern int              oaAltairCameraGetControlDiscreteSet ( oaCamera*, int,
                                 int32_t*, int64_t** );
 
 extern int		oaAltairCameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int), void* );
+				void* (*)(void*, void*, int, void* ), void* );
 extern int		oaAltairCameraStopStreaming ( oaCamera* );
 extern int		oaAltairCameraIsStreaming ( oaCamera* );
 

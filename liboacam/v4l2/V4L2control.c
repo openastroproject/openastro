@@ -2,7 +2,8 @@
  *
  * V4L2control.c -- control functions for V4L2 cameras
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -258,7 +259,7 @@ oaV4L2CameraSetResolution ( oaCamera* camera, int x, int y )
 
 int
 oaV4L2CameraStartStreaming ( oaCamera* camera,
-    void* (*callback)(void*, void*, int), void* callbackArg )
+    void* (*callback)(void*, void*, int, void* ), void* callbackArg )
 {
   OA_COMMAND    command;
   CALLBACK      callbackData;

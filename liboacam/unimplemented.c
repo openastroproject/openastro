@@ -61,8 +61,8 @@ _resetCamera ( oaCamera* camera )
 
 
 static int
-_startStreaming ( oaCamera* camera, void* (*callback)(void*, void*, int),
-    void* callbackArg )
+_startStreaming ( oaCamera* camera, void* (*callback)(void*, void*, int,
+		void* ), void* callbackArg )
 {
   fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
       camera->deviceName );

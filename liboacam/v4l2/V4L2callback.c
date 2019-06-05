@@ -2,7 +2,7 @@
  *
  * V4L2callback.c -- Thread for handling callbacks to user code
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -46,7 +46,7 @@ oacamV4L2callbackHandler ( void* param )
   V4L2_STATE*		cameraInfo = camera->_private;
   int			exitThread = 0, streaming;
   CALLBACK*		callback;
-  void*			(*callbackFunc)( void*, void*, int);
+  void*			(*callbackFunc)( void*, void*, int, void* );
   struct v4l2_buffer*	frameData;
 
   do {
@@ -74,7 +74,7 @@ oacamV4L2callbackHandler ( void* param )
           frameData = callback->buffer;
           callbackFunc ( callback->callbackArg,
               cameraInfo->buffers[ frameData->index ].start,
-              callback->bufferLen );
+              callback->bufferLen, 0 );
           // We can only requeue frames if we're still streaming
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
           streaming = cameraInfo->isStreaming;

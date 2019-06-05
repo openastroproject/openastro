@@ -2,7 +2,7 @@
  *
  * QHYcontrol.c -- control functions for QHY cameras
  *
- * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -172,7 +172,7 @@ oaQHYCameraSetResolution ( oaCamera* camera, int x, int y )
 
 int
 oaQHYCameraStartStreaming ( oaCamera* camera,
-    void* (*callback)(void*, void*, int), void* callbackArg )
+    void* (*callback)(void*, void*, int, void* ), void* callbackArg )
 {
   OA_COMMAND    command;
   CALLBACK      callbackData;

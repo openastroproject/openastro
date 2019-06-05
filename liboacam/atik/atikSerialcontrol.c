@@ -2,7 +2,7 @@
  *
  * atikSerialcontrol.c -- control functions for Atik serial cameras
  *
- * Copyright 2014,2015,2016,2017,2018
+ * Copyright 2014,2015,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -204,7 +204,7 @@ oaAtikSerialCameraSetResolution ( oaCamera* camera, int x, int y )
 
 int
 oaAtikSerialCameraStartStreaming ( oaCamera* camera,
-    void* (*callback)(void*, void*, int), void* callbackArg )
+    void* (*callback)(void*, void*, int, void* ), void* callbackArg )
 {
   OA_COMMAND		command;
   CALLBACK		callbackData;

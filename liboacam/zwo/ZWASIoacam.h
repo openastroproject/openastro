@@ -2,7 +2,7 @@
  *
  * ZWASIoacam.h -- header for ZW ASI camera API
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -42,7 +42,7 @@ extern int		oaZWASICameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
 
 extern int              oaZWASICameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int), void* );
+				void* (*)(void*, void*, int, void* ), void* );
 extern int              oaZWASICameraStopStreaming ( oaCamera* );
 extern int              oaZWASICameraIsStreaming ( oaCamera* );
 

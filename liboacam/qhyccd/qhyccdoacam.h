@@ -44,7 +44,7 @@ extern int              oaQHYCCDCameraGetControlDiscreteSet ( oaCamera*, int,
                                 int32_t*, int64_t** );
 
 extern int		oaQHYCCDCameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int), void* );
+				void* (*)(void*, void*, int, void* ), void* );
 extern int		oaQHYCCDCameraStopStreaming ( oaCamera* );
 extern int		oaQHYCCDCameraIsStreaming ( oaCamera* );
 

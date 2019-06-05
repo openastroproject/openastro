@@ -2,7 +2,7 @@
  *
  * viewWidget.h -- class declaration
  *
- * Copyright 2015,2016,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -52,7 +52,7 @@ class ViewWidget : public QFrame
     void		enableTempDisplay ( int );
     void		enableFlipX ( int );
     void		enableFlipY ( int );
-    static void*	addImage ( void*, void*, int );
+    static void*	addImage ( void*, void*, int, void* );
     void		restart ( void );
 
     void		updateFrameSize ( void );

@@ -41,7 +41,7 @@ extern int		oaDummyCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
 
 extern int		oaDummyCameraStartStreaming ( oaCamera*,
-								void* (*)(void*, void*, int), void* );
+								void* (*)(void*, void*, int, void* ), void* );
 extern int		oaDummyCameraStopStreaming ( oaCamera* );
 extern int		oaDummyCameraIsStreaming ( oaCamera* );
 

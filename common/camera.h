@@ -2,7 +2,7 @@
  *
  * camera.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2018
+ * Copyright 2013,2014,2015,2016,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -52,7 +52,7 @@ class Camera : public QObject
     int			initialise ( oaCameraDevice*, const char*, QWidget* );
     void		disconnect ( void );
 
-    int			start ( void* (*)(void*, void*, int), void* );
+    int			start ( void* (*)(void*, void*, int, void* ), void* );
     void		stop ( void );
     void		releaseImageData ( void );
 

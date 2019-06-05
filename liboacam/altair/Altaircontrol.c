@@ -275,7 +275,7 @@ oaAltairCameraSetROI ( oaCamera* camera, int x, int y )
 
 int
 oaAltairCameraStartStreaming ( oaCamera* camera,
-    void* (*callback)(void*, void*, int), void* callbackArg )
+    void* (*callback)(void*, void*, int, void* ), void* callbackArg )
 {
   OA_COMMAND		command;
   CALLBACK		callbackData;

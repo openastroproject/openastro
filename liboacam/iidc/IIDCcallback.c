@@ -45,7 +45,7 @@ oacamIIDCcallbackHandler ( void* param )
   IIDC_STATE*		cameraInfo = camera->_private;
   int			exitThread = 0;
   CALLBACK*		callback;
-  void*			(*callbackFunc)( void*, void*, int);
+  void*			(*callbackFunc)( void*, void*, int, void* );
   dc1394video_frame_t*	frameData;
 
   do {
@@ -72,7 +72,7 @@ oacamIIDCcallbackHandler ( void* param )
           callbackFunc = callback->callback;
           frameData = callback->buffer;
           callbackFunc ( callback->callbackArg, frameData->image,
-              callback->bufferLen );
+              callback->bufferLen, 0 );
           // We can only requeue frames if we're still streaming
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
           if ( cameraInfo->isStreaming ) {

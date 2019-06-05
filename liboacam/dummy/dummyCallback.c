@@ -43,7 +43,7 @@ oacamDummyCallbackHandler ( void* param )
   DUMMY_STATE*		cameraInfo = camera->_private;
   CALLBACK*		callback;
   int			exitThread = 0;
-  void*			(*callbackFunc)( void*, void*, int);
+  void*			(*callbackFunc)( void*, void*, int, void* );
 
   do {
     pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
@@ -68,7 +68,7 @@ oacamDummyCallbackHandler ( void* param )
         case OA_CALLBACK_NEW_FRAME:
           callbackFunc = callback->callback;
           callbackFunc ( callback->callbackArg, callback->buffer,
-              callback->bufferLen );
+              callback->bufferLen, 0 );
           pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
           cameraInfo->buffersFree++;
           pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );

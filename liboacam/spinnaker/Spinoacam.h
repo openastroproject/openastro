@@ -2,7 +2,7 @@
  *
  * Spinoacam.h -- header for Point Grey Spinnaker camera API
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -45,7 +45,7 @@ extern int		oaSpinCameraGetControlDiscreteSet ( oaCamera*, int,
 				int32_t*, int64_t** );
 
 extern int		oaSpinCameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int), void* );
+				void* (*)(void*, void*, int, void* ), void* );
 extern int		oaSpinCameraStopStreaming ( oaCamera* );
 extern int		oaSpinCameraIsStreaming ( oaCamera* );
 

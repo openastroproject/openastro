@@ -2,7 +2,7 @@
  *
  * previewWidget.cc -- class for the preview window in the UI (and more)
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -440,7 +440,8 @@ PreviewWidget::setMonoPalette ( QColor colour )
 
 
 void*
-PreviewWidget::updatePreview ( void* args, void* imageData, int length )
+PreviewWidget::updatePreview ( void* args, void* imageData, int length,
+		void* metadata )
 {
   COMMON_STATE*		commonState = ( COMMON_STATE* ) args;
   STATE*					state = ( STATE* ) commonState->localState;

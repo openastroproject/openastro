@@ -2,7 +2,8 @@
  *
  * FC2oacam.h -- header for Point Grey Gig-E camera API
  *
- * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -43,7 +44,7 @@ extern int		oaFC2CameraGetControlDiscreteSet ( oaCamera*, int,
 				int32_t*, int64_t** );
 
 extern int		oaFC2CameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int), void* );
+				void* (*)(void*, void*, int, void* ), void* );
 extern int		oaFC2CameraStopStreaming ( oaCamera* );
 extern int		oaFC2CameraIsStreaming ( oaCamera* );
 

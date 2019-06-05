@@ -2,7 +2,7 @@
  *
  * camera.cc -- camera interface class
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -531,7 +531,7 @@ Camera::setFrameInterval ( int numerator, int denominator )
 
 
 int
-Camera::start ( void* ( *callback )( void*, void*, int ), void* state )
+Camera::start ( void* ( *callback )( void*, void*, int, void* ), void* state )
 {
   if ( !initialised ) {
     qWarning() << __FUNCTION__ << " called with camera uninitialised";

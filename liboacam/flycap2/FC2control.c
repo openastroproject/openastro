@@ -2,7 +2,8 @@
  *
  * FC2control.c -- control functions for Point Grey Gig-E cameras
  *
- * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -272,7 +273,7 @@ oaFC2CameraSetROI ( oaCamera* camera, int x, int y )
 
 int
 oaFC2CameraStartStreaming ( oaCamera* camera,
-    void* (*callback)(void*, void*, int), void* callbackArg )
+    void* (*callback)(void*, void*, int, void* ), void* callbackArg )
 {
   OA_COMMAND    command;
   CALLBACK      callbackData;

@@ -2,7 +2,7 @@
  *
  * previewWidget.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2018
+ * Copyright 2013,2014,2015,2016,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -64,7 +64,7 @@ class PreviewWidget : public QFrame
     void		enableDemosaic ( int );
     void		enableScreenUpdates ( int );
     void		setDisplayFPS ( int );
-    static void*	updatePreview ( void*, void*, int );
+    static void*	updatePreview ( void*, void*, int, void* );
     void		setFirstFrameTime ( void );
     void		beginRecording ( void );
     void		forceRecordingStop ( void );

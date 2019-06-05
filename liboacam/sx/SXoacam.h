@@ -42,7 +42,7 @@ extern int		oaSXCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
 
 extern int		oaSXCameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int), void* );
+				void* (*)(void*, void*, int, void* ), void* );
 extern int              oaSXCameraStopStreaming ( oaCamera* );
 extern int              oaSXCameraIsStreaming ( oaCamera* );
 
