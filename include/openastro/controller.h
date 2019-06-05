@@ -2,7 +2,8 @@
  *
  * controller.h -- common definitions for device controller queues
  *
- * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -42,6 +43,7 @@ typedef struct {
   void*                 callback;
   void*                 callbackArg;
   void*                 buffer;
+  void*                 metadata;
   int                   bufferLen;
 } CALLBACK;
 

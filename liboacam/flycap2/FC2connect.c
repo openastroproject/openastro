@@ -1267,6 +1267,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY * cameraInfo->maxBytesPerPixel;
   cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct FC2buffer ));
+  cameraInfo->metadataBuffers = calloc ( OA_CAM_BUFFERS,
+			sizeof ( FRAME_METADATA ));
   for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
     void* m = malloc ( cameraInfo->imageBufferLength );
     if ( m ) {
@@ -1282,6 +1284,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       }
       // FIX ME -- free frame data
       ( *p_fc2DestroyContext )( pgeContext );
+      free (( void* ) cameraInfo->metadataBuffers );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -1298,6 +1301,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       oacamFC2controller, ( void* ) camera )) {
+    free (( void* ) cameraInfo->metadataBuffers );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -1312,6 +1316,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     cameraInfo->stopControllerThread = 1;
     pthread_cond_broadcast ( &cameraInfo->commandQueued );
     pthread_join ( cameraInfo->controllerThread, &dummy );
+    free (( void* ) cameraInfo->metadataBuffers );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -1387,6 +1392,7 @@ oaFC2CloseCamera ( oaCamera* camera )
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
     oaDLListDelete ( cameraInfo->callbackQueue, 1 );
 
+    free (( void* ) cameraInfo->metadataBuffers );
     free (( void* ) camera->_common );
     free (( void* ) cameraInfo );
     free (( void* ) camera );

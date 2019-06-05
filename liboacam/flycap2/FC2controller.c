@@ -139,9 +139,10 @@ oacamFC2controller ( void* param )
 void
 _FC2FrameCallback ( fc2Image *frame, void *ptr )
 {
-  FC2_STATE*    cameraInfo = ptr;
-  int           buffersFree, nextBuffer;
-  unsigned int  dataLength;
+  FC2_STATE*				cameraInfo = ptr;
+  int								buffersFree, nextBuffer;
+  unsigned int			dataLength;
+	fc2ImageMetadata	metadata;
 
   pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
   buffersFree = cameraInfo->buffersFree;
@@ -152,6 +153,13 @@ _FC2FrameCallback ( fc2Image *frame, void *ptr )
       dataLength = cameraInfo->imageBufferLength;
     }
     nextBuffer = cameraInfo->nextBuffer;
+		if ( p_fc2GetImageMetadata ( frame, &metadata ) != FC2_ERROR_OK ) {
+			cameraInfo->metadataBuffers[ nextBuffer ].frameCounterValid = 0;
+		} else {
+			cameraInfo->metadataBuffers[ nextBuffer ].frameCounter =
+					metadata.embeddedFrameCounter;
+			cameraInfo->metadataBuffers[ nextBuffer ].frameCounterValid = 1;
+		}
     ( void ) memcpy ( cameraInfo->buffers[ nextBuffer ].start, frame->pData,
         dataLength );
     cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
@@ -162,6 +170,8 @@ _FC2FrameCallback ( fc2Image *frame, void *ptr )
         cameraInfo->streamingCallback.callbackArg;
     cameraInfo->frameCallbacks[ nextBuffer ].buffer =
         cameraInfo->buffers[ nextBuffer ].start;
+    cameraInfo->frameCallbacks[ nextBuffer ].metadata =
+        &( cameraInfo->metadataBuffers[ nextBuffer ]);
     cameraInfo->frameCallbacks[ nextBuffer ].bufferLen = dataLength;
     pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
     oaDLListAddToTail ( cameraInfo->callbackQueue,

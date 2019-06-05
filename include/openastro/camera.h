@@ -78,6 +78,11 @@ typedef struct FRAMERATES {
   FRAMERATE*		rates;
 } FRAMERATES;
 
+typedef struct FRAME_METADATA {
+	unsigned int		frameCounterValid : 1;
+	unsigned int		frameCounter;
+} FRAME_METADATA;
+
 struct oaCamera;
 struct oaCameraDevice;
 

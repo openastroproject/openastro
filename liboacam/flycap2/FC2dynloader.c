@@ -86,6 +86,8 @@ fc2Error              ( *p_fc2SetTriggerMode )( fc2Context, fc2TriggerMode* );
 fc2Error              ( *p_fc2StartCaptureCallback )( fc2Context,
                           fc2ImageEventCallback, void* );
 fc2Error              ( *p_fc2StopCapture )( fc2Context );
+fc2Error				      ( *p_fc2GetImageMetadata )( fc2Image*,
+													fc2ImageMetadata* );
 
 #if HAVE_LIBDL
 static void*		_getDLSym ( void*, const char* );
@@ -295,6 +297,12 @@ _fc2InitLibraryFunctionPointers ( void )
 		libHandle = 0;
 		return OA_ERR_SYMBOL_NOT_FOUND;
   }
+  if (!( *( void** )( &p_fc2GetImageMetadata ) = _getDLSym ( libHandle,
+      "fc2GetImageMetadata" ))) {
+    dlclose ( libHandle );
+		libHandle = 0;
+		return OA_ERR_SYMBOL_NOT_FOUND;
+  }
 
 #else /* HAVE_LIBDL */
 
@@ -329,6 +337,7 @@ _fc2InitLibraryFunctionPointers ( void )
   p_fc2SetTriggerMode = fc2SetTriggerMode;
   p_fc2StartCaptureCallback = fc2StartCaptureCallback;
   p_fc2StopCapture = fc2StopCapture;
+  p_fc2GetImageMetadata = fc2GetImageMetadata;
 
 #endif /* HAVE_LIBDL */
 

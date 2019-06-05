@@ -46,6 +46,7 @@ typedef struct FC2_STATE {
   unsigned int		availableBinModes;
   // buffering for image transfers
   struct FC2buffer*	buffers;
+	FRAME_METADATA*		metadataBuffers;
   int			configuredBuffers;
   int			nextBuffer;
   int			buffersFree;

@@ -69,7 +69,7 @@ oacamFC2callbackHandler ( void* param )
         case OA_CALLBACK_NEW_FRAME:
           callbackFunc = callback->callback;
           callbackFunc ( callback->callbackArg, callback->buffer,
-              callback->bufferLen, 0 );
+              callback->bufferLen, callback->metadata );
           pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
           cameraInfo->buffersFree++;
           pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );

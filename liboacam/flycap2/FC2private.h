@@ -74,6 +74,8 @@ extern fc2Error       ( *p_fc2SetTriggerMode )( fc2Context, fc2TriggerMode* );
 extern fc2Error       ( *p_fc2StartCaptureCallback )( fc2Context,
                           fc2ImageEventCallback, void* );
 extern fc2Error       ( *p_fc2StopCapture )( fc2Context );
+extern fc2Error       ( *p_fc2GetImageMetadata )( fc2Image*,
+													fc2ImageMetadata* );
 
 
 #endif	/* OA_FC2_OACAM_H */
