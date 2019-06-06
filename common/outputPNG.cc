@@ -541,6 +541,14 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
+	if ( metadata && metadata->frameCounterValid ) {
+		pngComments[ numComments ].key = ( char* ) "FRAMESEQ";
+		( void ) sprintf ( stringBuffs[ numComments ], "%d",
+				metadata->frameCounter );
+		pngComments[ numComments ].text = stringBuffs[ numComments ];
+		numComments++;
+	}
+
   for ( i = 0; i < numComments; i++ ) {
     pngComments[i].compression = PNG_TEXT_COMPRESSION_NONE;
   }

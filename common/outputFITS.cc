@@ -557,6 +557,11 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 				&status );
   }
 
+	if ( metadata && metadata->frameCounterValid ) {
+		fits_write_key_lng ( fptr, "FRAMESEQ", metadata->frameCounter, "",
+				&status );
+	}
+
   if ( fits_write_img ( fptr, tableType, 1, elements * ( nAxes == 3 ? 3 : 1 ),
       outputBuffer, &status )) {
     if ( status ) {
