@@ -2,7 +2,7 @@
  *
  * outputTIFF.cc -- TIFF output class
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -29,6 +29,7 @@
 
 extern "C" {
 #include <tiffio.h>
+#include <openastro/camera.h>
 #include <openastro/video/formats.h>
 };
 
@@ -175,7 +176,7 @@ OutputTIFF::openOutput ( void )
 
 int
 OutputTIFF::addFrame ( void* frame, const char* timestampStr, int64_t expTime,
-    const char* commentStr )
+    const char* commentStr, FRAME_METADATA* metadata )
 {
   int            ret, i;
   TIFF*          handle;

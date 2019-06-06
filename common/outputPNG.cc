@@ -2,7 +2,8 @@
  *
  * outputPNG.cc -- PNG output class
  *
- * Copyright 2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -177,7 +178,7 @@ OutputPNG::openOutput ( void )
 
 int
 OutputPNG::addFrame ( void* frame, const char* timestampStr,
-    int64_t expTime, const char* commentStr )
+    int64_t expTime, const char* commentStr, FRAME_METADATA* metadata )
 {
   int			i;
   FILE*			handle;

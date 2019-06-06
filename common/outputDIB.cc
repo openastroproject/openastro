@@ -2,7 +2,8 @@
  *
  * outputDIB.cc -- Windows DIB AVI output class
  *
- * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -27,6 +28,10 @@
 #include <oa_common.h>
 
 #include <QtGui>
+
+extern "C" {
+#include <openastro/camera.h>
+}
 
 #include "pipp_avi_write_dib.h"
 #include "commonState.h"
@@ -95,7 +100,7 @@ OutputDIB::openOutput ( void )
 
 int
 OutputDIB::addFrame ( void* frame, const char* timestampStr, int64_t expTime,
-    const char* commentStr )
+    const char* commentStr, FRAME_METADATA* metadata )
 {
   outputFile->write_frame (( uint8_t* ) frame, 0, bpp, 0 );
   frameCount++;

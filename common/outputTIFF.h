@@ -2,7 +2,7 @@
  *
  * outputTIFF.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -41,7 +41,8 @@ class OutputTIFF : public OutputHandler
 							QString, trampolineFuncs* );
     			~OutputTIFF();
     int			openOutput ( void );
-    int			addFrame ( void*, const char*, int64_t, const char* );
+    int			addFrame ( void*, const char*, int64_t, const char*,
+								FRAME_METADATA* );
     void		closeOutput ( void );
     int			outputExists ( void );
     int			outputWritable ( void );

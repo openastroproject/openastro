@@ -904,7 +904,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
       }
       if ( output->addFrame ( writeBuffer, timestamp,
           // This call should be thread-safe
-          state->controlWidget->getCurrentExposure(), comment ) < 0 ) {
+          state->controlWidget->getCurrentExposure(), comment,
+					( FRAME_METADATA* ) metadata ) < 0 ) {
         self->recordingInProgress = 0;
         self->manualStop = 0;
         state->autorunEnabled = 0;
@@ -1100,7 +1101,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     timestamp = 0;
     comment = 0;
     output->addFrame ( viewBuffer, timestamp,
-        state->cameraControls->getCurrentExposure(), comment );
+        state->cameraControls->getCurrentExposure(), comment,
+				( FRAME_METADATA* ) metadata );
   }
   commonState->captureIndex++;
 

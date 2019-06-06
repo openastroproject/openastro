@@ -2,7 +2,7 @@
  *
  * outputDIB.h -- class declaration
  *
- * Copyright 2015,2016,2017,2018
+ * Copyright 2015,2016,2017,2018,2019
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -38,7 +38,8 @@ class OutputDIB : public OutputHandler
     			OutputDIB ( int, int, int, int, int, QString, trampolineFuncs* );
     			~OutputDIB();
     int			openOutput ( void );
-    int			addFrame ( void*, const char*, int64_t, const char* );
+    int			addFrame ( void*, const char*, int64_t, const char*,
+								FRAME_METADATA* );
     int			outputExists ( void );
     int			outputWritable ( void );
     void		closeOutput();

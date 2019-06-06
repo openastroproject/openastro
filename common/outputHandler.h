@@ -2,7 +2,7 @@
  *
  * outputHandler.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -35,6 +35,10 @@
 #include <QtCore>
 #include <QtGui>
 
+extern "C" {
+#include <openastro/camera.h>
+}
+
 #include "trampoline.h"
 
 
@@ -47,7 +51,7 @@ class OutputHandler
 
     virtual int		openOutput() = 0;
     virtual int		addFrame ( void*, const char*, int64_t,
-                            const char* ) = 0;
+                            const char*, FRAME_METADATA* ) = 0;
     virtual void	closeOutput() = 0;
     virtual int		outputExists ( void ) = 0;
     virtual int		outputWritable ( void ) = 0;

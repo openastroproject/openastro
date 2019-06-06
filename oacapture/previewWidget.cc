@@ -749,7 +749,8 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
       }
       if ( output->addFrame ( writeBuffer, timestamp,
           // This call should be thread-safe
-          state->controlWidget->getCurrentExposure(), comment ) < 0 ) {
+          state->controlWidget->getCurrentExposure(), comment,
+					( FRAME_METADATA* ) metadata ) < 0 ) {
         self->recordingInProgress = 0;
         self->manualStop = 0;
         state->autorunEnabled = 0;
