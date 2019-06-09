@@ -286,7 +286,7 @@ CaptureWidget::CaptureWidget ( QWidget* parent ) : QGroupBox ( parent )
   startButton->setEnabled ( 0 );
   pauseButton->setEnabled ( 0 );
   stopButton->setEnabled ( 0 );
-  if ( commonConfig.autorunCount && commonConfig.limitEnabled &&
+  if ( autorunConf.autorunCount && commonConfig.limitEnabled &&
     (( commonConfig.framesLimitValue && commonConfig.limitType ) ||
     ( commonConfig.secondsLimitValue && !commonConfig.limitType ))) {
     autorunButton->setEnabled ( 1 );
@@ -455,7 +455,7 @@ CaptureWidget::startRecording ( void )
     int numRuns, numDigits;
     unsigned long long numFrames = 0, maxFrames;
 
-    numRuns = state.autorunEnabled ? commonConfig.autorunCount : 1;
+    numRuns = state.autorunEnabled ? autorunConf.autorunCount : 1;
     switch ( commonConfig.limitType ) {
       case 0:
         numFrames = commonConfig.secondsLimitValue * state.currentFPS;
@@ -484,7 +484,7 @@ CaptureWidget::startRecording ( void )
   doStartRecording ( 0 );
   if ( state.autorunEnabled ) {
     emit changeAutorunLabel ( "1 of " +
-        QString::number ( commonConfig.autorunCount ));
+        QString::number ( autorunConf.autorunCount ));
   }
 }
 
@@ -760,7 +760,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
 
   if ( state.autorunEnabled ) {
     if ( !autorunFlag ) {
-      state.autorunRemaining = commonConfig.autorunCount;
+      state.autorunRemaining = autorunConf.autorunCount;
       filterSequenceRemaining = filterConf.autorunFilterSequence.count();
     }
   }
@@ -779,7 +779,7 @@ CaptureWidget::stopRecording ( void )
     state.autorunRemaining = 0;
   }
   state.previewWidget->forceRecordingStop();
-  if ( commonConfig.autorunCount && commonConfig.limitEnabled &&
+  if ( autorunConf.autorunCount && commonConfig.limitEnabled &&
       (( commonConfig.framesLimitValue  && commonConfig.limitType ) ||
       ( commonConfig.secondsLimitValue && !commonConfig.limitType ))) {
     autorunButton->setEnabled ( 1 );
@@ -1028,7 +1028,7 @@ CaptureWidget::enableAutorun ( void )
   autorunButton->setEnabled ( 1 );
   autorunButton->setIcon ( QIcon ( ":/qt-icons/clicknrun.png" ) );
   autorunLabel->setText ( "0 of " +
-			QString::number ( commonConfig.autorunCount ));
+			QString::number ( autorunConf.autorunCount ));
   // set this to 0 to stop autorun being started automagicallly until
   // the first one is kicked off with the start button
   state.autorunStartNext = 0;
@@ -1065,9 +1065,9 @@ void
 CaptureWidget::startNewAutorun ( void )
 {
   doStartRecording ( 1 );
-  emit changeAutorunLabel ( QString::number ( commonConfig.autorunCount -
+  emit changeAutorunLabel ( QString::number ( autorunConf.autorunCount -
       state.autorunRemaining + 1 ) + " of " +
-      QString::number ( commonConfig.autorunCount ));
+      QString::number ( autorunConf.autorunCount ));
   state.autorunStartNext = 0;
 }
 
@@ -1075,7 +1075,7 @@ CaptureWidget::startNewAutorun ( void )
 void
 CaptureWidget::resetAutorun ( void )
 {
-  if ( commonConfig.autorunCount ) {
+  if ( autorunConf.autorunCount ) {
     enableAutorun();
     state.autorunEnabled = 1;
     emit writeStatusMessage ( tr ( "Autorun Enabled" ));
@@ -1692,7 +1692,7 @@ CaptureWidget::setButtonsForRecordingStopped ( void )
   startButton->setEnabled ( 1 );
   pauseButton->setEnabled ( 0 );
   stopButton->setEnabled ( 0 );
-  if ( commonConfig.autorunCount && commonConfig.limitEnabled &&
+  if ( autorunConf.autorunCount && commonConfig.limitEnabled &&
       (( commonConfig.framesLimitValue  && commonConfig.limitType ) ||
       ( commonConfig.secondsLimitValue && !commonConfig.limitType ))) {
     autorunButton->setEnabled ( 1 );

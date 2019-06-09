@@ -53,8 +53,6 @@ typedef struct
   int							secondsLimitValue;
   int							framesLimitValue;
   int							limitType;
-  int							autorunCount;
-  int							autorunDelay;
 
 	// options
 	int							demosaic;

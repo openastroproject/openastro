@@ -853,7 +853,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
           // that the GUI changes it makes must be done indirectly
           // FIX ME -- doing it with invokeMethod would be nicer though
           if ( state->captureWidget->singleAutorunFinished()) {
-            state->autorunStartNext = now + 1000 * commonConfig.autorunDelay;
+            state->autorunStartNext = now + 1000 * autorunConf.autorunDelay;
           }
         }
       } else {
