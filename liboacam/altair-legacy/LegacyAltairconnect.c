@@ -587,8 +587,11 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
     if ((( p_legacyAltaircam_get_Resolution )( handle, i, &x, &y )) < 0 ) {
       fprintf ( stderr, "failed to get resolution %d\n", i );
       ( p_legacyAltaircam_Close )( handle );
-      // FIX ME -- free the other sizes here too
-      free (( void* ) cameraInfo->frameSizes[1].sizes );
+			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+				if ( cameraInfo->frameSizes[ j ].numSizes ) {
+					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				}
+			}
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -611,7 +614,11 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
           cameraInfo->frameSizes[ binX ].sizes, sizeof ( FRAMESIZE ) * 2 ))) {
         fprintf ( stderr, "malloc for frame sizes failed\n" );
         ( p_legacyAltaircam_Close )( handle );
-        // FIX ME -- free the other sizes here too
+				for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+					if ( cameraInfo->frameSizes[ j ].numSizes ) {
+						free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+					}
+				}
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
         free (( void* ) camera );
@@ -651,11 +658,15 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
-          cameraInfo->buffers[j].start = 0;
         }
       }
-      // FIX ME -- free frame data
       ( p_legacyAltaircam_Close )( handle );
+			free (( void* ) cameraInfo->buffers );
+			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+				if ( cameraInfo->frameSizes[ j ].numSizes ) {
+					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				}
+			}
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -672,6 +683,15 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
 
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       oacamAltairLegacycontroller, ( void* ) camera )) {
+		for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+			free (( void* ) cameraInfo->buffers[j].start );
+		}
+		free (( void* ) cameraInfo->buffers );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+			}
+		}
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -686,6 +706,15 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
     cameraInfo->stopControllerThread = 1;
     pthread_cond_broadcast ( &cameraInfo->commandQueued );
     pthread_join ( cameraInfo->controllerThread, &dummy );
+		for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+			free (( void* ) cameraInfo->buffers[j].start );
+		}
+		free (( void* ) cameraInfo->buffers );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+			}
+		}
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -736,6 +765,7 @@ oaAltairLegacyCloseCamera ( oaCamera* camera )
 {
   void*			dummy;
   ALTAIRCAM_STATE*	cameraInfo;
+	int				j;
 
   if ( camera ) {
 
@@ -751,11 +781,18 @@ oaAltairLegacyCloseCamera ( oaCamera* camera )
 
     ( p_legacyAltaircam_Close ) ( cameraInfo->handle );
 
-    free (( void* ) cameraInfo->frameSizes[1].sizes );
-
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
     oaDLListDelete ( cameraInfo->callbackQueue, 1 );
 
+		for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+			free (( void* ) cameraInfo->buffers[j].start );
+		}
+		free (( void* ) cameraInfo->buffers );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+			}
+		}
     free (( void* ) camera->_common );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
