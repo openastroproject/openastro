@@ -2,7 +2,8 @@
  *
  * EUVCstate.h -- EUVC state header
  *
- * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -60,6 +61,8 @@ typedef struct EUVC_STATE {
   // USB connection data
   libusb_context*       usbContext;
   libusb_device_handle* usbHandle;
+	int							reattachControlIface;
+	int							reattachStreamIface;
   // video mode settings
   // buffering for image transfers
   struct EUVCbuffer*	buffers;

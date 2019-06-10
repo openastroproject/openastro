@@ -247,6 +247,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   ( void ) strcpy ( camera->deviceName, device->deviceName );
   cameraInfo->initialised = 0;
   cameraInfo->index = -1;
+	cameraInfo->reattachControlIface = 0;
+	cameraInfo->reattachStreamIface = 0;
 
   // FIX ME -- This is a bit ugly.  Much of it is repeated from the
   // getCameras function.  I should join the two together somehow.
@@ -349,11 +351,16 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   }
 
   if ( libusb_kernel_driver_active ( usbHandle, interfaceNo )) {
-    libusb_detach_kernel_driver( usbHandle, interfaceNo );
+		// This will fail on MacOS
+    if ( !libusb_detach_kernel_driver( usbHandle, interfaceNo ))
+			cameraInfo->reattachControlIface = 1;
   }
 
   if ( libusb_claim_interface ( usbHandle, cameraInfo->controlInterfaceNo )) {
     fprintf ( stderr, "Unable to claim interface for USB device!\n" );
+		if ( cameraInfo->reattachControlIface ) {
+			libusb_attach_kernel_driver( usbHandle, cameraInfo->controlInterfaceNo );
+		}
     libusb_exit ( cameraInfo->usbContext );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
@@ -367,6 +374,10 @@ oaEUVCInitCamera ( oaCameraDevice* device )
       &cameraTypeFlags ) != 1 ) {
     fprintf ( stderr, "euvcReadRegister for reg %d returns error\n",
         EUVC_REG_CAMERA_TYPE );
+		if ( cameraInfo->reattachControlIface ) {
+			libusb_attach_kernel_driver ( usbHandle, cameraInfo->controlInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
     libusb_exit ( cameraInfo->usbContext );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
@@ -394,6 +405,12 @@ oaEUVCInitCamera ( oaCameraDevice* device )
         if ( blockSize > 13 ) {
           fprintf ( stderr, "Not expecting more than one video stream\n" );
           libusb_free_config_descriptor ( deviceConfig );
+					if ( cameraInfo->reattachControlIface ) {
+						libusb_attach_kernel_driver ( usbHandle,
+								cameraInfo->controlInterfaceNo );
+					}
+					libusb_release_interface ( usbHandle,
+							cameraInfo->controlInterfaceNo );
           libusb_exit ( cameraInfo->usbContext );
           free (( void* ) commonInfo );
           free (( void* ) cameraInfo );
@@ -404,6 +421,12 @@ oaEUVCInitCamera ( oaCameraDevice* device )
           if ( _scanEUVCStream ( camera, deviceConfig, data[i] )) {
             fprintf ( stderr, "Scan of stream %d failed\n", i );
             libusb_free_config_descriptor ( deviceConfig );
+						if ( cameraInfo->reattachControlIface ) {
+							libusb_attach_kernel_driver ( usbHandle,
+									cameraInfo->controlInterfaceNo );
+						}
+						libusb_release_interface ( usbHandle,
+								cameraInfo->controlInterfaceNo );
             libusb_exit ( cameraInfo->usbContext );
             free (( void* ) commonInfo );
             free (( void* ) cameraInfo );
@@ -473,7 +496,18 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   if ( !cameraInfo->processingUnitId ) {
     fprintf ( stderr, "processing unit not found\n" );
     libusb_free_config_descriptor ( deviceConfig );
+		if ( cameraInfo->reattachControlIface ) {
+			libusb_attach_kernel_driver ( usbHandle,
+					cameraInfo->controlInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
     libusb_exit ( cameraInfo->usbContext );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				free (( void* ) cameraInfo->frameInfo[ j ]);
+			}
+		}
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
@@ -483,12 +517,33 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   if ( cameraInfo->streamInterfaceNo != cameraInfo->controlInterfaceNo ) {
     if ( libusb_kernel_driver_active ( usbHandle,
         cameraInfo->streamInterfaceNo )) {
-      libusb_detach_kernel_driver( usbHandle, cameraInfo->streamInterfaceNo );
+			// This will fail on MacOS
+      if ( !libusb_detach_kernel_driver( usbHandle,
+						cameraInfo->streamInterfaceNo )) {
+				cameraInfo->reattachStreamIface = 1;
+			}
     }
 
     if ( libusb_claim_interface ( usbHandle, cameraInfo->streamInterfaceNo )) {
       fprintf ( stderr, "Unable to claim interface for USB device!\n" );
       libusb_exit ( cameraInfo->usbContext );
+			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+				if ( cameraInfo->frameSizes[ j ].numSizes ) {
+					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+					free (( void* ) cameraInfo->frameInfo[ j ]);
+				}
+			}
+			if ( cameraInfo->reattachStreamIface ) {
+				libusb_attach_kernel_driver ( usbHandle,
+						cameraInfo->streamInterfaceNo );
+			}
+			libusb_release_interface ( usbHandle, cameraInfo->streamInterfaceNo );
+			if ( cameraInfo->reattachControlIface ) {
+				libusb_attach_kernel_driver ( usbHandle,
+						cameraInfo->controlInterfaceNo );
+			}
+			libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
+			libusb_exit ( cameraInfo->usbContext );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -957,7 +1012,21 @@ oaEUVCInitCamera ( oaCameraDevice* device )
       &buff, 2, EUVC_GET_CUR )) {
     fprintf ( stderr, "unable to get term capabilities\n" );
     libusb_free_config_descriptor ( deviceConfig );
+		if ( cameraInfo->reattachStreamIface ) {
+			libusb_attach_kernel_driver ( usbHandle, cameraInfo->streamInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->streamInterfaceNo );
+		if ( cameraInfo->reattachControlIface ) {
+			libusb_attach_kernel_driver ( usbHandle, cameraInfo->controlInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
     libusb_exit ( cameraInfo->usbContext );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				free (( void* ) cameraInfo->frameInfo[ j ]);
+			}
+		}
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
@@ -1012,7 +1081,21 @@ oaEUVCInitCamera ( oaCameraDevice* device )
       EUVC_GET_CUR )) < 0 ) {
     fprintf ( stderr, "unable to get PU capabilities\n" );
     libusb_free_config_descriptor ( deviceConfig );
+		if ( cameraInfo->reattachStreamIface ) {
+			libusb_attach_kernel_driver ( usbHandle, cameraInfo->streamInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->streamInterfaceNo );
+		if ( cameraInfo->reattachControlIface ) {
+			libusb_attach_kernel_driver ( usbHandle, cameraInfo->controlInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
     libusb_exit ( cameraInfo->usbContext );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				free (( void* ) cameraInfo->frameInfo[ j ]);
+			}
+		}
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
@@ -1025,7 +1108,23 @@ oaEUVCInitCamera ( oaCameraDevice* device )
           EUVC_PU_COLOR_FORMAT, 2, EUVC_GET_CUR )) < 0 ) {
         fprintf ( stderr, "unable to get colour formats\n" );
         libusb_free_config_descriptor ( deviceConfig );
+				if ( cameraInfo->reattachStreamIface ) {
+					libusb_attach_kernel_driver ( usbHandle,
+							cameraInfo->streamInterfaceNo );
+				}
+				libusb_release_interface ( usbHandle, cameraInfo->streamInterfaceNo );
+				if ( cameraInfo->reattachControlIface ) {
+					libusb_attach_kernel_driver ( usbHandle,
+							cameraInfo->controlInterfaceNo );
+				}
+				libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
         libusb_exit ( cameraInfo->usbContext );
+				for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+					if ( cameraInfo->frameSizes[ j ].numSizes ) {
+						free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+						free (( void* ) cameraInfo->frameInfo[ j ]);
+					}
+				}
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
         free (( void* ) camera );
@@ -1078,7 +1177,23 @@ oaEUVCInitCamera ( oaCameraDevice* device )
         buff, 4, EUVC_GET_MIN )) {
       fprintf ( stderr, "unable to get term capabilities\n" );
       libusb_free_config_descriptor ( deviceConfig );
+			if ( cameraInfo->reattachStreamIface ) {
+				libusb_attach_kernel_driver ( usbHandle,
+						cameraInfo->streamInterfaceNo );
+			}
+			libusb_release_interface ( usbHandle, cameraInfo->streamInterfaceNo );
+			if ( cameraInfo->reattachControlIface ) {
+				libusb_attach_kernel_driver ( usbHandle,
+						cameraInfo->controlInterfaceNo );
+			}
+			libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
       libusb_exit ( cameraInfo->usbContext );
+			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+				if ( cameraInfo->frameSizes[ j ].numSizes ) {
+					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+					free (( void* ) cameraInfo->frameInfo[ j ]);
+				}
+			}
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -1090,7 +1205,23 @@ oaEUVCInitCamera ( oaCameraDevice* device )
         buff, 4, EUVC_GET_MAX )) {
       fprintf ( stderr, "unable to get term capabilities\n" );
       libusb_free_config_descriptor ( deviceConfig );
+			if ( cameraInfo->reattachStreamIface ) {
+				libusb_attach_kernel_driver ( usbHandle,
+						cameraInfo->streamInterfaceNo );
+			}
+			libusb_release_interface ( usbHandle, cameraInfo->streamInterfaceNo );
+			if ( cameraInfo->reattachControlIface ) {
+				libusb_attach_kernel_driver ( usbHandle,
+						cameraInfo->controlInterfaceNo );
+			}
+			libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
       libusb_exit ( cameraInfo->usbContext );
+			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+				if ( cameraInfo->frameSizes[ j ].numSizes ) {
+					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+					free (( void* ) cameraInfo->frameInfo[ j ]);
+				}
+			}
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -1103,7 +1234,23 @@ oaEUVCInitCamera ( oaCameraDevice* device )
         &buff, 4, EUVC_GET_CUR )) {
       fprintf ( stderr, "unable to get term capabilities\n" );
       libusb_free_config_descriptor ( deviceConfig );
+			if ( cameraInfo->reattachStreamIface ) {
+				libusb_attach_kernel_driver ( usbHandle,
+						cameraInfo->streamInterfaceNo );
+			}
+			libusb_release_interface ( usbHandle, cameraInfo->streamInterfaceNo );
+			if ( cameraInfo->reattachControlIface ) {
+				libusb_attach_kernel_driver ( usbHandle,
+						cameraInfo->controlInterfaceNo );
+			}
+			libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
       libusb_exit ( cameraInfo->usbContext );
+			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+				if ( cameraInfo->frameSizes[ j ].numSizes ) {
+					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+					free (( void* ) cameraInfo->frameInfo[ j ]);
+				}
+			}
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -1134,6 +1281,22 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 
   if (!( cameraInfo->statusTransfer = libusb_alloc_transfer(0))) {
     fprintf ( stderr, "Can't allocate status transfer\n" );
+    libusb_free_config_descriptor ( deviceConfig );
+		if ( cameraInfo->reattachStreamIface ) {
+			libusb_attach_kernel_driver ( usbHandle, cameraInfo->streamInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->streamInterfaceNo );
+		if ( cameraInfo->reattachControlIface ) {
+			libusb_attach_kernel_driver ( usbHandle, cameraInfo->controlInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
+    libusb_exit ( cameraInfo->usbContext );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				free (( void* ) cameraInfo->frameInfo[ j ]);
+			}
+		}
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -1143,8 +1306,24 @@ oaEUVCInitCamera ( oaCameraDevice* device )
       USB_INTR_EP_IN, cameraInfo->statusBuffer,
       sizeof ( cameraInfo->statusBuffer ), euvcStatusCallback, cameraInfo, 0 );
   if ( libusb_submit_transfer ( cameraInfo->statusTransfer )) {
+		libusb_free_transfer ( cameraInfo->statusTransfer );
     fprintf ( stderr, "submit of status transfer callback failed\n" );
-    // FIX ME -- free interrupt transfer buffer?
+    libusb_free_config_descriptor ( deviceConfig );
+		if ( cameraInfo->reattachStreamIface ) {
+			libusb_attach_kernel_driver ( usbHandle, cameraInfo->streamInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->streamInterfaceNo );
+		if ( cameraInfo->reattachControlIface ) {
+			libusb_attach_kernel_driver ( usbHandle, cameraInfo->controlInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
+    libusb_exit ( cameraInfo->usbContext );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				free (( void* ) cameraInfo->frameInfo[ j ]);
+			}
+		}
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -1165,12 +1344,29 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
       sizeof ( struct EUVCbuffer )))) {
+    void* dummy;
     fprintf ( stderr, "malloc of buffer array failed in %s\n",
         __FUNCTION__ );
-    // FIX ME -- free interrupt transfer buffer?
-    // FIX ME -- kill event handler thread
-    free (( void* ) cameraInfo->frameSizes[1].sizes );
-    // free (( void* ) cameraInfo->frameSizes[2].sizes );
+		libusb_cancel_transfer ( cameraInfo->statusTransfer );
+    cameraInfo->stopCallbackThread = 1;
+    pthread_join ( cameraInfo->eventHandler, &dummy );
+		libusb_free_transfer ( cameraInfo->statusTransfer );
+    libusb_free_config_descriptor ( deviceConfig );
+		if ( cameraInfo->reattachStreamIface ) {
+			libusb_attach_kernel_driver ( usbHandle, cameraInfo->streamInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->streamInterfaceNo );
+		if ( cameraInfo->reattachControlIface ) {
+			libusb_attach_kernel_driver ( usbHandle, cameraInfo->controlInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
+    libusb_exit ( cameraInfo->usbContext );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				free (( void* ) cameraInfo->frameInfo[ j ]);
+			}
+		}
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -1184,16 +1380,35 @@ oaEUVCInitCamera ( oaCameraDevice* device )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
+			void* dummy;
       fprintf ( stderr, "%s malloc failed\n", __FUNCTION__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
         }
       }
-      // FIX ME -- free interrupt transfer buffer?
-      // FIX ME -- kill event handler thread
-      free (( void* ) cameraInfo->frameSizes[1].sizes );
-      // free (( void* ) cameraInfo->frameSizes[2].sizes );
+			libusb_cancel_transfer ( cameraInfo->statusTransfer );
+			cameraInfo->stopCallbackThread = 1;
+			pthread_join ( cameraInfo->eventHandler, &dummy );
+			libusb_free_transfer ( cameraInfo->statusTransfer );
+			libusb_free_config_descriptor ( deviceConfig );
+			if ( cameraInfo->reattachStreamIface ) {
+				libusb_attach_kernel_driver ( usbHandle,
+						cameraInfo->streamInterfaceNo );
+			}
+			libusb_release_interface ( usbHandle, cameraInfo->streamInterfaceNo );
+			if ( cameraInfo->reattachControlIface ) {
+				libusb_attach_kernel_driver ( usbHandle,
+						cameraInfo->controlInterfaceNo );
+			}
+			libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
+			libusb_exit ( cameraInfo->usbContext );
+			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+				if ( cameraInfo->frameSizes[ j ].numSizes ) {
+					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+					free (( void* ) cameraInfo->frameInfo[ j ]);
+				}
+			}
       free (( void* ) cameraInfo->buffers );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
@@ -1210,13 +1425,30 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   cameraInfo->callbackQueue = oaDLListCreate();
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       oacamEUVCcontroller, ( void* ) camera )) {
+		void* dummy;
     for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
       free (( void* ) cameraInfo->buffers[j].start );
     }
-    // FIX ME -- free interrupt transfer buffer?
-    // FIX ME -- kill event handler thread
-    free (( void* ) cameraInfo->frameSizes[1].sizes );
-    // free (( void* ) cameraInfo->frameSizes[2].sizes );
+		libusb_cancel_transfer ( cameraInfo->statusTransfer );
+		cameraInfo->stopCallbackThread = 1;
+		pthread_join ( cameraInfo->eventHandler, &dummy );
+		libusb_free_transfer ( cameraInfo->statusTransfer );
+    libusb_free_config_descriptor ( deviceConfig );
+		if ( cameraInfo->reattachStreamIface ) {
+			libusb_attach_kernel_driver ( usbHandle, cameraInfo->streamInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->streamInterfaceNo );
+		if ( cameraInfo->reattachControlIface ) {
+			libusb_attach_kernel_driver ( usbHandle, cameraInfo->controlInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
+    libusb_exit ( cameraInfo->usbContext );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				free (( void* ) cameraInfo->frameInfo[ j ]);
+			}
+		}
     free (( void* ) cameraInfo->buffers );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
@@ -1236,10 +1468,26 @@ oaEUVCInitCamera ( oaCameraDevice* device )
     for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
       free (( void* ) cameraInfo->buffers[j].start );
     }
-    // FIX ME -- free interrupt transfer buffer?
-    // FIX ME -- kill event handler thread
-    free (( void* ) cameraInfo->frameSizes[1].sizes );
-    // free (( void* ) cameraInfo->frameSizes[2].sizes );
+		libusb_cancel_transfer ( cameraInfo->statusTransfer );
+		cameraInfo->stopCallbackThread = 1;
+		pthread_join ( cameraInfo->eventHandler, &dummy );
+		libusb_free_transfer ( cameraInfo->statusTransfer );
+    libusb_free_config_descriptor ( deviceConfig );
+		if ( cameraInfo->reattachStreamIface ) {
+			libusb_attach_kernel_driver ( usbHandle, cameraInfo->streamInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->streamInterfaceNo );
+		if ( cameraInfo->reattachControlIface ) {
+			libusb_attach_kernel_driver ( usbHandle, cameraInfo->controlInterfaceNo );
+		}
+		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
+    libusb_exit ( cameraInfo->usbContext );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				free (( void* ) cameraInfo->frameInfo[ j ]);
+			}
+		}
     free (( void* ) cameraInfo->buffers );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
@@ -1318,7 +1566,18 @@ oaEUVCCloseCamera ( oaCamera* camera )
 
     pthread_join ( cameraInfo->eventHandler, &dummy );
 
-    libusb_release_interface ( cameraInfo->usbHandle, 0 );
+		if ( cameraInfo->reattachStreamIface ) {
+			libusb_attach_kernel_driver ( cameraInfo->usbHandle,
+					cameraInfo->streamInterfaceNo );
+		}
+		libusb_release_interface ( cameraInfo->usbHandle,
+				cameraInfo->streamInterfaceNo );
+		if ( cameraInfo->reattachControlIface ) {
+			libusb_attach_kernel_driver ( cameraInfo->usbHandle,
+					cameraInfo->controlInterfaceNo );
+		}
+		libusb_release_interface ( cameraInfo->usbHandle,
+				cameraInfo->controlInterfaceNo );
     libusb_close ( cameraInfo->usbHandle );
     libusb_exit ( cameraInfo->usbContext );
 
@@ -1329,9 +1588,13 @@ oaEUVCCloseCamera ( oaCamera* camera )
         }
       }
     }
-    free (( void* ) cameraInfo->frameSizes[1].sizes );
-    // free (( void* ) cameraInfo->frameSizes[2].sizes );
     free (( void* ) cameraInfo->buffers );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				free (( void* ) cameraInfo->frameInfo[ j ]);
+			}
+		}
     free (( void* ) cameraInfo );
     free (( void* ) camera->_common );
     free (( void* ) camera );
@@ -1474,6 +1737,8 @@ _scanEUVCStream ( oaCamera* camera,
   unsigned int					maxX, maxY, maxBufferSize, i;
   int						haveInterestingFormat;
   int						skipFrame, sizeIndex, binIndex;
+	void*					tmpPtr;
+	int						j;
 
   cameraInfo = camera->_private;
   interfaceDesc = &( deviceConfig->interface[ interfaceNo ].altsetting[0]);
@@ -1575,18 +1840,30 @@ _scanEUVCStream ( oaCamera* camera,
           }
 
           if ( !skipFrame ) {
-            if (!( cameraInfo->frameSizes[binIndex].sizes = ( FRAMESIZE* )
-                realloc ( cameraInfo->frameSizes[binIndex].sizes,
+            if (!( tmpPtr = realloc ( cameraInfo->frameSizes[binIndex].sizes,
                 sizeof ( FRAMESIZE ) * ( sizeIndex + 1 )))) {
-              fprintf ( stderr, "malloc for frame size failed\n" );
+              fprintf ( stderr, "realloc for frame size failed\n" );
+							for ( j = 1; j <= 4; j++ ) {  // assumes no binning > 4
+								if ( cameraInfo->frameSizes[ j ].numSizes ) {
+									free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+									free (( void* ) cameraInfo->frameInfo[ j ]);
+								}
+							}
               return -OA_ERR_MEM_ALLOC;
             }
-            if (!( cameraInfo->frameInfo[binIndex] = ( struct frameExtras* )
-                realloc ( cameraInfo->frameInfo[binIndex],
+						cameraInfo->frameSizes[binIndex].sizes = ( FRAMESIZE* ) tmpPtr;
+            if (!( tmpPtr = realloc ( cameraInfo->frameInfo[binIndex],
                 sizeof ( struct frameExtras ) * ( sizeIndex + 1 )))) {
-              fprintf ( stderr, "malloc for frame extras failed\n" );
+              fprintf ( stderr, "realloc for frame extras failed\n" );
+							for ( j = 1; j <= 4; j++ ) {  // assumes no binning > 4
+								if ( cameraInfo->frameSizes[ j ].numSizes ) {
+									free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+									free (( void* ) cameraInfo->frameInfo[ j ]);
+								}
+							}
               return -OA_ERR_MEM_ALLOC;
             }
+						cameraInfo->frameInfo[binIndex] = ( struct frameExtras* ) tmpPtr;
 
             cameraInfo->frameSizes[binIndex].sizes[sizeIndex].x = xSize;
             cameraInfo->frameSizes[binIndex].sizes[sizeIndex].y = ySize;
