@@ -602,6 +602,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
 
   if ( !cameraInfo->currentIIDCMode ) {
     fprintf ( stderr, "%s: No suitable video format found", __FUNCTION__ );
+		free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
@@ -630,6 +631,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
 
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       oacamIIDCcontroller, ( void* ) camera )) {
+		free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -644,6 +646,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
     cameraInfo->stopControllerThread = 1;
     pthread_cond_broadcast ( &cameraInfo->commandQueued );
     pthread_join ( cameraInfo->controllerThread, &dummy );
+		free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -670,6 +673,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
         DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_video_set_operation_mode failed\n",
           __FUNCTION__ );
+			free (( void* ) cameraInfo->frameSizes[1].sizes );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -751,6 +755,7 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
   unsigned int			i, j, addResolution;
   unsigned int			numResolutions, rawModeFound, rgbModeFound;
   IIDC_STATE*			cameraInfo;
+	void*						tmpPtr;
 
   if ( p_dc1394_format7_get_modeset ( iidcCam, &modeList ) != DC1394_SUCCESS ) {
     fprintf ( stderr, "%s: dc1394_format7_get_modeset return error\n",
@@ -903,11 +908,14 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
           }
         }
         if ( !found ) {
-          if (!(  cameraInfo->frameSizes[1].sizes = realloc (
-              cameraInfo->frameSizes[1].sizes, ( numResolutions + 1 ) *
-              sizeof ( FRAMESIZE )))) {
+          if (!( tmpPtr = realloc ( cameraInfo->frameSizes[1].sizes,
+								( numResolutions + 1 ) * sizeof ( FRAMESIZE )))) {
+						if ( cameraInfo->frameSizes[1].sizes ) {
+							free (( void* ) cameraInfo->frameSizes[1].sizes );
+						}
             return -OA_ERR_MEM_ALLOC;
           }
+					cameraInfo->frameSizes[1].sizes = tmpPtr;
           cameraInfo->frameSizes[1].sizes[ numResolutions ].x = w;
           cameraInfo->frameSizes[1].sizes[ numResolutions ].y = h;
           if ( w > cameraInfo->xSize ) {
@@ -939,6 +947,7 @@ _processNonFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
   unsigned int          rawModeFound, rgbModeFound;
   dc1394color_coding_t  codec;
   IIDC_STATE*		cameraInfo;
+	void*					tmpPtr;
 
   numResolutions = 0;
   rawModeFound = rgbModeFound = 0;
@@ -962,11 +971,14 @@ _processNonFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
       }
     }
     if ( !found ) {
-      if (!(  cameraInfo->frameSizes[1].sizes = realloc (
-          cameraInfo->frameSizes[1].sizes, ( numResolutions + 1 ) *
-          sizeof ( FRAMESIZE )))) {
-        return 0;
+      if (!( tmpPtr = realloc ( cameraInfo->frameSizes[1].sizes,
+					( numResolutions + 1 ) * sizeof ( FRAMESIZE )))) {
+				if ( cameraInfo->frameSizes[1].sizes ) {
+					free (( void* ) cameraInfo->frameSizes[1].sizes );
+				}
+        return -OA_ERR_MEM_ALLOC;
       }
+			cameraInfo->frameSizes[1].sizes = tmpPtr;
       cameraInfo->frameSizes[1].sizes[ numResolutions ].x = w;
       cameraInfo->frameSizes[1].sizes[ numResolutions ].y = h;
       if ( w > cameraInfo->xSize ) {
