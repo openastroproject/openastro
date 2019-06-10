@@ -123,6 +123,7 @@ oaFC2InitCamera ( oaCameraDevice* device )
   unsigned int			numberOfSources, numberOfModes;
   unsigned int			dataFormat, format;
   int				ret, numBinModes, maxBinMode;
+	void*			tmpPtr;
 
   if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
     perror ( "malloc oaCamera failed" );
@@ -618,6 +619,9 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
           FC2_ERROR_OK ) {
         fprintf ( stderr, "Can't get trigger mode for FC2 GUID\n" );
         ( *p_fc2DestroyContext )( pgeContext );
+        if ( cameraInfo->triggerModes ) {
+					free (( void* ) cameraInfo->triggerModes );
+				}
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
         free (( void* ) camera );
@@ -640,6 +644,9 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
           FC2_ERROR_OK ) {
         fprintf ( stderr, "Can't get trigger delay info for FC2 GUID\n" );
         ( *p_fc2DestroyContext )( pgeContext );
+        if ( cameraInfo->triggerModes ) {
+					free (( void* ) cameraInfo->triggerModes );
+				}
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
         free (( void* ) camera );
@@ -668,6 +675,9 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
             FC2_ERROR_OK ) {
           fprintf ( stderr, "Can't get trigger delay for FC2 GUID\n" );
           ( *p_fc2DestroyContext )( pgeContext );
+					if ( cameraInfo->triggerModes ) {
+						free (( void* ) cameraInfo->triggerModes );
+					}
           free (( void* ) commonInfo );
           free (( void* ) cameraInfo );
           free (( void* ) camera );
@@ -723,6 +733,9 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       if ( ret != FC2_ERROR_INVALID_PARAMETER ) {
         fprintf ( stderr, "Can't get strobe mode info for FC2 GUID\n" );
         ( *p_fc2DestroyContext )( pgeContext );
+				if ( cameraInfo->triggerModes ) {
+					free (( void* ) cameraInfo->triggerModes );
+				}
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
         free (( void* ) camera );
@@ -801,6 +814,9 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         FC2_ERROR_OK ) {
       fprintf ( stderr, "Can't get strobe control for FC2 GUID\n" );
       ( *p_fc2DestroyContext )( pgeContext );
+			if ( cameraInfo->triggerModes ) {
+				free (( void* ) cameraInfo->triggerModes );
+			}
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -855,6 +871,9 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         FC2_ERROR_OK ) {
       fprintf ( stderr, "Can't get mode info %d for FC2 GUID\n", i );
       ( *p_fc2DestroyContext )( pgeContext );
+			if ( cameraInfo->triggerModes ) {
+				free (( void* ) cameraInfo->triggerModes );
+			}
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -864,6 +883,9 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       if (( *p_fc2SetGigEImagingMode )( pgeContext, mode ) != FC2_ERROR_OK ) {
         fprintf ( stderr, "Can't set mode %d for FC2 GUID\n", mode );
         ( *p_fc2DestroyContext )( pgeContext );
+				if ( cameraInfo->triggerModes ) {
+					free (( void* ) cameraInfo->triggerModes );
+				}
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
         free (( void* ) camera );
@@ -873,6 +895,9 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
           FC2_ERROR_OK ) {
         fprintf ( stderr, "Can't get image info %d for FC2 GUID\n", i );
         ( *p_fc2DestroyContext )( pgeContext );
+				if ( cameraInfo->triggerModes ) {
+					free (( void* ) cameraInfo->triggerModes );
+				}
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
         free (( void* ) camera );
@@ -918,18 +943,48 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         }
       }
       if ( !found ) {
-        if (!(  cameraInfo->frameSizes[ xbin ].sizes = realloc (
-            cameraInfo->frameSizes[ xbin ].sizes, ( numResolutions + 1 ) *
-            sizeof ( FRAMESIZE )))) {
-          fprintf ( stderr, "malloc for frame sizes failed\n" );
+        if (!( tmpPtr = realloc ( cameraInfo->frameSizes[ xbin ].sizes,
+							( numResolutions + 1 ) * sizeof ( FRAMESIZE )))) {
+          fprintf ( stderr, "realloc for frame sizes failed\n" );
+					( *p_fc2DestroyContext )( pgeContext );
+					for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+						if ( cameraInfo->frameSizes[ j ].numSizes ) {
+							free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+							if ( cameraInfo->frameModes[ j ] ) {
+								free (( void* ) cameraInfo->frameModes[ j ]);
+							}
+						}
+					}
+					if ( cameraInfo->triggerModes ) {
+						free (( void* ) cameraInfo->triggerModes );
+					}
+					free (( void* ) commonInfo );
+					free (( void* ) cameraInfo );
+					free (( void* ) camera );
           return 0;
         }
-        if (!( cameraInfo->frameModes[ xbin ] = ( struct modeInfo* )
-            realloc ( cameraInfo->frameModes[ xbin ],
+				cameraInfo->frameSizes[ xbin ].sizes = tmpPtr;
+        if (!( tmpPtr = realloc ( cameraInfo->frameModes[ xbin ],
             sizeof ( struct modeInfo ) * ( numResolutions + 1 )))) {
-          fprintf ( stderr, "malloc for frame modes failed\n" );
+          fprintf ( stderr, "realloc for frame modes failed\n" );
+					( *p_fc2DestroyContext )( pgeContext );
+					for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+						if ( cameraInfo->frameSizes[ j ].numSizes ) {
+							free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+							if ( cameraInfo->frameModes[ j ] ) {
+								free (( void* ) cameraInfo->frameModes[ j ]);
+							}
+						}
+					}
+					if ( cameraInfo->triggerModes ) {
+						free (( void* ) cameraInfo->triggerModes );
+					}
+					free (( void* ) commonInfo );
+					free (( void* ) cameraInfo );
+					free (( void* ) camera );
           return 0;
         }
+				cameraInfo->frameModes[ xbin ] = ( struct modeInfo* ) tmpPtr;
 
         cameraInfo->frameSizes[xbin].sizes[ numResolutions ].x =
             imageInfo.maxWidth;
@@ -971,8 +1026,15 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   // FIX ME -- probably should just handle whatever is already set?
   if (( *p_fc2SetGigEImagingMode )( pgeContext, firstMode ) != FC2_ERROR_OK ) {
     fprintf ( stderr, "Can't set mode %d for FC2 GUID\n", i );
-    // FIX ME -- free frame data
     ( *p_fc2DestroyContext )( pgeContext );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				if ( cameraInfo->frameModes[ j ] ) {
+					free (( void* ) cameraInfo->frameModes[ j ]);
+				}
+			}
+		}
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
@@ -982,6 +1044,17 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       FC2_ERROR_OK ) {
     fprintf ( stderr, "Can't get settings %d for FC2 GUID\n", i );
     ( *p_fc2DestroyContext )( pgeContext );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				if ( cameraInfo->frameModes[ j ] ) {
+					free (( void* ) cameraInfo->frameModes[ j ]);
+				}
+			}
+		}
+		if ( cameraInfo->triggerModes ) {
+			free (( void* ) cameraInfo->triggerModes );
+		}
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
@@ -998,6 +1071,17 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       FC2_ERROR_OK ) {
     fprintf ( stderr, "Can't set settings %d for FC2 GUID\n", i );
     ( *p_fc2DestroyContext )( pgeContext );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				if ( cameraInfo->frameModes[ j ] ) {
+					free (( void* ) cameraInfo->frameModes[ j ]);
+				}
+			}
+		}
+		if ( cameraInfo->triggerModes ) {
+			free (( void* ) cameraInfo->triggerModes );
+		}
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
@@ -1007,6 +1091,17 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       FC2_ERROR_OK ) {
     fprintf ( stderr, "Can't set binmode 1 for FC2 GUID\n" );
     ( *p_fc2DestroyContext )( pgeContext );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				if ( cameraInfo->frameModes[ j ] ) {
+					free (( void* ) cameraInfo->frameModes[ j ]);
+				}
+			}
+		}
+		if ( cameraInfo->triggerModes ) {
+			free (( void* ) cameraInfo->triggerModes );
+		}
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
@@ -1036,6 +1131,17 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       fprintf ( stderr, "Can't read FC2 register 0x%04x\n",
           FC2_REG_DATA_DEPTH );
       ( *p_fc2DestroyContext )( pgeContext );
+			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+				if ( cameraInfo->frameSizes[ j ].numSizes ) {
+					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+					if ( cameraInfo->frameModes[ j ] ) {
+						free (( void* ) cameraInfo->frameModes[ j ]);
+					}
+				}
+			}
+			if ( cameraInfo->triggerModes ) {
+				free (( void* ) cameraInfo->triggerModes );
+			}
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -1051,6 +1157,17 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       fprintf ( stderr, "Can't read FC2 register 0x%04x\n",
           FC2_REG_IMAGE_DATA_FORMAT );
       ( *p_fc2DestroyContext )( pgeContext );
+			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+				if ( cameraInfo->frameSizes[ j ].numSizes ) {
+					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+					if ( cameraInfo->frameModes[ j ] ) {
+						free (( void* ) cameraInfo->frameModes[ j ]);
+					}
+				}
+			}
+			if ( cameraInfo->triggerModes ) {
+				free (( void* ) cameraInfo->triggerModes );
+			}
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -1264,6 +1381,17 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       FC2_ERROR_OK ) {
 		fprintf ( stderr, "fc2GetEmbeddedImageInfo failed\n" );
     ( *p_fc2DestroyContext )( pgeContext );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				if ( cameraInfo->frameModes[ j ] ) {
+					free (( void* ) cameraInfo->frameModes[ j ]);
+				}
+			}
+		}
+		if ( cameraInfo->triggerModes ) {
+			free (( void* ) cameraInfo->triggerModes );
+		}
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
@@ -1277,6 +1405,17 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 					FC2_ERROR_OK ) {
 				fprintf ( stderr, "fc2SetEmbeddedImageInfo failed\n" );
 				( *p_fc2DestroyContext )( pgeContext );
+				for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+					if ( cameraInfo->frameSizes[ j ].numSizes ) {
+						free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+						if ( cameraInfo->frameModes[ j ] ) {
+							free (( void* ) cameraInfo->frameModes[ j ]);
+						}
+					}
+				}
+				if ( cameraInfo->triggerModes ) {
+					free (( void* ) cameraInfo->triggerModes );
+				}
 				free (( void* ) commonInfo );
 				free (( void* ) cameraInfo );
 				free (( void* ) camera );
@@ -1305,11 +1444,22 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
-          cameraInfo->buffers[j].start = 0;
         }
       }
-      // FIX ME -- free frame data
+			free (( void* ) cameraInfo->metadataBuffers );
+			free (( void* ) cameraInfo->buffers );
       ( *p_fc2DestroyContext )( pgeContext );
+			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+				if ( cameraInfo->frameSizes[ j ].numSizes ) {
+					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+					if ( cameraInfo->frameModes[ j ] ) {
+						free (( void* ) cameraInfo->frameModes[ j ]);
+					}
+				}
+			}
+			if ( cameraInfo->triggerModes ) {
+				free (( void* ) cameraInfo->triggerModes );
+			}
       free (( void* ) cameraInfo->metadataBuffers );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
@@ -1327,7 +1477,23 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       oacamFC2controller, ( void* ) camera )) {
+    ( *p_fc2DestroyContext )( pgeContext );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				if ( cameraInfo->frameModes[ j ] ) {
+					free (( void* ) cameraInfo->frameModes[ j ]);
+				}
+			}
+		}
+    for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+      free (( void* ) cameraInfo->buffers[j].start );
+    }
     free (( void* ) cameraInfo->metadataBuffers );
+		free (( void* ) cameraInfo->buffers );
+		if ( cameraInfo->triggerModes ) {
+			free (( void* ) cameraInfo->triggerModes );
+		}
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -1342,7 +1508,23 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     cameraInfo->stopControllerThread = 1;
     pthread_cond_broadcast ( &cameraInfo->commandQueued );
     pthread_join ( cameraInfo->controllerThread, &dummy );
+    ( *p_fc2DestroyContext )( pgeContext );
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				if ( cameraInfo->frameModes[ j ] ) {
+					free (( void* ) cameraInfo->frameModes[ j ]);
+				}
+			}
+		}
+    for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+      free (( void* ) cameraInfo->buffers[j].start );
+    }
     free (( void* ) cameraInfo->metadataBuffers );
+		free (( void* ) cameraInfo->buffers );
+		if ( cameraInfo->triggerModes ) {
+			free (( void* ) cameraInfo->triggerModes );
+		}
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -1395,6 +1577,7 @@ oaFC2CloseCamera ( oaCamera* camera )
 {
   void*		dummy;
   FC2_STATE*	cameraInfo;
+	int			j;
 
   if ( camera ) {
 
@@ -1410,15 +1593,31 @@ oaFC2CloseCamera ( oaCamera* camera )
 
     ( *p_fc2DestroyContext )( cameraInfo->pgeContext );
 
+    for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+      free (( void* ) cameraInfo->buffers[j].start );
+    }
+
     if ( cameraInfo->frameRates.numRates ) {
      free (( void* ) cameraInfo->frameRates.rates );
     }
-    free (( void* ) cameraInfo->frameSizes[1].sizes );
+
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				if ( cameraInfo->frameModes[ j ] ) {
+					free (( void* ) cameraInfo->frameModes[ j ]);
+				}
+			}
+		}
 
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
     oaDLListDelete ( cameraInfo->callbackQueue, 1 );
 
     free (( void* ) cameraInfo->metadataBuffers );
+		free (( void* ) cameraInfo->buffers );
+		if ( cameraInfo->triggerModes ) {
+			free (( void* ) cameraInfo->triggerModes );
+		}
     free (( void* ) camera->_common );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
