@@ -562,6 +562,7 @@ oaAtikSerialCloseCamera ( oaCamera* camera )
     }
     free (( void* ) cameraInfo->xferBuffer );
     free (( void* ) cameraInfo->buffers );
+    free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo );
     free (( void* ) camera->_common );
     free (( void* ) camera );

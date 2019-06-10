@@ -2,7 +2,8 @@
  *
  * atikSerialconnect-ftdi.c -- Initialise Atik serial cameras using libftdi1
  *
- * Copyright 2014,2015,2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -119,7 +120,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     fprintf ( stderr, "Can't see any USB devices now\n" );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
 
@@ -139,7 +140,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
       fprintf ( stderr, "get device descriptor failed\n" );
       free (( void* ) camera->_common );
       free (( void* ) camera->_private );
-      free ( camera );
+      free (( void* ) camera );
       return 0;
     }
 
@@ -179,7 +180,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
 
@@ -190,7 +191,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
 
@@ -201,7 +202,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
 
@@ -216,7 +217,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
   usleep ( 100000 );
@@ -227,7 +228,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
 
@@ -237,7 +238,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
 
@@ -249,7 +250,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
 
@@ -266,7 +267,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
 
@@ -280,7 +281,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
 
@@ -293,7 +294,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
 
@@ -334,7 +335,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
   if (( numRead = cameraInfo->read ( cameraInfo, buffer, 7 ) != 7 )) {
@@ -343,7 +344,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
 
@@ -360,7 +361,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
   if (( numRead = cameraInfo->read ( cameraInfo, buffer, 1 ) != 1 )) {
@@ -369,7 +370,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
   // fprintf ( stderr, "have fifo: %s\n", buffer[0] ? "yes" : "no" );
@@ -382,7 +383,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
 
@@ -392,7 +393,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
 
@@ -476,6 +477,11 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
       }
       ftdi_usb_close ( cameraInfo->ftdiContext );
       ftdi_free ( cameraInfo->ftdiContext );
+			if ( i ) {
+				for ( j = 0; j < i; j++ ) {
+					free (( void* ) cameraInfo->buffers[j].start );
+				}
+			}
       free (( void* ) cameraInfo->buffers );
       free (( void* ) cameraInfo->xferBuffer );
       free (( void* ) cameraInfo->frameSizes[1].sizes );
@@ -642,6 +648,7 @@ oaAtikSerialCloseCamera ( oaCamera* camera )
     }
     free (( void* ) cameraInfo->xferBuffer );
     free (( void* ) cameraInfo->buffers );
+    free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo );
     free (( void* ) camera->_common );
     free (( void* ) camera );
