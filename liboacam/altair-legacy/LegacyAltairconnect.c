@@ -65,6 +65,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
   unsigned int			fourcc, depth, binX, binY;
   int				x, y;
   char				toupcamId[128]; // must be longer than 64
+	void*				tmpPtr;
 
   numCameras = ( p_legacyAltaircam_Enum )( devList );
   devInfo = device->_private;
@@ -610,9 +611,9 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
     if ( binX == binY && binX == ( i + 1 )) { 
       cameraInfo->frameSizes[ binX ].numSizes = 1;
 
-      if (!(  cameraInfo->frameSizes[ binX ].sizes = realloc (
-          cameraInfo->frameSizes[ binX ].sizes, sizeof ( FRAMESIZE ) * 2 ))) {
-        fprintf ( stderr, "malloc for frame sizes failed\n" );
+      if (!( tmpPtr = realloc ( cameraInfo->frameSizes[ binX ].sizes,
+						sizeof ( FRAMESIZE ) * 2 ))) {
+        fprintf ( stderr, "realloc for frame sizes failed\n" );
         ( p_legacyAltaircam_Close )( handle );
 				for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
 					if ( cameraInfo->frameSizes[ j ].numSizes ) {
@@ -624,6 +625,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
         free (( void* ) camera );
         return 0;
       }
+			cameraInfo->frameSizes[ binX ].sizes = tmpPtr;
       cameraInfo->frameSizes[ binX ].sizes[0].x = x;
       cameraInfo->frameSizes[ binX ].sizes[0].y = y;
 
