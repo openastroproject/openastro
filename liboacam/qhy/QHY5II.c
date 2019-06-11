@@ -2,7 +2,7 @@
  *
  * QHY5II.c -- QHY5II camera interface
  *
- * Copyright 2013,2014,2015,2017,2018
+ * Copyright 2013,2014,2015,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -207,6 +207,7 @@ _QHY5IIInitCamera ( oaCamera* camera )
     cameraInfo->stopCallbackThread = 1;
     pthread_join ( cameraInfo->eventHandler, &dummy );
     free (( void* ) cameraInfo->buffers );
+    free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -227,6 +228,7 @@ _QHY5IIInitCamera ( oaCamera* camera )
     cameraInfo->stopCallbackThread = 1;
     pthread_join ( cameraInfo->eventHandler, &dummy );
     free (( void* ) cameraInfo->buffers );
+    free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );

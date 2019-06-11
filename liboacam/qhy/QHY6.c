@@ -2,7 +2,8 @@
  *
  * QHY6.c -- QHY6 camera interface
  *
- * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -161,7 +162,7 @@ _QHY6InitCamera ( oaCamera* camera )
     fprintf ( stderr, "malloc of buffer array failed in %s\n",
         __FUNCTION__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
-      free (( void* ) cameraInfo->frameSizes[2].sizes );
+    free (( void* ) cameraInfo->frameSizes[2].sizes );
     free (( void* ) cameraInfo->xferBuffer );
     return -OA_ERR_MEM_ALLOC;
   }
@@ -198,6 +199,8 @@ _QHY6InitCamera ( oaCamera* camera )
     }
     free (( void* ) cameraInfo->buffers );
     free (( void* ) cameraInfo->xferBuffer );
+    free (( void* ) cameraInfo->frameSizes[1].sizes );
+    free (( void* ) cameraInfo->frameSizes[2].sizes );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -217,6 +220,8 @@ _QHY6InitCamera ( oaCamera* camera )
     }
     free (( void* ) cameraInfo->buffers );
     free (( void* ) cameraInfo->xferBuffer );
+    free (( void* ) cameraInfo->frameSizes[1].sizes );
+    free (( void* ) cameraInfo->frameSizes[2].sizes );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );

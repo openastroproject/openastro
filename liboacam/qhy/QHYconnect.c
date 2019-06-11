@@ -2,7 +2,7 @@
  *
  * QHYconnect.c -- Initialise QHY cameras
  *
- * Copyright 2013,2014,2015,2017,2018
+ * Copyright 2013,2014,2015,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -174,7 +174,8 @@ oaQHYInitCamera ( oaCameraDevice* device )
   }
 
   if ( libusb_kernel_driver_active ( usbHandle, 0 )) {
-      libusb_detach_kernel_driver( usbHandle, 0 );
+		// FIX ME -- should reattach this if we detached it
+    libusb_detach_kernel_driver( usbHandle, 0 );
   }
 
   if (( ret = libusb_set_configuration ( usbHandle, 1 ))) {

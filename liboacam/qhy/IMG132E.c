@@ -2,7 +2,7 @@
  *
  * IMG132E.c -- IMG132E camera interface
  *
- * Copyright 2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -195,6 +195,7 @@ _IMG132EInitCamera ( oaCamera* camera )
     }
     cameraInfo->stopCallbackThread = 1;
     pthread_join ( cameraInfo->eventHandler, &dummy );
+    free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->buffers );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
@@ -215,6 +216,7 @@ _IMG132EInitCamera ( oaCamera* camera )
     }
     cameraInfo->stopCallbackThread = 1;
     pthread_join ( cameraInfo->eventHandler, &dummy );
+    free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->buffers );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );

@@ -2,7 +2,7 @@
  *
  * QHY5.c -- QHY5 camera interface
  *
- * Copyright 2013,2014,2015,2017,2018
+ * Copyright 2013,2014,2015,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -158,6 +158,8 @@ _QHY5InitCamera ( oaCamera* camera )
     for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
       free (( void* ) cameraInfo->buffers[j].start );
     }
+    free (( void* ) cameraInfo->buffers );
+    free (( void* ) cameraInfo->frameSizes[1].sizes );
     free ( cameraInfo->xferBuffer );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
@@ -176,6 +178,8 @@ _QHY5InitCamera ( oaCamera* camera )
     for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
       free (( void* ) cameraInfo->buffers[j].start );
     }
+    free (( void* ) cameraInfo->buffers );
+    free (( void* ) cameraInfo->frameSizes[1].sizes );
     free ( cameraInfo->xferBuffer );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
