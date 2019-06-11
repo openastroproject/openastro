@@ -65,6 +65,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
   unsigned int			fourcc, depth, binX, binY;
   int				x, y;
   char				toupcamId[128]; // must be longer than 64
+	void*				tmpPtr;
 
   numCameras = ( p_Mallincam_EnumV2 )( devList );
   devInfo = device->_private;
@@ -584,18 +585,22 @@ oaMallincamInitCamera ( oaCameraDevice* device )
     binY = cameraInfo->currentYSize / y;
 
     if ( binX == binY && binX == ( i + 1 )) { 
-      cameraInfo->frameSizes[ binX ].numSizes = 1;
-
-      if (!(  cameraInfo->frameSizes[ binX ].sizes = realloc (
-          cameraInfo->frameSizes[ binX ].sizes, sizeof ( FRAMESIZE ) * 2 ))) {
-        fprintf ( stderr, "malloc for frame sizes failed\n" );
+      if (!( tmpPtr = realloc ( cameraInfo->frameSizes[ binX ].sizes,
+					sizeof ( FRAMESIZE ) * 2 ))) {
+        fprintf ( stderr, "realloc for frame sizes failed\n" );
         ( p_Mallincam_Close )( handle );
-        // FIX ME -- free the other sizes here too
+        for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+					if ( cameraInfo->frameSizes[ j ].numSizes ) {
+						free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+					}
+				}
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
         free (( void* ) camera );
         return 0;
       }
+      cameraInfo->frameSizes[ binX ].sizes = tmpPtr;
+      cameraInfo->frameSizes[ binX ].numSizes = 1;
       cameraInfo->frameSizes[ binX ].sizes[0].x = x;
       cameraInfo->frameSizes[ binX ].sizes[0].y = y;
 
@@ -627,14 +632,19 @@ oaMallincamInitCamera ( oaCameraDevice* device )
       cameraInfo->configuredBuffers++;
     } else {
       fprintf ( stderr, "%s malloc failed\n", __FUNCTION__ );
+      ( p_Mallincam_Close )( handle );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
           cameraInfo->buffers[j].start = 0;
         }
       }
-      // FIX ME -- free frame data
-      ( p_Mallincam_Close )( handle );
+      for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+				if ( cameraInfo->frameSizes[ j ].numSizes ) {
+					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				}
+			}
+      free (( void* ) cameraInfo->buffers );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -651,6 +661,15 @@ oaMallincamInitCamera ( oaCameraDevice* device )
 
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       oacamMallincamcontroller, ( void* ) camera )) {
+		for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+			free (( void* ) cameraInfo->buffers[j].start );
+		}
+    for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+			}
+		}
+    free (( void* ) cameraInfo->buffers );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -665,6 +684,15 @@ oaMallincamInitCamera ( oaCameraDevice* device )
     cameraInfo->stopControllerThread = 1;
     pthread_cond_broadcast ( &cameraInfo->commandQueued );
     pthread_join ( cameraInfo->controllerThread, &dummy );
+		for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+			free (( void* ) cameraInfo->buffers[j].start );
+		}
+    for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+			}
+		}
+    free (( void* ) cameraInfo->buffers );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -718,6 +746,7 @@ oaMallincamCloseCamera ( oaCamera* camera )
 {
   void*			dummy;
   MALLINCAM_STATE*	cameraInfo;
+	int				j;
 
   if ( camera ) {
 
@@ -732,11 +761,18 @@ oaMallincamCloseCamera ( oaCamera* camera )
     pthread_join ( cameraInfo->callbackThread, &dummy );
 
     ( p_Mallincam_Close ) ( cameraInfo->handle );
-
-    free (( void* ) cameraInfo->frameSizes[1].sizes );
-
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
     oaDLListDelete ( cameraInfo->callbackQueue, 1 );
+
+		for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+			free (( void* ) cameraInfo->buffers[j].start );
+		}
+    for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+			}
+		}
+    free (( void* ) cameraInfo->buffers );
 
     free (( void* ) camera->_common );
     free (( void* ) cameraInfo );

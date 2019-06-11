@@ -2,7 +2,8 @@
  *
  * atikSerialconnect-udev.c -- Initialise Atik serial cameras via udev
  *
- * Copyright 2014,2015,2016,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
