@@ -89,7 +89,6 @@ oaSXInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-
   OA_CLEAR ( *camera );
   OA_CLEAR ( *cameraInfo );
   OA_CLEAR ( *commonInfo );
@@ -231,7 +230,7 @@ oaSXInitCamera ( oaCameraDevice* device )
     libusb_exit ( cameraInfo->usbContext );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
   if (( ret = libusb_bulk_transfer ( usbHandle, SXUSB_BULK_ENDP_IN, buff,
@@ -243,7 +242,7 @@ oaSXInitCamera ( oaCameraDevice* device )
     libusb_exit ( cameraInfo->usbContext );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
 
@@ -319,7 +318,6 @@ oaSXInitCamera ( oaCameraDevice* device )
       break;
   }
 
-
   pthread_mutex_init ( &cameraInfo->commandQueueMutex, 0 );
   pthread_mutex_init ( &cameraInfo->callbackQueueMutex, 0 );
   pthread_cond_init ( &cameraInfo->callbackQueued, 0 );
@@ -347,7 +345,7 @@ oaSXInitCamera ( oaCameraDevice* device )
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) commonInfo );
     free (( void* ) cameraInfo );
-    free ( camera );
+    free (( void* ) camera );
     return 0;
   }
 
