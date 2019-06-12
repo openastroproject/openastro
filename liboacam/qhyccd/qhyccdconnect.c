@@ -372,22 +372,27 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
   for ( binning = CAM_BIN2X2MODE, i = 2; binning <= CAM_BIN4X4MODE;
 			binning++, i++ ) {
 		if ( p_IsQHYCCDControlAvailable ( handle, binning ) == QHYCCD_SUCCESS ) {
-			  cameraInfo->frameSizes[i].numSizes = 1;
 			binModes++;
 			if (!( cameraInfo->frameSizes[i].sizes = malloc (
 					sizeof ( FRAMESIZE )))) {
 				fprintf ( stderr, "malloc for frame sizes failed\n" );
 				p_CloseQHYCCD ( handle );
 				p_ReleaseQHYCCDResource();
+				for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+					if ( cameraInfo->frameSizes[ j ].numSizes ) {
+						free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+					}
+				}
 				free (( void* ) commonInfo );
 				free (( void* ) cameraInfo );
 				free (( void* ) camera );
 				return 0;
 			}
+		  cameraInfo->frameSizes[i].numSizes = 1;
 			cameraInfo->frameSizes[i].sizes[0].x = x / i;
 			cameraInfo->frameSizes[i].sizes[0].y = y / i;
 		} else {
-			  cameraInfo->frameSizes[i].numSizes = 0;
+			cameraInfo->frameSizes[i].numSizes = 0;
 		}
 	}
   cameraInfo->binMode = 1;
@@ -427,9 +432,13 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
           cameraInfo->buffers[j].start = 0;
         }
       }
-      // FIX ME -- free frame data
 			p_CloseQHYCCD ( handle );
 			p_ReleaseQHYCCDResource();
+			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+				if ( cameraInfo->frameSizes[ j ].numSizes ) {
+					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				}
+			}
 			free (( void* ) commonInfo );
 			free (( void* ) cameraInfo );
 			free (( void* ) camera );
@@ -446,6 +455,15 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       oacamQHYCCDcontroller, ( void* ) camera )) {
+    for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+      free (( void* ) cameraInfo->buffers[j].start );
+      cameraInfo->buffers[j].start = 0;
+    }
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+			}
+		}
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -460,6 +478,15 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
     cameraInfo->stopControllerThread = 1;
     pthread_cond_broadcast ( &cameraInfo->commandQueued );
     pthread_join ( cameraInfo->controllerThread, &dummy );
+    for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+      free (( void* ) cameraInfo->buffers[j].start );
+      cameraInfo->buffers[j].start = 0;
+    }
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+			}
+		}
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -506,6 +533,7 @@ oaQHYCCDCloseCamera ( oaCamera* camera )
 {
   void*			dummy;
   QHYCCD_STATE*	cameraInfo;
+	int				j;
 
   if ( camera ) {
 
@@ -521,12 +549,20 @@ oaQHYCCDCloseCamera ( oaCamera* camera )
 
     ( p_CloseQHYCCD ) ( cameraInfo->handle );
 
-    free (( void* ) cameraInfo->frameSizes[1].sizes );
-
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
     oaDLListDelete ( cameraInfo->callbackQueue, 1 );
 
     p_ReleaseQHYCCDResource();
+
+    for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+      free (( void* ) cameraInfo->buffers[j].start );
+      cameraInfo->buffers[j].start = 0;
+    }
+		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+			}
+		}
     free (( void* ) camera->_common );
     free (( void* ) cameraInfo );
     free (( void* ) camera );
