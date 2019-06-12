@@ -187,6 +187,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
   DEVICE_INFO*				devInfo;
   UVC_STATE*				cameraInfo;
   COMMON_INFO*				commonInfo;
+	void*							tmpPtr;
 
   if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
     perror ( "malloc oaCamera failed" );
@@ -1070,8 +1071,8 @@ oaUVCInitCamera ( oaCameraDevice* device )
   allFramesHaveFixedRates = 1;
   i = 0;
   do {
-    if (!(  cameraInfo->frameSizes[1].sizes = realloc (
-        cameraInfo->frameSizes[1].sizes, ( i+1 ) * sizeof ( FRAMESIZE )))) {
+    if (!(  tmpPtr = realloc ( cameraInfo->frameSizes[1].sizes,
+				( i+1 ) * sizeof ( FRAMESIZE )))) {
       p_uvc_close ( uvcHandle );
       p_uvc_exit ( cameraInfo->uvcContext );
       fprintf ( stderr, "realloc of frameSizes failed\n" );
@@ -1080,6 +1081,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
       free (( void* ) camera );
       return 0;
     }
+		cameraInfo->frameSizes[1].sizes = tmpPtr;
 
     if (( cameraInfo->frameSizes[1].sizes[i].x = frame->wWidth ) >
         cameraInfo->maxResolutionX ) {
@@ -1132,12 +1134,12 @@ oaUVCInitCamera ( oaCameraDevice* device )
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
-          cameraInfo->buffers[j].start = 0;
         }
       }
       p_uvc_close ( uvcHandle );
       p_uvc_exit ( cameraInfo->uvcContext );
       free (( void* ) cameraInfo->frameSizes[1].sizes );
+      free (( void* ) cameraInfo->buffers );
       free (( void* ) commonInfo );
       free (( void* ) cameraInfo );
       free (( void* ) camera );
@@ -1163,7 +1165,11 @@ oaUVCInitCamera ( oaCameraDevice* device )
       oacamUVCcontroller, ( void* ) camera )) {
     p_uvc_close ( uvcHandle );
     p_uvc_exit ( cameraInfo->uvcContext );
+    for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+      free (( void* ) cameraInfo->buffers[j].start );
+    }
     free (( void* ) cameraInfo->frameSizes[1].sizes );
+    free (( void* ) cameraInfo->buffers );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -1181,7 +1187,11 @@ oaUVCInitCamera ( oaCameraDevice* device )
     pthread_join ( cameraInfo->controllerThread, &dummy );
     p_uvc_close ( uvcHandle );
     p_uvc_exit ( cameraInfo->uvcContext );
+    for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+      free (( void* ) cameraInfo->buffers[j].start );
+    }
     free (( void* ) cameraInfo->frameSizes[1].sizes );
+    free (( void* ) cameraInfo->buffers );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
