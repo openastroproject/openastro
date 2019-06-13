@@ -1217,7 +1217,7 @@ oaZWASIInitCamera ( oaCameraDevice* device )
           free (( void* ) cameraInfo->buffers[j].start );
         }
       }
-      for ( j = 1; j < 5; j++ ) {
+      for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
         if ( cameraInfo->frameSizes[j].sizes ) {
           free (( void* ) cameraInfo->frameSizes[j].sizes );
         }
@@ -1240,7 +1240,7 @@ oaZWASIInitCamera ( oaCameraDevice* device )
     for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
       free (( void* ) cameraInfo->buffers[i].start );
     }
-    for ( i = 1; i < 5; i++ ) {
+    for ( i = 1; i <= OA_MAX_BINNING; i++ ) {
       if ( cameraInfo->frameSizes[i].sizes )
         free (( void* ) cameraInfo->frameSizes[i].sizes );
     }
@@ -1263,7 +1263,7 @@ oaZWASIInitCamera ( oaCameraDevice* device )
     for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
       free (( void* ) cameraInfo->buffers[i].start );
     }
-    for ( i = 1; i < 5; i++ ) {
+    for ( i = 1; i <= OA_MAX_BINNING; i++ ) {
       if ( cameraInfo->frameSizes[i].sizes )
         free (( void* ) cameraInfo->frameSizes[i].sizes );
     }
@@ -1334,7 +1334,7 @@ oaZWASICloseCamera ( oaCamera* camera )
         }
       }
     }
-    for ( j = 1; j < 5; j++ ) {
+    for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
       if ( cameraInfo->frameSizes[j].sizes )
         free (( void* ) cameraInfo->frameSizes[j].sizes );
     }

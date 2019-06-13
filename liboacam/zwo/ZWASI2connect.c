@@ -1358,11 +1358,12 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           free (( void* ) cameraInfo->buffers[j].start );
         }
       }
-      for ( j = 1; j < 5; j++ ) {
+      for ( j = 1; j <= 4; j++ ) {
         if ( cameraInfo->frameSizes[j].sizes ) {
           free (( void* ) cameraInfo->frameSizes[j].sizes );
         }
       }
+      free (( void* ) cameraInfo->buffers );
       free (( void* ) camera->_common );
       free (( void* ) camera->_private );
       free (( void* ) camera );
@@ -1381,10 +1382,11 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
       free (( void* ) cameraInfo->buffers[i].start );
     }
-    for ( i = 1; i < 5; i++ ) {
+    for ( i = 1; i <= 4; i++ ) {
       if ( cameraInfo->frameSizes[i].sizes )
         free (( void* ) cameraInfo->frameSizes[i].sizes );
     }
+    free (( void* ) cameraInfo->buffers );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -1404,10 +1406,11 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
       free (( void* ) cameraInfo->buffers[i].start );
     }
-    for ( i = 1; i < 5; i++ ) {
+    for ( i = 1; i <= 4; i++ ) {
       if ( cameraInfo->frameSizes[i].sizes )
         free (( void* ) cameraInfo->frameSizes[i].sizes );
     }
+    free (( void* ) cameraInfo->buffers );
     free (( void* ) camera->_common );
     free (( void* ) camera->_private );
     free (( void* ) camera );
@@ -1475,7 +1478,7 @@ oaZWASI2CloseCamera ( oaCamera* camera )
         }
       }
     }
-    for ( j = 1; j < 5; j++ ) {
+    for ( j = 1; j <= 4; j++ ) {
       if ( cameraInfo->frameSizes[j].sizes )
         free (( void* ) cameraInfo->frameSizes[j].sizes );
     }
