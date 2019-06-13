@@ -179,7 +179,7 @@ oaDummyInitCamera ( oaCameraDevice* device )
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
   cameraInfo->binMode = OA_BIN_MODE_NONE;
 
-  for ( i = 1; i <= 4; i++ ) {
+  for ( i = 1; i <= OA_MAX_BINNING; i++ ) {
     cameraInfo->frameSizes[i].numSizes = 0;
     cameraInfo->frameSizes[i].sizes = 0;
   }
@@ -311,7 +311,7 @@ oaDummyInitCamera ( oaCameraDevice* device )
           free (( void* ) cameraInfo->buffers[j].start );
         }
       }
-      for ( j = 1; j < 5; j++ ) {
+      for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
         if ( cameraInfo->frameSizes[j].sizes ) {
           free (( void* ) cameraInfo->frameSizes[j].sizes );
         }
@@ -334,7 +334,7 @@ oaDummyInitCamera ( oaCameraDevice* device )
     for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
       free (( void* ) cameraInfo->buffers[i].start );
     }
-    for ( i = 1; i < 5; i++ ) {
+    for ( i = 1; i <= OA_MAX_BINNING; i++ ) {
       if ( cameraInfo->frameSizes[i].sizes )
         free (( void* ) cameraInfo->frameSizes[i].sizes );
     }
@@ -357,7 +357,7 @@ oaDummyInitCamera ( oaCameraDevice* device )
     for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
       free (( void* ) cameraInfo->buffers[i].start );
     }
-    for ( i = 1; i < 5; i++ ) {
+    for ( i = 1; i <= OA_MAX_BINNING; i++ ) {
       if ( cameraInfo->frameSizes[i].sizes )
         free (( void* ) cameraInfo->frameSizes[i].sizes );
     }
@@ -426,7 +426,7 @@ oaDummyCloseCamera ( oaCamera* camera )
         }
       }
     }
-    for ( j = 1; j < 5; j++ ) {
+    for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
       if ( cameraInfo->frameSizes[j].sizes )
         free (( void* ) cameraInfo->frameSizes[j].sizes );
     }
