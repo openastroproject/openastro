@@ -81,6 +81,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   COMMON_INFO*			commonInfo;
   int                   	j;
   uint32_t                 	id;
+	void*							tmpPtr;
 
 
   if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
@@ -1710,14 +1711,18 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     }
     // FIX ME -- we can't handle mixed frame types here
     if ( V4L2_FRMSIZE_TYPE_DISCRETE == fsize.type ) {
-      if (!(  cameraInfo->frameSizes[1].sizes = realloc (
-          cameraInfo->frameSizes[1].sizes, ( j+1 ) * sizeof ( FRAMESIZE )))) {
+      if (!( tmpPtr = realloc ( cameraInfo->frameSizes[1].sizes,
+					( j+1 ) * sizeof ( FRAMESIZE )))) {
         v4l2_close ( cameraInfo->fd );
+				if ( cameraInfo->frameSizes[1].numSizes ) {
+					free (( void* ) cameraInfo->frameSizes[1].sizes );
+				}
         free (( void* ) commonInfo );
         free (( void* ) cameraInfo );
         free (( void* ) camera );
         return 0;
       }
+			cameraInfo->frameSizes[1].sizes = tmpPtr;
       cameraInfo->frameSizes[1].sizes[j].x = fsize.discrete.width;
       cameraInfo->frameSizes[1].sizes[j].y = fsize.discrete.height;
     } else {
