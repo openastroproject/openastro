@@ -502,7 +502,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 		}
 		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
     libusb_exit ( cameraInfo->usbContext );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -527,7 +527,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
     if ( libusb_claim_interface ( usbHandle, cameraInfo->streamInterfaceNo )) {
       fprintf ( stderr, "Unable to claim interface for USB device!\n" );
       libusb_exit ( cameraInfo->usbContext );
-			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
 					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 					free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -1021,7 +1021,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 		}
 		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
     libusb_exit ( cameraInfo->usbContext );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -1090,7 +1090,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 		}
 		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
     libusb_exit ( cameraInfo->usbContext );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -1119,7 +1119,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 				}
 				libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
         libusb_exit ( cameraInfo->usbContext );
-				for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+				for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 					if ( cameraInfo->frameSizes[ j ].numSizes ) {
 						free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 						free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -1188,7 +1188,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 			}
 			libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
       libusb_exit ( cameraInfo->usbContext );
-			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
 					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 					free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -1216,7 +1216,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 			}
 			libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
       libusb_exit ( cameraInfo->usbContext );
-			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
 					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 					free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -1245,7 +1245,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 			}
 			libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
       libusb_exit ( cameraInfo->usbContext );
-			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
 					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 					free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -1291,7 +1291,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 		}
 		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
     libusb_exit ( cameraInfo->usbContext );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -1318,7 +1318,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 		}
 		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
     libusb_exit ( cameraInfo->usbContext );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -1361,7 +1361,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 		}
 		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
     libusb_exit ( cameraInfo->usbContext );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -1403,7 +1403,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 			}
 			libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
 			libusb_exit ( cameraInfo->usbContext );
-			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
 					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 					free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -1443,7 +1443,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 		}
 		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
     libusb_exit ( cameraInfo->usbContext );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -1482,7 +1482,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 		}
 		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
     libusb_exit ( cameraInfo->usbContext );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -1589,7 +1589,7 @@ oaEUVCCloseCamera ( oaCamera* camera )
       }
     }
     free (( void* ) cameraInfo->buffers );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -1843,7 +1843,7 @@ _scanEUVCStream ( oaCamera* camera,
             if (!( tmpPtr = realloc ( cameraInfo->frameSizes[binIndex].sizes,
                 sizeof ( FRAMESIZE ) * ( sizeIndex + 1 )))) {
               fprintf ( stderr, "realloc for frame size failed\n" );
-							for ( j = 1; j <= 4; j++ ) {  // assumes no binning > 4
+							for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 								if ( cameraInfo->frameSizes[ j ].numSizes ) {
 									free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 									free (( void* ) cameraInfo->frameInfo[ j ]);
@@ -1855,7 +1855,7 @@ _scanEUVCStream ( oaCamera* camera,
             if (!( tmpPtr = realloc ( cameraInfo->frameInfo[binIndex],
                 sizeof ( struct frameExtras ) * ( sizeIndex + 1 )))) {
               fprintf ( stderr, "realloc for frame extras failed\n" );
-							for ( j = 1; j <= 4; j++ ) {  // assumes no binning > 4
+							for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 								if ( cameraInfo->frameSizes[ j ].numSizes ) {
 									free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 									free (( void* ) cameraInfo->frameInfo[ j ]);
