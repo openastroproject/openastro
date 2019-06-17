@@ -118,7 +118,7 @@ _oldQHY6InitCamera ( oaCamera* camera )
   cameraInfo->videoGrey16 = 1;
   cameraInfo->videoCurrent = OA_PIX_FMT_GREY16BE;
 
-  for ( i = 1; i <= 4; i++ ) {
+  for ( i = 1; i <= OA_MAX_BINNING; i++ ) {
     cameraInfo->frameSizes[i].numSizes = 0;
     cameraInfo->frameSizes[i].sizes = 0;
   }
