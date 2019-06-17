@@ -589,7 +589,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
 					sizeof ( FRAMESIZE ) * 2 ))) {
         fprintf ( stderr, "realloc for frame sizes failed\n" );
         ( p_Mallincam_Close )( handle );
-        for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+        for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 					if ( cameraInfo->frameSizes[ j ].numSizes ) {
 						free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 					}
@@ -639,7 +639,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
           cameraInfo->buffers[j].start = 0;
         }
       }
-      for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+      for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
 					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				}
@@ -664,7 +664,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
 		for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
 			free (( void* ) cameraInfo->buffers[j].start );
 		}
-    for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+    for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 			}
@@ -687,7 +687,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
 		for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
 			free (( void* ) cameraInfo->buffers[j].start );
 		}
-    for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+    for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 			}
@@ -767,7 +767,7 @@ oaMallincamCloseCamera ( oaCamera* camera )
 		for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
 			free (( void* ) cameraInfo->buffers[j].start );
 		}
-    for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+    for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 			}
