@@ -947,7 +947,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 							( numResolutions + 1 ) * sizeof ( FRAMESIZE )))) {
           fprintf ( stderr, "realloc for frame sizes failed\n" );
 					( *p_fc2DestroyContext )( pgeContext );
-					for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+					for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 						if ( cameraInfo->frameSizes[ j ].numSizes ) {
 							free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 							if ( cameraInfo->frameModes[ j ] ) {
@@ -968,7 +968,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
             sizeof ( struct modeInfo ) * ( numResolutions + 1 )))) {
           fprintf ( stderr, "realloc for frame modes failed\n" );
 					( *p_fc2DestroyContext )( pgeContext );
-					for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+					for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 						if ( cameraInfo->frameSizes[ j ].numSizes ) {
 							free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 							if ( cameraInfo->frameModes[ j ] ) {
@@ -1027,7 +1027,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   if (( *p_fc2SetGigEImagingMode )( pgeContext, firstMode ) != FC2_ERROR_OK ) {
     fprintf ( stderr, "Can't set mode %d for FC2 GUID\n", i );
     ( *p_fc2DestroyContext )( pgeContext );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				if ( cameraInfo->frameModes[ j ] ) {
@@ -1044,7 +1044,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       FC2_ERROR_OK ) {
     fprintf ( stderr, "Can't get settings %d for FC2 GUID\n", i );
     ( *p_fc2DestroyContext )( pgeContext );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				if ( cameraInfo->frameModes[ j ] ) {
@@ -1071,7 +1071,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       FC2_ERROR_OK ) {
     fprintf ( stderr, "Can't set settings %d for FC2 GUID\n", i );
     ( *p_fc2DestroyContext )( pgeContext );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				if ( cameraInfo->frameModes[ j ] ) {
@@ -1091,7 +1091,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       FC2_ERROR_OK ) {
     fprintf ( stderr, "Can't set binmode 1 for FC2 GUID\n" );
     ( *p_fc2DestroyContext )( pgeContext );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				if ( cameraInfo->frameModes[ j ] ) {
@@ -1131,7 +1131,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       fprintf ( stderr, "Can't read FC2 register 0x%04x\n",
           FC2_REG_DATA_DEPTH );
       ( *p_fc2DestroyContext )( pgeContext );
-			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
 					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 					if ( cameraInfo->frameModes[ j ] ) {
@@ -1157,7 +1157,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       fprintf ( stderr, "Can't read FC2 register 0x%04x\n",
           FC2_REG_IMAGE_DATA_FORMAT );
       ( *p_fc2DestroyContext )( pgeContext );
-			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
 					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 					if ( cameraInfo->frameModes[ j ] ) {
@@ -1381,7 +1381,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       FC2_ERROR_OK ) {
 		fprintf ( stderr, "fc2GetEmbeddedImageInfo failed\n" );
     ( *p_fc2DestroyContext )( pgeContext );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				if ( cameraInfo->frameModes[ j ] ) {
@@ -1405,7 +1405,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 					FC2_ERROR_OK ) {
 				fprintf ( stderr, "fc2SetEmbeddedImageInfo failed\n" );
 				( *p_fc2DestroyContext )( pgeContext );
-				for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+				for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 					if ( cameraInfo->frameSizes[ j ].numSizes ) {
 						free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 						if ( cameraInfo->frameModes[ j ] ) {
@@ -1449,7 +1449,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 			free (( void* ) cameraInfo->metadataBuffers );
 			free (( void* ) cameraInfo->buffers );
       ( *p_fc2DestroyContext )( pgeContext );
-			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
 					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 					if ( cameraInfo->frameModes[ j ] ) {
@@ -1478,7 +1478,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       oacamFC2controller, ( void* ) camera )) {
     ( *p_fc2DestroyContext )( pgeContext );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				if ( cameraInfo->frameModes[ j ] ) {
@@ -1509,7 +1509,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     pthread_cond_broadcast ( &cameraInfo->commandQueued );
     pthread_join ( cameraInfo->controllerThread, &dummy );
     ( *p_fc2DestroyContext )( pgeContext );
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				if ( cameraInfo->frameModes[ j ] ) {
@@ -1601,7 +1601,7 @@ oaFC2CloseCamera ( oaCamera* camera )
      free (( void* ) cameraInfo->frameRates.rates );
     }
 
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				if ( cameraInfo->frameModes[ j ] ) {
