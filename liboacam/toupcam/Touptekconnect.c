@@ -595,7 +595,7 @@ oaTouptekInitCamera ( oaCameraDevice* device )
 						sizeof ( FRAMESIZE ) * 2 ))) {
         fprintf ( stderr, "realloc for frame sizes failed\n" );
         ( p_Toupcam_Close )( handle );
-        for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+        for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 					if ( cameraInfo->frameSizes[ j ].numSizes ) {
 						free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 					}
@@ -644,7 +644,7 @@ oaTouptekInitCamera ( oaCameraDevice* device )
           cameraInfo->buffers[j].start = 0;
         }
       }
-      for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+      for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
 					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				}
@@ -671,7 +671,7 @@ oaTouptekInitCamera ( oaCameraDevice* device )
       free (( void* ) cameraInfo->buffers[j].start );
       cameraInfo->buffers[j].start = 0;
     }
-    for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+    for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 			}
@@ -695,7 +695,7 @@ oaTouptekInitCamera ( oaCameraDevice* device )
       free (( void* ) cameraInfo->buffers[j].start );
       cameraInfo->buffers[j].start = 0;
     }
-    for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+    for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 			}
@@ -770,7 +770,7 @@ oaTouptekCloseCamera ( oaCamera* camera )
       free (( void* ) cameraInfo->buffers[j].start );
       cameraInfo->buffers[j].start = 0;
     }
-    for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+    for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 			}
