@@ -378,7 +378,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 				fprintf ( stderr, "malloc for frame sizes failed\n" );
 				p_CloseQHYCCD ( handle );
 				p_ReleaseQHYCCDResource();
-				for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+				for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 					if ( cameraInfo->frameSizes[ j ].numSizes ) {
 						free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 					}
@@ -434,7 +434,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
       }
 			p_CloseQHYCCD ( handle );
 			p_ReleaseQHYCCDResource();
-			for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
 					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				}
@@ -459,7 +459,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
       free (( void* ) cameraInfo->buffers[j].start );
       cameraInfo->buffers[j].start = 0;
     }
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 			}
@@ -482,7 +482,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
       free (( void* ) cameraInfo->buffers[j].start );
       cameraInfo->buffers[j].start = 0;
     }
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 			}
@@ -558,7 +558,7 @@ oaQHYCCDCloseCamera ( oaCamera* camera )
       free (( void* ) cameraInfo->buffers[j].start );
       cameraInfo->buffers[j].start = 0;
     }
-		for ( j = 1; j <= 4; j++ ) {  // assumes we don't bin greater than 4
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 			}
