@@ -95,6 +95,7 @@ MainWindow::MainWindow ( QString configFile )
   filterWheelDevs = 0;
   timerDevs = 0;
   state.histogramOn = 0;
+  state.histogramSignalConnected = 0;
   state.histogramWidget = 0;
   state.needGroupBoxBorders = 0;
   commonState.cameraTempValid = 0;
@@ -1954,7 +1955,7 @@ MainWindow::enableHistogram ( void )
 {
   if ( histogramOpt->isChecked()) {
     if ( !state.histogramWidget ) {
-      state.histogramWidget = new HistogramWidget();
+      state.histogramWidget = new HistogramWidget ( APPLICATION_NAME );
       // need to do this to be able to uncheck the menu item on closing
       state.histogramWidget->setAttribute ( Qt::WA_DeleteOnClose );
       if ( histogramConf.histogramOnTop ) {
@@ -1963,6 +1964,11 @@ MainWindow::enableHistogram ( void )
       connect ( state.histogramWidget, SIGNAL( destroyed ( QObject* )), this,
           SLOT ( histogramClosed()));
     }
+		if ( state.previewWidget && !state.histogramSignalConnected ) {
+			connect ( state.previewWidget, SIGNAL( updateHistogram ( void )),
+					state.histogramWidget, SLOT( update ( void )));
+			state.histogramSignalConnected = 1;
+		}
     state.histogramWidget->show();
     state.histogramOn = 1;
     config.showHistogram = 1;
@@ -1980,6 +1986,13 @@ MainWindow::enableHistogram ( void )
 void
 MainWindow::histogramClosed ( void )
 {
+	if ( state.histogramSignalConnected ) {
+		/*
+		disconnect ( state.previewWidget, SIGNAL( updateHistogram ( void )),
+				state.histogramWidget, SLOT( update()));
+		*/
+		state.histogramSignalConnected = 0;
+	}
   state.histogramWidget = 0;
   state.histogramOn = 0;
   if ( !doingQuit ) {
@@ -2666,6 +2679,12 @@ MainWindow::createPreviewWindow()
   }
 
   state.previewWidget->setDisplayFPS ( generalConf.displayFPS );
+
+	if ( state.histogramWidget ) {
+		connect ( state.previewWidget, SIGNAL( updateHistogram ( void )),
+				state.histogramWidget, SLOT( update ( void )));
+		state.histogramSignalConnected = 1;
+	}
 }
 
 

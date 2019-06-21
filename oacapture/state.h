@@ -2,7 +2,7 @@
  *
  * state.h -- global application state datastructures
  *
- * Copyright 2013,2014,2015,2016,2017,2018
+ * Copyright 2013,2014,2015,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -49,6 +49,7 @@ typedef struct
   ZoomWidget*		zoomWidget;
   CameraWidget*		cameraWidget;
   int			histogramOn;
+  int			histogramSignalConnected;
   HistogramWidget*	histogramWidget;
   SettingsWidget*	settingsWidget;
   AdvancedSettings*	advancedSettings;

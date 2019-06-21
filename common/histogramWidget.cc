@@ -2,7 +2,8 @@
  *
  * histogramWidget.cc -- class for the histogram display
  *
- * Copyright 2013,2014,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -32,31 +33,48 @@ extern "C" {
 #include <openastro/camera.h>
 }
 
-#include "version.h"
-#include "configuration.h"
-#include "state.h"
 #include "histogramWidget.h"
+#include "histogramSettings.h"
 
 
-HistogramWidget::HistogramWidget()
+int		HistogramWidget::colours;
+int		HistogramWidget::doneProcess = 0;
+int		HistogramWidget::maxRedIntensity = 0;
+int		HistogramWidget::maxGreenIntensity = 0;
+int		HistogramWidget::maxBlueIntensity = 0;
+int		HistogramWidget::minIntensity;
+int		HistogramWidget::maxIntensity = 0;
+int		HistogramWidget::fullIntensity = 0;
+int		HistogramWidget::statsEnabled = 0;
+int		HistogramWidget::currentLayoutIsSplit = 0;
+int		HistogramWidget::newLayoutIsSplit;
+int		HistogramWidget::showingThreeGraphs = 0;
+int		HistogramWidget::red[256];
+int		HistogramWidget::green[256];
+int		HistogramWidget::blue[256];
+int*	HistogramWidget::grey;
+int		HistogramWidget::histogramMin;
+int		HistogramWidget::histogramMax;
+
+
+HistogramWidget::HistogramWidget ( const char* appName, QWidget* parent ) :
+		QWidget ( parent )
 {
-  currentLayoutIsSplit = 0;
+qDebug() << "histogram widget constructor";
   newLayoutIsSplit = histogramConf.splitHistogram;
-  showingThreeGraphs = 0;
   resize ( 300, 150 );
-  setWindowTitle( APPLICATION_NAME " Histogram" );
-  setWindowIcon ( QIcon ( ":/qt-icons/barchart.png" ));
+	if ( appName ) {
+		char		str[ 256 ];
+		( void ) strncpy ( str, appName, 256 );
+		( void ) strncat ( str, " Histogram", 256 );
+		setWindowTitle ( str );
+		setWindowIcon ( QIcon ( ":/qt-icons/barchart.png" ));
+	}
   setSizePolicy ( QSizePolicy ( QSizePolicy::Fixed, QSizePolicy::Fixed ));
   grey = red;
   bzero ( red, sizeof( int ) * 256 );
   bzero ( green, sizeof( int ) * 256 );
   bzero ( blue, sizeof( int ) * 256 );
-  colours = 1;
-  doneProcess = 0;
-  maxRedIntensity = maxGreenIntensity = maxBlueIntensity = maxIntensity = 0;
-  fullIntensity = 0;
-  statsEnabled = 0;
-  signalConnected = 0;
 }
 
 
@@ -69,14 +87,7 @@ void
 HistogramWidget::process ( void* imageData, unsigned int width,
     unsigned int height, unsigned int length, int format )
 {
-  // Can't do this in the constructor because previewWidget might not exist
-  // at that time
-  if ( !signalConnected ) {
-    connect ( state.previewWidget, SIGNAL( updateHistogram ( void )),
-        this, SLOT( update ( void )));
-    signalConnected = 1;
-  }
-
+qDebug() << "processing histogram";
   fullIntensity = 0xff;
   minIntensity = 0xffff;
   doneProcess = 1;
@@ -103,10 +114,7 @@ HistogramWidget::paintEvent ( QPaintEvent* event )
 {
   Q_UNUSED ( event );
 
-  if ( !doneProcess ) {
-    return;
-  }
-
+qDebug() << "painting histogram";
   if ( 1 == colours && showingThreeGraphs ) {
     // resize ( 300, 150 );
     setFixedSize ( 300, 150 );
@@ -144,6 +152,10 @@ HistogramWidget::paintEvent ( QPaintEvent* event )
     painter.drawLine ( 24, 275, 280, 275 );
     painter.drawLine ( 24, 425, 24, 325 );
     painter.drawLine ( 24, 425, 280, 425 );
+  }
+
+  if ( !doneProcess ) {
+    return;
   }
 
   if ( fullIntensity ) {

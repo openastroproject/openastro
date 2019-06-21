@@ -1,7 +1,7 @@
 #
 # Makefile.am -- oacapture Makefile template
 #
-# Copyright 2013,2014,2015,2016,2017,2018
+# Copyright 2013,2014,2015,2016,2017,2018,2019
 #   James Fidell (james@openastroproject.org)
 #
 # License:
@@ -42,8 +42,8 @@ MOC_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/common $(MOC_CFLAGS) \
 bin_PROGRAMS = oacapture
 BUILT_SOURCES = version.h
 oacapture_SOURCES = cameraWidget.cc captureWidget.cc controlWidget.cc \
-  histogramWidget.cc imageWidget.cc mainWindow.cc oacapture.cc \
-	previewWidget.cc zoomWidget.cc trampoline.cc displayWindow.cc \
+  imageWidget.cc mainWindow.cc oacapture.cc previewWidget.cc zoomWidget.cc \
+	trampoline.cc displayWindow.cc \
 	moc_cameraWidget.cc moc_captureWidget.cc moc_controlWidget.cc \
 	moc_displayWindow.cc moc_imageWidget.cc moc_mainWindow.cc \
 	moc_previewWidget.cc moc_zoomWidget.cc \

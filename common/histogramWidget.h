@@ -2,7 +2,8 @@
  *
  * histogramWidget.h -- class declaration
  *
- * Copyright 2013,2014,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2016,2017,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -37,8 +38,10 @@
 
 class HistogramWidget : public QWidget
 {
+	Q_OBJECT
+
   public:
-    			HistogramWidget();
+    			HistogramWidget ( const char*, QWidget* parent = 0 );
     			~HistogramWidget();
     void		process ( void*, unsigned int, unsigned int,
 			    unsigned int, int );
@@ -46,30 +49,30 @@ class HistogramWidget : public QWidget
     void		resetStats();
     void		stopStats();
 
-    int			histogramMin;
-    int			histogramMax;
-    int			fullIntensity;
+    static int			histogramMin;
+    static int			histogramMax;
+    static int			fullIntensity;
 
   protected:
     void		paintEvent ( QPaintEvent* );
 
   private:
-    int			red[256];
-    int			green[256];
-    int			blue[256];
-    int			*grey;
-    int			colours;
-    int			maxIntensity;
-    int			minIntensity;
-    int			maxRedIntensity;
-    int			maxGreenIntensity;
-    int			maxBlueIntensity;
-    int			currentLayoutIsSplit;
-    int			newLayoutIsSplit;
-    int			showingThreeGraphs;
-    int			doneProcess;
-    int			statsEnabled;
-    int			signalConnected;
+    static int			red[256];
+    static int			green[256];
+    static int			blue[256];
+    static int			*grey;
+    static int			colours;
+    static int			maxIntensity;
+    static int			minIntensity;
+    static int			maxRedIntensity;
+    static int			maxGreenIntensity;
+    static int			maxBlueIntensity;
+    static int			currentLayoutIsSplit;
+    static int			newLayoutIsSplit;
+    static int			showingThreeGraphs;
+    static int			doneProcess;
+    static int			statsEnabled;
+
     void		_processRGBHistogram ( void*, unsigned int,
 			    unsigned int, unsigned int, int );
     void		_processGreyscaleHistogram ( void*, unsigned int,
