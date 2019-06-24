@@ -2,7 +2,7 @@
  *
  * processingControls.h -- class declaration
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -33,6 +33,9 @@
 #endif
 #include <QtGui>
 
+#include "histogramWidget.h"
+
+
 class ProcessingControls : public QWidget
 {
   Q_OBJECT
@@ -41,6 +44,7 @@ class ProcessingControls : public QWidget
     			ProcessingControls ( QWidget* );
     			~ProcessingControls();
     void		configure ( void );
+		void		connectHistogramSignal ( void );
 
   private:
     QVBoxLayout*	controlBox;
@@ -48,10 +52,21 @@ class ProcessingControls : public QWidget
     QLabel*		whiteLevelLabel;
     QLabel*		brightnessLabel;
     QLabel*		contrastLabel;
+    QLabel*		saturationLabel;
+    QLabel*		gammaLabel;
     QSlider*		blackLevelSlider;
     QSlider*		whiteLevelSlider;
     QSlider*		brightnessSlider;
     QSlider*		contrastSlider;
+    QSlider*		saturationSlider;
+    QSlider*		gammaSlider;
+		HistogramWidget*	histogram;
 
   public slots:
+		void				blackLevelChanged ( void );
+		void				whiteLevelChanged ( void );
+		void				brightnessChanged ( void );
+		void				contrastChanged ( void );
+		void				saturationChanged ( void );
+		void				gammaChanged ( void );
 };

@@ -2,7 +2,7 @@
  *
  * state.h -- global application state datastructures
  *
- * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -50,6 +50,8 @@ typedef struct
   int			stackingMethod;
 
   int                   preferredExposureControl;
+	int			histogramCCSignalConnected;
+	int			histogramProcessingSignalConnected;
 
   QString               appPath;
 } STATE;

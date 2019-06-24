@@ -2,7 +2,7 @@
  *
  * processingControls.cc -- class for the processing tab in the settings dialog
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -39,15 +39,17 @@ ProcessingControls::ProcessingControls ( QWidget* parent ) : QWidget ( parent )
   whiteLevelLabel = new QLabel ( tr ( "White Level" ));
   brightnessLabel = new QLabel ( tr ( "Brightness" ));
   contrastLabel = new QLabel ( tr ( "Contrast" ));
+  saturationLabel = new QLabel ( tr ( "Saturation" ));
+  gammaLabel = new QLabel ( tr ( "Gamma" ));
   blackLevelSlider = new QSlider ( Qt::Horizontal, this );
   blackLevelSlider->setFocusPolicy ( Qt::TabFocus );
   blackLevelSlider->setMinimumWidth ( 100 );
-  blackLevelSlider->setRange ( 0, 65535 );
+  blackLevelSlider->setRange ( 0, 65534 );
   blackLevelSlider->setValue ( 0 );
   whiteLevelSlider = new QSlider ( Qt::Horizontal, this );
   whiteLevelSlider->setFocusPolicy ( Qt::TabFocus );
   whiteLevelSlider->setMinimumWidth ( 100 );
-  whiteLevelSlider->setRange ( 0, 65535 );
+  whiteLevelSlider->setRange ( 1, 65535 );
   whiteLevelSlider->setValue ( 65535 );
   brightnessSlider = new QSlider ( Qt::Horizontal, this );
   brightnessSlider->setFocusPolicy ( Qt::TabFocus );
@@ -58,7 +60,21 @@ ProcessingControls::ProcessingControls ( QWidget* parent ) : QWidget ( parent )
   contrastSlider->setFocusPolicy ( Qt::TabFocus );
   contrastSlider->setMinimumWidth ( 100 );
   contrastSlider->setRange ( 0, 100 );
-  contrastSlider->setValue ( 0 );
+  contrastSlider->setValue ( 50 );
+  saturationSlider = new QSlider ( Qt::Horizontal, this );
+  saturationSlider->setFocusPolicy ( Qt::TabFocus );
+  saturationSlider->setMinimumWidth ( 100 );
+  saturationSlider->setRange ( 0, 200 );
+  saturationSlider->setValue ( 50 );
+  gammaSlider = new QSlider ( Qt::Horizontal, this );
+  gammaSlider->setFocusPolicy ( Qt::TabFocus );
+  gammaSlider->setMinimumWidth ( 100 );
+  gammaSlider->setRange ( 1, 255 );
+  gammaSlider->setValue ( 100 );
+
+	histogram = new HistogramWidget ( 0, this );
+	//histogram = new HistogramWidget ( "processing", 0 );
+	//histogram->show();
 
   controlBox = new QVBoxLayout();
   controlBox->addWidget ( blackLevelLabel );
@@ -69,9 +85,42 @@ ProcessingControls::ProcessingControls ( QWidget* parent ) : QWidget ( parent )
   controlBox->addWidget ( brightnessSlider );
   controlBox->addWidget ( contrastLabel );
   controlBox->addWidget ( contrastSlider );
-  controlBox->addStretch ( 1 );
+  controlBox->addWidget ( saturationLabel );
+  controlBox->addWidget ( saturationSlider );
+  controlBox->addWidget ( histogram );
+  controlBox->addWidget ( gammaLabel );
+  controlBox->addWidget ( gammaSlider );
+  controlBox->addStretch ( 2 );
 
   setLayout ( controlBox );
+
+	connect ( blackLevelSlider, SIGNAL ( valueChanged ( int )), this,
+			SLOT ( blackLevelChanged()));
+	connect ( whiteLevelSlider, SIGNAL ( valueChanged ( int )), this,
+			SLOT ( whiteLevelChanged()));
+	connect ( brightnessSlider, SIGNAL ( valueChanged ( int )), this,
+			SLOT ( brightnessChanged()));
+	connect ( contrastSlider, SIGNAL ( valueChanged ( int )), this,
+			SLOT ( contrastChanged()));
+	connect ( saturationSlider, SIGNAL ( valueChanged ( int )), this,
+			SLOT ( saturationChanged()));
+	connect ( gammaSlider, SIGNAL ( valueChanged ( int )), this,
+			SLOT ( gammaChanged()));
+
+	connectHistogramSignal();
+}
+
+
+void
+ProcessingControls::connectHistogramSignal ( void )
+{
+qDebug() << "in PC" << __FUNCTION__;
+	if ( state.viewWidget && !state.histogramProcessingSignalConnected ) {
+		connect ( state.viewWidget, SIGNAL( updateHistogram ( void )),
+				histogram, SLOT( update ( void )));
+qDebug() << "PC connected histogram signal";
+		state.histogramProcessingSignalConnected = 1;
+	}
 }
 
 
@@ -86,4 +135,60 @@ ProcessingControls::~ProcessingControls()
 void
 ProcessingControls::configure ( void )
 {
+}
+
+
+void
+ProcessingControls::blackLevelChanged ( void )
+{
+	int		blackValue, whiteValue;
+
+	blackValue = blackLevelSlider->value();
+	whiteValue = whiteLevelSlider->value();
+	if ( whiteValue <= blackValue ) {
+		whiteLevelSlider->setValue ( blackValue + 1 );
+	}
+	state.viewWidget->setBlackLevel ( blackValue );
+}
+
+
+void
+ProcessingControls::whiteLevelChanged ( void )
+{
+	int		blackValue, whiteValue;
+
+	blackValue = blackLevelSlider->value();
+	whiteValue = whiteLevelSlider->value();
+	if ( blackValue >= whiteValue ) {
+		blackLevelSlider->setValue ( whiteValue - 1 );
+	}
+	state.viewWidget->setWhiteLevel ( whiteLevelSlider->value());
+}
+
+
+void
+ProcessingControls::brightnessChanged ( void )
+{
+	state.viewWidget->setBrightness ( brightnessSlider->value());
+}
+
+
+void
+ProcessingControls::contrastChanged ( void )
+{
+	state.viewWidget->setContrast ( contrastSlider->value());
+}
+
+
+void
+ProcessingControls::saturationChanged ( void )
+{
+	state.viewWidget->setSaturation ( saturationSlider->value());
+}
+
+
+void
+ProcessingControls::gammaChanged ( void )
+{
+	state.viewWidget->setGamma ( gammaSlider->value());
 }

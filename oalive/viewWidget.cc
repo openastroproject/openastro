@@ -115,6 +115,41 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
     cb += b;
   }
 
+	blackPoint = 0;
+	whitePoint = 255;
+	coeff_b = 0;
+	coeff_c = 1;
+	coeff_t = 0;
+	coeff_s = 1;
+	coeff_r = 1;
+	coeff_tbr = 0;
+	// Magic numbers be here for luminance values.  Apparently the
+	// lumR, lumG, lumB triplet can be either ( 0.3086, 0.6094, 0.0820 )
+	// or ( 0.2125, 0.7154, 0.0721 )
+	coeff_sr = ( 1.0 - coeff_s ) * 0.3086;
+	coeff_sg = ( 1.0 - coeff_s ) * 0.6094;
+	coeff_sb = ( 1.0 - coeff_s ) * 0.0820;
+	coeff_r1 = coeff_r * coeff_c * ( coeff_sr + coeff_s );
+	coeff_r2 = coeff_r * coeff_c * coeff_sg;
+	coeff_r3 = coeff_r * coeff_c * coeff_sb;
+	coeff_g1 = coeff_r * coeff_c * coeff_sr;
+	coeff_g2 = coeff_r * coeff_c * ( coeff_sg + coeff_s );
+	coeff_g3 = coeff_r * coeff_c * coeff_sb;
+	coeff_b1 = coeff_r * coeff_c * coeff_sr;
+	coeff_b2 = coeff_r * coeff_c * coeff_sg;
+	coeff_b3 = coeff_r * coeff_c * ( coeff_sb + coeff_s );
+
+	/*
+	qDebug() << "b" << coeff_b << "c" << coeff_c << "t" << coeff_t;
+	qDebug() << "s" << coeff_s << "r" << coeff_r << "tbr" << coeff_tbr;
+	qDebug() << "sr" << coeff_sr << "sg" << coeff_sg << "sb" << coeff_sb;
+	qDebug() << "r1" << coeff_r1 << "r2" << coeff_r2 << "r3" << coeff_r3;
+	qDebug() << "g1" << coeff_g1 << "g2" << coeff_g2 << "g3" << coeff_g3;
+	qDebug() << "b1" << coeff_b1 << "b2" << coeff_b2 << "b3" << coeff_b3;
+	*/
+
+	gammaExponent = 1.0;
+
   pthread_mutex_init ( &imageMutex, 0 );
   recordingInProgress = 0;
   manualStop = 0;
@@ -522,8 +557,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 #endif
   struct timeval	t;
   int			doDisplay = 0;
-#ifdef OACAPTURE
   int			doHistogram = 0;
+#ifdef OACAPTURE
   int			previewPixelFormat, writePixelFormat;
 #else
   int			viewPixelFormat, writePixelFormat;
@@ -604,8 +639,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
   if ( oaFrameFormats[ self->videoFramePixelFormat ].lumChrom ||
       oaFrameFormats[ self->videoFramePixelFormat ].packed ) {
     // this is going to make the flip quite ugly and means we need to
-#ifdef OACAPTURE
     // start using currentPreviewBuffer too
+#ifdef OACAPTURE
     currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :
         !currentPreviewBuffer;
     // Convert luminance/chrominance and packed raw colour to RGB.
@@ -638,7 +673,6 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 					config.imageSizeY, previewPixelFormat, axis );
     }
 #else /* OACAPTURE */
-    // start using currentViewBuffer too
     currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
         !currentViewBuffer;
     // Convert luminance/chrominance and packed raw colour to RGB.
@@ -737,6 +771,54 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
         config.imageSizeX, config.imageSizeY, viewPixelFormat );
     viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
   }
+
+	if ( oaFrameFormats[ viewPixelFormat ].monochrome ) {
+		// apply image transforms to monochrome image
+		// we know we have an 8-bit mono image at this point
+		int			i, totSize = config.imageSizeX * config.imageSizeY;
+		double	val, newVal;
+		uint8_t*	src = ( uint8_t* ) viewBuffer;
+		uint8_t*	tgt;
+    currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
+        !currentViewBuffer;
+		tgt = ( uint8_t* ) self->viewImageBuffer [ currentViewBuffer ];
+		for ( i = 0; i < totSize; i++ ) {
+			val = src[ i ];
+			newVal = oaclamp ( 0, 255, pow ( val * self->coeff_r * self->coeff_c
+					+ self->coeff_tbr, self->gammaExponent ));
+			tgt[ i ] = ( uint8_t )( newVal + 0.5 );
+		}
+		viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
+	} else {
+		// apply image transforms to colour image
+		// we know we have an RGB24 image at this point
+		int			i, totSize = config.imageSizeX * config.imageSizeY * 3;
+		double	valR, valG, valB, newValR, newValG, newValB;
+		uint8_t*	src = ( uint8_t* ) viewBuffer;
+		uint8_t*	tgt;
+    currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
+        !currentViewBuffer;
+		tgt = ( uint8_t* ) self->viewImageBuffer [ currentViewBuffer ];
+		for ( i = 0; i < totSize; i += 3 ) {
+			valR = src[ i ];
+			valG = src[ i + 1 ];
+			valB = src[ i + 2 ];
+			newValR = oaclamp ( 0, 255, pow ( valR * self->coeff_r1 +
+					valG * self->coeff_r2 + valB * self->coeff_r3 + self->coeff_tbr,
+					self->gammaExponent ));
+			newValG = oaclamp ( 0, 255, pow ( valR * self->coeff_g1 +
+					valG * self->coeff_g2 + valB * self->coeff_g3 + self->coeff_tbr,
+					self->gammaExponent ));
+			newValB = oaclamp ( 0, 255, pow ( valR * self->coeff_b1 +
+					valG * self->coeff_b2 + valB * self->coeff_b3 + self->coeff_tbr,
+					self->gammaExponent ));
+			tgt[ i ] = ( int )( newValR + 0.5 );
+			tgt[ i + 1 ] = ( int )( newValG + 0.5 );
+			tgt[ i + 2 ] = ( int )( newValB + 0.5 );
+		}
+		viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
+	}
+
 #endif /* OACAPTURE */
 
 #ifdef OACAPTURE
@@ -1108,9 +1190,14 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 
   self->framesInLastSecond++;
   if ( t.tv_sec != self->secondForFrameCount ) {
+    const int viewFrameLength = config.imageSizeX * config.imageSizeY *
+        oaFrameFormats[ viewPixelFormat ].bytesPerPixel;
     self->secondForFrameCount = t.tv_sec;
     emit self->updateActualFrameRate ( self->framesInLastSecond );
     self->framesInLastSecond = 0;
+    state->cameraControls->histogram->process ( viewBuffer, config.imageSizeX,
+				config.imageSizeY, viewFrameLength, viewPixelFormat );
+    doHistogram = 1;
   }
 
   if ( self->hasTemp && t.tv_sec != self->secondForTemperature &&
@@ -1126,6 +1213,11 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 
   if ( doDisplay ) {
     emit self->updateDisplay();
+  }
+
+  if ( doHistogram ) {
+qDebug() << "emitting histogram signal";
+    emit self->updateHistogram();
   }
 
   if ( self->manualStop ) {
@@ -1289,4 +1381,100 @@ ViewWidget::reduceTo8Bit ( void* sourceData, void* targetData, int xSize,
   }
 
   return outputFormat;
+}
+
+
+void
+ViewWidget::setBlackLevel ( int val )
+{
+	val >>= 8;
+	if ( val >= whitePoint ) {
+		return;
+	}
+	blackPoint = val;
+	coeff_r = 255.0 / ( whitePoint - blackPoint );
+	coeff_tbr = 255 * ( coeff_t + coeff_b ) - blackPoint;
+	_recalcCoeffs();
+}
+
+
+void
+ViewWidget::setWhiteLevel ( int val )
+{
+	val >>= 8;
+	if ( val <= blackPoint ) {
+		return;
+	}
+	whitePoint = val;
+	coeff_r = 255.0 / ( whitePoint - blackPoint );
+	coeff_tbr = 255 * ( coeff_t + coeff_b ) - blackPoint;
+	_recalcCoeffs();
+}
+
+
+void
+ViewWidget::setBrightness ( int val )
+{
+	brightness = val;
+	coeff_b = val / 100.0;
+	coeff_tbr = 255 * ( coeff_t + coeff_b ) - blackPoint;
+}
+
+
+void
+ViewWidget::setContrast ( int val )
+{
+	contrast = val;
+	coeff_c = val / 50.0;
+	coeff_t = ( 1.0 - coeff_c ) / 2.0;
+	_recalcCoeffs();
+}
+
+
+void
+ViewWidget::setSaturation ( int val )
+{
+	saturation = val;
+	coeff_s = val / 100.0;
+	// Magic numbers be here for luminance values.  Apparently the
+	// lumR, lumG, lumB triplet can be either ( 0.3086, 0.6094, 0.0820 )
+	// or ( 0.2125, 0.7154, 0.0721 )
+	coeff_sr = ( 1.0 - coeff_s ) * 0.3086;
+	coeff_sg = ( 1.0 - coeff_s ) * 0.6094;
+	coeff_sb = ( 1.0 - coeff_s ) * 0.0820;
+	_recalcCoeffs();
+}
+
+
+void
+ViewWidget::setGamma ( int val )
+{
+	gammaExponent = val / 100.0;
+}
+
+
+void
+ViewWidget::_recalcCoeffs ( void )
+{
+	coeff_r1 = coeff_r * coeff_c * ( coeff_sr + coeff_s );
+	coeff_r2 = coeff_r * coeff_c * coeff_sg;
+	coeff_r3 = coeff_r * coeff_c * coeff_sb;
+	coeff_g1 = coeff_r * coeff_c * coeff_sr;
+	coeff_g2 = coeff_r * coeff_c * ( coeff_sg + coeff_s );
+	coeff_g3 = coeff_r * coeff_c * coeff_sb;
+	coeff_b1 = coeff_r * coeff_c * coeff_sr;
+	coeff_b2 = coeff_r * coeff_c * coeff_sg;
+	coeff_b3 = coeff_r * coeff_c * ( coeff_sb + coeff_s );
+}
+
+
+void
+ViewWidget::_displayCoeffs ( void )
+{
+	qDebug() << "b" << coeff_b << "c" << coeff_c << "t" << coeff_t;
+	qDebug() << "s" << coeff_s << "r" << coeff_r << "tbr" << coeff_tbr;
+	qDebug() << "sr" << coeff_sr << "sg" << coeff_sg << "sb" << coeff_sb;
+	qDebug() << "r1" << coeff_r1 << "r2" << coeff_r2 << "r3" << coeff_r3;
+	qDebug() << "g1" << coeff_g1 << "g2" << coeff_g2 << "g3" << coeff_g3;
+	qDebug() << "b1" << coeff_b1 << "b2" << coeff_b2 << "b3" << coeff_b3;
 }

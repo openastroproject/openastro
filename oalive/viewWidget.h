@@ -65,6 +65,12 @@ class ViewWidget : public QFrame
     void		setFirstFrameTime ( void );
     void		beginRecording ( void );
     void		forceRecordingStop ( void );
+		void		setBlackLevel ( int );
+		void		setWhiteLevel ( int );
+		void		setBrightness ( int );
+		void		setContrast ( int );
+		void		setSaturation ( int );
+		void		setGamma ( int );
 
   public slots:
     void		recentreReticle ( void );
@@ -85,6 +91,9 @@ class ViewWidget : public QFrame
     void		stopRecording ( void );
 
   private:
+		void			_recalcCoeffs ( void );
+		void			_displayCoeffs ( void );
+
     QImage		image;
     int			currentZoom;
     int			currentZoomX;
@@ -144,4 +153,29 @@ class ViewWidget : public QFrame
     QVector<QRgb>	greyscaleColourTable;
     QVector<QRgb>	falseColourTable;
 
+		int						blackPoint;
+		int						whitePoint;
+		int						brightness;
+		int						contrast;
+		int						saturation;
+		double				gammaExponent;
+
+		double				coeff_b;
+		double				coeff_c;
+		double				coeff_t;
+		double				coeff_s;
+		double				coeff_r;
+		double				coeff_sr;
+		double				coeff_sg;
+		double				coeff_sb;
+		double				coeff_r1;
+		double				coeff_r2;
+		double				coeff_r3;
+		double				coeff_g1;
+		double				coeff_g2;
+		double				coeff_g3;
+		double				coeff_b1;
+		double				coeff_b2;
+		double				coeff_b3;
+		double				coeff_tbr;
 };
