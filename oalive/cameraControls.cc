@@ -49,12 +49,23 @@
 #define MENU_RANGE_SECS		3
 #define MENU_RANGE_MINS		4
 
-static int64_t		rangeMenuMax[5] = {
-  1LL, 1000LL, 1000000LL, 60000000LL, 3600000000LL
+static int64_t		rangeMenuMax[4] = {
+  1LL, 1000LL, 1000000LL, 60000000LL
+};
+
+/*
+static unsigned int			rangeIntervals[4] = {
+	MENU_RANGE_USEC, MENU_RANGE_MSEC, MENU_RANGE_SECS,
+		MENU_RANGE_MINS
+};
+*/
+
+static int64_t			rangeMultipliers[4] = {
+	1LL, 1000LL, 1000000LL, 60000000LL
 };
 
 static const char*	rangeMenuLabels[5] = {
-  "unused", "microseconds", "milliseconds", "seconds", "minutes"
+  "microseconds", "milliseconds", "seconds", "minutes"
 };
 
 
@@ -70,6 +81,23 @@ CameraControls::CameraControls ( QWidget* parent ) : QWidget ( parent )
   frameRateMenu = 0;
   memset ( controlType, 0, sizeof ( controlType ));
   ignoreFrameRateChanges = 0;
+	//histogram = new HistogramWidget ( 0, this );
+	histogram = new HistogramWidget ( "controls", 0 );
+	connectHistogramSignal();
+
+}
+
+
+void
+CameraControls::connectHistogramSignal ( void )
+{
+qDebug() << "in CC" << __FUNCTION__;
+	if ( state.viewWidget && !state.histogramCCSignalConnected ) {
+		connect ( state.viewWidget, SIGNAL( updateHistogram ( void )),
+				histogram, SLOT( update ( void )));
+qDebug() << "CC connected histogram signal";
+		state.histogramCCSignalConnected = 1;
+	}
 }
 
 
@@ -145,26 +173,44 @@ CameraControls::configure ( void )
             showStep = step;
 
             if ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE == c ) {
-              int minIndex = 0, maxIndex = 0;
               int i, numRanges;
 
+qDebug() << "min" << min << "max" << max;
               numRanges = sizeof ( rangeMenuMax ) / sizeof ( uint64_t );
+							minRangeIndex = maxRangeIndex = 0;
               for ( i = 0; i < numRanges - 1; i++ ) {
-                if ( min > rangeMenuMax[i] ) {
-                  minIndex++;
+                if ( min >= rangeMenuMax[i+1] ) {
+                  minRangeIndex++;
+									if ( maxRangeIndex < minRangeIndex ) {
+										maxRangeIndex = minRangeIndex;
+									}
                 }
-                if ( max > rangeMenuMax[i] ) {
-                  maxIndex++;
+                if ( i && max > rangeMenuMax[i-1] ) {
+                  maxRangeIndex = i+1;
                 }
               }
-              if ( minIndex != maxIndex ) {
+qDebug() << "minRange" << minRangeIndex << "maxRange" << maxRangeIndex;
+              if ( minRangeIndex != maxRangeIndex ) {
                 haveRangeMenu = 1;
                 showStep = 1;
                 exposureRangeMenu = new QComboBox ( this );
-                for ( i = minIndex; i < maxIndex; i++ ) {
+                for ( i = minRangeIndex; i < maxRangeIndex; i++ ) {
                   exposureRangeMenu->addItem ( tr ( rangeMenuLabels[i] ));
                 }
 
+								// modify showMin/showMax/def to match up with the current
+								// exposure units (which will be minRangeIndex at the moment)
+
+								if ( minRangeIndex ) {
+									showMin /= rangeMultipliers[ minRangeIndex ];
+									if ( showMin < 1 ) { showMin = 1; }
+									showMax /= rangeMultipliers[ minRangeIndex ];
+									if ( showMax < 1 ) { showMax = 1; }
+									def /= rangeMultipliers[ minRangeIndex ];
+									if ( def < 1 ) { def = 1; }
+								}
+
+								// FIX ME -- what if showMin and showMax are both now 1?
               }
             }
 
@@ -340,7 +386,7 @@ CameraControls::configure ( void )
 
   if ( haveRangeMenu ) {
     connect ( exposureRangeMenu, SIGNAL( currentIndexChanged ( int )),
-        this, SLOT ( updateExposureUnits()));
+        this, SLOT ( updateExposureUnits ( int )));
   }
 /*
   if ( commonState.camera->hasFixedFrameRates ( config.imageSizeX,
@@ -464,6 +510,7 @@ CameraControls::configure ( void )
   layout->addStretch ( 1 );
   layout->addLayout ( unhandledGrid );
   layout->addStretch ( 2 );
+	// layout->addWidget ( histogram );
 
   setLayout ( layout );
 }
@@ -577,6 +624,9 @@ void
 CameraControls::updateSliderControl ( int control )
 {
   int value = controlSpinbox[ control ]->value();
+	if ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE && ignoreExposureChanges ) {
+		return;
+	}
   cameraConf.CONTROL_VALUE( control ) = value;
   SET_PROFILE_CONTROL( control, value );
   commonState.camera->setControl ( control, value );
@@ -911,7 +961,71 @@ CameraControls::getFPSDenominator ( void )
 
 
 void
-CameraControls::updateExposureUnits ( void )
+CameraControls::updateExposureUnits ( int index )
 {
-  qWarning() << "need to implement CameraControls::updateExposureUnits";
+  int64_t	min, max, step, def;
+  int		prevOption;
+  int		setting;
+
+  prevOption = config.intervalMenuOption;
+  config.intervalMenuOption = index + minRangeIndex;
+
+  commonState.camera->controlRange ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE, &min, &max,
+    &step, &def );
+
+  setting = cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
+  setting *= rangeMultipliers[ prevOption ];
+
+  switch ( config.intervalMenuOption ) {
+    case MENU_RANGE_USEC:
+			// don't need to change these values
+      break;
+
+    case MENU_RANGE_MSEC:
+      // The settings from liboacam are in units of 1us so we need
+      // to convert those to milliseconds by dividing by 1000.
+      min /= 1000;
+      max /= 1000;
+      step /= 1000;
+      setting /= 1000;
+      break;
+
+    case MENU_RANGE_SECS:
+      // The settings from liboacam are in units of 1us so we need
+      // to convert those to seconds by dividing by 1000000.
+      min /= 1000000;
+      max /= 1000000;
+      step /= 1000000;
+      setting /= 1000000;
+      break;
+
+    case MENU_RANGE_MINS:
+      // The settings from liboacam are in units of 1us so we need
+      // to convert those to minutes by dividing by 60000000.
+      min /= 60000000;
+      max /= 60000000;
+      step /= 60000000;
+      setting /= 60000000;
+      break;
+  }
+
+  if ( min < 1 ) { min = 1; }
+  if ( max < 1 ) { max = 1; }
+  if ( step < 1 ) { step = 1; }
+  if ( setting < min ) {
+    setting = min;
+  } else {
+    if ( setting > max ) {
+      setting = max;
+    }
+  }
+
+  ignoreExposureChanges = 1;
+  controlSlider[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ]->setRange ( min, max );
+  controlSlider[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ]->setSingleStep ( step );
+  if ( state.settingsWidget ) {
+    state.settingsWidget->reconfigureControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
+  }
+  ignoreExposureChanges = 0;
+  controlSlider[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ]->setValue ( setting );
 }

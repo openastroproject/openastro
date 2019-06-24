@@ -2,7 +2,7 @@
  *
  * cameraControls.h -- class declaration
  *
- * Copyright 2015, 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -37,6 +37,8 @@ extern "C" {
 #include <openastro/camera.h>
 }
 
+#include "histogramWidget.h"
+
 
 class CameraControls : public QWidget
 {
@@ -49,6 +51,8 @@ class CameraControls : public QWidget
     void		disableAutoControls ( void );
     unsigned int	getCurrentGain ( void );
     unsigned int	getCurrentExposure ( void );
+		void		connectHistogramSignal ( void );
+		HistogramWidget*	histogram;
 
   private:
     QVBoxLayout*	layout;
@@ -81,6 +85,9 @@ class CameraControls : public QWidget
     QLabel*		exposureRangeLabel;
 
     void		_doFrameRateChange ( int );
+		int			minRangeIndex;
+		int			maxRangeIndex;
+		int			ignoreExposureChanges;
 
   public slots:
     void		updateSliderControl ( int );
@@ -92,5 +99,5 @@ class CameraControls : public QWidget
 
     void		buttonPushed ( int );
     void		menuChanged ( int );
-    void		updateExposureUnits ( void );
+    void		updateExposureUnits ( int );
 };
