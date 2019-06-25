@@ -43,11 +43,10 @@
 #define MENUS_PER_ROW		2
 #define UNHANDLED_PER_ROW	3
 
-#define MENU_RANGE_UNUSED	0
-#define MENU_RANGE_USEC		1
-#define MENU_RANGE_MSEC		2
-#define MENU_RANGE_SECS		3
-#define MENU_RANGE_MINS		4
+#define MENU_RANGE_USEC		0
+#define MENU_RANGE_MSEC		1
+#define MENU_RANGE_SECS		2
+#define MENU_RANGE_MINS		3
 
 static int64_t		rangeMenuMax[4] = {
   1LL, 1000LL, 1000000LL, 60000000LL
@@ -91,11 +90,9 @@ CameraControls::CameraControls ( QWidget* parent ) : QWidget ( parent )
 void
 CameraControls::connectHistogramSignal ( void )
 {
-qDebug() << "in CC" << __FUNCTION__;
 	if ( state.viewWidget && !state.histogramCCSignalConnected ) {
 		connect ( state.viewWidget, SIGNAL( updateHistogram ( void )),
 				histogram, SLOT( update ( void )));
-qDebug() << "CC connected histogram signal";
 		state.histogramCCSignalConnected = 1;
 	}
 }
@@ -175,7 +172,6 @@ CameraControls::configure ( void )
             if ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE == c ) {
               int i, numRanges;
 
-qDebug() << "min" << min << "max" << max;
               numRanges = sizeof ( rangeMenuMax ) / sizeof ( uint64_t );
 							minRangeIndex = maxRangeIndex = 0;
               for ( i = 0; i < numRanges - 1; i++ ) {
@@ -189,7 +185,6 @@ qDebug() << "min" << min << "max" << max;
                   maxRangeIndex = i+1;
                 }
               }
-qDebug() << "minRange" << minRangeIndex << "maxRange" << maxRangeIndex;
               if ( minRangeIndex != maxRangeIndex ) {
                 haveRangeMenu = 1;
                 showStep = 1;
@@ -209,6 +204,8 @@ qDebug() << "minRange" << minRangeIndex << "maxRange" << maxRangeIndex;
 									def /= rangeMultipliers[ minRangeIndex ];
 									if ( def < 1 ) { def = 1; }
 								}
+
+								config.intervalMenuOption = minRangeIndex;
 
 								// FIX ME -- what if showMin and showMax are both now 1?
               }
@@ -624,8 +621,11 @@ void
 CameraControls::updateSliderControl ( int control )
 {
   int value = controlSpinbox[ control ]->value();
-	if ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE && ignoreExposureChanges ) {
-		return;
+	if ( control == OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) {
+		if ( ignoreExposureChanges ) {
+			return;
+		}
+		value *= rangeMultipliers [ config.intervalMenuOption ];
 	}
   cameraConf.CONTROL_VALUE( control ) = value;
   SET_PROFILE_CONTROL( control, value );
@@ -974,7 +974,6 @@ CameraControls::updateExposureUnits ( int index )
     &step, &def );
 
   setting = cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
-  setting *= rangeMultipliers[ prevOption ];
 
   switch ( config.intervalMenuOption ) {
     case MENU_RANGE_USEC:
@@ -1022,7 +1021,9 @@ CameraControls::updateExposureUnits ( int index )
 
   ignoreExposureChanges = 1;
   controlSlider[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ]->setRange ( min, max );
+  controlSpinbox[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ]->setRange ( min, max );
   controlSlider[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ]->setSingleStep ( step );
+  controlSpinbox[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ]->setSingleStep ( step );
   if ( state.settingsWidget ) {
     state.settingsWidget->reconfigureControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
   }
