@@ -193,19 +193,27 @@ CameraControls::configure ( void )
                   exposureRangeMenu->addItem ( tr ( rangeMenuLabels[i] ));
                 }
 
-								// modify showMin/showMax/def to match up with the current
-								// exposure units (which will be minRangeIndex at the moment)
+								// update the intervalMenuOption if what we currently have
+								// doesn't fit the menus
 
-								if ( minRangeIndex ) {
-									showMin /= rangeMultipliers[ minRangeIndex ];
-									if ( showMin < 1 ) { showMin = 1; }
-									showMax /= rangeMultipliers[ minRangeIndex ];
-									if ( showMax < 1 ) { showMax = 1; }
-									def /= rangeMultipliers[ minRangeIndex ];
-									if ( def < 1 ) { def = 1; }
+								if ( config.intervalMenuOption < minRangeIndex &&
+										config.intervalMenuOption > maxRangeIndex ) {
+									config.intervalMenuOption = minRangeIndex;
 								}
 
-								config.intervalMenuOption = minRangeIndex;
+								// modify showMin/showMax/def to match up with the current
+								// exposure units
+
+								if ( config.intervalMenuOption ) {
+									showMin /= rangeMultipliers[ config.intervalMenuOption ];
+									if ( showMin < 1 ) { showMin = 1; }
+									showMax /= rangeMultipliers[ config.intervalMenuOption ];
+									if ( showMax < 1 ) { showMax = 1; }
+									def /= rangeMultipliers[ config.intervalMenuOption ];
+									if ( def < 1 ) { def = 1; }
+									exposureRangeMenu->setCurrentIndex (
+											config.intervalMenuOption );
+								}
 
 								// FIX ME -- what if showMin and showMax are both now 1?
               }
@@ -964,10 +972,8 @@ void
 CameraControls::updateExposureUnits ( int index )
 {
   int64_t	min, max, step, def;
-  int		prevOption;
   int		setting;
 
-  prevOption = config.intervalMenuOption;
   config.intervalMenuOption = index + minRangeIndex;
 
   commonState.camera->controlRange ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE, &min, &max,
