@@ -80,8 +80,7 @@ CameraControls::CameraControls ( QWidget* parent ) : QWidget ( parent )
   frameRateMenu = 0;
   memset ( controlType, 0, sizeof ( controlType ));
   ignoreFrameRateChanges = 0;
-	//histogram = new HistogramWidget ( 0, this );
-	histogram = new HistogramWidget ( "controls", 0 );
+	histogram = new HistogramWidget ( 0, this );
 	connectHistogramSignal();
 
 }
@@ -515,7 +514,7 @@ CameraControls::configure ( void )
   layout->addStretch ( 1 );
   layout->addLayout ( unhandledGrid );
   layout->addStretch ( 2 );
-	// layout->addWidget ( histogram );
+	layout->addWidget ( histogram );
 
   setLayout ( layout );
 }

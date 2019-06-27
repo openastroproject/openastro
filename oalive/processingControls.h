@@ -45,6 +45,7 @@ class ProcessingControls : public QWidget
     			~ProcessingControls();
     void		configure ( void );
 		void		connectHistogramSignal ( void );
+		HistogramWidget*	histogram;
 
   private:
     QVBoxLayout*	controlBox;
@@ -60,7 +61,6 @@ class ProcessingControls : public QWidget
     QSlider*		contrastSlider;
     QSlider*		saturationSlider;
     QSlider*		gammaSlider;
-		HistogramWidget*	histogram;
 
   public slots:
 		void				blackLevelChanged ( void );

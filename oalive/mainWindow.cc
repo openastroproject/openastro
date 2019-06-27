@@ -103,6 +103,10 @@ MainWindow::MainWindow ( QString configFile )
   state.histogramWidget = 0;
   state.needGroupBoxBorders = 0;
 #endif
+#ifdef OALIVE
+	state.histogramCCSignalConnected = 0;
+	state.histogramProcessingSignalConnected = 0;
+#endif
   commonState.gpsValid = 0;
   commonState.cameraTempValid = 0;
   commonState.binningValid = 0;
@@ -162,6 +166,8 @@ MainWindow::MainWindow ( QString configFile )
   createPreviewWindow();
 #else
   createViewWindow();
+	state.cameraControls->connectHistogramSignal();
+	state.processingControls->connectHistogramSignal();
 #endif
 
 #ifdef OACAPTURE
@@ -2795,10 +2801,10 @@ MainWindow::createPreviewWindow()
 MainWindow::createViewWindow()
 #endif
 {
+#ifdef OACAPTURE
   int height, width;
   int minHeight = 600, minWidth = 800;
 
-#ifdef OACAPTURE
   previewScroller = new QScrollArea ( this );
   focusOverlay = new FocusOverlay ( previewScroller );
   state.focusOverlay = focusOverlay;
@@ -2812,6 +2818,7 @@ MainWindow::createViewWindow()
 	commonState.viewerWidget = ( QWidget* ) viewWidget;
 #endif
 
+#ifdef OACAPTURE
   // These figures are a bit arbitrary, but give a size that should work
   // initially on small displays
   QRect rec = QApplication::desktop()->availableGeometry (
@@ -2837,7 +2844,6 @@ MainWindow::createViewWindow()
     }
   }
 
-#ifdef OACAPTURE
   previewScroller->setMinimumSize ( minWidth, minHeight );
   previewScroller->setSizePolicy( QSizePolicy::Expanding,
       QSizePolicy::Expanding );

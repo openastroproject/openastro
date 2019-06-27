@@ -48,6 +48,7 @@ class HistogramWidget : public QWidget
     void		updateLayout();
     void		resetStats();
     void		stopStats();
+		QSize		sizeHint() const;
 
     static int			histogramMin;
     static int			histogramMax;
@@ -79,5 +80,4 @@ class HistogramWidget : public QWidget
 			    unsigned int, unsigned int, int );
     void		_processMosaicHistogram ( void*, unsigned int,
 			    unsigned int, unsigned int, int );
-
 };

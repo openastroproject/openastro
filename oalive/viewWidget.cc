@@ -1195,8 +1195,9 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     self->secondForFrameCount = t.tv_sec;
     emit self->updateActualFrameRate ( self->framesInLastSecond );
     self->framesInLastSecond = 0;
-    state->cameraControls->histogram->process ( viewBuffer, config.imageSizeX,
-				config.imageSizeY, viewFrameLength, viewPixelFormat );
+    state->processingControls->histogram->process ( viewBuffer,
+				config.imageSizeX, config.imageSizeY, viewFrameLength,
+				viewPixelFormat );
     doHistogram = 1;
   }
 
@@ -1216,7 +1217,6 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
   }
 
   if ( doHistogram ) {
-qDebug() << "emitting histogram signal";
     emit self->updateHistogram();
   }
 

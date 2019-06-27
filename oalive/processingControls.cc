@@ -73,8 +73,6 @@ ProcessingControls::ProcessingControls ( QWidget* parent ) : QWidget ( parent )
   gammaSlider->setValue ( 100 );
 
 	histogram = new HistogramWidget ( 0, this );
-	//histogram = new HistogramWidget ( "processing", 0 );
-	//histogram->show();
 
   controlBox = new QVBoxLayout();
   controlBox->addWidget ( blackLevelLabel );
@@ -87,10 +85,10 @@ ProcessingControls::ProcessingControls ( QWidget* parent ) : QWidget ( parent )
   controlBox->addWidget ( contrastSlider );
   controlBox->addWidget ( saturationLabel );
   controlBox->addWidget ( saturationSlider );
-  controlBox->addWidget ( histogram );
   controlBox->addWidget ( gammaLabel );
   controlBox->addWidget ( gammaSlider );
   controlBox->addStretch ( 2 );
+  controlBox->addWidget ( histogram );
 
   setLayout ( controlBox );
 
@@ -114,11 +112,9 @@ ProcessingControls::ProcessingControls ( QWidget* parent ) : QWidget ( parent )
 void
 ProcessingControls::connectHistogramSignal ( void )
 {
-qDebug() << "in PC" << __FUNCTION__;
 	if ( state.viewWidget && !state.histogramProcessingSignalConnected ) {
 		connect ( state.viewWidget, SIGNAL( updateHistogram ( void )),
 				histogram, SLOT( update ( void )));
-qDebug() << "PC connected histogram signal";
 		state.histogramProcessingSignalConnected = 1;
 	}
 }
