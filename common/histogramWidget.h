@@ -73,6 +73,8 @@ class HistogramWidget : public QWidget
     static int			showingThreeGraphs;
     static int			doneProcess;
     static int			statsEnabled;
+		int							windowSizeX;
+		int							windowSizeY;
 
     void		_processRGBHistogram ( void*, unsigned int,
 			    unsigned int, unsigned int, int );

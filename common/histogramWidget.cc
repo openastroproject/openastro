@@ -60,8 +60,10 @@ int		HistogramWidget::histogramMax;
 HistogramWidget::HistogramWidget ( const char* appName, QWidget* parent ) :
 		QWidget ( parent )
 {
+	windowSizeX = 300;
+	windowSizeY = 150;
+  resize ( windowSizeX, windowSizeY );
   newLayoutIsSplit = histogramConf.splitHistogram;
-  resize ( 300, 150 );
 	if ( appName ) {
 		char		str[ 256 ];
 		( void ) strncpy ( str, appName, 256 );
@@ -85,7 +87,7 @@ HistogramWidget::~HistogramWidget()
 QSize
 HistogramWidget::sizeHint() const
 {
-	QSize size ( 300, 150 );
+	QSize size ( windowSizeX, windowSizeY );
 	return size;
 }
 
@@ -120,20 +122,26 @@ HistogramWidget::paintEvent ( QPaintEvent* event )
   Q_UNUSED ( event );
 
   if ( 1 == colours && showingThreeGraphs ) {
-    // resize ( 300, 150 );
-    setFixedSize ( 300, 150 );
+		windowSizeX = 300;
+		windowSizeY = 150;
+    setFixedSize ( windowSizeX, windowSizeY );
+		updateGeometry();
     showingThreeGraphs = 0;
   } else {
     if ( newLayoutIsSplit != currentLayoutIsSplit ) {
       if ( !newLayoutIsSplit && showingThreeGraphs ) {
-        // Set these values for the size hint and call updateGeometry()
-        setFixedSize ( 300, 150 );
+				windowSizeX = 300;
+				windowSizeY = 150;
+				setFixedSize ( windowSizeX, windowSizeY );
+				updateGeometry();
         currentLayoutIsSplit = 0;
         showingThreeGraphs = 0;
       }
       if ( newLayoutIsSplit && !showingThreeGraphs ) {
-        // Set these values for the size hint and call updateGeometry()
-        setFixedSize ( 300, 450 );
+				windowSizeX = 300;
+				windowSizeY = 450;
+				setFixedSize ( windowSizeX, windowSizeY );
+				updateGeometry();
 				
         currentLayoutIsSplit = 1;
         showingThreeGraphs = 1;
