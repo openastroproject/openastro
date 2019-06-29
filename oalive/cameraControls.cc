@@ -104,7 +104,11 @@ CameraControls::configure ( void )
   int		added[ OA_CAM_CTRL_LAST_P1 ];
   int		numSliders = 0, numCheckboxes = 0, numMenus = 0;
   int		numSliderCheckboxes = 0, numUnhandled = 0, numButtons = 0;
-  int		haveRangeMenu = 0;
+  int		haveRangeMenu = 0, readableControls = 0;
+
+  if ( commonState.camera->Camera::isInitialised()) {
+		readableControls = commonState.camera->hasReadableControls();
+	}
 
   if ( layout ) {
     state.mainWindow->destroyLayout (( QLayout* ) layout );
@@ -145,6 +149,7 @@ CameraControls::configure ( void )
           case OA_CTRL_TYPE_INT64:
           {
             int64_t	min, max, step, def, showMin, showMax, showStep;
+						int64_t savedDef;
 
             numSliders++;
             controlLabel[c] = new QLabel ( tr ( oaCameraControlLabel[c] ));
@@ -167,6 +172,7 @@ CameraControls::configure ( void )
             showMin = min;
             showMax = max;
             showStep = step;
+						savedDef = def;
 
             if ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE == c ) {
               int i, numRanges;
@@ -227,12 +233,23 @@ CameraControls::configure ( void )
             controlSlider[ c ]->setSingleStep ( showStep );
             controlSpinbox[ c ]->setSingleStep ( showStep );
 
-            controlSlider[ c ]->setValue ( def );
-            controlSpinbox[ c ]->setValue ( def );
-
             sliderSignalMapper->setMapping ( controlSpinbox[c], c );
             connect ( controlSpinbox[ c ], SIGNAL( valueChanged ( int )),
                 sliderSignalMapper, SLOT( map()));
+
+						if (readableControls ) {
+							cameraConf.CONTROL_VALUE( c ) =
+									commonState.camera->readControl ( c );
+						} else {
+							if ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE == c ) {
+								cameraConf.CONTROL_VALUE( c ) = savedDef;
+							} else {
+								cameraConf.CONTROL_VALUE( c ) = def;
+							}
+						}
+            controlSlider[ c ]->setValue ( cameraConf.CONTROL_VALUE( c ));
+            controlSpinbox[ c ]->setValue ( cameraConf.CONTROL_VALUE( c ));
+
             break;
           }
 
@@ -240,18 +257,17 @@ CameraControls::configure ( void )
             numCheckboxes++;
             controlCheckbox[ c ] = new QCheckBox ( QString ( tr (
                 oaCameraControlLabel[c] )), this );
-            if ( OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_UNSCALED ) == c ||
-                OA_CAM_CTRL_MODE_AUTO ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == c ) {
-							// Boolean here, so the value set is 0 or 1
-              controlCheckbox[ c ]->setChecked (
-                  ( cameraConf.CONTROL_VALUE( c ) ==
-									OA_EXPOSURE_MANUAL ) ? 0 : 1 );
-            } else {
-              controlCheckbox[ c ]->setChecked ( cameraConf.CONTROL_VALUE( c ));
-            }
+						if ( readableControls ) {
+							// FIX ME -- handle absolute exposure here
+							cameraConf.CONTROL_VALUE( c ) =
+									commonState.camera->readControl ( c );
+						} else {
+							cameraConf.CONTROL_VALUE( c ) = 0;
+						}
             checkboxSignalMapper->setMapping ( controlCheckbox[c], c );
             connect ( controlCheckbox[ c ], SIGNAL ( stateChanged ( int )),
                 checkboxSignalMapper, SLOT ( map()));
+            controlCheckbox[ c ]->setChecked ( cameraConf.CONTROL_VALUE( c ));
             break;
 
           case OA_CTRL_TYPE_BUTTON:
@@ -276,11 +292,17 @@ CameraControls::configure ( void )
                 controlMenu[ c ]->addItem ( tr (
                     commonState.camera->getMenuString ( c, i )));
               }
-              controlMenu[ c ]->setCurrentIndex (
-									cameraConf.CONTROL_VALUE( c ));
+							if ( readableControls ) {
+								cameraConf.CONTROL_VALUE( c ) =
+										commonState.camera->readControl ( c );
+							} else {
+								cameraConf.CONTROL_VALUE( c ) = def;
+							}
               menuSignalMapper->setMapping ( controlMenu[c], c );
               connect ( controlMenu[ c ], SIGNAL( currentIndexChanged ( int )),
                   menuSignalMapper, SLOT ( map()));
+              controlMenu[ c ]->setCurrentIndex (
+									cameraConf.CONTROL_VALUE( c ));
             } else {
               numUnhandled++;
               qWarning() << "Can't handle menu with min = " << min <<
