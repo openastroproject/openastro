@@ -1,7 +1,6 @@
 #ifndef __QHYCCD_H__
 #define __QHYCCD_H__
 
-#include <qhyccd/qhyccdinternal.h>
 #include <qhyccd/qhyccderr.h>
 #include <qhyccd/qhyccdcamdef.h>
 #include <qhyccd/qhyccdstruct.h>
@@ -10,7 +9,6 @@
 #if defined(_WIN32) || defined(__cplusplus)
 #include <functional>
 #endif
-
 
 #if defined (_WIN32)
 #include "cyapi.h"
@@ -27,9 +25,9 @@ typedef struct libusb_device_handle qhyccd_handle;
 EXPORTC void STDCALL SetQHYCCDLogLevel(uint8_t);
 
 #if defined(__linux__ )&&!defined (__ANDROID__)
-#ifdef __cplusplus
+#ifdef __cplusplus^
 EXPORTC void STDCALL SetQHYCCDLogFunction(std::function<void(const std::string &message)> logFunction);
-#else
+#else^
 EXPORTC void STDCALL SetQHYCCDLogFunction(void (*) ( const char* ));
 #endif
 #endif
@@ -716,7 +714,7 @@ EXPORTC uint32_t STDCALL GetQHYCCDSDKVersion(uint32_t *,uint32_t *,uint32_t *,ui
 
 
 //APIs for the Readout Mode. One camera may have more than one readout mode. The different readout mode has different base-resolution. For example
-//The QHY42PRO support HDR and STD mode. HDR mode base-resolution is 4096*2048. While the STD mode is 2048*2048. In this case we need to use the 
+//The QHY42PRO support HDR and STD mode. HDR mode base-resolution is 4096*2048. While the STD mode is 2048*2048. In this case we need to use the
 //readout mode to set it. The host application need to get the readout mode and select one to set it. The sequece that call this fucntion need to be(......)
 
 
@@ -731,8 +729,20 @@ EXPORTC uint32_t STDCALL SetQHYCCDReadMode(qhyccd_handle *,uint32_t);
 EXPORTC uint32_t STDCALL GetQHYCCDReadMode(qhyccd_handle *,uint32_t*);
 
 EXPORTC uint32_t STDCALL GetQHYCCDBeforeOpenParam(
-	QHYCamMinMaxStepValue *, 
-	CONTROL_ID);
+  QHYCamMinMaxStepValue *,
+  CONTROL_ID);
+
+EXPORTC uint32_t STDCALL  SetQHYCCDBurstModeStartEnd(
+  qhyccd_handle *,unsigned short,
+  unsigned short);
+EXPORTC uint32_t STDCALL EnableQHYCCDBurstCountFun(
+  qhyccd_handle *,bool);
+EXPORTC uint32_t STDCALL EnableQHYCCDBurstMode(
+  qhyccd_handle *,bool);
+EXPORTC uint32_t STDCALL ResetQHYCCDFrameCounter(qhyccd_handle *);
+EXPORTC uint32_t STDCALL SetQHYCCDBurstIDLE(qhyccd_handle *);
+EXPORTC uint32_t STDCALL ReleaseQHYCCDBurstIDLE(qhyccd_handle *h);
+
 
 #if CALLBACK_MODE_SUPPORT
 EXPORTC uint32_t STDCALL SetQHYCCDCallBack(QHYCCDProcCallBack);
