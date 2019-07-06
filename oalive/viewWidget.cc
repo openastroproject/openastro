@@ -94,10 +94,11 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
   stackBufferLength = viewBufferLength = 0;
   viewImageBuffer[0] = writeImageBuffer[0] = stackBuffer[0] = 0;
   viewImageBuffer[1] = writeImageBuffer[1] = stackBuffer[1] = 0;
+	previousFrames = 0;
   currentStackBuffer = -1;
   stackBufferInUse = 0;
   averageBuffer = 0;
-  totalFrames = 0;
+	totalFrames = previousFrameArraySize = 0;
 #endif
 
   int r = config.currentColouriseColour.red();
@@ -184,6 +185,16 @@ ViewWidget::~ViewWidget()
   if ( averageBuffer ) {
     free (( void* ) averageBuffer );
   }
+
+	if ( previousFrames ) {
+		unsigned int i;
+		if ( totalFrames ) {
+			for ( i = 0; i < totalFrames; i++ ) {
+				free (( void* ) previousFrames[i] );
+			}
+		}
+		free (( void* ) previousFrames );
+	}
 #endif
 }
 
@@ -256,6 +267,15 @@ ViewWidget::updateFrameSize ( void )
 #ifdef OALIVE
   memset ( stackBuffer[0], 0, stackBufferLength );
   memset ( stackBuffer[1], 0, stackBufferLength );
+
+	// Throw away all the saved frames, but keep the space for the array of
+	// pointers
+	if ( previousFrames && totalFrames ) {
+		unsigned int i;
+		for ( i = 0; i < totalFrames; i++ ) {
+			free (( void* ) previousFrames[i] );
+		}
+	}
 #endif
 }
 
@@ -838,6 +858,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     const int viewFrameLength = config.imageSizeX * config.imageSizeY *
         oaFrameFormats[ viewPixelFormat ].bytesPerPixel;
     switch ( state->stackingMethod ) {
+
       case OA_STACK_SUM:
         if ( -1 == self->currentStackBuffer && OA_STACK_NONE !=
             state->stackingMethod ) {
@@ -861,6 +882,43 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
             viewFrameLength );
         viewBuffer = self->viewImageBuffer[ currentViewBuffer ];
         break;
+
+			case OA_STACK_MEDIAN:
+			{
+				// assign more memory for the array of frame pointers if required
+				if ( self->previousFrameArraySize < self->totalFrames ) {
+					void**		tmpPtr;
+					if (!( tmpPtr = ( void** ) realloc ( self->previousFrames,
+							( self->previousFrameArraySize + 20 ) * sizeof ( void* )))) {
+						qDebug() << "realloc of frame history failed!";
+						self->totalFrames--;
+						break;
+					}
+					/*
+					for ( i = self->previousFrameArraySize;
+							i < ( self->previousFrameArraySize + 20 ); i++ ) {
+						self->previousFrames[i] = 0;
+					}
+					*/
+					self->previousFrames = tmpPtr;
+					self->previousFrameArraySize += 20;
+				}
+				if (!( self->previousFrames[ self->totalFrames - 1 ] =
+						malloc ( viewFrameLength ))) {
+					qDebug() << "malloc of frame history failed!";
+					self->totalFrames--;
+					break;
+				}
+				memcpy ( self->previousFrames[ self->totalFrames - 1 ], viewBuffer,
+						viewFrameLength );
+				// no point doing any real work if we don't have at least three
+				// frames
+				if ( self->totalFrames > 2 ) {
+					oaStackMedian8 ( self->previousFrames, self->totalFrames, viewBuffer,
+							viewFrameLength );
+				}
+				break;
+			}
     }
   }
 #endif /* OACAPTURE */
@@ -1294,6 +1352,8 @@ ViewWidget::checkBuffers ( ViewWidget* self )
     }
   }
 
+	// FIX ME -- how should the previousFrame buffers be handled here?
+
   return OA_ERR_NONE;
 }
 
@@ -1301,6 +1361,8 @@ ViewWidget::checkBuffers ( ViewWidget* self )
 void
 ViewWidget::restart()
 {
+	unsigned int i;
+
   // FIX ME -- should perhaps protect these with a mutex?
   if ( stackBuffer[0] ) {
     memset ( stackBuffer[0], 0, stackBufferLength );
@@ -1309,6 +1371,12 @@ ViewWidget::restart()
   if ( averageBuffer ) {
     memset ( averageBuffer, 0, averageBufferLength );
   }
+
+	if ( totalFrames ) {
+		for ( i = 0; i < totalFrames; i++ ) {
+			free (( void* ) previousFrames[i] );
+		}
+	}
   totalFrames = 0;
 }
 

@@ -138,6 +138,8 @@ class ViewWidget : public QFrame
     int			stackBufferLength;
     int			currentStackBuffer;
     void*		stackBufferInUse;
+		void**	previousFrames;
+		unsigned int	previousFrameArraySize;
     unsigned int*	averageBuffer;
     unsigned int	averageBufferLength;
     unsigned int	totalFrames;

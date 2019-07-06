@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * imgproc.h -- image processing functions header
+ * stackMedian.c -- median stacking method
  *
- * Copyright 2015, 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -24,19 +24,43 @@
  *
  *****************************************************************************/
 
-#ifndef OPENASTRO_IMGPROC_H
-#define OPENASTRO_IMGPROC_H
+#include <oa_common.h>
+#include <openastro/imgproc.h>
 
-extern int	oaFocusScore ( void*, void*, int, int, int );
+#include <stdlib.h>
 
-extern int	oaStackSum8 ( void*, void*, void*, unsigned int );
-extern int	oaStackMean8 ( void*, unsigned int*, void*, unsigned int,
-		    unsigned int );
-extern int	oaStackMedian8 ( void**, unsigned int, void*, unsigned int );
+static int	_cmpUint8 ( const void*, const void* );
 
-extern int	oaContrastTransform ( void*, void*, int, int, int, int );
 
-extern int		oaclamp ( int, int, int );
-extern double	oadclamp ( double, double, double );
+int
+oaStackMedian8 ( void** frameArray, unsigned int numFrames, void* target,
+		unsigned int length )
+{
+	uint8_t		values[512]; // FIX ME -- should be dynamically allocated?
+	uint8_t**	frames = ( uint8_t** ) frameArray;
+	uint8_t*	tgt = target;
+  unsigned int i, j;
+	unsigned int medianPos;
 
-#endif	/* OPENASTRO_IMGPROC_H */
+	medianPos = numFrames >> 1;
+	for ( i = 0; i < length; i++ ) {
+		for ( j = 0; j < numFrames; j++ ) {
+			values[j] = frames[j][i];
+		}
+		qsort ( values, numFrames, sizeof ( uint8_t ), _cmpUint8 );
+		*tgt++ = values[ medianPos ];
+	}
+
+  return 0;
+}
+
+
+static int
+_cmpUint8 ( const void* pa, const void* pb )
+{
+	uint8_t	a, b;
+
+	a = *(( uint8_t* ) pa );
+	b = *(( uint8_t* ) pb );
+	return ( a - b );
+}

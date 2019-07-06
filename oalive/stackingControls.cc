@@ -40,7 +40,8 @@ StackingControls::StackingControls ( QWidget* parent ) : QWidget ( parent )
   methodLabel = new QLabel ( tr ( "Stacking Method" ));
   QStringList methodStrings;
   // This must be in the same order as in the header file
-  methodStrings << tr ( "None" ) << tr ( "Sum" ) << tr ( "Mean" );
+  methodStrings << tr ( "None" ) << tr ( "Sum" ) << tr ( "Mean" ) <<
+			tr ( "Median" );
   stackingMethodMenu = new QComboBox;
   stackingMethodMenu->addItems ( methodStrings );
   state.stackingMethod = OA_STACK_NONE;

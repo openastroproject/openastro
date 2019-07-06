@@ -37,9 +37,10 @@ extern "C" {
 #include <openastro/camera.h>
 }
 
-#define	OA_STACK_NONE		0
-#define	OA_STACK_SUM		1
-#define	OA_STACK_MEAN		2
+#define	OA_STACK_NONE				0
+#define	OA_STACK_SUM				1
+#define	OA_STACK_MEAN				2
+#define	OA_STACK_MEDIAN			3
 
 
 class StackingControls : public QWidget
