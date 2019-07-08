@@ -28,7 +28,7 @@
 
 #include <oa_common.h>
 
-#ifdef HAVE_QT5
+#if HAVE_QT5
 #include <QtWidgets>
 #endif
 #include <QtGui>
