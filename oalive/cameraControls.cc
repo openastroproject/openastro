@@ -26,7 +26,9 @@
 
 #include <oa_common.h>
 
-#include <strings.h>
+#if HAVE_CSTRING
+#include <cstring>
+#endif
 
 #include "captureSettings.h"
 #include "fitsSettings.h"
