@@ -27,8 +27,8 @@
 
 #pragma once
 
-#if HAVE_LIMITS_H
-#include <limits.h>
+#if HAVE_CLIMITS
+#include <climits>
 #endif
 
 extern "C" {
