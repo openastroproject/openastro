@@ -28,11 +28,16 @@
 #include <oa_common.h>
 
 #include <QtGui>
+#if HAVE_CSTDLIB
 #include <cstdlib>
+#endif
+#if HAVE_CMATH
 #include <math.h>
-#include <pthread.h>
+#endif
 
 extern "C" {
+#include <pthread.h>
+
 #include <openastro/camera.h>
 #include <openastro/demosaic.h>
 #include <openastro/video.h>

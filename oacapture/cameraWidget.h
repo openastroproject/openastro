@@ -2,7 +2,7 @@
  *
  * cameraWidget.h -- class declaration
  *
- * Copyright 2013,2014,2016,2017,2018
+ * Copyright 2013,2014,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -29,7 +29,7 @@
 
 #include <oa_common.h>
 
-#ifdef HAVE_QT5
+#if HAVE_QT5
 #include <QtWidgets>
 #endif
 #include <QtCore>

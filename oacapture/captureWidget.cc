@@ -27,7 +27,9 @@
 
 #include <oa_common.h>
 
+#if HAVE_CTIME
 #include <ctime>
+#endif
 #include <iostream>
 #include <fstream>
 #include <QtGui>
