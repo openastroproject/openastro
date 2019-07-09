@@ -32,7 +32,7 @@
 #include <cstdlib>
 #endif
 #if HAVE_CMATH
-#include <math.h>
+#include <cmath>
 #endif
 
 extern "C" {
