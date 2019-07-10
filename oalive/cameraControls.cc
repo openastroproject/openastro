@@ -323,7 +323,7 @@ CameraControls::configure ( void )
               added[c] = 1;
               break;
             }
-
+						/* FALLTHROUGH */
           default:
             controlLabel[c] = new QLabel ( tr ( oaCameraControlLabel[c] ));
             controlLabel[c]->setWordWrap ( 1 );
@@ -417,8 +417,8 @@ CameraControls::configure ( void )
         this, SLOT ( updateExposureUnits ( int )));
   }
 /*
-  if ( commonState.camera->hasFixedFrameRates ( config.imageSizeX,
-      config.imageSizeY )) {
+  if ( commonState.camera->hasFixedFrameRates ( commonConfig.imageSizeX,
+      commonConfig.imageSizeY )) {
 */
     sliderGrid->addWidget ( frameRateLabel, row, col++ );
     col++;
@@ -863,15 +863,15 @@ CameraControls::updateFrameRateSlider ( void )
     return;
   }
 
-  if ( commonState.camera->hasFixedFrameRates ( config.imageSizeX,
-      config.imageSizeY )) {
+  if ( commonState.camera->hasFixedFrameRates ( commonConfig.imageSizeX,
+      commonConfig.imageSizeY )) {
 
     // Ugly sorting of the frame rates here.  We don't know what
     // order we'll get them in so we have to sort them into rate
     // order for the slider to work.
 
     const FRAMERATES* rates = commonState.camera->frameRates (
-				config.imageSizeX, config.imageSizeY );
+				commonConfig.imageSizeX, commonConfig.imageSizeY );
 
     // don't use the frame rate slider if there's only one frame rate
     if ( !rates || rates->numRates < 2 ) {
