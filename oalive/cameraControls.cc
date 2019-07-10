@@ -72,14 +72,14 @@ static const char*	rangeMenuLabels[5] = {
 
 CameraControls::CameraControls ( QWidget* parent ) : QWidget ( parent )
 {
-  layout = 0;
-  sliderSignalMapper = 0;
-  checkboxSignalMapper = 0;
-  buttonSignalMapper = 0;
-  menuSignalMapper = 0;
-  frameRateLabel = 0;
-  frameRateSlider = 0;
-  frameRateMenu = 0;
+  layout = nullptr;
+  sliderSignalMapper = nullptr;
+  checkboxSignalMapper = nullptr;
+  buttonSignalMapper = nullptr;
+  menuSignalMapper = nullptr;
+  frameRateLabel = nullptr;
+  frameRateSlider = nullptr;
+  frameRateMenu = nullptr;
   memset ( controlType, 0, sizeof ( controlType ));
   ignoreFrameRateChanges = 0;
 	histogram = new HistogramWidget ( 0, this );
@@ -118,10 +118,10 @@ CameraControls::configure ( void )
     delete checkboxSignalMapper;
     delete buttonSignalMapper;
     memset ( controlType, 0, sizeof ( controlType ));
-    layout = 0;
-    frameRateLabel = 0;
-    frameRateSlider = 0;
-    frameRateMenu = 0;
+    layout = nullptr;
+    frameRateLabel = nullptr;
+    frameRateSlider = nullptr;
+    frameRateMenu = nullptr;
   }
 
   // Create all the controls to show
@@ -132,12 +132,12 @@ CameraControls::configure ( void )
   menuSignalMapper = new QSignalMapper ( this );
 
   for ( c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-    controlLabel[c] = 0;
-    controlSlider[c] = 0;
-    controlSpinbox[c] = 0;
-    controlCheckbox[c] = 0;
-    controlButton[c] = 0;
-    controlMenu[c] = 0;
+    controlLabel[c] = nullptr;
+    controlSlider[c] = nullptr;
+    controlSpinbox[c] = nullptr;
+    controlCheckbox[c] = nullptr;
+    controlButton[c] = nullptr;
+    controlMenu[c] = nullptr;
     added[c] = 0;
 
     if ( commonState.camera->Camera::isInitialised()) {
