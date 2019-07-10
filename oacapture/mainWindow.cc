@@ -80,23 +80,23 @@ MainWindow::MainWindow ( QString configFile )
 
 	commonState.localState = &state;
   userConfigFile = configFile;
-  cameraSignalMapper = filterWheelSignalMapper = 0;
-  timerSignalMapper = 0;
-  timerStatus = wheelStatus = locationLabel = 0;
-  advancedFilterWheelSignalMapper = 0;
-  resetCam = rescanCam = disconnectCam = 0;
-  rescanWheel = disconnectWheel = warmResetWheel = coldResetWheel = 0;
-  rescanTimer = disconnectTimerDevice = resetTimerDevice = 0;
+  cameraSignalMapper = filterWheelSignalMapper = nullptr;
+  timerSignalMapper = nullptr;
+  timerStatus = wheelStatus = locationLabel = nullptr;
+  advancedFilterWheelSignalMapper = nullptr;
+  resetCam = rescanCam = disconnectCam = nullptr;
+  rescanWheel = disconnectWheel = warmResetWheel = coldResetWheel = nullptr;
+  rescanTimer = disconnectTimerDevice = resetTimerDevice = nullptr;
   connectedCameras = cameraMenuCreated = 0;
   connectedFilterWheels = filterWheelMenuCreated = 0;
   connectedTimers = timerMenuCreated = 0;
   doingQuit = 0;
-  cameraDevs = 0;
-  filterWheelDevs = 0;
-  timerDevs = 0;
+  cameraDevs = nullptr;
+  filterWheelDevs = nullptr;
+  timerDevs = nullptr;
   state.histogramOn = 0;
   state.histogramSignalConnected = 0;
-  state.histogramWidget = 0;
+  state.histogramWidget = nullptr;
   state.needGroupBoxBorders = 0;
   commonState.cameraTempValid = 0;
   commonState.gpsValid = 0;
@@ -125,19 +125,19 @@ MainWindow::MainWindow ( QString configFile )
   setWindowTitle( APPLICATION_NAME " " VERSION_STR );
 
   state.mainWindow = this;
-  state.controlWidget = 0;
+  state.controlWidget = nullptr;
   commonState.camera = new Camera;
   commonState.filterWheel = new FilterWheel ( &trampolines );
   commonState.timer = new Timer ( &trampolines );
   oldHistogramState = -1;
   state.lastRecordedFile = "";
   commonState.captureIndex = 0;
-  state.settingsWidget = 0;
-  state.advancedSettings = 0;
-  colourDialog = 0;
+  state.settingsWidget = nullptr;
+  state.advancedSettings = nullptr;
+  colourDialog = nullptr;
 
   // need to do this to prevent access attempts before creation
-  previewWidget = 0;
+  previewWidget = nullptr;
 
   createControlWidgets();
   createPreviewWindow();
@@ -1993,7 +1993,7 @@ MainWindow::histogramClosed ( void )
 		*/
 		state.histogramSignalConnected = 0;
 	}
-  state.histogramWidget = 0;
+  state.histogramWidget = nullptr;
   state.histogramOn = 0;
   if ( !doingQuit ) {
     histogramOpt->setChecked ( 0 );
@@ -2286,7 +2286,7 @@ MainWindow::createSettingsWidget ( void )
 void
 MainWindow::settingsClosed ( void )
 {
-  state.settingsWidget = 0;
+  state.settingsWidget = nullptr;
 }
 
 
@@ -2560,7 +2560,7 @@ MainWindow::closeSettingsWindow ( void )
 {
   if ( state.settingsWidget ) {
     state.settingsWidget->close();
-    state.settingsWidget = 0;
+    state.settingsWidget = nullptr;
   }
 }
 
@@ -2833,7 +2833,7 @@ MainWindow::doAdvancedMenu( void )
       }
     }
     delete advancedFilterWheelSignalMapper;
-    advancedFilterWheelSignalMapper = 0;
+    advancedFilterWheelSignalMapper = nullptr;
   }
 
   advancedActions.clear();
@@ -2903,7 +2903,7 @@ MainWindow::advancedPTRHandler ( void )
 void
 MainWindow::advancedClosed ( void )
 {
-  state.advancedSettings = 0;
+  state.advancedSettings = nullptr;
 }
 
 
@@ -2912,7 +2912,7 @@ MainWindow::closeAdvancedWindow ( void )
 {
   if ( state.advancedSettings ) {
     state.advancedSettings->close();
-    state.advancedSettings = 0;
+    state.advancedSettings = nullptr;
   }
 }
 

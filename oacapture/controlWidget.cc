@@ -155,9 +155,9 @@ ControlWidget::ControlWidget ( QWidget* parent ) : QGroupBox ( parent )
   sliderSignalMapper = new QSignalMapper ( this );
   checkboxSignalMapper = new QSignalMapper ( this );
   for ( uint8_t c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-    selectableControlSlider[ c ] = 0;
-    selectableControlSpinbox[ c ] = 0;
-    selectableControlCheckbox[ c ] = 0;
+    selectableControlSlider[ c ] = nullptr;
+    selectableControlSpinbox[ c ] = nullptr;
+    selectableControlCheckbox[ c ] = nullptr;
 
     // This is a bit hacky.  We create the control sliders and checkboxes
     // on the assumption that they will exist when a camera is connected

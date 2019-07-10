@@ -316,7 +316,7 @@ CaptureWidget::CaptureWidget ( QWidget* parent ) : QGroupBox ( parent )
   }
   setLayout ( box );
 
-  outputHandler = 0;
+  outputHandler = nullptr;
   updateTemperatureLabel = 0;
 
   // Final setup for signals to avoid crossing threads when widgets need to
@@ -494,7 +494,7 @@ CaptureWidget::startRecording ( void )
 void
 CaptureWidget::doStartRecording ( int autorunFlag )
 {
-  OutputHandler*	out = 0;
+  OutputHandler*	out = nullptr;
   int			format;
   int			pauseButtonState = 1;
   int64_t		exposureTime;
@@ -626,7 +626,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
 			QMetaObject::invokeMethod ( state.mainWindow, "outputUnwritable",
 				 Qt::DirectConnection );
       delete out;
-      out = 0;
+      out = nullptr;
       return;
     }
   } else {
@@ -639,7 +639,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
 						Qt::DirectConnection, Q_RETURN_ARG( int, result ));
         if ( result == QMessageBox::No ) {
           delete out;
-          out = 0;
+          out = nullptr;
           return;
         }
       } else {
@@ -648,7 +648,7 @@ CaptureWidget::doStartRecording ( int autorunFlag )
 				QMetaObject::invokeMethod ( state.mainWindow, "outputExistsUnwritable",
 						Qt::DirectConnection );
         delete out;
-        out = 0;
+        out = nullptr;
         return;
       }
     }
@@ -830,7 +830,7 @@ CaptureWidget::closeOutputHandler ( void )
   if ( outputHandler ) {
     outputHandler->closeOutput();
     delete outputHandler;
-    outputHandler = 0;
+    outputHandler = nullptr;
   }
 }
 

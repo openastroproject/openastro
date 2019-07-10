@@ -78,8 +78,8 @@ PreviewWidget::PreviewWidget ( QWidget* parent ) : QFrame ( parent )
   savedXSize = savedYSize = 0;
   recalculateDimensions ( zoomFactor );
   previewBufferLength = 0;
-  previewImageBuffer[0] = writeImageBuffer[0] = 0;
-  previewImageBuffer[1] = writeImageBuffer[1] = 0;
+  previewImageBuffer[0] = writeImageBuffer[0] = nullptr;
+  previewImageBuffer[1] = writeImageBuffer[1] = nullptr;
   expectedSize = commonConfig.imageSizeX * commonConfig.imageSizeY *
       oaFrameFormats[ videoFramePixelFormat ].bytesPerPixel;
   demosaic = commonConfig.demosaic;
@@ -622,7 +622,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
       }
 
       QImage* newImage;
-      QImage* swappedImage = 0;
+      QImage* swappedImage = nullptr;
 
       // At this point, one way or another we should have an 8-bit image
       // for the preview
@@ -688,7 +688,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
     }
   }
 
-  OutputHandler* output = 0;
+  OutputHandler* output = nullptr;
   int actualX, actualY;
   actualX = commonConfig.imageSizeX;
   actualY = commonConfig.imageSizeY;
@@ -749,8 +749,8 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
         comment = commentStr;
         ( void ) snprintf ( comment, 64, "Timer frame index: %d\n", ts->index );
       } else {
-        timestamp = 0;
-        comment = 0;
+        timestamp = nullptr;
+        comment = nullptr;
       }
       if ( output->addFrame ( writeBuffer, timestamp,
           // This call should be thread-safe
