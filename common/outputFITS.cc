@@ -92,6 +92,7 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
 
     case OA_PIX_FMT_BGR24:
       swapRedBlue = 1;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_RGB24:
       bitpix = BYTE_IMG;
       tableType = TBYTE;

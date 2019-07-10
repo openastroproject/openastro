@@ -236,7 +236,7 @@ CameraSettings::configure ( void )
                 added[mod][baseVal] = 1;
                 break;
               }
-
+							/* FALLTHROUGH */
             default:
               controlLabel[mod][baseVal] = new QLabel ( tr (
                   oaCameraControlLabel[baseVal] ));

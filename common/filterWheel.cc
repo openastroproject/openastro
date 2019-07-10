@@ -2,7 +2,7 @@
  *
  * filterwheel.cc -- filter wheel interface class
  *
- * Copyright 2014,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -300,12 +300,13 @@ FilterWheel::getSpeed ( unsigned int* speed )
     return 0;
   }
   wheelFuncs.readControl ( wheelContext, OA_FW_CTRL_SPEED, &v );
-  return v.int32;
+	*speed = v.int32;
+  return OA_ERR_NONE;
 }
 
 
 int
-FilterWheel::setSpeed ( unsigned int speed, int nodelay )
+FilterWheel::setSpeed ( unsigned int speed, int nodelay __attribute((unused)))
 {
   oaControlValue	v;
 

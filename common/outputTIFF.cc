@@ -91,6 +91,7 @@ OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
 
     case OA_PIX_FMT_BGR48BE:
       swapRedBlue = 1;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_RGB48BE:
       colour = 1;
       pixelDepth = 16;
@@ -101,6 +102,7 @@ OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
 
     case OA_PIX_FMT_BGR48LE:
       swapRedBlue = 1;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_RGB48LE:
       colour = 1;
       pixelDepth = 16;
@@ -175,8 +177,9 @@ OutputTIFF::openOutput ( void )
 
 
 int
-OutputTIFF::addFrame ( void* frame, const char* timestampStr, int64_t expTime,
-    const char* commentStr, FRAME_METADATA* metadata )
+OutputTIFF::addFrame ( void* frame, const char* timestampStr,
+		int64_t expTime __attribute__((unused)), const char* commentStr,
+		FRAME_METADATA* metadata __attribute__((unused)))
 {
   int            ret, i;
   TIFF*          handle;

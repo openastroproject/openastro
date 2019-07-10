@@ -254,7 +254,9 @@ HistogramWidget::stopStats ( void )
 
 void
 HistogramWidget::_processGreyscaleHistogram ( void* imageData,
-    unsigned int width, unsigned int height, unsigned int length, int format )
+    unsigned int width __attribute((unused)),
+		unsigned int height __attribute((unused)), unsigned int length,
+		int format )
 {
   int maxCount = 1;
   int intensity, step;
@@ -312,7 +314,9 @@ HistogramWidget::_processGreyscaleHistogram ( void* imageData,
 
 void
 HistogramWidget::_processRGBHistogram ( void* imageData,
-    unsigned int width, unsigned int height, unsigned int length, int format )
+    unsigned int width __attribute((unused)),
+		unsigned int height __attribute((unused)), unsigned int length,
+		int format )
 {
   int* swapRed = red;
   int* swapBlue = blue;
@@ -381,7 +385,8 @@ HistogramWidget::_processRGBHistogram ( void* imageData,
 
 void
 HistogramWidget::_processMosaicHistogram ( void* imageData,
-    unsigned int width, unsigned int height, unsigned int length, int format )
+    unsigned int width, unsigned int height __attribute((unused)),
+		unsigned int length, int format )
 {
   unsigned int i, x, y, bytesPerLine, bytesPerPixel;
   int maxCount = 1;

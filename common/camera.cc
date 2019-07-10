@@ -200,7 +200,8 @@ Camera::hasFrameRateSupport ( void )
 
 
 int
-Camera::hasFixedFrameRates ( int xRes, int yRes )
+Camera::hasFixedFrameRates ( int xRes __attribute__((unused)),
+		int yRes __attribute__((unused)))
 {
   if ( !initialised ) {
     qWarning() << __FUNCTION__ << " called with camera uninitialised";

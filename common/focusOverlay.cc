@@ -2,7 +2,7 @@
  *
  * focusOverlay.cc -- class for the focus overlay
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -48,7 +48,7 @@ FocusOverlay::FocusOverlay ( QWidget* parent ) : QWidget ( parent )
  
 
 void
-FocusOverlay::paintEvent ( QPaintEvent* event )
+FocusOverlay::paintEvent ( QPaintEvent* event __attribute__((unused)))
 {
   QPainter	painter ( this );
   int		numVals;

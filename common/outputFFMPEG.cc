@@ -252,8 +252,11 @@ OutputFFMPEG::openOutput ( void )
 
 
 int
-OutputFFMPEG::addFrame ( void* frame, const char* timestampStr,
-    int64_t expTime, const char* commentStr, FRAME_METADATA* metadata )
+OutputFFMPEG::addFrame ( void* frame,
+		const char* timestampStr __attribute__((unused)),
+    int64_t expTime __attribute__((unused)),
+		const char* commentStr __attribute__((unused)),
+		FRAME_METADATA* metadata __attribute__((unused)))
 {
   int64_t	lastPTS;
   int		ret;

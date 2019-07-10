@@ -88,6 +88,7 @@ OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt,
 
     case OA_PIX_FMT_BGR48BE:
       swapRedBlue = 1;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_RGB48BE:
       colour = 1;
       pixelDepth = 16;
@@ -95,6 +96,7 @@ OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt,
 
     case OA_PIX_FMT_BGR48LE:
       swapRedBlue = 1;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_RGB48LE:
       colour = 1;
       pixelDepth = 16;

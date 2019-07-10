@@ -81,12 +81,13 @@ OutputSER::OutputSER ( int x, int y, int n, int d, int fmt,
 		case OA_PIX_FMT_BGGR12_16LE:
 		case OA_PIX_FMT_BGGR14_16LE:
       littleEndian = 1;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_BGGR16BE:
 		case OA_PIX_FMT_BGGR10_16BE:
 		case OA_PIX_FMT_BGGR12_16BE:
 		case OA_PIX_FMT_BGGR14_16BE:
       pixelDepth = 16;
-
+			/* FALLTHROUGH */
     case OA_PIX_FMT_BGGR8:
       colourId = OA_SER_BAYER_BGGR;
       break;
@@ -96,11 +97,13 @@ OutputSER::OutputSER ( int x, int y, int n, int d, int fmt,
 		case OA_PIX_FMT_RGGB12_16LE:
 		case OA_PIX_FMT_RGGB14_16LE:
       littleEndian = 1;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_RGGB16BE:
 		case OA_PIX_FMT_RGGB10_16BE:
 		case OA_PIX_FMT_RGGB12_16BE:
 		case OA_PIX_FMT_RGGB14_16BE:
       pixelDepth = 16;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_RGGB8:
       colourId = OA_SER_BAYER_RGGB;
       break;
@@ -110,11 +113,13 @@ OutputSER::OutputSER ( int x, int y, int n, int d, int fmt,
 		case OA_PIX_FMT_GRBG12_16LE:
 		case OA_PIX_FMT_GRBG14_16LE:
       littleEndian = 1;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_GRBG16BE:
 		case OA_PIX_FMT_GRBG10_16BE:
 		case OA_PIX_FMT_GRBG12_16BE:
 		case OA_PIX_FMT_GRBG14_16BE:
       pixelDepth = 16;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_GRBG8:
       colourId = OA_SER_BAYER_GRBG;
       break;
@@ -124,27 +129,33 @@ OutputSER::OutputSER ( int x, int y, int n, int d, int fmt,
 		case OA_PIX_FMT_GBRG12_16LE:
 		case OA_PIX_FMT_GBRG14_16LE:
       littleEndian = 1;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_GBRG16BE:
 		case OA_PIX_FMT_GBRG10_16BE:
 		case OA_PIX_FMT_GBRG12_16BE:
 		case OA_PIX_FMT_GBRG14_16BE:
       pixelDepth = 16;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_GBRG8:
       colourId = OA_SER_BAYER_GBRG;
       break;
 
     case OA_PIX_FMT_RGB48LE:
       littleEndian = 1;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_RGB48BE:
       pixelDepth = 16;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_RGB24:
       colourId = OA_SER_RGB;
       break;
 
     case OA_PIX_FMT_BGR48LE:
       littleEndian = 1;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_BGR48BE:
       pixelDepth = 16;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_BGR24:
       colourId = OA_SER_BGR;
       break;
@@ -225,8 +236,10 @@ OutputSER::openOutput ( void )
 
 
 int
-OutputSER::addFrame ( void* frame, const char* timestampStr, int64_t expTime,
-    const char* commentStr, FRAME_METADATA* metadata )
+OutputSER::addFrame ( void* frame, const char* timestampStr,
+		int64_t expTime __attribute__((unused)),
+    const char* commentStr __attribute__((unused)),
+		FRAME_METADATA* metadata __attribute__((unused)))
 {
   int ret;
 

@@ -39,8 +39,9 @@ extern "C" {
 #include "outputDIB.h"
 
 
-OutputDIB::OutputDIB ( int x, int y, int n, int d, int fmt,
-    QString fileTemplate, trampolineFuncs* trampolines ) :
+OutputDIB::OutputDIB ( int x, int y, int n, int d,
+		int fmt __attribute((unused)), QString fileTemplate,
+		trampolineFuncs* trampolines ) :
     OutputHandler ( x, y, n, d, fileTemplate, trampolines )
 {
   writesDiscreteFiles = 0;
@@ -99,8 +100,11 @@ OutputDIB::openOutput ( void )
 
 
 int
-OutputDIB::addFrame ( void* frame, const char* timestampStr, int64_t expTime,
-    const char* commentStr, FRAME_METADATA* metadata )
+OutputDIB::addFrame ( void* frame,
+		const char* timestampStr __attribute__((unused)),
+		int64_t expTime __attribute__((unused)),
+    const char* commentStr __attribute((unused)),
+		FRAME_METADATA* metadata __attribute__((unused)))
 {
   outputFile->write_frame (( uint8_t* ) frame, 0, bpp, 0 );
   frameCount++;
