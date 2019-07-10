@@ -27,7 +27,7 @@ class c_pipp_buffer {
         // ------------------------------------------
         c_pipp_buffer() : 
             buffer_size(0),
-            buffer(NULL) {};
+            buffer(nullptr) {};
 
 
         // ------------------------------------------

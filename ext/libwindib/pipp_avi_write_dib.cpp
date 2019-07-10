@@ -49,7 +49,7 @@ int32_t c_pipp_avi_write_dib::write_frame(
     uint8_t  *data,
     int32_t colour,
     uint32_t bpp,
-    void *extra_data)
+    void *extra_data __attribute((unused)))
 {
     int32_t ret;
     

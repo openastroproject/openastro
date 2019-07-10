@@ -365,8 +365,8 @@ int32_t c_pipp_avi_write::create(
     int32_t fps_rate,
     int32_t fps_scale,
     int32_t old_avi_format,
-    int32_t quality,
-    void *extra_data)
+    int32_t quality __attribute__((unused)),
+    void *extra_data __attribute__((unused)))
 {
     // Set member variables
     this->width = width;
