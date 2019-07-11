@@ -44,7 +44,7 @@
 #include "controlsWidget.h"
 
 
-ControlsWidget::ControlsWidget ( QWidget* parent )
+ControlsWidget::ControlsWidget ( QWidget* parent __attribute((unused)))
 {
   mainBox = new QVBoxLayout;
   topButtonBox = new QHBoxLayout;
@@ -253,8 +253,8 @@ ControlsWidget::configureResolution ( void )
     int numPixels = sizeList->sizes[i].x * sizeList->sizes[i].y;
     QString resStr = QString::number ( sizeList->sizes[i].x ) + "x" +
         QString::number ( sizeList->sizes[i].y );
-    if ( sizeList->sizes[i].x == config.imageSizeX &&
-        sizeList->sizes[i].y == config.imageSizeY ) {
+    if ( sizeList->sizes[i].x == commonConfig.imageSizeX &&
+        sizeList->sizes[i].y == commonConfig.imageSizeY ) {
       showItemStr = resStr;
     }
     sortMap [ numPixels ] = resStr;
@@ -295,17 +295,17 @@ ControlsWidget::configureResolution ( void )
 */
 
   if ( showItem >= 0 ) {
-    config.imageSizeX = showXRes;
-    config.imageSizeY = showYRes;
+    commonConfig.imageSizeX = showXRes;
+    commonConfig.imageSizeY = showYRes;
   } else {
     // FIX ME -- put back when there is a resolutions menu
     showItem = numItems - 1; // max->isChecked() ? numItems - 1: 0;
     if ( showItem ) {
-      config.imageSizeX = xRes[ lastKey ];
-      config.imageSizeY = yRes[ lastKey ];
+      commonConfig.imageSizeX = xRes[ lastKey ];
+      commonConfig.imageSizeY = yRes[ lastKey ];
     } else {
-      config.imageSizeX = xRes[ firstKey ];
-      config.imageSizeY = yRes[ firstKey ];
+      commonConfig.imageSizeX = xRes[ firstKey ];
+      commonConfig.imageSizeY = yRes[ firstKey ];
     }
   }
   maxX = xRes[ lastKey ];
@@ -327,8 +327,8 @@ ControlsWidget::configureResolution ( void )
     resMenu->setCurrentIndex ( showItem );
   }
 */
-  // xSize->setText ( QString::number ( config.imageSizeX ));
-  // ySize->setText ( QString::number ( config.imageSizeY ));
+  // xSize->setText ( QString::number ( commonConfig.imageSizeX ));
+  // ySize->setText ( QString::number ( commonConfig.imageSizeY ));
 /*
   xSize->setEnabled ( 0 );
   ySize->setEnabled ( 0 );
@@ -385,10 +385,10 @@ ControlsWidget::resolutionChanged ( int index )
     buttonGroup->setExclusive ( true );
   }
 */
-  config.imageSizeX = XResolutions[ index ];
-  config.imageSizeY = YResolutions[ index ];
-  // xSize->setText ( QString::number ( config.imageSizeX ));
-  // ySize->setText ( QString::number ( config.imageSizeY ));
+  commonConfig.imageSizeX = XResolutions[ index ];
+  commonConfig.imageSizeY = YResolutions[ index ];
+  // xSize->setText ( QString::number ( commonConfig.imageSizeX ));
+  // ySize->setText ( QString::number ( commonConfig.imageSizeY ));
   doResolutionChange ( 0 );
 }
 
@@ -401,18 +401,20 @@ ControlsWidget::doResolutionChange ( int roiChanged )
   camera->updateFrameRateSlider();
 
   if ( roiChanged ) {
-    commonState.camera->setROI ( config.imageSizeX, config.imageSizeY );
+    commonState.camera->setROI ( commonConfig.imageSizeX,
+				commonConfig.imageSizeY );
   } else {
-    commonState.camera->setResolution ( config.imageSizeX, config.imageSizeY );
+    commonState.camera->setResolution ( commonConfig.imageSizeX,
+				commonConfig.imageSizeY );
   }
   if ( state.viewWidget ) {
     state.viewWidget->updateFrameSize();
   }
   if ( commonConfig.profileOption >= 0 ) {
     profileConf.profiles[ commonConfig.profileOption ].imageSizeX =
-				config.imageSizeX;
+				commonConfig.imageSizeX;
     profileConf.profiles[ commonConfig.profileOption ].imageSizeY =
-				config.imageSizeY;
+				commonConfig.imageSizeY;
   }
 }
 
@@ -431,22 +433,22 @@ ControlsWidget::openOutputFiles ( void )
   if ( config.saveEachFrame ) {
     switch ( commonConfig.fileTypeOption ) {
       case CAPTURE_TIFF:
-        out = new OutputTIFF ( config.imageSizeX, config.imageSizeY,
+        out = new OutputTIFF ( commonConfig.imageSizeX, commonConfig.imageSizeY,
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.frameFileNameTemplate,
 						&trampolines );
         break;
       case CAPTURE_PNG:
-        out = new OutputPNG ( config.imageSizeX, config.imageSizeY,
+        out = new OutputPNG ( commonConfig.imageSizeX, commonConfig.imageSizeY,
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.frameFileNameTemplate,
 						&trampolines );
         break;
-#ifdef HAVE_LIBCFITSIO
+#if HAVE_LIBCFITSIO
       case CAPTURE_FITS:
-        out = new OutputFITS ( config.imageSizeX, config.imageSizeY,
+        out = new OutputFITS ( commonConfig.imageSizeX, commonConfig.imageSizeY,
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.frameFileNameTemplate,
@@ -502,22 +504,22 @@ ControlsWidget::openOutputFiles ( void )
   if ( config.saveProcessedImage ) {
     switch ( commonConfig.fileTypeOption ) {
       case CAPTURE_TIFF:
-        out = new OutputTIFF ( config.imageSizeX, config.imageSizeY,
+        out = new OutputTIFF ( commonConfig.imageSizeX, commonConfig.imageSizeY,
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.processedFileNameTemplate,
             &trampolines );
         break;
       case CAPTURE_PNG:
-        out = new OutputPNG ( config.imageSizeX, config.imageSizeY,
+        out = new OutputPNG ( commonConfig.imageSizeX, commonConfig.imageSizeY,
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.processedFileNameTemplate,
             &trampolines );
         break;
-#ifdef HAVE_LIBCFITSIO
+#if HAVE_LIBCFITSIO
       case CAPTURE_FITS:
-        out = new OutputFITS ( config.imageSizeX, config.imageSizeY,
+        out = new OutputFITS ( commonConfig.imageSizeX, commonConfig.imageSizeY,
             state.cameraControls->getFPSNumerator(),
             state.cameraControls->getFPSDenominator(), format,
 						APPLICATION_NAME, VERSION_STR, config.processedFileNameTemplate,
