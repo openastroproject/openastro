@@ -2,7 +2,7 @@
  *
  * saveControls.cc -- class for the save data tab in the settings dialog
  *
- * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -27,10 +27,10 @@
 #include <oa_common.h>
 
 extern "C" {
-#ifdef HAVE_FITSIO_H 
+#if HAVE_FITSIO_H 
 #include "fitsio.h"
 #else
-#ifdef HAVE_CFITSIO_FITSIO_H
+#if HAVE_CFITSIO_FITSIO_H
 #include "cfitsio/fitsio.h" 
 #endif
 #endif
@@ -41,7 +41,7 @@ extern "C" {
 #include "captureSettings.h"
 #include "fitsSettings.h"
 #include "outputHandler.h"
-#ifdef HAVE_LIBCFITSIO
+#if HAVE_LIBCFITSIO
 #include "outputFITS.h"
 #endif
 #include "outputTIFF.h"
@@ -50,7 +50,7 @@ extern "C" {
 #include "state.h"
 #include "version.h"
 
-#ifdef HAVE_LIBCFITSIO
+#if HAVE_LIBCFITSIO
 #define MAX_FILE_FORMATS        4
 static QString  fileFormats[MAX_FILE_FORMATS] = {
     "", "TIFF", "PNG", "FITS"
