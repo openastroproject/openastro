@@ -203,7 +203,7 @@ MainWindow::MainWindow ( QString configFile )
   commonState.filterWheel->updateAllSearchFilters();
 
   char d[ PATH_MAX ];
-#ifdef HAVE_QT4
+#if HAVE_QT4
   commonState.currentDirectory = QString::fromAscii ( getcwd ( d, PATH_MAX ));
 #else
   commonState.currentDirectory = QString::fromLatin1 ( getcwd ( d, PATH_MAX ));
@@ -364,12 +364,12 @@ MainWindow::readConfig ( QString configFile )
     config.showReticle = 0;
     config.showFocusAid = 0;
 
-    config.binning2x2 = 0;
-    config.colourise = 0;
+    commonConfig.binning2x2 = 0;
+    commonConfig.colourise = 0;
 
-    config.useROI = 0;
-    config.imageSizeX = 0;
-    config.imageSizeY = 0;
+    commonConfig.useROI = 0;
+    commonConfig.imageSizeX = 0;
+    commonConfig.imageSizeY = 0;
 
 #ifdef OACAPTURE
     config.zoomButton1Option = 1;
@@ -502,15 +502,16 @@ MainWindow::readConfig ( QString configFile )
     config.demosaic = settings->value ( "options/demosaic", 0 ).toInt();
 #endif
 
-    config.binning2x2 = settings->value ( "camera/binning2x2", 0 ).toInt();
-    config.colourise = settings->value ( "camera/colourise", 0 ).toInt();
+    commonConfig.binning2x2 = settings->value (
+				"camera/binning2x2", 0 ).toInt();
+    commonConfig.colourise = settings->value ( "camera/colourise", 0 ).toInt();
     // FIX ME -- reset these temporarily.  needs fixing properly
-    config.binning2x2 = 0;
-    config.colourise = 0;
+    commonConfig.binning2x2 = 0;
+    commonConfig.colourise = 0;
 
-    config.useROI = settings->value ( "image/useROI", 0 ).toInt();
-    config.imageSizeX = settings->value ( "image/imageSizeX", 0 ).toInt();
-    config.imageSizeY = settings->value ( "image/imageSizeY", 0 ).toInt();
+    commonConfig.useROI = settings->value ( "image/useROI", 0 ).toInt();
+    commonConfig.imageSizeX = settings->value ( "image/imageSizeX", 0 ).toInt();
+    commonConfig.imageSizeY = settings->value ( "image/imageSizeY", 0 ).toInt();
 
 #ifdef OACAPTURE
     config.zoomButton1Option = settings->value ( "image/zoomButton1Option",
@@ -814,11 +815,11 @@ MainWindow::readConfig ( QString configFile )
 
       PROFILE p;
       p.profileName = "default";
-      p.binning2x2 = config.binning2x2;
-      p.colourise = config.colourise;
-      p.useROI = config.useROI;
-      p.imageSizeX = config.imageSizeX;
-      p.imageSizeY = config.imageSizeY;
+      p.binning2x2 = commonConfig.binning2x2;
+      p.colourise = commonConfig.colourise;
+      p.useROI = commonConfig.useROI;
+      p.imageSizeX = commonConfig.imageSizeX;
+      p.imageSizeY = commonConfig.imageSizeY;
       if ( filterConf.numFilters ) {
         for ( int k = 0; k < filterConf.numFilters; k++ ) {
           FILTER_PROFILE fp;
@@ -1068,15 +1069,15 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "options/showFocusAid", config.showFocusAid );
   settings->setValue ( "options/demosaic", config.demosaic );
 
-  settings->setValue ( "camera/binning2x2", config.binning2x2 );
-  settings->setValue ( "camera/colourise", config.colourise );
+  settings->setValue ( "camera/binning2x2", commonConfig.binning2x2 );
+  settings->setValue ( "camera/colourise", commonConfig.colourise );
   settings->setValue ( "camera/inputFrameFormat", config.inputFrameFormat );
   settings->setValue ( "camera/forceInputFrameFormat",
       cameraConf.forceInputFrameFormat );
 
-  settings->setValue ( "image/useROI", config.useROI );
-  settings->setValue ( "image/imageSizeX", config.imageSizeX );
-  settings->setValue ( "image/imageSizeY", config.imageSizeY );
+  settings->setValue ( "image/useROI", commonConfig.useROI );
+  settings->setValue ( "image/imageSizeX", commonConfig.imageSizeX );
+  settings->setValue ( "image/imageSizeY", commonConfig.imageSizeY );
 
 #ifdef OACAPTURE
   settings->setValue ( "image/zoomButton1Option", config.zoomButton1Option );
@@ -3159,7 +3160,7 @@ MainWindow::doColouriseSettings ( void )
   if ( config.numCustomColours ) {
     config.customColours.clear();
     for ( int i = 0; i < config.numCustomColours; i++ ) {
-#ifdef HAVE_QT4
+#if HAVE_QT4
       QRgb custCol = colourDialog->customColor ( i );
       config.customColours.append ( QColor ( custCol ));
 #else
