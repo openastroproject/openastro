@@ -1,7 +1,7 @@
 #
 # Makefile.am -- liboaimgproc Makefile template
 #
-# Copyright 2015,2017 James Fidell (james@openastroproject.org)
+# Copyright 2015,2017,2019 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -25,7 +25,8 @@
 AM_CPPFLAGS = -I$(top_srcdir)/include
 lib_LTLIBRARIES = liboaimgproc.la
 liboaimgproc_la_SOURCES = focus.c sobel.c scharr.c gauss.c stackSum.c \
-  stackMean.c stackMedian.c contrast.c clamp.c brightness.c gamma.c
+  stackMean.c stackMedian.c stackMaximum.c \
+	contrast.c clamp.c brightness.c gamma.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

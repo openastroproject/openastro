@@ -33,6 +33,7 @@ extern int	oaStackSum8 ( void*, void*, void*, unsigned int );
 extern int	oaStackMean8 ( void*, unsigned int*, void*, unsigned int,
 		    unsigned int );
 extern int	oaStackMedian8 ( void**, unsigned int, void*, unsigned int );
+extern int	oaStackMaximum8 ( void*, void*, void*, unsigned int );
 
 extern int	oaContrastTransform ( void*, void*, int, int, int, int );
 

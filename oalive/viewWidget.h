@@ -28,7 +28,7 @@
 
 #include <oa_common.h>
 
-#ifdef HAVE_QT5
+#if HAVE_QT5
 #include <QtWidgets>
 #endif
 #include <QtGui>
@@ -107,6 +107,7 @@ class ViewWidget : public QFrame
     long		secondForFrameCount;
     long		secondForTemperature;
     long		secondForDropped;
+    long		secondForAutoControls;
     int			hasTemp;
     int			hasDroppedFrames;
     int			reticleCentreX;

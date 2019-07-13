@@ -2,7 +2,7 @@
  *
  * stackingControlss.cc -- class for the stacking tab in the settings dialog
  *
- * Copyright 2015,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -26,7 +26,9 @@
 
 #include <oa_common.h>
 
-#include <strings.h>
+#if HAVE_CSTRING
+#include <cstring>
+#endif
 
 #include "captureSettings.h"
 #include "fitsSettings.h"
@@ -41,7 +43,7 @@ StackingControls::StackingControls ( QWidget* parent ) : QWidget ( parent )
   QStringList methodStrings;
   // This must be in the same order as in the header file
   methodStrings << tr ( "None" ) << tr ( "Sum" ) << tr ( "Mean" ) <<
-			tr ( "Median" );
+			tr ( "Median" ) << tr ( "Maximum" );
   stackingMethodMenu = new QComboBox;
   stackingMethodMenu->addItems ( methodStrings );
   state.stackingMethod = OA_STACK_NONE;

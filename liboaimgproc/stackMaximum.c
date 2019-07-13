@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * stackingControls.h -- class declaration
+ * stackMaximum.c -- maximum stacking method
  *
- * Copyright 2015,2016,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -24,40 +24,24 @@
  *
  *****************************************************************************/
 
-#pragma once
-
 #include <oa_common.h>
-
-#if HAVE_QT5
-#include <QtWidgets>
-#endif
-#include <QtGui>
-
-extern "C" {
-#include <openastro/camera.h>
-}
-
-#define	OA_STACK_NONE				0
-#define	OA_STACK_SUM				1
-#define	OA_STACK_MEAN				2
-#define	OA_STACK_MEDIAN			3
-#define	OA_STACK_MAXIMUM		4
+#include <openastro/imgproc.h>
 
 
-class StackingControls : public QWidget
+int
+oaStackMaximum8 ( void* source1, void* source2, void* target,
+		unsigned int length )
 {
-  Q_OBJECT
+  unsigned int i;
+  uint8_t*	s1 = source1;
+  uint8_t*	s2 = source2;
+  uint8_t*	t = target;
 
-  public:
-    			StackingControls ( QWidget* );
-    			~StackingControls();
+  for ( i = 0; i < length; i++ ) {
+		*t++ = ( *s1 > *s2 ) ? *s1 : *s2;
+		s1++;
+		s2++;
+  }
 
-  private:
-    QLabel*		methodLabel;
-    QComboBox*		stackingMethodMenu;
-    QVBoxLayout*	layout;
-    QHBoxLayout*	hbox1;
-
-  public slots:
-    void		stackingMethodChanged ( int );
-};
+  return 0;
+}
