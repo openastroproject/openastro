@@ -57,13 +57,8 @@ typedef struct
 
   // camera config
   unsigned int		inputFrameFormat;
-  int			binning2x2;
 
   // image config
-  int			useROI;
-  unsigned int		imageSizeX;
-  unsigned int		imageSizeY;
-  int			colourise;
   QColor		currentColouriseColour;
   int			numCustomColours;
   QList<QColor>		customColours;
