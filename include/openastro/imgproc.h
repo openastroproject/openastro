@@ -36,6 +36,8 @@ extern int	oaStackMedian8 ( void**, unsigned int, void*, unsigned int );
 extern int	oaStackMaximum8 ( void*, void*, void*, unsigned int );
 extern int	oaStackKappaSigma8 ( void**, unsigned int, void*, unsigned int,
 								double );
+extern int	oaStackMedianKappaSigma8 ( void**, unsigned int, void*,
+								unsigned int, double );
 
 extern int	oaContrastTransform ( void*, void*, int, int, int, int );
 
