@@ -955,6 +955,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 				}
 				break;
 			}
+
       case OA_STACK_MAXIMUM:
         if ( -1 == self->currentStackBuffer ) {
           self->currentStackBuffer = 0;
@@ -968,6 +969,43 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
         viewBuffer = self->stackBufferInUse =
             self->stackBuffer[ self->currentStackBuffer ];
         break;
+
+			case OA_STACK_KAPPA_SIGMA:
+			{
+				// assign more memory for the array of frame pointers if required
+				if ( self->previousFrameArraySize < self->totalFrames ) {
+					void**		tmpPtr;
+					if (!( tmpPtr = ( void** ) realloc ( self->previousFrames,
+							( self->previousFrameArraySize + 20 ) * sizeof ( void* )))) {
+						qDebug() << "realloc of frame history failed!";
+						self->totalFrames--;
+						break;
+					}
+					/*
+					for ( i = self->previousFrameArraySize;
+							i < ( self->previousFrameArraySize + 20 ); i++ ) {
+						self->previousFrames[i] = 0;
+					}
+					*/
+					self->previousFrames = tmpPtr;
+					self->previousFrameArraySize += 20;
+				}
+				if (!( self->previousFrames[ self->totalFrames - 1 ] =
+						malloc ( viewFrameLength ))) {
+					qDebug() << "malloc of frame history failed!";
+					self->totalFrames--;
+					break;
+				}
+				memcpy ( self->previousFrames[ self->totalFrames - 1 ], viewBuffer,
+						viewFrameLength );
+				// no point doing any real work if we don't have at least three
+				// frames
+				if ( self->totalFrames > 2 ) {
+					oaStackKappaSigma8 ( self->previousFrames, self->totalFrames,
+							viewBuffer, viewFrameLength, config.stackKappa );
+				}
+				break;
+			}
     }
   }
 #endif /* OALIVE */

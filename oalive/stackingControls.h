@@ -37,11 +37,12 @@ extern "C" {
 #include <openastro/camera.h>
 }
 
-#define	OA_STACK_NONE				0
-#define	OA_STACK_SUM				1
-#define	OA_STACK_MEAN				2
-#define	OA_STACK_MEDIAN			3
-#define	OA_STACK_MAXIMUM		4
+#define	OA_STACK_NONE					0
+#define	OA_STACK_SUM					1
+#define	OA_STACK_MEAN					2
+#define	OA_STACK_MEDIAN				3
+#define	OA_STACK_MAXIMUM			4
+#define	OA_STACK_KAPPA_SIGMA	5
 
 
 class StackingControls : public QWidget
@@ -53,11 +54,14 @@ class StackingControls : public QWidget
     			~StackingControls();
 
   private:
-    QLabel*		methodLabel;
-    QComboBox*		stackingMethodMenu;
-    QVBoxLayout*	layout;
-    QHBoxLayout*	hbox1;
+    QLabel*							methodLabel;
+    QComboBox*					stackingMethodMenu;
+    QGridLayout*				grid;
+		QLabel*							kappaLabel;
+		QLineEdit*					kappaInput;
+		QDoubleValidator*		kappaValidator;
 
   public slots:
     void		stackingMethodChanged ( int );
+    void		updateKappaValue ( void );
 };

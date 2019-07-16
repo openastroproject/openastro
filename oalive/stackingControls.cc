@@ -39,35 +39,44 @@
 
 StackingControls::StackingControls ( QWidget* parent ) : QWidget ( parent )
 {
-  methodLabel = new QLabel ( tr ( "Stacking Method" ));
+  methodLabel = new QLabel ( tr ( "Stacking Method" ), this );
   QStringList methodStrings;
   // This must be in the same order as in the header file
   methodStrings << tr ( "None" ) << tr ( "Sum" ) << tr ( "Mean" ) <<
-			tr ( "Median" ) << tr ( "Maximum" );
-  stackingMethodMenu = new QComboBox;
+			tr ( "Median" ) << tr ( "Maximum" ) << tr ( "Kappa Sigma" );
+  stackingMethodMenu = new QComboBox ( this );
   stackingMethodMenu->addItems ( methodStrings );
   state.stackingMethod = OA_STACK_NONE;
   stackingMethodMenu->setCurrentIndex ( OA_STACK_NONE );
 
+	kappaLabel = new QLabel ( tr ( "Kappa" ), this );
+	kappaInput = new QLineEdit ( this );
+	kappaValidator = new QDoubleValidator ( 0.1, 3.0, 3, this );
+	kappaInput->setValidator ( kappaValidator );
+	kappaInput->setFixedWidth ( 100 );
+	kappaInput->setText ( QString::number ( config.stackKappa ));
+
   connect ( stackingMethodMenu, SIGNAL( currentIndexChanged ( int )), this,
       SLOT( stackingMethodChanged ( int )));
+  connect ( kappaInput, SIGNAL( textEdited( const QString& )), this,
+      SLOT( updateKappaValue()));
 
-  hbox1 = new QHBoxLayout;
-  hbox1->addWidget ( methodLabel );
-  hbox1->addWidget ( stackingMethodMenu );
+  grid = new QGridLayout;
+	grid->addWidget ( methodLabel, 0, 0 );
+	grid->addWidget ( stackingMethodMenu, 0, 1 );
+	grid->addWidget ( kappaLabel, 1, 0 );
+	grid->addWidget ( kappaInput, 1, 1 );
 
-  layout = new QVBoxLayout;
-  layout->addLayout ( hbox1 );
-  layout->addStretch ( 1 );
+  grid->setRowStretch ( 2, 1 );
 
-  setLayout ( layout );
+  setLayout ( grid );
 }
 
 
 StackingControls::~StackingControls()
 {
-  if ( layout ) {
-    state.mainWindow->destroyLayout (( QLayout* ) layout );
+  if ( grid ) {
+    state.mainWindow->destroyLayout (( QLayout* ) grid );
   }
 }
 
@@ -77,4 +86,12 @@ StackingControls::stackingMethodChanged ( int index )
 {
   state.stackingMethod = index;
   state.viewWidget->restart();
+}
+
+
+void
+StackingControls::updateKappaValue ( void )
+{
+	QString k = kappaInput->text();
+	config.stackKappa = k.toDouble();
 }

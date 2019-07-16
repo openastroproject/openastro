@@ -85,6 +85,9 @@ typedef struct
   int			saveCaptureSettings;
   int			indexDigits;
 
+	// processing config
+	double		stackKappa;
+
 } CONFIG;
 
 extern CONFIG		config;

@@ -404,6 +404,7 @@ MainWindow::readConfig ( QString configFile )
     config.processedFileNameTemplate = QString ( "oalive-processsed-%INDEX" );
     config.saveEachFrame = 0;
     config.saveProcessedImage = 0;
+		config.stackKappa = 2.0;
 #endif
     config.captureDirectory = QString ( defaultDir );
 
@@ -586,6 +587,8 @@ MainWindow::readConfig ( QString configFile )
         0 ).toInt();
     config.captureDirectory = settings->value ( "files/captureDirectory",
         "" ).toString();
+
+    config.stackKappa = settings->value ( "stacking/kappa", 2.0 ).toDouble();
 #endif
 
 #ifdef OACAPTURE
@@ -1134,6 +1137,8 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "files/saveEachFrame", config.saveEachFrame );
   settings->setValue ( "files/saveProcessedImage", config.saveProcessedImage );
   settings->setValue ( "files/captureDirectory", config.captureDirectory );
+
+  settings->setValue ( "stacking/kappa", config.stackKappa );
 #endif
 
 #ifdef OACAPTURE
