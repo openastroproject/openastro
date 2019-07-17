@@ -86,9 +86,14 @@ QHYCCDDIR = qhyccd
 QHYCCDLIB = $(QHYCCDDIR)/libqhyccd.la
 endif
 
+if LIBGPHOTO2_COND
+GPHOTO2DIR = gphoto2
+GPHOTO2LIB = $(GPHOTO2DIR)/libgphoto2.la
+endif
+
 SUBDIRS	= euvc iidc pwc qhy sx uvc dummy $(ALTAIRDIR) $(ATIKDIR) \
 	$(MALLINCAMDIR) $(FC2DIR) $(SPINDIR) $(TOUPCAMDIR) $(V4L2DIR) $(ZWODIR) \
-	$(ALTAIRLEGACYDIR) $(QHYCCDDIR) .
+	$(ALTAIRLEGACYDIR) $(QHYCCDDIR) $(GPHOTO2DIR) .
 
 liboacam_la_SOURCES = \
   control.c debug.c oacam.c unimplemented.c utils.c
@@ -96,7 +101,7 @@ liboacam_la_SOURCES = \
 liboacam_la_LIBADD = euvc/libeuvc.la iidc/libiidc.la pwc/libpwc.la \
   qhy/libqhy.la sx/libsx.la uvc/libuvc.la dummy/libdummy.la $(ALTAIRLIB) \
 	$(ATIKLIB) $(MALLINCAMLIB) $(FC2LIB) $(SPINLIB) $(TOUPCAMLIB) $(V4L2LIB) \
-	$(ZWOLIB) $(ALTAIRLEGACYLIB) $(QHYCCDLIB)
+	$(ZWOLIB) $(ALTAIRLEGACYLIB) $(QHYCCDLIB) $(GPHOTO2LIB)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

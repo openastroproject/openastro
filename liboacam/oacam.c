@@ -86,6 +86,9 @@
 #if HAVE_LIBQHYCCD
 #include "qhyccd/qhyccdoacam.h"
 #endif
+#if HAVE_LIBGPHOTO2
+#include "gphoto2/GP2oacam.h"
+#endif
 
 
 oaInterface	oaCameraInterfaces[] = {
@@ -266,6 +269,18 @@ oaInterface	oaCameraInterfaces[] = {
     "Spinnaker",
     "SPIN",
     oaSpinGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if HAVE_LIBGPHOTO2
+  {
+    OA_CAM_IF_GPHOTO2,
+    "gphoto2",
+    "GP2",
+    oaGP2GetCameras,
     0,
     OA_UDC_FLAG_NONE
   },

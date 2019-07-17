@@ -139,6 +139,7 @@ have_libavutil=no
 have_libavcodec=no
 internal_uvc=no
 have_libhidapi=no
+have_libgphoto2=no
 
 case $host in
   x86_64-apple-*)
@@ -799,6 +800,25 @@ then
   LDFLAGS="-rdynamic $LDFLAGS"
 fi
 
+if `$PKG_CONFIG --exists libgphoto2`; then
+  AC_MSG_NOTICE([Using system libqpgoto2 library])
+  flags=`$PKG_CONFIG --cflags-only-I libgphoto2`
+  if test $useisystemInclude -eq 1; then
+    flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+  fi
+  LIBGPHOTO2_CFLAGS="$flags"
+  AC_DEFINE([HAVE_LIBGPHOTO2],[1],[Have libgphoto2])
+	have_libgphoto2=yes
+else
+  AC_CHECK_LIB([gphoto2],[gp_camera_new],[
+    LIBS="-lgphoto2 $LIBS"
+		have_libgphoto2=yes
+    AC_DEFINE([HAVE_LIBGPHOTO2],[1],[Have libgphoto2])
+  ],[
+    AC_MSG_WARN([libgphoto2 not found.  DSLR support disabled.])
+  ])
+fi
+
 # Checks for header files.
 AC_CHECK_HEADERS([errno.h fcntl.h float.h limits.h math.h stdint.h stdlib.h string.h strings.h sys/ioctl.h sys/time.h unistd.h fitsio.h cfitsio/fitsio.h ftdi.h libftdi/ftdi.h libftdi1/ftdi.h sys/sendfile.h sys/time.h syslog.h stdbool.h])
 # C++ versions
@@ -1279,6 +1299,8 @@ AC_SUBST(LIBALTAIRCAM_LEGACY_CFLAGS)
 AC_SUBST(LIBALTAIRCAM_LEGACY_LIBS)
 AC_SUBST(LIBQHYCCD_CFLAGS)
 AC_SUBST(LIBQHYCCD_LIBS)
+AC_SUBST(LIBGPHOTO2_CFLAGS)
+AC_SUBST(LIBGPHOTO2_LIBS)
 AC_SUBST(LIBZWOFW_LIBS)
 AC_SUBST(LIBFTDI_CFLAGS)
 AC_SUBST(LIBFTDI_LIBS)
@@ -1303,11 +1325,12 @@ AM_CONDITIONAL([LIBMALLINCAM_COND], [test "x$have_mallincam" == "xyes"])
 AM_CONDITIONAL([LIBALTAIRCAM_COND], [test "x$have_altaircam" == "xyes"])
 AM_CONDITIONAL([LIBALTAIRCAM_LEGACY_COND], [test "x$have_altaircamlegacy" == "xyes"])
 AM_CONDITIONAL([LIBQHYCCD_COND], [test "x$have_qhyccd" == "xyes"])
+AM_CONDITIONAL([LIBGPHOTO2_COND], [test "x$have_libgphoto2" == "xyes"])
 AM_CONDITIONAL([LIBFFMPEG_COND], [test "x$use_system_ffmpeg" == "xno"])
 AM_CONDITIONAL([LIBUSB_COND], [test "x$use_system_libusb" == "xno"])
 AM_CONDITIONAL([BUILD_LIBUSB_COND], [test "x$build_libusb" == "xyes"])
 AM_CONDITIONAL([LIBHIDAPI_COND], [test "x$use_system_libhidapi" == "xno"])
 AM_CONDITIONAL([INT_LIBUVC_COND], [test "x$internal_uvc" == "xyes"])
 
-AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/altair-legacy/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/qhy/Makefile liboacam/qhyccd/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboacam/dummy/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
+AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/altair-legacy/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/qhy/Makefile liboacam/qhyccd/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboacam/dummy/Makefile liboacam/gphoto2/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
 AC_OUTPUT
