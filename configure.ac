@@ -807,6 +807,14 @@ if `$PKG_CONFIG --exists libgphoto2`; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   LIBGPHOTO2_CFLAGS="$flags"
+  # can't use shared libgphoto2 if we're not using the system libusb
+  # because it will try to pull it in anyhow
+  if test "x$use_system_libusb" == "xno"; then
+    AC_MSG_NOTICE([Using static libgphoto2 to avoid system libusb])
+    LIBGPHOTO2_LDFLAGS=""
+    AC_DEFINE([HAVE_STATIC_LIBGPHOTO2],[1],[Using static libgphoto2])
+    LIBGPHOTO2_LIBS="-static -lgphoto2 -dynamic"
+  fi
   AC_DEFINE([HAVE_LIBGPHOTO2],[1],[Have libgphoto2])
 	have_libgphoto2=yes
 else

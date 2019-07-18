@@ -68,6 +68,7 @@ oacapture_LDADD = \
   $(LIBUSB_LIBS) \
   $(LIBASI2_LIBS) \
   $(LIBZWOFW_LIBS) \
+	$(LIBGPHOTO2_LIBS) \
   $(OSX_FRAMEWORKS)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
