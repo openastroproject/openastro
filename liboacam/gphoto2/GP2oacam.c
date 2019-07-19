@@ -40,7 +40,6 @@
 
 static void		_gp2ErrorCallback ( GPContext*, const char*, void* );
 static void		_gp2StatusCallback ( GPContext*, const char*, void* );
-static void		_gp2CancelCallback ( GPContext*, const char*, void* );
 static void		_gp2MessageCallback ( GPContext*, const char*, void* );
 
 
@@ -51,10 +50,15 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, int flags )
   int								ret, numCameras;
   oaCameraDevice*		dev;
   DEVICE_INFO*			_private;
-	GPContext					*ctx;
-	CameraList				*cameraList;
-	const char				*camName;
-	const char				*camPort;
+	GPContext*				ctx;
+	CameraList*				cameraList;
+	CameraWidget*			rootWidget;
+	CameraWidget*			tempWidget;
+	Camera*						camera;
+	CameraWidgetType	widgetType;
+	const char*				camName;
+	const char*				camPort;
+	const char*				widgetValue;
 
 	if (( ret = _gp2InitLibraryFunctionPointers()) != OA_ERR_NONE ) {
 		return ret;
@@ -72,7 +76,6 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, int flags )
 
 	p_gp_context_set_error_func ( ctx, _gp2ErrorCallback, 0 );
 	p_gp_context_set_status_func ( ctx, _gp2StatusCallback, 0 );
-	p_gp_context_set_cancel_func ( ctx, _gp2CancelCallback, 0 );
 	p_gp_context_set_message_func ( ctx, _gp2MessageCallback, 0 );
 
   if ( p_gp_list_new ( &cameraList ) != GP_OK ) {
@@ -91,7 +94,7 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, int flags )
     return -OA_ERR_SYSTEM_ERROR;
   }
 	if ( numCameras < 1 ) {
-		p_gp_list_free ( cameraList );
+		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( ctx );
 		return 0;
 	}
@@ -99,29 +102,77 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, int flags )
   for ( i = 0; i < numCameras; i++ ) {
 		if ( p_gp_list_get_name ( cameraList, i, &camName ) != GP_OK ) {
 			fprintf ( stderr, "gp_list_get_name failed\n" );
-			p_gp_list_free ( cameraList );
+			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( ctx );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
 		if ( p_gp_list_get_value ( cameraList, i, &camPort ) != GP_OK ) {
 			fprintf ( stderr, "gp_list_get_name failed\n" );
-			p_gp_list_free ( cameraList );
+			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( ctx );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
 
-    fprintf ( stderr, "found camera '%s' at port '%s'\n", camName, camPort );
-
-    // now we can drop the data into the list
-    if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
-			p_gp_list_free ( cameraList );
+		if ( _gp2OpenCamera ( &camera, camName, camPort, ctx ) != OA_ERR_NONE ) {
+			fprintf ( stderr, "Can't open camera '%s' at port '%s'\n", camName,
+					camPort );
+			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( ctx );
       return -OA_ERR_MEM_ALLOC;
     }
 
+		if ( _gp2GetConfig ( camera, &rootWidget, ctx ) != OA_ERR_NONE ) {
+			fprintf ( stderr, "Can't get config for camera '%s' at port '%s'\n",
+					camName, camPort );
+			_gp2CloseCamera ( camera, ctx );
+			// FIX ME -- free rootWidget?
+			p_gp_list_unref ( cameraList );
+			p_gp_context_unref ( ctx );
+      return -OA_ERR_MEM_ALLOC;
+    }
+
+    if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
+			// FIX ME -- free rootWidget?
+			p_gp_list_unref ( cameraList );
+			p_gp_context_unref ( ctx );
+      return -OA_ERR_MEM_ALLOC;
+    }
+
+		if ( _gp2FindWidget ( rootWidget, "cameramodel", &tempWidget ) ==
+				OA_ERR_NONE || _gp2FindWidget ( rootWidget, "model", &tempWidget ) ==
+				OA_ERR_NONE ) {
+			if ( _gp2GetWidgetType ( tempWidget, &widgetType ) != OA_ERR_NONE ) {
+				// FIX ME -- free rootWidget and tempWidget?
+				p_gp_list_unref ( cameraList );
+				p_gp_context_unref ( ctx ); 
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( widgetType != GP_WIDGET_TEXT ) {
+				fprintf ( stderr, "unexpected type %d for camera model widget type\n",
+						widgetType );
+				// FIX ME -- free rootWidget and tempWidget?
+				p_gp_list_unref ( cameraList );
+				p_gp_context_unref ( ctx ); 
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( p_gp_widget_get_value ( tempWidget, &widgetValue ) != GP_OK ) {
+				fprintf ( stderr, "failed to get camera model value\n" );
+				// FIX ME -- free rootWidget and tempWidget?
+				p_gp_list_unref ( cameraList );
+				p_gp_context_unref ( ctx ); 
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			( void ) strcpy ( dev->deviceName, widgetValue );
+		} else {
+			( void ) strcpy ( dev->deviceName, camName );
+		}
+
+		// FIX ME -- free rootWidget and tempWidget?
+		_gp2CloseCamera ( camera, ctx );
+
     if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
       ( void ) free (( void* ) dev );
-			p_gp_list_free ( cameraList );
+			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( ctx );
       _oaFreeCameraDeviceList ( deviceList );
       return -OA_ERR_MEM_ALLOC;
@@ -132,13 +183,11 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, int flags )
     _private->devIndex = 0;
     dev->_private = _private;
 
-    ( void ) strcpy ( dev->deviceName, camName );
-
     dev->initCamera = oaGP2InitCamera;
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
       ( void ) free (( void* ) dev );
       ( void ) free (( void* ) _private );
-			p_gp_list_free ( cameraList );
+			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( ctx );
       return ret;
     }
@@ -146,7 +195,7 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, int flags )
     numFound++;
   }
 
-	p_gp_list_free ( cameraList );
+	p_gp_list_unref ( cameraList );
 	p_gp_context_unref ( ctx );
   return numFound;
 }
@@ -169,19 +218,10 @@ _gp2StatusCallback ( GPContext* ctx, const char* str, void* data )
 
 
 static void
-_gp2CancelCallback ( GPContext* ctx, const char* str, void* data )
-{
-	fprintf ( stderr, "gphoto2::CANCEL: %s\n", str ? str : "no text" );
-	fflush ( stderr );
-}
-
-
-static void
 _gp2MessageCallback ( GPContext* ctx, const char* str, void* data )
 {
 	fprintf ( stderr, "gphoto2::MESSAGE: %s\n", str ? str : "no text" );
 	fflush ( stderr );
 }
-
 
 #endif	/* HAVE_LIBGPHOTO2 */

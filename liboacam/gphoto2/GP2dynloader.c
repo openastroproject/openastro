@@ -44,21 +44,56 @@
 // Pointers to libgphoto2 functions so we can use them via libdl.
 
 GPContext*	( *p_gp_context_new )( void );
-int					( *p_gp_context_unref )( GPContext* );
+void				( *p_gp_context_unref )( GPContext* );
 
 int					( *p_gp_list_new )( CameraList** );
 int					( *p_gp_list_reset )( CameraList* );
 int					( *p_gp_list_free )( CameraList* );
+int					( *p_gp_list_unref )( CameraList* );
 int					( *p_gp_list_count )( CameraList* );
 int					( *p_gp_list_get_name )( CameraList*, int, const char** );
 int					( *p_gp_list_get_value )( CameraList*, int, const char** );
 
 int					( *p_gp_camera_autodetect )( CameraList*, GPContext* );
+int					( *p_gp_camera_new )( Camera** );
+int					( *p_gp_camera_set_abilities )( Camera*, CameraAbilities );
+int					( *p_gp_camera_set_port_info )( Camera*, GPPortInfo );
+int					( *p_gp_camera_unref )( Camera* );
+int					( *p_gp_camera_exit )( Camera*, GPContext* );
+int					( *p_gp_camera_get_config )( Camera*, CameraWidget**, GPContext* );
 
-int					( *p_gp_context_set_error_func )( GPContext*, void*, void* );
-int					( *p_gp_context_set_status_func )( GPContext*, void*, void* );
-int					( *p_gp_context_set_cancel_func )( GPContext*, void*, void* );
-int					( *p_gp_context_set_message_func )( GPContext*, void*, void* );
+void				( *p_gp_context_set_error_func )( GPContext*, GPContextErrorFunc,
+								void* );
+void				( *p_gp_context_set_status_func )( GPContext*, GPContextStatusFunc,
+								void* );
+void				( *p_gp_context_set_cancel_func )( GPContext*, GPContextCancelFunc,
+								void* );
+void				( *p_gp_context_set_message_func )( GPContext*,
+								GPContextMessageFunc, void* );
+
+int					( *p_gp_abilities_list_get_abilities )( CameraAbilitiesList*,
+								int, CameraAbilities* );
+int					( *p_gp_abilities_list_load )( CameraAbilitiesList*, GPContext* );
+int					( *p_gp_abilities_list_lookup_model )( CameraAbilitiesList*,
+								const char* );
+int					( *p_gp_abilities_list_new )( CameraAbilitiesList** );
+
+int					( *p_gp_widget_get_child_by_name )( CameraWidget*, const char*,
+								CameraWidget** );
+int					( *p_gp_widget_get_child_by_label )( CameraWidget*, const char*,
+								CameraWidget** );
+int					( *p_gp_widget_get_name )( CameraWidget*, const char** );
+int					( *p_gp_widget_get_type )( CameraWidget*, CameraWidgetType* );
+int					( *p_gp_widget_get_value )( CameraWidget*, void* );
+
+int					( *p_gp_port_info_list_count )( GPPortInfoList* );
+int					( *p_gp_port_info_list_free )( GPPortInfoList* );
+int					( *p_gp_port_info_list_get_info )( GPPortInfoList*, int,
+								GPPortInfo* );
+int					( *p_gp_port_info_list_load )( GPPortInfoList* );
+int					( *p_gp_port_info_list_lookup_path )( GPPortInfoList*,
+								const char* );
+int					( *p_gp_port_info_list_new )( GPPortInfoList** );
 
 #if HAVE_LIBDL && !HAVE_STATIC_LIBGPHOTO2
 static void*		_getDLSym ( void*, const char* );
@@ -130,6 +165,13 @@ _gp2InitLibraryFunctionPointers ( void )
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
+	  if (!( *( void** )( &p_gp_list_unref ) = _getDLSym ( libHandle,
+	      "gp_list_unref" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
 	  if (!( *( void** )( &p_gp_list_count ) = _getDLSym ( libHandle,
 	      "gp_list_count" ))) {
 			dlclose ( libHandle );
@@ -158,6 +200,48 @@ _gp2InitLibraryFunctionPointers ( void )
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
+	  if (!( *( void** )( &p_gp_camera_new ) = _getDLSym ( libHandle,
+	      "gp_camera_new" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_camera_set_abilities ) = _getDLSym ( libHandle,
+	      "gp_camera_set_abilities" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_camera_set_port_info ) = _getDLSym ( libHandle,
+	      "gp_camera_set_port_info" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_camera_unref ) = _getDLSym ( libHandle,
+	      "gp_camera_unref" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_camera_exit ) = _getDLSym ( libHandle,
+	      "gp_camera_exit" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_camera_get_config ) = _getDLSym ( libHandle,
+	      "gp_camera_get_config" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
 	  if (!( *( void** )( &p_gp_context_set_error_func ) = _getDLSym ( libHandle,
 	      "gp_context_set_error_func" ))) {
 			dlclose ( libHandle );
@@ -179,13 +263,117 @@ _gp2InitLibraryFunctionPointers ( void )
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
-	  if (!( *( void** )( &p_gp_context_set_message_func ) = _getDLSym ( libHandle,
-	      "gp_context_set_message_func" ))) {
+	  if (!( *( void** )( &p_gp_context_set_message_func ) =
+				_getDLSym ( libHandle, "gp_context_set_message_func" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
+	  if (!( *( void** )( &p_gp_abilities_list_get_abilities ) =
+				_getDLSym ( libHandle, "gp_abilities_list_get_abilities" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_abilities_list_load ) = _getDLSym ( libHandle,
+	      "gp_abilities_list_load" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_abilities_list_lookup_model ) =
+				_getDLSym ( libHandle, "gp_abilities_list_lookup_model" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_abilities_list_new ) = _getDLSym ( libHandle,
+	      "gp_abilities_list_new" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_widget_get_child_by_name ) =
+				_getDLSym ( libHandle, "gp_widget_get_child_by_name" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_widget_get_child_by_label ) =
+				_getDLSym ( libHandle, "gp_widget_get_child_by_label" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_widget_get_name ) = _getDLSym ( libHandle,
+	      "gp_widget_get_name" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_widget_get_type ) = _getDLSym ( libHandle,
+	      "gp_widget_get_type" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_widget_get_value ) = _getDLSym ( libHandle,
+	      "gp_widget_get_value" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_port_info_list_count ) = _getDLSym ( libHandle,
+	      "gp_port_info_list_count" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_port_info_list_free ) = _getDLSym ( libHandle,
+	      "gp_port_info_list_free" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_port_info_list_get_info ) = _getDLSym ( libHandle,
+	      "gp_port_info_list_get_info" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_port_info_list_load ) = _getDLSym ( libHandle,
+	      "gp_port_info_list_load" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_port_info_list_lookup_path ) =
+				_getDLSym ( libHandle, "gp_port_info_list_lookup_path" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_port_info_list_new ) = _getDLSym ( libHandle,
+	      "gp_port_info_list_new" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
 	}
 #else
 #if HAVE_STATIC_LIBGPHOTO2
@@ -196,16 +384,41 @@ _gp2InitLibraryFunctionPointers ( void )
 	p_gp_list_new = gp_list_new;
 	p_gp_list_reset = gp_list_reset;
 	p_gp_list_free = gp_list_free;
+	p_gp_list_unref = gp_list_unref;
 	p_gp_list_count = gp_list_count;
 	p_gp_list_get_name = gp_list_get_name;
 	p_gp_list_get_value = gp_list_get_value;
 
 	p_gp_camera_autodetect = gp_camera_autodetect;
+	p_gp_camera_new = gp_camera_new;
+	p_gp_camera_set_abilities = gp_camera_set_abilities;
+	p_gp_camera_set_port_info = gp_camera_set_port_info;
+	p_gp_camera_unref = gp_camera_unref;
+	p_gp_camera_exit = gp_camera_exit;
+	p_gp_camera_get_config = gp_camera_get_config;
 
 	p_gp_context_set_error_func = gp_context_set_error_func;
 	p_gp_context_set_status_func = gp_context_set_status_func;
 	p_gp_context_set_cancel_func = gp_context_set_cancel_func;
 	p_gp_context_set_message_func = gp_context_set_message_func;
+
+	p_gp_abilities_list_get_abilities = gp_abilities_list_get_abilities;
+	p_gp_abilities_list_load = gp_abilities_list_load;
+	p_gp_abilities_list_lookup_model = gp_abilities_list_lookup_model;
+	p_gp_abilities_list_new = gp_abilities_list_new;
+
+	p_gp_widget_get_child_by_name = gp_widget_get_child_by_name;
+	p_gp_widget_get_child_by_label = gp_widget_get_child_by_label;
+	p_gp_widget_get_name = gp_widget_get_name;
+	p_gp_widget_get_type = gp_widget_get_type;
+	p_gp_widget_get_value = gp_widget_get_value;
+
+	p_gp_port_info_list_count = gp_port_info_list_count;
+	p_gp_port_info_list_free = gp_port_info_list_free;
+	p_gp_port_info_list_get_info = gp_port_info_list_get_info;
+	p_gp_port_info_list_load = gp_port_info_list_load;
+	p_gp_port_info_list_lookup_path = gp_port_info_list_lookup_path;
+	p_gp_port_info_list_new = gp_port_info_list_new;
 
 #else
 	return OA_ERR_LIBRARY_NOT_FOUND;
@@ -215,6 +428,7 @@ _gp2InitLibraryFunctionPointers ( void )
 }
 
 
+#if HAVE_LIBDL && !HAVE_STATIC_LIBGPHOTO2
 static void*
 _getDLSym ( void* libHandle, const char* symbol )
 {
@@ -229,3 +443,4 @@ _getDLSym ( void* libHandle, const char* symbol )
 
   return addr;
 }
+#endif /* HAVE_LIBDL && !HAVE_STATIC_LIBGPHOTO2 */
