@@ -27,8 +27,6 @@
 
 #include <oa_common.h>
 
-#if HAVE_LIBGPHOTO2
-
 #include <openastro/camera.h>
 #include <gphoto2/gphoto2-camera.h>
 
@@ -36,11 +34,6 @@
 #include "unimplemented.h"
 #include "GP2oacam.h"
 #include "GP2private.h"
-
-
-static void		_gp2ErrorCallback ( GPContext*, const char*, void* );
-static void		_gp2StatusCallback ( GPContext*, const char*, void* );
-static void		_gp2MessageCallback ( GPContext*, const char*, void* );
 
 
 int
@@ -73,10 +66,7 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, int flags )
 
 	// These aren't strictly required, but keep them for debugging
 	// for the time being
-
-	p_gp_context_set_error_func ( ctx, _gp2ErrorCallback, 0 );
-	p_gp_context_set_status_func ( ctx, _gp2StatusCallback, 0 );
-	p_gp_context_set_message_func ( ctx, _gp2MessageCallback, 0 );
+	_gp2ConfigureCallbacks ( ctx );
 
   if ( p_gp_list_new ( &cameraList ) != GP_OK ) {
     fprintf ( stderr, "gp_list_new failed\n" );
@@ -182,6 +172,8 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, int flags )
     dev->interface = OA_CAM_IF_GPHOTO2;
     _private->devIndex = 0;
     dev->_private = _private;
+		( void ) strncpy ( _private->deviceId, camName, 256 );
+		( void ) strncpy ( _private->sysPath, camPort, PATH_MAX );
 
     dev->initCamera = oaGP2InitCamera;
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
@@ -199,29 +191,3 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, int flags )
 	p_gp_context_unref ( ctx );
   return numFound;
 }
-
-
-static void
-_gp2ErrorCallback ( GPContext* ctx, const char* str, void* data )
-{
-	fprintf ( stderr, "gphoto2::ERROR: %s\n", str ? str : "no text" );
-	fflush ( stderr );
-}
-
-
-static void
-_gp2StatusCallback ( GPContext* ctx, const char* str, void* data )
-{
-	fprintf ( stderr, "gphoto2::STATUS: %s\n", str ? str : "no text" );
-	fflush ( stderr );
-}
-
-
-static void
-_gp2MessageCallback ( GPContext* ctx, const char* str, void* data )
-{
-	fprintf ( stderr, "gphoto2::MESSAGE: %s\n", str ? str : "no text" );
-	fflush ( stderr );
-}
-
-#endif	/* HAVE_LIBGPHOTO2 */

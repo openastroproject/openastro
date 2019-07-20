@@ -36,8 +36,12 @@
 #include "GP2private.h"
 
 
-CameraAbilitiesList		*_gp2Abilities = 0;
-GPPortInfoList				*_gp2PortInfoList = 0;
+static void		_gp2ErrorCallback ( GPContext*, const char*, void* );
+static void		_gp2StatusCallback ( GPContext*, const char*, void* );
+static void		_gp2MessageCallback ( GPContext*, const char*, void* );
+
+CameraAbilitiesList*	_gp2Abilities = 0;
+GPPortInfoList*				_gp2PortInfoList = 0;
 int										numPorts = 0;
 
 
@@ -162,4 +166,37 @@ _gp2GetWidgetType ( CameraWidget* widget, CameraWidgetType* type )
 {
 	return ( p_gp_widget_get_type ( widget, type ) == GP_OK ) ? OA_ERR_NONE :
 			-OA_ERR_SYSTEM_ERROR;
+}
+
+
+void
+_gp2ConfigureCallbacks ( GPContext* ctx )
+{
+	p_gp_context_set_error_func ( ctx, _gp2ErrorCallback, 0 );
+	p_gp_context_set_status_func ( ctx, _gp2StatusCallback, 0 );
+	p_gp_context_set_message_func ( ctx, _gp2MessageCallback, 0 );
+}
+
+
+static void
+_gp2ErrorCallback ( GPContext* ctx, const char* str, void* data )
+{
+	fprintf ( stderr, "gphoto2::ERROR: %s\n", str ? str : "no text" );
+	fflush ( stderr );
+}
+
+
+static void
+_gp2StatusCallback ( GPContext* ctx, const char* str, void* data )
+{
+	fprintf ( stderr, "gphoto2::STATUS: %s\n", str ? str : "no text" );
+	fflush ( stderr );
+}
+
+
+static void
+_gp2MessageCallback ( GPContext* ctx, const char* str, void* data )
+{
+	fprintf ( stderr, "gphoto2::MESSAGE: %s\n", str ? str : "no text" );
+	fflush ( stderr );
 }

@@ -38,6 +38,7 @@ extern int					_gp2GetConfig ( Camera*, CameraWidget**, GPContext* );
 extern int					_gp2FindWidget ( CameraWidget*, const char*,
 												CameraWidget** );
 extern int					_gp2GetWidgetType ( CameraWidget*, CameraWidgetType* );
+extern void					_gp2ConfigureCallbacks ( GPContext* );
 
 extern GPContext*		( *p_gp_context_new )( void );
 extern void					( *p_gp_context_unref )( GPContext* );
