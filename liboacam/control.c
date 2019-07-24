@@ -2,7 +2,8 @@
  *
  * control.c -- interface for camera control functions
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -148,7 +149,8 @@ const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
   "Digital Gain (Red)",
   "Digital Gain (Green)",	// 110
   "Digital Gain (Blue)",
-  "Frame Format"
+  "Frame Format",
+  "ISO",
 };
 
 const char* oaCameraPresetAWBLabel[ OA_AWB_PRESET_LAST_P1 ] = {
