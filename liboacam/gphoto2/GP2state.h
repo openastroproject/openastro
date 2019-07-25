@@ -39,7 +39,13 @@ struct GP2buffer {
 typedef struct GP2_STATE {
   int									initialised;
   // camera details
-  // libuvc connection data
+	GPContext*					ctx;
+	CameraWidget*				rootWidget;
+	CameraWidget*				imgSettings;
+	CameraWidget*				iso;
+	CameraWidgetType		isoType;
+	int									numIsoOptions;
+
   // video mode settings
   int									currentFrameFormat;
   int									bytesPerPixel;

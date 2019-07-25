@@ -85,6 +85,7 @@ extern int					( *p_gp_widget_get_name )( CameraWidget*, const char** );
 extern int					( *p_gp_widget_get_type )( CameraWidget*,
 												CameraWidgetType* );
 extern int					( *p_gp_widget_get_value )( CameraWidget*, void* );
+extern int					( *p_gp_widget_count_choices )( CameraWidget* );
 
 extern int					( *p_gp_port_info_list_count )( GPPortInfoList* );
 extern int					( *p_gp_port_info_list_free )( GPPortInfoList* );

@@ -85,6 +85,7 @@ int					( *p_gp_widget_get_child_by_label )( CameraWidget*, const char*,
 int					( *p_gp_widget_get_name )( CameraWidget*, const char** );
 int					( *p_gp_widget_get_type )( CameraWidget*, CameraWidgetType* );
 int					( *p_gp_widget_get_value )( CameraWidget*, void* );
+int					( *p_gp_widget_count_choices )( CameraWidget* );
 
 int					( *p_gp_port_info_list_count )( GPPortInfoList* );
 int					( *p_gp_port_info_list_free )( GPPortInfoList* );
@@ -333,6 +334,13 @@ _gp2InitLibraryFunctionPointers ( void )
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
+	  if (!( *( void** )( &p_gp_widget_count_choices ) = _getDLSym ( libHandle,
+	      "gp_widget_count_choices" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
 	  if (!( *( void** )( &p_gp_port_info_list_count ) = _getDLSym ( libHandle,
 	      "gp_port_info_list_count" ))) {
 			dlclose ( libHandle );
@@ -412,6 +420,7 @@ _gp2InitLibraryFunctionPointers ( void )
 	p_gp_widget_get_name = gp_widget_get_name;
 	p_gp_widget_get_type = gp_widget_get_type;
 	p_gp_widget_get_value = gp_widget_get_value;
+	p_gp_widget_count_choices = gp_widget_count_choices;
 
 	p_gp_port_info_list_count = gp_port_info_list_count;
 	p_gp_port_info_list_free = gp_port_info_list_free;
