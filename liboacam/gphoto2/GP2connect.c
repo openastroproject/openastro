@@ -40,6 +40,9 @@
 
 
 static void		_GP2InitFunctionPointers ( oaCamera* );
+static int		_GP2ProcessMenuWidget ( CameraWidget*, const char*,
+									CameraWidget**, CameraWidgetType*, int*, const char*,
+									const char* camPort );
 
 
 /**
@@ -248,10 +251,9 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	// find how to tell if the widget doesn't exist rather than there being
 	// some other error
 
-	if ( _gp2FindWidget ( cameraInfo->imgSettings, "iso", &cameraInfo->iso ) !=
-			OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get imgsettings/iso widget for camera '%s' "
-				"at port '%s'\n", camName, camPort );
+	if ( _GP2ProcessMenuWidget ( cameraInfo->imgSettings, "iso",
+				&cameraInfo->iso, &cameraInfo->isoType, &cameraInfo->numIsoOptions,
+				camName, camPort )) {
 		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
 		// FIX ME -- free rootWidget?
 		p_gp_list_unref ( cameraList );
@@ -259,62 +261,12 @@ oaGP2InitCamera ( oaCameraDevice* device )
 		free (( void* ) commonInfo );
 		free (( void* ) cameraInfo );
 		free (( void* ) camera );
-    return 0;
-	}
-
-  if ( _gp2GetWidgetType ( cameraInfo->iso, &cameraInfo->isoType ) !=
-			OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get type for imgsettings/iso widget for camera "
-				"'%s' at port '%s'\n", camName, camPort );
-		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
-		// FIX ME -- free rootWidget?
-		p_gp_list_unref ( cameraList );
-		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
-    return 0;
-	}
-
-	// We'll accept RADIO and MENU types for the iso setting
-	if ( cameraInfo->isoType != GP_WIDGET_RADIO &&
-			cameraInfo->isoType != GP_WIDGET_MENU ) {
-		fprintf ( stderr, "Unexpected type %d for imgsettings/iso widget for "
-				"camera '%s' at port '%s'\n", cameraInfo->isoType, camName, camPort );
-		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
-		// FIX ME -- free rootWidget?
-		p_gp_list_unref ( cameraList );
-		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
-    return 0;
-	}
-
-	// By the looks of it, radio and menu widgets have sets of options that
-	// always have a starting value of zero and step up in units, so just
-	// counting the number of children for this widget should be sufficient
-	// to set the min and max values for this command.  I'll assume zero is
-	// the default.
-
-	if (( cameraInfo->numIsoOptions = p_gp_widget_count_choices (
-			cameraInfo->iso )) < GP_OK ) {
-		fprintf ( stderr, "Can't get number of choices for imgsettings/iso "
-				"widget for camera '%s' at port '%s'\n", camName, camPort );
-		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
-		// FIX ME -- free rootWidget?
-		p_gp_list_unref ( cameraList );
-		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
-    return 0;
 	}
 
 	camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_ISO ) = OA_CTRL_TYPE_MENU;
 	commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_ISO ) = 0;
 	commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_ISO ) =
-		cameraInfo->numIsoOptions - 1;
+			cameraInfo->numIsoOptions - 1;
 	commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_ISO ) = 1;
 	commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_ISO ) = 0;
 	// FIX ME -- is there an auto value required here?
@@ -325,55 +277,9 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	// find how to tell if the widget doesn't exist rather than there being
 	// some other error
 
-	if ( _gp2FindWidget ( cameraInfo->imgSettings, "whitebalance",
-			&cameraInfo->whiteBalance ) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get imgsettings/whitebalance widget for camera "
-				"'%s' at port '%s'\n", camName, camPort );
-		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
-		// FIX ME -- free rootWidget?
-		p_gp_list_unref ( cameraList );
-		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
-    return 0;
-	}
-
-  if ( _gp2GetWidgetType ( cameraInfo->whiteBalance,
-			&cameraInfo->whiteBalanceType ) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get type for imgsettings/whitebalance widget "
-				"for camera '%s' at port '%s'\n", camName, camPort );
-		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
-		// FIX ME -- free rootWidget?
-		p_gp_list_unref ( cameraList );
-		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
-    return 0;
-	}
-
-	// We'll accept RADIO and MENU types for the white balance
-	if ( cameraInfo->whiteBalanceType != GP_WIDGET_RADIO &&
-			cameraInfo->whiteBalanceType != GP_WIDGET_MENU ) {
-		fprintf ( stderr, "Unexpected type %d for imgsettings/whitebalance "
-				"widget for camera '%s' at port '%s'\n", cameraInfo->whiteBalanceType,
-				camName, camPort );
-		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
-		// FIX ME -- free rootWidget?
-		p_gp_list_unref ( cameraList );
-		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
-    return 0;
-	}
-
-	if (( cameraInfo->numWBOptions = p_gp_widget_count_choices (
-			cameraInfo->whiteBalance )) < GP_OK ) {
-		fprintf ( stderr, "Can't get number of choices for imgsettings/"
-				"whiteBalance widget for camera '%s' at port '%s'\n", camName,
-				camPort );
+	if ( _GP2ProcessMenuWidget ( cameraInfo->imgSettings, "whitebalance",
+				&cameraInfo->whiteBalance, &cameraInfo->whiteBalanceType,
+				&cameraInfo->numWBOptions, camName, camPort )) {
 		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
 		// FIX ME -- free rootWidget?
 		p_gp_list_unref ( cameraList );
@@ -387,7 +293,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_WHITE_BALANCE ) = OA_CTRL_TYPE_MENU;
 	commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_WHITE_BALANCE ) = 0;
 	commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_WHITE_BALANCE ) =
-		cameraInfo->numWBOptions - 1;
+			cameraInfo->numWBOptions - 1;
 	commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_WHITE_BALANCE ) = 1;
 	commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_WHITE_BALANCE ) = 0;
 
@@ -397,55 +303,9 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	// find how to tell if the widget doesn't exist rather than there being
 	// some other error
 
-	if ( _gp2FindWidget ( cameraInfo->captureSettings, "shutterspeed",
-			&cameraInfo->shutterSpeed ) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get capturesettings/shutterspeed widget for "
-				"camera '%s' at port '%s'\n", camName, camPort );
-		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
-		// FIX ME -- free rootWidget?
-		p_gp_list_unref ( cameraList );
-		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
-    return 0;
-	}
-
-  if ( _gp2GetWidgetType ( cameraInfo->shutterSpeed,
-			&cameraInfo->shutterSpeedType ) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get type for capturesettings/shutterspeed widget "
-				"for camera '%s' at port '%s'\n", camName, camPort );
-		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
-		// FIX ME -- free rootWidget?
-		p_gp_list_unref ( cameraList );
-		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
-    return 0;
-	}
-
-	// We'll accept RADIO and MENU types for shutter speed
-	if ( cameraInfo->shutterSpeedType != GP_WIDGET_RADIO &&
-			cameraInfo->shutterSpeedType != GP_WIDGET_MENU ) {
-		fprintf ( stderr, "Unexpected type %d for capturesettings/shutterspeed "
-				"widget for camera '%s' at port '%s'\n",
-				cameraInfo->shutterSpeedType, camName, camPort );
-		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
-		// FIX ME -- free rootWidget?
-		p_gp_list_unref ( cameraList );
-		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
-    return 0;
-	}
-
-	if (( cameraInfo->numShutterSpeedOptions = p_gp_widget_count_choices (
-			cameraInfo->shutterSpeed )) < GP_OK ) {
-		fprintf ( stderr, "Can't get number of choices for capturesettings/"
-				"shutterspeed widget for camera '%s' at port '%s'\n", camName,
-				camPort );
+	if ( _GP2ProcessMenuWidget ( cameraInfo->captureSettings, "shutterspeed",
+				&cameraInfo->shutterSpeed, &cameraInfo->shutterSpeedType,
+				&cameraInfo->numShutterSpeedOptions, camName, camPort )) {
 		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
 		// FIX ME -- free rootWidget?
 		p_gp_list_unref ( cameraList );
@@ -459,7 +319,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SHUTTER_SPEED ) = OA_CTRL_TYPE_MENU;
 	commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SHUTTER_SPEED ) = 0;
 	commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SHUTTER_SPEED ) =
-		cameraInfo->numShutterSpeedOptions - 1;
+			cameraInfo->numShutterSpeedOptions - 1;
 	commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SHUTTER_SPEED ) = 1;
 	commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SHUTTER_SPEED ) = 0;
 
@@ -469,54 +329,9 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	// find how to tell if the widget doesn't exist rather than there being
 	// some other error
 
-	if ( _gp2FindWidget ( cameraInfo->captureSettings, "sharpening",
-			&cameraInfo->sharpening ) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get capturesettings/sharpening widget for "
-				"camera '%s' at port '%s'\n", camName, camPort );
-		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
-		// FIX ME -- free rootWidget?
-		p_gp_list_unref ( cameraList );
-		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
-    return 0;
-	}
-
-  if ( _gp2GetWidgetType ( cameraInfo->sharpening,
-			&cameraInfo->sharpeningType ) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get type for capturesettings/sharpening widget "
-				"for camera '%s' at port '%s'\n", camName, camPort );
-		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
-		// FIX ME -- free rootWidget?
-		p_gp_list_unref ( cameraList );
-		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
-    return 0;
-	}
-
-	// We'll accept RADIO and MENU types for sharpening
-	if ( cameraInfo->sharpeningType != GP_WIDGET_RADIO &&
-			cameraInfo->sharpeningType != GP_WIDGET_MENU ) {
-		fprintf ( stderr, "Unexpected type %d for capturesettings/sharpening "
-				"widget for camera '%s' at port '%s'\n",
-				cameraInfo->sharpeningType, camName, camPort );
-		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
-		// FIX ME -- free rootWidget?
-		p_gp_list_unref ( cameraList );
-		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
-    return 0;
-	}
-
-	if (( cameraInfo->numSharpeningOptions = p_gp_widget_count_choices (
-			cameraInfo->sharpening )) < GP_OK ) {
-		fprintf ( stderr, "Can't get number of choices for capturesettings/"
-				"sharpening widget for camera '%s' at port '%s'\n", camName, camPort );
+	if ( _GP2ProcessMenuWidget ( cameraInfo->captureSettings, "sharpening",
+				&cameraInfo->sharpening, &cameraInfo->sharpeningType,
+				&cameraInfo->numSharpeningOptions, camName, camPort )) {
 		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
 		// FIX ME -- free rootWidget?
 		p_gp_list_unref ( cameraList );
@@ -530,7 +345,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SHARPNESS ) = OA_CTRL_TYPE_MENU;
 	commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SHARPNESS ) = 0;
 	commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SHARPNESS ) =
-		cameraInfo->numSharpeningOptions - 1;
+			cameraInfo->numSharpeningOptions - 1;
 	commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SHARPNESS ) = 1;
 	commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SHARPNESS ) = 0;
 
@@ -568,4 +383,44 @@ _GP2InitFunctionPointers ( oaCamera* camera )
 
   camera->funcs.getMenuString = oaGP2CameraGetMenuString;
 */
+}
+
+
+static int
+_GP2ProcessMenuWidget ( CameraWidget* parent, const char* name,
+		CameraWidget** ptarget, CameraWidgetType* ptargetType, int* numVals,
+		const char* camName, const char* camPort )
+{
+	if ( _gp2FindWidget ( parent, name, ptarget ) != OA_ERR_NONE ) {
+		fprintf ( stderr, "Can't get %s widget for camera '%s' "
+				"at port '%s'\n", name, camName, camPort );
+    return -OA_ERR_SYSTEM_ERROR;
+	}
+
+  if ( _gp2GetWidgetType ( *ptarget, ptargetType ) != OA_ERR_NONE ) {
+		fprintf ( stderr, "Can't get type for %s widget for camera "
+				"'%s' at port '%s'\n", name, camName, camPort );
+    return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	// We'll accept RADIO and MENU types for menus
+	if ( *ptargetType != GP_WIDGET_RADIO && *ptargetType != GP_WIDGET_MENU ) {
+		fprintf ( stderr, "Unexpected type %d for %s widget for "
+				"camera '%s' at port '%s'\n", *ptargetType, name , camName, camPort );
+    return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	// By the looks of it, radio and menu widgets have sets of options that
+	// always have a starting value of zero and step up in units, so just
+	// counting the number of children for this widget should be sufficient
+	// to set the min and max values for this command.  I'll assume zero is
+	// the default.
+
+	if (( *numVals = p_gp_widget_count_choices ( *ptarget )) < GP_OK ) {
+		fprintf ( stderr, "Can't get number of choices for %s "
+				"widget for camera '%s' at port '%s'\n", name, camName, camPort );
+    return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	return OA_ERR_NONE;
 }
