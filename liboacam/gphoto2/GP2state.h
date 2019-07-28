@@ -52,6 +52,9 @@ typedef struct GP2_STATE {
 	CameraWidget*				shutterSpeed;
 	CameraWidgetType		shutterSpeedType;
 	int									numShutterSpeedOptions;
+	CameraWidget*				sharpening;
+	CameraWidgetType		sharpeningType;
+	int									numSharpeningOptions;
 
   // video mode settings
   int									currentFrameFormat;

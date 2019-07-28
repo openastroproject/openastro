@@ -463,6 +463,77 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SHUTTER_SPEED ) = 1;
 	commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SHUTTER_SPEED ) = 0;
 
+	// sharpening
+	//
+	// FIX ME -- not having this shouldn't be an error.  Check the source to
+	// find how to tell if the widget doesn't exist rather than there being
+	// some other error
+
+	if ( _gp2FindWidget ( cameraInfo->captureSettings, "sharpening",
+			&cameraInfo->sharpening ) != OA_ERR_NONE ) {
+		fprintf ( stderr, "Can't get capturesettings/sharpening widget for "
+				"camera '%s' at port '%s'\n", camName, camPort );
+		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
+		// FIX ME -- free rootWidget?
+		p_gp_list_unref ( cameraList );
+		p_gp_context_unref ( cameraInfo->ctx );
+		free (( void* ) commonInfo );
+		free (( void* ) cameraInfo );
+		free (( void* ) camera );
+    return 0;
+	}
+
+  if ( _gp2GetWidgetType ( cameraInfo->sharpening,
+			&cameraInfo->sharpeningType ) != OA_ERR_NONE ) {
+		fprintf ( stderr, "Can't get type for capturesettings/sharpening widget "
+				"for camera '%s' at port '%s'\n", camName, camPort );
+		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
+		// FIX ME -- free rootWidget?
+		p_gp_list_unref ( cameraList );
+		p_gp_context_unref ( cameraInfo->ctx );
+		free (( void* ) commonInfo );
+		free (( void* ) cameraInfo );
+		free (( void* ) camera );
+    return 0;
+	}
+
+	// We'll accept RADIO and MENU types for sharpening
+	if ( cameraInfo->sharpeningType != GP_WIDGET_RADIO &&
+			cameraInfo->sharpeningType != GP_WIDGET_MENU ) {
+		fprintf ( stderr, "Unexpected type %d for capturesettings/sharpening "
+				"widget for camera '%s' at port '%s'\n",
+				cameraInfo->sharpeningType, camName, camPort );
+		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
+		// FIX ME -- free rootWidget?
+		p_gp_list_unref ( cameraList );
+		p_gp_context_unref ( cameraInfo->ctx );
+		free (( void* ) commonInfo );
+		free (( void* ) cameraInfo );
+		free (( void* ) camera );
+    return 0;
+	}
+
+	if (( cameraInfo->numSharpeningOptions = p_gp_widget_count_choices (
+			cameraInfo->sharpening )) < GP_OK ) {
+		fprintf ( stderr, "Can't get number of choices for capturesettings/"
+				"sharpening widget for camera '%s' at port '%s'\n", camName, camPort );
+		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
+		// FIX ME -- free rootWidget?
+		p_gp_list_unref ( cameraList );
+		p_gp_context_unref ( cameraInfo->ctx );
+		free (( void* ) commonInfo );
+		free (( void* ) cameraInfo );
+		free (( void* ) camera );
+    return 0;
+	}
+
+	camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SHARPNESS ) = OA_CTRL_TYPE_MENU;
+	commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SHARPNESS ) = 0;
+	commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SHARPNESS ) =
+		cameraInfo->numSharpeningOptions - 1;
+	commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SHARPNESS ) = 1;
+	commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SHARPNESS ) = 0;
+
   return camera;
 }
 
