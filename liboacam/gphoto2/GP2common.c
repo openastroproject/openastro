@@ -157,7 +157,7 @@ _gp2FindWidget ( CameraWidget* root, const char* name, CameraWidget** result )
 		( void ) p_gp_widget_get_child_by_label ( root, name, result );
 	}
 
-	return ( ret == GP_OK ) ? OA_ERR_NONE : -OA_ERR_SYSTEM_ERROR;
+	return ( ret == GP_OK ) ? OA_ERR_NONE : -OA_ERR_INVALID_COMMAND;
 }
 
 
