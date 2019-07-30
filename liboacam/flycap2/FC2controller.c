@@ -598,7 +598,7 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
   fc2GigEImageSettings		settings;
   int				ret, restart = 0;
 
-  if ( !camera->features.ROI ) {
+  if ( !camera->features.hasROI ) {
     return -OA_ERR_INVALID_CONTROL;
   }
 

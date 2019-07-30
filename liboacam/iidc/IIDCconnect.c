@@ -581,9 +581,10 @@ oaIIDCInitCamera ( oaCameraDevice* device )
   cameraInfo->currentIIDCMode = 0;
   cameraInfo->currentCodec = 0;
 
-  camera->features.rawMode = camera->features.demosaicMode = 0;
+  camera->features.hasRawMode = camera->features.hasDemosaicMode = 0;
   camera->features.hasReset = 1;
-  camera->features.readableControls = 1;
+  camera->features.hasReadableControls = 1;
+	camera->features.hasStreamingMode = 1;
 
   if ( cameraInfo->haveFormat7 ) {
     if ( _processFormat7Modes ( camera, iidcCam, videoModes )) {
@@ -618,7 +619,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
          __FUNCTION__ );
     }
     if ( framerates.num > 1 ) {
-      camera->features.frameRates = 1;
+      camera->features.hasFrameRates = 1;
     }
   }
 
@@ -831,7 +832,7 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
             cameraInfo->currentFrameFormat = OA_PIX_FMT_RGB24;
             rgbModeFound = 1;
             camera->frameFormats[ OA_PIX_FMT_RGB24 ] = 1;
-            camera->features.demosaicMode = 1;
+            camera->features.hasDemosaicMode = 1;
             addResolution = 1;
             break;
 
@@ -856,7 +857,7 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
             }
             // another little-endian guess
             camera->frameFormats[ OA_PIX_FMT_RGB48LE ] = 1;
-            camera->features.demosaicMode = 1;
+            camera->features.hasDemosaicMode = 1;
             addResolution = 1;
             break;
 
@@ -868,7 +869,7 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
             }
             // This is also a guess.  Could be GRBG, RGGB or BGGR
             camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
-            camera->features.rawMode = 1;
+            camera->features.hasRawMode = 1;
             rawModeFound = 1;
             addResolution = 1;
             break;
@@ -882,7 +883,7 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
             // This is also a guess.  Could be GRBG, RGGB or BGGR, and could
             // be big-endian
             camera->frameFormats[ OA_PIX_FMT_GBRG16LE ] = 1;
-            camera->features.rawMode = 1;
+            camera->features.hasRawMode = 1;
             rawModeFound = 1;
             addResolution = 1;
             break;
@@ -934,7 +935,7 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
   }
 
   cameraInfo->frameSizes[1].numSizes = numResolutions;
-  camera->features.fixedFrameSizes = 1;
+  camera->features.hasFixedFrameSizes = 1;
   return OA_ERR_NONE;
 }
 
@@ -1048,7 +1049,7 @@ _processNonFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
         cameraInfo->currentCodec = codec;
         rgbModeFound = 1;
         camera->frameFormats[ OA_PIX_FMT_RGB24 ] = 1;
-        camera->features.demosaicMode = 1;
+        camera->features.hasDemosaicMode = 1;
         break;
 
       case DC1394_COLOR_CODING_MONO16:
@@ -1071,7 +1072,7 @@ _processNonFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
         }
         // another little-endian guess
         camera->frameFormats[ OA_PIX_FMT_RGB48LE ] = 1;
-        camera->features.demosaicMode = 1;
+        camera->features.hasDemosaicMode = 1;
         break;
 
       case DC1394_COLOR_CODING_RAW8:
@@ -1082,7 +1083,7 @@ _processNonFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
         }
         // This is also a guess.  Could be GRBG, RGGB or BGGR
         camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
-        camera->features.rawMode = 1;
+        camera->features.hasRawMode = 1;
         rawModeFound = 1;
         break;
 
@@ -1095,7 +1096,7 @@ _processNonFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
         // This is also a guess.  Could be GRBG, RGGB or BGGR, and could
         // be big-endian
         camera->frameFormats[ OA_PIX_FMT_GBRG16LE ] = 1;
-        camera->features.rawMode = 1;
+        camera->features.hasRawMode = 1;
         rawModeFound = 1;
         break;
 

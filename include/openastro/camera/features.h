@@ -29,17 +29,19 @@
 #define OPENASTRO_CAMERA_FEATURES_H
 
 typedef struct oaCameraFeatures {
-  unsigned int rawMode : 1;
-  unsigned int demosaicMode : 1;
-  unsigned int binning : 1;
-  unsigned int frameRates : 1;
-  unsigned int ROI : 1;
+  unsigned int hasRawMode : 1;
+  unsigned int hasDemosaicMode : 1;
+  unsigned int hasBinning : 1;
+  unsigned int hasFrameRates : 1;
+  unsigned int hasROI : 1;
   unsigned int hasReset : 1;
-  unsigned int externalTrigger : 1;
-  unsigned int strobeOutput : 1;
-  unsigned int fixedFrameSizes : 1;
-  unsigned int readableControls : 1;
-  unsigned int fixedReadNoise : 1;
+  unsigned int hasExternalTrigger : 1;
+  unsigned int hasStrobeOutput : 1;
+  unsigned int hasFixedFrameSizes : 1;
+  unsigned int hasReadableControls : 1;
+  unsigned int hasFixedReadNoise : 1;
+  unsigned int hasStreamingMode : 1;
+  unsigned int frameSizeUnknown : 1;
   unsigned int pixelSizeX;
   unsigned int pixelSizeY;
 	float readNoise;

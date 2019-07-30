@@ -264,6 +264,7 @@ _QHY5LIIInitCamera ( oaCamera* camera )
   camera->features.hasReset = 1;
   camera->features.pixelSizeX = 3750;
   camera->features.pixelSizeY = 3750;
+  camera->features.hasStreamingMode = 1;
 
   oaQHY5LIISetAllControls ( camera );
 

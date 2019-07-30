@@ -2,7 +2,7 @@
  *
  * V4L2connect.c -- Initialise V4L2 cameras
  *
- * Copyright 2013,2014,2015,2017,2018
+ * Copyright 2013,2014,2015,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -1349,8 +1349,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   cameraInfo->currentFrameFormat = 0;
   cameraInfo->currentV4L2Format = 0;
 
-  camera->features.rawMode = camera->features.demosaicMode = 0;
+  camera->features.hasRawMode = camera->features.hasDemosaicMode = 0;
   camera->features.hasReset = 1;
+	camera->features.hasStreamingMode = 1;
   if ( cameraInfo->isSPC900 ) {
     camera->features.pixelSizeX = 5600;
     camera->features.pixelSizeY = 5600;
@@ -1397,7 +1398,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           cameraInfo->currentV4L2Format = formatDesc.pixelformat;
           cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG8;
           camera->frameFormats [ OA_PIX_FMT_GBRG8 ] = 1;
-          camera->features.rawMode = 1;
+          camera->features.hasRawMode = 1;
           break;
 
         default:
@@ -1413,14 +1414,14 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           cameraInfo->currentV4L2Format = formatDesc.pixelformat;
           cameraInfo->currentFrameFormat = OA_PIX_FMT_RGB24;
           camera->frameFormats [ OA_PIX_FMT_RGB24 ] = 1;
-          camera->features.demosaicMode = 1;
+          camera->features.hasDemosaicMode = 1;
           break;
 
         case V4L2_PIX_FMT_BGR24:
           cameraInfo->currentV4L2Format = formatDesc.pixelformat;
           cameraInfo->currentFrameFormat = OA_PIX_FMT_BGR24;
           camera->frameFormats [ OA_PIX_FMT_BGR24 ] = 1;
-          camera->features.demosaicMode = 1;
+          camera->features.hasDemosaicMode = 1;
           break;
 
         case V4L2_PIX_FMT_GREY:
@@ -1529,7 +1530,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             cameraInfo->currentFrameFormat = OA_PIX_FMT_BGGR8;
           }
           camera->frameFormats [ OA_PIX_FMT_BGGR8 ] = 1;
-          camera->features.rawMode = 1;
+          camera->features.hasRawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SRGGB8:
@@ -1538,7 +1539,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             cameraInfo->currentFrameFormat = OA_PIX_FMT_RGGB8;
           }
           camera->frameFormats [ OA_PIX_FMT_RGGB8 ] = 1;
-          camera->features.rawMode = 1;
+          camera->features.hasRawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SGBRG8:
@@ -1547,7 +1548,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG8;
           }
           camera->frameFormats [ OA_PIX_FMT_GBRG8 ] = 1;
-          camera->features.rawMode = 1;
+          camera->features.hasRawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SGRBG8:
@@ -1556,7 +1557,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG8;
           }
           camera->frameFormats [ OA_PIX_FMT_GRBG8 ] = 1;
-          camera->features.rawMode = 1;
+          camera->features.hasRawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SBGGR10:
@@ -1565,7 +1566,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             cameraInfo->currentFrameFormat = OA_PIX_FMT_BGGR10;
           }
           camera->frameFormats [ OA_PIX_FMT_BGGR10 ] = 1;
-          camera->features.rawMode = 1;
+          camera->features.hasRawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SRGGB10:
@@ -1574,7 +1575,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             cameraInfo->currentFrameFormat = OA_PIX_FMT_RGGB10;
           }
           camera->frameFormats [ OA_PIX_FMT_RGGB10 ] = 1;
-          camera->features.rawMode = 1;
+          camera->features.hasRawMode = 1;
           break;
     
         case V4L2_PIX_FMT_SGBRG10:
@@ -1583,7 +1584,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG10;
           }
           camera->frameFormats [ OA_PIX_FMT_GBRG10 ] = 1;
-          camera->features.rawMode = 1;
+          camera->features.hasRawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SGRBG10:
@@ -1592,7 +1593,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG10;
           }
           camera->frameFormats [ OA_PIX_FMT_GRBG10 ] = 1;
-          camera->features.rawMode = 1;
+          camera->features.hasRawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SBGGR12:
@@ -1601,7 +1602,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             cameraInfo->currentFrameFormat = OA_PIX_FMT_BGGR12;
           }
           camera->frameFormats [ OA_PIX_FMT_BGGR12 ] = 1;
-          camera->features.rawMode = 1;
+          camera->features.hasRawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SRGGB12:
@@ -1610,7 +1611,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             cameraInfo->currentFrameFormat = OA_PIX_FMT_RGGB12;
           }
           camera->frameFormats [ OA_PIX_FMT_RGGB12 ] = 1;
-          camera->features.rawMode = 1;
+          camera->features.hasRawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SGBRG12:
@@ -1619,7 +1620,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG12;
           }
           camera->frameFormats [ OA_PIX_FMT_GBRG12 ] = 1;
-          camera->features.rawMode = 1;
+          camera->features.hasRawMode = 1;
           break;
 
         case V4L2_PIX_FMT_SGRBG12:
@@ -1628,7 +1629,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             cameraInfo->currentFrameFormat = OA_PIX_FMT_GRBG12;
           }
           camera->frameFormats [ OA_PIX_FMT_GRBG12 ] = 1;
-          camera->features.rawMode = 1;
+          camera->features.hasRawMode = 1;
           break;
 
         case 0x00000000: // Possibly a degenerate case, but this is returned
@@ -1732,8 +1733,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   }
   cameraInfo->frameSizes[1].numSizes = j;
 
-  camera->features.frameRates = 0;
-  camera->features.fixedFrameSizes = 1;
+  camera->features.hasFrameRates = 0;
+  camera->features.hasFixedFrameSizes = 1;
 
   OA_CLEAR( parm );
   parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -1754,7 +1755,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     parm.parm.capture.capability = V4L2_CAP_TIMEPERFRAME;
     parm.parm.capture.timeperframe.numerator = 1;
     parm.parm.capture.timeperframe.denominator = 1;
-    camera->features.frameRates = 1;
+    camera->features.hasFrameRates = 1;
     if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_S_PARM, &parm )) {
       perror ( "VIDIOC_S_PARM v4l2ioctl failed" );
       v4l2_close ( cameraInfo->fd );

@@ -807,7 +807,7 @@ _doStart ( oaCamera* camera )
     return -OA_ERR_OUT_OF_RANGE;
   }
 
-  camera->features.frameRates = frame->bFrameIntervalType ? 1 : 0;
+  camera->features.hasFrameRates = frame->bFrameIntervalType ? 1 : 0;
 //cameraInfo->frameInterval = frame->dwDefaultFrameInterval;
 
   multiplier = oaFrameFormats[ cameraInfo->currentFrameFormat ].bytesPerPixel;

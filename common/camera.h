@@ -72,6 +72,7 @@ class Camera : public QObject
     int			isInitialised ( void );
     int			pixelSizeX ( void );
     int			pixelSizeY ( void );
+    int			frameSizeUnknown ( void );
 
     void		controlRange ( int, int64_t*, int64_t*, int64_t*,
                             int64_t* );

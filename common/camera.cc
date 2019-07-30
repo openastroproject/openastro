@@ -174,7 +174,7 @@ Camera::hasROI ( void )
     qWarning() << __FUNCTION__ << " called with camera uninitialised";
     return 0;
   }
-  return cameraFeatures.ROI;
+  return cameraFeatures.hasROI;
 }
 
 
@@ -184,7 +184,7 @@ int Camera::hasFixedFrameSizes ( void )
     qWarning() << __FUNCTION__ << " called with camera uninitialised";
     return 0;
   }
-  return cameraFeatures.fixedFrameSizes;
+  return cameraFeatures.hasFixedFrameSizes;
 }
 
 
@@ -195,7 +195,7 @@ Camera::hasFrameRateSupport ( void )
     qWarning() << __FUNCTION__ << " called with camera uninitialised";
     return 0;
   }
-  return cameraFeatures.frameRates;
+  return cameraFeatures.hasFrameRates;
 }
 
 
@@ -208,7 +208,7 @@ Camera::hasFixedFrameRates ( int xRes __attribute__((unused)),
     return 0;
   }
 
-  return cameraFeatures.frameRates;
+  return cameraFeatures.hasFrameRates;
 }
 
 
@@ -219,7 +219,7 @@ Camera::hasReadableControls ( void )
 		qWarning() << __FUNCTION__ << " called with camera uninitialised";
 		return 0;
 	}
-	return cameraFeatures.readableControls;
+	return cameraFeatures.hasReadableControls;
 }
 
 
@@ -266,7 +266,7 @@ Camera::isColour ( void )
     qWarning() << __FUNCTION__ << " called with camera uninitialised";
     return 0;
   }
-  return ( cameraFeatures.rawMode | cameraFeatures.demosaicMode );
+  return ( cameraFeatures.hasRawMode | cameraFeatures.hasDemosaicMode );
 }
 
 
@@ -656,7 +656,7 @@ Camera::hasRawMode ( void )
   if ( !initialised ) {
     qWarning() << __FUNCTION__ << " called with camera uninitialised";
   }
-  return initialised ? cameraFeatures.rawMode : 0;
+  return initialised ? cameraFeatures.hasRawMode : 0;
 }
 
 
@@ -666,7 +666,7 @@ Camera::hasDemosaicMode ( void )
   if ( !initialised ) {
     qWarning() << __FUNCTION__ << " called with camera uninitialised";
   }
-  return initialised ? cameraFeatures.demosaicMode : 0;
+  return initialised ? cameraFeatures.hasDemosaicMode : 0;
 }
 
 
@@ -711,4 +711,15 @@ Camera::pixelSizeY ( void )
     return 0;
   }
   return cameraFeatures.pixelSizeY;
+}
+
+
+int
+Camera::frameSizeUnknown ( void )
+{
+  if ( !initialised ) {
+    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    return 0;
+  }
+  return cameraFeatures.frameSizeUnknown;
 }

@@ -205,7 +205,8 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
     return 0;
 	}
 
-	camera->features.readableControls = 1; // allegedy
+	camera->features.hasReadableControls = 1; // allegedy
+	camera->features.hasStreamingMode = 1;
 
 	for ( i = 0; i < numQHYControls; i++ ) {
 		int m = 1, qhyControl = QHYControlData[i].qhyControl;
@@ -230,7 +231,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 	}
 
 	// It looks as though all cameras might support ROI
-  camera->features.ROI = 1;
+  camera->features.hasROI = 1;
 
 	cfaMask = p_IsQHYCCDControlAvailable ( handle, CAM_COLOR );
 	if ( cfaMask == BAYER_GB || cfaMask == BAYER_GR || cfaMask == BAYER_BG ||
@@ -256,7 +257,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 		if ( cameraInfo->has16Bit ) {
 			camera->frameFormats[ OA_PIX_FMT_RGB48LE ] = 1;
 		}
-    camera->features.rawMode = camera->features.demosaicMode = 1;
+    camera->features.hasRawMode = camera->features.hasDemosaicMode = 1;
 		switch ( cfaMask ) {
 			case BAYER_GB:
 				camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;

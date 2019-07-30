@@ -2,7 +2,7 @@
  *
  * V4L2controller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2017,2018
+ * Copyright 2015,2016,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -166,7 +166,7 @@ oacamV4L2controller ( void* param )
 
     if ( streaming ) {
 
-      if ( camera->features.frameRates ) {
+      if ( camera->features.hasFrameRates ) {
         frameWait = 1000000.0 * cameraInfo->frameRateNumerator /
             cameraInfo->frameRateDenominator;
       } else {
@@ -1210,7 +1210,7 @@ _doStart ( V4L2_STATE* cameraInfo )
     parm.parm.capture.timeperframe.numerator = cameraInfo->frameRateNumerator;
     parm.parm.capture.timeperframe.denominator =
         cameraInfo->frameRateDenominator;
-//  camera->features.frameRates = 1;
+//  camera->features.hasFrameRates = 1;
     if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_S_PARM, &parm )) {
       perror ( "VIDIOC_S_PARM v4l2ioctl failed" );
       return -OA_ERR_SYSTEM_ERROR;

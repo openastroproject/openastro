@@ -963,7 +963,7 @@ _processSetResolution ( oaCamera* camera, OA_COMMAND* command )
   }
 
   // Now reset ROI position
-  if ( camera->features.ROI ) {
+  if ( camera->features.hasROI ) {
     posn = 0;
     if ( setEUVCTermControl ( cameraInfo, EUVC_CT_PARTIAL_SCAN_X,
         &posn, 4, EUVC_SET_CUR )) {
@@ -988,7 +988,7 @@ _processSetResolution ( oaCamera* camera, OA_COMMAND* command )
   _doSetFrameRate ( cameraInfo, x, y );
 
   // Set the ROI and ROI position
-  if ( camera->features.ROI ) {
+  if ( camera->features.hasROI ) {
     uint8_t* p = ( uint8_t* ) &posn;
     p[0] = x & 0xff;
     p[1] = ( x >> 8 ) & 0xff;
@@ -1057,7 +1057,7 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
   unsigned int		x, y, frameX, frameY;
   uint32_t		posn;
 
-  if ( !camera->features.ROI ) {
+  if ( !camera->features.hasROI ) {
     return -OA_ERR_INVALID_CONTROL;
   }
 

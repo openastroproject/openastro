@@ -557,7 +557,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   int   autoFocusType = 0;
   uint8_t autoFocusMax, autoFocusMin, autoFocusDef, autoFocusStep;
 
-  camera->features.readableControls = 1;
+  camera->features.hasReadableControls = 1;
+	camera->features.hasStreamingMode = 1;
   control = 1;
   flags = cameraInfo->termControlsBitmap;
   for ( k = 0; k < numPUEUVCControls; k++ ) {
@@ -1036,7 +1037,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 
   if (( termCaps & EUVC_CT_CAPABILITY_PARTIAL_SCAN_WIDTH ) &&
       ( termCaps & EUVC_CT_CAPABILITY_PARTIAL_SCAN_HEIGHT )) {
-    camera->features.ROI = 1;
+    camera->features.hasROI = 1;
   }
 
   // I'm not aware of any camera modes that don't fit this
@@ -1170,7 +1171,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   // Finally, if we have a pixel clock we're going to use that to set the
   // frame rates.  Read the pixel clock rate etc.
 
-  camera->features.frameRates = 1;
+  camera->features.hasFrameRates = 1;
   if (( termCaps & EUVC_CT_CAPABILITY_PIXEL_CLOCK ) &&
       ( termCaps & EUVC_CT_CAPABILITY_BLANKING_INFO )) {
     if ( getEUVCTermControl ( cameraInfo, EUVC_CT_PIXEL_CLOCK,
@@ -1372,7 +1373,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
     free (( void* ) camera );
     return 0;
   }
-  camera->features.fixedFrameSizes = 1;
+  camera->features.hasFixedFrameSizes = 1;
 
   for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
     void* m = malloc ( cameraInfo->imageBufferLength );

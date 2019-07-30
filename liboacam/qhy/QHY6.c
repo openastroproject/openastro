@@ -125,7 +125,7 @@ _QHY6InitCamera ( oaCamera* camera )
   cameraInfo->buffers = 0;
   cameraInfo->configuredBuffers = 0;
 
-  camera->features.ROI = 0;
+  camera->features.hasROI = 0;
   camera->features.hasReset = 1;
   camera->features.pixelSizeX = 6500;
   camera->features.pixelSizeY = 6250;

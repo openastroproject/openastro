@@ -128,7 +128,8 @@ oaTouptekInitCamera ( oaCameraDevice* device )
   pthread_cond_init ( &cameraInfo->commandComplete, 0 );
   cameraInfo->isStreaming = 0;
 
-	camera->features.readableControls = 1;
+	camera->features.hasReadableControls = 1;
+	camera->features.hasStreamingMode = 1;
 
   // FIX ME -- work out how to support these
   // Toupcam_put_AutoExpoTarget
@@ -340,7 +341,7 @@ oaTouptekInitCamera ( oaCameraDevice* device )
 */
 
   if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_ROI_HARDWARE ) {
-    camera->features.ROI = 1;
+    camera->features.hasROI = 1;
   }
 
   cameraInfo->maxBitDepth = p_Toupcam_get_MaxBitDepth ( handle );
@@ -447,7 +448,7 @@ oaTouptekInitCamera ( oaCameraDevice* device )
 
     // The docs aren't clear, so I'm assuming that raw mode is available for
     // all colour cameras
-    camera->features.rawMode = camera->features.demosaicMode = 1;
+    camera->features.hasRawMode = camera->features.hasDemosaicMode = 1;
     cameraInfo->currentVideoFormat = OA_PIX_FMT_RGB24;
 
     // Some weird stuff appears to be going on here.  When I enable raw
@@ -521,7 +522,7 @@ oaTouptekInitCamera ( oaCameraDevice* device )
     }
     if ( !found ) {
       fprintf ( stderr, "raw format '%08x' not supported\n", fourcc );
-      camera->features.rawMode = 0;
+      camera->features.hasRawMode = 0;
     }
   } else {
     cameraInfo->currentVideoFormat = OA_PIX_FMT_GREY8;
@@ -618,7 +619,7 @@ oaTouptekInitCamera ( oaCameraDevice* device )
   cameraInfo->maxResolutionX = cameraInfo->currentXSize;
   cameraInfo->maxResolutionY = cameraInfo->currentYSize;
   cameraInfo->binMode = 1;
-  camera->features.fixedFrameSizes = 1;
+  camera->features.hasFixedFrameSizes = 1;
 
   if ( numResolutions > 1 ) {
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;

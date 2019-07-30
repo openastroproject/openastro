@@ -2,7 +2,7 @@
  *
  * ZWASIconnect.c -- Initialise ZW ASI cameras
  *
- * Copyright 2013,2014,2015,2017,2018
+ * Copyright 2013,2014,2015,2017,2018,2019
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -611,8 +611,9 @@ oaZWASIInitCamera ( oaCameraDevice* device )
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
 
   // All cameras support ROI according to Sam@ZWO
-  camera->features.ROI = 1;
+  camera->features.hasROI = 1;
   camera->features.hasReset = 1;
+	camera->features.hasStreamingMode = 1;
 
   // Ok, now we need to find out what frame formats are supported and
   // which one we want to use
@@ -628,10 +629,10 @@ oaZWASIInitCamera ( oaCameraDevice* device )
     if ( isImgTypeSupported ( IMG_RGB24 )) {
       cameraInfo->videoCurrent = IMG_RGB24;
       cameraInfo->videoRGB24 = 1;
-      camera->features.demosaicMode = 1;
+      camera->features.hasDemosaicMode = 1;
     }
     if ( isImgTypeSupported ( IMG_RAW8 )) {
-      camera->features.rawMode = 1;
+      camera->features.hasRawMode = 1;
     }
   } else {
     cameraInfo->colour = 0;

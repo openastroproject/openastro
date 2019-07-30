@@ -227,6 +227,7 @@ _IMG132EInitCamera ( oaCamera* camera )
   }
 
   camera->features.hasReset = 0;
+  camera->features.hasStreamingMode = 1;
   camera->features.pixelSizeX = 3360;
   camera->features.pixelSizeY = 3360;
 

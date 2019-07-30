@@ -2,7 +2,7 @@
  *
  * Spinconnect.c -- Initialise Point Grey Spinnaker-based cameras
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -104,7 +104,8 @@ oaSpinInitCamera ( oaCameraDevice* device )
   cameraInfo->initialised = 0;
   devInfo = device->_private;
 
-	camera->features.readableControls = 1;
+	camera->features.hasReadableControls = 1;
+	camera->features.hasStreamingMode = 1;
 
   if (( *p_spinSystemGetInstance )( &systemHandle ) !=
       SPINNAKER_ERR_SUCCESS ) {
