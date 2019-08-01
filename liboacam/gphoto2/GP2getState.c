@@ -32,6 +32,7 @@
 #include "oacamprivate.h"
 #include "GP2oacam.h"
 #include "GP2state.h"
+#include "GP2private.h"
 
 
 int
@@ -51,6 +52,67 @@ oaGP2CameraGetControlRange ( oaCamera* camera, int control, int64_t* min,
   return OA_ERR_NONE;
 }
 
+
+const char*
+oaGP2CameraGetMenuString ( oaCamera* camera, int control, int index )
+{
+	GP2_STATE*		cameraInfo = camera->_private;
+	CameraWidget*	widget;
+	int						numOptions, i;
+	const char**	options;
+	const char***	poptions;
+
+	switch ( control ) {
+		case OA_CAM_CTRL_ISO:
+			widget = cameraInfo->iso;
+			numOptions = cameraInfo->numIsoOptions;
+			options = cameraInfo->isoOptions;
+			poptions = &cameraInfo->isoOptions;
+			break;
+		case OA_CAM_CTRL_WHITE_BALANCE:
+			widget = cameraInfo->whiteBalance;
+			numOptions = cameraInfo->numWBOptions;
+			options = cameraInfo->whiteBalanceOptions;
+			poptions = &cameraInfo->whiteBalanceOptions;
+			break;
+		case OA_CAM_CTRL_SHUTTER_SPEED:
+			widget = cameraInfo->shutterSpeed;
+			numOptions = cameraInfo->numShutterSpeedOptions;
+			options = cameraInfo->shutterSpeedOptions;
+			poptions = &cameraInfo->shutterSpeedOptions;
+			break;
+		case OA_CAM_CTRL_SHARPNESS:
+			widget = cameraInfo->sharpening;
+			numOptions = cameraInfo->numSharpeningOptions;
+			options = cameraInfo->sharpeningOptions;
+			poptions = &cameraInfo->sharpeningOptions;
+			break;
+		default:
+			return "Invalid control";
+			break;
+	}
+
+	if ( !widget || !numOptions ) {
+		return "Invalid control";
+	}
+
+	if ( options ) {
+		return options[ index ];
+	}
+
+	if (!( *poptions = calloc ( sizeof ( char* ), numOptions ))) {
+		return "Memory allocation failed";
+	}
+
+	options = *poptions;
+	for ( i = 0; i < numOptions; i++ ) {
+		if ( p_gp_widget_get_choice ( widget, i, &options[i] ) != GP_OK ) {
+			options[i] = "unknown";
+		}
+	}
+
+	return options[ index ];
+}
 
 /*
 const FRAMESIZES*

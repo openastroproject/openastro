@@ -185,6 +185,9 @@ oaGP2InitCamera ( oaCameraDevice* device )
     return 0;
 	}
 
+	cameraInfo->isoOptions = cameraInfo->whiteBalanceOptions =
+			cameraInfo->shutterSpeedOptions = cameraInfo->sharpeningOptions = 0;
+
 	if ( _gp2OpenCamera ( &gp2camera, camName, camPort, cameraInfo->ctx ) !=
 			OA_ERR_NONE ) {
 		fprintf ( stderr, "Can't open camera '%s' at port '%s'\n", camName,
@@ -713,9 +716,8 @@ _GP2InitFunctionPointers ( oaCamera* camera )
 
   camera->funcs.enumerateFrameRates = oaGP2CameraGetFrameRates;
   camera->funcs.setFrameInterval = oaGP2CameraSetFrameInterval;
-
-  camera->funcs.getMenuString = oaGP2CameraGetMenuString;
 */
+  camera->funcs.getMenuString = oaGP2CameraGetMenuString;
 }
 
 

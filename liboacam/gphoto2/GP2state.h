@@ -46,15 +46,19 @@ typedef struct GP2_STATE {
 	CameraWidget*				iso;
 	CameraWidgetType		isoType;
 	int									numIsoOptions;
+	const char**				isoOptions;
 	CameraWidget*				whiteBalance;
 	CameraWidgetType		whiteBalanceType;
 	int									numWBOptions;
+	const char**				whiteBalanceOptions;
 	CameraWidget*				shutterSpeed;
 	CameraWidgetType		shutterSpeedType;
 	int									numShutterSpeedOptions;
+	const char**				shutterSpeedOptions;
 	CameraWidget*				sharpening;
 	CameraWidgetType		sharpeningType;
 	int									numSharpeningOptions;
+	const char**				sharpeningOptions;
 
   // video mode settings
   int									currentFrameFormat;
