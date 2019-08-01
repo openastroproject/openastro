@@ -35,6 +35,7 @@
 
 #include "unimplemented.h"
 #include "oacamprivate.h"
+#include "GP2oacam.h"
 #include "GP2private.h"
 #include "GP2state.h"
 
@@ -693,7 +694,9 @@ _GP2InitFunctionPointers ( oaCamera* camera )
   camera->funcs.setControl = oaGP2CameraSetControl;
   camera->funcs.readControl = oaGP2CameraReadControl;
   camera->funcs.testControl = oaGP2CameraTestControl;
+*/
   camera->funcs.getControlRange = oaGP2CameraGetControlRange;
+/*
   camera->funcs.getControlDiscreteSet = oaGP2CameraGetControlDiscreteSet;
 
   camera->funcs.startStreaming = oaGP2CameraStartStreaming;
