@@ -31,8 +31,9 @@ AM_CPPFLAGS = \
 
 noinst_LTLIBRARIES = libgphoto2.la
 
-libgphoto2_la_SOURCES = GP2oacam.c GP2dynloader.c GP2connect.c GP2common.c
-# GP2getState.c GP2control.c GP2controller.c GP2callback.c
+libgphoto2_la_SOURCES = GP2oacam.c GP2dynloader.c GP2connect.c GP2common.c \
+	GP2getState.c
+# GP2control.c GP2controller.c GP2callback.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
