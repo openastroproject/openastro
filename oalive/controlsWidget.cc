@@ -151,7 +151,9 @@ ControlsWidget::configure ( void )
 {
   camera->configure();
   processing->configure();
-  configureResolution();
+	if ( !commonState.camera->frameSizeUnknown()) {
+		configureResolution();
+	}
 }
 
 

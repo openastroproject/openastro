@@ -43,7 +43,9 @@
 static void		_GP2InitFunctionPointers ( oaCamera* );
 static int		_GP2ProcessMenuWidget ( CameraWidget*, const char*,
 									CameraWidget**, CameraWidgetType*, int*, const char*,
-									const char* camPort );
+									const char* );
+static int		_GP2ProcessStringWidget ( CameraWidget*, const char*,
+									CameraWidget**, const char*, const char* );
 
 
 /**
@@ -247,6 +249,22 @@ oaGP2InitCamera ( oaCameraDevice* device )
     return 0;
   }
 
+	// And just "settings"
+
+	if ( _gp2FindWidget ( cameraInfo->rootWidget, "settings",
+			&cameraInfo->settings ) != OA_ERR_NONE ) {
+		fprintf ( stderr, "Can't get settings widget for camera '%s' "
+				"at port '%s'\n", camName, camPort );
+		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
+		// FIX ME -- free rootWidget?
+		p_gp_list_unref ( cameraList );
+		p_gp_context_unref ( cameraInfo->ctx );
+		free (( void* ) commonInfo );
+		free (( void* ) cameraInfo );
+		free (( void* ) camera );
+    return 0;
+  }
+
 	// Now start looking for controls that we can use
 
 	// ISO setting
@@ -348,18 +366,61 @@ fprintf ( stderr, "have sharpening, min = 0, max = %d\n", cameraInfo->numSharpen
 		commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SHARPNESS ) = 0;
 	}
 
+	// customfuncex (to allow mirror lock on Canon cameras)
+
+	if (( ret = _GP2ProcessStringWidget ( cameraInfo->settings, "customfuncex",
+			&cameraInfo->customfuncex, camName, camPort )) != OA_ERR_NONE &&
+			ret != -OA_ERR_INVALID_COMMAND ) {
+		_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
+		// FIX ME -- free rootWidget?
+		p_gp_list_unref ( cameraList );
+		p_gp_context_unref ( cameraInfo->ctx );
+		free (( void* ) commonInfo );
+		free (( void* ) cameraInfo );
+		free (( void* ) camera );
+    return 0;
+	}
+
+	if ( ret == OA_ERR_NONE ) {
+		const char*		customStr;
+		char*					mlf;
+
+		if ( p_gp_widget_get_value ( cameraInfo->customfuncex, &customStr ) !=
+				GP_OK ) {
+			fprintf ( stderr, "can't get value of customfuncex string\n" );
+			_gp2CloseCamera ( gp2camera, cameraInfo->ctx );
+			// FIX ME -- free rootWidget?
+			p_gp_list_unref ( cameraList );
+			p_gp_context_unref ( cameraInfo->ctx );
+			free (( void* ) commonInfo );
+			free (( void* ) cameraInfo );
+			free (( void* ) camera );
+			return 0;
+		} else {
+fprintf ( stderr, "customfuncex value = '%s'\n", customStr );
+			if (( mlf = strstr ( customStr, "60f,0," )) != 0 && ( mlf[6] == '0' ||
+					mlf[6] == '1' )) {
+fprintf ( stderr, "mirror lockup supported\n" );
+			}
+		}
+	}
+
+	camera->features.frameSizeUnknown = 1;
+  camera->features.hasReadableControls = 1;
+
+	// I'm going to assume these will be correct
+	// FIX ME -- check later based on what frame formats are supported
+	// by the camera
+
+  camera->features.hasRawMode = camera->features.hasDemosaicMode = 1;
+
 /*
 
   // Now process the format descriptions...
 
-  cameraInfo->currentUVCFormat = 0;
-  cameraInfo->currentUVCFormatId = 0;
   cameraInfo->currentFrameFormat = 0;
   cameraInfo->bytesPerPixel = 0;
-  cameraInfo->isColour = 0;
-  camera->features.rawMode = camera->features.demosaicMode = 0;
   camera->features.hasReset = 1;
-  camera->features.readableControls = 1;
 
   formatDescs = p_uvc_get_format_descs ( uvcHandle );
   format = formatDescs;
@@ -758,6 +819,37 @@ _GP2ProcessMenuWidget ( CameraWidget* parent, const char* name,
 	if (( *numVals = p_gp_widget_count_choices ( *ptarget )) < GP_OK ) {
 		fprintf ( stderr, "Can't get number of choices for %s "
 				"widget for camera '%s' at port '%s'\n", name, camName, camPort );
+    return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	return OA_ERR_NONE;
+}
+
+
+static int
+_GP2ProcessStringWidget ( CameraWidget* parent, const char* name,
+		CameraWidget** ptarget, const char* camName, const char* camPort )
+{
+	int									ret;
+	CameraWidgetType		type;
+
+	if (( ret = _gp2FindWidget ( parent, name, ptarget )) != OA_ERR_NONE ) {
+		if ( ret != -OA_ERR_INVALID_COMMAND ) {
+			fprintf ( stderr, "Can't get %s widget for camera '%s' "
+					"at port '%s'\n", name, camName, camPort );
+		}
+    return ret;
+	}
+
+  if ( _gp2GetWidgetType ( *ptarget, &type ) != OA_ERR_NONE ) {
+		fprintf ( stderr, "Can't get type for %s widget for camera "
+				"'%s' at port '%s'\n", name, camName, camPort );
+    return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if ( type != GP_WIDGET_TEXT ) {
+		fprintf ( stderr, "Unexpected type %d for %s widget for "
+				"camera '%s' at port '%s'\n", type, name , camName, camPort );
     return -OA_ERR_SYSTEM_ERROR;
 	}
 
