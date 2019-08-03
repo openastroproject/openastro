@@ -151,6 +151,7 @@ const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
   "Digital Gain (Blue)",
   "Frame Format",
   "ISO",
+	"Shutter Speed"
 };
 
 const char* oaCameraPresetAWBLabel[ OA_AWB_PRESET_LAST_P1 ] = {
