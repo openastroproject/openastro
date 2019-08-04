@@ -1521,7 +1521,7 @@ ViewWidget::restart()
     memset ( averageBuffer, 0, averageBufferLength );
   }
 
-	if ( totalFrames ) {
+	if ( previousFrames && totalFrames ) {
 		for ( i = 0; i < totalFrames; i++ ) {
 			free (( void* ) previousFrames[i] );
 		}
