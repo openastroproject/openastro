@@ -54,6 +54,7 @@ oaStackKappaSigma8 ( void** frameArray, unsigned int numFrames, void* target,
 			sigma += delta * delta;
 		}
 		sigma /= ( numFrames - 1 );
+		sigma = sqrt ( sigma );
 		min = mean - ( kappa * sigma );
 		max = mean + ( kappa * sigma );
 		finalMean = numSamples = 0;
@@ -63,7 +64,12 @@ oaStackKappaSigma8 ( void** frameArray, unsigned int numFrames, void* target,
 				numSamples++;
 			}
 		}
-		*tgt++ = finalMean / numSamples;
+		if ( numSamples ) {
+			*tgt++ = finalMean / numSamples;
+		} else {
+			fprintf ( stderr, "no samples are between %f and %f\n", min, max );
+			*tgt++ = 0;
+		}
 	}
 
   return 0;

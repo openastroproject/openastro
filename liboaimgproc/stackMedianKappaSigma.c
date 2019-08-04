@@ -63,6 +63,7 @@ oaStackKappaSigma8 ( void** frameArray, unsigned int numFrames, void* target,
 			sigma += delta * delta;
 		}
 		sigma /= ( numFrames - 1 );
+		sigma = sqrt ( sigma );
 		min = mean - ( kappa * sigma );
 		max = mean + ( kappa * sigma );
 		finalMean = 0;
