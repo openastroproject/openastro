@@ -232,7 +232,7 @@ ViewWidget::updateFrameSize ( void )
   recalculateDimensions ( zoomFactor );
   expectedSize = commonConfig.imageSizeX * commonConfig.imageSizeY *
       oaFrameFormats[ videoFramePixelFormat ].bytesPerPixel;
-  int newBufferLength = commonConfig.imageSizeX * commonConfig.imageSizeY * 3;
+  int newBufferLength = commonConfig.imageSizeX * commonConfig.imageSizeY * 6;
 #ifdef OACAPTURE
   if ( newBufferLength > previewBufferLength ) {
     if (!( previewImageBuffer[0] = realloc ( previewImageBuffer[0],
@@ -812,6 +812,25 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
   }
 #endif	/* OACAPTURE */
 #ifdef	OALIVE
+
+  int cfaPattern = demosaicConf.cfaPattern;
+  if ( OA_DEMOSAIC_AUTO == cfaPattern &&
+      oaFrameFormats[ viewPixelFormat ].rawColour ) {
+    cfaPattern = oaFrameFormats[ viewPixelFormat ].cfaPattern;
+  }
+
+  if ( oaFrameFormats[ viewPixelFormat ].rawColour ) {
+    currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 : !currentViewBuffer;
+    // Use the demosaicking to copy the data to the previewImageBuffer
+    ( void ) oademosaic ( viewBuffer,
+        self->viewImageBuffer[ currentViewBuffer ],
+        commonConfig.imageSizeX, commonConfig.imageSizeY,
+				oaFrameFormats[ viewPixelFormat ].bitsPerPixel, cfaPattern,
+        demosaicConf.demosaicMethod );
+    viewPixelFormat = OA_DEMOSAIC_FMT ( viewPixelFormat );
+    viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
+  }
+
   if (( !oaFrameFormats[ viewPixelFormat ].fullColour &&
       oaFrameFormats[ viewPixelFormat ].bytesPerPixel > 1 ) ||
       ( oaFrameFormats[ viewPixelFormat ].fullColour &&
@@ -1302,12 +1321,6 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
   ( void ) gettimeofday ( &t, 0 );
   unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
       ( unsigned long ) t.tv_usec / 1000;
-
-  int cfaPattern = demosaicConf.cfaPattern;
-  if ( OA_DEMOSAIC_AUTO == cfaPattern &&
-      oaFrameFormats[ viewPixelFormat ].rawColour ) {
-    cfaPattern = oaFrameFormats[ viewPixelFormat ].cfaPattern;
-  }
 
   if (( self->lastDisplayUpdateTime + self->frameDisplayInterval ) < now ) {
     self->lastDisplayUpdateTime = now;
