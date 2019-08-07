@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * oacam.h -- camera API (sub)header for frame formats
+ * formats.h -- camera API (sub)header for frame formats
  *
- * Copyright 2014,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -142,10 +142,14 @@
 #define OA_PIX_FMT_GYMC16BE             94
 #define OA_PIX_FMT_GYMC16LE             95
 
+#define	OA_PIX_FMT_CANON_CRW						96
+#define	OA_PIX_FMT_CANON_CR2						97
+#define	OA_PIX_FMT_CANON_CR3						98
+
 // Adding more frame formats here requires the oaFrameFormats table
 // updating in liboavideo/formats.c
 
-#define OA_PIX_FMT_LAST_P1		OA_PIX_FMT_GYMC16LE+1
+#define OA_PIX_FMT_LAST_P1		OA_PIX_FMT_CANON_CR3+1
 
 #define OA_DEMOSAIC_FMT(x) \
   ((( x == OA_PIX_FMT_BGGR8 ) || ( x == OA_PIX_FMT_RGGB8 ) || \
@@ -194,6 +198,7 @@ typedef struct {
   unsigned int	littleEndian : 1;
   unsigned int	monochrome : 1;
   unsigned int	rawColour : 1;
+  unsigned int	useLibraw : 1;
   unsigned int	fullColour : 1;
   unsigned int	lumChrom : 1;
   unsigned int	lossless : 1;
