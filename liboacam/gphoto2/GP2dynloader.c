@@ -59,8 +59,10 @@ int					( *p_gp_camera_new )( Camera** );
 int					( *p_gp_camera_set_abilities )( Camera*, CameraAbilities );
 int					( *p_gp_camera_set_port_info )( Camera*, GPPortInfo );
 int					( *p_gp_camera_unref )( Camera* );
+int					( *p_gp_camera_init )( Camera*, GPContext* );
 int					( *p_gp_camera_exit )( Camera*, GPContext* );
 int					( *p_gp_camera_get_config )( Camera*, CameraWidget**, GPContext* );
+int					( *p_gp_camera_set_config )( Camera*, CameraWidget*, GPContext* );
 
 void				( *p_gp_context_set_error_func )( GPContext*, GPContextErrorFunc,
 								void* );
@@ -87,6 +89,7 @@ int					( *p_gp_widget_get_type )( CameraWidget*, CameraWidgetType* );
 int					( *p_gp_widget_get_value )( CameraWidget*, void* );
 int					( *p_gp_widget_count_choices )( CameraWidget* );
 int					( *p_gp_widget_get_choice )( CameraWidget*, int, const char** );
+int					( *p_gp_widget_set_value )( CameraWidget*, const void* );
 
 int					( *p_gp_port_info_list_count )( GPPortInfoList* );
 int					( *p_gp_port_info_list_free )( GPPortInfoList* );
@@ -96,6 +99,8 @@ int					( *p_gp_port_info_list_load )( GPPortInfoList* );
 int					( *p_gp_port_info_list_lookup_path )( GPPortInfoList*,
 								const char* );
 int					( *p_gp_port_info_list_new )( GPPortInfoList** );
+
+int					( *p_gp_log_add_func )( GPLogLevel, GPLogFunc, void* );
 
 #if HAVE_LIBDL && !HAVE_STATIC_LIBGPHOTO2
 static void*		_getDLSym ( void*, const char* );
@@ -230,6 +235,13 @@ _gp2InitLibraryFunctionPointers ( void )
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
+	  if (!( *( void** )( &p_gp_camera_init ) = _getDLSym ( libHandle,
+	      "gp_camera_init" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
 	  if (!( *( void** )( &p_gp_camera_exit ) = _getDLSym ( libHandle,
 	      "gp_camera_exit" ))) {
 			dlclose ( libHandle );
@@ -239,6 +251,13 @@ _gp2InitLibraryFunctionPointers ( void )
 
 	  if (!( *( void** )( &p_gp_camera_get_config ) = _getDLSym ( libHandle,
 	      "gp_camera_get_config" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_camera_set_config ) = _getDLSym ( libHandle,
+	      "gp_camera_set_config" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -349,6 +368,13 @@ _gp2InitLibraryFunctionPointers ( void )
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
+	  if (!( *( void** )( &p_gp_widget_set_value ) = _getDLSym ( libHandle,
+	      "gp_widget_set_value" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
 	  if (!( *( void** )( &p_gp_port_info_list_count ) = _getDLSym ( libHandle,
 	      "gp_port_info_list_count" ))) {
 			dlclose ( libHandle );
@@ -390,6 +416,13 @@ _gp2InitLibraryFunctionPointers ( void )
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
+
+	  if (!( *( void** )( &p_gp_log_add_func ) = _getDLSym ( libHandle,
+	      "gp_log_add_func" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
 	}
 #else
 #if HAVE_STATIC_LIBGPHOTO2
@@ -410,8 +443,10 @@ _gp2InitLibraryFunctionPointers ( void )
 	p_gp_camera_set_abilities = gp_camera_set_abilities;
 	p_gp_camera_set_port_info = gp_camera_set_port_info;
 	p_gp_camera_unref = gp_camera_unref;
+	p_gp_camera_init = gp_camera_init;
 	p_gp_camera_exit = gp_camera_exit;
 	p_gp_camera_get_config = gp_camera_get_config;
+	p_gp_camera_set_config = gp_camera_set_config;
 
 	p_gp_context_set_error_func = gp_context_set_error_func;
 	p_gp_context_set_status_func = gp_context_set_status_func;
@@ -430,6 +465,7 @@ _gp2InitLibraryFunctionPointers ( void )
 	p_gp_widget_get_value = gp_widget_get_value;
 	p_gp_widget_count_choices = gp_widget_count_choices;
 	p_gp_widget_get_choice = gp_widget_get_choice;
+	p_gp_widget_set_value = gp_widget_set_value;
 
 	p_gp_port_info_list_count = gp_port_info_list_count;
 	p_gp_port_info_list_free = gp_port_info_list_free;
@@ -437,6 +473,8 @@ _gp2InitLibraryFunctionPointers ( void )
 	p_gp_port_info_list_load = gp_port_info_list_load;
 	p_gp_port_info_list_lookup_path = gp_port_info_list_lookup_path;
 	p_gp_port_info_list_new = gp_port_info_list_new;
+
+	p_gp_log_add_func = gp_log_add_func;
 
 #else
 	return OA_ERR_LIBRARY_NOT_FOUND;

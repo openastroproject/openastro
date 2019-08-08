@@ -54,34 +54,34 @@ _gp2OpenCamera ( Camera** camera, const char* name, const char* port,
 	int									modelIndex, portIndex;
 
 	if ( p_gp_camera_new ( camera ) != GP_OK ) {
-		return -OA_ERR_SYSTEM_ERROR;
+		return -OA_ERR_CAMERA_IO;
 	}
 
 	if ( !_gp2Abilities ) {
 		if ( p_gp_abilities_list_new ( &_gp2Abilities ) != GP_OK ) {
 			p_gp_camera_unref ( *camera );
-			return -OA_ERR_SYSTEM_ERROR;
+			return -OA_ERR_CAMERA_IO;
 		}
 		if ( p_gp_abilities_list_load ( _gp2Abilities, ctx ) != GP_OK ) {
 			p_gp_camera_unref ( *camera );
-			return -OA_ERR_SYSTEM_ERROR;
+			return -OA_ERR_CAMERA_IO;
 		}
 	}
 
 	if ( !_gp2PortInfoList ) {
 		if ( p_gp_port_info_list_new ( &_gp2PortInfoList ) != GP_OK ) {
 			p_gp_camera_unref ( *camera );
-			return -OA_ERR_SYSTEM_ERROR;
+			return -OA_ERR_CAMERA_IO;
 		}
 		if ( p_gp_port_info_list_load ( _gp2PortInfoList ) != GP_OK ) {
 			p_gp_port_info_list_free ( _gp2PortInfoList );
 			p_gp_camera_unref ( *camera );
-			return -OA_ERR_SYSTEM_ERROR;
+			return -OA_ERR_CAMERA_IO;
 		}
 		if (( numPorts = p_gp_port_info_list_count ( _gp2PortInfoList )) < 0 ) {
 			p_gp_port_info_list_free ( _gp2PortInfoList );
 			p_gp_camera_unref ( *camera );
-			return -OA_ERR_SYSTEM_ERROR;
+			return -OA_ERR_CAMERA_IO;
 		}
 	}
 
@@ -89,20 +89,20 @@ _gp2OpenCamera ( Camera** camera, const char* name, const char* port,
 			name )) < GP_OK ) {
 		p_gp_port_info_list_free ( _gp2PortInfoList );
 		p_gp_camera_unref ( *camera );
-		return -OA_ERR_SYSTEM_ERROR;
+		return -OA_ERR_CAMERA_IO;
 	}
 
 	if ( p_gp_abilities_list_get_abilities ( _gp2Abilities, modelIndex,
 			&abilities ) != GP_OK ) {
 		p_gp_port_info_list_free ( _gp2PortInfoList );
 		p_gp_camera_unref ( *camera );
-		return -OA_ERR_SYSTEM_ERROR;
+		return -OA_ERR_CAMERA_IO;
 	}
 
 	if ( p_gp_camera_set_abilities ( *camera, abilities ) != GP_OK ) {
 		p_gp_port_info_list_free ( _gp2PortInfoList );
 		p_gp_camera_unref ( *camera );
-		return -OA_ERR_SYSTEM_ERROR;
+		return -OA_ERR_CAMERA_IO;
 	}
 
 	if (( portIndex = p_gp_port_info_list_lookup_path ( _gp2PortInfoList,
@@ -112,20 +112,27 @@ _gp2OpenCamera ( Camera** camera, const char* name, const char* port,
 		}
 		p_gp_port_info_list_free ( _gp2PortInfoList );
 		p_gp_camera_unref ( *camera );
-		return -OA_ERR_SYSTEM_ERROR;
+		return -OA_ERR_CAMERA_IO;
 	}
 
   if ( p_gp_port_info_list_get_info ( _gp2PortInfoList, portIndex,
 			&portInfo ) != GP_OK ) {
 		p_gp_port_info_list_free ( _gp2PortInfoList );
 		p_gp_camera_unref ( *camera );
-		return -OA_ERR_SYSTEM_ERROR;
+		return -OA_ERR_CAMERA_IO;
 	}
 
 	if ( p_gp_camera_set_port_info ( *camera, portInfo ) != GP_OK ) {
 		p_gp_port_info_list_free ( _gp2PortInfoList );
 		p_gp_camera_unref ( *camera );
-		return -OA_ERR_SYSTEM_ERROR;
+		return -OA_ERR_CAMERA_IO;
+	}
+
+	if ( p_gp_camera_init ( *camera, ctx ) != GP_OK ) {
+		fprintf ( stderr, "can't init camera\n" );
+		p_gp_port_info_list_free ( _gp2PortInfoList );
+		p_gp_camera_unref ( *camera );
+		return -OA_ERR_CAMERA_IO;
 	}
 
 	return OA_ERR_NONE;
@@ -136,7 +143,7 @@ int
 _gp2CloseCamera ( Camera* camera, GPContext* ctx )
 {
 	return ( p_gp_camera_exit ( camera, ctx ) == GP_OK ) ? OA_ERR_NONE :
-		-OA_ERR_SYSTEM_ERROR;
+		-OA_ERR_CAMERA_IO;
 }
 
 
@@ -144,7 +151,7 @@ int
 _gp2GetConfig ( Camera* camera, CameraWidget** widget, GPContext* ctx )
 {
 	return ( p_gp_camera_get_config ( camera, widget, ctx ) == GP_OK ) ?
-		OA_ERR_NONE : -OA_ERR_SYSTEM_ERROR;
+		OA_ERR_NONE : -OA_ERR_CAMERA_IO;
 }
 
 
@@ -165,7 +172,7 @@ int
 _gp2GetWidgetType ( CameraWidget* widget, CameraWidgetType* type )
 {
 	return ( p_gp_widget_get_type ( widget, type ) == GP_OK ) ? OA_ERR_NONE :
-			-OA_ERR_SYSTEM_ERROR;
+			-OA_ERR_CAMERA_IO;
 }
 
 

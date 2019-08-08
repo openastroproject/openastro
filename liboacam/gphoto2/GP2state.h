@@ -39,6 +39,7 @@ struct GP2buffer {
 typedef struct GP2_STATE {
   int									initialised;
   // camera details
+	Camera*							handle;
 	GPContext*					ctx;
 	CameraWidget*				rootWidget;
 	CameraWidget*				imgSettings;

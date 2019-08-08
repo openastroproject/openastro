@@ -56,8 +56,11 @@ extern int					( *p_gp_camera_new )( Camera** );
 extern int					( *p_gp_camera_set_abilities )( Camera*, CameraAbilities );
 extern int					( *p_gp_camera_set_port_info )( Camera*, GPPortInfo );
 extern int					( *p_gp_camera_unref )( Camera* );
+extern int					( *p_gp_camera_init )( Camera*, GPContext* );
 extern int					( *p_gp_camera_exit )( Camera*, GPContext* );
 extern int					( *p_gp_camera_get_config )( Camera*, CameraWidget**,
+												GPContext* );
+extern int					( *p_gp_camera_set_config )( Camera*, CameraWidget*,
 												GPContext* );
 
 extern void					( *p_gp_context_set_error_func )( GPContext*,
@@ -88,6 +91,7 @@ extern int					( *p_gp_widget_get_value )( CameraWidget*, void* );
 extern int					( *p_gp_widget_count_choices )( CameraWidget* );
 extern int					( *p_gp_widget_get_choice )( CameraWidget*, int,
 												const char** );
+extern int					( *p_gp_widget_set_value )( CameraWidget*, const void* );
 
 extern int					( *p_gp_port_info_list_count )( GPPortInfoList* );
 extern int					( *p_gp_port_info_list_free )( GPPortInfoList* );
@@ -97,5 +101,7 @@ extern int					( *p_gp_port_info_list_load )( GPPortInfoList* );
 extern int					( *p_gp_port_info_list_lookup_path )( GPPortInfoList*,
 												const char* );
 extern int					( *p_gp_port_info_list_new )( GPPortInfoList** );
+
+extern int					( *p_gp_log_add_func )( GPLogLevel, GPLogFunc, void* );
 
 #endif	/* OA_GP2_PRIVATE_H */
