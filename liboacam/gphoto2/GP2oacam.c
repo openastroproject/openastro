@@ -36,8 +36,10 @@
 #include "GP2private.h"
 
 
+#ifdef GP2_DEBUG
 static void		_gp2ErrorLogger ( GPLogLevel, const char *, const char *,
 									void* );
+#endif
 
 int
 oaGP2GetCameras ( CAMERA_LIST* deviceList, int flags )
@@ -67,7 +69,9 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, int flags )
 		return -OA_ERR_CAMERA_IO;
 	}
 
+#ifdef GP2_DEBUG
 	p_gp_log_add_func ( GP_LOG_DEBUG, _gp2ErrorLogger, 0 );
+#endif
 
 	// These aren't strictly required, but keep them for debugging
 	// for the time being
@@ -198,9 +202,11 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, int flags )
 }
 
 
+#ifdef GP2_DEBUG
 static void
 _gp2ErrorLogger ( GPLogLevel level, const char *domain, const char *str,
 		void* data )
 {
 	fprintf ( stderr, "%s\n", str );
 }
+#endif

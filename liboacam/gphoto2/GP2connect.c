@@ -397,8 +397,8 @@ fprintf ( stderr, "have sharpening, min = 0, max = %d\n", cameraInfo->numSharpen
 			return 0;
 		} else {
 fprintf ( stderr, "customfuncex value = '%s'\n", customStr );
-			if (( mlf = strstr ( customStr, "60f,0," )) != 0 && ( mlf[6] == '0' ||
-					mlf[6] == '1' )) {
+			if (( mlf = strstr ( customStr, ",60f,1," )) != 0 && ( mlf[7] == '0' ||
+					mlf[7] == '1' )) {
 fprintf ( stderr, "mirror lockup supported\n" );
 			}
 		}
