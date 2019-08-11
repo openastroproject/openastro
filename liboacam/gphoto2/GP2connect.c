@@ -396,10 +396,14 @@ fprintf ( stderr, "have sharpening, min = 0, max = %d\n", cameraInfo->numSharpen
 			free (( void* ) camera );
 			return 0;
 		} else {
-fprintf ( stderr, "customfuncex value = '%s'\n", customStr );
 			if (( mlf = strstr ( customStr, ",60f,1," )) != 0 && ( mlf[7] == '0' ||
 					mlf[7] == '1' )) {
-fprintf ( stderr, "mirror lockup supported\n" );
+				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_MIRROR_LOCKUP ) =
+						OA_CTRL_TYPE_BOOLEAN;
+				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_MIRROR_LOCKUP ) = 0;
+				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_MIRROR_LOCKUP ) = 1;
+				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_MIRROR_LOCKUP ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_MIRROR_LOCKUP ) = 0;
 			}
 		}
 	}
