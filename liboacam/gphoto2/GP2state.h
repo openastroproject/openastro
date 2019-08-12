@@ -62,6 +62,8 @@ typedef struct GP2_STATE {
 	int									numSharpeningOptions;
 	const char**				sharpeningOptions;
 	CameraWidget*				customfuncex;
+	char*								customFuncStr;
+	int									mirrorLockupPos;
 
   // video mode settings
   int									currentFrameFormat;

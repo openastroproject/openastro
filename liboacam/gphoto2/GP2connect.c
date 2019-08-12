@@ -398,6 +398,8 @@ fprintf ( stderr, "have sharpening, min = 0, max = %d\n", cameraInfo->numSharpen
 		} else {
 			if (( mlf = strstr ( customStr, ",60f,1," )) != 0 && ( mlf[7] == '0' ||
 					mlf[7] == '1' )) {
+				cameraInfo->customFuncStr = strdup ( customStr );
+				cameraInfo->mirrorLockupPos = ( mlf - customStr ) + 7;
 				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_MIRROR_LOCKUP ) =
 						OA_CTRL_TYPE_BOOLEAN;
 				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_MIRROR_LOCKUP ) = 0;
