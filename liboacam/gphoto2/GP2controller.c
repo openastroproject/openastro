@@ -114,6 +114,13 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 	int							numOptions, i, found;
 	const char*			currOption;
 
+	if ( control == OA_CAM_CTRL_MIRROR_LOCKUP ) {
+		valp->valueType = OA_CTRL_TYPE_BOOLEAN;
+		valp->boolean =
+				cameraInfo->customFuncStr[ cameraInfo->mirrorLockupPos ] - '0';
+		return OA_ERR_NONE;
+	}
+
 	switch ( control ) {
 		case OA_CAM_CTRL_WHITE_BALANCE:
 			widget = cameraInfo->whiteBalance;
