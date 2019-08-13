@@ -187,46 +187,58 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 	int							numOptions;
 	int							newVal, ret;
 
-	switch ( control ) {
-		case OA_CAM_CTRL_WHITE_BALANCE:
-			widget = cameraInfo->whiteBalance;
-			options = cameraInfo->whiteBalanceOptions;
-			numOptions = cameraInfo->numWBOptions;
-			break;
+	if ( control == OA_CAM_CTRL_MIRROR_LOCKUP ) {
+		newVal = valp->boolean;
+		cameraInfo->customFuncStr[ cameraInfo->mirrorLockupPos ] =
+				newVal ? '1' : '0';
+		if ( p_gp_widget_set_value ( cameraInfo->customfuncex,
+					cameraInfo->customFuncStr ) != GP_OK ) {
+			fprintf ( stderr, "Failed to set value of control %d to '%s' in %s\n",
+					control, cameraInfo->customFuncStr, __FUNCTION__ );
+			return -OA_ERR_CAMERA_IO;
+		}
+	} else {
+		switch ( control ) {
+			case OA_CAM_CTRL_WHITE_BALANCE:
+				widget = cameraInfo->whiteBalance;
+				options = cameraInfo->whiteBalanceOptions;
+				numOptions = cameraInfo->numWBOptions;
+				break;
 
-		case OA_CAM_CTRL_ISO:
-			widget = cameraInfo->iso;
-			options = cameraInfo->isoOptions;
-			numOptions = cameraInfo->numIsoOptions;
-			break;
+			case OA_CAM_CTRL_ISO:
+				widget = cameraInfo->iso;
+				options = cameraInfo->isoOptions;
+				numOptions = cameraInfo->numIsoOptions;
+				break;
 
-		case OA_CAM_CTRL_SHUTTER_SPEED:
-			widget = cameraInfo->shutterSpeed;
-			options = cameraInfo->shutterSpeedOptions;
-			numOptions = cameraInfo->numShutterSpeedOptions;
-			break;
+			case OA_CAM_CTRL_SHUTTER_SPEED:
+				widget = cameraInfo->shutterSpeed;
+				options = cameraInfo->shutterSpeedOptions;
+				numOptions = cameraInfo->numShutterSpeedOptions;
+				break;
 
-		default:
-			fprintf ( stderr, "Unrecognised control %d in %s\n", control,
+			default:
+				fprintf ( stderr, "Unrecognised control %d in %s\n", control,
           __FUNCTION__ );
-			return -OA_ERR_INVALID_CONTROL;
-			break;
-	}
+				return -OA_ERR_INVALID_CONTROL;
+				break;
+		}
 
-	newVal = valp->menu;
-	if ( newVal < 0 || newVal >= numOptions ) {
-		return -OA_ERR_OUT_OF_RANGE;
-	}
+		newVal = valp->menu;
+		if ( newVal < 0 || newVal >= numOptions ) {
+			return -OA_ERR_OUT_OF_RANGE;
+		}
 
-	// Populate the options if we don't already have them
-	if ( !options ) {
-		( void ) oaGP2CameraGetMenuString ( camera, control, 0 );
-	}
+		// Populate the options if we don't already have them
+		if ( !options ) {
+			( void ) oaGP2CameraGetMenuString ( camera, control, 0 );
+		}
 
-	if ( p_gp_widget_set_value ( widget, options[newVal] ) != GP_OK ) {
-		fprintf ( stderr, "Failed to read value of control %d in %s\n",
-				control, __FUNCTION__ );
-		return -OA_ERR_CAMERA_IO;
+		if ( p_gp_widget_set_value ( widget, options[newVal] ) != GP_OK ) {
+			fprintf ( stderr, "Failed to set value of control %d in %s\n",
+					control, __FUNCTION__ );
+			return -OA_ERR_CAMERA_IO;
+		}
 	}
 
 	if (( ret = p_gp_camera_set_config ( cameraInfo->handle,
