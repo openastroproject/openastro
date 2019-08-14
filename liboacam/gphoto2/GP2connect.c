@@ -46,6 +46,7 @@ static int		_GP2ProcessMenuWidget ( CameraWidget*, const char*,
 									const char* );
 static int		_GP2ProcessStringWidget ( CameraWidget*, const char*,
 									CameraWidget**, const char*, const char* );
+static int		_GP2GuessManufacturer ( const char* );
 
 
 /**
@@ -63,6 +64,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	const char*				camName;
 	const char*				camPort;
 	int								numCameras, i, ret, found = -1;
+	CameraWidget*			tempWidget;
 
   if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
     perror ( "malloc oaCamera failed" );
@@ -263,6 +265,95 @@ oaGP2InitCamera ( oaCameraDevice* device )
 		free (( void* ) camera );
     return 0;
   }
+
+	// And "status"
+
+	if ( _gp2FindWidget ( cameraInfo->rootWidget, "status",
+			&cameraInfo->status ) != OA_ERR_NONE ) {
+		fprintf ( stderr, "Can't get status widget for camera '%s' at port '%s'\n",
+				camName, camPort );
+		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
+		// FIX ME -- free rootWidget?
+		p_gp_list_unref ( cameraList );
+		p_gp_context_unref ( cameraInfo->ctx );
+		free (( void* ) commonInfo );
+		free (( void* ) cameraInfo );
+		free (( void* ) camera );
+    return 0;
+  }
+
+	// Use the status widget to try to determine the camera manufacturer.
+	// There appear to be a number of possibilities here:
+	//
+	//   /main/status/manufacturer
+	//   /main/status/model
+	//   /main/status/cameramodel
+	//
+	// I'll try them in that order
+
+	if (( ret = _GP2ProcessStringWidget ( cameraInfo->status, "manufacturer",
+			&tempWidget, camName, camPort )) != OA_ERR_NONE &&
+			ret != -OA_ERR_INVALID_COMMAND ) {
+		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
+		// FIX ME -- free rootWidget?
+		p_gp_list_unref ( cameraList );
+		p_gp_context_unref ( cameraInfo->ctx );
+		free (( void* ) commonInfo );
+		free (( void* ) cameraInfo );
+		free (( void* ) camera );
+    return 0;
+	}
+
+	if ( ret == -OA_ERR_INVALID_COMMAND ) {
+		if (( ret = _GP2ProcessStringWidget ( cameraInfo->status, "model",
+				&tempWidget, camName, camPort )) != OA_ERR_NONE &&
+				ret != -OA_ERR_INVALID_COMMAND ) {
+			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
+			// FIX ME -- free rootWidget?
+			p_gp_list_unref ( cameraList );
+			p_gp_context_unref ( cameraInfo->ctx );
+			free (( void* ) commonInfo );
+			free (( void* ) cameraInfo );
+			free (( void* ) camera );
+			return 0;
+		}
+
+		if ( ret == -OA_ERR_INVALID_COMMAND ) {
+			if (( ret = _GP2ProcessStringWidget ( cameraInfo->status, "cameramodel",
+					&tempWidget, camName, camPort )) != OA_ERR_NONE &&
+					ret != -OA_ERR_INVALID_COMMAND ) {
+				_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
+				// FIX ME -- free rootWidget?
+				p_gp_list_unref ( cameraList );
+				p_gp_context_unref ( cameraInfo->ctx );
+				free (( void* ) commonInfo );
+				free (( void* ) cameraInfo );
+				free (( void* ) camera );
+				return 0;
+			}
+		}
+	}
+
+	if ( ret == -OA_ERR_NONE ) {
+		const char*		modelStr;
+
+		if ( p_gp_widget_get_value ( tempWidget, &modelStr ) !=
+				GP_OK ) {
+			fprintf ( stderr, "can't get value of camera model string\n" );
+			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
+			// FIX ME -- free rootWidget?
+			p_gp_list_unref ( cameraList );
+			p_gp_context_unref ( cameraInfo->ctx );
+			free (( void* ) commonInfo );
+			free (( void* ) cameraInfo );
+			free (( void* ) camera );
+			return 0;
+		}
+
+		// This may not work, but perhaps we can try some other stuff later
+		cameraInfo->manufacturer = _GP2GuessManufacturer ( modelStr );
+fprintf ( stderr, "manufacturer: %d\n", cameraInfo->manufacturer );
+	}
 
 	// Now start looking for controls that we can use
 
@@ -585,4 +676,26 @@ _GP2ProcessStringWidget ( CameraWidget* parent, const char* name,
 	}
 
 	return OA_ERR_NONE;
+}
+
+
+static int
+_GP2GuessManufacturer ( const char* mstring )
+{
+	// FIX ME -- should probably copy the string and convert it to non-mixed
+	// case before doing a single test, but I'm feeling lazy right now
+
+	if ( strstr ( mstring, "canon" ) || strstr ( mstring, "Canon" )) {
+		return CAMERA_MANUF_CANON;
+	}
+
+	if ( strstr ( mstring, "nikon" ) || strstr ( mstring, "Nikon" )) {
+		return CAMERA_MANUF_NIKON;
+	}
+
+	if ( strstr ( mstring, "sony" ) || strstr ( mstring, "Sony" )) {
+		return CAMERA_MANUF_SONY;
+	}
+
+	return CAMERA_MANUF_UNKNOWN;
 }

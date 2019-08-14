@@ -41,10 +41,12 @@ typedef struct GP2_STATE {
   // camera details
 	Camera*							handle;
 	GPContext*					ctx;
+	int									manufacturer;
 	CameraWidget*				rootWidget;
 	CameraWidget*				imgSettings;
 	CameraWidget*				captureSettings;
 	CameraWidget*				settings;
+	CameraWidget*				status;
 	CameraWidget*				iso;
 	CameraWidgetType		isoType;
 	int									numIsoOptions;

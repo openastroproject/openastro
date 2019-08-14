@@ -104,4 +104,10 @@ extern int					( *p_gp_port_info_list_new )( GPPortInfoList** );
 
 extern int					( *p_gp_log_add_func )( GPLogLevel, GPLogFunc, void* );
 
+
+#define	CAMERA_MANUF_UNKNOWN		0
+#define	CAMERA_MANUF_CANON			1
+#define	CAMERA_MANUF_NIKON			2
+#define	CAMERA_MANUF_SONY				3
+
 #endif	/* OA_GP2_PRIVATE_H */
