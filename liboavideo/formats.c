@@ -1472,6 +1472,21 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .lossless           = 1,
     .packed             = 0,
     .planar   = 0
+  }, {  // OA_PIX_FMT_JPEG8
+    .name               = "JPEG",
+    .simpleName         = "JPEG",
+    .bytesPerPixel      = 1,
+    .bitsPerPixel       = 8,
+    .cfaPattern         = 0,
+    .littleEndian       = 0,
+    .monochrome         = 0,
+    .rawColour          = 0,
+    .useLibraw					= 0,
+    .fullColour         = 1,
+    .lumChrom           = 0,
+    .lossless           = 0,
+    .packed             = 0,
+    .planar							= 0
   }, {  // OA_PIX_FMT_CANON_CRW
     .name               = "CRW",
     .simpleName         = "Canon CRW",

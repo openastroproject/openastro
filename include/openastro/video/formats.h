@@ -142,9 +142,11 @@
 #define OA_PIX_FMT_GYMC16BE             94
 #define OA_PIX_FMT_GYMC16LE             95
 
-#define	OA_PIX_FMT_CANON_CRW						96
-#define	OA_PIX_FMT_CANON_CR2						97
-#define	OA_PIX_FMT_CANON_CR3						98
+#define	OA_PIX_FMT_JPEG8								96
+
+#define	OA_PIX_FMT_CANON_CRW						97
+#define	OA_PIX_FMT_CANON_CR2						98
+#define	OA_PIX_FMT_CANON_CR3						99
 
 // Adding more frame formats here requires the oaFrameFormats table
 // updating in liboavideo/formats.c
