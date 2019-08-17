@@ -66,6 +66,13 @@ typedef struct GP2_STATE {
 	CameraWidget*				customfuncex;
 	char*								customFuncStr;
 	int									mirrorLockupPos;
+	CameraWidget*				frameFormat;
+	CameraWidgetType		frameFormatType;
+	int									numFrameFormatOptions;
+	const char**				frameFormatOptions;
+	int									jpegOption;
+	int									rawOption;
+	int									currentFormatOption;
 
   // video mode settings
   int									currentFrameFormat;

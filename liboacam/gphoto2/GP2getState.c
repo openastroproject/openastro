@@ -87,6 +87,12 @@ oaGP2CameraGetMenuString ( oaCamera* camera, int control, int index )
 			options = cameraInfo->sharpeningOptions;
 			poptions = &cameraInfo->sharpeningOptions;
 			break;
+		case OA_CAM_CTRL_FRAME_FORMAT:
+			widget = cameraInfo->frameFormat;
+			numOptions = cameraInfo->numFrameFormatOptions;
+			options = cameraInfo->frameFormatOptions;
+			poptions = &cameraInfo->frameFormatOptions;
+			break;
 		default:
 			return "Invalid control";
 			break;
