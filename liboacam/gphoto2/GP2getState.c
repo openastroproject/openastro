@@ -120,25 +120,25 @@ oaGP2CameraGetMenuString ( oaCamera* camera, int control, int index )
 	return options[ index ];
 }
 
-/*
-const FRAMESIZES*
-oaGP2CameraGetFrameSizes ( oaCamera* camera )
-{
-  GP2_STATE*	cameraInfo = camera->_private;
-
-  return &cameraInfo->frameSizes[1];
-}
-
-
 int
 oaGP2CameraGetFramePixelFormat ( oaCamera* camera )
 {
   GP2_STATE*	cameraInfo = camera->_private;
 
-  return cameraInfo->currentFrameFormat;
+	if ( cameraInfo->currentFormatOption == cameraInfo->jpegOption ) {
+		return OA_PIX_FMT_JPEG8;
+	}
+
+	if ( cameraInfo->manufacturer == CAMERA_MANUF_CANON ) {
+fprintf ( stderr, "Returning CR2 format which may be CRW or CR3\n" );
+		return OA_PIX_FMT_CANON_CR2;
+	}
+
+	return 0;
 }
 
 
+/*
 int
 oaGP2CameraGetControlDiscreteSet ( oaCamera* camera, int control,
     int32_t* count, int64_t** values )

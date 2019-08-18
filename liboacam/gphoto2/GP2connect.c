@@ -777,8 +777,8 @@ _GP2InitFunctionPointers ( oaCamera* camera )
   // camera->funcs.isAuto = _isAuto;
 
   camera->funcs.enumerateFrameSizes = oaGP2CameraGetFrameSizes;
-  camera->funcs.getFramePixelFormat = oaGP2CameraGetFramePixelFormat;
 */
+  camera->funcs.getFramePixelFormat = oaGP2CameraGetFramePixelFormat;
   camera->funcs.getMenuString = oaGP2CameraGetMenuString;
 }
 
