@@ -217,6 +217,12 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 				numOptions = cameraInfo->numShutterSpeedOptions;
 				break;
 
+			case OA_CAM_CTRL_FRAME_FORMAT:
+				widget = cameraInfo->frameFormat;
+				options = cameraInfo->frameFormatOptions;
+				numOptions = cameraInfo->numFrameFormatOptions;
+				break;
+
 			default:
 				fprintf ( stderr, "Unrecognised control %d in %s\n", control,
           __FUNCTION__ );
@@ -225,8 +231,23 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 		}
 
 		newVal = valp->menu;
-		if ( newVal < 0 || newVal >= numOptions ) {
-			return -OA_ERR_OUT_OF_RANGE;
+		if ( control == OA_CAM_CTRL_FRAME_FORMAT ) {
+			switch ( newVal ) {
+				case OA_PIX_FMT_CANON_CR2:
+				case OA_PIX_FMT_CANON_CR3:
+					newVal = cameraInfo->rawOption;
+					break;
+				case OA_PIX_FMT_JPEG8:
+					newVal = cameraInfo->jpegOption;
+					break;
+				default:
+					return -OA_ERR_OUT_OF_RANGE;
+					break;
+			}
+		} else {
+			if ( newVal < 0 || newVal >= numOptions ) {
+				return -OA_ERR_OUT_OF_RANGE;
+			}
 		}
 
 		// Populate the options if we don't already have them

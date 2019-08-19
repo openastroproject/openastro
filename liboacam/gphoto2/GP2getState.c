@@ -134,6 +134,12 @@ fprintf ( stderr, "Returning CR2 format which may be CRW or CR3\n" );
 		return OA_PIX_FMT_CANON_CR2;
 	}
 
+	/*
+	if ( cameraInfo->manufacturer == CAMERA_MANUF_NIKON ) {
+		return OA_PIX_FMT_NIKON_NEF;
+	}
+	*/
+
 	return 0;
 }
 
