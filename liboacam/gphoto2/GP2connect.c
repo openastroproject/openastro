@@ -603,7 +603,16 @@ oaGP2InitCamera ( oaCameraDevice* device )
 
 	if ( cameraInfo->jpegOption >= 0 && cameraInfo->rawOption >= 0 ) {
 		camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) =
-				OA_CTRL_TYPE_DISCRETE;
+				OA_CTRL_TYPE_DISC_MENU;
+		commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FRAME_FORMAT ) = OA_PIX_FMT_JPEG8;
+		cameraInfo->numFormatMenuValues = 2;
+		cameraInfo->formatMenuValues[0] = OA_PIX_FMT_JPEG8;
+		if ( cameraInfo->manufacturer == CAMERA_MANUF_CANON ) {
+			cameraInfo->formatMenuValues[1] = OA_PIX_FMT_CANON_CR2;
+		} else {
+			fprintf ( stderr, "Unknown raw camera format\n" );
+			// cameraInfo->formatMenuValues[1] = OA_PIX_FMT_NIKON_NEF;
+		}
 	}
 
 	if ( cameraInfo->rawOption >= 0 && cameraInfo->jpegOption == -1 ) {
@@ -756,9 +765,7 @@ static void
 _GP2InitFunctionPointers ( oaCamera* camera )
 {
   camera->funcs.initCamera = oaGP2InitCamera;
-/*
   camera->funcs.closeCamera = oaGP2CloseCamera;
-*/
 
   camera->funcs.setControl = oaGP2CameraSetControl;
   camera->funcs.readControl = oaGP2CameraReadControl;
@@ -766,9 +773,9 @@ _GP2InitFunctionPointers ( oaCamera* camera )
   camera->funcs.testControl = oaGP2CameraTestControl;
 */
   camera->funcs.getControlRange = oaGP2CameraGetControlRange;
-/*
   camera->funcs.getControlDiscreteSet = oaGP2CameraGetControlDiscreteSet;
 
+/*
   camera->funcs.startStreaming = oaGP2CameraStartStreaming;
   camera->funcs.stopStreaming = oaGP2CameraStopStreaming;
   camera->funcs.isStreaming = oaGP2CameraIsStreaming;
@@ -877,4 +884,51 @@ _GP2GuessManufacturer ( const char* mstring )
 	}
 
 	return CAMERA_MANUF_UNKNOWN;
+}
+
+
+int
+oaGP2CloseCamera ( oaCamera* camera )
+{
+  int		j;
+  void*		dummy;
+  GP2_STATE*	cameraInfo;
+
+  if ( camera ) {
+
+    cameraInfo = camera->_private;
+
+    cameraInfo->stopControllerThread = 1;
+    pthread_cond_broadcast ( &cameraInfo->commandQueued );
+    pthread_join ( cameraInfo->controllerThread, &dummy );
+
+/*
+    cameraInfo->stopCallbackThread = 1;
+    pthread_cond_broadcast ( &cameraInfo->callbackQueued );
+    pthread_join ( cameraInfo->callbackThread, &dummy );
+*/
+
+		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
+		p_gp_context_unref ( cameraInfo->ctx );
+
+    if ( cameraInfo->buffers ) {
+      for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+        if ( cameraInfo->buffers[j].start ) {
+          free (( void* ) cameraInfo->buffers[j].start );
+        }
+      }
+    }
+
+    oaDLListDelete ( cameraInfo->commandQueue, 1 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 1 );
+
+    free (( void* ) cameraInfo->buffers );
+    free (( void* ) cameraInfo );
+    free (( void* ) camera->_common );
+    free (( void* ) camera );
+
+  } else {
+   return -OA_ERR_INVALID_CAMERA;
+  }
+  return OA_ERR_NONE;
 }

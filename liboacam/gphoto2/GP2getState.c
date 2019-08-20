@@ -144,20 +144,17 @@ fprintf ( stderr, "Returning CR2 format which may be CRW or CR3\n" );
 }
 
 
-/*
 int
 oaGP2CameraGetControlDiscreteSet ( oaCamera* camera, int control,
     int32_t* count, int64_t** values )
 {
   GP2_STATE*    cameraInfo = camera->_private;
 
-  if ( control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) &&
-      control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED )) {
+  if ( control != OA_CAM_CTRL_FRAME_FORMAT ) {
     return -OA_ERR_INVALID_CONTROL;
   }
 
-  *count = cameraInfo->numAutoExposureItems;
-  *values = cameraInfo->autoExposureMenuItems;
+	*count = cameraInfo->numFormatMenuValues;
+	*values = cameraInfo->formatMenuValues;
   return OA_ERR_NONE;
 }
-*/

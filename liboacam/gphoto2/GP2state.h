@@ -73,7 +73,8 @@ typedef struct GP2_STATE {
 	int									jpegOption;
 	int									rawOption;
 	int									currentFormatOption;
-
+	int									numFormatMenuValues;
+	int64_t							formatMenuValues[2];
   // video mode settings
   int									currentFrameFormat;
   int									bytesPerPixel;

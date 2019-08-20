@@ -140,6 +140,12 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 			numOptions = cameraInfo->numShutterSpeedOptions;
 			break;
 
+		case OA_CAM_CTRL_FRAME_FORMAT:
+			widget = cameraInfo->frameFormat;
+			options = cameraInfo->frameFormatOptions;
+			numOptions = cameraInfo->numFrameFormatOptions;
+			break;
+
 		default:
 			fprintf ( stderr, "Unrecognised control %d in %s\n", control,
           __FUNCTION__ );
@@ -170,6 +176,20 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 		fprintf ( stderr, "Failed to match value of control %d in %s [%s]\n",
 				control, __FUNCTION__, currOption );
 		return -OA_ERR_CAMERA_IO;
+	}
+
+	if ( control == OA_CAM_CTRL_FRAME_FORMAT ) {
+		valp->valueType = OA_CTRL_TYPE_DISC_MENU;
+		if ( valp->int32 == cameraInfo->jpegOption ) {
+			valp->int32 = OA_PIX_FMT_JPEG8;
+		} else {
+			if ( cameraInfo->manufacturer == CAMERA_MANUF_CANON ) {
+				valp->int32 = OA_PIX_FMT_CANON_CR2;
+			} else {
+				fprintf ( stderr, "Unknown raw camera format\n" );
+				// valp->int32 = OA_PIX_FMT_NIKON_NEF;
+			}
+		}
 	}
 
 	return OA_ERR_NONE;

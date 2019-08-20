@@ -313,16 +313,60 @@ CameraControls::configure ( void )
             break;
           }
 
+          case OA_CTRL_TYPE_DISC_MENU:
+          {
+						// most of this will be the same as for the menus, but the set
+						// of possible values is non-contiguous and needs to be fetched
+						// from liboacam
+
+						int32_t		count;
+						int64_t		*values;
+            int64_t		min, max, step, def;
+
+            controlLabel[c] = new QLabel ( tr ( oaCameraControlLabel[c] ));
+            controlLabel[c]->setWordWrap ( 1 );
+						commonState.camera->controlDiscreteSet ( c, &count, &values );
+						// need this just for the default value
+            commonState.camera->controlRange ( c, &min, &max, &step, &def );
+						numMenus++;
+            controlMenu[ c ] = new QComboBox ( this );
+            for ( int i = 0; i < count; i++ ) {
+							if ( c == OA_CAM_CTRL_FRAME_FORMAT ) {
+								controlMenu[ c ]->addItem ( tr (
+										oaFrameFormats[ values[i]].name ));
+							} else {
+								controlMenu[ c ]->addItem ( tr (
+										commonState.camera->getMenuString ( c, values[i] )));
+							}
+						}
+						if ( readableControls ) {
+							cameraConf.CONTROL_VALUE( c ) =
+									commonState.camera->readControl ( c );
+						} else {
+							cameraConf.CONTROL_VALUE( c ) = def;
+						}
+            menuSignalMapper->setMapping ( controlMenu[c], c );
+            connect ( controlMenu[ c ], SIGNAL( currentIndexChanged ( int )),
+                menuSignalMapper, SLOT ( map()));
+						for ( int i = 0; i < count; i++ ) {
+							if ( cameraConf.CONTROL_VALUE( c ) == values[i] ) {
+								controlMenu[ c ]->setCurrentIndex ( i );
+							}
+						}
+            break;
+          }
+
           case OA_CTRL_TYPE_READONLY:
             added[c] = 1; // prevents this from showing up
             break;
 
-          case OA_CTRL_TYPE_DISCRETE:
-            // don't show these up as unhandled
-            if ( OA_CAM_CTRL_BINNING == c ) {
-              added[c] = 1;
-              break;
-            }
+					case OA_CTRL_TYPE_DISCRETE:
+						// FIX ME -- these really ought to show
+						// don't show these up as unhandled
+						if ( OA_CAM_CTRL_BINNING == c ) {
+							added[c] = 1;
+							break;
+						}
 						/* FALLTHROUGH */
           default:
             controlLabel[c] = new QLabel ( tr ( oaCameraControlLabel[c] ));
@@ -491,6 +535,12 @@ CameraControls::configure ( void )
         addedMenus++;
       }
     }
+		if ( OA_CTRL_TYPE_DISC_MENU == controlType[ c ] ) { 
+			menuGrid->addWidget ( controlLabel[c], row, col++ );
+			menuGrid->addWidget ( controlMenu[c], row, col++ );
+			added[ c ] = 1;
+			addedMenus++;
+		}
     if ( MENUS_PER_ROW == col ) {
       col = 0;
       row++;
@@ -814,6 +864,19 @@ void
 CameraControls::menuChanged ( int control )
 {
   int value = controlMenu [ control ]->currentIndex();
+	// FIX ME -- there's an implicit assumption here that menus will have
+	// the same value sequence as the items in the menu. (ie. starting at 0
+	// and incrementing by 1
+	if ( controlType [ control ] == OA_CTRL_TYPE_DISC_MENU ) {
+		int32_t count;
+		int64_t *values;
+		commonState.camera->controlDiscreteSet ( control, &count, &values );
+		if ( value < count ) {
+			value = values[value];
+		} else {
+			qWarning() << "Invalid menu value for discrete menu";
+		}
+	}
   commonState.camera->setControl ( control, value );
 }
 
