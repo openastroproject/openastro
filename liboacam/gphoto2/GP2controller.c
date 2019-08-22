@@ -183,11 +183,17 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 		if ( valp->int32 == cameraInfo->jpegOption ) {
 			valp->int32 = OA_PIX_FMT_JPEG8;
 		} else {
-			if ( cameraInfo->manufacturer == CAMERA_MANUF_CANON ) {
-				valp->int32 = OA_PIX_FMT_CANON_CR2;
-			} else {
-				fprintf ( stderr, "Unknown raw camera format\n" );
-				// valp->int32 = OA_PIX_FMT_NIKON_NEF;
+			switch ( cameraInfo->manufacturer ) {
+				case CAMERA_MANUF_CANON:
+					fprintf ( stderr, "Returning Canon CR2 format, but may be CR3\n" );
+					valp->int32 = OA_PIX_FMT_CANON_CR2;
+					break;
+				case CAMERA_MANUF_NIKON:
+					valp->int32 = OA_PIX_FMT_NIKON_NEF;
+					break;
+				default:
+					fprintf ( stderr, "Unknown raw camera format\n" );
+					break;
 			}
 		}
 	}
@@ -255,6 +261,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 			switch ( newVal ) {
 				case OA_PIX_FMT_CANON_CR2:
 				case OA_PIX_FMT_CANON_CR3:
+				case OA_PIX_FMT_NIKON_NEF:
 					newVal = cameraInfo->rawOption;
 					break;
 				case OA_PIX_FMT_JPEG8:

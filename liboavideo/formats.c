@@ -1531,6 +1531,20 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .lumChrom           = 0,
     .lossless           = 1,
     .packed             = 0,
+  }, {  // OA_PIX_FMT_NIKON_NEF
+    .name               = "NEF",
+    .simpleName         = "Nikon NEF",
+    .bytesPerPixel      = 0,
+    .bitsPerPixel       = 0,
+    .cfaPattern         = 0,
+    .littleEndian       = 0,
+    .monochrome         = 0,
+    .rawColour          = 1,
+    .useLibraw        = 1,
+    .fullColour         = 0,
+    .lumChrom           = 0,
+    .lossless           = 1,
+    .packed             = 0,
     .planar   = 0
   }
 };

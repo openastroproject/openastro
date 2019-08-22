@@ -572,6 +572,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 			if ( !strstr ( lowerVal, "+" )) {
 				if ( strstr ( lowerVal, "raw" ) || strstr ( lowerVal, "nef" )) {
 					if ( cameraInfo->manufacturer == CAMERA_MANUF_CANON ) {
+						// because Canons appear to list best first...
 						if ( cameraInfo->rawOption == -1 ) {
 							cameraInfo->rawOption = i;
 						}
@@ -607,11 +608,16 @@ oaGP2InitCamera ( oaCameraDevice* device )
 		commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FRAME_FORMAT ) = OA_PIX_FMT_JPEG8;
 		cameraInfo->numFormatMenuValues = 2;
 		cameraInfo->formatMenuValues[0] = OA_PIX_FMT_JPEG8;
-		if ( cameraInfo->manufacturer == CAMERA_MANUF_CANON ) {
-			cameraInfo->formatMenuValues[1] = OA_PIX_FMT_CANON_CR2;
-		} else {
-			fprintf ( stderr, "Unknown raw camera format\n" );
-			// cameraInfo->formatMenuValues[1] = OA_PIX_FMT_NIKON_NEF;
+		switch ( cameraInfo->manufacturer ) {
+			case CAMERA_MANUF_CANON:
+				cameraInfo->formatMenuValues[1] = OA_PIX_FMT_CANON_CR2;
+				break;
+			case CAMERA_MANUF_NIKON:
+				cameraInfo->formatMenuValues[1] = OA_PIX_FMT_NIKON_NEF;
+				break;
+			default:
+				fprintf ( stderr, "Unknown raw camera format\n" );
+				break;
 		}
 	}
 
@@ -657,6 +663,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	if ( cameraInfo->currentFormatOption != cameraInfo->jpegOption &&
 			cameraInfo->currentFormatOption != cameraInfo->rawOption ) {
 		found = 0;
+		// Again, Canon appear to be "special" by listing the best format first
 		if ( cameraInfo->manufacturer == CAMERA_MANUF_CANON ) {
 			if ( cameraInfo->currentFormatOption < cameraInfo->rawOption ) {
 				cameraInfo->currentFormatOption = cameraInfo->jpegOption;

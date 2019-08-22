@@ -147,11 +147,12 @@
 #define	OA_PIX_FMT_CANON_CRW						97
 #define	OA_PIX_FMT_CANON_CR2						98
 #define	OA_PIX_FMT_CANON_CR3						99
+#define	OA_PIX_FMT_NIKON_NEF						100
 
 // Adding more frame formats here requires the oaFrameFormats table
 // updating in liboavideo/formats.c
 
-#define OA_PIX_FMT_LAST_P1		OA_PIX_FMT_CANON_CR3+1
+#define OA_PIX_FMT_LAST_P1		OA_PIX_FMT_NIKON_NEF+1
 
 #define OA_DEMOSAIC_FMT(x) \
   ((( x == OA_PIX_FMT_BGGR8 ) || ( x == OA_PIX_FMT_RGGB8 ) || \
