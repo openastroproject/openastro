@@ -569,7 +569,8 @@ oaGP2InitCamera ( oaCameraDevice* device )
 			}
 			lowerVal[j] = '\0';
 			// FIX ME -- handle combined options at some point
-			if ( !strstr ( lowerVal, "+" )) {
+			if ( !strstr ( lowerVal, "+" ) && !strstr ( lowerVal, "unknown" ) &&
+					!strstr ( lowerVal, "undefined" )) {
 				if ( strstr ( lowerVal, "raw" ) || strstr ( lowerVal, "nef" )) {
 					if ( cameraInfo->manufacturer == CAMERA_MANUF_CANON ) {
 						// because Canons appear to list best first...
