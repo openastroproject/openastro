@@ -32,6 +32,7 @@
 #include <openastro/camera.h>
 #include <openastro/util.h>
 #include <sys/time.h>
+#include <fcntl.h>
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
@@ -42,6 +43,10 @@
 
 static int	_processGetControl ( oaCamera*, OA_COMMAND* );
 static int	_processSetControl ( oaCamera*, OA_COMMAND* );
+static int	_processExposureSetup ( oaCamera*, OA_COMMAND* );
+static int	_startExposure ( oaCamera* );
+static int	_setWidgetValue ( GP2_STATE*, CameraWidget*, const void* );
+static int	_handleCompletedExposure ( GP2_STATE* );
 
 
 void*
@@ -52,7 +57,9 @@ oacamGP2controller ( void* param )
   OA_COMMAND*		command;
   int			exitThread = 0;
   int			resultCode;
-  int			streaming = 0;
+  int			exposurePending = 0;
+  int			exposureInProgress;
+  time_t	exposureStartTime;
 
   do {
     pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
@@ -63,8 +70,11 @@ oacamGP2controller ( void* param )
     } else {
       pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
       // stop us busy-waiting
-      streaming = cameraInfo->isStreaming;
-      if ( !streaming && oaDLListIsEmpty ( cameraInfo->commandQueue )) {
+      exposurePending = cameraInfo->exposurePending;
+      exposureInProgress = cameraInfo->exposureInProgress;
+      exposureStartTime = cameraInfo->exposureStartTime;
+      if ( !exposurePending && !exposureInProgress &&
+					oaDLListIsEmpty ( cameraInfo->commandQueue )) {
         pthread_cond_wait ( &cameraInfo->commandQueued,
             &cameraInfo->commandQueueMutex );
       }
@@ -79,6 +89,9 @@ oacamGP2controller ( void* param )
             break;
           case OA_CMD_CONTROL_SET:
             resultCode = _processSetControl ( camera, command );
+            break;
+          case OA_CMD_START_EXPOSURE:
+            resultCode = _processExposureSetup ( camera, command );
             break;
           default:
             fprintf ( stderr, "Invalid command type %d in controller\n",
@@ -97,6 +110,20 @@ oacamGP2controller ( void* param )
         }
       }
     } while ( command );
+
+		if ( exposurePending ) {
+			time_t now = time(0);
+fprintf ( stderr, "exposure pending, now: %ld, exposureStartTime: %ld\n", now, exposureStartTime );
+			if ( now > exposureStartTime ) {
+				( void ) _startExposure ( camera );
+			}
+		} else {
+fprintf ( stderr, "exposure in progress = %d\n", exposureInProgress );
+			if ( exposureInProgress ) {
+				_handleCompletedExposure ( cameraInfo );
+			}
+		}
+
   } while ( !exitThread );
 
   return 0;
@@ -211,18 +238,14 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 	CameraWidget*		widget = 0;
 	const char**		options = 0;
 	int							numOptions;
-	int							newVal, ret;
+	int							newVal;
+	const void*			valuePointer;
 
 	if ( control == OA_CAM_CTRL_MIRROR_LOCKUP ) {
 		newVal = valp->boolean;
 		cameraInfo->customFuncStr[ cameraInfo->mirrorLockupPos ] =
 				newVal ? '1' : '0';
-		if ( p_gp_widget_set_value ( cameraInfo->customfuncex,
-					cameraInfo->customFuncStr ) != GP_OK ) {
-			fprintf ( stderr, "Failed to set value of control %d to '%s' in %s\n",
-					control, cameraInfo->customFuncStr, __FUNCTION__ );
-			return -OA_ERR_CAMERA_IO;
-		}
+		valuePointer = cameraInfo->customFuncStr;
 	} else {
 		switch ( control ) {
 			case OA_CAM_CTRL_WHITE_BALANCE:
@@ -282,11 +305,22 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 			( void ) oaGP2CameraGetMenuString ( camera, control, 0 );
 		}
 
-		if ( p_gp_widget_set_value ( widget, options[newVal] ) != GP_OK ) {
-			fprintf ( stderr, "Failed to set value of control %d in %s\n",
-					control, __FUNCTION__ );
-			return -OA_ERR_CAMERA_IO;
-		}
+		valuePointer = options[newVal];
+	}
+
+	return _setWidgetValue ( cameraInfo, widget, valuePointer );
+}
+
+
+int
+_setWidgetValue ( GP2_STATE* cameraInfo, CameraWidget* widget,
+		const void* value )
+{
+	int			ret;
+
+	if ( p_gp_widget_set_value ( widget, value ) != GP_OK ) {
+		fprintf ( stderr, "Failed to set value of control in %s\n", __FUNCTION__ );
+		return -OA_ERR_CAMERA_IO;
 	}
 
 	if (( ret = p_gp_camera_set_config ( cameraInfo->handle,
@@ -295,6 +329,173 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 				__FUNCTION__, ret );
 		return -OA_ERR_CAMERA_IO;
 	}
+
+	cameraInfo->captureEnabled = 0;
+
+	return OA_ERR_NONE;
+}
+
+
+static int
+_processExposureSetup ( oaCamera* camera, OA_COMMAND* command )
+{
+  GP2_STATE*	cameraInfo = camera->_private;
+  CALLBACK*		cb = command->commandData;
+	int					ret;
+
+  if ( cameraInfo->exposurePending ) {
+    return -OA_ERR_INVALID_COMMAND;
+  }
+
+  cameraInfo->exposureCallback.callback = cb->callback;
+  cameraInfo->exposureCallback.callbackArg = cb->callbackArg;
+	cameraInfo->exposureStartTime = *(( time_t* ) command->commandArgs );
+
+	if ( cameraInfo->manufacturer == CAMERA_MANUF_CANON && cameraInfo->capture ) {
+		int			onOff = 1;
+		if (( ret = _setWidgetValue ( cameraInfo, cameraInfo->capture,
+				&onOff )) != GP_OK ) {
+			fprintf ( stderr, "setting capture toggle on failed with error %d\n",
+					ret );
+			return -OA_ERR_CAMERA_IO;
+		}
+	}
+	cameraInfo->captureEnabled = 1;
+
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  cameraInfo->exposurePending = 1;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+
+  return OA_ERR_NONE;
+}
+
+
+static int
+_startExposure ( oaCamera* camera )
+{
+  GP2_STATE*	cameraInfo = camera->_private;
+fprintf ( stderr, "starting exposure\n" );
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  cameraInfo->exposurePending = 0;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+
+	p_gp_camera_trigger_capture ( cameraInfo->handle, cameraInfo->ctx );
+
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  cameraInfo->exposureInProgress = 1;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+
+fprintf ( stderr, "started exposure\n" );
+	return OA_ERR_NONE;
+}
+
+
+static int
+_handleCompletedExposure ( GP2_STATE* cameraInfo )
+{
+	CameraEventType			eventType;
+	CameraFilePath*			filePath;
+	CameraFile*					file;
+	int									ret;
+	int									buffersFree, nextBuffer;
+	void*								data;
+	void*								ptr;
+	const char*					imageBuffer;
+	unsigned long				size;
+	const char*					mimeType;
+
+	if (( ret = p_gp_camera_wait_for_event ( cameraInfo->handle, 100,
+			&eventType, &data, cameraInfo->ctx )) != GP_OK ) {
+		fprintf ( stderr, "wait for event returns error %d\n", ret );
+		return -OA_ERR_CAMERA_IO;
+	}
+
+	if ( eventType != GP_EVENT_FILE_ADDED ) {
+		switch ( eventType ) {
+			case GP_EVENT_CAPTURE_COMPLETE:
+			case GP_EVENT_UNKNOWN:
+			case GP_EVENT_TIMEOUT:
+				break;
+			case GP_EVENT_FOLDER_ADDED:
+				free ( data );
+				break;
+			default:
+				fprintf ( stderr, "%s: unexpected event type %d returned\n",
+						__FUNCTION__, eventType );
+				break;
+		}
+		return OA_ERR_NONE;
+	}
+
+	filePath = data;
+
+	( void ) p_gp_file_new ( &file );
+
+	if (( ret = p_gp_camera_file_get ( cameraInfo->handle, filePath->folder,
+			filePath->name, GP_FILE_TYPE_NORMAL, file, cameraInfo->ctx )) != GP_OK ) {
+		fprintf ( stderr, "gp_camera_file_get %s/%s failed with error %d\n",
+				filePath->folder, filePath->name, ret );
+		( void ) p_gp_file_free ( file );
+		return -OA_ERR_CAMERA_IO;
+	}
+
+	if (( ret = p_gp_file_get_data_and_size ( file, &imageBuffer,
+			&size )) != GP_OK ) {
+		fprintf ( stderr, "gp_file_get_data_and_size failed with error %d\n", ret );
+		( void ) p_gp_file_free ( file );
+		return -OA_ERR_CAMERA_IO;
+	}
+
+	if (( ret = p_gp_file_get_mime_type ( file, &mimeType )) != GP_OK ) {
+		fprintf ( stderr, "gp_file_get_mime_type failed with error %d\n", ret );
+		( void ) p_gp_file_free ( file );
+		return -OA_ERR_CAMERA_IO;
+	}
+
+	pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+	buffersFree = cameraInfo->buffersFree;
+	pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+
+	if ( buffersFree && size > 0 ) {
+		nextBuffer = cameraInfo->nextBuffer;
+		if ( size > cameraInfo->currentBufferLength[ nextBuffer ]) {
+			if ( cameraInfo->currentBufferLength[ nextBuffer ] == 0 ) {
+				ptr = malloc ( size );
+			} else {
+				ptr = realloc ( cameraInfo->buffers[ nextBuffer ].start, size );
+			}
+			if ( !ptr ) {
+				fprintf ( stderr, "failed to make bigger buffer for camera frame\n" );
+				return -OA_ERR_MEM_ALLOC;
+			}
+			cameraInfo->buffers[ nextBuffer ].start = ptr;
+			cameraInfo->currentBufferLength[ nextBuffer ] = size;
+		}
+
+		( void ) memcpy ( cameraInfo->buffers[ nextBuffer ].start, imageBuffer,
+				size );
+		cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
+				OA_CALLBACK_NEW_FRAME;
+		cameraInfo->frameCallbacks[ nextBuffer ].callback =
+				cameraInfo->exposureCallback.callback;
+		cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =
+				cameraInfo->exposureCallback.callbackArg;
+		cameraInfo->frameCallbacks[ nextBuffer ].buffer =
+				cameraInfo->buffers[ nextBuffer ].start;
+		cameraInfo->frameCallbacks[ nextBuffer ].bufferLen = size;
+		pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+		oaDLListAddToTail ( cameraInfo->callbackQueue,
+				&cameraInfo->frameCallbacks[ nextBuffer ]);
+		cameraInfo->buffersFree--;
+		cameraInfo->nextBuffer = ( nextBuffer + 1 ) % cameraInfo->configuredBuffers;		pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+		pthread_cond_broadcast ( &cameraInfo->callbackQueued );
+	}
+
+	p_gp_file_free ( file );
+
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  cameraInfo->exposureInProgress = 0;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
 	return OA_ERR_NONE;
 }

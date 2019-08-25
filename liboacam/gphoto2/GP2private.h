@@ -62,6 +62,11 @@ extern int					( *p_gp_camera_get_config )( Camera*, CameraWidget**,
 												GPContext* );
 extern int					( *p_gp_camera_set_config )( Camera*, CameraWidget*,
 												GPContext* );
+extern int					( *p_gp_camera_trigger_capture )( Camera*, GPContext* );
+extern int					( *p_gp_camera_wait_for_event )( Camera*, int,
+												CameraEventType*, void**, GPContext* );
+extern int					( *p_gp_camera_file_get )( Camera*, const char*,
+												const char*, CameraFileType, CameraFile*, GPContext* );
 
 extern void					( *p_gp_context_set_error_func )( GPContext*,
 												GPContextErrorFunc, void* );
@@ -104,6 +109,11 @@ extern int					( *p_gp_port_info_list_new )( GPPortInfoList** );
 
 extern int					( *p_gp_log_add_func )( GPLogLevel, GPLogFunc, void* );
 
+extern int					( *p_gp_file_new )( CameraFile** );
+extern int					( *p_gp_file_free )( CameraFile* );
+extern int					( *p_gp_file_get_data_and_size )( CameraFile*,
+												const char**, unsigned long* );
+extern int					( *p_gp_file_get_mime_type )( CameraFile*, const char** );
 
 #define	CAMERA_MANUF_UNKNOWN		0
 #define	CAMERA_MANUF_CANON			1

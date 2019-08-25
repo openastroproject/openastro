@@ -145,3 +145,35 @@ oaGP2CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
   // And if we reach here it's because the value wasn't valid
   return -OA_ERR_OUT_OF_RANGE;
 }
+
+
+int
+oaGP2CameraStartExposure ( oaCamera* camera, time_t when,
+    void* (*callback)(void*, void*, int, void* ), void* callbackArg )
+{
+  OA_COMMAND		command;
+  CALLBACK			callbackData;
+  int						retval;
+  GP2_STATE*		cameraInfo = camera->_private;
+
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "GP2: startExposure ( %p )\n", callback );
+
+  OA_CLEAR ( command );
+  callbackData.callback = callback;
+  callbackData.callbackArg = callbackArg;
+  command.commandType = OA_CMD_START_EXPOSURE;
+	command.commandArgs = ( void* ) &when;
+  command.commandData = ( void* ) &callbackData;
+
+  oaDLListAddToTail ( cameraInfo->commandQueue, &command );
+  pthread_cond_broadcast ( &cameraInfo->commandQueued );
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  while ( !command.completed ) {
+    pthread_cond_wait ( &cameraInfo->commandComplete,
+        &cameraInfo->commandQueueMutex );
+  }
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+  retval = command.resultCode;
+
+  return retval;
+}

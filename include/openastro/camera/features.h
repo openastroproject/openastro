@@ -42,6 +42,7 @@ typedef struct oaCameraFeatures {
   unsigned int hasFixedReadNoise : 1;
   unsigned int hasStreamingMode : 1;
   unsigned int frameSizeUnknown : 1;
+	unsigned int singleShot : 1 ;
   unsigned int pixelSizeX;
   unsigned int pixelSizeY;
 	float readNoise;

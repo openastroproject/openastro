@@ -55,6 +55,8 @@ extern void		oacamDebugMsg ( int, const char*, ... );
 extern int64_t		oacamGetControlValue ( oaControlValue* );
 extern int		_oaCheckCameraArraySize ( CAMERA_LIST* );
 extern void		_oaFreeCameraDeviceList ( CAMERA_LIST* );
+extern int		_oaInitCameraStructs ( oaCamera**, void**, size_t, COMMON_INFO**);
+
 
 extern char*		installPathRoot;
 

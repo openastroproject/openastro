@@ -723,3 +723,16 @@ Camera::frameSizeUnknown ( void )
   }
   return cameraFeatures.frameSizeUnknown;
 }
+
+
+int
+Camera::startExposure ( time_t when,
+		void* ( *callback )( void*, void*, int, void* ), void* state )
+{
+  if ( !initialised ) {
+    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    return -1;
+  }
+
+  return cameraFuncs.startExposure ( cameraContext, when, callback, state );
+}

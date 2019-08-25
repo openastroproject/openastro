@@ -52,6 +52,8 @@ extern int        oaGP2CameraIsStreaming ( oaCamera* );
 
 extern int				oaGP2CameraSetResolution ( oaCamera*, int, int );
 
+extern int				oaGP2CameraStartExposure ( oaCamera*, time_t,
+											void* (*)(void*, void*, int, void* ), void* );
 extern void*			oacamGP2controller ( void* );
 extern void*			oacamGP2callbackHandler ( void* );
 

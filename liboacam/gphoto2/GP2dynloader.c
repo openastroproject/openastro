@@ -63,6 +63,11 @@ int					( *p_gp_camera_init )( Camera*, GPContext* );
 int					( *p_gp_camera_exit )( Camera*, GPContext* );
 int					( *p_gp_camera_get_config )( Camera*, CameraWidget**, GPContext* );
 int					( *p_gp_camera_set_config )( Camera*, CameraWidget*, GPContext* );
+int					( *p_gp_camera_trigger_capture )( Camera*, GPContext* );
+int					( *p_gp_camera_wait_for_event )( Camera*, int, CameraEventType*,
+								void**, GPContext* );
+int					( *p_gp_camera_file_get )( Camera*, const char*, const char*,
+								CameraFileType, CameraFile*, GPContext* );
 
 void				( *p_gp_context_set_error_func )( GPContext*, GPContextErrorFunc,
 								void* );
@@ -101,6 +106,12 @@ int					( *p_gp_port_info_list_lookup_path )( GPPortInfoList*,
 int					( *p_gp_port_info_list_new )( GPPortInfoList** );
 
 int					( *p_gp_log_add_func )( GPLogLevel, GPLogFunc, void* );
+
+int					( *p_gp_file_new )( CameraFile** );
+int					( *p_gp_file_free )( CameraFile* );
+int					( *p_gp_file_get_data_and_size )( CameraFile*, const char**,
+								unsigned long* );
+int					( *p_gp_file_get_mime_type )( CameraFile*, const char** );
 
 #if HAVE_LIBDL && !HAVE_STATIC_LIBGPHOTO2
 static void*		_getDLSym ( void*, const char* );
@@ -258,6 +269,26 @@ _gp2InitLibraryFunctionPointers ( void )
 
 	  if (!( *( void** )( &p_gp_camera_set_config ) = _getDLSym ( libHandle,
 	      "gp_camera_set_config" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+	  if (!( *( void** )( &p_gp_camera_trigger_capture ) = _getDLSym ( libHandle,
+	      "gp_camera_trigger_capture" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_camera_wait_for_event ) = _getDLSym ( libHandle,
+	      "gp_camera_wait_for_event" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_camera_file_get ) = _getDLSym ( libHandle,
+	      "gp_camera_file_get" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -423,6 +454,34 @@ _gp2InitLibraryFunctionPointers ( void )
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
+
+	  if (!( *( void** )( &p_gp_file_new ) = _getDLSym ( libHandle,
+	      "gp_file_new" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_file_free ) = _getDLSym ( libHandle,
+	      "gp_file_free" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_file_get_data_and_size ) = _getDLSym ( libHandle,
+	      "gp_file_get_data_and_size" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
+
+	  if (!( *( void** )( &p_gp_file_get_mime_type ) = _getDLSym ( libHandle,
+	      "gp_file_get_mime_type" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  }
 	}
 #else
 #if HAVE_STATIC_LIBGPHOTO2
@@ -447,6 +506,9 @@ _gp2InitLibraryFunctionPointers ( void )
 	p_gp_camera_exit = gp_camera_exit;
 	p_gp_camera_get_config = gp_camera_get_config;
 	p_gp_camera_set_config = gp_camera_set_config;
+	p_gp_camera_trigger_capture = gp_camera_trigger_capture;
+	p_gp_camera_wait_for_event = gp_camera_wait_for_event;
+	p_gp_camera_file_get = gp_camera_file_get;
 
 	p_gp_context_set_error_func = gp_context_set_error_func;
 	p_gp_context_set_status_func = gp_context_set_status_func;
@@ -475,6 +537,11 @@ _gp2InitLibraryFunctionPointers ( void )
 	p_gp_port_info_list_new = gp_port_info_list_new;
 
 	p_gp_log_add_func = gp_log_add_func;
+
+	p_gp_file_new = gp_file_new;
+	p_gp_file_free = gp_file_free;
+	p_gp_file_get_data_and_size = gp_file_get_data_and_size;
+	p_gp_file_get_data_and_size = gp_file_get_mime_type;
 
 #else
 	return OA_ERR_LIBRARY_NOT_FOUND;

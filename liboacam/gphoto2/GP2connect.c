@@ -47,6 +47,8 @@ static int		_GP2ProcessMenuWidget ( CameraWidget*, const char*,
 									const char* );
 static int		_GP2ProcessStringWidget ( CameraWidget*, const char*,
 									CameraWidget**, const char*, const char* );
+static int		_GP2ProcessToggleWidget ( CameraWidget*, const char*,
+									CameraWidget**, const char*, const char* );
 static int		_GP2GuessManufacturer ( const char* );
 
 
@@ -440,27 +442,13 @@ oaGP2InitCamera ( oaCameraDevice* device )
 		commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SHARPNESS ) = 0;
 	}
 
-	// customfuncex (to allow mirror lock on Canon cameras)
+	if ( cameraInfo->manufacturer == CAMERA_MANUF_CANON ) {
 
-	if (( ret = _GP2ProcessStringWidget ( cameraInfo->settings, "customfuncex",
-			&cameraInfo->customfuncex, camName, camPort )) != OA_ERR_NONE &&
-			ret != -OA_ERR_INVALID_COMMAND ) {
-		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
-		p_gp_list_unref ( cameraList );
-		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
-    return 0;
-	}
+		// customfuncex (to allow mirror lock on Canon cameras)
 
-	if ( ret == OA_ERR_NONE ) {
-		const char*		customStr;
-		char*					mlf;
-
-		if ( p_gp_widget_get_value ( cameraInfo->customfuncex, &customStr ) !=
-				GP_OK ) {
-			fprintf ( stderr, "can't get value of customfuncex string\n" );
+		if (( ret = _GP2ProcessStringWidget ( cameraInfo->settings, "customfuncex",
+				&cameraInfo->customfuncex, camName, camPort )) != OA_ERR_NONE &&
+				ret != -OA_ERR_INVALID_COMMAND ) {
 			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );
@@ -468,21 +456,53 @@ oaGP2InitCamera ( oaCameraDevice* device )
 			free (( void* ) cameraInfo );
 			free (( void* ) camera );
 			return 0;
-		} else {
-			if (( mlf = strstr ( customStr, ",60f,1," )) != 0 && ( mlf[7] == '0' ||
-					mlf[7] == '1' )) {
-				cameraInfo->customFuncStr = strdup ( customStr );
-				cameraInfo->mirrorLockupPos = ( mlf - customStr ) + 7;
-				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_MIRROR_LOCKUP ) =
-						OA_CTRL_TYPE_BOOLEAN;
-				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_MIRROR_LOCKUP ) = 0;
-				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_MIRROR_LOCKUP ) = 1;
-				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_MIRROR_LOCKUP ) = 1;
-				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_MIRROR_LOCKUP ) = 0;
+		}
+
+		if ( ret == OA_ERR_NONE ) {
+			const char*		customStr;
+			char*					mlf;
+
+			if ( p_gp_widget_get_value ( cameraInfo->customfuncex, &customStr ) !=
+					GP_OK ) {
+				fprintf ( stderr, "can't get value of customfuncex string\n" );
+				_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
+				p_gp_list_unref ( cameraList );
+				p_gp_context_unref ( cameraInfo->ctx );
+				free (( void* ) commonInfo );
+				free (( void* ) cameraInfo );
+				free (( void* ) camera );
+				return 0;
+			} else {
+				if (( mlf = strstr ( customStr, ",60f,1," )) != 0 && ( mlf[7] == '0' ||
+						mlf[7] == '1' )) {
+					cameraInfo->customFuncStr = strdup ( customStr );
+					cameraInfo->mirrorLockupPos = ( mlf - customStr ) + 7;
+					camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_MIRROR_LOCKUP ) =
+							OA_CTRL_TYPE_BOOLEAN;
+					commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_MIRROR_LOCKUP ) = 0;
+					commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_MIRROR_LOCKUP ) = 1;
+					commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_MIRROR_LOCKUP ) = 1;
+					commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_MIRROR_LOCKUP ) = 0;
+				}
 			}
+		}
+
+		// For Canon only, the "capture" toggle
+
+		if (( ret = _GP2ProcessToggleWidget ( cameraInfo->settings, "capture",
+				&cameraInfo->capture, camName, camPort )) != OA_ERR_NONE &&
+				ret != -OA_ERR_INVALID_COMMAND ) {
+			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
+			p_gp_list_unref ( cameraList );
+			p_gp_context_unref ( cameraInfo->ctx );
+			free (( void* ) commonInfo );
+			free (( void* ) cameraInfo );
+			free (( void* ) camera );
+			return 0;
 		}
 	}
 
+	camera->features.singleShot = 1;
 	camera->features.frameSizeUnknown = 1;
   camera->features.hasReadableControls = 1;
 
@@ -722,16 +742,23 @@ oaGP2InitCamera ( oaCameraDevice* device )
   pthread_cond_init ( &cameraInfo->callbackQueued, 0 );
   pthread_cond_init ( &cameraInfo->commandQueued, 0 );
   pthread_cond_init ( &cameraInfo->commandComplete, 0 );
-  cameraInfo->isStreaming = 0;
+
+  cameraInfo->exposurePending = cameraInfo->exposureInProgress = 0;
+	cameraInfo->captureEnabled = 0;
 
   cameraInfo->stopControllerThread = cameraInfo->stopCallbackThread = 0;
   cameraInfo->commandQueue = oaDLListCreate();
   cameraInfo->callbackQueue = oaDLListCreate();
-/*
+
   cameraInfo->nextBuffer = 0;
   cameraInfo->configuredBuffers = OA_CAM_BUFFERS;
   cameraInfo->buffersFree = OA_CAM_BUFFERS;
-*/
+	for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
+		cameraInfo->currentBufferLength[i] = 0;
+	}
+	cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct GP2buffer ));
+
+
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       oacamGP2controller, ( void* ) camera )) {
     fprintf ( stderr, "controller thread creation failed\n" );
@@ -795,6 +822,8 @@ _GP2InitFunctionPointers ( oaCamera* camera )
 */
   camera->funcs.getFramePixelFormat = oaGP2CameraGetFramePixelFormat;
   camera->funcs.getMenuString = oaGP2CameraGetMenuString;
+
+	camera->funcs.startExposure = oaGP2CameraStartExposure;
 }
 
 
@@ -874,6 +903,37 @@ _GP2ProcessStringWidget ( CameraWidget* parent, const char* name,
 
 
 static int
+_GP2ProcessToggleWidget ( CameraWidget* parent, const char* name,
+		CameraWidget** ptarget, const char* camName, const char* camPort )
+{
+	int									ret;
+	CameraWidgetType		type;
+
+	if (( ret = _gp2FindWidget ( parent, name, ptarget )) != OA_ERR_NONE ) {
+		if ( ret != -OA_ERR_INVALID_COMMAND ) {
+			fprintf ( stderr, "Can't get %s widget for camera '%s' "
+					"at port '%s'\n", name, camName, camPort );
+		}
+    return ret;
+	}
+
+  if ( _gp2GetWidgetType ( *ptarget, &type ) != OA_ERR_NONE ) {
+		fprintf ( stderr, "Can't get type for %s widget for camera "
+				"'%s' at port '%s'\n", name, camName, camPort );
+    return -OA_ERR_CAMERA_IO;
+	}
+
+	if ( type != GP_WIDGET_TOGGLE ) {
+		fprintf ( stderr, "Unexpected type %d for %s widget for "
+				"camera '%s' at port '%s'\n", type, name , camName, camPort );
+    return -OA_ERR_CAMERA_IO;
+	}
+
+	return OA_ERR_NONE;
+}
+
+
+static int
 _GP2GuessManufacturer ( const char* mstring )
 {
 	// FIX ME -- should probably copy the string and convert it to non-mixed
@@ -921,7 +981,7 @@ oaGP2CloseCamera ( oaCamera* camera )
 
     if ( cameraInfo->buffers ) {
       for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
-        if ( cameraInfo->buffers[j].start ) {
+        if ( cameraInfo->currentBufferLength[j] ) {
           free (( void* ) cameraInfo->buffers[j].start );
         }
       }

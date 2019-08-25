@@ -72,9 +72,11 @@ typedef struct GP2_STATE {
 	const char**				frameFormatOptions;
 	int									jpegOption;
 	int									rawOption;
+	CameraWidget*				capture;
 	int									currentFormatOption;
 	int									numFormatMenuValues;
 	int64_t							formatMenuValues[2];
+	int									captureEnabled;
   // video mode settings
   int									currentFrameFormat;
   int									bytesPerPixel;
@@ -84,8 +86,7 @@ typedef struct GP2_STATE {
   int									configuredBuffers;
   int									nextBuffer;
   int									buffersFree;
-  unsigned int				imageBufferLength;
-  unsigned int				currentFrameLength;
+  unsigned int				currentBufferLength[ OA_CAM_BUFFERS ];
   // camera status
   uint32_t						xSize;
   uint32_t						ySize;
@@ -108,9 +109,11 @@ typedef struct GP2_STATE {
   // queues for controls and callbacks
   DL_LIST							commandQueue;
   DL_LIST							callbackQueue;
-  // streaming
-  int									isStreaming;
-  CALLBACK						streamingCallback;
+  // handling exposures
+  int									exposurePending;
+  int									exposureInProgress;
+	time_t							exposureStartTime;
+  CALLBACK						exposureCallback;
 } GP2_STATE;
 
 #endif	/* OA_GP2_STATE_H */
