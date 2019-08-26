@@ -758,7 +758,6 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	}
 	cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct GP2buffer ));
 
-
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       oacamGP2controller, ( void* ) camera )) {
     fprintf ( stderr, "controller thread creation failed\n" );
@@ -772,7 +771,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
     return 0;
   }
-/*
+
   if ( pthread_create ( &( cameraInfo->callbackThread ), 0,
       oacamGP2callbackHandler, ( void* ) camera )) {
 
@@ -791,7 +790,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
     return 0;
   }
-*/
+
   return camera;
 }
 
