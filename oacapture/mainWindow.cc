@@ -1633,7 +1633,8 @@ MainWindow::connectCamera ( int deviceIndex )
 
   // start regardless of whether we're displaying or capturing the
   // data
-  commonState.camera->start ( &PreviewWidget::updatePreview, &commonState );
+  commonState.camera->startStreaming ( &PreviewWidget::updatePreview,
+			&commonState );
 	if ( !commonState.camera->hasReadableControls()) {
 		state.controlWidget->disableAutoControls();
 	}

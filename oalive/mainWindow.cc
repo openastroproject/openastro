@@ -1772,7 +1772,7 @@ MainWindow::connectCamera ( int deviceIndex )
 #ifdef OACAPTURE
   // start regardless of whether we're displaying or capturing the
   // data
-  commonState.camera->start();
+  commonState.camera->startStreaming();
   state.controlWidget->disableAutoControls();
   state.histogramOn = oldHistogramState;
   oldHistogramState = -1;

@@ -228,7 +228,7 @@ ControlsWidget::restartCapture ( void )
   }
   openOutputFiles();
   state.viewWidget->restart();
-  commonState.camera->start ( &ViewWidget::addImage, &commonState );
+  commonState.camera->startExposure ( 0, &ViewWidget::addImage, &commonState );
   startButton->setEnabled ( 0 );
   stopButton->setEnabled ( 1 );
 }

@@ -532,7 +532,8 @@ Camera::setFrameInterval ( int numerator, int denominator )
 
 
 int
-Camera::start ( void* ( *callback )( void*, void*, int, void* ), void* state )
+Camera::startStreaming ( void* ( *callback )( void*, void*, int, void* ),
+		void* state )
 {
   if ( !initialised ) {
     qWarning() << __FUNCTION__ << " called with camera uninitialised";
