@@ -186,8 +186,12 @@ void
 ControlsWidget::startCapture ( void )
 {
   openOutputFiles();
-  // commonState.camera->start ( &ViewWidget::addImage, &commonState );
-  commonState.camera->startExposure ( 0, &ViewWidget::addImage, &commonState );
+	if ( commonState.camera->isSingleShot()) {
+		commonState.camera->startExposure ( 0, &ViewWidget::addImage,
+				&commonState );
+	} else {
+		commonState.camera->startStreaming ( &ViewWidget::addImage, &commonState );
+	}
   startButton->setEnabled ( 0 );
   stopButton->setEnabled ( 1 );
 }
@@ -228,7 +232,12 @@ ControlsWidget::restartCapture ( void )
   }
   openOutputFiles();
   state.viewWidget->restart();
-  commonState.camera->startExposure ( 0, &ViewWidget::addImage, &commonState );
+	if ( commonState.camera->isSingleShot()) {
+		commonState.camera->startExposure ( 0, &ViewWidget::addImage,
+				&commonState );
+	} else {
+		commonState.camera->startStreaming ( &ViewWidget::addImage, &commonState );
+	}
   startButton->setEnabled ( 0 );
   stopButton->setEnabled ( 1 );
 }
