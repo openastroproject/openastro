@@ -51,11 +51,7 @@ extern "C" {
 #include "focusOverlay.h"
 
 #include "configuration.h"
-#ifdef OACAPTURE
-#include "previewWidget.h"
-#else
 #include "viewWidget.h"
-#endif
 #include "histogramWidget.h"
 #include "state.h"
 
@@ -67,36 +63,18 @@ extern "C" {
 ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
 {
   currentZoom = 100;
-#ifdef OACAPTURE
-  int zoomFactor = state.zoomWidget->getZoomFactor();
-#endif
-#ifdef OALIVE
   int zoomFactor = 100;
-#endif
   // setAttribute( Qt::WA_NoSystemBackground, true );
   lastCapturedFramesUpdateTime = 0;
   capturedFramesDisplayInterval = 200;
   lastDisplayUpdateTime = 0;
   frameDisplayInterval = 1000/15; // display frames per second
-#ifdef OACAPTURE
-  previewEnabled = 1;
-  framesInFpsCalcPeriod = fpsCalcPeriodStartTime = 0;
-#endif
   videoFramePixelFormat = OA_PIX_FMT_RGB24;
 	secondForTemperature = secondForDropped = secondForAutoControls = 0;
   flipX = flipY = 0;
   movingReticle = rotatingReticle = rotationAngle = 0;
   savedXSize = savedYSize = 0;
   recalculateDimensions ( zoomFactor );
-#ifdef OACAPTURE
-  previewBufferLength = 0;
-  previewImageBuffer[0] = writeImageBuffer[0] = 0;
-  previewImageBuffer[1] = writeImageBuffer[1] = 0;
-  expectedSize = commonConfig.imageSizeX * commonConfig.imageSizeY *
-			oaFrameFormats[ videoFramePixelFormat ].bytesPerPixel;
-  demosaic = commonConfig.demosaic;
-#endif
-#ifdef OALIVE
   stackBufferLength = viewBufferLength = 0;
   viewImageBuffer[0] = writeImageBuffer[0] = stackBuffer[0] = 0;
   viewImageBuffer[1] = writeImageBuffer[1] = stackBuffer[1] = 0;
@@ -105,7 +83,6 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
   stackBufferInUse = 0;
   averageBuffer = 0;
 	totalFrames = previousFrameArraySize = 0;
-#endif
 
   int r = config.currentColouriseColour.red();
   int g = config.currentColouriseColour.green();
@@ -122,7 +99,6 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
     cb += b;
   }
 
-#ifdef OALIVE
 	blackPoint = 0;
 	whitePoint = 255;
 	coeff_b = 0;
@@ -157,7 +133,6 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
 	*/
 
 	gammaExponent = 1.0;
-#endif /* OALIVE */
 
   pthread_mutex_init ( &imageMutex, 0 );
   recordingInProgress = 0;
@@ -170,23 +145,14 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
 
 ViewWidget::~ViewWidget()
 {
-#ifdef OACAPTURE
-  if ( previewImageBuffer[0] ) {
-    free ( previewImageBuffer[0] );
-    free ( previewImageBuffer[1] );
-  }
-#endif
-#ifdef OALIVE
   if ( viewImageBuffer[0] ) {
     free ( viewImageBuffer[0] );
     free ( viewImageBuffer[1] );
   }
-#endif
   if ( writeImageBuffer[0] ) {
     free ( writeImageBuffer[0] );
     free ( writeImageBuffer[1] );
   }
-#ifdef OALIVE
   if ( stackBuffer[0] ) {
     free ( stackBuffer[0] );
     free ( stackBuffer[1] );
@@ -204,7 +170,6 @@ ViewWidget::~ViewWidget()
 		}
 		free (( void* ) previousFrames );
 	}
-#endif
 }
 
 
@@ -216,70 +181,32 @@ ViewWidget::configure ( void )
 
 
 void
-#ifdef OACAPTURE
-PreviewWidget::updatePreviewSize ( void )
-#endif
-#ifdef OALIVE
 ViewWidget::updateFrameSize ( void )
-#endif
 {
-#ifdef OACAPTURE
-  int zoomFactor = state.zoomWidget->getZoomFactor();
-#endif
-#ifdef OALIVE
   int zoomFactor = 100;
-#endif
   recalculateDimensions ( zoomFactor );
   expectedSize = commonConfig.imageSizeX * commonConfig.imageSizeY *
       oaFrameFormats[ videoFramePixelFormat ].bytesPerPixel;
   int newBufferLength = commonConfig.imageSizeX * commonConfig.imageSizeY * 6;
-#ifdef OACAPTURE
-  if ( newBufferLength > previewBufferLength ) {
-    if (!( previewImageBuffer[0] = realloc ( previewImageBuffer[0],
-#endif
-#ifdef OALIVE
   if ( newBufferLength > viewBufferLength ) {
     if (!( viewImageBuffer[0] = realloc ( viewImageBuffer[0],
-#endif
         newBufferLength ))) {
-#ifdef OACAPTURE
-      qWarning() << "preview image buffer realloc failed";
-#endif
-#ifdef OALIVE
       qWarning() << "view image buffer realloc failed";
-#endif
     }
-#ifdef OACAPTURE
-    if (!( previewImageBuffer[1] = realloc ( previewImageBuffer[1],
-#endif
-#ifdef OALIVE
     if (!( viewImageBuffer[1] = realloc ( viewImageBuffer[1],
-#endif
         newBufferLength ))) {
-#ifdef OACAPTURE
-      qWarning() << "preview image buffer realloc failed";
-#else
       qWarning() << "view image buffer realloc failed";
-#endif
     }
-#ifdef OALIVE
     if (!( stackBuffer[0] = realloc ( stackBuffer[0], newBufferLength ))) {
       qWarning() << "stack image buffer realloc failed";
     }
-#endif
-#ifdef OACAPTURE
-    previewBufferLength = newBufferLength;
-#endif
-#ifdef OALIVE
     if (!( stackBuffer[1] = realloc ( stackBuffer[1], newBufferLength ))) {
       qWarning() << "stack image buffer realloc failed";
     }
     stackBufferLength = viewBufferLength = newBufferLength;
-#endif
   }
   diagonalLength = sqrt ( commonConfig.imageSizeX * commonConfig.imageSizeX +
       commonConfig.imageSizeY * commonConfig.imageSizeY );
-#ifdef OALIVE
   memset ( stackBuffer[0], 0, stackBufferLength );
   memset ( stackBuffer[1], 0, stackBufferLength );
 
@@ -291,7 +218,6 @@ ViewWidget::updateFrameSize ( void )
 			free (( void* ) previousFrames[i] );
 		}
 	}
-#endif	/* OALIVE */
 }
 
 
@@ -486,15 +412,6 @@ ViewWidget::setCapturedFramesDisplayInterval ( int millisecs )
 }
 
 
-#ifdef OACAPTURE
-void
-ViewWidget::setEnabled ( int state )
-{
-  previewEnabled = state;
-}
-#endif
-
-
 void
 ViewWidget::setVideoFramePixelFormat ( int format )
 {
@@ -532,44 +449,11 @@ ViewWidget::enableFlipY ( int state )
 }
 
 
-#ifdef OACAPTURE
-void
-ViewWidget::enableDemosaic ( int state )
-{
-  demosaic = state;
-}
-#endif
-
-
 void
 ViewWidget::setDisplayFPS ( int fps )
 {
   frameDisplayInterval = 1000 / fps;
 }
-
-
-#ifdef OACAPTURE
-// FIX ME -- could combine this with beginRecording() ?
-void
-ViewWidget::setFirstFrameTime ( void )
-{
-  setNewFirstFrameTime = 1;
-}
-
-
-void
-ViewWidget::beginRecording ( void )
-{
-  recordingInProgress = 1;
-}
-
-
-void
-ViewWidget::forceRecordingStop ( void )
-{
-  manualStop = 1;
-}
-#endif
 
 
 void
@@ -594,43 +478,20 @@ ViewWidget::setMonoPalette ( QColor colour )
 
 
 void*
-#ifdef OACAPTURE
-PreviewWidget::updatePreview ( void* args, void* imageData, int length,
-		void* metadata )
-#else
 ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
-#endif
 {
 	COMMON_STATE*	commonState = ( COMMON_STATE* ) args;
   STATE*		state = ( STATE* ) commonState->localState;
-#ifdef OACAPTURE
-  PreviewWidget*	self = state->previewWidget;
-#else
   ViewWidget*		self = state->viewWidget;
-#endif
   struct timeval	t;
   int			doDisplay = 0;
   int			doHistogram = 0;
-#ifdef OACAPTURE
-  int			previewPixelFormat, writePixelFormat, pixelFormat;
-#else
   int			viewPixelFormat, writePixelFormat;
-#endif
   // write straight from the data if possible
-#ifdef OACAPTURE
-  void*			previewBuffer = imageData;
-  void*			writeBuffer = imageData;
-  int			currentPreviewBuffer = -1;
-  int			writeDemosaicPreviewBuffer = 0;
-  int			maxLength;
-  char			commentStr[ 64 ];
-#endif
-#ifdef OALIVE
   void*			viewBuffer = imageData;
   int			currentViewBuffer = -1;
   int			ret;
   OutputHandler*	output;
-#endif
   void*			writeBuffer = imageData;
   const char*		timestamp;
   char*			comment;
@@ -642,48 +503,10 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     return 0;
   }
 
-#ifdef OACAPTURE
-  // assign the temporary buffers for image transforms if they
-  // don't already exist or the existing ones are too small
-
-  maxLength = commonConfig.imageSizeX * commonConfig.imageSizeY * 6;
-  if ( !self->previewImageBuffer[0] ||
-      self->previewBufferLength < maxLength ) {
-    self->previewBufferLength = maxLength;
-    if (!( self->previewImageBuffer[0] =
-        realloc ( self->previewImageBuffer[0], self->previewBufferLength ))) {
-      qWarning() << "preview image buffer 0 malloc failed";
-      return 0;
-    }
-    if (!( self->previewImageBuffer[1] =
-        realloc ( self->previewImageBuffer[1], self->previewBufferLength ))) {
-      qWarning() << "preview image buffer 1 malloc failed";
-      return 0;
-    }
-  }
-  if ( !self->writeImageBuffer[0] ||
-      self->writeBufferLength < maxLength ) {
-    self->writeBufferLength = maxLength;
-    if (!( self->writeImageBuffer[0] =
-        realloc ( self->writeImageBuffer[0], self->writeBufferLength ))) {
-      qWarning() << "write image buffer 0 malloc failed";
-      return 0;
-    }
-    if (!( self->writeImageBuffer[1] =
-        realloc ( self->writeImageBuffer[1], self->writeBufferLength ))) {
-      qWarning() << "write image buffer 1 malloc failed";
-      return 0;
-    }
-  }
-
-  previewPixelFormat = writePixelFormat = self->videoFramePixelFormat;
-#endif	/* OACAPTURE */
-#ifdef	OALIVE
    if (( ret = self->checkBuffers ( self ))) {
      return 0;
    }
    viewPixelFormat = writePixelFormat = self->videoFramePixelFormat;
-#endif
 
   // if we have a luminance/chrominance or packed mono/raw colour frame
   // format then we need to unpack that first
@@ -692,41 +515,6 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
       oaFrameFormats[ self->videoFramePixelFormat ].packed ) {
     // this is going to make the flip quite ugly and means we need to
     // start using currentPreviewBuffer too
-#ifdef OACAPTURE
-    currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :
-        !currentPreviewBuffer;
-    // Convert luminance/chrominance and packed raw colour to RGB.
-    // Packed mono should become GREY8.  We're only converting for
-    // preview here, so nothing needs to be more than 8 bits wide
-    if ( oaFrameFormats[ self->videoFramePixelFormat ].lumChrom ||
-        oaFrameFormats[ self->videoFramePixelFormat ].rawColour ) {
-      previewPixelFormat = OA_PIX_FMT_RGB24;
-    } else {
-      if ( oaFrameFormats[ self->videoFramePixelFormat ].monochrome ) {
-        previewPixelFormat = OA_PIX_FMT_GREY8;
-      } else {
-        qWarning() << "Don't know how to unpack frame format" <<
-            self->videoFramePixelFormat;
-      }
-    }
-    ( void ) oaconvert ( previewBuffer,
-        self->previewImageBuffer[ currentPreviewBuffer ],
-						commonConfig.imageSizeX, commonConfig.imageSizeY,
-						self->videoFramePixelFormat, previewPixelFormat );
-    previewBuffer = self->previewImageBuffer [ currentPreviewBuffer ];
-
-    // we can flip the preview image here if required, but not the
-    // image that is going to be written out.
-    // FIX ME -- work this out some time
-
-    if ( self->flipX || self->flipY ) {
-			int axis = ( self->flipX ? OA_FLIP_X : 0 ) | ( self->flipY ?
-					OA_FLIP_Y : 0 );
-      oaFlipImage ( previewBuffer, commonConfig.imageSizeX,
-					commonConfig.imageSizeY, previewPixelFormat, axis );
-    }
-#endif /* OACAPTURE */
-#ifdef	OALIVE
     currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
         !currentViewBuffer;
     // Convert luminance/chrominance and packed raw colour to RGB.
@@ -758,25 +546,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
       oaFlipImage ( viewBuffer, commonConfig.imageSizeX,
 					commonConfig.imageSizeY, viewPixelFormat, axis );
     }
-#endif	/* OALIVE */
   } else {
-#ifdef OACAPTURE
-    // do a vertical/horizontal flip if required
-    if ( self->flipX || self->flipY ) {
-      // this is going to make a mess for data we intend to demosaic.
-      // the user will have to deal with that
-			int axis = ( self->flipX ? OA_FLIP_X : 0 ) | ( self->flipY ?
-					OA_FLIP_Y : 0 );
-      ( void ) memcpy ( self->writeImageBuffer[0], writeBuffer, length );
-      oaFlipImage ( self->writeImageBuffer[0], commonConfig.imageSizeX,
-					commonConfig.imageSizeY, writePixelFormat, axis );
-      // both preview and write will come from this buffer for the
-      // time being.  This may change later on
-      previewBuffer = self->writeImageBuffer[0];
-      writeBuffer = self->writeImageBuffer[0];
-    }
-#endif	/* OACAPTURE */
-#ifdef	OALIVE
     // do a vertical/horizontal flip if required
     if ( self->flipX || self->flipY ) {
       // this is going to make a mess for data we intend to demosaic.
@@ -791,27 +561,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
       viewBuffer = self->writeImageBuffer[0];
       writeBuffer = self->writeImageBuffer[0];
     }
-#endif	/* OALIVE */
   }
-
-#ifdef OACAPTURE
-  if (( !oaFrameFormats[ previewPixelFormat ].fullColour &&
-      oaFrameFormats[ previewPixelFormat ].bytesPerPixel > 1 ) ||
-      ( oaFrameFormats[ previewPixelFormat ].fullColour &&
-      oaFrameFormats[ previewPixelFormat ].bytesPerPixel > 3 )) {
-    currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :
-        !currentPreviewBuffer;
-    ( void ) memcpy ( self->previewImageBuffer[ currentPreviewBuffer ],
-        previewBuffer, length );
-    // Do this reduction "in place"
-    previewPixelFormat = self->reduceTo8Bit (
-        self->previewImageBuffer[ currentPreviewBuffer ],
-        self->previewImageBuffer[ currentPreviewBuffer ],
-        commonConfig.imageSizeX, commonConfig.imageSizeY, previewPixelFormat );
-    previewBuffer = self->previewImageBuffer [ currentPreviewBuffer ];
-  }
-#endif	/* OACAPTURE */
-#ifdef	OALIVE
 
   int cfaPattern = demosaicConf.cfaPattern;
   if ( OA_DEMOSAIC_AUTO == cfaPattern &&
@@ -894,20 +644,6 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 		viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
 	}
 
-#endif /* OALIVE */
-
-#ifdef OACAPTURE
-  ( void ) gettimeofday ( &t, 0 );
-  unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
-      ( unsigned long ) t.tv_usec / 1000;
-
-  int cfaPattern = demosaicConf.cfaPattern;
-  if ( OA_DEMOSAIC_AUTO == cfaPattern &&
-			oaFrameFormats[ previewPixelFormat ].rawColour ) {
-    cfaPattern = oaFrameFormats[ previewPixelFormat ].cfaPattern;
-  }
-#endif	/* OACAPTURE */
-#ifdef	OALIVE
   if ( state->stackingMethod != OA_STACK_NONE ) {
     self->totalFrames++;
     const int viewFrameLength = commonConfig.imageSizeX *
@@ -1027,296 +763,6 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 			}
     }
   }
-#endif /* OALIVE */
-
-#ifdef OACAPTURE
-  if ( self->previewEnabled ) {
-    if (( self->lastDisplayUpdateTime + self->frameDisplayInterval ) < now ) {
-      self->lastDisplayUpdateTime = now;
-      doDisplay = 1;
-
-      if ( self->demosaic && demosaicConf.demosaicPreview ) {
-        if ( oaFrameFormats[ previewPixelFormat ].rawColour ) {
-          currentPreviewBuffer = ( -1 == currentPreviewBuffer ) ? 0 :
-              !currentPreviewBuffer;
-          // Use the demosaicking to copy the data to the previewImageBuffer
-          ( void ) oademosaic ( previewBuffer,
-              self->previewImageBuffer[ currentPreviewBuffer ],
-              commonConfig.imageSizeX, commonConfig.imageSizeY, 8, cfaPattern,
-              demosaicConf.demosaicMethod );
-          if ( demosaicConf.demosaicOutput && previewBuffer == writeBuffer
-							&& oaFrameFormats[ self->videoFramePixelFormat ].bytesPerPixel
-							== 1 ) {
-            writeDemosaicPreviewBuffer = 1;
-          }
-          previewPixelFormat = OA_DEMOSAIC_FMT ( previewPixelFormat );
-          previewBuffer = self->previewImageBuffer [ currentPreviewBuffer ];
-        }
-      }
-
-      if ( config.showFocusAid ) {
-        // This call should be thread-safe
-        state->focusOverlay->addScore ( oaFocusScore ( previewBuffer,
-            0, commonConfig.imageSizeX, commonConfig.imageSizeY,
-						previewPixelFormat ));
-      }
-
-      QImage* newImage;
-      QImage* swappedImage = 0;
-
-			// At this point, one way or another we should have an 8-bit image
-			// for the preview
-
-			// First deal with anything that's mono, including untouched raw
-			// colour
-
-      if ( OA_PIX_FMT_GREY8 == previewPixelFormat ||
-           ( oaFrameFormats[ previewPixelFormat ].rawColour &&
-           ( !self->demosaic || !demosaicConf.demosaicPreview ))) {
-        newImage = new QImage (( const uint8_t* ) previewBuffer,
-            commonConfig.imageSizeX, commonConfig.imageSizeY,
-						commonConfig.imageSizeX, QImage::Format_Indexed8 );
-        if ( OA_PIX_FMT_GREY8 == previewPixelFormat &&
-						commonConfig.colourise ) {
-          newImage->setColorTable ( self->falseColourTable );
-        } else {
-          newImage->setColorTable ( self->greyscaleColourTable );
-        }
-        swappedImage = newImage;
-      } else {
-				// and full colour (should just be RGB24 or BGR24 at this point?)
-				// here
-        // Need the stride size here or QImage appears to "tear" the
-        // right hand edge of the image when the X dimension is an odd
-        // number of pixels
-        newImage = new QImage (( const uint8_t* ) previewBuffer,
-            commonConfig.imageSizeX, commonConfig.imageSizeY,
-						commonConfig.imageSizeX * 3, QImage::Format_RGB888 );
-        if ( OA_PIX_FMT_BGR24 == previewPixelFormat ) {
-          swappedImage = new QImage ( newImage->rgbSwapped());
-        } else {
-          swappedImage = newImage;
-        }
-      }
-
-			// This call should be thread-safe
-      int zoomFactor = state->zoomWidget->getZoomFactor();
-      if ( zoomFactor && zoomFactor != self->currentZoom ) {
-        self->recalculateDimensions ( zoomFactor );
-      }
-
-      if ( self->currentZoom != 100 ) {
-        QImage scaledImage = swappedImage->scaled ( self->currentZoomX,
-          self->currentZoomY );
-
-        if ( config.showFocusAid ) {
-					// FIX ME -- eh?
-        }
-
-        pthread_mutex_lock ( &self->imageMutex );
-        self->image = scaledImage.copy();
-        pthread_mutex_unlock ( &self->imageMutex );
-      } else {
-        pthread_mutex_lock ( &self->imageMutex );
-        self->image = swappedImage->copy();
-        pthread_mutex_unlock ( &self->imageMutex );
-      }
-      if ( swappedImage != newImage ) {
-        delete swappedImage;
-      }
-      delete newImage;
-    }
-  }
-
-  OutputHandler* output = 0;
-	int actualX, actualY;
-	actualX = commonConfig.imageSizeX;
-	actualY = commonConfig.imageSizeY;
-  if ( !state->pauseEnabled ) {
-		// This should be thread-safe
-    output = state->captureWidget->getOutputHandler();
-    if ( output && self->recordingInProgress ) {
-      if ( self->setNewFirstFrameTime ) {
-        state->firstFrameTime = now;
-        self->setNewFirstFrameTime = 0;
-      }
-      state->lastFrameTime = now;
-			if ( commonState->cropMode ) {
-				if ( demosaicConf.demosaicOutput && writeDemosaicPreviewBuffer &&
-						oaFrameFormats[ writePixelFormat ].rawColour ) {
-					// This is a special case because as the preview buffer is no
-					// longer required for previewing we can use it directly
-					writeBuffer = previewBuffer;
-					pixelFormat = OA_DEMOSAIC_FMT ( writePixelFormat );
-				} else {
-					pixelFormat = writePixelFormat;
-				}
-				oaInplaceCrop ( writeBuffer, commonConfig.imageSizeX,
-					commonConfig.imageSizeY, commonState->cropSizeX,
-					commonState->cropSizeY,
-					oaFrameFormats[ pixelFormat ].bytesPerPixel );
-				actualX = commonState->cropSizeX;
-				actualY = commonState->cropSizeY;
-				length = actualX * actualY *
-						oaFrameFormats[ pixelFormat ].bytesPerPixel;
-			}
-      if ( demosaicConf.demosaicOutput &&
-          oaFrameFormats[ writePixelFormat ].rawColour ) {
-        if ( writeDemosaicPreviewBuffer ) {
-					// could be redundant if we're also cropping, but it shouldn't
-					// cause harm
-          writeBuffer = previewBuffer;
-        } else {
-          // we can use the preview buffer here for the output image because
-          // we're done with it for actual preview purposes
-          // If it's possible that the write CFA pattern is not the same
-          // as the preview one, this code will need fixing to reset
-          // cfaPattern, but I can't see that such a thing is possible
-          // at the moment
-          ( void ) oademosaic ( writeBuffer,
-              self->previewImageBuffer[0], actualX, actualY,
-							oaFrameFormats[ self->videoFramePixelFormat ].bitsPerPixel,
-              cfaPattern, demosaicConf.demosaicMethod );
-          writeBuffer = self->previewImageBuffer[0];
-        }
-        writePixelFormat = OA_DEMOSAIC_FMT ( writePixelFormat );
-      }
-			// These calls should be thread-safe
-      if ( commonState->timer->isInitialised() &&
-					commonState->timer->isRunning()) {
-        oaTimerStamp* ts = commonState->timer->readTimestamp();
-				timestamp = ts->timestamp;
-				comment = commentStr;
-				( void ) snprintf ( comment, 64, "Timer frame index: %d\n", ts->index );
-      } else {
-        timestamp = 0;
-        comment = 0;
-      }
-      if ( output->addFrame ( writeBuffer, timestamp,
-          // This call should be thread-safe
-          state->controlWidget->getCurrentExposure(), comment,
-					( FRAME_METADATA* ) metadata ) < 0 ) {
-        self->recordingInProgress = 0;
-        self->manualStop = 0;
-        state->autorunEnabled = 0;
-        emit self->stopRecording();
-        emit self->frameWriteFailed();
-      } else {
-        if (( self->lastCapturedFramesUpdateTime +
-            self->capturedFramesDisplayInterval ) < now ) {
-          emit self->updateFrameCount ( output->getFrameCount());
-          self->lastCapturedFramesUpdateTime = now;
-        }
-      }
-    }
-  }
-
-	self->framesInFpsCalcPeriod++;
-	if ( self->framesInFpsCalcPeriod &&
-			now - self->fpsCalcPeriodStartTime > 1000 ) {
-		double fpsCalcPeriodDuration_s = (now - self->fpsCalcPeriodStartTime)/1000.0;
-		emit self->updateActualFrameRate (self->framesInFpsCalcPeriod / fpsCalcPeriodDuration_s);
-
-		self->fpsCalcPeriodStartTime = now;
-		self->framesInFpsCalcPeriod = 0;
-
-    if ( state->histogramOn ) {
-			// This call should be thread-safe
-			state->histogramWidget->process ( writeBuffer, actualX, actualY,
-					length, writePixelFormat );
-			doHistogram = 1;
-		}
-	}
-
-  if ( self->hasTemp && t.tv_sec != self->secondForTemperature &&
-      t.tv_sec % 5 == 0 ) {
-    emit self->updateTemperature();
-    self->secondForTemperature = t.tv_sec;
-  }
-  if ( self->hasDroppedFrames && t.tv_sec != self->secondForDropped &&
-      t.tv_sec % 2 == 0 ) {
-    emit self->updateDroppedFrames();
-    self->secondForTemperature = t.tv_sec;
-  }
-	if ( t.tv_sec != self->secondForAutoControls ) {
-		emit self->updateAutoControls();
-		self->secondForAutoControls = t.tv_sec;
-	}
-
-  if ( doDisplay ) {
-    emit self->updateDisplay();
-  }
-
-  // check histogram control here just in case it got changed
-  // this ought to be done rather more safely
-  if ( state->histogramOn && state->histogramWidget && doHistogram ) {
-    emit self->updateHistogram();
-  }
-
-  if ( self->manualStop ) {
-    self->recordingInProgress = 0;
-    emit self->stopRecording();
-    self->manualStop = 0;
-  }
-
-	if ( output && self->recordingInProgress ) {
-    if ( commonConfig.limitEnabled ) {
-      int finished = 0;
-      float percentage = 0;
-      int frames = output->getFrameCount();
-      switch ( commonConfig.limitType ) {
-        case 0: // FIX ME -- nasty magic number
-          // start and current times here are in ms, but the limit value is in
-          // secs, so rather than ( current - start ) / time * 100 to get the
-          // %age, we do ( current - start ) / time / 10
-          percentage = ( now - state->captureWidget->recordingStartTime ) /
-              ( commonConfig.secondsLimitValue * 1000.0 +
-              state->captureWidget->totalTimePaused ) * 100.0;
-          if ( now > state->captureWidget->recordingEndTime ) {
-            finished = 1;
-          }
-          break;
-        case 1:
-          percentage = ( 100.0 * frames ) / commonConfig.framesLimitValue;
-          if ( frames >= commonConfig.framesLimitValue ) {
-            finished = 1;
-          }
-          break;
-      }
-      if ( finished ) {
-        // need to stop now, even if we don't know what's happening
-        // with the UI
-        self->recordingInProgress = 0;
-        self->manualStop = 0;
-        emit self->stopRecording();
-        // these two are really just tidying up the display
-        emit self->updateProgress ( 100 );
-        emit self->updateFrameCount ( frames );
-        if ( state->autorunEnabled ) {
-          // returns non-zero if more runs are left
-					// This call is thread-safe because the called function is aware
-					// that the GUI changes it makes must be done indirectly
-					// FIX ME -- doing it with invokeMethod would be nicer though
-          if ( state->captureWidget->singleAutorunFinished()) {
-            state->autorunStartNext = now + 1000 * autorunConf.autorunDelay;
-          }
-        }
-      } else {
-        emit self->updateProgress (( unsigned int ) percentage );
-      }
-    }
-  }
-
-  if ( state->autorunEnabled && state->autorunStartNext &&
-      now > state->autorunStartNext ) {
-    state->autorunStartNext = 0;
-    // Have to do it this way rather than calling direct to ensure
-		// thread-safety
-		QMetaObject::invokeMethod ( state->captureWidget, "startNewAutorun",
-				Qt::BlockingQueuedConnection );
-  }
-#endif /* OACAPTURE */
-#ifdef OALIVE
 
   ( void ) gettimeofday ( &t, 0 );
   unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
@@ -1445,7 +891,6 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     emit self->stopRecording();
     self->manualStop = 0;
   }
-#endif /* OALIVE */
 
   return 0;
 }
