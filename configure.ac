@@ -182,7 +182,6 @@ if `$PKG_CONFIG --exists libtiff-4`; then
   CPPFLAGS="$flags $CPPFLAGS"
   LDFLAGS="`$PKG_CONFIG --libs-only-L libtiff-4` $LDFLAGS"
   LIBS="`$PKG_CONFIG --libs-only-l libtiff-4` $LIBS"
-  have_tiff=yes
   AC_DEFINE([HAVE_LIBTIFF],[1],[Have libtiff])
   AC_MSG_NOTICE([Using system libtiff library])
 else
@@ -199,12 +198,27 @@ if `$PKG_CONFIG --exists libpng`; then
   CPPFLAGS="$flags $CPPFLAGS"
   LDFLAGS="`$PKG_CONFIG --libs-only-L libpng` $LDFLAGS"
   LIBS="`$PKG_CONFIG --libs-only-l libpng` $LIBS"
-  have_png=yes
   AC_DEFINE([HAVE_LIBPNG],[1],[Have libpng])
   AC_MSG_NOTICE([Using system libpng library])
 else
   AC_CHECK_LIB([png],[png_sig_cmp],[],[
     AC_MSG_ERROR([libpng is required])])
+fi
+
+if `$PKG_CONFIG --exists libjpeg`; then
+  flags=`$PKG_CONFIG --cflags-only-I libjpeg`
+  MOC_CFLAGS="$flags $MOC_CFLAGS"
+  if test $useisystemInclude -eq 1; then
+    flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+  fi
+  CPPFLAGS="$flags $CPPFLAGS"
+  LDFLAGS="`$PKG_CONFIG --libs-only-L libjpeg` $LDFLAGS"
+  LIBS="`$PKG_CONFIG --libs-only-l libjpeg` $LIBS"
+  AC_DEFINE([HAVE_LIBJPG],[1],[Have libjpeg])
+  AC_MSG_NOTICE([Using system libjpeg library])
+else
+  AC_CHECK_LIB([jpeg],[jpeg_create_decompress],[],[
+    AC_MSG_ERROR([libjpeg is required])])
 fi
 
 if `$PKG_CONFIG --exists cfitsio`; then
