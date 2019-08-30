@@ -221,6 +221,22 @@ else
     AC_MSG_ERROR([libjpeg is required])])
 fi
 
+if `$PKG_CONFIG --exists libraw`; then
+  flags=`$PKG_CONFIG --cflags-only-I libraw`
+  MOC_CFLAGS="$flags $MOC_CFLAGS"
+  if test $useisystemInclude -eq 1; then
+    flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+  fi
+  CPPFLAGS="$flags $CPPFLAGS"
+  LDFLAGS="`$PKG_CONFIG --libs-only-L libraw` $LDFLAGS"
+  LIBS="`$PKG_CONFIG --libs-only-l libraw` $LIBS"
+  AC_DEFINE([HAVE_LIBRAW],[1],[Have libraw])
+  AC_MSG_NOTICE([Using system libraw library])
+else
+  AC_CHECK_LIB([raw],[libraw_open_buffer],[],[
+    AC_MSG_ERROR([libraw is required])])
+fi
+
 if `$PKG_CONFIG --exists cfitsio`; then
   flags=`$PKG_CONFIG --cflags-only-I cfitsio`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
