@@ -120,9 +120,10 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, int flags )
       return -OA_ERR_MEM_ALLOC;
     }
 
-		if ( _gp2GetConfig ( camera, &rootWidget, ctx ) != OA_ERR_NONE ) {
+		if (( ret = _gp2GetConfig ( camera, &rootWidget, ctx )) != OA_ERR_NONE ) {
 			fprintf ( stderr, "Can't get config for camera '%s' at port '%s'\n",
 					camName, camPort );
+		fprintf ( stderr, "  error code %d\n", ret );
 			_gp2CloseCamera ( camera, ctx );
 			// FIX ME -- free rootWidget?
 			p_gp_list_unref ( cameraList );

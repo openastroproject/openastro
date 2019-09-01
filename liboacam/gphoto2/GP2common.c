@@ -150,8 +150,12 @@ _gp2CloseCamera ( Camera* camera, GPContext* ctx )
 int
 _gp2GetConfig ( Camera* camera, CameraWidget** widget, GPContext* ctx )
 {
-	return ( p_gp_camera_get_config ( camera, widget, ctx ) == GP_OK ) ?
-		OA_ERR_NONE : -OA_ERR_CAMERA_IO;
+	int ret;
+
+	if (( ret = p_gp_camera_get_config ( camera, widget, ctx )) != GP_OK ) {
+		fprintf ( stderr, "_gp2GetConfig caught error %d\n", ret );
+	}
+	return ( ret == GP_OK ) ? OA_ERR_NONE : -OA_ERR_CAMERA_IO;
 }
 
 

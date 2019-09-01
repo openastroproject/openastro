@@ -37,6 +37,7 @@
 
 extern "C" {
 #include <pthread.h>
+#include <jpeglib.h>
 
 #include <openastro/camera.h>
 #include <openastro/demosaic.h>
@@ -49,6 +50,7 @@ extern "C" {
 #include "commonConfig.h"
 #include "outputHandler.h"
 #include "focusOverlay.h"
+#include "controlsWidget.h"
 
 #include "configuration.h"
 #include "viewWidget.h"
@@ -83,6 +85,8 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
   stackBufferInUse = 0;
   averageBuffer = 0;
 	totalFrames = previousFrameArraySize = 0;
+	rgbBuffer = 0;
+	rgbBufferSize = 0;
 
   int r = config.currentColouriseColour.red();
   int g = config.currentColouriseColour.green();
@@ -169,6 +173,10 @@ ViewWidget::~ViewWidget()
 			}
 		}
 		free (( void* ) previousFrames );
+	}
+
+	if ( rgbBuffer ) {
+		free (( void* ) rgbBuffer );
 	}
 }
 
@@ -486,7 +494,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
   struct timeval	t;
   int			doDisplay = 0;
   int			doHistogram = 0;
-  int			viewPixelFormat, writePixelFormat;
+  int			viewPixelFormat, writePixelFormat, originalPixelFormat;
   // write straight from the data if possible
   void*			viewBuffer = imageData;
   int			currentViewBuffer = -1;
@@ -495,24 +503,45 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
   void*			writeBuffer = imageData;
   const char*		timestamp;
   char*			comment;
+	unsigned int	width, height;
 
-  // don't do anything if the length is not as expected
-  if ( length != self->expectedSize ) {
-    // qWarning() << "size mismatch.  have:" << length << " expected: "
-    //    << self->expectedSize;
-    return 0;
-  }
+	viewPixelFormat = writePixelFormat = originalPixelFormat =
+			self->videoFramePixelFormat;
 
-   if (( ret = self->checkBuffers ( self ))) {
-     return 0;
-   }
-   viewPixelFormat = writePixelFormat = self->videoFramePixelFormat;
+  if ( self->videoFramePixelFormat == OA_PIX_FMT_JPEG8 || 
+			oaFrameFormats[ self->videoFramePixelFormat ].useLibraw ) {
+		if ( self->_unpackImageFrame ( self, imageData, length, &viewPixelFormat,
+				&width, &height ) != OA_ERR_NONE ) {
+			qWarning() << "unpackImageFrame failed";
+			return 0;
+		}
+		if ( width != commonConfig.imageSizeX ||
+				height != commonConfig.imageSizeY ) {
+			commonConfig.imageSizeX = width;
+			commonConfig.imageSizeY = height;
+      QMetaObject::invokeMethod ( state->controlsWidget, "doResolutionChange",
+					Qt::DirectConnection, Q_ARG( int, 0 ));
+		}
+		viewBuffer = self->rgbBuffer;
+		writePixelFormat = originalPixelFormat = viewPixelFormat;
+	} else {
+		// don't do anything if the length is not as expected
+		if ( length != self->expectedSize ) {
+			// qWarning() << "size mismatch.  have:" << length << " expected: "
+			//    << self->expectedSize;
+			return 0;
+		}
+	}
+
+	if (( ret = self->checkBuffers ( self ))) {
+		return 0;
+	}
 
   // if we have a luminance/chrominance or packed mono/raw colour frame
   // format then we need to unpack that first
 
-  if ( oaFrameFormats[ self->videoFramePixelFormat ].lumChrom ||
-      oaFrameFormats[ self->videoFramePixelFormat ].packed ) {
+  if ( oaFrameFormats[ viewPixelFormat ].lumChrom ||
+      oaFrameFormats[ viewPixelFormat ].packed ) {
     // this is going to make the flip quite ugly and means we need to
     // start using currentPreviewBuffer too
     currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
@@ -520,20 +549,20 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     // Convert luminance/chrominance and packed raw colour to RGB.
     // Packed mono should become GREY8.  We're only converting for
     // preview here, so nothing needs to be more than 8 bits wide
-    if ( oaFrameFormats[ self->videoFramePixelFormat ].lumChrom ||
-        oaFrameFormats[ self->videoFramePixelFormat ].rawColour ) {
+    if ( oaFrameFormats[ viewPixelFormat ].lumChrom ||
+        oaFrameFormats[ viewPixelFormat ].rawColour ) {
       viewPixelFormat = OA_PIX_FMT_RGB24;
     } else {
-      if ( oaFrameFormats[ self->videoFramePixelFormat ].monochrome ) {
+      if ( oaFrameFormats[ viewPixelFormat ].monochrome ) {
         viewPixelFormat = OA_PIX_FMT_GREY8;
       } else {
         qWarning() << "Don't know how to unpack frame format" <<
-            self->videoFramePixelFormat;
+            viewPixelFormat;
       }
     }
     ( void ) oaconvert ( viewBuffer,
         self->viewImageBuffer[ currentViewBuffer ], commonConfig.imageSizeX,
-        commonConfig.imageSizeY, self->videoFramePixelFormat, viewPixelFormat );
+        commonConfig.imageSizeY, originalPixelFormat, viewPixelFormat );
     viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
 
     // we can flip the preview image here if required, but not the
@@ -1152,4 +1181,84 @@ ViewWidget::_displayCoeffs ( void )
 	qDebug() << "r1" << coeff_r1 << "r2" << coeff_r2 << "r3" << coeff_r3;
 	qDebug() << "g1" << coeff_g1 << "g2" << coeff_g2 << "g3" << coeff_g3;
 	qDebug() << "b1" << coeff_b1 << "b2" << coeff_b2 << "b3" << coeff_b3;
+}
+
+
+int
+ViewWidget::_unpackImageFrame ( ViewWidget* self, void* frame, int size,
+		int* format, unsigned int *imageWidth, unsigned int *imageHeight )
+{
+	if ( self->videoFramePixelFormat != OA_PIX_FMT_JPEG8 ) {
+		return -OA_ERR_UNIMPLEMENTED;
+	}
+	return self->_unpackJPEG8 ( self, frame, size, format, imageWidth,
+			imageHeight);
+}
+
+
+int
+ViewWidget::_unpackJPEG8 ( ViewWidget* self, void* frame, int size,
+		int* format, unsigned int *imageWidth, unsigned int *imageHeight )
+{
+	struct jpeg_decompress_struct	cinfo;
+	struct jpeg_error_mgr					jerr;
+	int							stride, width, height, pixelSize;
+	int							requiredSize;
+	void*						ptr;
+	unsigned char*	bufferPtr;
+
+	cinfo.err = jpeg_std_error ( &jerr );
+	jpeg_create_decompress ( &cinfo );
+	jpeg_mem_src ( &cinfo, ( const unsigned char* ) frame, size );
+	if ( jpeg_read_header ( &cinfo, TRUE ) != 1 ) {
+		qWarning() << "jpeg_read_header failed";
+		jpeg_destroy_decompress ( &cinfo );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	jpeg_start_decompress ( &cinfo );
+	width = cinfo.output_width;
+	height = cinfo.output_height;
+	*imageWidth = width;
+	*imageHeight = height;
+	pixelSize = cinfo.output_components;
+	stride = width * pixelSize;
+	requiredSize = stride * height;
+	if ( cinfo.jpeg_color_space == JCS_GRAYSCALE ) {
+		*format = OA_PIX_FMT_GREY8;
+	} else {
+		*format = OA_PIX_FMT_RGB24;
+	}
+
+	if ( self->rgbBufferSize < requiredSize ) {
+		if ( self->rgbBuffer ) {
+			if (!( ptr = realloc ( self->rgbBuffer, requiredSize ))) {
+				qWarning() << "failed to realloc memory to decode jpeg";
+				jpeg_abort_decompress ( &cinfo );
+				jpeg_destroy_decompress ( &cinfo );
+				return -OA_ERR_MEM_ALLOC;
+			}
+			self->rgbBuffer = ptr;
+			self->rgbBufferSize = requiredSize;
+		} else {
+			if (!( self->rgbBuffer = malloc ( requiredSize ))) {
+				qWarning() << "failed to malloc memory to decode jpeg";
+				jpeg_abort_decompress ( &cinfo );
+				jpeg_destroy_decompress ( &cinfo );
+				return -OA_ERR_MEM_ALLOC;
+			}
+			self->rgbBufferSize = requiredSize;
+		}
+	}
+
+	bufferPtr = ( unsigned char* ) self->rgbBuffer;
+	while ( cinfo.output_scanline < cinfo.output_height ) {
+		jpeg_read_scanlines ( &cinfo, &bufferPtr, 1 );
+		bufferPtr += stride;
+	}
+
+	jpeg_finish_decompress ( &cinfo );
+	jpeg_destroy_decompress ( &cinfo );
+
+	return -OA_ERR_NONE;
 }

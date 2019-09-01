@@ -32,7 +32,6 @@
 #include <openastro/camera.h>
 #include <openastro/util.h>
 #include <sys/time.h>
-#include <fcntl.h>
 
 #include "oacamprivate.h"
 #include "unimplemented.h"

@@ -93,6 +93,10 @@ class ViewWidget : public QFrame
   private:
 		void			_recalcCoeffs ( void );
 		void			_displayCoeffs ( void );
+		int				_unpackImageFrame ( ViewWidget*, void*, int, int*, unsigned int*,
+									unsigned int* );
+		int				_unpackJPEG8 ( ViewWidget*, void*, int, int*, unsigned int*,
+									unsigned int* );
 
     QImage		image;
     int			currentZoom;
@@ -115,6 +119,8 @@ class ViewWidget : public QFrame
     int			flipX;
     int			flipY;
     int			demosaic;
+		void*		rgbBuffer;
+		int			rgbBufferSize;
     void*		viewImageBuffer[2];
     int			viewBufferLength;
     void*		writeImageBuffer[2];
