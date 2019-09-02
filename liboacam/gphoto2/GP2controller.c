@@ -112,12 +112,10 @@ oacamGP2controller ( void* param )
 
 		if ( exposurePending ) {
 			time_t now = time(0);
-fprintf ( stderr, "exposure pending, now: %ld, exposureStartTime: %ld\n", now, exposureStartTime );
 			if ( now > exposureStartTime ) {
 				( void ) _startExposure ( camera );
 			}
 		} else {
-fprintf ( stderr, "exposure in progress = %d\n", exposureInProgress );
 			if ( exposureInProgress ) {
 				_handleCompletedExposure ( cameraInfo );
 			}
@@ -373,7 +371,6 @@ static int
 _startExposure ( oaCamera* camera )
 {
   GP2_STATE*	cameraInfo = camera->_private;
-fprintf ( stderr, "starting exposure\n" );
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
   cameraInfo->exposurePending = 0;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
@@ -384,7 +381,6 @@ fprintf ( stderr, "starting exposure\n" );
   cameraInfo->exposureInProgress = 1;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
-fprintf ( stderr, "started exposure\n" );
 	return OA_ERR_NONE;
 }
 

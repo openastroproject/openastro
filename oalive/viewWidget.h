@@ -97,6 +97,8 @@ class ViewWidget : public QFrame
 									unsigned int* );
 		int				_unpackJPEG8 ( ViewWidget*, void*, int, int*, unsigned int*,
 									unsigned int* );
+		int				_unpackLibraw ( ViewWidget*, void*, int, int*, unsigned int*,
+									unsigned int* );
 
     QImage		image;
     int			currentZoom;
