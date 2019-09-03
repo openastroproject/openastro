@@ -79,7 +79,6 @@ class ControlsWidget : public QWidget
     int			ignoreResolutionChanges;
 
     void		configureResolution ( void );
-    void		doResolutionChange ( int );
     void		openOutputFiles ( void );
 
   public slots:
@@ -87,4 +86,5 @@ class ControlsWidget : public QWidget
     void		stopCapture ( void );
     void		restartCapture ( void );
     void		resolutionChanged ( int );
+    void		doResolutionChange ( int );	// for DSLR callbacks
 };

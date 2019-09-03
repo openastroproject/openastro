@@ -93,11 +93,11 @@ class ViewWidget : public QFrame
   private:
 		void			_recalcCoeffs ( void );
 		void			_displayCoeffs ( void );
-		int				_unpackImageFrame ( ViewWidget*, void*, int, int*, unsigned int*,
+		int				_unpackImageFrame ( ViewWidget*, void*, int*, int*, unsigned int*,
 									unsigned int* );
-		int				_unpackJPEG8 ( ViewWidget*, void*, int, int*, unsigned int*,
+		int				_unpackJPEG8 ( ViewWidget*, void*, int*, int*, unsigned int*,
 									unsigned int* );
-		int				_unpackLibraw ( ViewWidget*, void*, int, int*, unsigned int*,
+		int				_unpackLibraw ( ViewWidget*, void*, int*, int*, unsigned int*,
 									unsigned int* );
 
     QImage		image;

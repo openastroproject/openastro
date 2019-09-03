@@ -511,7 +511,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 
   if ( self->videoFramePixelFormat == OA_PIX_FMT_JPEG8 || 
 			oaFrameFormats[ self->videoFramePixelFormat ].useLibraw ) {
-		if ( self->_unpackImageFrame ( self, imageData, length, &viewPixelFormat,
+		if ( self->_unpackImageFrame ( self, imageData, &length, &viewPixelFormat,
 				&width, &height ) != OA_ERR_NONE ) {
 			qWarning() << "unpackImageFrame failed";
 			return 0;
@@ -1186,7 +1186,7 @@ ViewWidget::_displayCoeffs ( void )
 
 
 int
-ViewWidget::_unpackImageFrame ( ViewWidget* self, void* frame, int size,
+ViewWidget::_unpackImageFrame ( ViewWidget* self, void* frame, int* size,
 		int* format, unsigned int *imageWidth, unsigned int *imageHeight )
 {
 	if ( self->videoFramePixelFormat != OA_PIX_FMT_JPEG8 ) {
@@ -1199,7 +1199,7 @@ ViewWidget::_unpackImageFrame ( ViewWidget* self, void* frame, int size,
 
 
 int
-ViewWidget::_unpackJPEG8 ( ViewWidget* self, void* frame, int size,
+ViewWidget::_unpackJPEG8 ( ViewWidget* self, void* frame, int* size,
 		int* format, unsigned int *imageWidth, unsigned int *imageHeight )
 {
 	struct jpeg_decompress_struct	cinfo;
@@ -1211,7 +1211,7 @@ ViewWidget::_unpackJPEG8 ( ViewWidget* self, void* frame, int size,
 
 	cinfo.err = jpeg_std_error ( &jerr );
 	jpeg_create_decompress ( &cinfo );
-	jpeg_mem_src ( &cinfo, ( const unsigned char* ) frame, size );
+	jpeg_mem_src ( &cinfo, ( const unsigned char* ) frame, *size );
 	if ( jpeg_read_header ( &cinfo, TRUE ) != 1 ) {
 		qWarning() << "jpeg_read_header failed";
 		jpeg_destroy_decompress ( &cinfo );
@@ -1226,6 +1226,7 @@ ViewWidget::_unpackJPEG8 ( ViewWidget* self, void* frame, int size,
 	pixelSize = cinfo.output_components;
 	stride = width * pixelSize;
 	requiredSize = stride * height;
+	*size = requiredSize;
 	if ( cinfo.jpeg_color_space == JCS_GRAYSCALE ) {
 		*format = OA_PIX_FMT_GREY8;
 	} else {
@@ -1267,85 +1268,97 @@ ViewWidget::_unpackJPEG8 ( ViewWidget* self, void* frame, int size,
 
 
 int
-ViewWidget::_unpackLibraw ( ViewWidget* self, void* frame, int size,
+ViewWidget::_unpackLibraw ( ViewWidget* self, void* frame, int* size,
 		int* format, unsigned int *imageWidth, unsigned int *imageHeight )
 {
-	libraw_data_t		*handle;
+	LibRaw					handler;
 	int							ret;
-	int							width, height;
+	int							width, height, colours, bpp, stride;
 	int							requiredSize;
 	void*						ptr;
 
-	if (!( handle = libraw_init ( 0 ))) {
-		qWarning() << "failed to open libraw";
+	if (( ret = handler.open_buffer ( frame, *size ))) {
+		qWarning() << "failed to open libraaw buffer, error" << ret;
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
-	if (( ret = libraw_open_buffer ( handle, frame, size ))) {
-		qWarning() << "failed to open libraw_buffer, error" << ret;
+	handler.imgdata.params.half_size = 0;
+	handler.imgdata.params.use_auto_wb = 0;
+	handler.imgdata.params.use_camera_wb = 0;
+	handler.imgdata.params.output_bps = 16;
+
+	/*
+	other possible options:
+
+	handler.imgdata.params.greybox
+	handler.imgdata.params.cropbox
+	handler.imgdata.params.aber
+	handler.imgdata.params.gamm[0]
+	handler.imgdata.params.gamm[1]
+	handler.imgdata.params.user_mul
+	handler.imgdata.params.shot_select
+	handler.imgdata.params.bright
+	handler.imgdata.params.threshold
+	handler.imgdata.params.four_color_rgb
+	handler.imgdata.params.highlight
+	handler.imgdata.params.use_camera_matrix
+	handler.imgdata.params.output_color
+	handler.imgdata.params.output_profile
+	handler.imgdata.params.camera_profile
+	handler.imgdata.params.bad_pixels
+	handler.imgdata.params.dark_frame
+	handler.imgdata.params.output_tiff
+	handler.imgdata.params.user_flip
+	handler.imgdata.params.user_qual
+	handler.imgdata.params.user_black
+	handler.imgdata.params.user_sat
+	handler.imgdata.params.med_passes
+	handler.imgdata.params.no_auto_bright
+	handler.imgdata.params.adjust_maximum_thr
+	handler.imgdata.params.use_fuji_rotate
+	handler.imgdata.params.green_matching
+	handler.imgdata.params.dcb_iterations
+	handler.imgdata.params.dcb_enhance_fl
+	handler.imgdata.params.exp_correc
+	handler.imgdata.params.use_rawspeed
+	handler.imgdata.params.use_dngsdk
+	handler.imgdata.params.no_auto_scale
+	handler.imgdata.params.no_interpolation
+	handler.imgdata.params.raw_processing_options
+	*/
+
+	if (( ret = handler.unpack())) {
+		qWarning() << "libraw unpack failed, error" << ret;
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
-	// handle->params.greybox = ?
-	// handle->params.cropbox = ?
-	// handle->params.aber = ?
-	handle->params.gamm[0] = 1.0;
-	handle->params.gamm[1] = 1.0;
-	// handle->params.user_mul = ?
-	handle->params.shot_select = 0;
-	handle->params.bright = 1.0;
-	// handle->params.threshold = ?
-	handle->params.half_size = 0;
-	// handle->params.four_color_rgb = ?
-	handle->params.highlight = 0;
-	handle->params.use_auto_wb = 0;
-	handle->params.use_camera_wb = 0;
-	handle->params.use_camera_matrix = 0;
-	handle->params.output_color = 0;
-	handle->params.output_profile = 0;
-	handle->params.camera_profile = 0;
-	handle->params.bad_pixels = 0;
-	handle->params.dark_frame = 0;
-	handle->params.output_bps = 16;
-	handle->params.output_tiff = 0;
-	handle->params.user_flip = 0;
-	handle->params.user_qual = 0;
-	handle->params.user_black = 0;
-	handle->params.user_sat = 0;
-	handle->params.med_passes = 0;
-	handle->params.no_auto_bright = 1;
-	handle->params.adjust_maximum_thr = 0;
-	handle->params.use_fuji_rotate = 0;
-	handle->params.green_matching = 0;
-	handle->params.dcb_iterations = -1;
-	handle->params.dcb_enhance_fl = 0;
-	handle->params.exp_correc = 0;
-	handle->params.use_rawspeed = 0;
-	handle->params.use_dngsdk = 0;
-	handle->params.no_auto_scale = 1;
-	handle->params.no_interpolation = 1;
-	handle->params.raw_processing_options = 0;
-
-	if (( ret = libraw_unpack ( handle ))) {
-		qWarning() << "libraw_unpack failed, error" << ret;
-		libraw_close ( handle );
+	if (( ret = handler.dcraw_process())) {
+		qWarning() << "libraw process failed, error" << ret;
+		handler.recycle();
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
-	height = handle->sizes.raw_height;
-	width = handle->sizes.raw_width;
+	handler.get_mem_image_format ( &width, &height, &colours, &bpp );
+	stride = width * colours * bpp / 8;
+	requiredSize = stride * height;
+	*format = OA_PIX_FMT_RGB48LE;
+
+#if 0
+	height = handler.sizes.raw_height;
+	width = handler.sizes.raw_width;
+	*format = OA_PIX_FMT_RGGB16LE;
+	requiredSize = width * height * 2;
+#endif
 
 	*imageWidth = width;
 	*imageHeight = height;
-	*format = OA_PIX_FMT_RGGB16LE;
+	*size = requiredSize;
 
-	requiredSize = width * height * 2;
 	if ( self->rgbBufferSize < requiredSize ) {
 		if ( self->rgbBuffer ) {
 			if (!( ptr = realloc ( self->rgbBuffer, requiredSize ))) {
 				qWarning() << "failed to realloc memory to decode raw image";
-				libraw_recycle ( handle );
-				libraw_close ( handle );
+				handler.recycle();
 				return -OA_ERR_MEM_ALLOC;
 			}
 			self->rgbBuffer = ptr;
@@ -1353,17 +1366,23 @@ ViewWidget::_unpackLibraw ( ViewWidget* self, void* frame, int size,
 		} else {
 			if (!( self->rgbBuffer = malloc ( requiredSize ))) {
 				qWarning() << "failed to malloc memory to decode raw image";
-				libraw_recycle ( handle );
-				libraw_close ( handle );
+				handler.recycle();
 				return -OA_ERR_MEM_ALLOC;
 			}
 			self->rgbBufferSize = requiredSize;
 		}
 	}
 
-	memcpy ( self->rgbBuffer, handle->rawdata.raw_image, requiredSize );
-	libraw_recycle ( handle );
-	libraw_close ( handle );
+	if (( ret = handler.copy_mem_image ( self->rgbBuffer, stride, 0 ))) {
+		qWarning() << "libraw copy_mem_image failed, error" << ret;
+		handler.recycle();
+		return -OA_ERR_SYSTEM_ERROR;
+	}
 
+#if 0
+	memcpy ( self->rgbBuffer, handler.rawdata.raw_image, requiredSize );
+#endif
+
+	handler.recycle();
 	return -OA_ERR_NONE;
 }
