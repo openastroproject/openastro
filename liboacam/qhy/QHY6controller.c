@@ -2,7 +2,7 @@
  *
  * QHY6controller.c -- Main camera controller thread
  *
- * Copyright 2015,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -98,7 +98,7 @@ oacamQHY6controller ( void* param )
           case OA_CMD_RESOLUTION_SET:
             resultCode = _processSetResolution ( camera, command );
             break;
-          case OA_CMD_START:
+          case OA_CMD_START_STREAMING:
             resultCode = _processStreamingStart ( camera, command );
             break;
           case OA_CMD_STOP:

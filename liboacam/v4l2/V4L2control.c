@@ -272,7 +272,7 @@ oaV4L2CameraStartStreaming ( oaCamera* camera,
   OA_CLEAR ( command );
   callbackData.callback = callback;
   callbackData.callbackArg = callbackArg;
-  command.commandType = OA_CMD_START;
+  command.commandType = OA_CMD_START_STREAMING;
   command.commandData = ( void* ) &callbackData;
 
   oaDLListAddToTail ( cameraInfo->commandQueue, &command );

@@ -93,7 +93,7 @@ oacamUVCcontroller ( void* param )
           case OA_CMD_RESOLUTION_SET:
             resultCode = _processSetResolution ( camera, command );
             break;
-          case OA_CMD_START:
+          case OA_CMD_START_STREAMING:
             resultCode = _processStreamingStart ( camera, command );
             break;
           case OA_CMD_STOP:

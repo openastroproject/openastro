@@ -102,7 +102,7 @@ oacamFC2controller ( void* param )
           case OA_CMD_ROI_SET:
             resultCode = _processSetROI ( camera, command );
             break;
-          case OA_CMD_START:
+          case OA_CMD_START_STREAMING:
             resultCode = _processStreamingStart ( cameraInfo, command );
             break;
           case OA_CMD_STOP:

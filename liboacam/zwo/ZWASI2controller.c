@@ -91,7 +91,7 @@ oacamZWASI2controller ( void* param )
           case OA_CMD_RESOLUTION_SET:
             resultCode = _processSetResolution ( cameraInfo, command );
             break;
-          case OA_CMD_START:
+          case OA_CMD_START_STREAMING:
             resultCode = _processStreamingStart ( cameraInfo, command );
             break;
           case OA_CMD_STOP:

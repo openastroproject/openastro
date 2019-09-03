@@ -119,7 +119,7 @@ oacamV4L2controller ( void* param )
         // This is a bit cack.  Need a neater way to handle this
         if ( streaming || ( OA_CMD_RESOLUTION_SET == command->commandType ||
             OA_CMD_FRAME_INTERVAL_SET == command->commandType ||
-            OA_CMD_START == command->commandType ||
+            OA_CMD_START_STREAMING == command->commandType ||
             OA_CMD_MENU_ITEM_GET == command->commandType )) {
           switch ( command->commandType ) {
             case OA_CMD_CONTROL_SET:
@@ -131,7 +131,7 @@ oacamV4L2controller ( void* param )
             case OA_CMD_RESOLUTION_SET:
               resultCode = _processSetResolution ( cameraInfo, command );
               break;
-            case OA_CMD_START:
+            case OA_CMD_START_STREAMING:
               resultCode = _processStreamingStart ( cameraInfo, command );
               break;
             case OA_CMD_STOP:

@@ -2,7 +2,7 @@
  *
  * IMG132Econtroller.c -- Main camera controller thread
  *
- * Copyright 2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -97,7 +97,7 @@ oacamIMG132Econtroller ( void* param )
           case OA_CMD_RESOLUTION_SET:
             resultCode = _processSetResolution ( camera, command );
             break;
-          case OA_CMD_START:
+          case OA_CMD_START_STREAMING:
             resultCode = _processStreamingStart ( camera, command );
             break;
           case OA_CMD_STOP:

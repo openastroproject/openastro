@@ -2,7 +2,7 @@
  *
  * ZWASIcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -87,7 +87,7 @@ oacamZWASIcontroller ( void* param )
           case OA_CMD_RESOLUTION_SET:
             resultCode = _processSetResolution ( cameraInfo, command );
             break;
-          case OA_CMD_START:
+          case OA_CMD_START_STREAMING:
             resultCode = _processStreamingStart ( cameraInfo, command );
             break;
           case OA_CMD_STOP:
