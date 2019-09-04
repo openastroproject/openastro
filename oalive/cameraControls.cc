@@ -84,7 +84,6 @@ CameraControls::CameraControls ( QWidget* parent ) : QWidget ( parent )
   ignoreFrameRateChanges = 0;
 	histogram = new HistogramWidget ( 0, this );
 	connectHistogramSignal();
-
 }
 
 
@@ -122,6 +121,10 @@ CameraControls::configure ( void )
     frameRateLabel = nullptr;
     frameRateSlider = nullptr;
     frameRateMenu = nullptr;
+		// destroyLayout will have killed this, so it must be recreated
+		state.histogramCCSignalConnected = 0;
+		histogram = new HistogramWidget ( 0, this );
+		connectHistogramSignal();
   }
 
   // Create all the controls to show
