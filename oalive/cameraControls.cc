@@ -878,6 +878,9 @@ CameraControls::menuChanged ( int control )
 		}
 	}
   commonState.camera->setControl ( control, value );
+	if ( control == OA_CAM_CTRL_FRAME_FORMAT && commonState.camera ) {
+		state.viewWidget->setVideoFramePixelFormat ( value );
+	}
 }
 
 
