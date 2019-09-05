@@ -215,13 +215,12 @@ CameraSettings::configure ( void )
               for ( int i = 0; i < count; i++ ) {
                 controlMenu[mod][baseVal]->addItem ( tr (
                     commonState.camera->getMenuString ( c, values[i] )));
-                controlMenu[mod][baseVal]->setCurrentIndex (
-                    cameraConf.CONTROL_VALUE(c));
-                menuSignalMapper->setMapping ( controlMenu[mod][baseVal], c );
-                connect ( controlMenu[mod][baseVal], SIGNAL(
-                    currentIndexChanged ( int )), menuSignalMapper,
-                    SLOT( map()));
               }
+              controlMenu[mod][baseVal]->setCurrentIndex (
+                  cameraConf.CONTROL_VALUE(c));
+              menuSignalMapper->setMapping ( controlMenu[mod][baseVal], c );
+              connect ( controlMenu[mod][baseVal], SIGNAL(
+                  currentIndexChanged ( int )), menuSignalMapper, SLOT( map()));
               break;
             }
 
