@@ -140,8 +140,6 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
 	gammaExponent = 1.0;
 
   pthread_mutex_init ( &imageMutex, 0 );
-  recordingInProgress = 0;
-  manualStop = 0;
 
   connect ( this, SIGNAL( updateDisplay ( void )),
       this, SLOT( update ( void )));
@@ -916,11 +914,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     emit self->updateHistogram();
   }
 
-  if ( self->manualStop ) {
-    self->recordingInProgress = 0;
-    emit self->stopRecording();
-    self->manualStop = 0;
-  }
+	emit self->startNextExposure();
 
   return 0;
 }
@@ -1341,6 +1335,7 @@ ViewWidget::_unpackLibraw ( ViewWidget* self, void* frame, int* size,
 	handler.get_mem_image_format ( &width, &height, &colours, &bpp );
 	stride = width * colours * bpp / 8;
 	requiredSize = stride * height;
+	// FIX ME -- on big endian machines this may well be big-endian
 	*format = OA_PIX_FMT_RGB48LE;
 
 #if 0

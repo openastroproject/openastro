@@ -168,6 +168,7 @@ MainWindow::MainWindow ( QString configFile )
   createViewWindow();
 	state.cameraControls->connectHistogramSignal();
 	state.processingControls->connectHistogramSignal();
+	state.controlsWidget->connectSignals();
 #endif
 
 #ifdef OACAPTURE

@@ -89,6 +89,7 @@ class ViewWidget : public QFrame
     void		updateHistogram ( void );
     void		updateDisplay ( void );
     void		stopRecording ( void );
+    void		startNextExposure ( void );
 
   private:
 		void			_recalcCoeffs ( void );
@@ -140,8 +141,6 @@ class ViewWidget : public QFrame
     QTransform		rotationTransform;
     int			setNewFirstFrameTime;
     pthread_mutex_t	imageMutex;
-    int			recordingInProgress;
-    int			manualStop;
     int			focusScore;
     void*		stackBuffer[2];
     int			stackBufferLength;

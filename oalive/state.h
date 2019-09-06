@@ -52,6 +52,7 @@ typedef struct
   int                   preferredExposureControl;
 	int			histogramCCSignalConnected;
 	int			histogramProcessingSignalConnected;
+	int			cameraRunning;
 
   QString               appPath;
 } STATE;

@@ -121,6 +121,7 @@ ControlsWidget::ControlsWidget ( QWidget* parent __attribute((unused)))
 
   state.cameraControls = camera;
   state.processingControls = processing;
+	state.cameraRunning = 0;
 }
 
 
@@ -129,6 +130,14 @@ ControlsWidget::~ControlsWidget()
   state.mainWindow->destroyLayout (( QLayout* ) mainBox );
   state.cameraControls = 0;
   state.processingControls = 0;
+}
+
+
+void
+ControlsWidget::connectSignals ( void )
+{
+  connect ( state.viewWidget, SIGNAL( startNextExposure ( void )),
+      this, SLOT ( startNextExposure ( void )));
 }
 
 
@@ -194,6 +203,7 @@ ControlsWidget::startCapture ( void )
 	}
   startButton->setEnabled ( 0 );
   stopButton->setEnabled ( 1 );
+	state.cameraRunning = 1;
 }
 
 
@@ -201,6 +211,7 @@ void
 ControlsWidget::stopCapture ( void )
 {
   commonState.camera->stop();
+	state.cameraRunning = 0;
   startButton->setEnabled ( 1 );
   stopButton->setEnabled ( 0 );
   if ( frameOutputHandler ) {
@@ -220,6 +231,7 @@ void
 ControlsWidget::restartCapture ( void )
 {
   commonState.camera->stop();
+	state.cameraRunning = 0;
   if ( frameOutputHandler ) {
     frameOutputHandler->closeOutput();
     delete frameOutputHandler;
@@ -238,8 +250,24 @@ ControlsWidget::restartCapture ( void )
 	} else {
 		commonState.camera->startStreaming ( &ViewWidget::addImage, &commonState );
 	}
+	state.cameraRunning = 1;
   startButton->setEnabled ( 0 );
   stopButton->setEnabled ( 1 );
+}
+
+
+void
+ControlsWidget::startNextExposure ( void )
+{
+qWarning() << "start next exposure signal received";
+	if ( state.cameraRunning ) {
+qWarning() << "  camera running";
+		if ( commonState.camera->isSingleShot()) {
+qWarning() << "  starting next exposure";
+			commonState.camera->startExposure ( 0, &ViewWidget::addImage,
+					&commonState );
+		}
+	}
 }
 
 

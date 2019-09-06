@@ -53,6 +53,7 @@ class ControlsWidget : public QWidget
     void		disableAllButtons ( void );
     OutputHandler*	getProcessedOutputHandler ( void );
     void		closeOutputHandlers ( void );
+    void		connectSignals ( void );
 
   private:
     QVBoxLayout*	mainBox;
@@ -85,6 +86,7 @@ class ControlsWidget : public QWidget
     void		startCapture ( void );
     void		stopCapture ( void );
     void		restartCapture ( void );
+    void		startNextExposure ( void );
     void		resolutionChanged ( int );
     void		doResolutionChange ( int );	// for DSLR callbacks
 };
