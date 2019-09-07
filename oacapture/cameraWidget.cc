@@ -313,6 +313,9 @@ CameraWidget::changeFrameFormat ( int menuOption )
   state.captureWidget->enableMOVCapture (( QUICKTIME_OK( newFormat ) ||
       ( oaFrameFormats[ newFormat ].rawColour && commonConfig.demosaic &&
       demosaicConf.demosaicOutput )) ? 1 : 0 );
+  state.captureWidget->enableNamedPipeCapture (
+      ( !oaFrameFormats[ newFormat ].rawColour ||
+      ( commonConfig.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
   return;
 }
 

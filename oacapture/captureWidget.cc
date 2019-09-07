@@ -51,17 +51,18 @@
 #endif
 #include "outputTIFF.h"
 #include "outputPNG.h"
+#include "outputNamedPipe.h"
 #include "targets.h"
 
 #ifdef HAVE_LIBCFITSIO
-#define	MAX_FILE_FORMATS	7
+#define	MAX_FILE_FORMATS	8
 static QString	fileFormats[MAX_FILE_FORMATS] = {
-    "", "AVI", "SER", "TIFF", "PNG", "FITS", "MOV"
+    "", "AVI", "SER", "TIFF", "PNG", "FITS", "MOV", "Named Pipe"
 };
 #else
-#define	MAX_FILE_FORMATS	6
+#define	MAX_FILE_FORMATS	7
 static QString	fileFormats[MAX_FILE_FORMATS] = {
-    "", "AVI", "SER", "TIFF", "PNG", "MOV"
+    "", "AVI", "SER", "TIFF", "PNG", "MOV", "Named Pipe"
 };
 #endif
 
@@ -165,7 +166,7 @@ CaptureWidget::CaptureWidget ( QWidget* parent ) : QGroupBox ( parent )
     typeMenu->addItem ( fileFormats[i], v );
   }
   typeMenu->setCurrentIndex ( commonConfig.fileTypeOption - 1 );
-  haveFITS = haveTIFF = havePNG = haveSER = haveMOV = 1;
+  haveFITS = haveTIFF = havePNG = haveSER = haveMOV = haveNamedPipe = 1;
   connect ( typeMenu, SIGNAL( currentIndexChanged ( int )), this,
       SLOT( fileTypeChanged ( int )));
 
@@ -615,6 +616,15 @@ CaptureWidget::doStartRecording ( int autorunFlag )
 					&trampolines );
       break;
 #endif
+
+    case CAPTURE_NAMED_PIPE:
+      out = new OutputNamedPipe ( actualX, actualY,
+          state.controlWidget->getFPSNumerator(),
+          state.controlWidget->getFPSDenominator(), format,
+					APPLICATION_NAME, VERSION_STR, emptyStr,
+					&trampolines );
+      break;
+
   }
 
   if ( out && ( CAPTURE_TIFF == commonConfig.fileTypeOption ||
@@ -632,16 +642,18 @@ CaptureWidget::doStartRecording ( int autorunFlag )
   } else {
     if ( out && out->outputExists()) {
       if ( out->outputWritable()) {
-				int	result;
-				// Have to do it this way rather than calling direct to ensure
-				// thread-safety
-				QMetaObject::invokeMethod ( state.mainWindow, "outputExists",
-						Qt::DirectConnection, Q_RETURN_ARG( int, result ));
-        if ( result == QMessageBox::No ) {
-          delete out;
-          out = nullptr;
-          return;
-        }
+				if ( CAPTURE_NAMED_PIPE != commonConfig.fileTypeOption  ) {
+					int	result;
+					// Have to do it this way rather than calling direct to ensure
+					// thread-safety
+					QMetaObject::invokeMethod ( state.mainWindow, "outputExists",
+							Qt::DirectConnection, Q_RETURN_ARG( int, result ));
+					if ( result == QMessageBox::No ) {
+						delete out;
+						out = nullptr;
+						return;
+					}
+				}
       } else {
 				// Have to do it this way rather than calling direct to ensure
 				// thread-safety
@@ -945,6 +957,30 @@ CaptureWidget::enableMOVCapture ( int enabled )
     typeMenu->insertItem ( posn, fileFormats[ CAPTURE_MOV ], v );
   }
   haveMOV = enabled;
+  return;
+}
+
+
+void
+CaptureWidget::enableNamedPipeCapture ( int enabled )
+{
+  int posn;
+
+  posn = CAPTURE_NAMED_PIPE - 1 - ( haveMOV ? 0 : 1 ) - ( haveFITS ? 0 : 1 ) -
+			( haveTIFF ? 0 : 1 ) - ( haveSER ? 0 : 1 ) - ( havePNG ? 0 : 1 );
+
+  if ( haveNamedPipe && !enabled ) {
+    if ( typeMenu->currentIndex() == posn ) {
+      QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
+          tr ( "named pipe output format has been disabled" ));
+    }
+    typeMenu->removeItem ( posn );
+  }
+  if ( !haveNamedPipe && enabled ) {
+    QVariant v( CAPTURE_NAMED_PIPE );
+    typeMenu->insertItem ( posn, fileFormats[ CAPTURE_NAMED_PIPE ], v );
+  }
+  haveNamedPipe = enabled;
   return;
 }
 

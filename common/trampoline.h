@@ -65,6 +65,7 @@ typedef struct {
 	void ( *enableTIFFCapture )( int );
 	void ( *enableMOVCapture )( int );
 	void ( *enablePNGCapture )( int );
+	void ( *enableNamedPipeCapture )( int );
 	void ( *setVideoFramePixelFormat )( int );
 	void ( *destroyLayout )( QLayout* );
 	void ( *checkTimerWarnings )( void );

@@ -43,6 +43,7 @@
 #define	CAPTURE_PNG	4
 #define	CAPTURE_FITS	5
 #define	CAPTURE_MOV	6
+#define	CAPTURE_NAMED_PIPE	7
 
 class CaptureWidget : public QGroupBox
 {
@@ -65,6 +66,7 @@ class CaptureWidget : public QGroupBox
     void		enablePNGCapture ( int );
     void		enableFITSCapture ( int );
     void		enableMOVCapture ( int );
+    void		enableNamedPipeCapture ( int );
     int			singleAutorunFinished ( void );
     void		enableAutorun ( void );
     QString		getCurrentFilterName ( void );
@@ -114,6 +116,7 @@ class CaptureWidget : public QGroupBox
     int			haveSER;
     int			haveFITS;
     int			haveMOV;
+    int			haveNamedPipe;
     QLineEdit*		framesInputBox;
     QLineEdit*		secondsInputBox;
     int			filterSequenceRemaining;

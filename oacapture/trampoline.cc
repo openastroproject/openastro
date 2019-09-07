@@ -237,6 +237,13 @@ t_enablePNGCapture ( int val )
 
 
 void
+t_enableNamedPipeCapture ( int val )
+{
+  state.captureWidget->enableNamedPipeCapture ( val );
+}
+
+
+void
 t_setVideoFramePixelFormat ( int format )
 {
   state.previewWidget->setVideoFramePixelFormat ( format );
@@ -353,6 +360,7 @@ trampolineFuncs trampolines = {
   t_enableTIFFCapture,
   t_enableMOVCapture,
   t_enablePNGCapture,
+  t_enableNamedPipeCapture,
   t_setVideoFramePixelFormat,
   t_destroyLayout,
   t_checkTimerWarnings,

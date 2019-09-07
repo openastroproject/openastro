@@ -243,6 +243,13 @@ t_enablePNGCapture ( int val __attribute__((unused)))
 
 
 void
+t_enableNamedPipeCapture ( int val __attribute__((unused)))
+{
+	qWarning() << __FUNCTION__ << "doing nothing";
+}
+
+
+void
 t_setVideoFramePixelFormat ( int format __attribute__((unused)))
 {
 	qWarning() << __FUNCTION__ << "doing nothing";
@@ -341,6 +348,7 @@ trampolineFuncs trampolines = {
 	t_enableTIFFCapture,
 	t_enableMOVCapture,
 	t_enablePNGCapture,
+	t_enableNamedPipeCapture,
 	t_setVideoFramePixelFormat,
 	t_destroyLayout,
 	t_checkTimerWarnings,

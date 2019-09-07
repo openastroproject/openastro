@@ -1651,6 +1651,9 @@ MainWindow::connectCamera ( int deviceIndex )
   state.captureWidget->enableMOVCapture (( QUICKTIME_OK( format ) || 
       ( oaFrameFormats[ format ].rawColour && commonConfig.demosaic &&
       demosaicConf.demosaicOutput )) ? 1 : 0 );
+  state.captureWidget->enableNamedPipeCapture (
+      ( !oaFrameFormats[ format ].rawColour ||
+      ( commonConfig.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
 }
 
 
@@ -2143,6 +2146,9 @@ MainWindow::enableDemosaic ( void )
     state.captureWidget->enableMOVCapture (( QUICKTIME_OK( format ) || 
         ( oaFrameFormats[ format ].rawColour && commonConfig.demosaic &&
         demosaicConf.demosaicOutput )) ? 1 : 0 );
+    state.captureWidget->enableNamedPipeCapture (
+        ( !oaFrameFormats[ format ].rawColour ||
+        ( commonConfig.demosaic && demosaicConf.demosaicOutput )) ? 1 : 0 );
   }
 }
 

@@ -243,6 +243,9 @@ DemosaicSettings::storeSettings ( void )
 			trampolines->enableMOVCapture (( QUICKTIME_OK( format ) || 
 					( oaFrameFormats[ format ].rawColour && enabled &&
 					demosaicConf.demosaicOutput )) ? 1 : 0 );
+			trampolines->enableNamedPipeCapture (
+					( !oaFrameFormats[ format ].rawColour ||
+					( enabled && demosaicConf.demosaicOutput )) ? 1 : 0 );
 		}
   }
 }
