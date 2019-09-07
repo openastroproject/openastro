@@ -350,6 +350,45 @@ oaGP2InitCamera ( oaCameraDevice* device )
 		cameraInfo->manufacturer = _GP2GuessManufacturer ( modelStr );
 	}
 
+	// Also from the "status" widget, the AC power status
+
+	if (( ret = _GP2ProcessMenuWidget ( cameraInfo->status, "acpower",
+			&cameraInfo->acpower, &cameraInfo->acpowerType,
+			&cameraInfo->numACPowerOptions, camName, camPort )) != OA_ERR_NONE &&
+			ret != -OA_ERR_INVALID_COMMAND ) {
+		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
+		p_gp_list_unref ( cameraList );
+		p_gp_context_unref ( cameraInfo->ctx );
+		free (( void* ) commonInfo );
+		free (( void* ) cameraInfo );
+		free (( void* ) camera );
+    return 0;
+	}
+  if ( ret == OA_ERR_NONE ) {
+fprintf ( stderr, "have acpower flag\n" );
+		camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_POWER_SOURCE ) =
+				OA_CTRL_TYPE_READONLY;
+	}
+
+	// And the battery level
+
+	if (( ret = _GP2ProcessStringWidget ( cameraInfo->status, "batterylevel",
+			&cameraInfo->batteryLevel, camName, camPort )) != OA_ERR_NONE &&
+			ret != -OA_ERR_INVALID_COMMAND ) {
+		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
+		p_gp_list_unref ( cameraList );
+		p_gp_context_unref ( cameraInfo->ctx );
+		free (( void* ) commonInfo );
+		free (( void* ) cameraInfo );
+		free (( void* ) camera );
+    return 0;
+	}
+
+  if ( ret == OA_ERR_NONE ) {
+		camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BATTERY_LEVEL ) =
+				OA_CTRL_TYPE_READONLY;
+	}
+
 	// Now start looking for controls that we can use
 
 	// ISO setting

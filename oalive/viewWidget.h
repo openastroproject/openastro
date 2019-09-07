@@ -88,6 +88,7 @@ class ViewWidget : public QFrame
     void		updateProgress ( unsigned int );
     void		updateHistogram ( void );
     void		updateDisplay ( void );
+    void		updateBatteryLevel ( void );
     void		stopRecording ( void );
     void		startNextExposure ( void );
 
@@ -115,6 +116,7 @@ class ViewWidget : public QFrame
     long		secondForTemperature;
     long		secondForDropped;
     long		secondForAutoControls;
+    long		minuteForBatteryLevel;
     int			hasTemp;
     int			hasDroppedFrames;
     int			reticleCentreX;

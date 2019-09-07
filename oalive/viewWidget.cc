@@ -905,6 +905,10 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     emit self->updateDroppedFrames();
     self->secondForTemperature = t.tv_sec;
   }
+  if ( t.tv_sec > self->minuteForBatteryLevel ) {
+    emit self->updateBatteryLevel();
+    self->minuteForBatteryLevel = t.tv_sec + 60;
+  }
 
   if ( doDisplay ) {
     emit self->updateDisplay();

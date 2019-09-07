@@ -360,7 +360,9 @@ CameraControls::configure ( void )
           }
 
           case OA_CTRL_TYPE_READONLY:
-            added[c] = 1; // prevents this from showing up
+            controlLabel[c] = new QLabel ( tr ( oaCameraControlLabel[c] ));
+            controlLabel[c]->setWordWrap ( 1 );
+            numUnhandled++;
             break;
 
 					case OA_CTRL_TYPE_DISCRETE:
@@ -463,17 +465,15 @@ CameraControls::configure ( void )
     connect ( exposureRangeMenu, SIGNAL( currentIndexChanged ( int )),
         this, SLOT ( updateExposureUnits ( int )));
   }
-/*
+
   if ( commonState.camera->hasFixedFrameRates ( commonConfig.imageSizeX,
       commonConfig.imageSizeY )) {
-*/
     sliderGrid->addWidget ( frameRateLabel, row, col++ );
     col++;
     sliderGrid->addWidget ( frameRateSlider, row, col++ );
     sliderGrid->addWidget ( frameRateMenu, row, col++ );
-/*
+		numSliders++;
   }
-*/
 
   // And now the checkboxes that we haven't already used next to sliders
 
@@ -515,7 +515,6 @@ CameraControls::configure ( void )
       row++;
     }
   }
-  addedButtons++;
   if ( addedButtons && addedButtons < BUTTONS_PER_ROW ) {
     buttonGrid->setColumnStretch ( addedButtons, 1 );
   }
@@ -553,6 +552,37 @@ CameraControls::configure ( void )
     menuGrid->setColumnStretch ( addedMenus * 2, 1 );
   }
 
+	// Status information
+
+	statusGrid = new QGridLayout();
+  row = 0;
+	int addedStatus = 0;
+	if ( controlType[ OA_CAM_CTRL_POWER_SOURCE ] == OA_CTRL_TYPE_READONLY ) {
+		statusGrid->addWidget ( controlLabel[OA_CAM_CTRL_POWER_SOURCE], row++, 0 );
+		powerSource = new QLabel ( tr (( commonState.camera->readControl (
+				OA_CAM_CTRL_POWER_SOURCE ) == OA_AC_POWER ) ? "AC" : "Battery" ));
+		statusGrid->addWidget ( controlLabel[OA_CAM_CTRL_POWER_SOURCE], row, 0 );
+		statusGrid->addWidget ( powerSource, row++, 1 );
+		addedStatus++;
+	}
+	if ( controlType[ OA_CAM_CTRL_BATTERY_LEVEL ] == OA_CTRL_TYPE_READONLY ) {
+		batteryLevel = new QProgressBar();
+		batteryLevel->setRange ( 0, 100 );
+		batteryLevel->setOrientation ( Qt::Horizontal );
+		batteryLevel->setValue ( commonState.camera->readControl (
+				OA_CAM_CTRL_BATTERY_LEVEL ));
+		batteryLevel->setTextVisible ( 0 );
+		batteryLevel->setStyleSheet ( QString ( "QProgressBar::chunk:horizontal {"
+				"background: qlineargradient(x1: 0, y1: 0.5, x2: 1, y2: 0.5, "
+				"stop: 0 darkred, stop: 1 lightgreen);}" ) +
+				QString ( "QProgressBar::horizontal { border: 1px solid gray; "
+				"border-radius: 3px; background: lightgray; padding: 0px; "
+				"text-align: left; margin-right: 4ex;}" ));
+		statusGrid->addWidget ( controlLabel[OA_CAM_CTRL_BATTERY_LEVEL], row, 0 );
+		statusGrid->addWidget ( batteryLevel, row, 1 );
+		addedStatus++;
+	}
+
   // For the sake of completeness, show the controls we're not handling
 
   unhandledGrid = new QGridLayout();
@@ -581,16 +611,30 @@ CameraControls::configure ( void )
   // Add all the bits to the layout
 
   layout = new QVBoxLayout ( this );
-  layout->addLayout ( sliderGrid );
-  layout->addStretch ( 1 );
-  layout->addLayout ( checkboxGrid );
-  layout->addStretch ( 1 );
-  layout->addLayout ( buttonGrid );
-  layout->addStretch ( 1 );
-  layout->addLayout ( menuGrid );
-  layout->addStretch ( 1 );
-  layout->addLayout ( unhandledGrid );
-  layout->addStretch ( 2 );
+	if ( numSliders ) {
+		layout->addLayout ( sliderGrid );
+		layout->addStretch ( 1 );
+	}
+	if ( addedBoxes ) {
+		layout->addLayout ( checkboxGrid );
+		layout->addStretch ( 1 );
+	}
+	if ( addedButtons ) {
+		layout->addLayout ( buttonGrid );
+		layout->addStretch ( 1 );
+	}
+	if ( addedMenus ) {
+		layout->addLayout ( menuGrid );
+		layout->addStretch ( 1 );
+	}
+	if ( addedStatus ) {
+		layout->addLayout ( statusGrid );
+		layout->addStretch ( 1 );
+	}
+	if ( addedTodo ) {
+		layout->addLayout ( unhandledGrid );
+		layout->addStretch ( 2 );
+	}
 	layout->addWidget ( histogram );
 
   setLayout ( layout );
@@ -1127,4 +1171,16 @@ CameraControls::updateExposureUnits ( int index )
   }
   ignoreExposureChanges = 0;
   controlSlider[ OA_CAM_CTRL_EXPOSURE_ABSOLUTE ]->setValue ( setting );
+}
+
+
+void
+CameraControls::setBatteryLevel ( void )
+{
+	int		v;
+
+  if ( controlType[ OA_CAM_CTRL_BATTERY_LEVEL ] == OA_CTRL_TYPE_READONLY ) {
+		v = commonState.camera->readControl ( OA_CAM_CTRL_BATTERY_LEVEL );
+		batteryLevel->setValue ( v );
+	}
 }

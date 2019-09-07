@@ -70,6 +70,10 @@ typedef struct GP2_STATE {
 	CameraWidgetType		frameFormatType;
 	int									numFrameFormatOptions;
 	const char**				frameFormatOptions;
+	CameraWidget*				acpower;
+	CameraWidgetType		acpowerType;
+	int									numACPowerOptions;
+	CameraWidget*				batteryLevel;
 	int									jpegOption;
 	int									rawOption;
 	CameraWidget*				capture;

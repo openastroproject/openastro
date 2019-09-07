@@ -149,8 +149,10 @@
 #define	OA_CAM_CTRL_ISO												113
 #define	OA_CAM_CTRL_SHUTTER_SPEED							114
 #define	OA_CAM_CTRL_MIRROR_LOCKUP							115
+#define	OA_CAM_CTRL_POWER_SOURCE							116
+#define	OA_CAM_CTRL_BATTERY_LEVEL							117
 // Adding more items here may require updating liboacam/control.c
-#define	OA_CAM_CTRL_LAST_P1										OA_CAM_CTRL_MIRROR_LOCKUP+1
+#define	OA_CAM_CTRL_LAST_P1										OA_CAM_CTRL_BATTERY_LEVEL+1
 
 // Adding more here will need camera.h and oacamprivate.h changing to make
 // the array bigger and require the the OA_CAM_CTRL_MODIFIER define
@@ -226,6 +228,9 @@
 
 #define OA_TRIGGER_POLARITY_ACTIVE_LOW	0
 #define OA_TRIGGER_POLARITY_ACTIVE_HIGH	1
+
+#define	OA_AC_POWER				0
+#define OA_BATTERY_POWER	1
 
 extern const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ];
 extern const char* oaCameraControlModifierPrefix[ OA_CAM_CTRL_MODIFIERS_P1 ];

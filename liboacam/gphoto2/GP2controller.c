@@ -135,13 +135,30 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
   GP2_STATE*			cameraInfo = camera->_private;
 	CameraWidget*		widget = 0;
 	const char**		options = 0;
-	int							numOptions, i, found;
+	int							numOptions, i, found, val;
 	const char*			currOption;
 
 	if ( control == OA_CAM_CTRL_MIRROR_LOCKUP ) {
 		valp->valueType = OA_CTRL_TYPE_BOOLEAN;
 		valp->boolean =
 				cameraInfo->customFuncStr[ cameraInfo->mirrorLockupPos ] - '0';
+		return OA_ERR_NONE;
+	}
+
+	if ( control == OA_CAM_CTRL_BATTERY_LEVEL ) {
+		if ( p_gp_widget_get_value ( cameraInfo->batteryLevel, &currOption ) !=
+				GP_OK ) {
+			fprintf ( stderr, "Failed to read value of control %d in %s\n",
+					control, __FUNCTION__ );
+			return -OA_ERR_CAMERA_IO;
+		}
+		if ( sscanf ( currOption, "%d%%", &val ) != 1 ) {
+			fprintf ( stderr, "Don't recognise data '%s' in battery level\n",
+					currOption );
+			val = 0;
+		}
+		valp->valueType = OA_CTRL_TYPE_INT32;
+		valp->int32 = val;
 		return OA_ERR_NONE;
 	}
 

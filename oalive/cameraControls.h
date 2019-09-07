@@ -52,6 +52,7 @@ class CameraControls : public QWidget
     unsigned int	getCurrentGain ( void );
     unsigned int	getCurrentExposure ( void );
 		void		connectHistogramSignal ( void );
+
 		HistogramWidget*	histogram;
 
   private:
@@ -60,6 +61,7 @@ class CameraControls : public QWidget
     QGridLayout*	checkboxGrid;
     QGridLayout*	buttonGrid;
     QGridLayout*	menuGrid;
+    QGridLayout*	statusGrid;
     QGridLayout*	unhandledGrid;
     QSignalMapper*	sliderSignalMapper;
     QSignalMapper*	checkboxSignalMapper;
@@ -88,6 +90,8 @@ class CameraControls : public QWidget
 		int			minRangeIndex;
 		int			maxRangeIndex;
 		int			ignoreExposureChanges;
+		QProgressBar*		batteryLevel;
+		QLabel*	powerSource;
 
   public slots:
     void		updateSliderControl ( int );
@@ -100,4 +104,5 @@ class CameraControls : public QWidget
     void		buttonPushed ( int );
     void		menuChanged ( int );
     void		updateExposureUnits ( int );
+		void		setBatteryLevel ( void );
 };

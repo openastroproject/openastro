@@ -152,7 +152,9 @@ const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
   "Frame Format",
   "ISO",
 	"Shutter Speed",
-	"Mirror Lockup"
+	"Mirror Lockup",
+	"Power Source",
+	"Battery Level"
 };
 
 const char* oaCameraPresetAWBLabel[ OA_AWB_PRESET_LAST_P1 ] = {

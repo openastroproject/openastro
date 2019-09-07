@@ -191,6 +191,8 @@ MainWindow::MainWindow ( QString configFile )
 #else
   connect ( state.viewWidget, SIGNAL( updateTemperature ( void )),
       this, SLOT ( setTemperature ( void )));
+  connect ( state.viewWidget, SIGNAL( updateBatteryLevel ( void )),
+      state.cameraControls, SLOT ( setBatteryLevel ( void )));
   // FIX ME -- make these work?
   // connect ( state.viewWidget, SIGNAL( updateDroppedFrames ( void )),
   //     this, SLOT ( setDroppedFrames ( void )));
