@@ -138,27 +138,21 @@ oaFC2InitCamera ( oaCameraDevice* device )
 
   if (( *p_fc2CreateGigEContext )( &pgeContext ) != FC2_ERROR_OK ) {
     fprintf ( stderr, "Can't get FC2 context\n" );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
   if (( *p_fc2Connect )( pgeContext, &devInfo->pgeGuid ) != FC2_ERROR_OK ) {
     fprintf ( stderr, "Can't connect to FC2 GUID\n" );
     ( *p_fc2DestroyContext )( pgeContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
   if (( *p_fc2GetCameraInfo )( pgeContext, &camInfo ) != FC2_ERROR_OK ) {
     fprintf ( stderr, "Can't get camera info for FC2 camera\n" );
     ( *p_fc2DestroyContext )( pgeContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -226,9 +220,7 @@ oaFC2InitCamera ( oaCameraDevice* device )
   if (( *p_fc2GetPropertyInfo )( pgeContext, &propertyInfo ) != FC2_ERROR_OK ) {
     fprintf ( stderr, "Can't get property info for PGR frame rate\n" );
     ( *p_fc2DestroyContext )( pgeContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if ( propertyInfo.present ) {
@@ -237,9 +229,7 @@ oaFC2InitCamera ( oaCameraDevice* device )
     if (( *p_fc2GetProperty )( pgeContext, &property ) != FC2_ERROR_OK ) {
       fprintf ( stderr, "Can't get property for PGR frame rate\n" );
       ( *p_fc2DestroyContext )( pgeContext );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     if ( propertyInfo.onOffSupported ) {
@@ -248,9 +238,7 @@ oaFC2InitCamera ( oaCameraDevice* device )
       if (( *p_fc2SetProperty )( pgeContext, &property ) != FC2_ERROR_OK ) {
         fprintf ( stderr, "Can't set property for PGR frame rate\n" );
         ( *p_fc2DestroyContext )( pgeContext );
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
+        FREE_DATA_STRUCTS;
         return 0;
       }
     } else {
@@ -270,9 +258,7 @@ oaFC2InitCamera ( oaCameraDevice* device )
         FC2_ERROR_OK ) {
       fprintf ( stderr, "Can't get property info %d for FC2 GUID\n", i );
       ( *p_fc2DestroyContext )( pgeContext );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     if ( !propertyInfo.present ) {
@@ -283,9 +269,7 @@ oaFC2InitCamera ( oaCameraDevice* device )
     if (( *p_fc2GetProperty )( pgeContext, &property ) != FC2_ERROR_OK ) {
       fprintf ( stderr, "Can't get property %d for FC2 GUID\n", i );
       ( *p_fc2DestroyContext )( pgeContext );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
 /*
@@ -466,9 +450,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       FC2_ERROR_OK ) {
     fprintf ( stderr, "Can't get trigger mode info %d for FC2 GUID\n", i );
     ( *p_fc2DestroyContext )( pgeContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -578,9 +560,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
             sizeof ( int64_t )))) {
           fprintf ( stderr, "Can't calloc space for trigger mode list\n" );
           ( *p_fc2DestroyContext )( pgeContext );
-          free (( void* ) commonInfo );
-          free (( void* ) cameraInfo );
-          free (( void* ) camera );
+          FREE_DATA_STRUCTS;
           return 0;
         }
         mask16 = cameraInfo->modeMask;
@@ -605,9 +585,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         if ( cameraInfo->triggerModes ) {
 					free (( void* ) cameraInfo->triggerModes );
 				}
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
+        FREE_DATA_STRUCTS;
         return 0;
       }
 
@@ -630,9 +608,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         if ( cameraInfo->triggerModes ) {
 					free (( void* ) cameraInfo->triggerModes );
 				}
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
+        FREE_DATA_STRUCTS;
         return 0;
       }
 
@@ -661,9 +637,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 					if ( cameraInfo->triggerModes ) {
 						free (( void* ) cameraInfo->triggerModes );
 					}
-          free (( void* ) commonInfo );
-          free (( void* ) cameraInfo );
-          free (( void* ) camera );
+          FREE_DATA_STRUCTS;
           return 0;
         }
 
@@ -719,9 +693,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 				if ( cameraInfo->triggerModes ) {
 					free (( void* ) cameraInfo->triggerModes );
 				}
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
+        FREE_DATA_STRUCTS;
         return 0;
       }
     }
@@ -800,9 +772,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 			if ( cameraInfo->triggerModes ) {
 				free (( void* ) cameraInfo->triggerModes );
 			}
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
 
@@ -857,9 +827,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 			if ( cameraInfo->triggerModes ) {
 				free (( void* ) cameraInfo->triggerModes );
 			}
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     if ( supported ) {
@@ -869,9 +837,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 				if ( cameraInfo->triggerModes ) {
 					free (( void* ) cameraInfo->triggerModes );
 				}
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
+        FREE_DATA_STRUCTS;
         return 0;
       }
       if (( *p_fc2GetGigEImageSettingsInfo )( pgeContext, &imageInfo ) !=
@@ -881,9 +847,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 				if ( cameraInfo->triggerModes ) {
 					free (( void* ) cameraInfo->triggerModes );
 				}
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
+        FREE_DATA_STRUCTS;
         return 0;
       }
 
@@ -941,9 +905,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 					if ( cameraInfo->triggerModes ) {
 						free (( void* ) cameraInfo->triggerModes );
 					}
-					free (( void* ) commonInfo );
-					free (( void* ) cameraInfo );
-					free (( void* ) camera );
+					FREE_DATA_STRUCTS;
           return 0;
         }
 				cameraInfo->frameSizes[ xbin ].sizes = tmpPtr;
@@ -962,9 +924,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 					if ( cameraInfo->triggerModes ) {
 						free (( void* ) cameraInfo->triggerModes );
 					}
-					free (( void* ) commonInfo );
-					free (( void* ) cameraInfo );
-					free (( void* ) camera );
+					FREE_DATA_STRUCTS;
           return 0;
         }
 				cameraInfo->frameModes[ xbin ] = ( struct modeInfo* ) tmpPtr;
@@ -1018,9 +978,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 				}
 			}
 		}
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if (( *p_fc2GetGigEImageSettings )( pgeContext, &settings ) !=
@@ -1038,9 +996,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 		if ( cameraInfo->triggerModes ) {
 			free (( void* ) cameraInfo->triggerModes );
 		}
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if ( cameraInfo->pixelFormats & FC2_PIXEL_FORMAT_MONO8 ) {
@@ -1065,9 +1021,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 		if ( cameraInfo->triggerModes ) {
 			free (( void* ) cameraInfo->triggerModes );
 		}
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if (( *p_fc2SetGigEImageBinningSettings )( pgeContext, 1, 1 ) !=
@@ -1085,9 +1039,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 		if ( cameraInfo->triggerModes ) {
 			free (( void* ) cameraInfo->triggerModes );
 		}
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -1125,9 +1077,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 			if ( cameraInfo->triggerModes ) {
 				free (( void* ) cameraInfo->triggerModes );
 			}
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     // FIX ME
@@ -1151,9 +1101,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 			if ( cameraInfo->triggerModes ) {
 				free (( void* ) cameraInfo->triggerModes );
 			}
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     if (( dataFormat & 0x80000000 ) == 0 ) {
@@ -1375,9 +1323,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 		if ( cameraInfo->triggerModes ) {
 			free (( void* ) cameraInfo->triggerModes );
 		}
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
 	}
 	if ( embeddedInfo.frameCounter.available ) {
@@ -1399,9 +1345,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 				if ( cameraInfo->triggerModes ) {
 					free (( void* ) cameraInfo->triggerModes );
 				}
-				free (( void* ) commonInfo );
-				free (( void* ) cameraInfo );
-				free (( void* ) camera );
+				FREE_DATA_STRUCTS;
 				return 0;
 			}
 		}
@@ -1444,9 +1388,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 				free (( void* ) cameraInfo->triggerModes );
 			}
       free (( void* ) cameraInfo->metadataBuffers );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -1477,11 +1419,9 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 		if ( cameraInfo->triggerModes ) {
 			free (( void* ) cameraInfo->triggerModes );
 		}
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if ( pthread_create ( &( cameraInfo->callbackThread ), 0,
@@ -1508,11 +1448,9 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 		if ( cameraInfo->triggerModes ) {
 			free (( void* ) cameraInfo->triggerModes );
 		}
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 

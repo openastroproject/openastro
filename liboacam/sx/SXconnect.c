@@ -94,15 +94,11 @@ oaSXInitCamera ( oaCameraDevice* device )
     libusb_exit ( cameraInfo->usbContext );
     if ( numUSBDevices ) {
       fprintf ( stderr, "Can't see any USB devices now (list returns -1)\n" );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     fprintf ( stderr, "Can't see any USB devices now\n" );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -115,9 +111,7 @@ oaSXInitCamera ( oaCameraDevice* device )
       libusb_free_device_list ( devlist, 1 );
       libusb_exit ( cameraInfo->usbContext );
       fprintf ( stderr, "get device descriptor failed\n" );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     if ( desc.idVendor == SXCameraList[ devInfo->misc ].vendorId &&
@@ -133,17 +127,13 @@ oaSXInitCamera ( oaCameraDevice* device )
   if ( !matched ) {
     fprintf ( stderr, "No matching USB device found!\n" );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if ( !usbHandle ) {
     fprintf ( stderr, "Unable to open USB device!\n" );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -154,9 +144,7 @@ oaSXInitCamera ( oaCameraDevice* device )
   if ( libusb_claim_interface ( usbHandle, 1 )) {
     fprintf ( stderr, "Unable to claim interface for USB device!\n" );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -171,9 +159,7 @@ oaSXInitCamera ( oaCameraDevice* device )
     libusb_close ( usbHandle );
     libusb_free_device_list ( devlist, 1 );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if (( ret = libusb_bulk_transfer ( usbHandle, SXUSB_BULK_ENDP_IN, buff,
@@ -183,9 +169,7 @@ oaSXInitCamera ( oaCameraDevice* device )
     libusb_close ( usbHandle );
     libusb_free_device_list ( devlist, 1 );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -210,9 +194,7 @@ oaSXInitCamera ( oaCameraDevice* device )
     libusb_close ( usbHandle );
     libusb_free_device_list ( devlist, 1 );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if (( ret = libusb_bulk_transfer ( usbHandle, SXUSB_BULK_ENDP_IN, buff,
@@ -222,9 +204,7 @@ oaSXInitCamera ( oaCameraDevice* device )
     libusb_close ( usbHandle );
     libusb_free_device_list ( devlist, 1 );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -319,18 +299,14 @@ oaSXInitCamera ( oaCameraDevice* device )
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
     fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free ( camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if (!( cameraInfo->frameSizes[2].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
     fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -359,9 +335,7 @@ oaSXInitCamera ( oaCameraDevice* device )
         __FUNCTION__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->frameSizes[2].sizes );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -372,9 +346,7 @@ oaSXInitCamera ( oaCameraDevice* device )
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->frameSizes[2].sizes );
     free (( void* ) cameraInfo->xferBuffer );
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -394,9 +366,7 @@ oaSXInitCamera ( oaCameraDevice* device )
       free (( void* ) cameraInfo->frameSizes[2].sizes );
       free (( void* ) cameraInfo->xferBuffer );
       free (( void* ) cameraInfo->buffers );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free ( camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -416,11 +386,9 @@ oaSXInitCamera ( oaCameraDevice* device )
     free (( void* ) cameraInfo->frameSizes[2].sizes );
     free (( void* ) cameraInfo->buffers );
     free (( void* ) cameraInfo->xferBuffer );
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -438,11 +406,9 @@ oaSXInitCamera ( oaCameraDevice* device )
     free (( void* ) cameraInfo->frameSizes[2].sizes );
     free (( void* ) cameraInfo->buffers );
     free (( void* ) cameraInfo->xferBuffer );
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 

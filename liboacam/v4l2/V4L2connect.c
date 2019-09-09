@@ -135,9 +135,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     fprintf ( stderr, "oaV4L2InitCamera: cannot open video device %s\n",
         cameraInfo->devicePath );
     v4l2_close ( cameraInfo->fd );
-    free (( void * ) commonInfo );
-    free (( void * ) cameraInfo );
-    free (( void * ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -151,9 +149,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
       perror ( "VIDIOC_QUERYCAP" );
     }
     v4l2_close ( cameraInfo->fd );
-    free (( void * ) commonInfo );
-    free (( void * ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -161,9 +157,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     fprintf ( stderr, "%s does not support video capture",
       camera->deviceName );
     v4l2_close ( cameraInfo->fd );
-    free (( void * ) commonInfo );
-    free (( void * ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -1641,9 +1635,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     fprintf ( stderr, "No suitable video format found on %s",
         camera->deviceName );
     v4l2_close ( cameraInfo->fd );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -1661,9 +1653,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_S_FMT, &format )) {
     perror ( "VIDIOC_S_FMT xioctl failed" );
     v4l2_close ( cameraInfo->fd );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -1671,9 +1661,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     fprintf ( stderr, "Can't set required video format in %s.\n",
         __FUNCTION__);
     v4l2_close ( cameraInfo->fd );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -1700,9 +1688,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 				if ( cameraInfo->frameSizes[1].numSizes ) {
 					free (( void* ) cameraInfo->frameSizes[1].sizes );
 				}
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
+        FREE_DATA_STRUCTS;
         return 0;
       }
 			cameraInfo->frameSizes[1].sizes = tmpPtr;
@@ -1725,9 +1711,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
       perror ( "VIDIOC_G_PARM v4l2ioctl failed" );
       v4l2_close ( cameraInfo->fd );
       free (( void* ) cameraInfo->frameSizes[1].sizes );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -1742,9 +1726,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
       perror ( "VIDIOC_S_PARM v4l2ioctl failed" );
       v4l2_close ( cameraInfo->fd );
       free (( void* ) cameraInfo->frameSizes[1].sizes );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -1757,11 +1739,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
       oacamV4L2controller, ( void* ) camera )) {
     v4l2_close ( cameraInfo->fd );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if ( pthread_create ( &( cameraInfo->callbackThread ), 0,
@@ -1773,11 +1753,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     pthread_join ( cameraInfo->controllerThread, &dummy );
     v4l2_close ( cameraInfo->fd );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 

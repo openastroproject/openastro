@@ -136,9 +136,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 		if ( p_GetQHYCCDId ( i, cameraInfo->qhyccdId ) != QHYCCD_SUCCESS ) {
       p_ReleaseQHYCCDResource();
       fprintf ( stderr, "can't get id for camera %d\n", i );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
 		if ( !strcmp ( cameraInfo->qhyccdId, devInfo->deviceId )) {
@@ -156,9 +154,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
   if (!( handle = ( p_OpenQHYCCD )( cameraInfo->qhyccdId ))) {
     p_ReleaseQHYCCDResource();
     fprintf ( stderr, "Can't get QHYCCD handle\n" );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -166,9 +162,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 		p_CloseQHYCCD ( handle );
     p_ReleaseQHYCCDResource();
     fprintf ( stderr, "Can't set streaming mode\n" );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
 	}
 
@@ -176,9 +170,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 		p_CloseQHYCCD ( handle );
     p_ReleaseQHYCCDResource();
     fprintf ( stderr, "Can't init camera\n" );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
 	}
 
@@ -260,9 +252,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 					cameraInfo->colour );
 			p_CloseQHYCCD ( handle );
 			p_ReleaseQHYCCDResource();
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
 		}
 	} else {
@@ -290,9 +280,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
           "SetQHYCCDParam ( transferbit, 8 ) returns error\n" );
 			p_CloseQHYCCD ( handle );
 			p_ReleaseQHYCCDResource();
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
 		if ( cameraInfo->colour ) {
@@ -323,9 +311,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
     fprintf ( stderr, "GetQHYCCDChipInfo returns error\n" );
     p_CloseQHYCCD ( handle );
     p_ReleaseQHYCCDResource();
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
 	}
 	camera->features.pixelSizeX = pixelSizeX;
@@ -338,9 +324,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
     fprintf ( stderr, "malloc for frame sizes failed\n" );
     p_CloseQHYCCD ( handle );
     p_ReleaseQHYCCDResource();
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
 	}
 	cameraInfo->frameSizes[1].sizes[0].x = x;
@@ -361,9 +345,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 						free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 					}
 				}
-				free (( void* ) commonInfo );
-				free (( void* ) cameraInfo );
-				free (( void* ) camera );
+				FREE_DATA_STRUCTS;
 				return 0;
 			}
 		  cameraInfo->frameSizes[i].numSizes = 1;
@@ -417,9 +399,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				}
 			}
-			free (( void* ) commonInfo );
-			free (( void* ) cameraInfo );
-			free (( void* ) camera );
+			FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -442,11 +422,9 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 			}
 		}
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if ( pthread_create ( &( cameraInfo->callbackThread ), 0,
@@ -465,11 +443,9 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 			}
 		}
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 

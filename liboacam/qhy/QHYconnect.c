@@ -103,15 +103,11 @@ oaQHYInitCamera ( oaCameraDevice* device )
     libusb_exit ( cameraInfo->usbContext );
     if ( numUSBDevices ) {
       fprintf ( stderr, "Can't see any USB devices now (list returns -1)\n" );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     fprintf ( stderr, "Can't see any USB devices now\n" );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -124,9 +120,7 @@ oaQHYInitCamera ( oaCameraDevice* device )
       libusb_free_device_list ( devlist, 1 );
       libusb_exit ( cameraInfo->usbContext );
       fprintf ( stderr, "get device descriptor failed\n" );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     if ( desc.idVendor == cameraList[ devInfo->misc ].vendorId &&
@@ -142,17 +136,13 @@ oaQHYInitCamera ( oaCameraDevice* device )
   if ( !matched ) {
     fprintf ( stderr, "No matching USB device found!\n" );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if ( !usbHandle ) {
     fprintf ( stderr, "Unable to open USB device!\n" );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -166,17 +156,13 @@ oaQHYInitCamera ( oaCameraDevice* device )
         ret );
     fprintf ( stderr, "Try unplugging and reconnecting the device?\n" );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if ( libusb_claim_interface ( usbHandle, 0 )) {
     fprintf ( stderr, "Unable to claim interface for USB device!\n" );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -186,9 +172,7 @@ oaQHYInitCamera ( oaCameraDevice* device )
       fprintf ( stderr, "Unable to set alternate interface for USB device!\n" );
       libusb_release_interface ( cameraInfo->usbHandle, 0 );
       libusb_exit ( cameraInfo->usbContext );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -234,9 +218,7 @@ oaQHYInitCamera ( oaCameraDevice* device )
   if ( ret ) {
     libusb_release_interface ( cameraInfo->usbHandle, 0 );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     camera = 0;
   }
 

@@ -96,9 +96,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
   ( void ) strcat ( toupcamId, devInfo->deviceId );
   if (!( handle = ( p_Mallincam_Open )( toupcamId ))) {
     fprintf ( stderr, "Can't get Mallincam handle\n" );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -161,9 +159,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
 
   if (( p_Mallincam_get_ExpTimeRange )( handle, &min, &max, &def ) < 0 ) {
     ( p_Mallincam_Close )( handle );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -179,9 +175,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
   if (( p_Mallincam_get_ExpoAGainRange )( handle, &smin, &smax, &sdef ) < 0 ) {
     fprintf ( stderr, "Mallincam_get_ExpoAGainRange() failed\n" );
     ( p_Mallincam_Close )( handle );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -279,9 +273,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
     if ((( p_Mallincam_put_Option )( handle, TOUPCAM_OPTION_RAW, 0 )) < 0 ) {
       fprintf ( stderr, "Mallincam_put_Option ( raw, 0 ) returns error\n" );
       ( p_Mallincam_Close )( handle );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
 
@@ -293,9 +285,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
     if ((( p_Mallincam_put_Option )( handle, TOUPCAM_OPTION_RAW, 1 )) < 0 ) {
       fprintf ( stderr, "Mallincam_put_Option ( raw, 1 ) returns error\n" );
       ( p_Mallincam_Close )( handle );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -389,9 +379,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
       fprintf ( stderr,
           "Mallincam_put_Option ( bitdepth, 0 ) returns error\n" );
       ( p_Mallincam_Close )( handle );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -421,9 +409,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
     if ((( p_Mallincam_get_RawFormat )( handle, &fourcc, &depth )) < 0 ) {
       fprintf ( stderr, "get_RawFormat returns error\n" );
       ( p_Mallincam_Close )( handle );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
 
@@ -523,9 +509,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
       if ((( p_Mallincam_get_StillResolution )( handle, i, &x, &y )) < 0 ) {
         fprintf ( stderr, "failed to get still resolution %d\n", i );
         ( p_Mallincam_Close )( handle );
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
+        FREE_DATA_STRUCTS;
         return 0;
       }
       fprintf ( stderr, "still resolution %d (%dx%d) unhandled\n", i, x, y );
@@ -551,9 +535,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
       ( p_Mallincam_Close )( handle );
       // FIX ME -- free the other sizes here too
       free (( void* ) cameraInfo->frameSizes[1].sizes );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
 
@@ -576,9 +558,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
 						free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 					}
 				}
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
+        FREE_DATA_STRUCTS;
         return 0;
       }
       cameraInfo->frameSizes[ binX ].sizes = tmpPtr;
@@ -627,9 +607,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
 				}
 			}
       free (( void* ) cameraInfo->buffers );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -652,11 +630,9 @@ oaMallincamInitCamera ( oaCameraDevice* device )
 			}
 		}
     free (( void* ) cameraInfo->buffers );
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if ( pthread_create ( &( cameraInfo->callbackThread ), 0,
@@ -675,11 +651,9 @@ oaMallincamInitCamera ( oaCameraDevice* device )
 			}
 		}
     free (( void* ) cameraInfo->buffers );
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
