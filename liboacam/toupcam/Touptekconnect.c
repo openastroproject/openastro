@@ -73,30 +73,11 @@ oaTouptekInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
-    perror ( "malloc oaCamera failed" );
+  if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
+      sizeof ( TOUPTEK_STATE ), &commonInfo ) != OA_ERR_NONE ) {
     return 0;
   }
 
-  if (!( cameraInfo = ( TOUPTEK_STATE* ) malloc (
-      sizeof ( TOUPTEK_STATE )))) {
-    free (( void* ) camera );
-    perror ( "malloc TOUPTEK_STATE failed" );
-    return 0;
-  }
-  if (!( commonInfo = ( COMMON_INFO* ) malloc ( sizeof ( COMMON_INFO )))) {
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
-    perror ( "malloc COMMON_INFO failed" );
-    return 0;
-  }
-  OA_CLEAR ( *camera );
-  OA_CLEAR ( *cameraInfo );
-  OA_CLEAR ( *commonInfo );
-  camera->_private = cameraInfo;
-  camera->_common = commonInfo;
-
-  _oaInitCameraFunctionPointers ( camera );
   _TouptekInitFunctionPointers ( camera );
 
   ( void ) strcpy ( camera->deviceName, device->deviceName );

@@ -70,4 +70,6 @@ extern char*		installPathRoot;
 #define OA_CAM_CTRL_AUTO_DEF(x)         defVal[OA_CAM_CTRL_MODIFIER_AUTO][OA_CAM_CTRL_MODE_BASE(x)]
 #define OA_CAM_CTRL_AUTO_STEP(x)        stepVal[OA_CAM_CTRL_MODIFIER_AUTO][OA_CAM_CTRL_MODE_BASE(x)]
 
+#define FREE_DATA_STRUCTS		free (( void* ) commonInfo ); free (( void* ) cameraInfo ); free (( void* ) camera )
+
 #endif /* OA_CAM_PRIVATE_H */

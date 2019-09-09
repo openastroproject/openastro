@@ -73,29 +73,11 @@ oaSXInitCamera ( oaCameraDevice* device )
       break;
   }
 
-  if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
-    perror ( "malloc oaCamera failed" );
-    return 0;
-  }
-  if (!( cameraInfo = ( SX_STATE* ) malloc ( sizeof ( SX_STATE )))) {
-    free (( void* ) camera );
-    perror ( "malloc SX_STATE failed" );
-    return 0;
-  }
-  if (!( commonInfo = ( COMMON_INFO* ) malloc ( sizeof ( COMMON_INFO )))) {
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
-    perror ( "malloc COMMON_INFO failed" );
+  if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
+      sizeof ( SX_STATE ), &commonInfo ) != OA_ERR_NONE ) {
     return 0;
   }
 
-  OA_CLEAR ( *camera );
-  OA_CLEAR ( *cameraInfo );
-  OA_CLEAR ( *commonInfo );
-  camera->_private = cameraInfo;
-  camera->_common = commonInfo;
-
-  _oaInitCameraFunctionPointers ( camera );
   _SXInitFunctionPointers ( camera );
 
   ( void ) strcpy ( camera->deviceName, device->deviceName );

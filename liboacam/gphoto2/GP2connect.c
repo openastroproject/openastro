@@ -70,28 +70,11 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	int								numCameras, i, j, ret, found = -1;
 	CameraWidget*			tempWidget;
 
-  if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
-    perror ( "malloc oaCamera failed" );
-    return 0;
-  }
-  if (!( cameraInfo = ( GP2_STATE* ) malloc ( sizeof ( GP2_STATE )))) {
-    free ( camera );
-    perror ( "malloc GP2_STATE failed" );
-    return 0;
-  }
-  if (!( commonInfo = ( COMMON_INFO* ) malloc ( sizeof ( COMMON_INFO )))) {
-    free ( cameraInfo );
-    free ( camera );
-    perror ( "malloc COMMON_INFO failed" );
-    return 0;
-  }
-  OA_CLEAR ( *camera );
-  OA_CLEAR ( *cameraInfo );
-  OA_CLEAR ( *commonInfo );
-  camera->_private = cameraInfo;
-  camera->_common = commonInfo;
+	if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
+			sizeof ( GP2_STATE ), &commonInfo ) != OA_ERR_NONE ) {
+		return 0;
+	}
 
-  _oaInitCameraFunctionPointers ( camera );
   _GP2InitFunctionPointers ( camera );
 
   ( void ) strcpy ( camera->deviceName, device->deviceName );
@@ -105,9 +88,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	// an error is even possible
 	// FIX ME -- check in source code
 	if (!( cameraInfo->ctx = p_gp_context_new())) {
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
 		return 0;
 	}
 
@@ -116,18 +97,14 @@ oaGP2InitCamera ( oaCameraDevice* device )
   if ( p_gp_list_new ( &cameraList ) != GP_OK ) {
     fprintf ( stderr, "gp_list_new failed\n" );
 		p_gp_context_unref ( cameraInfo->ctx );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if ( p_gp_list_reset ( cameraList ) != GP_OK ) {
     fprintf ( stderr, "gp_list_reset failed\n" );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -139,9 +116,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 				numCameras );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -149,9 +124,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
     fprintf ( stderr, "Can't see any UVC devices now\n" );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
 	}
 
@@ -160,9 +133,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 			fprintf ( stderr, "gp_list_get_name failed\n" );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );
-			free (( void* ) commonInfo );
-			free (( void* ) cameraInfo );
-			free (( void* ) camera );
+			FREE_DATA_STRUCTS;
 			return 0;
 		}
 		if ( strcmp ( camName, devInfo->deviceId )) {
@@ -172,9 +143,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 			fprintf ( stderr, "gp_list_get_name failed\n" );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );
-			free (( void* ) commonInfo );
-			free (( void* ) cameraInfo );
-			free (( void* ) camera );
+			FREE_DATA_STRUCTS;
 			return 0;
 		}
 		if ( !strcmp ( camPort, devInfo->sysPath )) {
@@ -186,9 +155,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
     fprintf ( stderr, "No matching libgphoto2 device found!\n" );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+		FREE_DATA_STRUCTS;
     return 0;
 	}
 
@@ -201,10 +168,8 @@ oaGP2InitCamera ( oaCameraDevice* device )
 				camPort );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
-     return 0;
+		FREE_DATA_STRUCTS;
+    return 0;
    }
 
 	if (( ret = _gp2GetConfig ( cameraInfo->handle, &cameraInfo->rootWidget,
@@ -215,9 +180,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -231,9 +194,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -246,9 +207,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -261,9 +220,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -276,9 +233,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -297,9 +252,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
     return 0;
 	}
 
@@ -310,9 +263,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );
-			free (( void* ) commonInfo );
-			free (( void* ) cameraInfo );
-			free (( void* ) camera );
+			FREE_DATA_STRUCTS;
 			return 0;
 		}
 
@@ -323,9 +274,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 				_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 				p_gp_list_unref ( cameraList );
 				p_gp_context_unref ( cameraInfo->ctx );
-				free (( void* ) commonInfo );
-				free (( void* ) cameraInfo );
-				free (( void* ) camera );
+				FREE_DATA_STRUCTS;
 				return 0;
 			}
 		}
@@ -340,9 +289,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );
-			free (( void* ) commonInfo );
-			free (( void* ) cameraInfo );
-			free (( void* ) camera );
+			FREE_DATA_STRUCTS;
 			return 0;
 		}
 
@@ -359,9 +306,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
     return 0;
 	}
   if ( ret == OA_ERR_NONE ) {
@@ -378,9 +323,7 @@ fprintf ( stderr, "have acpower flag\n" );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
     return 0;
 	}
 
@@ -399,9 +342,7 @@ fprintf ( stderr, "have acpower flag\n" );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
 	}
   if ( ret == OA_ERR_NONE ) {
 		camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_ISO ) = OA_CTRL_TYPE_MENU;
@@ -422,9 +363,7 @@ fprintf ( stderr, "have acpower flag\n" );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
     return 0;
 	}
 	if ( ret == OA_ERR_NONE ) {
@@ -445,9 +384,7 @@ fprintf ( stderr, "have acpower flag\n" );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
     return 0;
 	}
 	if ( ret == OA_ERR_NONE ) {
@@ -468,9 +405,7 @@ fprintf ( stderr, "have acpower flag\n" );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
     return 0;
 	}
 	if ( ret == OA_ERR_NONE ) {
@@ -492,9 +427,7 @@ fprintf ( stderr, "have acpower flag\n" );
 			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );
-			free (( void* ) commonInfo );
-			free (( void* ) cameraInfo );
-			free (( void* ) camera );
+			FREE_DATA_STRUCTS;
 			return 0;
 		}
 
@@ -508,9 +441,7 @@ fprintf ( stderr, "have acpower flag\n" );
 				_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 				p_gp_list_unref ( cameraList );
 				p_gp_context_unref ( cameraInfo->ctx );
-				free (( void* ) commonInfo );
-				free (( void* ) cameraInfo );
-				free (( void* ) camera );
+				FREE_DATA_STRUCTS;
 				return 0;
 			} else {
 				if (( mlf = strstr ( customStr, ",60f,1," )) != 0 && ( mlf[7] == '0' ||
@@ -535,9 +466,7 @@ fprintf ( stderr, "have acpower flag\n" );
 			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );
-			free (( void* ) commonInfo );
-			free (( void* ) cameraInfo );
-			free (( void* ) camera );
+			FREE_DATA_STRUCTS;
 			return 0;
 		}
 	}
@@ -576,9 +505,7 @@ fprintf ( stderr, "have acpower flag\n" );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
     return 0;
 	}
 
@@ -590,9 +517,7 @@ fprintf ( stderr, "have acpower flag\n" );
 			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );
-			free (( void* ) commonInfo );
-			free (( void* ) cameraInfo );
-			free (( void* ) camera );
+			FREE_DATA_STRUCTS;
 			return 0;
 		}
 
@@ -605,9 +530,7 @@ fprintf ( stderr, "have acpower flag\n" );
 				_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 				p_gp_list_unref ( cameraList );
 				p_gp_context_unref ( cameraInfo->ctx );
-				free (( void* ) commonInfo );
-				free (( void* ) cameraInfo );
-				free (( void* ) camera );
+				FREE_DATA_STRUCTS;
 				return 0;
 			}
 		}
@@ -657,9 +580,7 @@ fprintf ( stderr, "have acpower flag\n" );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
 		return 0;
 	}
 
@@ -694,9 +615,7 @@ fprintf ( stderr, "have acpower flag\n" );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
 		return 0;
 	}
 
@@ -712,9 +631,7 @@ fprintf ( stderr, "have acpower flag\n" );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-		free (( void* ) camera );
+		FREE_DATA_STRUCTS;
 		return 0;
 	}
 
@@ -757,9 +674,7 @@ fprintf ( stderr, "have acpower flag\n" );
 			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );
-			free (( void* ) commonInfo );
-			free (( void* ) cameraInfo );
-			free (( void* ) camera );
+			FREE_DATA_STRUCTS;
 			return 0;
 		}
 
@@ -770,9 +685,7 @@ fprintf ( stderr, "have acpower flag\n" );
 			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );
-			free (( void* ) commonInfo );
-			free (( void* ) cameraInfo );
-			free (( void* ) camera );
+			FREE_DATA_STRUCTS;
 			return 0;
 		}
 	}
@@ -804,9 +717,7 @@ fprintf ( stderr, "have acpower flag\n" );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-    free (( void* ) camera );
+		FREE_DATA_STRUCTS;
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
     return 0;
@@ -823,9 +734,7 @@ fprintf ( stderr, "have acpower flag\n" );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
-		free (( void* ) commonInfo );
-		free (( void* ) cameraInfo );
-    free (( void* ) camera );
+		FREE_DATA_STRUCTS;
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
     return 0;

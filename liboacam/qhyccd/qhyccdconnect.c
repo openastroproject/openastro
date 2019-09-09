@@ -126,32 +126,10 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
-    p_ReleaseQHYCCDResource();
-    perror ( "malloc oaCamera failed" );
+  if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
+      sizeof ( QHYCCD_STATE ), &commonInfo ) != OA_ERR_NONE ) {
     return 0;
   }
-
-  if (!( cameraInfo = ( QHYCCD_STATE* ) malloc (
-      sizeof ( QHYCCD_STATE )))) {
-    p_ReleaseQHYCCDResource();
-    free (( void* ) camera );
-    perror ( "malloc QHYCCD_STATE failed" );
-    return 0;
-  }
-
-  if (!( commonInfo = ( COMMON_INFO* ) malloc ( sizeof ( COMMON_INFO )))) {
-    p_ReleaseQHYCCDResource();
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
-    perror ( "malloc COMMON_INFO failed" );
-    return 0;
-  }
-  OA_CLEAR ( *camera );
-  OA_CLEAR ( *cameraInfo );
-  OA_CLEAR ( *commonInfo );
-  camera->_private = cameraInfo;
-  camera->_common = commonInfo;
 
 	found = -1;
 	for ( i = 0; i < numCameras && found == -1; i++ ) {
@@ -168,7 +146,6 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 		}
 	}
 
-  _oaInitCameraFunctionPointers ( camera );
   _QHYCCDInitFunctionPointers ( camera );
 
   ( void ) strcpy ( camera->deviceName, device->deviceName );

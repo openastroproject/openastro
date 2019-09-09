@@ -189,28 +189,11 @@ oaUVCInitCamera ( oaCameraDevice* device )
   COMMON_INFO*				commonInfo;
 	void*							tmpPtr;
 
-  if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
-    perror ( "malloc oaCamera failed" );
-    return 0;
-  }
-  if (!( cameraInfo = ( UVC_STATE* ) malloc ( sizeof ( UVC_STATE )))) {
-    free ( camera );
-    perror ( "malloc UVC_STATE failed" );
-    return 0;
-  }
-  if (!( commonInfo = ( COMMON_INFO* ) malloc ( sizeof ( COMMON_INFO )))) {
-    free ( cameraInfo );
-    free ( camera );
-    perror ( "malloc COMMON_INFO failed" );
-    return 0;
-  }
-  OA_CLEAR ( *camera );
-  OA_CLEAR ( *cameraInfo );
-  OA_CLEAR ( *commonInfo );
-  camera->_private = cameraInfo;
-  camera->_common = commonInfo;
+	if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
+			sizeof ( UVC_STATE ), &commonInfo ) != OA_ERR_NONE ) {
+		return 0;
+	}
 
-  _oaInitCameraFunctionPointers ( camera );
   _UVCInitFunctionPointers ( camera );
 
   ( void ) strcpy ( camera->deviceName, device->deviceName );
@@ -223,18 +206,14 @@ oaUVCInitCamera ( oaCameraDevice* device )
 
   if ( p_uvc_init ( &cameraInfo->uvcContext, 0 ) != UVC_SUCCESS ) {
     fprintf ( stderr, "uvc_init failed\n" );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
   if ( p_uvc_get_device_list ( cameraInfo->uvcContext, &devlist ) !=
       UVC_SUCCESS ) {
     fprintf ( stderr, "uvc_get_device_list failed\n" );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   numUVCDevices = 0;
@@ -244,15 +223,11 @@ oaUVCInitCamera ( oaCameraDevice* device )
     p_uvc_exit ( cameraInfo->uvcContext );
     if ( numUVCDevices ) {
       fprintf ( stderr, "Can't see any UVC devices now (list returns -1)\n" );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     fprintf ( stderr, "Can't see any UVC devices now\n" );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -266,9 +241,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
       p_uvc_free_device_list ( devlist, 1 );
       p_uvc_exit ( cameraInfo->uvcContext );
       fprintf ( stderr, "get UVC device descriptor failed\n" );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     if ( p_uvc_get_bus_number ( uvcDevice ) == deviceBus &&
@@ -278,9 +251,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
         p_uvc_free_device_list ( devlist, 1 );
         p_uvc_exit ( cameraInfo->uvcContext );
         fprintf ( stderr, "open of UVC device failed\n" );
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
+        FREE_DATA_STRUCTS;
         return 0;
       }
       matched = 1;
@@ -291,26 +262,20 @@ oaUVCInitCamera ( oaCameraDevice* device )
   if ( !matched ) {
     fprintf ( stderr, "No matching UVC device found!\n" );
     p_uvc_exit ( cameraInfo->uvcContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if ( !uvcHandle ) {
     fprintf ( stderr, "Unable to open UVC device!\n" );
     p_uvc_exit ( cameraInfo->uvcContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
   if (!( inputTerminals = p_uvc_get_input_terminals ( uvcHandle ))) {
     fprintf ( stderr, "No input terminals found!\n" );
     p_uvc_exit ( cameraInfo->uvcContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -329,9 +294,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
     p_uvc_close ( uvcHandle );
     fprintf ( stderr, "Device doesn't actually look like a camera\n" );
     p_uvc_exit ( cameraInfo->uvcContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -769,9 +732,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
   if (!( processingUnits = p_uvc_get_processing_units ( uvcHandle ))) {
     fprintf ( stderr, "No processing units found!\n" );
     p_uvc_exit ( cameraInfo->uvcContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -790,9 +751,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
     fprintf ( stderr, "Can't find any processing units for the camera\n" );
     p_uvc_close ( uvcHandle );
     p_uvc_exit ( cameraInfo->uvcContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -1056,9 +1015,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
       camera->deviceName );
     p_uvc_close ( uvcHandle );
     p_uvc_exit ( cameraInfo->uvcContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -1077,9 +1034,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
       p_uvc_close ( uvcHandle );
       p_uvc_exit ( cameraInfo->uvcContext );
       fprintf ( stderr, "realloc of frameSizes failed\n" );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
 		cameraInfo->frameSizes[1].sizes = tmpPtr;
@@ -1141,9 +1096,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
       p_uvc_exit ( cameraInfo->uvcContext );
       free (( void* ) cameraInfo->frameSizes[1].sizes );
       free (( void* ) cameraInfo->buffers );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -1171,11 +1124,9 @@ oaUVCInitCamera ( oaCameraDevice* device )
     }
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->buffers );
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
     fprintf ( stderr, "controller thread creation failed\n" );
     return 0;
   }
@@ -1193,12 +1144,10 @@ oaUVCInitCamera ( oaCameraDevice* device )
     }
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->buffers );
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
-    fprintf ( stderr, "callback thread creation failed\n" );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
+    fprintf ( stderr, "callback thread creation failed\n" );
     return 0;
   }
 

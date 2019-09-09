@@ -109,28 +109,11 @@ oaIIDCInitCamera ( oaCameraDevice* device )
   COMMON_INFO*		commonInfo;
   dc1394framerates_t	framerates;
 
-  if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
-    perror ( "malloc oaCamera failed" );
+  if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
+      sizeof ( IIDC_STATE ), &commonInfo ) != OA_ERR_NONE ) {
     return 0;
   }
-  if (!( cameraInfo = ( IIDC_STATE* ) malloc ( sizeof ( IIDC_STATE )))) {
-    free (( void* ) camera );
-    perror ( "malloc IIDC_STATE failed" );
-    return 0;
-  }
-  if (!( commonInfo = ( COMMON_INFO* ) malloc ( sizeof ( COMMON_INFO )))) {
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
-    perror ( "malloc COMMON_INFO failed" );
-    return 0;
-  }
-  OA_CLEAR ( *camera );
-  OA_CLEAR ( *cameraInfo );
-  OA_CLEAR ( *commonInfo );
-  camera->_private = cameraInfo;
-  camera->_common = commonInfo;
 
-  _oaInitCameraFunctionPointers ( camera );
   _IIDCInitFunctionPointers ( camera );
 
   ( void ) strcpy ( camera->deviceName, device->deviceName );

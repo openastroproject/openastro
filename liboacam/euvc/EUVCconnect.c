@@ -219,29 +219,11 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 
   devInfo = device->_private;
 
-  if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
-    perror ( "malloc oaCamera failed" );
-    return 0;
-  }
-  if (!( cameraInfo = ( EUVC_STATE* ) malloc ( sizeof ( EUVC_STATE )))) {
-    free (( void* ) camera );
-    perror ( "malloc EUVC_STATE failed" );
-    return 0;
-  }
-  if (!( commonInfo = ( COMMON_INFO* ) malloc ( sizeof ( COMMON_INFO )))) {
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
-    perror ( "malloc COMMON_INFO failed" );
+	if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
+      sizeof ( EUVC_STATE ), &commonInfo ) != OA_ERR_NONE ) {
     return 0;
   }
 
-  OA_CLEAR ( *camera );
-  OA_CLEAR ( *cameraInfo );
-  OA_CLEAR ( *commonInfo );
-  camera->_private = cameraInfo;
-  camera->_common = commonInfo;
-
-  _oaInitCameraFunctionPointers ( camera );
   _EUVCInitFunctionPointers ( camera );
 
   ( void ) strcpy ( camera->deviceName, device->deviceName );
@@ -260,15 +242,11 @@ oaEUVCInitCamera ( oaCameraDevice* device )
     libusb_exit ( cameraInfo->usbContext );
     if ( numUSBDevices ) {
       fprintf ( stderr, "Can't see any USB devices now (list returns -1)\n" );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     fprintf ( stderr, "Can't see any USB devices now\n" );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -281,9 +259,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
       libusb_free_device_list ( devlist, 1 );
       libusb_exit ( cameraInfo->usbContext );
       fprintf ( stderr, "get device descriptor failed\n" );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     if ( TIS_VENDOR_ID == desc.idVendor &&
@@ -299,17 +275,13 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   if ( !matched ) {
     fprintf ( stderr, "No matching USB device found!\n" );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if ( !usbHandle ) {
     fprintf ( stderr, "Unable to open USB device!\n" );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -318,9 +290,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   if ( libusb_get_config_descriptor ( usbDevice, 0, &deviceConfig )) {
     fprintf ( stderr, "Unable to get device config descriptor!\n" );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -338,9 +308,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
     fprintf ( stderr, "Unable to find correct interface class\n" );
     libusb_free_config_descriptor ( deviceConfig );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -362,9 +330,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 			libusb_attach_kernel_driver( usbHandle, cameraInfo->controlInterfaceNo );
 		}
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -379,9 +345,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 		}
 		libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
     libusb_exit ( cameraInfo->usbContext );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -412,9 +376,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 					libusb_release_interface ( usbHandle,
 							cameraInfo->controlInterfaceNo );
           libusb_exit ( cameraInfo->usbContext );
-          free (( void* ) commonInfo );
-          free (( void* ) cameraInfo );
-          free (( void* ) camera );
+          FREE_DATA_STRUCTS;
           return 0;
         }
         for ( i = 12; i < blockSize; i++ ) {
@@ -428,9 +390,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 						libusb_release_interface ( usbHandle,
 								cameraInfo->controlInterfaceNo );
             libusb_exit ( cameraInfo->usbContext );
-            free (( void* ) commonInfo );
-            free (( void* ) cameraInfo );
-            free (( void* ) camera );
+            FREE_DATA_STRUCTS;
             return 0;
           }
         }
@@ -508,9 +468,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 				free (( void* ) cameraInfo->frameInfo[ j ]);
 			}
 		}
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -544,9 +502,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 			}
 			libusb_release_interface ( usbHandle, cameraInfo->controlInterfaceNo );
 			libusb_exit ( cameraInfo->usbContext );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -1028,9 +984,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 				free (( void* ) cameraInfo->frameInfo[ j ]);
 			}
 		}
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   termCaps = buff[0] + ( buff[1] << 8 );
@@ -1097,9 +1051,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 				free (( void* ) cameraInfo->frameInfo[ j ]);
 			}
 		}
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -1126,9 +1078,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 						free (( void* ) cameraInfo->frameInfo[ j ]);
 					}
 				}
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
+        FREE_DATA_STRUCTS;
         return 0;
       }
       cameraInfo->colourFormats = colourFormats;
@@ -1195,9 +1145,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 					free (( void* ) cameraInfo->frameInfo[ j ]);
 				}
 			}
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     cameraInfo->minPixelClock = buff[0] + ( buff[1] << 8 ) +
@@ -1223,9 +1171,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 					free (( void* ) cameraInfo->frameInfo[ j ]);
 				}
 			}
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     cameraInfo->maxPixelClock = buff[0] + ( buff[1] << 8 ) +
@@ -1252,9 +1198,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 					free (( void* ) cameraInfo->frameInfo[ j ]);
 				}
 			}
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
     cameraInfo->currentPixelClock = buff[0] + ( buff[1] << 8 ) +
@@ -1298,9 +1242,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 				free (( void* ) cameraInfo->frameInfo[ j ]);
 			}
 		}
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   libusb_fill_interrupt_transfer ( cameraInfo->statusTransfer, usbHandle,
@@ -1325,9 +1267,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 				free (( void* ) cameraInfo->frameInfo[ j ]);
 			}
 		}
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -1368,9 +1308,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 				free (( void* ) cameraInfo->frameInfo[ j ]);
 			}
 		}
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   camera->features.hasFixedFrameSizes = 1;
@@ -1411,9 +1349,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 				}
 			}
       free (( void* ) cameraInfo->buffers );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free ( camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -1451,11 +1387,9 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 			}
 		}
     free (( void* ) cameraInfo->buffers );
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -1490,11 +1424,9 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 			}
 		}
     free (( void* ) cameraInfo->buffers );
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 

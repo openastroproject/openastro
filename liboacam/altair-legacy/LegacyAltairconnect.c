@@ -73,30 +73,11 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
-    perror ( "malloc oaCamera failed" );
+  if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
+      sizeof ( ALTAIRCAM_STATE ), &commonInfo ) != OA_ERR_NONE ) {
     return 0;
   }
 
-  if (!( cameraInfo = ( ALTAIRCAM_STATE* ) malloc (
-      sizeof ( ALTAIRCAM_STATE )))) {
-    free (( void* ) camera );
-    perror ( "malloc ALTAIRCAM_STATE failed" );
-    return 0;
-  }
-  if (!( commonInfo = ( COMMON_INFO* ) malloc ( sizeof ( COMMON_INFO )))) {
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
-    perror ( "malloc COMMON_INFO failed" );
-    return 0;
-  }
-  OA_CLEAR ( *camera );
-  OA_CLEAR ( *cameraInfo );
-  OA_CLEAR ( *commonInfo );
-  camera->_private = cameraInfo;
-  camera->_common = commonInfo;
-
-  _oaInitCameraFunctionPointers ( camera );
   _AltairInitFunctionPointers ( camera );
 
   ( void ) strcpy ( camera->deviceName, device->deviceName );
@@ -115,9 +96,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
   ( void ) strcat ( toupcamId, devInfo->deviceId );
   if (!( handle = ( p_legacyAltaircam_Open )( toupcamId ))) {
     fprintf ( stderr, "Can't get Altaircam handle\n" );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -180,9 +159,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
 
   if (( p_legacyAltaircam_get_ExpTimeRange )( handle, &min, &max, &def ) < 0 ) {
     ( p_legacyAltaircam_Close )( handle );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -200,9 +177,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
 			< 0 ) {
     fprintf ( stderr, "Altaircam_get_ExpoAGainRange() failed\n" );
     ( p_legacyAltaircam_Close )( handle );
-    free (( void* ) commonInfo );
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -313,9 +288,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
 				< 0 ) {
       fprintf ( stderr, "Altaircam_put_Option ( raw, 0 ) returns error\n" );
       ( p_legacyAltaircam_Close )( handle );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
 
@@ -328,9 +301,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
 				< 0 ) {
       fprintf ( stderr, "Altaircam_put_Option ( raw, 1 ) returns error\n" );
       ( p_legacyAltaircam_Close )( handle );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -424,9 +395,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
       fprintf ( stderr,
           "Altaircam_put_Option ( bitdepth, 0 ) returns error\n" );
       ( p_legacyAltaircam_Close )( handle );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -456,9 +425,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
     if ((( p_legacyAltaircam_get_RawFormat )( handle, &fourcc, &depth )) < 0 ) {
       fprintf ( stderr, "get_RawFormat returns error\n" );
       ( p_legacyAltaircam_Close )( handle );
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
 
@@ -563,9 +530,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
 					< 0 ) {
         fprintf ( stderr, "failed to get still resolution %d\n", i );
         ( p_legacyAltaircam_Close )( handle );
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
+        FREE_DATA_STRUCTS;
         return 0;
       }
       fprintf ( stderr, "still resolution %d (%dx%d) unhandled\n", i, x, y );
@@ -594,9 +559,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
 					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				}
 			}
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
 
@@ -621,9 +584,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
 						free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 					}
 				}
-        free (( void* ) commonInfo );
-        free (( void* ) cameraInfo );
-        free (( void* ) camera );
+        FREE_DATA_STRUCTS;
         return 0;
       }
 			cameraInfo->frameSizes[ binX ].sizes = tmpPtr;
@@ -670,9 +631,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
 					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 				}
 			}
-      free (( void* ) commonInfo );
-      free (( void* ) cameraInfo );
-      free (( void* ) camera );
+      FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -695,11 +654,9 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 			}
 		}
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
     return 0;
   }
   if ( pthread_create ( &( cameraInfo->callbackThread ), 0,
@@ -718,11 +675,9 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
 			}
 		}
-    free (( void* ) camera->_common );
-    free (( void* ) camera->_private );
-    free (( void* ) camera );
     oaDLListDelete ( cameraInfo->commandQueue, 0 );
     oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+    FREE_DATA_STRUCTS;
     return 0;
   }
 

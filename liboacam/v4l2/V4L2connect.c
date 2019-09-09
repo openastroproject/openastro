@@ -83,27 +83,10 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   uint32_t                 	id;
 	void*							tmpPtr;
 
-
-  if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
-    perror ( "malloc oaCamera failed" );
+  if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
+      sizeof ( V4L2_STATE ), &commonInfo ) != OA_ERR_NONE ) {
     return 0;
   }
-  if (!( cameraInfo = ( V4L2_STATE* ) malloc ( sizeof ( V4L2_STATE )))) {
-    free ( camera );
-    perror ( "malloc V4L2_STATE failed" );
-    return 0;
-  }
-  if (!( commonInfo = ( COMMON_INFO* ) malloc ( sizeof ( COMMON_INFO )))) {
-    free ( cameraInfo );
-    free ( camera );
-    perror ( "malloc V4L2_STATE failed" );
-    return 0;
-  }
-  OA_CLEAR ( *camera );
-  OA_CLEAR ( *cameraInfo );
-  OA_CLEAR ( *commonInfo );
-  camera->_private = cameraInfo;
-  camera->_common = commonInfo;
 
   camera->interface = device->interface;
   ( void ) strcpy ( camera->deviceName, device->deviceName );
@@ -196,7 +179,6 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
   OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
-  _oaInitCameraFunctionPointers ( camera );
   _V4L2InitFunctionPointers ( camera );
 
   pthread_mutex_init ( &cameraInfo->commandQueueMutex, 0 );

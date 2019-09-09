@@ -81,28 +81,11 @@ oaQHYInitCamera ( oaCameraDevice* device )
       break;
   }
 
-  if (!( camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
-    perror ( "malloc oaCamera failed" );
+  if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
+      sizeof ( QHY_STATE ), &commonInfo ) != OA_ERR_NONE ) {
     return 0;
   }
-  if (!( cameraInfo = ( QHY_STATE* ) malloc ( sizeof ( QHY_STATE )))) {
-    free (( void* ) camera );
-    perror ( "malloc QHY_STATE failed" );
-    return 0;
-  }
-  if (!( commonInfo = ( COMMON_INFO* ) malloc ( sizeof ( COMMON_INFO )))) {
-    free (( void* ) cameraInfo );
-    free (( void* ) camera );
-    perror ( "malloc COMMON_INFO failed" );
-    return 0;
-  }
-  OA_CLEAR ( *camera );
-  OA_CLEAR ( *cameraInfo );
-  OA_CLEAR ( *commonInfo );
-  camera->_private = cameraInfo;
-  camera->_common = commonInfo;
 
-  _oaInitCameraFunctionPointers ( camera );
   _QHYInitFunctionPointers ( camera );
 
   ( void ) strcpy ( camera->deviceName, device->deviceName );
