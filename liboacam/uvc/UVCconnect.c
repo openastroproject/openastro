@@ -827,10 +827,9 @@ oaUVCInitCamera ( oaCameraDevice* device )
   cameraInfo->currentFrameFormat = 0;
   cameraInfo->bytesPerPixel = 0;
   cameraInfo->isColour = 0;
-  camera->features.hasRawMode = camera->features.hasDemosaicMode = 0;
-  camera->features.hasReset = 1;
-  camera->features.hasReadableControls = 1;
-	camera->features.hasStreamingMode = 1;
+  camera->features.flags |= OA_CAM_FEATURE_RESET;
+  camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
+  camera->features.flags |= OA_CAM_FEATURE_STREAMING;
 
   /*
    * For the time being we know that libuvc knows about:
@@ -848,7 +847,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
       case UVC_VS_FORMAT_FRAME_BASED:
 
         if ( !memcmp ( format->fourccFormat, "BY8 ", 4 )) {
-          camera->features.hasRawMode = 1;
+					camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
           camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
           cameraInfo->frameFormatMap[ OA_PIX_FMT_GBRG8 ] = format;
           cameraInfo->frameFormatIdMap[ OA_PIX_FMT_GBRG8 ] =
@@ -862,7 +861,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
         }
 
         if ( !memcmp ( format->fourccFormat, "BA81", 4 )) {
-          camera->features.hasRawMode = 1;
+					camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
           camera->frameFormats[ OA_PIX_FMT_BGGR8 ] = 1;
           cameraInfo->frameFormatMap[ OA_PIX_FMT_BGGR8 ] = format;
           cameraInfo->frameFormatIdMap[ OA_PIX_FMT_BGGR8 ] =
@@ -876,7 +875,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
         }
 
         if ( !memcmp ( format->fourccFormat, "GRBG", 4 )) {
-          camera->features.hasRawMode = 1;
+					camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
           camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
           cameraInfo->frameFormatMap[ OA_PIX_FMT_GRBG8 ] = format;
           cameraInfo->frameFormatIdMap[ OA_PIX_FMT_GRBG8 ] =
@@ -890,7 +889,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
         }
 
         if ( !memcmp ( format->fourccFormat, "GBRG", 4 )) {
-          camera->features.hasRawMode = 1;
+					camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
           camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
           cameraInfo->frameFormatMap[ OA_PIX_FMT_GBRG8 ] = format;
           cameraInfo->frameFormatIdMap[ OA_PIX_FMT_GBRG8 ] =
@@ -904,7 +903,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
         }
 
         if ( !memcmp ( format->fourccFormat, "RGGB", 4 )) {
-          camera->features.hasRawMode = 1;
+					camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
           camera->frameFormats[ OA_PIX_FMT_RGGB8 ] = 1;
           cameraInfo->frameFormatMap[ OA_PIX_FMT_RGGB8 ] = format;
           cameraInfo->frameFormatIdMap[ OA_PIX_FMT_RGGB8 ] =
@@ -918,7 +917,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
         }
 
         if ( !memcmp ( format->fourccFormat, "BGGR", 4 )) {
-          camera->features.hasRawMode = 1;
+					camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
           camera->frameFormats[ OA_PIX_FMT_BGGR8 ] = 1;
           cameraInfo->frameFormatMap[ OA_PIX_FMT_BGGR8 ] = format;
           cameraInfo->frameFormatIdMap[ OA_PIX_FMT_BGGR8 ] =
@@ -1055,8 +1054,10 @@ oaUVCInitCamera ( oaCameraDevice* device )
   } while ( frame );
   cameraInfo->frameSizes[1].numSizes = i;
 
-  camera->features.hasFrameRates = allFramesHaveFixedRates;
-  camera->features.hasFixedFrameSizes = 1;
+  if ( allFramesHaveFixedRates ) {
+		camera->features.flags |= OA_CAM_FEATURE_FRAME_RATES;
+	}
+	camera->features.flags |= OA_CAM_FEATURE_FIXED_FRAME_SIZES;
   cameraInfo->frameRates.numRates = 0;
 
   camera->interface = device->interface;

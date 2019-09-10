@@ -756,7 +756,7 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
   FRAMESIZE*			size = command->commandData;
   unsigned int			offsetX, offsetY, x, y;
 
-  if ( !camera->features.hasROI ) {
+  if (!( camera->features.flags & OA_CAM_FEATURE_ROI )) {
     return -OA_ERR_INVALID_CONTROL;
   }
 

@@ -226,8 +226,7 @@ _IMG132EInitCamera ( oaCamera* camera )
     return -OA_ERR_SYSTEM_ERROR;
   }
 
-  camera->features.hasReset = 0;
-  camera->features.hasStreamingMode = 1;
+  camera->features.flags |= OA_CAM_FEATURE_STREAMING;
   camera->features.pixelSizeX = 3360;
   camera->features.pixelSizeY = 3360;
 

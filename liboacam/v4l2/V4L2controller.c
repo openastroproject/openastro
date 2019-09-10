@@ -166,7 +166,7 @@ oacamV4L2controller ( void* param )
 
     if ( streaming ) {
 
-      if ( camera->features.hasFrameRates ) {
+      if ( camera->features.flags & OA_CAM_FEATURE_FRAME_RATES ) {
         frameWait = 1000000.0 * cameraInfo->frameRateNumerator /
             cameraInfo->frameRateDenominator;
       } else {

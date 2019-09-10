@@ -123,8 +123,8 @@ oaMallincamInitCamera ( oaCameraDevice* device )
   // Mallincam_put_LevelRange
   // Mallincam_put_TempTint
 
-	camera->features.hasReadableControls = 1;
-	camera->features.hasStreamingMode = 1;
+  camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
+  camera->features.flags |= OA_CAM_FEATURE_STREAMING;
 
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_CONTRAST ) = OA_CTRL_TYPE_INT32;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_CONTRAST ) = TOUPCAM_CONTRAST_MIN;
@@ -312,7 +312,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
 */
 
   if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_ROI_HARDWARE ) {
-    camera->features.hasROI = 1;
+		camera->features.flags |= OA_CAM_FEATURE_ROI;
   }
 
   cameraInfo->maxBitDepth = p_Mallincam_get_MaxBitDepth ( handle );
@@ -415,7 +415,8 @@ oaMallincamInitCamera ( oaCameraDevice* device )
 
     // The docs aren't clear, so I'm assuming that raw mode is available for
     // all colour cameras
-    camera->features.hasRawMode = camera->features.hasDemosaicMode = 1;
+		camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
+		camera->features.flags |= OA_CAM_FEATURE_DEMOSAIC_MODE;
     cameraInfo->currentVideoFormat = OA_PIX_FMT_RGB24;
 
     // Some weird stuff appears to be going on here.  When I enable raw
@@ -489,7 +490,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
     }
     if ( !found ) {
       fprintf ( stderr, "raw format '%08x' not supported\n", fourcc );
-      camera->features.hasRawMode = 0;
+			camera->features.flags &= ~OA_CAM_FEATURE_RAW_MODE;
     }
   } else {
     cameraInfo->currentVideoFormat = OA_PIX_FMT_GREY8;
@@ -574,7 +575,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
   cameraInfo->maxResolutionX = cameraInfo->currentXSize;
   cameraInfo->maxResolutionY = cameraInfo->currentYSize;
   cameraInfo->binMode = 1;
-  camera->features.hasFixedFrameSizes = 1;
+	camera->features.flags |= OA_CAM_FEATURE_FIXED_FRAME_SIZES;
 
   if ( numResolutions > 1 ) {
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;

@@ -264,22 +264,23 @@ oaSXInitCamera ( oaCameraDevice* device )
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;
   cameraInfo->binMode = OA_BIN_MODE_NONE;
 
-	camera->features.hasROI = 1;
-  camera->features.hasReset = 1;
+  camera->features.flags |= OA_CAM_FEATURE_ROI;
+  camera->features.flags |= OA_CAM_FEATURE_RESET;
   switch ( devInfo->devType ) {
     case CAM_LODESTAR:
       camera->features.pixelSizeX = 8200;
       camera->features.pixelSizeY = 8400;
-			camera->features.hasStreamingMode = 1;
+			camera->features.flags |= OA_CAM_FEATURE_STREAMING;
       break;
     case CAM_LODESTAR_C:
       camera->features.pixelSizeX = 8600;
       camera->features.pixelSizeY = 8300;
-			camera->features.hasStreamingMode = 1;
+			camera->features.flags |= OA_CAM_FEATURE_STREAMING;
+			break;
     case CAM_COSTAR:
       camera->features.pixelSizeX = 5200;
       camera->features.pixelSizeY = 5200;
-			camera->features.hasStreamingMode = 1;
+			camera->features.flags |= OA_CAM_FEATURE_STREAMING;
       break;
   }
 
@@ -322,7 +323,6 @@ oaSXInitCamera ( oaCameraDevice* device )
 			cameraInfo->maxResolutionX;
   cameraInfo->ySubframeSize = cameraInfo->yImageSize =
 			cameraInfo->maxResolutionY;
-  camera->features.hasFixedFrameSizes = 0;
 
 
   cameraInfo->buffers = 0;

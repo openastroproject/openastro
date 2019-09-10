@@ -99,11 +99,10 @@ _QHY5InitCamera ( oaCamera* camera )
   cameraInfo->buffers = 0;
   cameraInfo->configuredBuffers = 0;
 
-  camera->features.hasROI = 0;
-  camera->features.hasReset = 1;
+  camera->features.flags |= OA_CAM_FEATURE_RESET;
+  camera->features.flags |= OA_CAM_FEATURE_STREAMING;
   camera->features.pixelSizeX = 5200;
   camera->features.pixelSizeY = 5200;
-  camera->features.hasStreamingMode = 1;
 
   cameraInfo->captureLength = QHY5_SENSOR_WIDTH *
       ( QHY5_IMAGE_HEIGHT + QHY5_VBLANK );

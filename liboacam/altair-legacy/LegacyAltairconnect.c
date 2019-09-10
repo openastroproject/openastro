@@ -107,8 +107,8 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
   pthread_cond_init ( &cameraInfo->commandComplete, 0 );
   cameraInfo->isStreaming = 0;
 
-	camera->features.hasReadableControls = 1;
-	camera->features.hasStreamingMode = 1;
+	camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
+	camera->features.flags |= OA_CAM_FEATURE_STREAMING;
 
   // FIX ME -- work out how to support these
   // Altaircam_put_AutoExpoTarget
@@ -328,7 +328,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
 */
 
   if ( devList[ devInfo->devIndex ].model->flag & TOUPCAM_FLAG_ROI_HARDWARE ) {
-    camera->features.hasROI = 1;
+		camera->features.flags |= OA_CAM_FEATURE_ROI;
   }
 
   cameraInfo->maxBitDepth = p_legacyAltaircam_get_MaxBitDepth ( handle );
@@ -431,7 +431,8 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
 
     // The docs aren't clear, so I'm assuming that raw mode is available for
     // all colour cameras
-    camera->features.hasRawMode = camera->features.hasDemosaicMode = 1;
+		camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
+		camera->features.flags |= OA_CAM_FEATURE_DEMOSAIC_MODE;
     cameraInfo->currentVideoFormat = OA_PIX_FMT_RGB24;
 
     // Some weird stuff appears to be going on here.  When I enable raw
@@ -505,7 +506,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
     }
     if ( !found ) {
       fprintf ( stderr, "raw format '%08x' not supported\n", fourcc );
-      camera->features.hasRawMode = 0;
+			camera->features.flags &= ~OA_CAM_FEATURE_RAW_MODE;
     }
   } else {
     cameraInfo->currentVideoFormat = OA_PIX_FMT_GREY8;
@@ -595,7 +596,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
       fprintf ( stderr, "Can't handle resolution %dx%d for camera\n", x, y );
     }
   }
-  camera->features.hasFixedFrameSizes = 1;
+	camera->features.flags |= OA_CAM_FEATURE_FIXED_FRAME_SIZES;
 
   cameraInfo->maxResolutionX = cameraInfo->currentXSize;
   cameraInfo->maxResolutionY = cameraInfo->currentYSize;

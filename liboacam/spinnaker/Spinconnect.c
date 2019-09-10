@@ -84,8 +84,8 @@ oaSpinInitCamera ( oaCameraDevice* device )
   cameraInfo->initialised = 0;
   devInfo = device->_private;
 
-	camera->features.hasReadableControls = 1;
-	camera->features.hasStreamingMode = 1;
+  camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
+  camera->features.flags |= OA_CAM_FEATURE_STREAMING;
 
   if (( *p_spinSystemGetInstance )( &systemHandle ) !=
       SPINNAKER_ERR_SUCCESS ) {

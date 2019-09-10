@@ -307,7 +307,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
   cameraInfo->frameSizes[1].sizes[0].x = cameraInfo->maxResolutionX;
   cameraInfo->frameSizes[1].sizes[0].y = cameraInfo->maxResolutionY;
   cameraInfo->frameSizes[1].numSizes = 1;
-  camera->features.hasFixedFrameSizes = 1;
+  camera->features.flags |= OA_CAM_FEATURE_FIXED_FRAME_SIZES;
 
   cameraInfo->buffers = 0;
   cameraInfo->configuredBuffers = 0;

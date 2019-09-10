@@ -150,8 +150,6 @@ _oldQHY6InitCamera ( oaCamera* camera )
   cameraInfo->buffers = 0;
   cameraInfo->configuredBuffers = 0;
 
-  camera->features.hasROI = 0;
-  camera->features.hasReset = 0;
   cameraInfo->topOffset = cameraInfo->bottomOffset = 0;
 
   _recalculateSizes ( camera );

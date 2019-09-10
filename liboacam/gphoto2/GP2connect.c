@@ -471,15 +471,16 @@ fprintf ( stderr, "have acpower flag\n" );
 		}
 	}
 
-	camera->features.singleShot = 1;
-	camera->features.frameSizeUnknown = 1;
-  camera->features.hasReadableControls = 1;
+	camera->features.flags |= OA_CAM_FEATURE_SINGLE_SHOT;
+	camera->features.flags |= OA_CAM_FEATURE_FRAME_SIZE_UNKNOWN;
+	camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
 
 	// I'm going to assume these will be correct
 	// FIX ME -- check later based on what frame formats are supported
 	// by the camera
 
-  camera->features.hasRawMode = camera->features.hasDemosaicMode = 1;
+	camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
+	camera->features.flags |= OA_CAM_FEATURE_DEMOSAIC_MODE;
 
 	// And now frame formats...
 	// These look to be a right giggle as a number of different possibilities

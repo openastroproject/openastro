@@ -261,10 +261,10 @@ _QHY5LIIInitCamera ( oaCamera* camera )
     return -OA_ERR_SYSTEM_ERROR;
   }
 
-  camera->features.hasReset = 1;
+  camera->features.flags |= OA_CAM_FEATURE_RESET;
+  camera->features.flags |= OA_CAM_FEATURE_STREAMING;
   camera->features.pixelSizeX = 3750;
   camera->features.pixelSizeY = 3750;
-  camera->features.hasStreamingMode = 1;
 
   oaQHY5LIISetAllControls ( camera );
 

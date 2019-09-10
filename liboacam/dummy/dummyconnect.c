@@ -155,10 +155,10 @@ oaDummyInitCamera ( oaCameraDevice* device )
 	camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
 
-  camera->features.hasROI = 1;
-  camera->features.hasReset = 1;
-  camera->features.hasReadableControls = 1;
-  camera->features.hasFixedFrameSizes = 0;
+  camera->features.flags |= OA_CAM_FEATURE_ROI;
+  camera->features.flags |= OA_CAM_FEATURE_RESET;
+  camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
+  camera->features.flags |= OA_CAM_FEATURE_FIXED_FRAME_SIZES;
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
   cameraInfo->binMode = OA_BIN_MODE_NONE;
 
@@ -170,10 +170,10 @@ oaDummyInitCamera ( oaCameraDevice* device )
 	switch ( cameraInfo->cameraType ) {
 		case 0:  // planetary
       camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
-      camera->features.hasRawMode = 1;
+			camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
 			cameraInfo->maxResolutionX = 1280;
 			cameraInfo->maxResolutionY = 960;
-			camera->features.hasStreamingMode = 1;
+			camera->features.flags |= OA_CAM_FEATURE_STREAMING;
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           18, sizeof ( FRAMESIZE )))) {
         fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
@@ -235,7 +235,7 @@ oaDummyInitCamera ( oaCameraDevice* device )
 
 		case 1:  // DSO
       camera->frameFormats[ OA_PIX_FMT_GREY16BE ] = 16;
-      camera->features.hasDemosaicMode = 1;
+			camera->features.flags |= OA_CAM_FEATURE_DEMOSAIC_MODE;
 			cameraInfo->maxResolutionX = 4656;
 			cameraInfo->maxResolutionY = 3250;
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (

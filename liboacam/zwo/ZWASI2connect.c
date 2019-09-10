@@ -520,10 +520,10 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
 
   // All cameras support ROI according to Sam@ZWO
-  camera->features.hasROI = 1;
-  camera->features.hasReset = 1;
-  camera->features.hasReadableControls = 1;
-	camera->features.hasStreamingMode = 1;
+  camera->features.flags |= OA_CAM_FEATURE_ROI;
+  camera->features.flags |= OA_CAM_FEATURE_RESET;
+  camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
+  camera->features.flags |= OA_CAM_FEATURE_STREAMING;
 
   // Ok, now we need to find out what frame formats are supported and
   // which one we want to use
@@ -543,7 +543,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       case ASI_IMG_RGB24:
         if ( cameraInfo->colour ) {
           camera->frameFormats[ OA_PIX_FMT_BGR24 ] = 1;
-          camera->features.hasDemosaicMode = 1;
+					camera->features.flags |= OA_CAM_FEATURE_DEMOSAIC_MODE;
           cameraInfo->currentMode = f;
           cameraInfo->currentFormat = OA_PIX_FMT_BGR24;
           cameraInfo->maxBitDepth =
@@ -567,7 +567,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
               camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
               break;
           }
-          camera->features.hasRawMode = 1;
+					camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
         } else {
           camera->frameFormats[ OA_PIX_FMT_GREY8 ] = 1;
           cameraInfo->greyscaleMode = f;
@@ -591,7 +591,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
               camera->frameFormats[ OA_PIX_FMT_GBRG16LE ] = 1;
               break;
           }
-          camera->features.hasRawMode = 1;
+					camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
         } else {
           camera->frameFormats[ OA_PIX_FMT_GREY16LE ] = 1;
         }
@@ -1250,7 +1250,6 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   cameraInfo->ySize = cameraInfo->maxResolutionY;
   cameraInfo->buffers = 0;
   cameraInfo->configuredBuffers = 0;
-  camera->features.hasFixedFrameSizes = 0;
 
   p_ASISetROIFormat ( cameraInfo->cameraId, cameraInfo->xSize,
       cameraInfo->ySize, cameraInfo->binMode, cameraInfo->currentMode );

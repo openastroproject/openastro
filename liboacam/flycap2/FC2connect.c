@@ -248,8 +248,8 @@ oaFC2InitCamera ( oaCameraDevice* device )
 
   // There's probably a lot of work still to be done here.
 
-  camera->features.hasReadableControls = 1;
-	camera->features.hasStreamingMode = 1;
+  camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
+  camera->features.flags |= OA_CAM_FEATURE_STREAMING;
 
   for ( i = 0; i < FC2_UNSPECIFIED_PROPERTY_TYPE; i++ ) {
     OA_CLEAR ( propertyInfo );
@@ -466,7 +466,9 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   fprintf ( stderr, "  mode mask: %08x\n", triggerInfo.modeMask );
    */
 
-  camera->features.hasExternalTrigger = triggerInfo.present ? 1 : 0;
+  if ( triggerInfo.present ) {
+		camera->features.flags |= OA_CAM_FEATURE_EXTERNAL_TRIGGER;
+	}
 
   // FIX ME -- need to handle readOutSupported ?
   // FIX ME -- need to handle valueReadable ?
@@ -709,7 +711,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       fprintf ( stderr, "  min val  : %f\n", strobeInfo.minValue );
       fprintf ( stderr, "  max val  : %f\n", strobeInfo.maxValue );
        */
-      if ( camera->features.hasStrobeOutput ) {
+      if ( camera->features.flags & OA_CAM_FEATURE_STROBE_OUTPUT ) {
         fprintf ( stderr, "Looks like there is more than one strobe output\n"
             "This could get messy\n" );
       }
@@ -718,7 +720,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
             "the trigger input.\nThis could get very messy\n" );
       }
  
-      camera->features.hasStrobeOutput = strobeInfo.present ? 1 : 0;
+      camera->features.flags |= OA_CAM_FEATURE_STROBE_OUTPUT;
       cameraInfo->strobeGPIO = i;
 
       cameraInfo->strobeEnable = strobeInfo.onOffSupported ? 1 : 0;
@@ -763,7 +765,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     }
   }
 
-  if ( camera->features.hasStrobeOutput ) {
+  if ( camera->features.flags & OA_CAM_FEATURE_STROBE_OUTPUT ) {
     strobeControl.source = cameraInfo->strobeGPIO;
     if (( ret = ( *p_fc2GetStrobe )( pgeContext, &strobeControl )) !=
         FC2_ERROR_OK ) {
@@ -795,8 +797,6 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   cameraInfo->currentVideoFormat = 0;
   cameraInfo->currentMode = 0;
 
-  camera->features.hasRawMode = camera->features.hasDemosaicMode = 0;
-
   // It appears to be true for the Flea3 and Blackfly, so perhaps it's
   // true for others, that:
   //
@@ -812,7 +812,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
   numResolutions = 0;
   firstMode = 0; // by definition
-  camera->features.hasFixedFrameSizes = 1;
+  camera->features.flags |= OA_CAM_FEATURE_FIXED_FRAME_SIZES;
   for ( mode = FC2_MODE_0; mode < FC2_NUM_MODES; mode++ ) {
 
     // skip modes unsupported by code
@@ -873,8 +873,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
       cameraInfo->availableBinModes |= ( 1 << ( xbin - 1 ));
       if ( imageInfo.imageHStepSize || imageInfo.imageVStepSize ) {
-        camera->features.hasROI = 1;
-				camera->features.hasFixedFrameSizes = 0;
+				camera->features.flags |= OA_CAM_FEATURE_ROI;
+				camera->features.flags &= ~OA_CAM_FEATURE_FIXED_FRAME_SIZES;
       }
 
       found = 0;
@@ -1204,7 +1204,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         break;
     }
     camera->frameFormats[ format ] = 1;
-    camera->features.hasRawMode = 1;
+		camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
     if ( cameraInfo->maxBytesPerPixel < 1 ) {
       cameraInfo->maxBytesPerPixel = 1;
     }
@@ -1237,7 +1237,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         break;
     }
     camera->frameFormats[ format ] = 1;
-    camera->features.hasRawMode = 1;
+		camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
     if ( cameraInfo->maxBytesPerPixel < 2 ) {
       cameraInfo->maxBytesPerPixel = 2;
     }
@@ -1273,7 +1273,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         break;
     }
     camera->frameFormats[ format ] = 1;
-    camera->features.hasRawMode = 1;
+		camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
     if ( cameraInfo->maxBytesPerPixel < 2 ) {
       cameraInfo->maxBytesPerPixel = 2;
     }

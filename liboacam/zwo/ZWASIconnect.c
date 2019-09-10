@@ -596,9 +596,9 @@ oaZWASIInitCamera ( oaCameraDevice* device )
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
 
   // All cameras support ROI according to Sam@ZWO
-  camera->features.hasROI = 1;
-  camera->features.hasReset = 1;
-	camera->features.hasStreamingMode = 1;
+  camera->features.flags |= OA_CAM_FEATURE_ROI;
+  camera->features.flags |= OA_CAM_FEATURE_RESET;
+  camera->features.flags |= OA_CAM_FEATURE_STREAMING;
 
   // Ok, now we need to find out what frame formats are supported and
   // which one we want to use
@@ -614,10 +614,10 @@ oaZWASIInitCamera ( oaCameraDevice* device )
     if ( isImgTypeSupported ( IMG_RGB24 )) {
       cameraInfo->videoCurrent = IMG_RGB24;
       cameraInfo->videoRGB24 = 1;
-      camera->features.hasDemosaicMode = 1;
+			camera->features.flags |= OA_CAM_FEATURE_DEMOSAIC_MODE;
     }
     if ( isImgTypeSupported ( IMG_RAW8 )) {
-      camera->features.hasRawMode = 1;
+			camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
     }
   } else {
     cameraInfo->colour = 0;
