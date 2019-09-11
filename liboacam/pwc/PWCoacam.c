@@ -42,7 +42,8 @@
  */
 
 int
-oaPWCGetCameras ( CAMERA_LIST* deviceList, int flags )
+oaPWCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   unsigned int				numFound = 0;
   unsigned int         		 	numUSBDevices, i;

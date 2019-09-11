@@ -41,7 +41,8 @@
  */
 
 int
-oaFC2GetCameras ( CAMERA_LIST* deviceList, int flags )
+oaFC2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   fc2Context		pgeContext;
   fc2CameraInfo*	devList;

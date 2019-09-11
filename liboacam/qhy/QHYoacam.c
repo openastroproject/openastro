@@ -97,7 +97,8 @@ struct qhycam cameraList[] =
  */
 
 int
-oaQHYGetCameras ( CAMERA_LIST* deviceList, int flags )
+oaQHYGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   unsigned int				numFound = 0;
   unsigned int         		 	numUSBDevices, i, j;

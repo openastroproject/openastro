@@ -40,7 +40,8 @@
  */
 
 int
-oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, int flags )
+oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   unsigned int		numCameras;
   unsigned int		i;

@@ -36,6 +36,7 @@ typedef struct oaCameraFeatures {
 	float QE;
 } oaCameraFeatures;
 
+#define OA_CAM_FEATURE_NONE										0x00000000
 #define OA_CAM_FEATURE_RAW_MODE								0x00000001
 #define OA_CAM_FEATURE_DEMOSAIC_MODE					0x00000002
 #define OA_CAM_FEATURE_BINNING								0x00000004

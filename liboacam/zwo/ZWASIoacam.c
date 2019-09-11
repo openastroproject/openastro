@@ -47,7 +47,8 @@ static const char *cameraNames[] = {
  */
 
 int
-oaZWASIGetCameras ( CAMERA_LIST* deviceList, int flags )
+oaZWASIGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   unsigned int		numFound = 0, i;
   int			ret;

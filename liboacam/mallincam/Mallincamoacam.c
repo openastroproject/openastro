@@ -40,7 +40,8 @@
  */
 
 int
-oaMallincamGetCameras ( CAMERA_LIST* deviceList, int flags )
+oaMallincamGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   ToupcamInstV2		devList[ TOUPCAM_MAX ];
   unsigned int		numCameras;

@@ -27,7 +27,7 @@
 #ifndef OA_TOUPTEK_OACAM_H
 #define OA_TOUPTEK_OACAM_H
 
-extern int		oaTouptekGetCameras ( CAMERA_LIST*, int );
+extern int		oaTouptekGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaTouptekInitCamera ( oaCameraDevice* );
 
 extern int		oaTouptekCloseCamera ( oaCamera* );

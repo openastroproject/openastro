@@ -40,7 +40,8 @@
  */
 
 int
-oaTouptekGetCameras ( CAMERA_LIST* deviceList, int flags )
+oaTouptekGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   ToupcamInstV2		devList[ TOUPCAM_MAX ];
   unsigned int		numCameras;

@@ -27,7 +27,7 @@
 #ifndef OA_ALTAIRCAM_OACAM_H
 #define OA_ALTAIRCAM_OACAM_H
 
-extern int		oaAltairGetCameras ( CAMERA_LIST*, int );
+extern int		oaAltairGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaAltairInitCamera ( oaCameraDevice* );
 
 extern int		oaAltairCloseCamera ( oaCamera* );

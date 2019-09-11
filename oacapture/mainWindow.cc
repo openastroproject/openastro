@@ -2317,7 +2317,8 @@ MainWindow::doCameraMenu ( int replaceSingleItem )
   if ( cameraDevs ) {
     commonState.camera->releaseInfo ( cameraDevs );
   }
-  numDevs = commonState.camera->listConnected ( &cameraDevs );
+  numDevs = commonState.camera->listConnected ( &cameraDevs,
+			OA_CAM_FEATURE_STREAMING );
 
   if ( !replaceSingleItem ) {
     if ( numDevs > 0 ) {

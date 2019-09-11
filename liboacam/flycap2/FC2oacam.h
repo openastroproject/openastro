@@ -28,7 +28,7 @@
 #ifndef OA_FC2_OACAM_H
 #define OA_FC2_OACAM_H
 
-extern int		oaFC2GetCameras ( CAMERA_LIST*, int );
+extern int		oaFC2GetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaFC2InitCamera ( oaCameraDevice* );
 extern int		oaFC2CloseCamera ( oaCamera* );
 

@@ -303,7 +303,7 @@ char*               installPathRoot = 0;
 static CAMERA_LIST	list;
 
 int
-oaGetCameras( oaCameraDevice*** deviceList )
+oaGetCameras( oaCameraDevice*** deviceList, unsigned long featureFlags )
 {
   int           i, err;
 
@@ -312,7 +312,7 @@ oaGetCameras( oaCameraDevice*** deviceList )
 
   for ( i = 0; i < OA_CAM_IF_COUNT; i++ ) {
     if ( oaCameraInterfaces[i].interfaceType ) {
-      if (( err = oaCameraInterfaces[i].enumerate ( &list,
+      if (( err = oaCameraInterfaces[i].enumerate ( &list, featureFlags,
           oaCameraInterfaces[i].flags )) < 0 ) {
 				if ( err != OA_ERR_LIBRARY_NOT_FOUND && err !=
 						OA_ERR_SYMBOL_NOT_FOUND ) {

@@ -48,7 +48,8 @@
  */
 
 int
-oaAltairLegacyGetCameras ( CAMERA_LIST* deviceList, int flags )
+oaAltairLegacyGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   ToupcamInst		devList[ TOUPCAM_MAX ];
   unsigned int		numCameras;

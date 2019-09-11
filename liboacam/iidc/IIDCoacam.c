@@ -44,7 +44,8 @@
  */
 
 int
-oaIIDCGetCameras ( CAMERA_LIST* deviceList, int flags )
+oaIIDCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   dc1394_t*	        iidcContext;
   dc1394error_t	        err;

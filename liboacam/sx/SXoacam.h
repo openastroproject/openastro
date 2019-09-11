@@ -28,7 +28,7 @@
 #ifndef OA_SX_OACAM_H
 #define OA_SX_OACAM_H
 
-extern int		oaSXGetCameras ( CAMERA_LIST*, int );
+extern int		oaSXGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaSXInitCamera ( oaCameraDevice* );
 extern int              oaSXCloseCamera ( oaCamera* );
 

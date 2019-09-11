@@ -27,7 +27,7 @@
 #ifndef OA_MALLINCAM_OACAM_H
 #define OA_MALLINCAM_OACAM_H
 
-extern int		oaMallincamGetCameras ( CAMERA_LIST*, int );
+extern int		oaMallincamGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaMallincamInitCamera ( oaCameraDevice* );
 
 extern int		oaMallincamCloseCamera ( oaCamera* );

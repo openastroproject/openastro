@@ -39,7 +39,8 @@
 
 
 int
-oaUVCGetCameras ( CAMERA_LIST* deviceList, int flags )
+oaUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   unsigned int			numFound = 0, numUVCDevices = 0, i;
   unsigned int  	        index;

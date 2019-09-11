@@ -109,7 +109,8 @@ static void*		_getDLSym ( void*, const char* );
  */
 
 int
-oaSpinGetCameras ( CAMERA_LIST* deviceList, int flags )
+oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   spinSystem		systemHandle;
   spinInterfaceList	ifaceListHandle = 0;

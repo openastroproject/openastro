@@ -40,7 +40,8 @@
  */
 
 int
-oaAltairGetCameras ( CAMERA_LIST* deviceList, int flags )
+oaAltairGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   AltaircamInstV2		devList[ ALTAIRCAM_MAX ];
   unsigned int		numCameras;

@@ -62,7 +62,8 @@ static const char *cameraNames[ ZWO_NUM_CAMERAS ] = {
  */
 
 int
-oaZWASI2GetCameras ( CAMERA_LIST* deviceList, int flags )
+oaZWASI2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   unsigned int		numFound = 0, i;
   int			ret;

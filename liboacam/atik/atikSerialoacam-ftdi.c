@@ -66,7 +66,8 @@ struct atikSerialCam atikCameraList[] =
 
 
 int
-oaAtikSerialGetCameras ( CAMERA_LIST* deviceList, int flags )
+oaAtikSerialGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   int numFound = 0, numUSBDevices, i, j, ret;
   int matchedVidPid, numCameras;

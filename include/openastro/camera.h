@@ -155,7 +155,7 @@ typedef struct oaCameraDevice {
   void*				_private;
 } oaCameraDevice;
 
-extern int		oaGetCameras ( oaCameraDevice*** );
+extern int		oaGetCameras ( oaCameraDevice***, unsigned long );
 extern void		oaReleaseCameras ( oaCameraDevice** );
 extern unsigned		oaGetCameraAPIVersion ( void );
 extern const char*	oaGetCameraAPIVersionStr ( void );

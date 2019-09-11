@@ -27,7 +27,7 @@
 #ifndef OA_ALTAIRCAM_LEGACY_OACAM_H
 #define OA_ALTAIRCAM_LEGACY_OACAM_H
 
-extern int		oaAltairLegacyGetCameras ( CAMERA_LIST*, int );
+extern int		oaAltairLegacyGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaAltairLegacyInitCamera ( oaCameraDevice* );
 
 extern int		oaAltairLegacyCloseCamera ( oaCamera* );

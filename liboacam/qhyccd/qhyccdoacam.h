@@ -27,7 +27,7 @@
 #ifndef OA_QHYCCD_OACAM_H
 #define OA_QHYCCD_OACAM_H
 
-extern int		oaQHYCCDGetCameras ( CAMERA_LIST*, int );
+extern int		oaQHYCCDGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaQHYCCDInitCamera ( oaCameraDevice* );
 
 extern int		oaQHYCCDCloseCamera ( oaCamera* );

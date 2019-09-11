@@ -34,7 +34,7 @@
 
 #define	SYS_V4L_PATH		"/sys/class/video4linux"
 
-extern int		oaV4L2GetCameras ( CAMERA_LIST*, int );
+extern int		oaV4L2GetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaV4L2InitCamera ( oaCameraDevice* );
 extern int              oaV4L2CloseCamera ( oaCamera* );
 

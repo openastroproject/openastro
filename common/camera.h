@@ -47,7 +47,7 @@ class Camera : public QObject
   public:
     			Camera();
     			~Camera();
-    int			listConnected ( oaCameraDevice*** );
+    int			listConnected ( oaCameraDevice***, unsigned long );
     void    releaseInfo ( oaCameraDevice** );
     int			initialise ( oaCameraDevice*, const char*, QWidget* );
     void		disconnect ( void );

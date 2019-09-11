@@ -41,7 +41,7 @@
 
 #include "atikSerialstate.h"
 
-extern int		oaAtikSerialGetCameras ( CAMERA_LIST*, int );
+extern int		oaAtikSerialGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaAtikSerialInitCamera ( oaCameraDevice* );
 extern int              oaAtikSerialCloseCamera ( oaCamera* );
 

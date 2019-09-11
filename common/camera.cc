@@ -357,9 +357,9 @@ Camera::frameRates ( int xRes, int yRes)
 
 // FIX ME -- might be nice to make this a tidier type at some point.  vector?
 int
-Camera::listConnected ( oaCameraDevice*** devs )
+Camera::listConnected ( oaCameraDevice*** devs, unsigned long flags )
 {
-  return ( oaGetCameras ( devs ));
+  return ( oaGetCameras ( devs, flags ));
 }
 
 

@@ -28,7 +28,7 @@
 #ifndef OA_EUVC_OACAM_H
 #define OA_EUVC_OACAM_H
 
-extern int		oaEUVCGetCameras ( CAMERA_LIST*, int );
+extern int		oaEUVCGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaEUVCInitCamera ( oaCameraDevice* );
 extern int              oaEUVCCloseCamera ( oaCamera* );
 

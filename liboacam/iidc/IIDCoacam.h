@@ -28,7 +28,7 @@
 #ifndef OA_IIDC_OACAM_H
 #define OA_IIDC_OACAM_H
 
-extern int		oaIIDCGetCameras ( CAMERA_LIST*, int );
+extern int		oaIIDCGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaIIDCInitCamera ( oaCameraDevice* );
 extern int		oaIIDCCloseCamera ( oaCamera* );
 

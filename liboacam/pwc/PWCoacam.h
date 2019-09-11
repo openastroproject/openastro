@@ -27,7 +27,7 @@
 #ifndef OA_PWC_OACAM_H
 #define OA_PWC_OACAM_H
 
-extern int		oaPWCGetCameras ( CAMERA_LIST*, int );
+extern int		oaPWCGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaPWCInitCamera ( oaCameraDevice* );
 extern int              oaPWCCloseCamera ( oaCamera* );
 

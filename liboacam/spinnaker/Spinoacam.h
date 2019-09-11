@@ -29,7 +29,7 @@
 
 #include <spinnaker/spinc/SpinnakerC.h>
 
-extern int		oaSpinGetCameras ( CAMERA_LIST*, int );
+extern int		oaSpinGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaSpinInitCamera ( oaCameraDevice* );
 extern int		oaSpinCloseCamera ( oaCamera* );
 

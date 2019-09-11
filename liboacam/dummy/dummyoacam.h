@@ -27,7 +27,7 @@
 #ifndef DUMMY_OACAM_H
 #define DUMMY_OACAM_H
 
-extern int		oaDummyGetCameras ( CAMERA_LIST*, int );
+extern int		oaDummyGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaDummyInitCamera ( oaCameraDevice* );
 extern int              oaDummyCloseCamera ( oaCamera* );
 

@@ -42,7 +42,8 @@ static void		_gp2ErrorLogger ( GPLogLevel, const char *, const char *,
 #endif
 
 int
-oaGP2GetCameras ( CAMERA_LIST* deviceList, int flags )
+oaGP2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   unsigned int			numFound = 0, i;
   int								ret, numCameras;
@@ -57,6 +58,10 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, int flags )
 	const char*				camName;
 	const char*				camPort;
 	const char*				widgetValue;
+
+	if ( featureFlags & OA_CAM_FEATURE_STREAMING ) {
+		return 0;
+	}
 
 	if (( ret = _gp2InitLibraryFunctionPointers()) != OA_ERR_NONE ) {
 		return ret;

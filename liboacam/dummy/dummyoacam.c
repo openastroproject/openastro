@@ -33,7 +33,8 @@
 
 
 int
-oaDummyGetCameras ( CAMERA_LIST* deviceList, int flags )
+oaDummyGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   unsigned int		i;
   int							ret;

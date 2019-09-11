@@ -27,7 +27,7 @@
 #ifndef ZWASI2_OACAM_H
 #define ZWASI2_OACAM_H
 
-extern int		oaZWASI2GetCameras ( CAMERA_LIST*, int );
+extern int		oaZWASI2GetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaZWASI2InitCamera ( oaCameraDevice* );
 extern int              oaZWASI2CloseCamera ( oaCamera* );
 

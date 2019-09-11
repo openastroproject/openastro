@@ -55,7 +55,8 @@ struct euvccam EUVCCameraList[] =
  */
 
 int
-oaEUVCGetCameras ( CAMERA_LIST* deviceList, int flags )
+oaEUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   unsigned int				numFound = 0;
   unsigned int         		 	numUSBDevices, i, j;

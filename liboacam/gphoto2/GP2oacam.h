@@ -32,7 +32,7 @@
 
 #include "oacamprivate.h"
 
-extern int				oaGP2GetCameras ( CAMERA_LIST*, int );
+extern int				oaGP2GetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaGP2InitCamera ( oaCameraDevice* );
 extern int        oaGP2CloseCamera ( oaCamera* );
 

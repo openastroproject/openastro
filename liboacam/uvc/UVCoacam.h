@@ -33,7 +33,7 @@
 
 #include "oacamprivate.h"
 
-extern int		oaUVCGetCameras ( CAMERA_LIST*, int );
+extern int		oaUVCGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaUVCInitCamera ( oaCameraDevice* );
 extern int              oaUVCCloseCamera ( oaCamera* );
 

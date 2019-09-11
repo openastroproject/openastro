@@ -51,7 +51,8 @@
  */
 
 int
-oaV4L2GetCameras ( CAMERA_LIST* deviceList, int flags )
+oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
+		int flags )
 {
   DIR*			dirp;
   struct dirent*	entry;
