@@ -125,6 +125,7 @@ oaMallincamInitCamera ( oaCameraDevice* device )
 
   camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
   camera->features.flags |= OA_CAM_FEATURE_STREAMING;
+	camera->features.flags |= OA_CAM_FEATURE_SINGLE_SHOT;
 
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_CONTRAST ) = OA_CTRL_TYPE_INT32;
   commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_CONTRAST ) = TOUPCAM_CONTRAST_MIN;

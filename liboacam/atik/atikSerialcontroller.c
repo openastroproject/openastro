@@ -94,7 +94,7 @@ oacamAtikSerialcontroller ( void* param )
           case OA_CMD_START_STREAMING:
             resultCode = _processStreamingStart ( camera, command );
             break;
-          case OA_CMD_STOP:
+          case OA_CMD_STOP_STREAMING:
             resultCode = _processStreamingStop ( cameraInfo, command );
             break;
           default:

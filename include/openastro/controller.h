@@ -66,6 +66,8 @@ typedef struct {
 #define OA_CMD_GPS_CACHE_GET		0x0f
 #define OA_CMD_START_EXPOSURE						0x10
 #define OA_CMD_START_STREAMING          0x11
+#define OA_CMD_STOP_STREAMING						0x12
+#define OA_CMD_ABORT_EXPOSURE						0x13
 
 #define OA_CALLBACK_NEW_FRAME           0x01
 

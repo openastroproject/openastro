@@ -93,7 +93,7 @@ oacamGP2controller ( void* param )
           case OA_CMD_START_EXPOSURE:
             resultCode = _processExposureSetup ( camera, command );
             break;
-          case OA_CMD_STOP:
+          case OA_CMD_ABORT_EXPOSURE:
             resultCode = _processAbortExposure ( camera );
             break;
           default:

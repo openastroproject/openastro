@@ -189,7 +189,7 @@ oaGP2CameraAbortExposure ( oaCamera* camera )
   oacamDebugMsg ( DEBUG_CAM_CTRL, "GP2: abortExposure\n" );
 
   OA_CLEAR ( command );
-  command.commandType = OA_CMD_STOP;
+  command.commandType = OA_CMD_ABORT_EXPOSURE;
 
   oaDLListAddToTail ( cameraInfo->commandQueue, &command );
   pthread_cond_broadcast ( &cameraInfo->commandQueued );

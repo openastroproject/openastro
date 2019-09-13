@@ -109,6 +109,7 @@ oaAltairLegacyInitCamera ( oaCameraDevice* device )
 
 	camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
 	camera->features.flags |= OA_CAM_FEATURE_STREAMING;
+	camera->features.flags |= OA_CAM_FEATURE_SINGLE_SHOT;
 
   // FIX ME -- work out how to support these
   // Altaircam_put_AutoExpoTarget
