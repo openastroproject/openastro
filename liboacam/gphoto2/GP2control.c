@@ -177,3 +177,29 @@ oaGP2CameraStartExposure ( oaCamera* camera, time_t when,
 
   return retval;
 }
+
+
+int
+oaGP2CameraAbortExposure ( oaCamera* camera )
+{
+  OA_COMMAND		command;
+  int						retval;
+  GP2_STATE*		cameraInfo = camera->_private;
+
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "GP2: abortExposure\n" );
+
+  OA_CLEAR ( command );
+  command.commandType = OA_CMD_STOP;
+
+  oaDLListAddToTail ( cameraInfo->commandQueue, &command );
+  pthread_cond_broadcast ( &cameraInfo->commandQueued );
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  while ( !command.completed ) {
+    pthread_cond_wait ( &cameraInfo->commandComplete,
+        &cameraInfo->commandQueueMutex );
+  }
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+  retval = command.resultCode;
+
+  return retval;
+}

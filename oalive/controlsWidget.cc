@@ -441,8 +441,10 @@ ControlsWidget::doResolutionChange ( int roiChanged )
     commonState.camera->setROI ( commonConfig.imageSizeX,
 				commonConfig.imageSizeY );
   } else {
-    commonState.camera->setResolution ( commonConfig.imageSizeX,
-				commonConfig.imageSizeY );
+		if ( !commonState.camera->hasUnknownFrameSize()) {
+			commonState.camera->setResolution ( commonConfig.imageSizeX,
+					commonConfig.imageSizeY );
+		}
   }
   if ( state.viewWidget ) {
     state.viewWidget->updateFrameSize();

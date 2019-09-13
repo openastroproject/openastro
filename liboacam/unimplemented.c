@@ -265,6 +265,15 @@ _startExposure ( oaCamera* camera, time_t when,
 }
 
 
+static int
+_abortExposure ( oaCamera* camera )
+{
+  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+      camera->deviceName );
+  return -OA_ERR_UNIMPLEMENTED;
+}
+
+
 void
 _oaInitCameraDeviceFunctionPointers ( oaCameraDevice* device )
 {
@@ -311,4 +320,5 @@ _oaInitCameraFunctionPointers ( oaCamera* camera )
   camera->funcs.getAutoWBManualSetting = _getAutoWBManualSetting;
 
   camera->funcs.startExposure = _startExposure;
+  camera->funcs.abortExposure = _abortExposure;
 }

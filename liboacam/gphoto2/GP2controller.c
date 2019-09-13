@@ -43,6 +43,7 @@
 static int	_processGetControl ( oaCamera*, OA_COMMAND* );
 static int	_processSetControl ( oaCamera*, OA_COMMAND* );
 static int	_processExposureSetup ( oaCamera*, OA_COMMAND* );
+static int	_processAbortExposure ( oaCamera* );
 static int	_startExposure ( oaCamera* );
 static int	_setWidgetValue ( GP2_STATE*, CameraWidget*, const void* );
 static int	_handleCompletedExposure ( GP2_STATE* );
@@ -91,6 +92,9 @@ oacamGP2controller ( void* param )
             break;
           case OA_CMD_START_EXPOSURE:
             resultCode = _processExposureSetup ( camera, command );
+            break;
+          case OA_CMD_STOP:
+            resultCode = _processAbortExposure ( camera );
             break;
           default:
             fprintf ( stderr, "Invalid command type %d in controller\n",
@@ -439,6 +443,13 @@ _handleCompletedExposure ( GP2_STATE* cameraInfo )
 		return OA_ERR_NONE;
 	}
 
+	if ( cameraInfo->abortExposure ) {
+		pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+		cameraInfo->abortExposure = 0;
+		pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+		return OA_ERR_NONE;
+	}
+
 	filePath = data;
 
 	( void ) p_gp_file_new ( &file );
@@ -511,3 +522,18 @@ _handleCompletedExposure ( GP2_STATE* cameraInfo )
 
 	return OA_ERR_NONE;
 }
+
+
+static int
+_processAbortExposure ( oaCamera* camera )
+{
+  GP2_STATE*	cameraInfo = camera->_private;
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  cameraInfo->exposurePending = 0;
+  cameraInfo->abortExposure = 1;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+
+	return OA_ERR_NONE;
+}
+
+

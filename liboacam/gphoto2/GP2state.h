@@ -116,6 +116,7 @@ typedef struct GP2_STATE {
   // handling exposures
   int									exposurePending;
   int									exposureInProgress;
+  int									abortExposure;
 	time_t							exposureStartTime;
   CALLBACK						exposureCallback;
 } GP2_STATE;

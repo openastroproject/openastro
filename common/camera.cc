@@ -188,6 +188,16 @@ int Camera::hasFixedFrameSizes ( void )
 }
 
 
+int Camera::hasUnknownFrameSize ( void )
+{
+  if ( !initialised ) {
+    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    return 0;
+  }
+  return cameraFeatures.flags & OA_CAM_FEATURE_FRAME_SIZE_UNKNOWN;
+}
+
+
 int
 Camera::hasFrameRateSupport ( void )
 {
@@ -552,9 +562,15 @@ Camera::stop ( void )
     return;
   }
 
-  if ( cameraFuncs.isStreaming ( cameraContext )) {
+  if (( cameraFeatures.flags & OA_CAM_FEATURE_STREAMING ) &&
+			cameraFuncs.isStreaming ( cameraContext )) {
     cameraFuncs.stopStreaming ( cameraContext );
+		return;
   }
+
+	if ( cameraFeatures.flags & OA_CAM_FEATURE_SINGLE_SHOT ) {
+    cameraFuncs.abortExposure ( cameraContext );
+	}
 }
 
 
