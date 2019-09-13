@@ -259,11 +259,8 @@ ControlsWidget::restartCapture ( void )
 void
 ControlsWidget::startNextExposure ( void )
 {
-qWarning() << "start next exposure signal received";
 	if ( state.cameraRunning ) {
-qWarning() << "  camera running";
 		if ( commonState.camera->isSingleShot()) {
-qWarning() << "  starting next exposure";
 			commonState.camera->startExposure ( 0, &ViewWidget::addImage,
 					&commonState );
 		}
