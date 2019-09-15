@@ -87,6 +87,8 @@ typedef struct Altaircam_STATE {
   DL_LIST		callbackQueue;
   // streaming
   int			isStreaming;
+  int			exposureInProgress;
+  int			abortExposure;
   CALLBACK		streamingCallback;
 
 } ALTAIRCAM_STATE;

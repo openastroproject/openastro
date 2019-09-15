@@ -45,10 +45,13 @@ static int	_processSetResolution ( ALTAIRCAM_STATE*, OA_COMMAND* );
 static int	_processSetROI ( oaCamera*, OA_COMMAND* );
 static int	_processStreamingStart ( ALTAIRCAM_STATE*, OA_COMMAND* );
 static int	_processStreamingStop ( ALTAIRCAM_STATE*, OA_COMMAND* );
+static int	_processExposureStart ( ALTAIRCAM_STATE*, OA_COMMAND* );
+static int	_processAbortExposure ( ALTAIRCAM_STATE* );
 static int	_doStart ( ALTAIRCAM_STATE* );
 static int	_doStop ( ALTAIRCAM_STATE* );
 static int	_setBinning ( ALTAIRCAM_STATE*, int );
 static int	_setFrameFormat ( ALTAIRCAM_STATE*, int );
+static void _AltairPullCallback ( unsigned int, void* );
 /*
 static int	_setColourMode ( ALTAIRCAM_STATE*, int );
 static int	_setBitDepth ( ALTAIRCAM_STATE*, int );
@@ -103,6 +106,12 @@ oacamAltaircontroller ( void* param )
           case OA_CMD_STOP_STREAMING:
             resultCode = _processStreamingStop ( cameraInfo, command );
             break;
+					case OA_CMD_START_EXPOSURE:
+						resultCode = _processExposureStart ( cameraInfo, command );
+						break;
+					case OA_CMD_ABORT_EXPOSURE:
+						resultCode = _processAbortExposure ( cameraInfo );
+						break;
           default:
             fprintf ( stderr, "Invalid command type %d in controller\n",
                 command->commandType );
@@ -951,6 +960,131 @@ _setFrameFormat ( ALTAIRCAM_STATE* cameraInfo, int format )
   cameraInfo->currentBytesPerPixel = oaFrameFormats[ format ].bytesPerPixel;
   cameraInfo->imageBufferLength = cameraInfo->currentXSize *
       cameraInfo->currentYSize * cameraInfo->currentBytesPerPixel;
+
+  return OA_ERR_NONE;
+}
+
+
+static int
+_processExposureStart ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
+{
+  CALLBACK*		cb = command->commandData;
+	int					ret;
+
+  if ( cameraInfo->isStreaming || cameraInfo->exposureInProgress ) {
+    return -OA_ERR_INVALID_COMMAND;
+  }
+
+  cameraInfo->streamingCallback.callback = cb->callback;
+  cameraInfo->streamingCallback.callbackArg = cb->callbackArg;
+
+  cameraInfo->imageBufferLength = cameraInfo->currentXSize *
+      cameraInfo->currentYSize * cameraInfo->currentBytesPerPixel;
+
+  if (( ret = ( p_Altaircam_StartPullModeWithCallback )( cameraInfo->handle,
+      _AltairPullCallback, cameraInfo )) < 0 ) {
+    fprintf ( stderr, "%s: Altaircam_StartPullModeWithCallback failed: 0x%x\n",
+        __FUNCTION__, ret );
+    return -OA_ERR_CAMERA_IO;
+  }
+
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  cameraInfo->exposureInProgress = 1;
+  cameraInfo->abortExposure = 0;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+  return OA_ERR_NONE;
+}
+
+
+static void
+_AltairPullCallback ( unsigned int event, void* ptr )
+{
+	ALTAIRCAM_STATE*			cameraInfo = ptr;
+	AltaircamFrameInfoV2	frameInfo;
+  int										buffersFree, nextBuffer, shiftBits, bitsPerPixel;
+	int										bytesPerPixel, ret, abort;
+  unsigned int					dataLength;
+
+	// FIX ME -- this is very similar to the "push" callback, but not quite
+	// It should be possible to combine the two
+
+  pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+  buffersFree = cameraInfo->buffersFree;
+  bitsPerPixel = cameraInfo->currentBitsPerPixel;
+  bytesPerPixel = cameraInfo->currentBytesPerPixel;
+	abort = cameraInfo->abortExposure;
+  pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+
+  if ( !abort && buffersFree && event == ALTAIRCAM_EVENT_IMAGE ) {
+    dataLength = cameraInfo->imageBufferLength;
+    nextBuffer = cameraInfo->nextBuffer;
+
+		if (( ret = ( p_Altaircam_PullImageV2 )( cameraInfo->handle,
+				cameraInfo->buffers[ nextBuffer ].start, bytesPerPixel * 8,
+				&frameInfo )) < 0 ) {
+			fprintf ( stderr, "%s: Altaircam_PullImageV2 failed: 0x%x\n",
+					__FUNCTION__, ret );
+			return;
+		}
+
+		// Now here's the fun...
+		//
+		// In 12-bit (and presumably 10- and 14-bit) mode, Altair cameras
+		// appear to return little-endian data, but right-aligned rather than
+		// left-aligned as many other cameras do.  So if we have such an image we
+		// try to fix it here.
+		//
+		// FIX ME -- I'm not sure this is the right place to be doing this.
+		// Perhaps there should be a flag to tell the user whether the data is
+		// left-or right-aligned and they can sort it out.
+
+		if ( bitsPerPixel > 8 && bitsPerPixel < 16 ) {
+			shiftBits = 16 - bitsPerPixel;
+
+			if ( shiftBits ) {
+				uint16_t	*s = cameraInfo->buffers[ nextBuffer ].start;
+				uint16_t	v;
+				unsigned int	i;
+
+				for ( i = 0; i < dataLength; i += 2 ) {
+					v = *s;
+					v <<= shiftBits;
+					*s++ = v;
+				}
+			}
+		}
+
+		cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
+				OA_CALLBACK_NEW_FRAME;
+		cameraInfo->frameCallbacks[ nextBuffer ].callback =
+				cameraInfo->streamingCallback.callback;
+		cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =
+				cameraInfo->streamingCallback.callbackArg;
+		cameraInfo->frameCallbacks[ nextBuffer ].buffer =
+				cameraInfo->buffers[ nextBuffer ].start;
+		cameraInfo->frameCallbacks[ nextBuffer ].bufferLen = dataLength;
+		pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+		oaDLListAddToTail ( cameraInfo->callbackQueue,
+				&cameraInfo->frameCallbacks[ nextBuffer ]);
+		cameraInfo->buffersFree--;
+		cameraInfo->nextBuffer = ( nextBuffer + 1 ) %
+				cameraInfo->configuredBuffers;
+		pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+		pthread_cond_broadcast ( &cameraInfo->callbackQueued );
+	}
+
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  cameraInfo->exposureInProgress = 0;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+}
+
+
+static int
+_processAbortExposure ( ALTAIRCAM_STATE* cameraInfo )
+{
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  cameraInfo->abortExposure = 1;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   return OA_ERR_NONE;
 }
