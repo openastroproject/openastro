@@ -773,6 +773,7 @@ _GP2InitFunctionPointers ( oaCamera* camera )
   camera->funcs.getMenuString = oaGP2CameraGetMenuString;
 
 	camera->funcs.startExposure = oaGP2CameraStartExposure;
+	camera->funcs.abortExposure = oaGP2CameraAbortExposure;
 }
 
 

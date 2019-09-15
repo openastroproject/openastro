@@ -971,9 +971,13 @@ _processExposureStart ( ALTAIRCAM_STATE* cameraInfo, OA_COMMAND* command )
   CALLBACK*		cb = command->commandData;
 	int					ret;
 
-  if ( cameraInfo->isStreaming || cameraInfo->exposureInProgress ) {
+  if ( cameraInfo->isStreaming ) {
     return -OA_ERR_INVALID_COMMAND;
   }
+
+	if ( cameraInfo->exposureInProgress ) {
+		return OA_ERR_NONE;
+	}
 
   cameraInfo->streamingCallback.callback = cb->callback;
   cameraInfo->streamingCallback.callbackArg = cb->callbackArg;
@@ -1072,19 +1076,23 @@ _AltairPullCallback ( unsigned int event, void* ptr )
 		pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
 		pthread_cond_broadcast ( &cameraInfo->callbackQueued );
 	}
-
-  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->exposureInProgress = 0;
-  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 }
 
 
 static int
 _processAbortExposure ( ALTAIRCAM_STATE* cameraInfo )
 {
+	int			ret;
+
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
   cameraInfo->abortExposure = 1;
+  cameraInfo->exposureInProgress = 0;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+
+  if (( ret = ( p_Altaircam_Stop )( cameraInfo->handle )) < 0 ) {
+    fprintf ( stderr, "%s: Altaircam_Stop failed: %d\n", __FUNCTION__, ret );
+    return -OA_ERR_CAMERA_IO;
+  }
 
   return OA_ERR_NONE;
 }

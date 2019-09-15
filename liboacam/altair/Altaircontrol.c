@@ -362,3 +362,61 @@ oaAltairCameraGetMenuString ( oaCamera* camera, int control, int index )
   fprintf ( stderr, "%s: control not implemented\n", __FUNCTION__ );
   return "";
 }
+
+
+int
+oaAltairCameraStartExposure ( oaCamera* camera, time_t when,
+    void* (*callback)(void*, void*, int, void* ), void* callbackArg )
+{
+  OA_COMMAND    command;
+  CALLBACK      callbackData;
+  int           retval;
+  ALTAIRCAM_STATE*    cameraInfo = camera->_private;
+
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "Altair: startExposure ( %p )\n", callback );
+
+  OA_CLEAR ( command );
+  callbackData.callback = callback;
+  callbackData.callbackArg = callbackArg;
+  command.commandType = OA_CMD_START_EXPOSURE;
+  command.commandArgs = ( void* ) &when;
+  command.commandData = ( void* ) &callbackData;
+
+  oaDLListAddToTail ( cameraInfo->commandQueue, &command );
+  pthread_cond_broadcast ( &cameraInfo->commandQueued );
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  while ( !command.completed ) {
+    pthread_cond_wait ( &cameraInfo->commandComplete,
+        &cameraInfo->commandQueueMutex );
+  }
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+  retval = command.resultCode;
+
+  return retval;
+}
+
+
+int
+oaAltairCameraAbortExposure ( oaCamera* camera )
+{
+  OA_COMMAND    command;
+  int           retval;
+  ALTAIRCAM_STATE*    cameraInfo = camera->_private;
+
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "Altair: abortExposure\n" );
+
+  OA_CLEAR ( command );
+  command.commandType = OA_CMD_ABORT_EXPOSURE;
+
+  oaDLListAddToTail ( cameraInfo->commandQueue, &command );
+  pthread_cond_broadcast ( &cameraInfo->commandQueued );
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  while ( !command.completed ) {
+    pthread_cond_wait ( &cameraInfo->commandComplete,
+        &cameraInfo->commandQueueMutex );
+  }
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+  retval = command.resultCode;
+
+  return retval;
+}

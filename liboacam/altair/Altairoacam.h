@@ -61,4 +61,7 @@ extern int		oaAltairCameraGetFramePixelFormat ( oaCamera* );
 
 extern const char*      oaAltairCameraGetMenuString ( oaCamera*, int, int );
 
+extern int	oaAltairCameraStartExposure ( oaCamera*, time_t,
+								void* (*)(void*, void*, int, void* ), void* );
+extern int	oaAltairCameraAbortExposure ( oaCamera* );
 #endif	/* OA_ALTAIRCAM_OACAM_H */

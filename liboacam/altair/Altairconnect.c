@@ -720,6 +720,9 @@ _AltairInitFunctionPointers ( oaCamera* camera )
   camera->funcs.getFramePixelFormat = oaAltairCameraGetFramePixelFormat;
 
   camera->funcs.getMenuString = oaAltairCameraGetMenuString;
+
+	camera->funcs.startExposure = oaAltairCameraStartExposure;
+	camera->funcs.abortExposure = oaAltairCameraAbortExposure;
 }
 
 
