@@ -46,47 +46,85 @@ ProcessingControls::ProcessingControls ( QWidget* parent ) : QWidget ( parent )
   blackLevelSlider->setMinimumWidth ( 100 );
   blackLevelSlider->setRange ( 0, 65534 );
   blackLevelSlider->setValue ( 0 );
+  blackLevelSlider->setTracking ( 0 );
+  blackLevelValue = new QLabel ( "0" );
   whiteLevelSlider = new QSlider ( Qt::Horizontal, this );
   whiteLevelSlider->setFocusPolicy ( Qt::TabFocus );
   whiteLevelSlider->setMinimumWidth ( 100 );
   whiteLevelSlider->setRange ( 1, 65535 );
   whiteLevelSlider->setValue ( 65535 );
+  whiteLevelSlider->setTracking ( 0 );
+  whiteLevelValue = new QLabel ( "65535" );
   brightnessSlider = new QSlider ( Qt::Horizontal, this );
   brightnessSlider->setFocusPolicy ( Qt::TabFocus );
   brightnessSlider->setMinimumWidth ( 100 );
   brightnessSlider->setRange ( 0, 100 );
   brightnessSlider->setValue ( 0 );
+  brightnessSlider->setTracking ( 0 );
+  brightnessValue = new QLabel ( "0" );
   contrastSlider = new QSlider ( Qt::Horizontal, this );
   contrastSlider->setFocusPolicy ( Qt::TabFocus );
   contrastSlider->setMinimumWidth ( 100 );
   contrastSlider->setRange ( 0, 100 );
   contrastSlider->setValue ( 50 );
+  contrastSlider->setTracking ( 0 );
+  contrastValue = new QLabel ( "50" );
   saturationSlider = new QSlider ( Qt::Horizontal, this );
   saturationSlider->setFocusPolicy ( Qt::TabFocus );
   saturationSlider->setMinimumWidth ( 100 );
   saturationSlider->setRange ( 0, 200 );
   saturationSlider->setValue ( 50 );
+  saturationSlider->setTracking ( 0 );
+  saturationValue = new QLabel ( "50" );
   gammaSlider = new QSlider ( Qt::Horizontal, this );
   gammaSlider->setFocusPolicy ( Qt::TabFocus );
   gammaSlider->setMinimumWidth ( 100 );
   gammaSlider->setRange ( 1, 255 );
   gammaSlider->setValue ( 100 );
+  gammaSlider->setTracking ( 0 );
+  gammaValue = new QLabel ( "100" );
 
+	zoom = new ZoomWidget ( this );
 	histogram = new HistogramWidget ( 0, this );
 
   controlBox = new QVBoxLayout();
-  controlBox->addWidget ( blackLevelLabel );
+	blackLevelBox = new QHBoxLayout();
+  blackLevelBox->addWidget ( blackLevelLabel );
+  blackLevelBox->addStretch ( 1 );
+  blackLevelBox->addWidget ( blackLevelValue );
+  controlBox->addLayout ( blackLevelBox );
   controlBox->addWidget ( blackLevelSlider );
-  controlBox->addWidget ( whiteLevelLabel );
+	whiteLevelBox = new QHBoxLayout();
+  whiteLevelBox->addWidget ( whiteLevelLabel );
+  whiteLevelBox->addStretch ( 1 );
+  whiteLevelBox->addWidget ( whiteLevelValue );
+  controlBox->addLayout ( whiteLevelBox );
   controlBox->addWidget ( whiteLevelSlider );
-  controlBox->addWidget ( brightnessLabel );
+	brightnessBox = new QHBoxLayout();
+  brightnessBox->addWidget ( brightnessLabel );
+  brightnessBox->addStretch ( 1 );
+  brightnessBox->addWidget ( brightnessValue );
+  controlBox->addLayout ( brightnessBox );
   controlBox->addWidget ( brightnessSlider );
-  controlBox->addWidget ( contrastLabel );
+	contrastBox = new QHBoxLayout();
+  contrastBox->addWidget ( contrastLabel );
+  contrastBox->addStretch ( 1 );
+  contrastBox->addWidget ( contrastValue );
+  controlBox->addLayout ( contrastBox );
   controlBox->addWidget ( contrastSlider );
-  controlBox->addWidget ( saturationLabel );
+	saturationBox = new QHBoxLayout();
+  saturationBox->addWidget ( saturationLabel );
+  saturationBox->addStretch ( 1 );
+  saturationBox->addWidget ( saturationValue );
+  controlBox->addLayout ( saturationBox );
   controlBox->addWidget ( saturationSlider );
-  controlBox->addWidget ( gammaLabel );
+	gammaBox = new QHBoxLayout();
+  gammaBox->addWidget ( gammaLabel );
+  gammaBox->addStretch ( 1 );
+  gammaBox->addWidget ( gammaValue );
+  controlBox->addLayout ( gammaBox );
   controlBox->addWidget ( gammaSlider );
+  controlBox->addWidget ( zoom );
   controlBox->addStretch ( 2 );
   controlBox->addWidget ( histogram );
 
@@ -137,14 +175,20 @@ ProcessingControls::configure ( void )
 void
 ProcessingControls::blackLevelChanged ( void )
 {
-	int		blackValue, whiteValue;
+	int			blackValue, whiteValue;
+	QString	label;
 
 	blackValue = blackLevelSlider->value();
 	whiteValue = whiteLevelSlider->value();
 	if ( whiteValue <= blackValue ) {
 		whiteLevelSlider->setValue ( blackValue + 1 );
+		label.setNum ( blackValue + 1 );
+		whiteLevelValue->setText ( label );
 	}
+	label.setNum ( blackValue );
+	blackLevelValue->setText ( label );
 	state.viewWidget->setBlackLevel ( blackValue );
+	emit redrawImage();
 }
 
 
@@ -152,39 +196,69 @@ void
 ProcessingControls::whiteLevelChanged ( void )
 {
 	int		blackValue, whiteValue;
+	QString	label;
 
 	blackValue = blackLevelSlider->value();
 	whiteValue = whiteLevelSlider->value();
 	if ( blackValue >= whiteValue ) {
 		blackLevelSlider->setValue ( whiteValue - 1 );
+		label.setNum ( whiteValue - 1 );
+		blackLevelValue->setText ( label );
 	}
-	state.viewWidget->setWhiteLevel ( whiteLevelSlider->value());
+	label.setNum ( whiteValue );
+	whiteLevelValue->setText ( label );
+	state.viewWidget->setWhiteLevel ( whiteValue );
+	emit redrawImage();
 }
 
 
 void
 ProcessingControls::brightnessChanged ( void )
 {
-	state.viewWidget->setBrightness ( brightnessSlider->value());
+	int		value = brightnessSlider->value();
+	QString	label;
+
+	label.setNum ( value );
+	brightnessValue->setText ( label );
+	state.viewWidget->setBrightness ( value );
+	emit redrawImage();
 }
 
 
 void
 ProcessingControls::contrastChanged ( void )
 {
-	state.viewWidget->setContrast ( contrastSlider->value());
+	int		value = contrastSlider->value();
+	QString	label;
+
+	label.setNum ( value );
+	contrastValue->setText ( label );
+	state.viewWidget->setContrast ( value );
+	emit redrawImage();
 }
 
 
 void
 ProcessingControls::saturationChanged ( void )
 {
-	state.viewWidget->setSaturation ( saturationSlider->value());
+	int		value = saturationSlider->value();
+	QString	label;
+
+	label.setNum ( value );
+	saturationValue->setText ( label );
+	state.viewWidget->setSaturation ( value );
+	emit redrawImage();
 }
 
 
 void
 ProcessingControls::gammaChanged ( void )
 {
-	state.viewWidget->setGamma ( gammaSlider->value());
+	int		value = gammaSlider->value();
+	QString	label;
+
+	label.setNum ( value );
+	gammaValue->setText ( label );
+	state.viewWidget->setGamma ( value );
+	emit redrawImage();
 }

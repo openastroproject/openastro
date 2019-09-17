@@ -34,6 +34,7 @@
 #include <QtGui>
 
 #include "histogramWidget.h"
+#include "zoomWidget.h"
 
 
 class ProcessingControls : public QWidget
@@ -46,6 +47,7 @@ class ProcessingControls : public QWidget
     void		configure ( void );
 		void		connectHistogramSignal ( void );
 		HistogramWidget*	histogram;
+		ZoomWidget*				zoom;
 
   private:
     QVBoxLayout*	controlBox;
@@ -55,12 +57,27 @@ class ProcessingControls : public QWidget
     QLabel*		contrastLabel;
     QLabel*		saturationLabel;
     QLabel*		gammaLabel;
+    QLabel*		blackLevelValue;
+    QLabel*		whiteLevelValue;
+    QLabel*		brightnessValue;
+    QLabel*		contrastValue;
+    QLabel*		saturationValue;
+    QLabel*		gammaValue;
     QSlider*		blackLevelSlider;
     QSlider*		whiteLevelSlider;
     QSlider*		brightnessSlider;
     QSlider*		contrastSlider;
     QSlider*		saturationSlider;
     QSlider*		gammaSlider;
+		QHBoxLayout*	blackLevelBox;
+		QHBoxLayout*	whiteLevelBox;
+		QHBoxLayout*	brightnessBox;
+		QHBoxLayout*	contrastBox;
+		QHBoxLayout*	saturationBox;
+		QHBoxLayout*	gammaBox;
+
+	signals:
+		void				redrawImage ( void );
 
   public slots:
 		void				blackLevelChanged ( void );
