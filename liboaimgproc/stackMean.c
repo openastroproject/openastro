@@ -29,20 +29,23 @@
 
 
 int
-oaStackMean8 ( void* source, unsigned int* totals, void* target,
-    unsigned int samples, unsigned int length )
+oaStackMean8 ( void** frameArray, unsigned int numFrames, void* target,
+		unsigned int length )
 {
-  unsigned int i;
-  uint8_t*	s = source;
-  uint8_t*	t = target;
   unsigned int	v;
+	uint8_t**	frames = ( uint8_t** ) frameArray;
+	uint8_t*	tgt = target;
+  unsigned int i, j;
 
-  for ( i = 0; i < length; i++ ) {
-    v = *s++;
-    v += *totals;
-    *totals++ = v;
-    *t++ = ( v / samples ) & 0xff;
-  }
+	for ( i = 0; i < length; i++ ) {
+		v = 0;
+		for ( j = 0; j < numFrames; j++ ) {
+			v += frames[j][i];
+		}
+		*tgt++ = v / numFrames;
+	}
 
   return 0;
 }
+
+

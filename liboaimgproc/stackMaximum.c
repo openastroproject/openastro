@@ -29,19 +29,24 @@
 
 
 int
-oaStackMaximum8 ( void* source1, void* source2, void* target,
+oaStackMaximum8 ( void** frameArray, unsigned int numFrames, void* target,
 		unsigned int length )
 {
-  unsigned int i;
-  uint8_t*	s1 = source1;
-  uint8_t*	s2 = source2;
-  uint8_t*	t = target;
+	uint8_t**	frames = ( uint8_t** ) frameArray;
+	uint8_t*	tgt = target;
+  unsigned int i, j;
+	uint8_t		max;
 
-  for ( i = 0; i < length; i++ ) {
-		*t++ = ( *s1 > *s2 ) ? *s1 : *s2;
-		s1++;
-		s2++;
-  }
+	for ( i = 0; i < length; i++ ) {
+		max = 0;
+		for ( j = 0; j < numFrames; j++ ) {
+			if ( frames[j][i] > max ) {
+				max = frames[j][i];
+			}
+		}
+		*tgt++ = max;
+	}
 
   return 0;
 }
+

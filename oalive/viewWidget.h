@@ -144,14 +144,8 @@ class ViewWidget : public QFrame
     int			setNewFirstFrameTime;
     pthread_mutex_t	imageMutex;
     int			focusScore;
-    void*		stackBuffer[2];
-    int			stackBufferLength;
-    int			currentStackBuffer;
-    void*		stackBufferInUse;
 		void**	previousFrames;
 		unsigned int	previousFrameArraySize;
-    unsigned int*	averageBuffer;
-    unsigned int	averageBufferLength;
     unsigned int	totalFrames;
 
     unsigned int	reduceTo8Bit ( void*, void*, int, int, int );
