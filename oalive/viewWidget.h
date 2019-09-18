@@ -146,7 +146,9 @@ class ViewWidget : public QFrame
     int			focusScore;
 		void**	previousFrames;
 		unsigned int	previousFrameArraySize;
-    unsigned int	totalFrames;
+    unsigned int	nextFrame;
+		unsigned int	maxFrames;
+		unsigned int	frameLimit;
 
     unsigned int	reduceTo8Bit ( void*, void*, int, int, int );
     void		mousePressEvent ( QMouseEvent* );

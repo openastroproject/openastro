@@ -82,7 +82,8 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
   viewImageBuffer[0] = writeImageBuffer[0] = 0;
   viewImageBuffer[1] = writeImageBuffer[1] = 0;
 	previousFrames = 0;
-	totalFrames = previousFrameArraySize = 0;
+	maxFrames = nextFrame = previousFrameArraySize = 0;
+	frameLimit = 50;
 	rgbBuffer = 0;
 	rgbBufferSize = 0;
 
@@ -156,8 +157,8 @@ ViewWidget::~ViewWidget()
 
 	if ( previousFrames ) {
 		unsigned int i;
-		if ( totalFrames ) {
-			for ( i = 0; i < totalFrames; i++ ) {
+		if ( maxFrames ) {
+			for ( i = 0; i < maxFrames; i++ ) {
 				free (( void* ) previousFrames[i] );
 			}
 		}
@@ -200,10 +201,11 @@ ViewWidget::updateFrameSize ( void )
 
 	// Throw away all the saved frames, but keep the space for the array of
 	// pointers
-	if ( previousFrames && totalFrames ) {
+	if ( previousFrames && maxFrames ) {
 		unsigned int i;
-		for ( i = 0; i < totalFrames; i++ ) {
+		for ( i = 0; i < maxFrames; i++ ) {
 			free (( void* ) previousFrames[i] );
+			previousFrames[i] = 0;
 		}
 	}
 }
@@ -606,68 +608,78 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
   }
 
-  self->totalFrames++;
-  const int viewFrameLength = commonConfig.imageSizeX *
+	if ( self->maxFrames < self->frameLimit ) {
+		self->maxFrames++;
+
+		// assign more memory for the array of frame pointers if required
+		if ( self->previousFrameArraySize < self->maxFrames ) {
+			void**		tmpPtr;
+			if (!( tmpPtr = ( void** ) realloc ( self->previousFrames,
+					( self->previousFrameArraySize + 10 ) * sizeof ( void* )))) {
+				qDebug() << "realloc of frame history failed!";
+				self->maxFrames--;
+				return 0;
+			}
+
+			self->previousFrames = tmpPtr;
+			for ( int i = 0; i < 10; i++ ) {
+				self->previousFrames [ self->previousFrameArraySize + i ] = 0;
+			}
+			self->previousFrameArraySize += 10;
+		}
+	}
+
+	const int viewFrameLength = commonConfig.imageSizeX *
 			commonConfig.imageSizeY *
-      oaFrameFormats[ viewPixelFormat ].bytesPerPixel;
+			oaFrameFormats[ viewPixelFormat ].bytesPerPixel;
 	
-	// assign more memory for the array of frame pointers if required
-	if ( self->previousFrameArraySize < self->totalFrames ) {
-		void**		tmpPtr;
-		if (!( tmpPtr = ( void** ) realloc ( self->previousFrames,
-				( self->previousFrameArraySize + 20 ) * sizeof ( void* )))) {
-			qDebug() << "realloc of frame history failed!";
-			self->totalFrames--;
+	if ( !self->previousFrames[ self->nextFrame ]) {
+		if (!( self->previousFrames[ self->nextFrame ] =
+				malloc ( viewFrameLength ))) {
+			qDebug() << "malloc of frame history buffer failed!";
 			return 0;
 		}
-
-		self->previousFrames = tmpPtr;
-		self->previousFrameArraySize += 20;
-	}
-	if (!( self->previousFrames[ self->totalFrames - 1 ] =
-			malloc ( viewFrameLength ))) {
-		qDebug() << "malloc of frame history failed!";
-		self->totalFrames--;
-		return 0;
 	}
 
 	// copy the view buffer to the frame history
-	memcpy ( self->previousFrames[ self->totalFrames - 1 ], viewBuffer,
+	memcpy ( self->previousFrames[ self->nextFrame ], viewBuffer,
 			viewFrameLength );
+	self->nextFrame++;
+	self->nextFrame %= self->frameLimit;
 
 	switch ( state->stackingMethod ) {
 		case OA_STACK_NONE:
 			break;
 
 		case OA_STACK_SUM:
-			oaStackSum8 ( self->previousFrames, self->totalFrames, viewBuffer,
+			oaStackSum8 ( self->previousFrames, self->maxFrames, viewBuffer,
 					viewFrameLength );
 			break;
 
     case OA_STACK_MEAN:
-			oaStackMean8 ( self->previousFrames, self->totalFrames, viewBuffer,
+			oaStackMean8 ( self->previousFrames, self->maxFrames, viewBuffer,
 					viewFrameLength );
 			break;
 
 		case OA_STACK_MEDIAN:
 			// no point doing any real work if we don't have at least three
 			// frames
-			if ( self->totalFrames > 2 ) {
-				oaStackMedian8 ( self->previousFrames, self->totalFrames, viewBuffer,
+			if ( self->maxFrames > 2 ) {
+				oaStackMedian8 ( self->previousFrames, self->maxFrames, viewBuffer,
 						viewFrameLength );
 			}
 			break;
 
     case OA_STACK_MAXIMUM:
-			oaStackMaximum8 ( self->previousFrames, self->totalFrames, viewBuffer,
+			oaStackMaximum8 ( self->previousFrames, self->maxFrames, viewBuffer,
 						viewFrameLength );
       break;
 
 		case OA_STACK_KAPPA_SIGMA:
 			// no point doing any real work if we don't have at least three
 			// frames
-			if ( self->totalFrames > 2 ) {
-				oaStackKappaSigma8 ( self->previousFrames, self->totalFrames,
+			if ( self->maxFrames > 2 ) {
+				oaStackKappaSigma8 ( self->previousFrames, self->maxFrames,
 						viewBuffer, viewFrameLength, config.stackKappa );
 			}
 			break;
@@ -899,12 +911,13 @@ ViewWidget::restart()
 	unsigned int i;
 
   // FIX ME -- should perhaps protect these with a mutex?
-	if ( previousFrames && totalFrames ) {
-		for ( i = 0; i < totalFrames; i++ ) {
+	if ( previousFrames && maxFrames ) {
+		for ( i = 0; i < maxFrames; i++ ) {
 			free (( void* ) previousFrames[i] );
+			previousFrames[i] = 0;
 		}
 	}
-  totalFrames = 0;
+  maxFrames = nextFrame = 0;
 }
 
 

@@ -85,7 +85,7 @@ void
 StackingControls::stackingMethodChanged ( int index )
 {
   state.stackingMethod = index;
-  state.viewWidget->restart();
+  // state.viewWidget->restart();
 }
 
 
