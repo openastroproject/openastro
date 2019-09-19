@@ -42,10 +42,10 @@ bin_PROGRAMS = oalive
 BUILT_SOURCES = version.h
 oalive_SOURCES = controlsWidget.cc oalive.cc mainWindow.cc viewWidget.cc \
 	cameraControls.cc stackingControls.cc saveControls.cc processingControls.cc \
-	trampoline.cc \
+	zoomWidget.cc trampoline.cc \
 	moc_cameraControls.cc moc_controlsWidget.cc moc_mainWindow.cc \
 	moc_processingControls.cc moc_saveControls.cc \
-	moc_stackingControls.cc moc_viewWidget.cc \
+	moc_stackingControls.cc moc_viewWidget.cc moc_zoomWidget.cc \
   qrc_oalive.cc
 
 oalive_LDADD = \

@@ -632,3 +632,10 @@ ControlsWidget::closeOutputHandlers ( void )
     processedImageOutputHandler = 0;
   }
 }
+
+
+int
+ControlsWidget::getZoomFactor ( void )
+{
+	return processing->zoom->getZoomFactor();
+}

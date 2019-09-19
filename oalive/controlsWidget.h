@@ -54,6 +54,7 @@ class ControlsWidget : public QWidget
     OutputHandler*	getProcessedOutputHandler ( void );
     void		closeOutputHandlers ( void );
     void		connectSignals ( void );
+		int			getZoomFactor ( void );
 
   private:
     QVBoxLayout*	mainBox;

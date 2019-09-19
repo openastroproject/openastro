@@ -193,6 +193,11 @@ MainWindow::MainWindow ( QString configFile )
       this, SLOT ( setTemperature ( void )));
   connect ( state.viewWidget, SIGNAL( updateBatteryLevel ( void )),
       state.cameraControls, SLOT ( setBatteryLevel ( void )));
+  connect ( state.viewWidget, SIGNAL( updateStackedFrameCount ( void )),
+      this, SLOT ( setStackedFrames ( void )));
+  connect ( state.processingControls, SIGNAL( redrawImage ( void )),
+			state.viewWidget, SLOT ( redrawImage ( void )));
+
   // FIX ME -- make these work?
   // connect ( state.viewWidget, SIGNAL( updateDroppedFrames ( void )),
   //     this, SLOT ( setDroppedFrames ( void )));
@@ -374,12 +379,10 @@ MainWindow::readConfig ( QString configFile )
     commonConfig.imageSizeX = 0;
     commonConfig.imageSizeY = 0;
 
-#ifdef OACAPTURE
     config.zoomButton1Option = 1;
     config.zoomButton2Option = 3;
     config.zoomButton3Option = 5;
     config.zoomValue = 100;
-#endif
 
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_GAIN ) = 50;
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_UNSCALED ) = 10;
@@ -517,7 +520,6 @@ MainWindow::readConfig ( QString configFile )
     commonConfig.imageSizeX = settings->value ( "image/imageSizeX", 0 ).toInt();
     commonConfig.imageSizeY = settings->value ( "image/imageSizeY", 0 ).toInt();
 
-#ifdef OACAPTURE
     config.zoomButton1Option = settings->value ( "image/zoomButton1Option",
         1 ).toInt();
     config.zoomButton2Option = settings->value ( "image/zoomButton2Option",
@@ -525,7 +527,6 @@ MainWindow::readConfig ( QString configFile )
     config.zoomButton3Option = settings->value ( "image/zoomButton3Option",
         5 ).toInt();
     config.zoomValue = settings->value ( "image/zoomValue", 100 ).toInt();
-#endif
 
 #ifdef OACAPTURE
     if ( version < 3 ) {
@@ -1085,12 +1086,10 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "image/imageSizeX", commonConfig.imageSizeX );
   settings->setValue ( "image/imageSizeY", commonConfig.imageSizeY );
 
-#ifdef OACAPTURE
   settings->setValue ( "image/zoomButton1Option", config.zoomButton1Option );
   settings->setValue ( "image/zoomButton2Option", config.zoomButton2Option );
   settings->setValue ( "image/zoomButton3Option", config.zoomButton3Option );
   settings->setValue ( "image/zoomValue", config.zoomValue );
-#endif
 
   settings->setValue ( "control/exposureMenuOption",
       config.exposureMenuOption );
@@ -1372,6 +1371,8 @@ MainWindow::createStatusBar ( void )
   progressBar->setRange ( 0, 100 );
   progressBar->setTextVisible ( true );
 #endif
+	stackedLabel = new QLabel ( tr ( "Stacked frames:" ));
+  stackedLabel->setFixedWidth ( 100 );
 
   tempValue = new QLabel ( "" );
   tempValue->setFixedWidth ( 30 );
@@ -1385,7 +1386,11 @@ MainWindow::createStatusBar ( void )
   droppedValue = new QLabel ( "0" );
   droppedValue->setFixedWidth ( 40 );
 #endif
+	stackedValue = new QLabel ( "0" );
+  stackedValue->setFixedWidth ( 40 );
 
+  statusLine->addPermanentWidget ( stackedLabel );
+  statusLine->addPermanentWidget ( stackedValue );
   statusLine->addPermanentWidget ( tempLabel );
   statusLine->addPermanentWidget ( tempValue );
 #ifdef OACAPTURE
@@ -2056,6 +2061,18 @@ MainWindow::setTemperature()
 }
 
 
+void
+MainWindow::setStackedFrames()
+{
+  QString stringVal;
+	int			num;
+
+  num = state.viewWidget->getStackedFrames();
+  stringVal.setNum ( num );
+  stackedValue->setText ( stringVal );
+}
+
+
 #ifdef OACAPTURE
 void
 MainWindow::setDroppedFrames()
@@ -2469,7 +2486,7 @@ MainWindow::createSettingsWidget ( void )
 {
   if ( !state.settingsWidget ) {
     state.settingsWidget = new SettingsWidget ( this, TOP_WIDGET,
-        APPLICATION_NAME, OACAPTURE_SETTINGS, 0, 0, &trampolines );
+        APPLICATION_NAME, OALIVE_SETTINGS, 0, 0, &trampolines );
     state.settingsWidget->setWindowFlags ( Qt::WindowStaysOnTopHint );
     state.settingsWidget->setAttribute ( Qt::WA_DeleteOnClose );
 #ifdef OACAPTURE
