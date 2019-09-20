@@ -71,6 +71,7 @@ class ViewWidget : public QFrame
 		void		setContrast ( int );
 		void		setSaturation ( int );
 		void		setGamma ( int );
+		int			getStackedFrames ( void );
 
   public slots:
     void		recentreReticle ( void );
@@ -91,6 +92,7 @@ class ViewWidget : public QFrame
     void		updateBatteryLevel ( void );
     void		stopRecording ( void );
     void		startNextExposure ( void );
+		void		updateStackedFrameCount ( void );
 
   private:
 		void			_recalcCoeffs ( void );

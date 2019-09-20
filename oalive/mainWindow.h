@@ -94,6 +94,9 @@ class MainWindow : public QMainWindow
     QLabel*		fpsMaxValue;
     QLabel*		fpsActualValue;
 */
+		QLabel*		stackedLabel;
+		QLabel*		stackedValue;
+
     QStatusBar*		statusLine;
     QLabel*		tempValue;
     int			updateTemperatureLabel;
@@ -190,6 +193,7 @@ class MainWindow : public QMainWindow
     void		advancedClosed ( void );
     void		doColouriseSettings ( void );
     void		setTemperature ( void );
+    void		setStackedFrames ( void );
     void		reveal ( void );
     void		doFITSSettings ( void );
     void		frameWriteFailedPopup ( void );

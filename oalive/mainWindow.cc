@@ -195,9 +195,6 @@ MainWindow::MainWindow ( QString configFile )
       state.cameraControls, SLOT ( setBatteryLevel ( void )));
   connect ( state.viewWidget, SIGNAL( updateStackedFrameCount ( void )),
       this, SLOT ( setStackedFrames ( void )));
-  connect ( state.processingControls, SIGNAL( redrawImage ( void )),
-			state.viewWidget, SLOT ( redrawImage ( void )));
-
   // FIX ME -- make these work?
   // connect ( state.viewWidget, SIGNAL( updateDroppedFrames ( void )),
   //     this, SLOT ( setDroppedFrames ( void )));
@@ -2486,7 +2483,7 @@ MainWindow::createSettingsWidget ( void )
 {
   if ( !state.settingsWidget ) {
     state.settingsWidget = new SettingsWidget ( this, TOP_WIDGET,
-        APPLICATION_NAME, OALIVE_SETTINGS, 0, 0, &trampolines );
+        APPLICATION_NAME, OACAPTURE_SETTINGS, 0, 0, &trampolines );
     state.settingsWidget->setWindowFlags ( Qt::WindowStaysOnTopHint );
     state.settingsWidget->setAttribute ( Qt::WA_DeleteOnClose );
 #ifdef OACAPTURE
