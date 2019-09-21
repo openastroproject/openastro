@@ -7,7 +7,7 @@ AC_CONFIG_SRCDIR([liboademosaic/oademosaic.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE([disable])
 AM_SILENT_RULES([yes])
 
@@ -46,6 +46,7 @@ checkSystemLibefwfilter=0
 checkSystemLibtoupcam=0
 checkSystemLibaltaircam=0
 checkSystemLibaltaircamlegacy=0
+checkSystemLibstarshootg=0
 checkSystemLibqhyccd=0
 useisystemInclude=0
 build_libusb=no
@@ -63,6 +64,7 @@ case $host in
     checkSystemLibqhyccd=1
     checkSystemLibaltaircam=1
     checkSystemLibaltaircamlegacy=1
+    checkSystemLibstarshootg=1
     ;;
   *-apple-*)
     useisystemInclude=1
@@ -133,6 +135,7 @@ have_toupcam=yes
 have_mallincam=yes
 have_altaircam=yes
 have_altaircamlegacy=yes
+have_starshootg=yes
 have_qhyccd=yes
 have_libavformat=no
 have_libavutil=no
@@ -764,6 +767,36 @@ then
   fi
 fi
 
+use_system_libstarshootg=no
+if test $checkSystemLibstarshootg -eq 1
+then
+  if `$PKG_CONFIG --exists libstarshootg`; then
+    AC_MSG_NOTICE([Using system libstarshootg library])
+    flags=`$PKG_CONFIG --cflags-only-I libstarshootg`
+    if test $useisystemInclude -eq 1; then
+      flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+    fi
+    LIBSTARSHOOTG_CFLAGS="$flags"
+    # can't use shared libstarshootg if we're not using the system libusb
+    # because it will try to pull it in anyhow
+    if test "x$use_system_libusb" == "xyes"; then
+      LIBSTARSHOOTG_LDFLAGS="`$PKG_CONFIG --libs-only-L libstarshootg`"
+      LIBSTARSHOOTG_LIBS="`$PKG_CONFIG --libs-only-l libstarshootg`"
+    else
+      AC_MSG_WARN([libstarshootg not compatible with internal libusb.  No support for Starshoot G cameras.])
+    fi
+    use_system_libstarshootg=yes
+    AC_DEFINE([HAVE_LIBSTARSHOOTG],[1],[Have libstarshootg])
+  else
+    AC_CHECK_LIB([starshootg],[Starshootg_Open],[
+      LIBS="-lstarshootg $LIBS"
+      AC_DEFINE([HAVE_LIBSTARSHOOTG],[1],[Have libstarshootg])
+    ],[
+      AC_MSG_WARN([libstarshootg not found.  Dynamic support for Starshoot G cameras.])
+    ])
+  fi
+fi
+
 use_system_libqhyccd=no
 if test $checkSystemLibqhyccd -eq 1
 then
@@ -1194,6 +1227,7 @@ case $host in
     AC_CONFIG_LINKS([$ext4/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/mac/libEFWFilter.a])
     AC_CONFIG_LINKS([$ext5/libaltaircamlegacy/libaltaircamlegacy.dylib:ext/libaltaircamlegacy/mac64/libaltaircamlegacy.dylib])
     AC_CONFIG_LINKS([$ext6/libqhyccd/libqhyccd.dylib:ext/libqhyccd/mac64/libqhyccd.dylib])
+    AC_CONFIG_LINKS([$ext7/libstarshootg/libstarshootg.dylib:ext/libstarshootg/mac/libstarshootg.dylib])
     OSX_FRAMEWORKS="-framework Carbon -framework VideoDecodeAcceleration -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
     FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
 		SHLIBS_CFLAGS="-DSHLIB_PATH=\\\"/MacOS/\\\""
@@ -1309,6 +1343,16 @@ then
 	fi
 fi
 
+if test "x$use_system_libstarshootg" == "xno"
+then
+	if test "x$have_starshootg" != "xno"
+	then
+		LIBSTARSHOOTG_CFLAGS="-I \$(top_srcdir)/ext/libstarshootg/include"
+		LIBSTARSHOOTG_LIBS=""
+		AC_DEFINE([HAVE_LIBSTARSHOOTG],[1],[Have Starshoot G camera library support])
+	fi
+fi
+
 if test "x$use_system_libqhyccd" == "xno"
 then
 	if test "x$have_qhyccd" != "xno"
@@ -1335,6 +1379,8 @@ AC_SUBST(LIBALTAIRCAM_CFLAGS)
 AC_SUBST(LIBALTAIRCAM_LIBS)
 AC_SUBST(LIBALTAIRCAM_LEGACY_CFLAGS)
 AC_SUBST(LIBALTAIRCAM_LEGACY_LIBS)
+AC_SUBST(LIBSTARSHOOTG_CFLAGS)
+AC_SUBST(LIBSTARSHOOTG_LIBS)
 AC_SUBST(LIBQHYCCD_CFLAGS)
 AC_SUBST(LIBQHYCCD_LIBS)
 AC_SUBST(LIBGPHOTO2_CFLAGS)
@@ -1362,6 +1408,7 @@ AM_CONDITIONAL([LIBTOUPCAM_COND], [test "x$have_toupcam" == "xyes"])
 AM_CONDITIONAL([LIBMALLINCAM_COND], [test "x$have_mallincam" == "xyes"])
 AM_CONDITIONAL([LIBALTAIRCAM_COND], [test "x$have_altaircam" == "xyes"])
 AM_CONDITIONAL([LIBALTAIRCAM_LEGACY_COND], [test "x$have_altaircamlegacy" == "xyes"])
+AM_CONDITIONAL([LIBSTARSHOOTG_COND], [test "x$have_starshootg" == "xyes"])
 AM_CONDITIONAL([LIBQHYCCD_COND], [test "x$have_qhyccd" == "xyes"])
 AM_CONDITIONAL([LIBGPHOTO2_COND], [test "x$have_libgphoto2" == "xyes"])
 AM_CONDITIONAL([LIBFFMPEG_COND], [test "x$use_system_ffmpeg" == "xno"])
@@ -1370,5 +1417,5 @@ AM_CONDITIONAL([BUILD_LIBUSB_COND], [test "x$build_libusb" == "xyes"])
 AM_CONDITIONAL([LIBHIDAPI_COND], [test "x$use_system_libhidapi" == "xno"])
 AM_CONDITIONAL([INT_LIBUVC_COND], [test "x$internal_uvc" == "xyes"])
 
-AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/altair-legacy/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/qhy/Makefile liboacam/qhyccd/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboacam/dummy/Makefile liboacam/gphoto2/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
+AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/altair-legacy/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/qhy/Makefile liboacam/qhyccd/Makefile liboacam/starshootg/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboacam/dummy/Makefile liboacam/gphoto2/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
 AC_OUTPUT

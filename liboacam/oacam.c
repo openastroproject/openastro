@@ -80,6 +80,9 @@
 #if HAVE_LIBALTAIRCAM_LEGACY
 #include "altair-legacy/LegacyAltairoacam.h"
 #endif
+#if HAVE_LIBSTARSHOOTG
+#include "starshootg/oacam.h"
+#endif
 #if HAVE_LIBSPINNAKER
 #include "spinnaker/Spinoacam.h"
 #endif
@@ -257,6 +260,30 @@ oaInterface	oaCameraInterfaces[] = {
     "Legacy Altair",
     "AALEG",
     oaAltairLegacyGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if HAVE_LIBSTARSHOOTG
+  {
+    OA_CAM_IF_STARSHOOTG,
+    "Starshoot G",
+    "SSG",
+    oaStarshootGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if HAVE_LIBLEVENHUK
+  {
+    OA_CAM_IF_LEVENHUK,
+    "Levenhuk",
+    "LVH",
+    oaLevenhukGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },
