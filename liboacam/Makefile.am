@@ -81,6 +81,11 @@ STARSHOOTGDIR= starshootg
 STARSHOOTGLIB= $(STARSHOOTGDIR)/libstarshootg.la
 endif
 
+if LIBNNCAM_COND
+RISINGCAMDIR= risingcam
+RISINGCAMLIB= $(RISINGCAMDIR)/librisingcam.la
+endif
+
 if LIBALTAIRCAM_LEGACY_COND
 ALTAIRLEGACYDIR= altair-legacy
 ALTAIRLEGACYLIB= $(ALTAIRLEGACYDIR)/libaltairlegacy.la
@@ -98,7 +103,8 @@ endif
 
 SUBDIRS	= euvc iidc pwc qhy sx uvc dummy $(ALTAIRDIR) $(ATIKDIR) \
 	$(MALLINCAMDIR) $(FC2DIR) $(SPINDIR) $(TOUPCAMDIR) $(V4L2DIR) $(ZWODIR) \
-	$(ALTAIRLEGACYDIR) $(QHYCCDDIR) $(GPHOTO2DIR) $(STARSHOOTGDIR) .
+	$(ALTAIRLEGACYDIR) $(QHYCCDDIR) $(GPHOTO2DIR) $(STARSHOOTGDIR) \
+	$(RISINGCAMDIR) .
 
 liboacam_la_SOURCES = \
   control.c debug.c oacam.c unimplemented.c utils.c
@@ -106,7 +112,8 @@ liboacam_la_SOURCES = \
 liboacam_la_LIBADD = euvc/libeuvc.la iidc/libiidc.la pwc/libpwc.la \
   qhy/libqhy.la sx/libsx.la uvc/libuvc.la dummy/libdummy.la $(ALTAIRLIB) \
 	$(ATIKLIB) $(MALLINCAMLIB) $(FC2LIB) $(SPINLIB) $(TOUPCAMLIB) $(V4L2LIB) \
-	$(ZWOLIB) $(ALTAIRLEGACYLIB) $(QHYCCDLIB) $(GPHOTO2LIB) $(STARSHOOTGLIB)
+	$(ZWOLIB) $(ALTAIRLEGACYLIB) $(QHYCCDLIB) $(GPHOTO2LIB) $(STARSHOOTGLIB) \
+	$(RISINGCAMLIB)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

@@ -83,6 +83,9 @@
 #if HAVE_LIBSTARSHOOTG
 #include "starshootg/oacam.h"
 #endif
+#if HAVE_LIBNNCAM
+#include "risingcam/oacam.h"
+#endif
 #if HAVE_LIBSPINNAKER
 #include "spinnaker/Spinoacam.h"
 #endif
@@ -278,12 +281,12 @@ oaInterface	oaCameraInterfaces[] = {
 #else
   { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
 #endif
-#if HAVE_LIBLEVENHUK
+#if HAVE_LIBNNCAM
   {
-    OA_CAM_IF_LEVENHUK,
-    "Levenhuk",
-    "LVH",
-    oaLevenhukGetCameras,
+    OA_CAM_IF_RISINGCAM,
+    "Risingcam",
+    "RCam",
+    oaNncamGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },

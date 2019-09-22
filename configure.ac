@@ -47,6 +47,7 @@ checkSystemLibtoupcam=0
 checkSystemLibaltaircam=0
 checkSystemLibaltaircamlegacy=0
 checkSystemLibstarshootg=0
+checkSystemLibnncam=0
 checkSystemLibqhyccd=0
 useisystemInclude=0
 build_libusb=no
@@ -65,6 +66,7 @@ case $host in
     checkSystemLibaltaircam=1
     checkSystemLibaltaircamlegacy=1
     checkSystemLibstarshootg=1
+    checkSystemLibnncam=1
     ;;
   *-apple-*)
     useisystemInclude=1
@@ -136,6 +138,7 @@ have_mallincam=yes
 have_altaircam=yes
 have_altaircamlegacy=yes
 have_starshootg=yes
+have_nncam=yes
 have_qhyccd=yes
 have_libavformat=no
 have_libavutil=no
@@ -797,6 +800,36 @@ then
   fi
 fi
 
+use_system_libnncam=no
+if test $checkSystemLibnncam -eq 1
+then
+  if `$PKG_CONFIG --exists libnncam`; then
+    AC_MSG_NOTICE([Using system libnncam library])
+    flags=`$PKG_CONFIG --cflags-only-I libnncam`
+    if test $useisystemInclude -eq 1; then
+      flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+    fi
+    LIBNNCAM_CFLAGS="$flags"
+    # can't use shared libnncam if we're not using the system libusb
+    # because it will try to pull it in anyhow
+    if test "x$use_system_libusb" == "xyes"; then
+      LIBNNCAM_LDFLAGS="`$PKG_CONFIG --libs-only-L libnncam`"
+      LIBNNCAM_LIBS="`$PKG_CONFIG --libs-only-l libnncam`"
+    else
+      AC_MSG_WARN([libnncam not compatible with internal libusb.  No support for Risingcam/Levenhuk cameras.])
+    fi
+    use_system_libnncam=yes
+    AC_DEFINE([HAVE_LIBNNCAM],[1],[Have libnncam])
+  else
+    AC_CHECK_LIB([nncam],[Nncam_Open],[
+      LIBS="-lnncam $LIBS"
+      AC_DEFINE([HAVE_LIBNNCAM],[1],[Have libnncam])
+    ],[
+      AC_MSG_WARN([libnncam not found.  Dynamic support for Risingcam/Levenhuk cameras.])
+    ])
+  fi
+fi
+
 use_system_libqhyccd=no
 if test $checkSystemLibqhyccd -eq 1
 then
@@ -1228,6 +1261,7 @@ case $host in
     AC_CONFIG_LINKS([$ext5/libaltaircamlegacy/libaltaircamlegacy.dylib:ext/libaltaircamlegacy/mac64/libaltaircamlegacy.dylib])
     AC_CONFIG_LINKS([$ext6/libqhyccd/libqhyccd.dylib:ext/libqhyccd/mac64/libqhyccd.dylib])
     AC_CONFIG_LINKS([$ext7/libstarshootg/libstarshootg.dylib:ext/libstarshootg/mac/libstarshootg.dylib])
+    AC_CONFIG_LINKS([$ext7/libnncam/libnncam.dylib:ext/libnncam/mac/libnncam.dylib])
     OSX_FRAMEWORKS="-framework Carbon -framework VideoDecodeAcceleration -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
     FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
 		SHLIBS_CFLAGS="-DSHLIB_PATH=\\\"/MacOS/\\\""
@@ -1353,6 +1387,16 @@ then
 	fi
 fi
 
+if test "x$use_system_libnncam" == "xno"
+then
+	if test "x$have_nncam" != "xno"
+	then
+		LIBNNCAM_CFLAGS="-I \$(top_srcdir)/ext/libnncam/include"
+		LIBNNCAM_LIBS=""
+		AC_DEFINE([HAVE_LIBNNCAM],[1],[Have Risingcam/Levenhuk camera library support])
+	fi
+fi
+
 if test "x$use_system_libqhyccd" == "xno"
 then
 	if test "x$have_qhyccd" != "xno"
@@ -1381,6 +1425,8 @@ AC_SUBST(LIBALTAIRCAM_LEGACY_CFLAGS)
 AC_SUBST(LIBALTAIRCAM_LEGACY_LIBS)
 AC_SUBST(LIBSTARSHOOTG_CFLAGS)
 AC_SUBST(LIBSTARSHOOTG_LIBS)
+AC_SUBST(LIBNNCAM_CFLAGS)
+AC_SUBST(LIBNNCAM_LIBS)
 AC_SUBST(LIBQHYCCD_CFLAGS)
 AC_SUBST(LIBQHYCCD_LIBS)
 AC_SUBST(LIBGPHOTO2_CFLAGS)
@@ -1409,6 +1455,7 @@ AM_CONDITIONAL([LIBMALLINCAM_COND], [test "x$have_mallincam" == "xyes"])
 AM_CONDITIONAL([LIBALTAIRCAM_COND], [test "x$have_altaircam" == "xyes"])
 AM_CONDITIONAL([LIBALTAIRCAM_LEGACY_COND], [test "x$have_altaircamlegacy" == "xyes"])
 AM_CONDITIONAL([LIBSTARSHOOTG_COND], [test "x$have_starshootg" == "xyes"])
+AM_CONDITIONAL([LIBNNCAM_COND], [test "x$have_nncam" == "xyes"])
 AM_CONDITIONAL([LIBQHYCCD_COND], [test "x$have_qhyccd" == "xyes"])
 AM_CONDITIONAL([LIBGPHOTO2_COND], [test "x$have_libgphoto2" == "xyes"])
 AM_CONDITIONAL([LIBFFMPEG_COND], [test "x$use_system_ffmpeg" == "xno"])
@@ -1417,5 +1464,5 @@ AM_CONDITIONAL([BUILD_LIBUSB_COND], [test "x$build_libusb" == "xyes"])
 AM_CONDITIONAL([LIBHIDAPI_COND], [test "x$use_system_libhidapi" == "xno"])
 AM_CONDITIONAL([INT_LIBUVC_COND], [test "x$internal_uvc" == "xyes"])
 
-AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/altair-legacy/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/qhy/Makefile liboacam/qhyccd/Makefile liboacam/starshootg/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboacam/dummy/Makefile liboacam/gphoto2/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
+AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/altair-legacy/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/qhy/Makefile liboacam/qhyccd/Makefile liboacam/starshootg/Makefile liboacam/risingcam/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboacam/dummy/Makefile liboacam/gphoto2/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
 AC_OUTPUT
