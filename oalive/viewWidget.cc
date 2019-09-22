@@ -81,11 +81,13 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
   viewBufferLength = 0;
   viewImageBuffer[0] = writeImageBuffer[0] = 0;
   viewImageBuffer[1] = writeImageBuffer[1] = 0;
+	originalBuffer = 0;
 	previousFrames = 0;
 	maxFrames = nextFrame = previousFrameArraySize = 0;
 	frameLimit = 50;
 	rgbBuffer = 0;
 	rgbBufferSize = 0;
+	abortProcessing = 0;
 
   int r = config.currentColouriseColour.red();
   int g = config.currentColouriseColour.green();
@@ -474,12 +476,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
   STATE*		state = ( STATE* ) commonState->localState;
   ViewWidget*		self = state->viewWidget;
   struct timeval	t;
-  int			doDisplay = 0;
   int			doHistogram = 0;
-  int			viewPixelFormat, writePixelFormat, originalPixelFormat;
-  // write straight from the data if possible
-  void*			viewBuffer = imageData;
-  int			currentViewBuffer = -1;
+  int			writePixelFormat, originalPixelFormat;
   int			ret;
   OutputHandler*	output;
   void*			writeBuffer = imageData;
@@ -487,13 +485,21 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
   char*			comment;
 	unsigned int	width, height;
 
-	viewPixelFormat = writePixelFormat = originalPixelFormat =
+	// FIX ME -- this is a broken way to do this :(
+  pthread_mutex_lock ( &( self->imageMutex ));
+	self->abortProcessing = 1;
+  pthread_mutex_unlock ( &( self->imageMutex ));
+
+  // write straight from the data if possible
+  self->viewBuffer = imageData;
+	self->currentViewBuffer = -1;
+	self->viewPixelFormat = writePixelFormat = originalPixelFormat =
 			self->videoFramePixelFormat;
 
   if ( self->videoFramePixelFormat == OA_PIX_FMT_JPEG8 || 
 			oaFrameFormats[ self->videoFramePixelFormat ].useLibraw ) {
-		if ( self->_unpackImageFrame ( self, imageData, &length, &viewPixelFormat,
-				&width, &height ) != OA_ERR_NONE ) {
+		if ( self->_unpackImageFrame ( self, imageData, &length,
+				&self->viewPixelFormat, &width, &height ) != OA_ERR_NONE ) {
 			qWarning() << "unpackImageFrame failed";
 			return 0;
 		}
@@ -504,8 +510,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
       QMetaObject::invokeMethod ( state->controlsWidget, "doResolutionChange",
 					Qt::DirectConnection, Q_ARG( int, 0 ));
 		}
-		viewBuffer = self->rgbBuffer;
-		writePixelFormat = originalPixelFormat = viewPixelFormat;
+		self->viewBuffer = self->rgbBuffer;
+		writePixelFormat = originalPixelFormat = self->viewPixelFormat;
 	} else {
 		// don't do anything if the length is not as expected
 		if ( length != self->expectedSize ) {
@@ -522,30 +528,31 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
   // if we have a luminance/chrominance or packed mono/raw colour frame
   // format then we need to unpack that first
 
-  if ( oaFrameFormats[ viewPixelFormat ].lumChrom ||
-      oaFrameFormats[ viewPixelFormat ].packed ) {
+  if ( oaFrameFormats[ self->viewPixelFormat ].lumChrom ||
+      oaFrameFormats[ self->viewPixelFormat ].packed ) {
     // this is going to make the flip quite ugly and means we need to
     // start using currentPreviewBuffer too
-    currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
-        !currentViewBuffer;
+    self->currentViewBuffer = ( -1 == self->currentViewBuffer ) ? 0 :
+        !self->currentViewBuffer;
     // Convert luminance/chrominance and packed raw colour to RGB.
     // Packed mono should become GREY8.  We're only converting for
     // preview here, so nothing needs to be more than 8 bits wide
-    if ( oaFrameFormats[ viewPixelFormat ].lumChrom ||
-        oaFrameFormats[ viewPixelFormat ].rawColour ) {
-      viewPixelFormat = OA_PIX_FMT_RGB24;
+    if ( oaFrameFormats[ self->viewPixelFormat ].lumChrom ||
+        oaFrameFormats[ self->viewPixelFormat ].rawColour ) {
+      self->viewPixelFormat = OA_PIX_FMT_RGB24;
     } else {
-      if ( oaFrameFormats[ viewPixelFormat ].monochrome ) {
-        viewPixelFormat = OA_PIX_FMT_GREY8;
+      if ( oaFrameFormats[ self->viewPixelFormat ].monochrome ) {
+        self->viewPixelFormat = OA_PIX_FMT_GREY8;
       } else {
         qWarning() << "Don't know how to unpack frame format" <<
-            viewPixelFormat;
+            self->viewPixelFormat;
       }
     }
-    ( void ) oaconvert ( viewBuffer,
-        self->viewImageBuffer[ currentViewBuffer ], commonConfig.imageSizeX,
-        commonConfig.imageSizeY, originalPixelFormat, viewPixelFormat );
-    viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
+    ( void ) oaconvert ( self->viewBuffer,
+        self->viewImageBuffer[ self->currentViewBuffer ],
+				commonConfig.imageSizeX, commonConfig.imageSizeY,
+				originalPixelFormat, self->viewPixelFormat );
+    self->viewBuffer = self->viewImageBuffer [ self->currentViewBuffer ];
 
     // we can flip the preview image here if required, but not the
     // image that is going to be written out.
@@ -554,8 +561,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     if ( self->flipX || self->flipY ) {
 			int axis = ( self->flipX ? OA_FLIP_X : 0 ) | ( self->flipY ?
 					OA_FLIP_Y : 0 );
-      oaFlipImage ( viewBuffer, commonConfig.imageSizeX,
-					commonConfig.imageSizeY, viewPixelFormat, axis );
+      oaFlipImage ( self->viewBuffer, commonConfig.imageSizeX,
+					commonConfig.imageSizeY, self->viewPixelFormat, axis );
     }
   } else {
     // do a vertical/horizontal flip if required
@@ -569,43 +576,45 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 					commonConfig.imageSizeY, writePixelFormat, axis );
       // both preview and write will come from this buffer for the
       // time being.  This may change later on
-      viewBuffer = self->writeImageBuffer[0];
+      self->viewBuffer = self->writeImageBuffer[0];
       writeBuffer = self->writeImageBuffer[0];
     }
   }
 
   int cfaPattern = demosaicConf.cfaPattern;
   if ( OA_DEMOSAIC_AUTO == cfaPattern &&
-      oaFrameFormats[ viewPixelFormat ].rawColour ) {
-    cfaPattern = oaFrameFormats[ viewPixelFormat ].cfaPattern;
+      oaFrameFormats[ self->viewPixelFormat ].rawColour ) {
+    cfaPattern = oaFrameFormats[ self->viewPixelFormat ].cfaPattern;
   }
 
-  if ( oaFrameFormats[ viewPixelFormat ].rawColour ) {
-    currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 : !currentViewBuffer;
+  if ( oaFrameFormats[ self->viewPixelFormat ].rawColour ) {
+    self->currentViewBuffer = ( -1 == self->currentViewBuffer ) ? 0 :
+				!self->currentViewBuffer;
     // Use the demosaicking to copy the data to the previewImageBuffer
-    ( void ) oademosaic ( viewBuffer,
-        self->viewImageBuffer[ currentViewBuffer ],
+    ( void ) oademosaic ( self->viewBuffer,
+        self->viewImageBuffer[ self->currentViewBuffer ],
         commonConfig.imageSizeX, commonConfig.imageSizeY,
-				oaFrameFormats[ viewPixelFormat ].bitsPerPixel, cfaPattern,
+				oaFrameFormats[ self->viewPixelFormat ].bitsPerPixel, cfaPattern,
         demosaicConf.demosaicMethod );
-    viewPixelFormat = OA_DEMOSAIC_FMT ( viewPixelFormat );
-    viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
+    self->viewPixelFormat = OA_DEMOSAIC_FMT ( self->viewPixelFormat );
+    self->viewBuffer = self->viewImageBuffer [ self->currentViewBuffer ];
   }
 
-  if (( !oaFrameFormats[ viewPixelFormat ].fullColour &&
-      oaFrameFormats[ viewPixelFormat ].bytesPerPixel > 1 ) ||
-      ( oaFrameFormats[ viewPixelFormat ].fullColour &&
-      oaFrameFormats[ viewPixelFormat ].bytesPerPixel > 3 )) {
-    currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
-        !currentViewBuffer;
-    ( void ) memcpy ( self->viewImageBuffer[ currentViewBuffer ],
-        viewBuffer, length );
+  if (( !oaFrameFormats[ self->viewPixelFormat ].fullColour &&
+      oaFrameFormats[ self->viewPixelFormat ].bytesPerPixel > 1 ) ||
+      ( oaFrameFormats[ self->viewPixelFormat ].fullColour &&
+      oaFrameFormats[ self->viewPixelFormat ].bytesPerPixel > 3 )) {
+    self->currentViewBuffer = ( -1 == self->currentViewBuffer ) ? 0 :
+        !self->currentViewBuffer;
+    ( void ) memcpy ( self->viewImageBuffer[ self->currentViewBuffer ],
+        self->viewBuffer, length );
     // Do this reduction "in place"
-    viewPixelFormat = self->reduceTo8Bit (
-        self->viewImageBuffer[ currentViewBuffer ],
-        self->viewImageBuffer[ currentViewBuffer ],
-        commonConfig.imageSizeX, commonConfig.imageSizeY, viewPixelFormat );
-    viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
+    self->viewPixelFormat = self->reduceTo8Bit (
+        self->viewImageBuffer[ self->currentViewBuffer ],
+        self->viewImageBuffer[ self->currentViewBuffer ],
+        commonConfig.imageSizeX, commonConfig.imageSizeY,
+				self->viewPixelFormat );
+    self->viewBuffer = self->viewImageBuffer [ self->currentViewBuffer ];
   }
 
 	if ( self->maxFrames < self->frameLimit ) {
@@ -631,7 +640,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 
 	const int viewFrameLength = commonConfig.imageSizeX *
 			commonConfig.imageSizeY *
-			oaFrameFormats[ viewPixelFormat ].bytesPerPixel;
+			oaFrameFormats[ self->viewPixelFormat ].bytesPerPixel;
 	
 	if ( !self->previousFrames[ self->nextFrame ]) {
 		if (!( self->previousFrames[ self->nextFrame ] =
@@ -642,37 +651,45 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 	}
 
 	// copy the view buffer to the frame history
-	memcpy ( self->previousFrames[ self->nextFrame ], viewBuffer,
+	memcpy ( self->previousFrames[ self->nextFrame ], self->viewBuffer,
 			viewFrameLength );
+
 	self->nextFrame++;
 	self->nextFrame %= self->frameLimit;
 
 	switch ( state->stackingMethod ) {
 		case OA_STACK_NONE:
+			memcpy ( self->originalBuffer, self->viewBuffer, viewFrameLength );
 			break;
 
 		case OA_STACK_SUM:
-			oaStackSum8 ( self->previousFrames, self->maxFrames, viewBuffer,
-					viewFrameLength );
+			oaStackSum8 ( self->previousFrames, self->maxFrames,
+					self->originalBuffer, viewFrameLength );
 			break;
 
     case OA_STACK_MEAN:
-			oaStackMean8 ( self->previousFrames, self->maxFrames, viewBuffer,
-					viewFrameLength );
+			if ( self->maxFrames > 1 ) {
+				oaStackMean8 ( self->previousFrames, self->maxFrames,
+						self->originalBuffer, viewFrameLength );
+			} else {
+				memcpy ( self->originalBuffer, self->viewBuffer, viewFrameLength );
+			}
 			break;
 
 		case OA_STACK_MEDIAN:
 			// no point doing any real work if we don't have at least three
 			// frames
 			if ( self->maxFrames > 2 ) {
-				oaStackMedian8 ( self->previousFrames, self->maxFrames, viewBuffer,
-						viewFrameLength );
+				oaStackMedian8 ( self->previousFrames, self->maxFrames,
+						self->originalBuffer, viewFrameLength );
+			} else {
+				memcpy ( self->originalBuffer, self->viewBuffer, viewFrameLength );
 			}
 			break;
 
     case OA_STACK_MAXIMUM:
-			oaStackMaximum8 ( self->previousFrames, self->maxFrames, viewBuffer,
-						viewFrameLength );
+			oaStackMaximum8 ( self->previousFrames, self->maxFrames,
+					self->originalBuffer, viewFrameLength );
       break;
 
 		case OA_STACK_KAPPA_SIGMA:
@@ -680,140 +697,24 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 			// frames
 			if ( self->maxFrames > 2 ) {
 				oaStackKappaSigma8 ( self->previousFrames, self->maxFrames,
-						viewBuffer, viewFrameLength, config.stackKappa );
+						self->originalBuffer, viewFrameLength, config.stackKappa );
+			} else {
+				memcpy ( self->originalBuffer, self->viewBuffer, viewFrameLength );
 			}
 			break;
-	}
-
-	// viewBuffer now points to self->viewImageBuffer [ currentViewBuffer ];
-
-	if ( oaFrameFormats[ viewPixelFormat ].monochrome ) {
-		// apply image transforms to monochrome image
-		// we know we have an 8-bit mono image at this point
-		int			i, totSize = commonConfig.imageSizeX * commonConfig.imageSizeY;
-		double	val, newVal;
-		uint8_t*	src = ( uint8_t* ) viewBuffer;
-		uint8_t*	tgt;
-    currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
-        !currentViewBuffer;
-		tgt = ( uint8_t* ) self->viewImageBuffer [ currentViewBuffer ];
-		for ( i = 0; i < totSize; i++ ) {
-			val = src[ i ];
-			newVal = oaclamp ( 0, 255, pow ( val * self->coeff_r * self->coeff_c
-					+ self->coeff_tbr, self->gammaExponent ));
-			tgt[ i ] = ( uint8_t )( newVal + 0.5 );
-		}
-		viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
-	} else {
-		// apply image transforms to colour image
-		// we know we have an RGB24 image at this point
-		int			i, totSize = commonConfig.imageSizeX * commonConfig.imageSizeY * 3;
-		double	valR, valG, valB, newValR, newValG, newValB;
-		uint8_t*	src = ( uint8_t* ) viewBuffer;
-		uint8_t*	tgt;
-    currentViewBuffer = ( -1 == currentViewBuffer ) ? 0 :
-        !currentViewBuffer;
-		tgt = ( uint8_t* ) self->viewImageBuffer [ currentViewBuffer ];
-		for ( i = 0; i < totSize; i += 3 ) {
-			valR = src[ i ];
-			valG = src[ i + 1 ];
-			valB = src[ i + 2 ];
-			newValR = oaclamp ( 0, 255, pow ( valR * self->coeff_r1 +
-					valG * self->coeff_r2 + valB * self->coeff_r3 + self->coeff_tbr,
-					self->gammaExponent ));
-			newValG = oaclamp ( 0, 255, pow ( valR * self->coeff_g1 +
-					valG * self->coeff_g2 + valB * self->coeff_g3 + self->coeff_tbr,
-					self->gammaExponent ));
-			newValB = oaclamp ( 0, 255, pow ( valR * self->coeff_b1 +
-					valG * self->coeff_b2 + valB * self->coeff_b3 + self->coeff_tbr,
-					self->gammaExponent ));
-			tgt[ i ] = ( int )( newValR + 0.5 );
-			tgt[ i + 1 ] = ( int )( newValG + 0.5 );
-			tgt[ i + 2 ] = ( int )( newValB + 0.5 );
-		}
-		viewBuffer = self->viewImageBuffer [ currentViewBuffer ];
 	}
 
   ( void ) gettimeofday ( &t, 0 );
   unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
       ( unsigned long ) t.tv_usec / 1000;
 
-  if (( self->lastDisplayUpdateTime + self->frameDisplayInterval ) < now ) {
-    self->lastDisplayUpdateTime = now;
-    doDisplay = 1;
-
-    if ( config.showFocusAid ) {
-      state->focusOverlay->addScore ( oaFocusScore ( viewBuffer,
-          0, commonConfig.imageSizeX, commonConfig.imageSizeY,
-					viewPixelFormat ));
-    }
-
-    QImage* newImage;
-    QImage* swappedImage = 0;
-
-    // At this point, one way or another we should have an 8-bit image
-    // for the preview
-
-    // First deal with anything that's mono
-    if ( OA_PIX_FMT_GREY8 == self->videoFramePixelFormat ) {
-      newImage = new QImage (( const uint8_t* ) viewBuffer,
-          commonConfig.imageSizeX, commonConfig.imageSizeY,
-					commonConfig.imageSizeX, QImage::Format_Indexed8 );
-      if ( OA_PIX_FMT_GREY8 == viewPixelFormat && commonConfig.colourise ) {
-        newImage->setColorTable ( self->falseColourTable );
-      } else {
-        newImage->setColorTable ( self->greyscaleColourTable );
-      }
-      swappedImage = newImage;
-    } else {
-      // and full colour (should just be RGB24 or BGR24 at this point?)
-      // here
-      // Need the stride size here or QImage appears to "tear" the
-      // right hand edge of the image when the X dimension is an odd
-      // number of pixels
-      newImage = new QImage (( const uint8_t* ) viewBuffer,
-          commonConfig.imageSizeX, commonConfig.imageSizeY,
-					commonConfig.imageSizeX * 3, QImage::Format_RGB888 );
-      if ( OA_PIX_FMT_BGR24 == viewPixelFormat ) {
-        swappedImage = new QImage ( newImage->rgbSwapped());
-      } else {
-        swappedImage = newImage;
-      }
-    }
-
-		// This call should be thread-safe
-		int zoomFactor = state->controlsWidget->getZoomFactor();
-    if ( zoomFactor && zoomFactor != self->currentZoom ) {
-      self->recalculateDimensions ( zoomFactor );
-    }
-
-    if ( self->currentZoom != 100 ) {
-      QImage scaledImage = swappedImage->scaled ( self->currentZoomX,
-        self->currentZoomY );
-
-      if ( config.showFocusAid ) {
-        // FIX ME -- eh?
-      }
-
-      pthread_mutex_lock ( &self->imageMutex );
-      self->image = scaledImage.copy();
-      pthread_mutex_unlock ( &self->imageMutex );
-    } else {
-      pthread_mutex_lock ( &self->imageMutex );
-      self->image = swappedImage->copy();
-      pthread_mutex_unlock ( &self->imageMutex );
-    }
-    if ( swappedImage != newImage ) {
-      delete swappedImage;
-    }
-    delete newImage;
-  }
+	self->_processAndDisplay ( state, self, now, 1 );
 
   output = state->controlsWidget->getProcessedOutputHandler();
   if ( output ) {
     timestamp = 0;
     comment = 0;
-    output->addFrame ( viewBuffer, timestamp,
+    output->addFrame ( self->viewBuffer, timestamp,
         state->cameraControls->getCurrentExposure(), comment,
 				( FRAME_METADATA* ) metadata );
   }
@@ -823,15 +724,19 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
   if ( t.tv_sec != self->secondForFrameCount ) {
     const int viewFrameLength = commonConfig.imageSizeX *
 			commonConfig.imageSizeY *
-        oaFrameFormats[ viewPixelFormat ].bytesPerPixel;
+        oaFrameFormats[ self->viewPixelFormat ].bytesPerPixel;
     self->secondForFrameCount = t.tv_sec;
     emit self->updateActualFrameRate ( self->framesInLastSecond );
     self->framesInLastSecond = 0;
-    state->processingControls->histogram->process ( viewBuffer,
+    state->processingControls->histogram->process ( self->viewBuffer,
 				commonConfig.imageSizeX, commonConfig.imageSizeY, viewFrameLength,
-				viewPixelFormat );
+				self->viewPixelFormat );
     doHistogram = 1;
   }
+
+	pthread_mutex_lock ( &( self->imageMutex ));
+	self->abortProcessing = 0;
+	pthread_mutex_unlock ( &( self->imageMutex ));
 
   if ( self->hasTemp && t.tv_sec != self->secondForTemperature &&
       t.tv_sec % 5 == 0 ) {
@@ -848,9 +753,6 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     self->minuteForBatteryLevel = t.tv_sec + 60;
   }
 
-  if ( doDisplay ) {
-    emit self->updateDisplay();
-  }
 	emit self->updateStackedFrameCount();
 
   if ( doHistogram ) {
@@ -885,6 +787,15 @@ ViewWidget::checkBuffers ( ViewWidget* self )
       return OA_ERR_MEM_ALLOC;
     }
   }
+
+  if ( !self->originalBuffer ) {
+    if (!( self->originalBuffer =
+        realloc ( self->originalBuffer, self->viewBufferLength ))) {
+      qWarning() << "original image buffer 0 malloc failed";
+      return OA_ERR_MEM_ALLOC;
+    }
+  }
+
   if ( !self->writeImageBuffer[0] ||
       self->writeBufferLength < maxLength ) {
     self->writeBufferLength = maxLength;
@@ -1300,4 +1211,240 @@ ViewWidget::getStackedFrames ( void )
 		return 0;
 	}
 	return maxFrames;
+}
+
+
+void
+ViewWidget::redrawImage ( void )
+{
+	struct timeval		t;
+
+  ( void ) gettimeofday ( &t, 0 );
+  unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
+      ( unsigned long ) t.tv_usec / 1000;
+	_processAndDisplay (( void* ) &state, this, now, 0 );
+}
+
+
+void
+ViewWidget::_processAndDisplay ( void* tmpState, ViewWidget* self,
+		unsigned long now, int fromCallback )
+{
+  int							doDisplay = 0, abort;
+	STATE*					state = ( STATE* ) tmpState;
+	unsigned int		frameLength;
+
+	self->viewBuffer = self->originalBuffer;
+
+	if ( !fromCallback ) {
+		// FIX ME -- nasty, nasty, nasty
+		pthread_mutex_lock ( &imageMutex );
+		abort = self->abortProcessing;
+		pthread_mutex_unlock ( &imageMutex );
+		if ( abort ) {
+			return;
+		}
+	}
+
+	if ( oaFrameFormats[ self->viewPixelFormat ].monochrome ) {
+		// apply image transforms to monochrome image
+		// we know we have an 8-bit mono image at this point
+		unsigned int	i;
+		double	val, newVal;
+		uint8_t*	src = ( uint8_t* ) self->viewBuffer;
+		uint8_t*	tgt;
+
+		frameLength = commonConfig.imageSizeX * commonConfig.imageSizeY;
+    self->currentViewBuffer = ( -1 == self->currentViewBuffer ) ? 0 :
+        !self->currentViewBuffer;
+		tgt = ( uint8_t* ) self->viewImageBuffer [ self->currentViewBuffer ];
+		for ( i = 0; i < frameLength; i++ ) {
+			val = src[ i ];
+			newVal = oaclamp ( 0, 255, pow ( val * self->coeff_r * self->coeff_c
+					+ self->coeff_tbr, self->gammaExponent ));
+			tgt[ i ] = ( uint8_t )( newVal + 0.5 );
+
+			if ( !fromCallback ) {
+				// FIX ME -- nasty, nasty, nasty
+				pthread_mutex_lock ( &imageMutex );
+				abort = self->abortProcessing;
+				pthread_mutex_unlock ( &imageMutex );
+				if ( abort ) {
+					return;
+				}
+			}
+		}
+		self->viewBuffer = self->viewImageBuffer [ self->currentViewBuffer ];
+	} else {
+		// apply image transforms to colour image
+		// we know we have an RGB24 image at this point
+		unsigned int	i;
+		double	valR, valG, valB, newValR, newValG, newValB;
+		uint8_t*	src = ( uint8_t* ) self->viewBuffer;
+		uint8_t*	tgt;
+
+		frameLength = commonConfig.imageSizeX * commonConfig.imageSizeY * 3;
+    self->currentViewBuffer = ( -1 == self->currentViewBuffer ) ? 0 :
+        !self->currentViewBuffer;
+		tgt = ( uint8_t* ) self->viewImageBuffer [ self->currentViewBuffer ];
+		for ( i = 0; i < frameLength; i += 3 ) {
+			valR = src[ i ];
+			valG = src[ i + 1 ];
+			valB = src[ i + 2 ];
+			newValR = oaclamp ( 0, 255, pow ( valR * self->coeff_r1 +
+					valG * self->coeff_r2 + valB * self->coeff_r3 + self->coeff_tbr,
+					self->gammaExponent ));
+			newValG = oaclamp ( 0, 255, pow ( valR * self->coeff_g1 +
+					valG * self->coeff_g2 + valB * self->coeff_g3 + self->coeff_tbr,
+					self->gammaExponent ));
+			newValB = oaclamp ( 0, 255, pow ( valR * self->coeff_b1 +
+					valG * self->coeff_b2 + valB * self->coeff_b3 + self->coeff_tbr,
+					self->gammaExponent ));
+			tgt[ i ] = ( int )( newValR + 0.5 );
+			tgt[ i + 1 ] = ( int )( newValG + 0.5 );
+			tgt[ i + 2 ] = ( int )( newValB + 0.5 );
+
+			if ( !fromCallback ) {
+				// FIX ME -- nasty, nasty, nasty
+				pthread_mutex_lock ( &imageMutex );
+				abort = self->abortProcessing;
+				pthread_mutex_unlock ( &imageMutex );
+				if ( abort ) {
+					return;
+				}
+			}
+		}
+		self->viewBuffer = self->viewImageBuffer [ self->currentViewBuffer ];
+	}
+
+  if ( !fromCallback || (( self->lastDisplayUpdateTime +
+			self->frameDisplayInterval ) < now )) {
+		if ( fromCallback ) {
+			self->lastDisplayUpdateTime = now;
+		}
+    doDisplay = 1;
+
+    if ( config.showFocusAid ) {
+      state->focusOverlay->addScore ( oaFocusScore ( self->viewBuffer,
+          0, commonConfig.imageSizeX, commonConfig.imageSizeY,
+					self->viewPixelFormat ));
+    }
+
+    QImage* newImage;
+    QImage* swappedImage = 0;
+
+    // At this point, one way or another we should have an 8-bit image
+    // for the preview
+
+    // First deal with anything that's mono
+    if ( OA_PIX_FMT_GREY8 == self->videoFramePixelFormat ) {
+      newImage = new QImage (( const uint8_t* ) self->viewBuffer,
+          commonConfig.imageSizeX, commonConfig.imageSizeY,
+					commonConfig.imageSizeX, QImage::Format_Indexed8 );
+      if ( OA_PIX_FMT_GREY8 == self->viewPixelFormat &&
+					commonConfig.colourise ) {
+        newImage->setColorTable ( self->falseColourTable );
+      } else {
+        newImage->setColorTable ( self->greyscaleColourTable );
+      }
+      swappedImage = newImage;
+    } else {
+      // and full colour (should just be RGB24 or BGR24 at this point?)
+      // here
+      // Need the stride size here or QImage appears to "tear" the
+      // right hand edge of the image when the X dimension is an odd
+      // number of pixels
+      newImage = new QImage (( const uint8_t* ) self->viewBuffer,
+          commonConfig.imageSizeX, commonConfig.imageSizeY,
+					commonConfig.imageSizeX * 3, QImage::Format_RGB888 );
+      if ( OA_PIX_FMT_BGR24 == self->viewPixelFormat ) {
+        swappedImage = new QImage ( newImage->rgbSwapped());
+      } else {
+        swappedImage = newImage;
+      }
+    }
+
+		if ( !fromCallback ) {
+			// FIX ME -- nasty, nasty, nasty
+			pthread_mutex_lock ( &imageMutex );
+			abort = self->abortProcessing;
+			pthread_mutex_unlock ( &imageMutex );
+			if ( abort ) {
+				return;
+			}
+		}
+
+		// This call should be thread-safe
+		int zoomFactor = state->controlsWidget->getZoomFactor();
+    if ( zoomFactor && zoomFactor != self->currentZoom ) {
+      self->recalculateDimensions ( zoomFactor );
+    }
+
+		if ( !fromCallback ) {
+			// FIX ME -- nasty, nasty, nasty
+			pthread_mutex_lock ( &imageMutex );
+			abort = self->abortProcessing;
+			pthread_mutex_unlock ( &imageMutex );
+			if ( abort ) {
+				return;
+			}
+		}
+
+    if ( self->currentZoom != 100 ) {
+      QImage scaledImage = swappedImage->scaled ( self->currentZoomX,
+        self->currentZoomY );
+
+      if ( config.showFocusAid ) {
+        // FIX ME -- eh?
+      }
+
+      pthread_mutex_lock ( &self->imageMutex );
+      self->image = scaledImage.copy();
+      pthread_mutex_unlock ( &self->imageMutex );
+    } else {
+      pthread_mutex_lock ( &self->imageMutex );
+      self->image = swappedImage->copy();
+      pthread_mutex_unlock ( &self->imageMutex );
+    }
+    if ( swappedImage != newImage ) {
+      delete swappedImage;
+    }
+    delete newImage;
+  }
+
+	if ( !fromCallback ) {
+		// FIX ME -- nasty, nasty, nasty
+		pthread_mutex_lock ( &imageMutex );
+		abort = self->abortProcessing;
+		pthread_mutex_unlock ( &imageMutex );
+		if ( abort ) {
+			return;
+		}
+	}
+
+  if ( doDisplay ) {
+    emit self->updateDisplay();
+  }
+
+	if ( !fromCallback ) {
+		// FIX ME -- nasty, nasty, nasty
+		pthread_mutex_lock ( &imageMutex );
+		abort = self->abortProcessing;
+		pthread_mutex_unlock ( &imageMutex );
+		if ( abort ) {
+			return;
+		}
+    state->processingControls->histogram->process ( self->viewBuffer,
+				commonConfig.imageSizeX, commonConfig.imageSizeY, frameLength,
+				self->viewPixelFormat );
+    emit self->updateHistogram();
+	}
+}
+
+
+void
+ViewWidget::zoomUpdated ( int zoom )
+{
+	recalculateDimensions ( zoom );
+	redrawImage();
 }

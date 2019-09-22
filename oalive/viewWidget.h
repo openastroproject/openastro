@@ -56,6 +56,7 @@ class ViewWidget : public QFrame
     void		restart ( void );
 
     void		updateFrameSize ( void );
+    void		zoomUpdated ( int );
     void		configure ( void );
     void		setCapturedFramesDisplayInterval ( int );
     void		setEnabled ( int );
@@ -76,6 +77,7 @@ class ViewWidget : public QFrame
   public slots:
     void		recentreReticle ( void );
     void		derotateReticle ( void );
+		void		redrawImage ( void );
     void		setMonoPalette ( QColor );
 
   protected:
@@ -103,6 +105,7 @@ class ViewWidget : public QFrame
 									unsigned int* );
 		int				_unpackLibraw ( ViewWidget*, void*, int*, int*, unsigned int*,
 									unsigned int* );
+		void			_processAndDisplay ( void*, ViewWidget*, unsigned long, int );
 
     QImage		image;
     int			currentZoom;
@@ -157,8 +160,8 @@ class ViewWidget : public QFrame
     void		mouseMoveEvent ( QMouseEvent* );
     void		mouseReleaseEvent ( QMouseEvent* );
     void		wheelEvent ( QWheelEvent* );
-    void		recalculateDimensions ( int );
     int			checkBuffers ( ViewWidget* );
+    void		recalculateDimensions ( int );
 
     QVector<QRgb>	greyscaleColourTable;
     QVector<QRgb>	falseColourTable;
@@ -188,4 +191,10 @@ class ViewWidget : public QFrame
 		double				coeff_b2;
 		double				coeff_b3;
 		double				coeff_tbr;
+
+		int						viewPixelFormat;
+		int						currentViewBuffer;
+		void*					viewBuffer;
+		void*					originalBuffer;
+		int						abortProcessing;
 };
