@@ -336,7 +336,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
           // fortunately the exponents of the bit values correspond to the
           // menu values we're using
 
-          uint8_t uvcdef, def, modes;
+          uint8_t uvcdef, modes, minSet;
 
           if ( p_uvc_get_ae_mode ( uvcHandle, &modes, UVC_GET_RES ) !=
               UVC_SUCCESS ) {
@@ -344,46 +344,29 @@ oaUVCInitCamera ( oaCameraDevice* device )
           }
 
           cameraInfo->numAutoExposureItems = 0;
+					minSet = 0;
           for ( k = 0, mask = 1; k < 4; k++, mask <<= 1 ) {
             if ( modes & mask ) {
               cameraInfo->autoExposureMenuItems[
                   cameraInfo->numAutoExposureItems++ ] = mask;
+							if ( !minSet ) {
+								commonInfo->OA_CAM_CTRL_AUTO_MIN(
+										OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = mask;
+								minSet = 1;
+							}
+							commonInfo->OA_CAM_CTRL_AUTO_MAX(
+									OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = mask;
             }
           }
 
           camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               OA_CTRL_TYPE_DISC_MENU;
-          commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
-              OA_EXPOSURE_AUTO;
-          commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
-              OA_EXPOSURE_APERTURE_PRIORITY;
-          commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
-              1;
           if ( p_uvc_get_ae_mode ( uvcHandle, &uvcdef, UVC_GET_DEF ) !=
               UVC_SUCCESS ) {
             fprintf ( stderr, "failed to get default for autoexp setting\n" );
           }
-          switch ( uvcdef ) {
-             case 1:
-               def = OA_EXPOSURE_MANUAL;
-               break;
-             case 2:
-               def = OA_EXPOSURE_AUTO;
-               break;
-             case 4:
-               def = OA_EXPOSURE_SHUTTER_PRIORITY;
-               break;
-             case 8:
-               def = OA_EXPOSURE_APERTURE_PRIORITY;
-               break;
-             default:
-               fprintf ( stderr, "Unexpected default auto exposure value %d\n",
-                   uvcdef );
-               def = OA_EXPOSURE_MANUAL; // just for the sake of it
-               break;
-          }
           commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
-              def;
+              uvcdef;
           break;
         }
         case UVC_CT_EXPOSURE_TIME_ABSOLUTE_CONTROL:

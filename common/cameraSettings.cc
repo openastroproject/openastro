@@ -178,8 +178,15 @@ CameraSettings::configure ( void )
             case OA_CTRL_TYPE_MENU:
             {
               int64_t min, max, step, def;
-              controlLabel[mod][baseVal] = new QLabel ( tr (
-                  oaCameraControlLabel[baseVal] ));
+							char		labelText[64];
+
+							labelText[0] = '\0';
+							if ( oaCameraControlModifierPrefix[ mod ] ) {
+								strncpy ( labelText, oaCameraControlModifierPrefix[ mod ], 64 );
+								strncat ( labelText, " ", 64 );
+							}
+							strncat ( labelText, oaCameraControlLabel[baseVal], 64 );
+              controlLabel[mod][baseVal] = new QLabel ( tr ( labelText ));
               commonState.camera->controlRange ( c, &min, &max, &step, &def );
               if ( 1 == step && 0 == min ) {
                 numMenus++;
@@ -207,17 +214,25 @@ CameraSettings::configure ( void )
             {
               int32_t count;
               int64_t *values;
-              controlLabel[mod][baseVal] = new QLabel ( tr (
-                  oaCameraControlLabel[baseVal] ));
+							char		labelText[64];
+
+							labelText[0] = '\0';
+							if ( oaCameraControlModifierPrefix[ mod ] ) {
+								strncpy ( labelText, oaCameraControlModifierPrefix[ mod ], 64 );
+								strncat ( labelText, " ", 64 );
+							}
+							strncat ( labelText, oaCameraControlLabel[baseVal], 64 );
+              controlLabel[mod][baseVal] = new QLabel ( tr ( labelText ));
               commonState.camera->controlDiscreteSet ( c, &count, &values );
               numMenus++;
               controlMenu[mod][baseVal] = new QComboBox ( this );
               for ( int i = 0; i < count; i++ ) {
                 controlMenu[mod][baseVal]->addItem ( tr (
                     commonState.camera->getMenuString ( c, values[i] )));
+								if ( cameraConf.CONTROL_VALUE(c) == values[i] ) {
+									controlMenu[mod][baseVal]->setCurrentIndex ( i );
+								}
               }
-              controlMenu[mod][baseVal]->setCurrentIndex (
-                  cameraConf.CONTROL_VALUE(c));
               menuSignalMapper->setMapping ( controlMenu[mod][baseVal], c );
               connect ( controlMenu[mod][baseVal], SIGNAL(
                   currentIndexChanged ( int )), menuSignalMapper, SLOT( map()));

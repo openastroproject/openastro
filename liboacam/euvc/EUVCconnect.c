@@ -197,7 +197,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 {
   oaCamera*				camera;
   int                   		i, j, matched;
-  int					deviceAddr, deviceBus, numUSBDevices;
+  int					deviceAddr, deviceBus, numUSBDevices, mask;
   int					interfaceNo;
   libusb_device**			devlist;
   libusb_device*			usbDevice;
@@ -544,44 +544,42 @@ oaEUVCInitCamera ( oaCameraDevice* device )
         }
         case EUVC_CT_AE_MODE_CONTROL:
         {
-          uint8_t euvcdef, def = 1;
-
           // EUVC auto exposure mode is messy -- a bitfield of:
           // 1 = manual, 2 = auto, 4 = shutter priority, 8 = aperture priority
           // fortunately the exponents of the bit values correspond to the
           // menu values we're using
-          camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
-              OA_CTRL_TYPE_MENU;
-          commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
-              OA_EXPOSURE_AUTO;
-          commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
-              OA_EXPOSURE_APERTURE_PRIORITY;
-          commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
-              1;
 
+          uint8_t euvcdef, modes, minSet;
+
+					if ( getEUVCTermControl ( cameraInfo, EUVC_CT_AE_MODE_CONTROL,
+							&modes, 1, EUVC_GET_RES )) {
+						fprintf ( stderr, "failed to get modes for autoexp setting\n" );
+					}
+
+					cameraInfo->numAutoExposureItems = 0;
+          minSet = 0;
+          for ( k = 0, mask = 1; k < 4; k++, mask <<= 1 ) {
+            if ( modes & mask ) {
+              cameraInfo->autoExposureMenuItems[
+                  cameraInfo->numAutoExposureItems++ ] = mask;
+              if ( !minSet ) {
+                commonInfo->OA_CAM_CTRL_AUTO_MIN(
+                    OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = mask;
+                minSet = 1;
+              }
+              commonInfo->OA_CAM_CTRL_AUTO_MAX(
+                  OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = mask;
+            }
+          }
+
+          camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+              OA_CTRL_TYPE_DISC_MENU;
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_AE_MODE_CONTROL,
               &euvcdef, 1, EUVC_GET_DEF )) {
             fprintf ( stderr, "failed to get min value for AE setting\n" );
           }
-          switch ( euvcdef ) {
-             case 1:
-               def = OA_EXPOSURE_MANUAL;
-               break;
-             case 2:
-               def = OA_EXPOSURE_AUTO;
-               break;
-             case 4:
-               def = OA_EXPOSURE_SHUTTER_PRIORITY;
-               break;
-             case 8:
-               def = OA_EXPOSURE_APERTURE_PRIORITY;
-               break;
-             default:
-               def = OA_EXPOSURE_MANUAL; // FIX ME -- why?
-               break;
-          }
           commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
-              def;
+              euvcdef;
           break;
         }
         case EUVC_CT_EXPOSURE_TIME_ABSOLUTE_CONTROL:

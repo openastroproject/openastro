@@ -236,32 +236,12 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       break;
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
-    {
-      uint8_t data = 0;
-
-      switch ( valp->menu ) {
-        case OA_EXPOSURE_MANUAL:
-          data = 1;
-          break;
-        case OA_EXPOSURE_AUTO:
-          data = 2;
-          break;
-        case OA_EXPOSURE_SHUTTER_PRIORITY:
-          data = 4;
-          break;
-        case OA_EXPOSURE_APERTURE_PRIORITY:
-          data = 8;
-          break;
-      }
-			if ( data ) {
-				if (( err = p_uvc_set_ae_mode ( cameraInfo->uvcHandle, data ))
-						!= UVC_SUCCESS ) {
-					fprintf ( stderr, "uvc_set_ae_mode( %d ) failed in %s, err %d\n",
-							data, __FUNCTION__, err );
-				}
+			if (( err = p_uvc_set_ae_mode ( cameraInfo->uvcHandle, valp->menu ))
+					!= UVC_SUCCESS ) {
+				fprintf ( stderr, "uvc_set_ae_mode( %d ) failed in %s, err %d\n",
+						valp->menu, __FUNCTION__, err );
 			}
       break;
-    }
 
     case OA_CAM_CTRL_BLUE_BALANCE:
       val_s32 = valp->int32;
@@ -506,27 +486,9 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
         fprintf ( stderr, "uvc_get_ae_mode() failed in %s\n",
             __FUNCTION__ );
       }
-      switch ( data ) {
-        case 1:
-          data = OA_EXPOSURE_MANUAL;
-          break;
-        case 2:
-          data = OA_EXPOSURE_AUTO;
-          break;
-        case 4:
-          data = OA_EXPOSURE_SHUTTER_PRIORITY;
-          break;
-        case 8:
-          data = OA_EXPOSURE_APERTURE_PRIORITY;
-          break;
-        default:
-          fprintf ( stderr,
-              "uvc_get_ae_mode() returned unexpected value %d in %s\n",
-              data, __FUNCTION__ );
-          break;
-      }
       valp->valueType = OA_CTRL_TYPE_MENU;
       valp->menu = data;
+			break;
     }
     case OA_CAM_CTRL_BLUE_BALANCE:
       valp->valueType = OA_CTRL_TYPE_INT32;

@@ -127,6 +127,9 @@ typedef struct EUVC_STATE {
   // streaming
   int			isStreaming;
   CALLBACK		streamingCallback;
+	// discrete auto exposure menu item ids
+	unsigned int		numAutoExposureItems;
+	int64_t					autoExposureMenuItems[8];
 } EUVC_STATE;
 
 #endif	/* OA_EUVC_STATE_H */
