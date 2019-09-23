@@ -170,8 +170,6 @@ CameraControls::configure ( void )
                 controlSpinbox[ c ], SLOT( setValue( int )));
             connect ( controlSpinbox[ c ], SIGNAL( valueChanged ( int )),
                 controlSlider[ c ], SLOT( setValue( int )));
-            connect ( controlSpinbox[ c ], SIGNAL( valueChanged ( int )),
-                sliderSignalMapper, SLOT( map()));
 
             commonState.camera->controlRange ( c, &min, &max, &step, &def );
             showMin = min;
