@@ -58,6 +58,8 @@ BuildRequires:  libasicamera-devel
 BuildRequires:  libefwfilter-devel
 BuildRequires:  libuvc-devel
 BuildRequires:  libpng-devel
+BuildRequires:  libraw-devel
+BuildRequires:  libgphoto2-devel
 BuildRequires:  qt
 BuildRequires:  qt-config
 BuildRequires:  qt-devel
