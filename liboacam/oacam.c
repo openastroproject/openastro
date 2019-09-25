@@ -69,7 +69,7 @@
 #include "flycap2/FC2oacam.h"
 #endif
 #if HAVE_LIBTOUPCAM
-#include "toupcam/Touptekoacam.h"
+#include "toupcam/oacam.h"
 #endif
 #if HAVE_LIBMALLINCAM
 #include "mallincam/Mallincamoacam.h"
@@ -226,7 +226,7 @@ oaInterface	oaCameraInterfaces[] = {
     OA_CAM_IF_TOUPCAM,
     "Touptek",
     "TTEK",
-    oaTouptekGetCameras,
+    oaToupcamGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },

@@ -24,10 +24,10 @@
  *
  *****************************************************************************/
 
-#ifndef OA_RISINGCAM_CONF_H
-#define OA_RISINGCAM_CONF_H
+#ifndef OA_TOUPCAM_CONF_H
+#define OA_TOUPCAM_CONF_H
 
-#include <nncam.h>
+#include <toupcam.h>
 
 // Defines for:
 //
@@ -42,39 +42,39 @@
 // 9. OA_CAM_IF_<name>
 
 // Function name
-#define TT_FUNC( prefix, suffix)	prefix ## Nncam ## suffix
+#define TT_FUNC( prefix, suffix)	prefix ## Toupcam ## suffix
 
 // library handle type
-#define	TT_HANDLE									HNnCam
+#define	TT_HANDLE									HToupCam
 
 // config flag prefix
-#define	TT_FLAG( flag )						NNCAM_FLAG_ ## flag
+#define	TT_FLAG( flag )						TOUPCAM_FLAG_ ## flag
 
 // option flag prefix
-#define	TT_OPTION( option )				NNCAM_OPTION_ ## option
+#define	TT_OPTION( option )				TOUPCAM_OPTION_ ## option
 
 // pointer to library function
-#define	TT_LIB_FUNC( func )				p_ ## Nncam_ ## func
+#define	TT_LIB_FUNC( func )				p_ ## Toupcam_ ## func
 
 // driver name
-#define	TT_DRIVER									"Nncam"
+#define	TT_DRIVER									"Toupcam"
 
 // define prefix
-#define	TT_DEFINE( var )					NNCAM_ ## var
+#define	TT_DEFINE( var )					TOUPCAM_ ## var
 
 // variable type prefix
-#define TT_VAR_TYPE( type )				Nncam ## type
+#define TT_VAR_TYPE( type )				Toupcam ## type
 
 // function type
-#define TT_FUNC_TYPE( prefix, suffix )	prefix ## NNCAM_ ## suffix
+#define TT_FUNC_TYPE( prefix, suffix )	prefix ## TOUPCAM_ ## suffix
 
 // shared object name
-#define	TT_SOLIB									"nncam"
+#define	TT_SOLIB									"toupcam"
 
 // Patch library code?
 #undef	TT_PATCH_BINARY
 
 // interface name
-#define	TT_INTERFACE							OA_CAM_IF_RISINGCAM
+#define	TT_INTERFACE							OA_CAM_IF_TOUPCAM
 
-#endif	/* OA_RISINGCAM_CONF_H */
+#endif	/* OA_TOUPCAM_CONF_H */

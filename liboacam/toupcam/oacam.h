@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * Touptekroi.c -- region of interest management for Touptek cameras
+ * oacam.h -- header for Toupcam camera API
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -24,31 +24,9 @@
  *
  *****************************************************************************/
 
-#include <oa_common.h>
-#include <openastro/camera.h>
-#include <openastro/errno.h>
-#include <openastro/util.h>
+#ifndef OA_TOUPCAM_OACAM_H
+#define OA_TOUPCAM_OACAM_H
 
-#include "oacamprivate.h"
-#include "Touptekstate.h"
-#include "Touptekoacam.h"
+extern int		oaToupcamGetCameras ( CAMERA_LIST*, unsigned long, int );
 
-
-int
-oaTouptekCameraTestROISize ( oaCamera* camera, unsigned int tryX,
-    unsigned int tryY, unsigned int* suggX, unsigned int* suggY )
-{
-  if (( tryX % 2 == 0 ) && ( tryY % 2 == 0 ) && tryX >= 16 && tryY >= 16 ) {
-    return OA_ERR_NONE;
-  }
-
-  if ( tryX < 16 ) { tryX = 16; }
-  if ( tryY < 16 ) { tryY = 16; }
-  if ( tryX % 2 ) { tryX--; }
-  if ( tryY % 2 ) { tryY--; }
-
-  *suggX = tryX;
-  *suggY = tryY;
-
-  return -OA_ERR_INVALID_SIZE;
-}
+#endif	/* OA_TOUPCAM_OACAM_H */
