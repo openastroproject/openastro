@@ -1255,7 +1255,7 @@ extJ=ext; extK=ext; extL=ext; extM=ext
 case $host in
   *-apple-*)
     AC_CONFIG_LINKS([$ext1/libASICamera/libASICamera2.a:ext/libASICamera/mac/libASICamera2.a])
-    AC_CONFIG_LINKS([$ext2/libtoupcam/libtoupcam.dylib:ext/libtoupcam/mac64/libtoupcam.dylib])
+    AC_CONFIG_LINKS([$ext2/libtoupcam/libtoupcam.dylib:ext/libtoupcam/mac/libtoupcam.dylib])
     AC_CONFIG_LINKS([$ext3/libaltaircam/libaltaircam.dylib:ext/libaltaircam/mac64/libaltaircam.dylib])
     AC_CONFIG_LINKS([$ext4/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/mac/libEFWFilter.a])
     AC_CONFIG_LINKS([$ext5/libaltaircamlegacy/libaltaircamlegacy.dylib:ext/libaltaircamlegacy/mac64/libaltaircamlegacy.dylib])
