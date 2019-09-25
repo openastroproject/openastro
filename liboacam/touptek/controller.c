@@ -221,7 +221,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       val = valp->int32;
       if ( val >= TT_DEFINE( BRIGHTNESS_MIN ) &&
 					val <= TT_DEFINE( BRIGHTNESS_MAX )) {
-        if ((( TT_LIB_FUNC( put_Brightness ))( cameraInfo->handle, val )) < 0 ) {
+        if ((( TT_LIB_PTR( put_Brightness ))( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, TT_DRIVER "_put_Brightness ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -240,7 +240,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       val = valp->int32;
       if ( val >= TT_DEFINE( CONTRAST_MIN ) &&
 					val <= TT_DEFINE( CONTRAST_MAX )) {
-        if ((( TT_LIB_FUNC( put_Contrast ))( cameraInfo->handle, val )) < 0 ) {
+        if ((( TT_LIB_PTR( put_Contrast ))( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, TT_DRIVER "_put_Contrast ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -259,7 +259,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       val = valp->int32;
       if ( val >= TT_DEFINE( GAMMA_MIN ) &&
 					val <= TT_DEFINE( GAMMA_MAX )) {
-        if ((( TT_LIB_FUNC( put_Gamma ))( cameraInfo->handle, val )) < 0 ) {
+        if ((( TT_LIB_PTR( put_Gamma ))( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, TT_DRIVER "_put_Gamma ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -276,7 +276,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 1 : 0;
-      if ((( TT_LIB_FUNC( put_HFlip ))( cameraInfo->handle, val )) < 0 ) {
+      if ((( TT_LIB_PTR( put_HFlip ))( cameraInfo->handle, val )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_put_HFlip ( %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
       }
@@ -290,7 +290,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 1 : 0;
-      if ((( TT_LIB_FUNC( put_VFlip ))( cameraInfo->handle, val )) < 0 ) {
+      if ((( TT_LIB_PTR( put_VFlip ))( cameraInfo->handle, val )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_put_VFlip ( %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
       }
@@ -303,7 +303,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
             "for control %d\n", __FUNCTION__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
-      if ((( TT_LIB_FUNC( put_AutoExpoEnable ))( cameraInfo->handle,
+      if ((( TT_LIB_PTR( put_AutoExpoEnable ))( cameraInfo->handle,
 						valp->boolean )) < 0) {
         fprintf ( stderr, TT_DRIVER "_put_AutoExpoEnable ( %d ) failed\n",
 						valp->boolean );
@@ -320,7 +320,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= cameraInfo->exposureMin && val <= cameraInfo->exposureMax ) {
-        if ((( TT_LIB_FUNC( put_ExpoTime ))( cameraInfo->handle, val )) < 0 ) {
+        if ((( TT_LIB_PTR( put_ExpoTime ))( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, TT_DRIVER "_put_ExpoTime ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -338,7 +338,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= cameraInfo->gainMin && val <= cameraInfo->gainMax ) {
-        if ((( TT_LIB_FUNC( put_ExpoAGain ))( cameraInfo->handle, val )) < 0 ) {
+        if ((( TT_LIB_PTR( put_ExpoAGain ))( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, TT_DRIVER "_put_ExpoAGain ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -356,7 +356,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= 0 && val <= cameraInfo->speedMax ) {
-        if ((( TT_LIB_FUNC( put_Speed ))( cameraInfo->handle, val )) < 0 ) {
+        if ((( TT_LIB_PTR( put_Speed ))( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, TT_DRIVER "_put_Speed ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -374,7 +374,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       }
       val = valp->int32;
       if ( val >= TT_DEFINE( HUE_MIN ) && val <= TT_DEFINE( HUE_MAX )) {
-        if ((( TT_LIB_FUNC( put_Hue ))( cameraInfo->handle, val )) < 0 ) {
+        if ((( TT_LIB_PTR( put_Hue ))( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, TT_DRIVER "_put_Hue ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -393,7 +393,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       val = valp->int32;
       if ( val >= TT_DEFINE( SATURATION_MIN ) &&
 					val <= TT_DEFINE( SATURATION_MAX )) {
-        if ((( TT_LIB_FUNC( put_Saturation ))( cameraInfo->handle, val )) < 0 ) {
+        if ((( TT_LIB_PTR( put_Saturation ))( cameraInfo->handle, val )) < 0 ) {
           fprintf ( stderr, TT_DRIVER "_put_Saturation ( %d ) failed\n", val );
           return -OA_ERR_CAMERA_IO;
         }
@@ -414,7 +414,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       val = valp->int32;
       if ( val >= TT_DEFINE( WBGAIN_MIN ) && val <= TT_DEFINE( WBGAIN_MAX )) {
         int gain[3];
-        if ((( TT_LIB_FUNC( get_WhiteBalanceGain ))( cameraInfo->handle,
+        if ((( TT_LIB_PTR( get_WhiteBalanceGain ))( cameraInfo->handle,
             gain )) < 0 ) {
           fprintf ( stderr, TT_DRIVER
 							"_get_WhiteBalanceGain (gain[3]) failed\n" );
@@ -431,7 +431,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
             gain[1] = val;
             break;
         }
-        if ((( TT_LIB_FUNC( put_WhiteBalanceGain ))( cameraInfo->handle,
+        if ((( TT_LIB_PTR( put_WhiteBalanceGain ))( cameraInfo->handle,
             gain )) < 0 ) {
           fprintf ( stderr, TT_DRIVER
 							"_put_WhiteBalanceGain (gain[3]) failed\n" );
@@ -460,7 +460,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 0 : 1;
-      if ((( TT_LIB_FUNC( put_Option ))( cameraInfo->handle,
+      if ((( TT_LIB_PTR( put_Option ))( cameraInfo->handle,
           TT_OPTION( TEC ), 1 )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_put_Option ( cooler, %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
@@ -475,7 +475,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 0 : 1;
-      if ((( TT_LIB_FUNC( put_Option ))( cameraInfo->handle,
+      if ((( TT_LIB_PTR( put_Option ))( cameraInfo->handle,
           TT_OPTION( FAN ), 1 )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_put_Option ( fan, %d ) failed\n", val );
         return -OA_ERR_CAMERA_IO;
@@ -513,7 +513,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         }
         cameraInfo->ledPeriod = valp->int32;
       }
-      if ((( TT_LIB_FUNC( put_LEDState ))( cameraInfo->handle, 0,
+      if ((( TT_LIB_PTR( put_LEDState ))( cameraInfo->handle, 0,
           cameraInfo->ledState, cameraInfo->ledPeriod )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_put_LEDState ( 0, %d, %d ) failed\n",
             cameraInfo->ledState, cameraInfo->ledPeriod );
@@ -542,7 +542,7 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_BRIGHTNESS:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( TT_LIB_FUNC( get_Brightness ))( cameraInfo->handle,
+      if ((( TT_LIB_PTR( get_Brightness ))( cameraInfo->handle,
           &val_s32 )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_get_Brightness failed\n" );
         return -OA_ERR_CAMERA_IO;
@@ -553,7 +553,7 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_CONTRAST:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( TT_LIB_FUNC( get_Contrast ))( cameraInfo->handle, &val_s32 )) < 0 ) {
+      if ((( TT_LIB_PTR( get_Contrast ))( cameraInfo->handle, &val_s32 )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_get_Contrast failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -563,7 +563,7 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_GAMMA:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( TT_LIB_FUNC( get_Gamma ))( cameraInfo->handle, &val_s32 )) < 0 ) {
+      if ((( TT_LIB_PTR( get_Gamma ))( cameraInfo->handle, &val_s32 )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_get_Gamma failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -573,7 +573,7 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_HFLIP:
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
-      if ((( TT_LIB_FUNC( get_HFlip ))( cameraInfo->handle, &val_s32 )) < 0 ) {
+      if ((( TT_LIB_PTR( get_HFlip ))( cameraInfo->handle, &val_s32 )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_get_HFlip failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -583,7 +583,7 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_VFLIP:
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
-      if ((( TT_LIB_FUNC( get_VFlip ))( cameraInfo->handle, &val_s32 )) < 0 ) {
+      if ((( TT_LIB_PTR( get_VFlip ))( cameraInfo->handle, &val_s32 )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_get_VFlip failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -593,7 +593,7 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
-      if ((( TT_LIB_FUNC( get_AutoExpoEnable ))( cameraInfo->handle,
+      if ((( TT_LIB_PTR( get_AutoExpoEnable ))( cameraInfo->handle,
           &val_s32 )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_get_AutoExpoEnable failed\n" );
         return -OA_ERR_CAMERA_IO;
@@ -604,7 +604,7 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( TT_LIB_FUNC( get_ExpoTime ))( cameraInfo->handle, &val_u32 )) < 0 ) {
+      if ((( TT_LIB_PTR( get_ExpoTime ))( cameraInfo->handle, &val_u32 )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_get_ExpoTime failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -614,7 +614,7 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_GAIN:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( TT_LIB_FUNC( get_ExpoAGain ))( cameraInfo->handle,
+      if ((( TT_LIB_PTR( get_ExpoAGain ))( cameraInfo->handle,
           &val_u16 )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_get_ExpoAGain failed\n" );
         return -OA_ERR_CAMERA_IO;
@@ -625,7 +625,7 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_SPEED:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( TT_LIB_FUNC( get_Speed ))( cameraInfo->handle, &val_u16 )) < 0 ) {
+      if ((( TT_LIB_PTR( get_Speed ))( cameraInfo->handle, &val_u16 )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_get_Speed failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -635,7 +635,7 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_HUE:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( TT_LIB_FUNC( get_Hue ))( cameraInfo->handle, &val_s32 )) < 0 ) {
+      if ((( TT_LIB_PTR( get_Hue ))( cameraInfo->handle, &val_s32 )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_get_Hue failed\n" );
         return -OA_ERR_CAMERA_IO;
       }
@@ -645,7 +645,7 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_SATURATION:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( TT_LIB_FUNC( get_Saturation ))( cameraInfo->handle,
+      if ((( TT_LIB_PTR( get_Saturation ))( cameraInfo->handle,
           &val_s32 )) < 0 ){
         fprintf ( stderr, TT_DRIVER "_get_Saturation failed\n" );
         return -OA_ERR_CAMERA_IO;
@@ -660,7 +660,7 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
     {
       int gain[3];
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( TT_LIB_FUNC( get_WhiteBalanceGain ))( cameraInfo->handle,
+      if ((( TT_LIB_PTR( get_WhiteBalanceGain ))( cameraInfo->handle,
           gain )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_get_WhiteBalanceGain (gain[3]) failed\n" );
         return -OA_ERR_CAMERA_IO;
@@ -683,7 +683,7 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_TEMPERATURE:
       valp->valueType = OA_CTRL_TYPE_INT32;
-      if ((( TT_LIB_FUNC( get_Temperature ))( cameraInfo->handle,
+      if ((( TT_LIB_PTR( get_Temperature ))( cameraInfo->handle,
           &val_s16 )) < 0 ) {
         fprintf ( stderr, TT_DRIVER "_get_Temperature failed\n" );
         return -OA_ERR_CAMERA_IO;
@@ -740,12 +740,12 @@ _processSetResolution ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
   // Reset the ROI
 
-  if ((( TT_LIB_FUNC( put_Roi ))( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
+  if ((( TT_LIB_PTR( put_Roi ))( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
     fprintf ( stderr, "Can't clear " TT_DRIVER " ROI\n" );
     return -OA_ERR_CAMERA_IO;
   }
 
-  if ((( TT_LIB_FUNC( put_Size ))( cameraInfo->handle, size->x, size->y )) < 0 ) {
+  if ((( TT_LIB_PTR( put_Size ))( cameraInfo->handle, size->x, size->y )) < 0 ) {
     fprintf ( stderr, "Can't set " TT_DRIVER " frame size %dx%d\n", size->x,
       size->y );
     return -OA_ERR_CAMERA_IO;
@@ -788,7 +788,7 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
   offsetX = (( cameraInfo->currentXResolution - x ) / 2 ) & ~1;
   offsetY = (( cameraInfo->currentYResolution - y ) / 2 ) & ~1;
 
-  if ((( TT_LIB_FUNC( put_Roi ))( cameraInfo->handle, offsetX, offsetY, x,
+  if ((( TT_LIB_PTR( put_Roi ))( cameraInfo->handle, offsetX, offsetY, x,
       y )) < 0 ) {
     fprintf ( stderr, "Can't set " TT_DRIVER " ROI ( %d, %d, %d, %d )\n",
         offsetX, offsetY, x, y );
@@ -828,7 +828,7 @@ _doStart ( TOUPTEK_STATE* cameraInfo )
 {
   int			ret;
 
-  if (( ret = ( TT_LIB_FUNC( StartPushModeV2 ))( cameraInfo->handle,
+  if (( ret = ( TT_LIB_PTR( StartPushModeV2 ))( cameraInfo->handle,
       TT_FUNC( _, FrameCallback ), cameraInfo )) < 0 ) {
     fprintf ( stderr, "%s: " TT_DRIVER "_StartPushModeV2 failed: 0x%x\n",
         __FUNCTION__, ret );
@@ -862,7 +862,7 @@ _doStop ( TOUPTEK_STATE* cameraInfo )
   cameraInfo->isStreaming = 0;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
-  if (( ret = ( TT_LIB_FUNC( Stop ))( cameraInfo->handle )) < 0 ) {
+  if (( ret = ( TT_LIB_PTR( Stop ))( cameraInfo->handle )) < 0 ) {
     fprintf ( stderr, "%s: " TT_DRIVER "_Stop failed: %d\n", __FUNCTION__,
 				ret );
     return -OA_ERR_CAMERA_IO;
@@ -883,7 +883,7 @@ _setBinning ( TOUPTEK_STATE* cameraInfo, int binMode )
 
   // Reset the ROI
 
-  if ((( TT_LIB_FUNC( put_Roi ))( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
+  if ((( TT_LIB_PTR( put_Roi ))( cameraInfo->handle, 0, 0, 0, 0 )) < 0 ) {
     fprintf ( stderr, "Can't clear " TT_DRIVER " ROI\n" );
     return -OA_ERR_CAMERA_IO;
   }
@@ -895,7 +895,7 @@ _setBinning ( TOUPTEK_STATE* cameraInfo, int binMode )
 
   x = cameraInfo->frameSizes[ binMode ].sizes[0].x;
   y = cameraInfo->frameSizes[ binMode ].sizes[0].y;
-  if ((( TT_LIB_FUNC( put_Size ))( cameraInfo->handle, x, y )) < 0 ) {
+  if ((( TT_LIB_PTR( put_Size ))( cameraInfo->handle, x, y )) < 0 ) {
     fprintf ( stderr, "Can't set " TT_DRIVER " frame size\n" );
     return -OA_ERR_CAMERA_IO;
   }
@@ -931,13 +931,13 @@ _setFrameFormat ( TOUPTEK_STATE* cameraInfo, int format )
     }
 
     raw = oaFrameFormats[ format ].rawColour ? 1 : 0;
-    if ((( TT_LIB_FUNC( put_Option ))( cameraInfo->handle, TT_OPTION( RAW ),
+    if ((( TT_LIB_PTR( put_Option ))( cameraInfo->handle, TT_OPTION( RAW ),
         raw  )) < 0 ) {
       fprintf ( stderr, TT_DRIVER "_put_Option ( raw, %d ) failed\n", raw );
       return -OA_ERR_CAMERA_IO;
     }
 
-    if ((( TT_LIB_FUNC( put_Option ))( cameraInfo->handle, TT_OPTION( RGB ),
+    if ((( TT_LIB_PTR( put_Option ))( cameraInfo->handle, TT_OPTION( RGB ),
         format == OA_PIX_FMT_RGB48LE ? 1 : 0 )) < 0 ) {
       fprintf ( stderr, TT_DRIVER "_put_Option ( raw, %d ) failed\n", raw );
       return -OA_ERR_CAMERA_IO;
@@ -951,7 +951,7 @@ _setFrameFormat ( TOUPTEK_STATE* cameraInfo, int format )
   // And now change the bit depth
 
   bitspp = oaFrameFormats[ format ].bitsPerPixel;
-  if ((( TT_LIB_FUNC( put_Option ))( cameraInfo->handle,
+  if ((( TT_LIB_PTR( put_Option ))( cameraInfo->handle,
 			TT_OPTION( BITDEPTH ), ( bitspp > 8 ) ? 1 : 0  )) < 0 ) {
     fprintf ( stderr, TT_DRIVER "_put_Option ( depth, %d ) failed\n",
         bitspp > 8 ? 1 : 0 );
@@ -989,7 +989,7 @@ _processExposureStart ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
   cameraInfo->imageBufferLength = cameraInfo->currentXSize *
       cameraInfo->currentYSize * cameraInfo->currentBytesPerPixel;
 
-  if (( ret = ( TT_LIB_FUNC( StartPullModeWithCallback ))( cameraInfo->handle,
+  if (( ret = ( TT_LIB_PTR( StartPullModeWithCallback ))( cameraInfo->handle,
       TT_FUNC( _, PullCallback ), cameraInfo )) < 0 ) {
     fprintf ( stderr, "%s: " TT_DRIVER "_StartPullModeWithCallback failed: 0x%x\n",
         __FUNCTION__, ret );
@@ -1027,7 +1027,7 @@ TT_FUNC( _, PullCallback )( unsigned int event, void* ptr )
     dataLength = cameraInfo->imageBufferLength;
     nextBuffer = cameraInfo->nextBuffer;
 
-		if (( ret = ( TT_LIB_FUNC( PullImageV2 ))( cameraInfo->handle,
+		if (( ret = ( TT_LIB_PTR( PullImageV2 ))( cameraInfo->handle,
 				cameraInfo->buffers[ nextBuffer ].start, bytesPerPixel * 8,
 				&frameInfo )) < 0 ) {
 			fprintf ( stderr, "%s: " TT_DRIVER "_PullImageV2 failed: 0x%x\n",
@@ -1093,7 +1093,7 @@ _processAbortExposure ( TOUPTEK_STATE* cameraInfo )
   cameraInfo->exposureInProgress = 0;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
-  if (( ret = ( TT_LIB_FUNC( Stop ))( cameraInfo->handle )) < 0 ) {
+  if (( ret = ( TT_LIB_PTR( Stop ))( cameraInfo->handle )) < 0 ) {
     fprintf ( stderr, "%s: " TT_DRIVER "_Stop failed: %d\n", __FUNCTION__, ret );
     return -OA_ERR_CAMERA_IO;
   }

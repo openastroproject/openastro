@@ -53,8 +53,11 @@
 // option flag prefix
 #define	TT_OPTION( option )				STARSHOOTG_OPTION_ ## option
 
+// library function name
+#define	TT_LIB_FUNC( func )				Starshootg_ ## func
+
 // pointer to library function
-#define	TT_LIB_FUNC( func )				p_ ## Starshootg_ ## func
+#define	TT_LIB_PTR( func )				p_ ## Starshootg_ ## func
 
 // driver name
 #define	TT_DRIVER									"Starshootg"

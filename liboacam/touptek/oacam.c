@@ -54,7 +54,7 @@ TT_FUNC( oa, GetCameras )( CAMERA_LIST* deviceList, unsigned long featureFlags,
 		return ret;
 	}
 
-  numCameras = ( TT_LIB_FUNC( EnumV2 ))( devList );
+  numCameras = ( TT_LIB_PTR( EnumV2 ))( devList );
   if ( numCameras < 1 ) {
     return 0;
   }

@@ -53,8 +53,11 @@
 // option flag prefix
 #define	TT_OPTION( option )				NNCAM_OPTION_ ## option
 
+// library function name
+#define	TT_LIB_FUNC( func )				Nncam_ ## func
+
 // pointer to library function
-#define	TT_LIB_FUNC( func )				p_ ## Nncam_ ## func
+#define	TT_LIB_PTR( func )				p_ ## Nncam_ ## func
 
 // driver name
 #define	TT_DRIVER									"Nncam"

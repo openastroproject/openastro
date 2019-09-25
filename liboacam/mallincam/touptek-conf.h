@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * touptek-conf.h -- Touptek build configuration for Toupcam cameras
+ * touptek-conf.h -- Touptek build configuration for Mallincam cameras
  *
  * Copyright 2019 James Fidell (james@openastroproject.org)
  *
@@ -24,10 +24,10 @@
  *
  *****************************************************************************/
 
-#ifndef OA_TOUPCAM_CONF_H
-#define OA_TOUPCAM_CONF_H
+#ifndef OA_MALLINCAM_CONF_H
+#define OA_MALLINCAM_CONF_H
 
-#include <toupcam.h>
+#include <mallincam.h>
 
 // Defines for:
 //
@@ -42,7 +42,7 @@
 // 9. OA_CAM_IF_<name>
 
 // Function name
-#define TT_FUNC( prefix, suffix)	prefix ## Toupcam ## suffix
+#define TT_FUNC( prefix, suffix)	prefix ## Mallincam ## suffix
 
 // library handle type
 #define	TT_HANDLE									HToupCam
@@ -57,7 +57,7 @@
 #define	TT_LIB_FUNC( func )				Toupcam_ ## func
 
 // pointer to library function
-#define	TT_LIB_PTR( func )				p_ ## Toupcam_ ## func
+#define	TT_LIB_PTR( func )				p_ ## Mallincam_ ## func
 
 // driver name
 #define	TT_DRIVER									"Toupcam"
@@ -72,12 +72,12 @@
 #define TT_FUNC_TYPE( prefix, suffix )	prefix ## TOUPCAM_ ## suffix
 
 // shared object name
-#define	TT_SOLIB									"toupcam"
+#define	TT_SOLIB									"mallincam"
 
 // Patch library code?
 #undef	TT_PATCH_BINARY
 
 // interface name
-#define	TT_INTERFACE							OA_CAM_IF_TOUPCAM
+#define	TT_INTERFACE							OA_CAM_IF_MALLINCAM
 
-#endif	/* OA_TOUPCAM_CONF_H */
+#endif	/* OA_MALLINCAM_CONF_H */

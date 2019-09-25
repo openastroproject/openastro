@@ -66,7 +66,7 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   char				toupcamId[128]; // must be longer than 64
 	void*				tmpPtr;
 
-  numCameras = ( TT_LIB_FUNC( EnumV2 ))( devList );
+  numCameras = ( TT_LIB_PTR( EnumV2 ))( devList );
   devInfo = device->_private;
   if ( numCameras < 1 || devInfo->devIndex > numCameras ) {
     return 0;
@@ -93,7 +93,7 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
     *toupcamId = 0;
   }
   ( void ) strcat ( toupcamId, devInfo->deviceId );
-  if (!( handle = ( TT_LIB_FUNC( Open ))( toupcamId ))) {
+  if (!( handle = ( TT_LIB_PTR( Open ))( toupcamId ))) {
     fprintf ( stderr, "Can't get " TT_DRIVER "handle\n" );
     FREE_DATA_STRUCTS;
     return 0;
@@ -163,8 +163,8 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
   commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 0;
 
-  if (( TT_LIB_FUNC( get_ExpTimeRange ))( handle, &min, &max, &def ) < 0 ) {
-    ( TT_LIB_FUNC( Close ))( handle );
+  if (( TT_LIB_PTR( get_ExpTimeRange ))( handle, &min, &max, &def ) < 0 ) {
+    ( TT_LIB_PTR( Close ))( handle );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -179,9 +179,9 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   cameraInfo->exposureMin = min;
   cameraInfo->exposureMax = max;
 
-  if (( TT_LIB_FUNC( get_ExpoAGainRange ))( handle, &smin, &smax, &sdef ) < 0 ) {
+  if (( TT_LIB_PTR( get_ExpoAGainRange ))( handle, &smin, &smax, &sdef ) < 0 ) {
     fprintf ( stderr, TT_DRIVER "_get_ExpoAGainRange() failed\n" );
-    ( TT_LIB_FUNC( Close ))( handle );
+    ( TT_LIB_PTR( Close ))( handle );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -292,9 +292,9 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
 				TT_DEFINE( BRIGHTNESS_DEF );
 
     // force the camera out of raw mode
-    if ((( TT_LIB_FUNC( put_Option ))( handle, TT_OPTION( RAW ), 0 )) < 0 ) {
+    if ((( TT_LIB_PTR( put_Option ))( handle, TT_OPTION( RAW ), 0 )) < 0 ) {
       fprintf ( stderr, TT_DRIVER "_put_Option ( raw, 0 ) returns error\n" );
-      ( TT_LIB_FUNC( Close ))( handle );
+      ( TT_LIB_PTR( Close ))( handle );
       FREE_DATA_STRUCTS;
       return 0;
     }
@@ -304,9 +304,9 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
     // It looks like mono cameras return RGB frames by default.  That
     // seems wasteful, so try to turn it off.
 
-    if ((( TT_LIB_FUNC( put_Option ))( handle, TT_OPTION( RAW ), 1 )) < 0 ) {
+    if ((( TT_LIB_PTR( put_Option ))( handle, TT_OPTION( RAW ), 1 )) < 0 ) {
       fprintf ( stderr, TT_DRIVER "_put_Option ( raw, 1 ) returns error\n" );
-      ( TT_LIB_FUNC( Close ))( handle );
+      ( TT_LIB_PTR( Close ))( handle );
       FREE_DATA_STRUCTS;
       return 0;
     }
@@ -337,7 +337,7 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
 		camera->features.flags |= OA_CAM_FEATURE_ROI;
   }
 
-  cameraInfo->maxBitDepth = TT_LIB_FUNC( get_MaxBitDepth )( handle );
+  cameraInfo->maxBitDepth = TT_LIB_PTR( get_MaxBitDepth )( handle );
   if ( cameraInfo->colour ) {
     camera->frameFormats[ OA_PIX_FMT_RGB24 ] = 1;
   } else {
@@ -396,11 +396,11 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   // force camera into 8-bit mode
 
   if ( cameraInfo->maxBitDepth > 8 ) {
-    if ((( TT_LIB_FUNC( put_Option ))( handle,
+    if ((( TT_LIB_PTR( put_Option ))( handle,
         TT_OPTION( BITDEPTH ), 0 )) < 0 ) {
       fprintf ( stderr, TT_DRIVER
           "_put_Option ( bitdepth, 0 ) returns error\n" );
-      ( TT_LIB_FUNC( Close ))( handle );
+      ( TT_LIB_PTR( Close ))( handle );
       FREE_DATA_STRUCTS;
       return 0;
     }
@@ -428,9 +428,9 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   if ( cameraInfo->colour ) {
     int found = 0;
 
-    if ((( TT_LIB_FUNC( get_RawFormat ))( handle, &fourcc, &depth )) < 0 ) {
+    if ((( TT_LIB_PTR( get_RawFormat ))( handle, &fourcc, &depth )) < 0 ) {
       fprintf ( stderr, "get_RawFormat returns error\n" );
-      ( TT_LIB_FUNC( Close ))( handle );
+      ( TT_LIB_PTR( Close ))( handle );
       FREE_DATA_STRUCTS;
       return 0;
     }
@@ -533,9 +533,9 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
 
   if (( numStillResolutions = devList[ devInfo->devIndex ].model->still )) {
     for ( i = 0; i < numStillResolutions; i++ ) {
-      if ((( TT_LIB_FUNC( get_StillResolution ))( handle, i, &x, &y )) < 0 ) {
+      if ((( TT_LIB_PTR( get_StillResolution ))( handle, i, &x, &y )) < 0 ) {
         fprintf ( stderr, "failed to get still resolution %d\n", i );
-        ( TT_LIB_FUNC( Close ))( handle );
+        ( TT_LIB_PTR( Close ))( handle );
         FREE_DATA_STRUCTS;
         return 0;
       }
@@ -557,9 +557,9 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   }
 
   for ( i = 0; i < numResolutions; i++ ) {
-    if ((( TT_LIB_FUNC( get_Resolution ))( handle, i, &x, &y )) < 0 ) {
+    if ((( TT_LIB_PTR( get_Resolution ))( handle, i, &x, &y )) < 0 ) {
       fprintf ( stderr, "failed to get resolution %d\n", i );
-      ( TT_LIB_FUNC( Close ))( handle );
+      ( TT_LIB_PTR( Close ))( handle );
 			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
 					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
@@ -584,7 +584,7 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
       if (!( tmpPtr = realloc ( cameraInfo->frameSizes[ binX ].sizes,
 						sizeof ( FRAMESIZE ) * 2 ))) {
         fprintf ( stderr, "realloc for frame sizes failed\n" );
-        ( TT_LIB_FUNC( Close ))( handle );
+        ( TT_LIB_PTR( Close ))( handle );
 				for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 					if ( cameraInfo->frameSizes[ j ].numSizes ) {
 						free (( void* ) cameraInfo->frameSizes[ j ].sizes );
@@ -630,7 +630,7 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
           free (( void* ) cameraInfo->buffers[j].start );
         }
       }
-      ( TT_LIB_FUNC( Close ))( handle );
+      ( TT_LIB_PTR( Close ))( handle );
 			free (( void* ) cameraInfo->buffers );
 			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
@@ -746,7 +746,7 @@ TT_FUNC( oa, CloseCamera )( oaCamera* camera )
     pthread_cond_broadcast ( &cameraInfo->callbackQueued );
     pthread_join ( cameraInfo->callbackThread, &dummy );
 
-    ( TT_LIB_FUNC( Close )) ( cameraInfo->handle );
+    ( TT_LIB_PTR( Close )) ( cameraInfo->handle );
 
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
     oaDLListDelete ( cameraInfo->callbackQueue, 1 );

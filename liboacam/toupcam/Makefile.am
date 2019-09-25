@@ -27,7 +27,7 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/ext/libusb \
   -I$(top_srcdir)/liboacam \
   -I$(top_srcdir)/liboacam/touptek \
-  $(LIBUSB_CFLAGS) $(SHLIBS_CFLAGS) $(LIBNNCAM_CFLAGS) \
+  $(LIBUSB_CFLAGS) $(SHLIBS_CFLAGS) $(LIBTOUPCAM_CFLAGS) \
   $(DYNLIB_EXTN_CFLAGS)
 
 noinst_LTLIBRARIES = libtoupcam.la

@@ -681,6 +681,7 @@ then
 fi
 
 use_system_libtoupcam=no
+use_system_libmallincam=no
 if test $checkSystemLibtoupcam -eq 1
 then
   if `$PKG_CONFIG --exists libtoupcam`; then
@@ -1357,6 +1358,16 @@ then
 	fi
 fi
 
+if test "x$use_system_libmallincam" == "xno"
+then
+	if test "x$have_mallincam" != "xno"
+	then
+		LIBMALLINCAM_CFLAGS="-I \$(top_srcdir)/ext/libmallincam/include"
+		LIBMALLINCAM_LIBS=""
+		AC_DEFINE([HAVE_LIBMALLINCAM],[1],[Have Mallincam library support])
+	fi
+fi
+
 if test "x$use_system_libaltaircam" == "xno"
 then
 	if test "x$have_altaircam" != "xno"
@@ -1419,6 +1430,8 @@ AC_SUBST(LIBASI2_CFLAGS)
 AC_SUBST(LIBASI2_LIBS)
 AC_SUBST(LIBTOUPCAM_CFLAGS)
 AC_SUBST(LIBTOUPCAM_LIBS)
+AC_SUBST(LIBMALLINCAM_CFLAGS)
+AC_SUBST(LIBMALLINCAM_LIBS)
 AC_SUBST(LIBALTAIRCAM_CFLAGS)
 AC_SUBST(LIBALTAIRCAM_LIBS)
 AC_SUBST(LIBALTAIRCAM_LEGACY_CFLAGS)
