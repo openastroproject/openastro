@@ -73,7 +73,7 @@ endif
 
 if LIBALTAIRCAM_COND
 ALTAIRDIR= altair
-ALTAIRLIB= $(ALTAIRDIR)/libaltair.la
+ALTAIRLIB= $(ALTAIRDIR)/libaltaircam.la
 endif
 
 if LIBSTARSHOOTG_COND

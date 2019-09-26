@@ -72,10 +72,10 @@
 #include "toupcam/oacam.h"
 #endif
 #if HAVE_LIBMALLINCAM
-#include "mallincam/Mallincamoacam.h"
+#include "mallincam/oacam.h"
 #endif
 #if HAVE_LIBALTAIRCAM
-#include "altair/Altairoacam.h"
+#include "altair/oacam.h"
 #endif
 #if HAVE_LIBALTAIRCAM_LEGACY
 #include "altair-legacy/LegacyAltairoacam.h"
@@ -250,7 +250,7 @@ oaInterface	oaCameraInterfaces[] = {
     OA_CAM_IF_ALTAIRCAM,
     "Altair",
     "AACAM",
-    oaAltairGetCameras,
+    oaAltaircamGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },

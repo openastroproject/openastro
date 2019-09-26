@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * Altairroi.c -- region of interest management for Altair cameras
+ * oacam.h -- header for Altaircam camera API
  *
- * Copyright 2016 James Fidell (james@openastroproject.org)
+ * Copyright 2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -24,31 +24,9 @@
  *
  *****************************************************************************/
 
-#include <oa_common.h>
-#include <openastro/camera.h>
-#include <openastro/errno.h>
-#include <openastro/util.h>
+#ifndef OA_ALTAIRCAM_OACAM_H
+#define OA_ALTAIRCAM_OACAM_H
 
-#include "oacamprivate.h"
-#include "Altairstate.h"
-#include "Altairoacam.h"
+extern int		oaAltaircamGetCameras ( CAMERA_LIST*, unsigned long, int );
 
-
-int
-oaAltairCameraTestROISize ( oaCamera* camera, unsigned int tryX,
-    unsigned int tryY, unsigned int* suggX, unsigned int* suggY )
-{
-  if (( tryX % 2 == 0 ) && ( tryY % 2 == 0 ) && tryX >= 16 && tryY >= 16 ) {
-    return OA_ERR_NONE;
-  }
-
-  if ( tryX < 16 ) { tryX = 16; }
-  if ( tryY < 16 ) { tryY = 16; }
-  if ( tryX % 2 ) { tryX--; }
-  if ( tryY % 2 ) { tryY--; }
-
-  *suggX = tryX;
-  *suggY = tryY;
-
-  return -OA_ERR_INVALID_SIZE;
-}
+#endif	/* OA_ALTAIRCAM_OACAM_H */
