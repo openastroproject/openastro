@@ -8,10 +8,10 @@ distributions.  On Ubuntu, Mint (and perhaps Debian) you probably need:
   libv4l-dev
   libqt4-dev
   libdc1394-22-dev
-  libcfitsio3-dev
+  libcfitsio-dev
   libudev-dev
   libtiff-dev
-	libsdl1.2-dev
+  libsdl1.2-dev
   qt4-dev-tools
   qt4-qmake
   gawk
@@ -21,8 +21,12 @@ distributions.  On Ubuntu, Mint (and perhaps Debian) you probably need:
   autoconf
   autoconf-archive
   libtool
-	libusb-1.0-0-dev
-	libhidapi-dev
+  libusb-1.0-0-dev
+  libhidapi-dev
+  libraw-dev
+  
+Or with simple one-liner (Ubuntu 18.04):
+ $ sudo apt install libv4l-dev libqt4-dev libdc1394-22-dev libcfitsio-dev libudev-dev libtiff-dev libsdl1.2-dev qt4-dev-tools qt4-qmake gawk gcc g++ yasm autoconf autoconf-archive libtool libusb-1.0-0-dev libhidapi-dev libraw-dev
 
 On Fedora I found these to be sufficient:
 
@@ -41,7 +45,7 @@ On Fedora I found these to be sufficient:
   yasm
   autoconf
   libtool
-	SDL
+  SDL
 
 As of release 0.0.6 the external libraries fmpeg and libusb are
 included with the sources and build with them to make life a little
