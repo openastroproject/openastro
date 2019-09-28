@@ -699,8 +699,10 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
+#ifndef NO_V2_IMAGE_FUNCS
 	  if (!( *( void** )( &TT_LIB_PTR( PullImageV2 )) = _getDLSym ( libHandle,
 	      TT_LIB_PREFIX "_PullImageV2" ))) {
+#endif
 			// If this one is missing, perhaps we have vanilla PullImage from
 			// the earlier library versions?
 			TT_LIB_PTR( PullImageV2 ) = 0;
@@ -710,10 +712,14 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 				libHandle = 0;
 				return OA_ERR_SYMBOL_NOT_FOUND;
 			}
+#ifndef NO_V2_IMAGE_FUNCS
 	  }
+#endif
 
+#ifndef NO_V2_IMAGE_FUNCS
 	  if (!( *( void** )( &TT_LIB_PTR( PullStillImageV2 )) =
 				_getDLSym ( libHandle, TT_LIB_PREFIX "_PullStillImageV2" ))) {
+#endif
 			// If this one is missing, perhaps we have vanilla PullStillImage from
 			// the earlier library versions?
 			TT_LIB_PTR( PullStillImageV2 ) = 0;
@@ -723,7 +729,9 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 				libHandle = 0;
 				return OA_ERR_SYMBOL_NOT_FOUND;
 			}
+#ifndef NO_V2_IMAGE_FUNCS
 	  }
+#endif
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_AEAuxRect )) = _getDLSym ( libHandle,
 	      TT_LIB_PREFIX "_put_AEAuxRect" ))) {
@@ -1026,8 +1034,10 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
+#ifndef NO_V2_IMAGE_FUNCS
 	  if (!( *( void** )( &TT_LIB_PTR( StartPushModeV2 )) = _getDLSym ( libHandle,
 	      TT_LIB_PREFIX "_StartPushModeV2" ))) {
+#endif
 			// If this one is missing, perhaps we have vanilla StartPushMode from
 			// the earlier library versions?
 			TT_LIB_PTR( StartPushModeV2 ) = 0;
@@ -1037,7 +1047,9 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 				libHandle = 0;
 				return OA_ERR_SYMBOL_NOT_FOUND;
 			}
+#ifndef NO_V2_IMAGE_FUNCS
 	  }
+#endif
 
 	  if (!( *( void** )( &TT_LIB_PTR( Stop )) = _getDLSym ( libHandle,
 	      TT_LIB_PREFIX "_Stop" ))) {
