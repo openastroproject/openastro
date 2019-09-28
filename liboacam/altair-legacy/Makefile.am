@@ -1,5 +1,5 @@
 #
-# Makefile.am -- liboacam Altair Legacy Makefile template
+# Makefile.am -- liboacam legacy Altair Makefile template
 #
 # Copyright 2019 James Fidell (james@openastroproject.org)
 #
@@ -26,14 +26,17 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/include \
   -I$(top_srcdir)/ext/libusb \
   -I$(top_srcdir)/liboacam \
+  -I$(top_srcdir)/liboacam/touptek \
   $(LIBUSB_CFLAGS) $(SHLIBS_CFLAGS) $(LIBALTAIRCAM_LEGACY_CFLAGS) \
   $(DYNLIB_EXTN_CFLAGS)
 
 noinst_LTLIBRARIES = libaltairlegacy.la
 
-libaltairlegacy_la_SOURCES = LegacyAltairoacam.c LegacyAltairconnect.c \
-	LegacyAltaircallback.c LegacyAltaircontrol.c LegacyAltaircontroller.c \
-	LegacyAltairgetState.c LegacyAltairroi.c LegacyAltairDynloader.c
+libaltairlegacy_la_SOURCES = ../touptek/oacam.c ../touptek/connect.c \
+	../touptek/callback.c ../touptek/control.c ../touptek/controller.c \
+	../touptek/getState.c ../touptek/roi.c ../touptek/dynloader.c
+
+libaltairlegacy_la_CPPFLAGS=$(AM_CPPFLAGS)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

@@ -51,10 +51,16 @@ TT_HANDLE	( *TT_LIB_PTR( OpenByIndex ))( unsigned );
 void		( *TT_LIB_PTR( Close ))( TT_HANDLE );
 HRESULT		( *TT_LIB_PTR( StartPullModeWithCallback ))( TT_HANDLE,
 		    TT_FUNC_TYPE( P, EVENT_CALLBACK ), void* );
+HRESULT		( *TT_LIB_PTR( PullImage ))( TT_HANDLE, void*, int, unsigned int*,
+				unsigned int* );
 HRESULT		( *TT_LIB_PTR( PullImageV2 ))( TT_HANDLE, void*, int,
 		    TT_VAR_TYPE( FrameInfoV2* ));
+HRESULT		( *TT_LIB_PTR( PullStillImage ))( TT_HANDLE, void*, int,
+				unsigned int*, unsigned int* );
 HRESULT		( *TT_LIB_PTR( PullStillImageV2 ))( TT_HANDLE, void*, int,
 		    TT_VAR_TYPE( FrameInfoV2* ));
+HRESULT		( *TT_LIB_PTR( StartPushMode ))( TT_HANDLE,
+		    TT_FUNC_TYPE( P, DATA_CALLBACK ), void* );
 HRESULT		( *TT_LIB_PTR( StartPushModeV2 ))( TT_HANDLE,
 		    TT_FUNC_TYPE( P, DATA_CALLBACK_V2 ), void* );
 HRESULT		( *TT_LIB_PTR( Stop ))( TT_HANDLE );
@@ -250,28 +256,28 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 	  dlerror();
 
 	  if (!( *( void** )( &TT_LIB_PTR( AwbInit )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_AwbInit" ))) {
+	      TT_LIB_PREFIX "_AwbInit" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( AwbOnePush )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_AwbOnePush" ))) {
+	      TT_LIB_PREFIX "_AwbOnePush" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( calc_ClarityFactor )) =
-				_getDLSym ( libHandle, TT_DRIVER "_calc_ClarityFactor" ))) {
+				_getDLSym ( libHandle, TT_LIB_PREFIX "_calc_ClarityFactor" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( Close )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_Close" ))) {
+	      TT_LIB_PREFIX "_Close" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -279,7 +285,7 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 
 		/*
 	  if (!( *( void** )( &TT_LIB_PTR( deBayerV2 )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_deBayerV2" ))) {
+	      TT_LIB_PREFIX "_deBayerV2" ))) {
 				dlclose ( libHandle );
 				libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -287,98 +293,98 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 		 */
 
 	  if (!( *( void** )( &TT_LIB_PTR( EnumV2 )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_EnumV2" ))) {
+	      TT_LIB_PREFIX "_EnumV2" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( Flush )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_Flush" ))) {
+	      TT_LIB_PREFIX "_Flush" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_AEAuxRect )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_AEAuxRect" ))) {
+	      TT_LIB_PREFIX "_get_AEAuxRect" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_AutoExpoEnable )) =
-				_getDLSym ( libHandle, TT_DRIVER "_get_AutoExpoEnable" ))) {
+				_getDLSym ( libHandle, TT_LIB_PREFIX "_get_AutoExpoEnable" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_AutoExpoTarget )) =
-				_getDLSym ( libHandle, TT_DRIVER "_get_AutoExpoTarget" ))) {
+				_getDLSym ( libHandle, TT_LIB_PREFIX "_get_AutoExpoTarget" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_AWBAuxRect )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_AWBAuxRect" ))) {
+	      TT_LIB_PREFIX "_get_AWBAuxRect" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_Brightness )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_Brightness" ))) {
+	      TT_LIB_PREFIX "_get_Brightness" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_Chrome )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_Chrome" ))) {
+	      TT_LIB_PREFIX "_get_Chrome" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_Contrast )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_Contrast" ))) {
+	      TT_LIB_PREFIX "_get_Contrast" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_eSize )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_eSize" ))) {
+	      TT_LIB_PREFIX "_get_eSize" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_ExpoAGain )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_ExpoAGain" ))) {
+	      TT_LIB_PREFIX "_get_ExpoAGain" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_ExpoAGainRange )) =
-				_getDLSym ( libHandle, TT_DRIVER "_get_ExpoAGainRange" ))) {
+				_getDLSym ( libHandle, TT_LIB_PREFIX "_get_ExpoAGainRange" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_ExpoTime )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_ExpoTime" ))) {
+	      TT_LIB_PREFIX "_get_ExpoTime" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_ExpTimeRange )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_ExpTimeRange" ))) {
+	      TT_LIB_PREFIX "_get_ExpTimeRange" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -386,14 +392,14 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 
 	  /*
 	  if (!( *( void** )( &TT_LIB_PTR( get_FanMaxSpeed )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_FanMaxSpeed" ))) {
+	      TT_LIB_PREFIX "_get_FanMaxSpeed" ))) {
 				dlclose ( libHandle );
 				libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_Field )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_Field" ))) {
+	      TT_LIB_PREFIX "_get_Field" ))) {
 				dlclose ( libHandle );
 				libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -401,98 +407,98 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 	   */
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_FwVersion )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_FwVersion" ))) {
+	      TT_LIB_PREFIX "_get_FwVersion" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_Gamma )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_Gamma" ))) {
+	      TT_LIB_PREFIX "_get_Gamma" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_HFlip )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_HFlip" ))) {
+	      TT_LIB_PREFIX "_get_HFlip" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( GetHistogram )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_GetHistogram" ))) {
+	      TT_LIB_PREFIX "_GetHistogram" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_Hue )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_Hue" ))) {
+	      TT_LIB_PREFIX "_get_Hue" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_HwVersion )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_HwVersion" ))) {
+	      TT_LIB_PREFIX "_get_HwVersion" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_HZ )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_HZ" ))) {
+	      TT_LIB_PREFIX "_get_HZ" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_LevelRange )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_LevelRange" ))) {
+	      TT_LIB_PREFIX "_get_LevelRange" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_MaxBitDepth )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_MaxBitDepth" ))) {
+	      TT_LIB_PREFIX "_get_MaxBitDepth" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_MaxSpeed )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_MaxSpeed" ))) {
+	      TT_LIB_PREFIX "_get_MaxSpeed" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_Mode )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_Mode" ))) {
+	      TT_LIB_PREFIX "_get_Mode" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_MonoMode )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_MonoMode" ))) {
+	      TT_LIB_PREFIX "_get_MonoMode" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_Negative )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_Negative" ))) {
+	      TT_LIB_PREFIX "_get_Negative" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_Option )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_Option" ))) {
+	      TT_LIB_PREFIX "_get_Option" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -500,7 +506,7 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 
 	  /*
 	  if (!( *( void** )( &TT_LIB_PTR( get_PixelSize )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_PixelSize" ))) {
+	      TT_LIB_PREFIX "_get_PixelSize" ))) {
 				dlclose ( libHandle );
 				libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -508,49 +514,49 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 	   */
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_ProductionDate )) =
-				_getDLSym ( libHandle, TT_DRIVER "_get_ProductionDate" ))) {
+				_getDLSym ( libHandle, TT_LIB_PREFIX "_get_ProductionDate" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_RawFormat )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_RawFormat" ))) {
+	      TT_LIB_PREFIX "_get_RawFormat" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_RealTime )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_RealTime" ))) {
+	      TT_LIB_PREFIX "_get_RealTime" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_Resolution )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_Resolution" ))) {
+	      TT_LIB_PREFIX "_get_Resolution" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_ResolutionNumber )) = _getDLSym (
-	      libHandle, TT_DRIVER "_get_ResolutionNumber" ))) {
+	      libHandle, TT_LIB_PREFIX "_get_ResolutionNumber" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_ResolutionRatio )) = _getDLSym (
-	      libHandle, TT_DRIVER "_get_ResolutionRatio" ))) {
+	      libHandle, TT_LIB_PREFIX "_get_ResolutionRatio" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_Roi )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_Roi" ))) {
+	      TT_LIB_PREFIX "_get_Roi" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -558,7 +564,7 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 
 	  /*
 	  if (!( *( void** )( &TT_LIB_PTR( get_RoiMode )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_RoiMode" ))) {
+	      TT_LIB_PREFIX "_get_RoiMode" ))) {
 				dlclose ( libHandle );
 				libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -566,63 +572,63 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 	   */
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_Saturation )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_Saturation" ))) {
+	      TT_LIB_PREFIX "_get_Saturation" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_SerialNumber )) =
-				_getDLSym ( libHandle, TT_DRIVER "_get_SerialNumber" ))) {
+				_getDLSym ( libHandle, TT_LIB_PREFIX "_get_SerialNumber" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_Size )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_Size" ))) {
+	      TT_LIB_PREFIX "_get_Size" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_Speed )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_Speed" ))) {
+	      TT_LIB_PREFIX "_get_Speed" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_StillResolution )) = _getDLSym (
-	      libHandle, TT_DRIVER "_get_StillResolution" ))) {
+	      libHandle, TT_LIB_PREFIX "_get_StillResolution" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_StillResolutionNumber )) = _getDLSym (
-	      libHandle, TT_DRIVER "_get_StillResolutionNumber" ))) {
+	      libHandle, TT_LIB_PREFIX "_get_StillResolutionNumber" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_Temperature )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_Temperature" ))) {
+	      TT_LIB_PREFIX "_get_Temperature" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_TempTint )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_TempTint" ))) {
+	      TT_LIB_PREFIX "_get_TempTint" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_VFlip )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_VFlip" ))) {
+	      TT_LIB_PREFIX "_get_VFlip" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -630,21 +636,21 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 
 	  /*
 	  if (!( *( void** )( &TT_LIB_PTR( get_VignetAmountInt )) = _getDLSym (
-	      libHandle, TT_DRIVER "_get_VignetAmountInt" ))) {
+	      libHandle, TT_LIB_PREFIX "_get_VignetAmountInt" ))) {
 				dlclose ( libHandle );
 				libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_VignetEnable )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_get_VignetEnable" ))) {
+	      TT_LIB_PREFIX "_get_VignetEnable" ))) {
 				dlclose ( libHandle );
 				libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_VignetMidPointInt )) = _getDLSym (
-	      libHandle, TT_DRIVER "_get_VignetMidPointInt" ))) {
+	      libHandle, TT_LIB_PREFIX "_get_VignetMidPointInt" ))) {
 				dlclose ( libHandle );
 				libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -652,98 +658,110 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 	   */
 
 	  if (!( *( void** )( &TT_LIB_PTR( get_WhiteBalanceGain )) = _getDLSym (
-	      libHandle, TT_DRIVER "_get_WhiteBalanceGain" ))) {
+	      libHandle, TT_LIB_PREFIX "_get_WhiteBalanceGain" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( HotPlug )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_HotPlug" ))) {
+	      TT_LIB_PREFIX "_HotPlug" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( LevelRangeAuto )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_LevelRangeAuto" ))) {
+	      TT_LIB_PREFIX "_LevelRangeAuto" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( Open )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_Open" ))) {
+	      TT_LIB_PREFIX "_Open" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( OpenByIndex )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_OpenByIndex" ))) {
+	      TT_LIB_PREFIX "_OpenByIndex" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( Pause )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_Pause" ))) {
+	      TT_LIB_PREFIX "_Pause" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( PullImageV2 )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_PullImageV2" ))) {
-			dlclose ( libHandle );
-			libHandle = 0;
-	    return OA_ERR_SYMBOL_NOT_FOUND;
+	      TT_LIB_PREFIX "_PullImageV2" ))) {
+			// If this one is missing, perhaps we have vanilla PullImage from
+			// the earlier library versions?
+			TT_LIB_PTR( PullImageV2 ) = 0;
+			if (!( *( void** )( &TT_LIB_PTR( PullImage )) = _getDLSym ( libHandle,
+					TT_LIB_PREFIX "_PullImage" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
+				return OA_ERR_SYMBOL_NOT_FOUND;
+			}
 	  }
 
-	  if (!( *( void** )( &TT_LIB_PTR( PullStillImageV2 )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_PullStillImageV2" ))) {
-			dlclose ( libHandle );
-			libHandle = 0;
-	    return OA_ERR_SYMBOL_NOT_FOUND;
+	  if (!( *( void** )( &TT_LIB_PTR( PullStillImageV2 )) =
+				_getDLSym ( libHandle, TT_LIB_PREFIX "_PullStillImageV2" ))) {
+			// If this one is missing, perhaps we have vanilla PullStillImage from
+			// the earlier library versions?
+			TT_LIB_PTR( PullStillImageV2 ) = 0;
+			if (!( *( void** )( &TT_LIB_PTR( PullStillImage )) =
+					_getDLSym ( libHandle, TT_LIB_PREFIX "_PullStillImage" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
+				return OA_ERR_SYMBOL_NOT_FOUND;
+			}
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_AEAuxRect )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_AEAuxRect" ))) {
+	      TT_LIB_PREFIX "_put_AEAuxRect" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_AutoExpoEnable )) =
-				_getDLSym ( libHandle, TT_DRIVER "_put_AutoExpoEnable" ))) {
+				_getDLSym ( libHandle, TT_LIB_PREFIX "_put_AutoExpoEnable" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_AutoExpoTarget )) =
-				_getDLSym ( libHandle, TT_DRIVER "_put_AutoExpoTarget" ))) {
+				_getDLSym ( libHandle, TT_LIB_PREFIX "_put_AutoExpoTarget" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_AWBAuxRect )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_AWBAuxRect" ))) {
+	      TT_LIB_PREFIX "_put_AWBAuxRect" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_Brightness )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_Brightness" ))) {
+	      TT_LIB_PREFIX "_put_Brightness" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_Chrome )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_Chrome" ))) {
+	      TT_LIB_PREFIX "_put_Chrome" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -753,7 +771,7 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 		 * Deprecated as of v39.<something>
 		 *
 	  if (!( *( void** )( &TT_LIB_PTR( put_ChromeCallback )) =
-				_getDLSym ( libHandle, TT_DRIVER "_put_ChromeCallback" ))) {
+				_getDLSym ( libHandle, TT_LIB_PREFIX "_put_ChromeCallback" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -761,21 +779,21 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 		 */
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_Contrast )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_Contrast" ))) {
+	      TT_LIB_PREFIX "_put_Contrast" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_eSize )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_eSize" ))) {
+	      TT_LIB_PREFIX "_put_eSize" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_ExpoAGain )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_ExpoAGain" ))) {
+	      TT_LIB_PREFIX "_put_ExpoAGain" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -785,7 +803,7 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 		 * Deprecated as of v39.<something>
 		 *
 	  if (!( *( void** )( &TT_LIB_PTR( put_ExpoCallback )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_ExpoCallback" ))) {
+	      TT_LIB_PREFIX "_put_ExpoCallback" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -793,91 +811,91 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 		 */
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_ExpoTime )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_ExpoTime" ))) {
+	      TT_LIB_PREFIX "_put_ExpoTime" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_Gamma )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_Gamma" ))) {
+	      TT_LIB_PREFIX "_put_Gamma" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_HFlip )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_HFlip" ))) {
+	      TT_LIB_PREFIX "_put_HFlip" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_Hue )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_Hue" ))) {
+	      TT_LIB_PREFIX "_put_Hue" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_HZ )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_HZ" ))) {
+	      TT_LIB_PREFIX "_put_HZ" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_LEDState )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_LEDState" ))) {
+	      TT_LIB_PREFIX "_put_LEDState" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_LevelRange )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_LevelRange" ))) {
+	      TT_LIB_PREFIX "_put_LevelRange" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_MaxAutoExpoTimeAGain )) = _getDLSym (
-	      libHandle, TT_DRIVER "_put_MaxAutoExpoTimeAGain" ))) {
+	      libHandle, TT_LIB_PREFIX "_put_MaxAutoExpoTimeAGain" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_Mode )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_Mode" ))) {
+	      TT_LIB_PREFIX "_put_Mode" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_Negative )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_Negative" ))) {
+	      TT_LIB_PREFIX "_put_Negative" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_Option )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_Option" ))) {
+	      TT_LIB_PREFIX "_put_Option" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_RealTime )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_RealTime" ))) {
+	      TT_LIB_PREFIX "_put_RealTime" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_Roi )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_Roi" ))) {
+	      TT_LIB_PREFIX "_put_Roi" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -885,7 +903,7 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 
 	  /*
 	  if (!( *( void** )( &TT_LIB_PTR( put_RoiMode )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_RoiMode" ))) {
+	      TT_LIB_PREFIX "_put_RoiMode" ))) {
 				dlclose ( libHandle );
 				libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -893,42 +911,42 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 	   */
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_Saturation )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_Saturation" ))) {
+	      TT_LIB_PREFIX "_put_Saturation" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_Size )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_Size" ))) {
+	      TT_LIB_PREFIX "_put_Size" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_Speed )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_Speed" ))) {
+	      TT_LIB_PREFIX "_put_Speed" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_Temperature )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_Temperature" ))) {
+	      TT_LIB_PREFIX "_put_Temperature" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_TempTint )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_TempTint" ))) {
+	      TT_LIB_PREFIX "_put_TempTint" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_VFlip )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_VFlip" ))) {
+	      TT_LIB_PREFIX "_put_VFlip" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -936,21 +954,21 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 
 	  /*
 	  if (!( *( void** )( &TT_LIB_PTR( put_VignetAmountInt )) = _getDLSym (
-	      libHandle, TT_DRIVER "_put_VignetAmountInt" ))) {
+	      libHandle, TT_LIB_PREFIX "_put_VignetAmountInt" ))) {
 				dlclose ( libHandle );
 				libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_VignetEnable )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_put_VignetEnable" ))) {
+	      TT_LIB_PREFIX "_put_VignetEnable" ))) {
 				dlclose ( libHandle );
 				libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_VignetMidPointInt )) = _getDLSym (
-	      libHandle, TT_DRIVER "_put_VignetMidPointInt" ))) {
+	      libHandle, TT_LIB_PREFIX "_put_VignetMidPointInt" ))) {
 				dlclose ( libHandle );
 				libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -958,14 +976,14 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 	   */
 
 	  if (!( *( void** )( &TT_LIB_PTR( put_WhiteBalanceGain )) = _getDLSym (
-	      libHandle, TT_DRIVER "_put_WhiteBalanceGain" ))) {
+	      libHandle, TT_LIB_PREFIX "_put_WhiteBalanceGain" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( read_EEPROM )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_read_EEPROM" ))) {
+	      TT_LIB_PREFIX "_read_EEPROM" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -973,7 +991,7 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 
 	  /*
 	  if (!( *( void** )( &TT_LIB_PTR( read_UART )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_read_UART" ))) {
+	      TT_LIB_PREFIX "_read_UART" ))) {
 				dlclose ( libHandle );
 				libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -981,63 +999,69 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 	   */
 
 	  if (!( *( void** )( &TT_LIB_PTR( Snap )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_Snap" ))) {
+	      TT_LIB_PREFIX "_Snap" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( ST4PlusGuide )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_ST4PlusGuide" ))) {
+	      TT_LIB_PREFIX "_ST4PlusGuide" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( ST4PlusGuideState )) =
-				_getDLSym ( libHandle, TT_DRIVER "_ST4PlusGuideState" ))) {
+				_getDLSym ( libHandle, TT_LIB_PREFIX "_ST4PlusGuideState" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( StartPullModeWithCallback )) = _getDLSym (
-	      libHandle, TT_DRIVER "_StartPullModeWithCallback" ))) {
+	      libHandle, TT_LIB_PREFIX "_StartPullModeWithCallback" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( StartPushModeV2 )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_StartPushModeV2" ))) {
-			dlclose ( libHandle );
-			libHandle = 0;
-	    return OA_ERR_SYMBOL_NOT_FOUND;
+	      TT_LIB_PREFIX "_StartPushModeV2" ))) {
+			// If this one is missing, perhaps we have vanilla StartPushMode from
+			// the earlier library versions?
+			TT_LIB_PTR( StartPushModeV2 ) = 0;
+			if (!( *( void** )( &TT_LIB_PTR( StartPushMode )) =
+					_getDLSym ( libHandle, TT_LIB_PREFIX "_StartPushMode" ))) {
+				dlclose ( libHandle );
+				libHandle = 0;
+				return OA_ERR_SYMBOL_NOT_FOUND;
+			}
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( Stop )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_Stop" ))) {
+	      TT_LIB_PREFIX "_Stop" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( Trigger )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_Trigger" ))) {
+	      TT_LIB_PREFIX "_Trigger" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( Version )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_Version" ))) {
+	      TT_LIB_PREFIX "_Version" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
 	  }
 
 	  if (!( *( void** )( &TT_LIB_PTR( write_EEPROM )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_write_EEPROM" ))) {
+	      TT_LIB_PREFIX "_write_EEPROM" ))) {
 			dlclose ( libHandle );
 			libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;
@@ -1045,7 +1069,7 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 
 	  /*
 	  if (!( *( void** )( &TT_LIB_PTR( write_UART )) = _getDLSym ( libHandle,
-	      TT_DRIVER "_write_UART" ))) {
+	      TT_LIB_PREFIX "_write_UART" ))) {
 				dlclose ( libHandle );
 				libHandle = 0;
 	    return OA_ERR_SYMBOL_NOT_FOUND;

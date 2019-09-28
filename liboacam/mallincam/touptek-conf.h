@@ -53,8 +53,8 @@
 // option flag prefix
 #define	TT_OPTION( option )				TOUPCAM_OPTION_ ## option
 
-// library function name
-#define	TT_LIB_FUNC( func )				Toupcam_ ## func
+// library function name prefix
+#define	TT_LIB_PREFIX							"Toupcam"
 
 // pointer to library function
 #define	TT_LIB_PTR( func )				p_ ## Mallincam_ ## func

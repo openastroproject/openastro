@@ -78,7 +78,7 @@
 #include "altair/oacam.h"
 #endif
 #if HAVE_LIBALTAIRCAM_LEGACY
-#include "altair-legacy/LegacyAltairoacam.h"
+#include "altair-legacy/oacam.h"
 #endif
 #if HAVE_LIBSTARSHOOTG
 #include "starshootg/oacam.h"

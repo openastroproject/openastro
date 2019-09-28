@@ -53,8 +53,8 @@
 // option flag prefix
 #define	TT_OPTION( option )				NNCAM_OPTION_ ## option
 
-// library function name
-#define	TT_LIB_FUNC( func )				Nncam_ ## func
+// library function name prefix
+#define	TT_LIB_PREFIX							"Nncam"
 
 // pointer to library function
 #define	TT_LIB_PTR( func )				p_ ## Nncam_ ## func

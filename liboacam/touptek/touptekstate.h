@@ -38,7 +38,8 @@ struct Touptekbuffer {
 
 typedef struct Touptek_STATE {
   int			initialised;
-
+	unsigned int	libMajorVersion;
+	unsigned int	libMinorVersion;
   // connection handle
   TT_HANDLE		handle;
   // video mode settings

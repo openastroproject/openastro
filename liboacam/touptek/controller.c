@@ -52,7 +52,10 @@ static int	_doStart ( TOUPTEK_STATE* );
 static int	_doStop ( TOUPTEK_STATE* );
 static int	_setBinning ( TOUPTEK_STATE*, int );
 static int	_setFrameFormat ( TOUPTEK_STATE*, int );
-static void TT_FUNC( _, PullCallback )( unsigned int, void* );
+static void TT_FUNC( _, PullCallbackV1 )( unsigned int, void* );
+static void TT_FUNC( _, PullCallbackV2 )( unsigned int, void* );
+static void _completeCallback ( TOUPTEK_STATE*, const void*, int, int,
+								unsigned int );
 /*
 static int	_setColourMode ( TOUPTEK_STATE*, int );
 static int	_setBitDepth ( TOUPTEK_STATE*, int );
@@ -136,11 +139,11 @@ TT_FUNC( oacam, controller )( void* param )
 
 
 void
-TT_FUNC( _, FrameCallback )( const void *frame,
-		const TT_VAR_TYPE( FrameInfoV2* ) frameInfo, int bSnap, void *ptr )
+TT_FUNC( _, FrameCallbackV1 )( const void *frame, const BITMAPINFOHEADER*
+    bitmapHeader, BOOL bSnap, void *ptr )
 {
   TOUPTEK_STATE*	cameraInfo = ptr;
-  int			buffersFree, nextBuffer, shiftBits, bitsPerPixel;
+  int			buffersFree, bitsPerPixel;
   unsigned int		dataLength;
 
   pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
@@ -148,57 +151,32 @@ TT_FUNC( _, FrameCallback )( const void *frame,
   bitsPerPixel = cameraInfo->currentBitsPerPixel;
   pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
 
-  if ( frame && buffersFree ) {
-    dataLength = cameraInfo->imageBufferLength;
-    nextBuffer = cameraInfo->nextBuffer;
-
-    // Now here's the fun...
-    //
-    // In 12-bit (and presumably 10- and 14-bit) mode, Touptek cameras
-    // appear to return little-endian data, but right-aligned rather than
-    // left-aligned as many other cameras do.  So if we have such an image we
-    // try to fix it here.
-    //
-    // FIX ME -- I'm not sure this is the right place to be doing this.
-    // Perhaps there should be a flag to tell the user whether the data is
-    // left-or right-aligned and they can sort it out.
-
-    if ( bitsPerPixel > 8 && bitsPerPixel < 16 ) {
-      shiftBits = 16 - bitsPerPixel;
-
-      if ( shiftBits ) {
-        const uint16_t	*s = frame;
-        uint16_t	*t = cameraInfo->buffers[ nextBuffer ].start;
-        uint16_t	v;
-        unsigned int	i;
-
-        for ( i = 0; i < dataLength; i += 2 ) {
-          v = *s++;
-          v <<= shiftBits;
-          *t++ = v;
-        }
-      }
-    } else {
-      ( void ) memcpy ( cameraInfo->buffers[ nextBuffer ].start, frame,
-          dataLength );
+  if ( frame && buffersFree && bitmapHeader->biSizeImage ) {
+    if (( dataLength = bitmapHeader->biSizeImage ) >
+        cameraInfo->imageBufferLength ) {
+      dataLength = cameraInfo->imageBufferLength;
     }
+		_completeCallback ( cameraInfo, frame, bitsPerPixel,
+				cameraInfo->nextBuffer, dataLength );
+  }
+}
 
-    cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
-        OA_CALLBACK_NEW_FRAME;
-    cameraInfo->frameCallbacks[ nextBuffer ].callback =
-        cameraInfo->streamingCallback.callback;
-    cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =
-        cameraInfo->streamingCallback.callbackArg;
-    cameraInfo->frameCallbacks[ nextBuffer ].buffer =
-        cameraInfo->buffers[ nextBuffer ].start;
-    cameraInfo->frameCallbacks[ nextBuffer ].bufferLen = dataLength;
-    pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
-    oaDLListAddToTail ( cameraInfo->callbackQueue,
-        &cameraInfo->frameCallbacks[ nextBuffer ]);
-    cameraInfo->buffersFree--;
-    cameraInfo->nextBuffer = ( nextBuffer + 1 ) % cameraInfo->configuredBuffers;
-    pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
-    pthread_cond_broadcast ( &cameraInfo->callbackQueued );
+
+void
+TT_FUNC( _, FrameCallbackV2 )( const void *frame,
+		const TT_VAR_TYPE( FrameInfoV2* ) frameInfo, int bSnap, void *ptr )
+{
+  TOUPTEK_STATE*	cameraInfo = ptr;
+  int			buffersFree, bitsPerPixel;
+
+  pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+  buffersFree = cameraInfo->buffersFree;
+  bitsPerPixel = cameraInfo->currentBitsPerPixel;
+  pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+
+  if ( frame && buffersFree ) {
+		_completeCallback ( cameraInfo, frame, bitsPerPixel,
+				cameraInfo->nextBuffer, cameraInfo->imageBufferLength );
   }
 }
 
@@ -828,12 +806,21 @@ _doStart ( TOUPTEK_STATE* cameraInfo )
 {
   int			ret;
 
-  if (( ret = ( TT_LIB_PTR( StartPushModeV2 ))( cameraInfo->handle,
-      TT_FUNC( _, FrameCallback ), cameraInfo )) < 0 ) {
-    fprintf ( stderr, "%s: " TT_DRIVER "_StartPushModeV2 failed: 0x%x\n",
-        __FUNCTION__, ret );
-    return -OA_ERR_CAMERA_IO;
-  }
+	if ( cameraInfo->libMajorVersion > 28 ) {
+		if (( ret = ( TT_LIB_PTR( StartPushModeV2 ))( cameraInfo->handle,
+				TT_FUNC( _, FrameCallbackV2 ), cameraInfo )) < 0 ) {
+			fprintf ( stderr, "%s: " TT_DRIVER "_StartPushModeV2 failed: 0x%x\n",
+					__FUNCTION__, ret );
+			return -OA_ERR_CAMERA_IO;
+		}
+  } else {
+		if (( ret = ( TT_LIB_PTR( StartPushMode ))( cameraInfo->handle,
+				TT_FUNC( _, FrameCallbackV1 ), cameraInfo )) < 0 ) {
+			fprintf ( stderr, "%s: " TT_DRIVER "_StartPushMode failed: 0x%x\n",
+					__FUNCTION__, ret );
+			return -OA_ERR_CAMERA_IO;
+		}
+	}
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
   cameraInfo->isStreaming = 1;
@@ -989,12 +976,21 @@ _processExposureStart ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
   cameraInfo->imageBufferLength = cameraInfo->currentXSize *
       cameraInfo->currentYSize * cameraInfo->currentBytesPerPixel;
 
-  if (( ret = ( TT_LIB_PTR( StartPullModeWithCallback ))( cameraInfo->handle,
-      TT_FUNC( _, PullCallback ), cameraInfo )) < 0 ) {
-    fprintf ( stderr, "%s: " TT_DRIVER "_StartPullModeWithCallback failed: 0x%x\n",
-        __FUNCTION__, ret );
-    return -OA_ERR_CAMERA_IO;
-  }
+	if ( cameraInfo->libMajorVersion > 28 ) {
+		if (( ret = ( TT_LIB_PTR( StartPullModeWithCallback ))( cameraInfo->handle,
+				TT_FUNC( _, PullCallbackV2 ), cameraInfo )) < 0 ) {
+			fprintf ( stderr, "%s: " TT_DRIVER "_StartPullModeWithCallback failed: 0x%x\n",
+					__FUNCTION__, ret );
+			return -OA_ERR_CAMERA_IO;
+		}
+  } else {
+		if (( ret = ( TT_LIB_PTR( StartPullModeWithCallback ))( cameraInfo->handle,
+				TT_FUNC( _, PullCallbackV1 ), cameraInfo )) < 0 ) {
+			fprintf ( stderr, "%s: " TT_DRIVER "_StartPullModeWithCallback failed: 0x%x\n",
+					__FUNCTION__, ret );
+			return -OA_ERR_CAMERA_IO;
+		}
+	}
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
   cameraInfo->exposureInProgress = 1;
@@ -1005,11 +1001,105 @@ _processExposureStart ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
 
 static void
-TT_FUNC( _, PullCallback )( unsigned int event, void* ptr )
+_completeCallback ( TOUPTEK_STATE* cameraInfo, const void* frame,
+		int bitsPerPixel, int nextBuffer, unsigned int dataLength )
+{
+	int				shiftBits;
+
+	// Now here's the fun...
+	//
+	// In 12-bit (and presumably 10- and 14-bit) mode, Touptek cameras
+	// appear to return little-endian data, but right-aligned rather than
+	// left-aligned as many other cameras do.  So if we have such an image we
+	// try to fix it here.
+	//
+	// FIX ME -- I'm not sure this is the right place to be doing this.
+	// Perhaps there should be a flag to tell the user whether the data is
+	// left-or right-aligned and they can sort it out.
+
+	if ( bitsPerPixel > 8 && bitsPerPixel < 16 ) {
+		shiftBits = 16 - bitsPerPixel;
+
+		if ( shiftBits ) {
+			uint16_t	*s = cameraInfo->buffers[ nextBuffer ].start;
+			uint16_t	v;
+			unsigned int	i;
+
+			for ( i = 0; i < dataLength; i += 2 ) {
+				v = *s;
+				v <<= shiftBits;
+				*s++ = v;
+			}
+		}
+	} else {
+		if ( frame ) {
+			( void ) memcpy ( cameraInfo->buffers[ nextBuffer ].start, frame,
+					dataLength );
+		}
+	}
+
+	cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
+			OA_CALLBACK_NEW_FRAME;
+	cameraInfo->frameCallbacks[ nextBuffer ].callback =
+			cameraInfo->streamingCallback.callback;
+	cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =
+			cameraInfo->streamingCallback.callbackArg;
+	cameraInfo->frameCallbacks[ nextBuffer ].buffer =
+			cameraInfo->buffers[ nextBuffer ].start;
+	cameraInfo->frameCallbacks[ nextBuffer ].bufferLen = dataLength;
+	pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+	oaDLListAddToTail ( cameraInfo->callbackQueue,
+			&cameraInfo->frameCallbacks[ nextBuffer ]);
+	cameraInfo->buffersFree--;
+	cameraInfo->nextBuffer = ( nextBuffer + 1 ) %
+			cameraInfo->configuredBuffers;
+	pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+	pthread_cond_broadcast ( &cameraInfo->callbackQueued );
+}
+
+
+static void
+TT_FUNC( _, PullCallbackV1 )( unsigned int event, void* ptr )
+{
+	TOUPTEK_STATE*			cameraInfo = ptr;
+  int										buffersFree, nextBuffer, bitsPerPixel;
+	int										bytesPerPixel, ret, abort;
+  unsigned int					dataLength, height, width;
+
+	// FIX ME -- this is very similar to the "push" callback, but not quite
+	// It should be possible to combine the two
+
+  pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+  buffersFree = cameraInfo->buffersFree;
+  bitsPerPixel = cameraInfo->currentBitsPerPixel;
+  bytesPerPixel = cameraInfo->currentBytesPerPixel;
+	abort = cameraInfo->abortExposure;
+  pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+
+  if ( !abort && buffersFree && event == TT_DEFINE( EVENT_IMAGE )) {
+    dataLength = cameraInfo->imageBufferLength;
+    nextBuffer = cameraInfo->nextBuffer;
+
+		if (( ret = ( TT_LIB_PTR( PullImage ))( cameraInfo->handle,
+				cameraInfo->buffers[ nextBuffer ].start, bytesPerPixel * 8, &height,
+				&width )) < 0 ) {
+			fprintf ( stderr, "%s: " TT_DRIVER "_PullImage failed: 0x%x\n",
+					__FUNCTION__, ret );
+			return;
+		}
+
+		_completeCallback ( cameraInfo, 0, bitsPerPixel, nextBuffer,
+				dataLength );
+	}
+}
+
+
+static void
+TT_FUNC( _, PullCallbackV2 )( unsigned int event, void* ptr )
 {
 	TOUPTEK_STATE*			cameraInfo = ptr;
 	TT_VAR_TYPE( FrameInfoV2 )	frameInfo;
-  int										buffersFree, nextBuffer, shiftBits, bitsPerPixel;
+  int										buffersFree, nextBuffer, bitsPerPixel;
 	int										bytesPerPixel, ret, abort;
   unsigned int					dataLength;
 
@@ -1035,50 +1125,8 @@ TT_FUNC( _, PullCallback )( unsigned int event, void* ptr )
 			return;
 		}
 
-		// Now here's the fun...
-		//
-		// In 12-bit (and presumably 10- and 14-bit) mode, Touptek cameras
-		// appear to return little-endian data, but right-aligned rather than
-		// left-aligned as many other cameras do.  So if we have such an image we
-		// try to fix it here.
-		//
-		// FIX ME -- I'm not sure this is the right place to be doing this.
-		// Perhaps there should be a flag to tell the user whether the data is
-		// left-or right-aligned and they can sort it out.
-
-		if ( bitsPerPixel > 8 && bitsPerPixel < 16 ) {
-			shiftBits = 16 - bitsPerPixel;
-
-			if ( shiftBits ) {
-				uint16_t	*s = cameraInfo->buffers[ nextBuffer ].start;
-				uint16_t	v;
-				unsigned int	i;
-
-				for ( i = 0; i < dataLength; i += 2 ) {
-					v = *s;
-					v <<= shiftBits;
-					*s++ = v;
-				}
-			}
-		}
-
-		cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
-				OA_CALLBACK_NEW_FRAME;
-		cameraInfo->frameCallbacks[ nextBuffer ].callback =
-				cameraInfo->streamingCallback.callback;
-		cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =
-				cameraInfo->streamingCallback.callbackArg;
-		cameraInfo->frameCallbacks[ nextBuffer ].buffer =
-				cameraInfo->buffers[ nextBuffer ].start;
-		cameraInfo->frameCallbacks[ nextBuffer ].bufferLen = dataLength;
-		pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
-		oaDLListAddToTail ( cameraInfo->callbackQueue,
-				&cameraInfo->frameCallbacks[ nextBuffer ]);
-		cameraInfo->buffersFree--;
-		cameraInfo->nextBuffer = ( nextBuffer + 1 ) %
-				cameraInfo->configuredBuffers;
-		pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
-		pthread_cond_broadcast ( &cameraInfo->callbackQueued );
+		_completeCallback ( cameraInfo, 0, bitsPerPixel, nextBuffer,
+				dataLength );
 	}
 }
 

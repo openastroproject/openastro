@@ -53,8 +53,8 @@
 // option flag prefix
 #define	TT_OPTION( option )				STARSHOOTG_OPTION_ ## option
 
-// library function name
-#define	TT_LIB_FUNC( func )				Starshootg_ ## func
+// library function name prefix
+#define	TT_LIB_PREFIX							"Starshootg"
 
 // pointer to library function
 #define	TT_LIB_PTR( func )				p_ ## Starshootg_ ## func

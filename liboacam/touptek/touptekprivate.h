@@ -57,10 +57,14 @@ extern TT_HANDLE		( *TT_LIB_PTR( OpenByIndex ))( unsigned );
 void			( *TT_LIB_PTR( Close ))( TT_HANDLE );
 extern HRESULT		( *TT_LIB_PTR( StartPullModeWithCallback ))( TT_HANDLE,
 			    TT_FUNC_TYPE( P, EVENT_CALLBACK ), void* );
+extern HRESULT		( *TT_LIB_PTR( PullImage ))( TT_HANDLE, void*, int,
+					unsigned int*, unsigned int* );
 extern HRESULT		( *TT_LIB_PTR( PullImageV2 ))( TT_HANDLE, void*, int,
 			    TT_VAR_TYPE( FrameInfoV2* ));
 extern HRESULT		( *TT_LIB_PTR( PullStillImageV2 ))( TT_HANDLE, void*, int,
 			    TT_VAR_TYPE( FrameInfoV2* ));
+extern HRESULT		( *TT_LIB_PTR( StartPushMode ))( TT_HANDLE,
+			    TT_FUNC_TYPE( P, DATA_CALLBACK ), void* );
 extern HRESULT		( *TT_LIB_PTR( StartPushModeV2 ))( TT_HANDLE,
 			    TT_FUNC_TYPE( P, DATA_CALLBACK_V2 ), void* );
 extern HRESULT		( *TT_LIB_PTR( Stop ))( TT_HANDLE );

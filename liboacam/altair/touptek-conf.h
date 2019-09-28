@@ -53,8 +53,8 @@
 // option flag prefix
 #define	TT_OPTION( option )				ALTAIRCAM_OPTION_ ## option
 
-// library function name
-#define	TT_LIB_FUNC( func )				Altaircam_ ## func
+// library function name prefix
+#define	TT_LIB_PREFIX							"Altaircam"
 
 // pointer to library function
 #define	TT_LIB_PTR( func )				p_ ## Altaircam_ ## func

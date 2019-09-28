@@ -61,7 +61,7 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   TT_HANDLE					handle;
   DEVICE_INFO*			devInfo;
   unsigned int			i, j, numResolutions, numStillResolutions;
-  unsigned int			fourcc, depth, binX, binY;
+  unsigned int			fourcc, depth, binX, binY, dummy;
   int				x, y;
   char				toupcamId[128]; // must be longer than 64
 	void*				tmpPtr;
@@ -81,6 +81,10 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
 
   ( void ) strcpy ( camera->deviceName, device->deviceName );
   cameraInfo->initialised = 0;
+
+	cameraInfo->libMajorVersion = cameraInfo->libMinorVersion = 0;
+	sscanf ( TT_LIB_PTR( Version()), "%d.%d.%d", &cameraInfo->libMajorVersion,
+			&cameraInfo->libMinorVersion, &dummy );
 
   camera->interface = device->interface;
   cameraInfo->colour = ( devList[ devInfo->devIndex ].model->flag &
