@@ -250,8 +250,13 @@ CameraControls::configure ( void )
 								cameraConf.CONTROL_VALUE( c ) = def;
 							}
 						}
-            controlSlider[ c ]->setValue ( cameraConf.CONTROL_VALUE( c ));
-            controlSpinbox[ c ]->setValue ( cameraConf.CONTROL_VALUE( c ));
+
+						int64_t v = cameraConf.CONTROL_VALUE( c );
+						if ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE == c ) {
+							v /= rangeMultipliers[ config.intervalMenuOption ];
+						}
+						controlSlider[ c ]->setValue ( v );
+						controlSpinbox[ c ]->setValue ( v );
 
             break;
           }
