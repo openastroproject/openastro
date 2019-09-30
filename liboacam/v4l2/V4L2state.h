@@ -2,7 +2,8 @@
  *
  * V4L2state.h -- V4L2 camera state header
  *
- * Copyright 2013,2014,2015,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -37,7 +38,47 @@ struct buffer {
 };
 
 typedef struct V4L2_STATE {
-  int			initialised;
+	// Data common to all interfaces comes first, so it can be shared across
+	// a union of all state structures
+  int								initialised;
+  // camera details
+  unsigned long			index;
+  int								cameraType;
+  // thread management
+  pthread_t					controllerThread;
+  pthread_mutex_t		commandQueueMutex;
+  pthread_cond_t		commandComplete;
+  pthread_cond_t		commandQueued;
+  int								stopControllerThread;
+  pthread_t					callbackThread;
+  pthread_mutex_t		callbackQueueMutex;
+  pthread_cond_t		callbackQueued;
+  CALLBACK					frameCallbacks[ OA_CAM_BUFFERS ];
+  int								stopCallbackThread;
+  // queues for controls and callbacks
+  DL_LIST						commandQueue;
+  DL_LIST						callbackQueue;
+  // streaming
+  int								isStreaming;
+  CALLBACK					streamingCallback;
+	int								exposureInProgress;
+	int								abortExposure;
+	// shared buffer config
+  int								configuredBuffers;
+  unsigned char*		xferBuffer;
+  unsigned int			imageBufferLength;
+  int								nextBuffer;
+  int								buffersFree;
+	// common image config
+  unsigned int			maxResolutionX;
+  unsigned int			maxResolutionY;
+  FRAMESIZES				frameSizes[ OA_MAX_BINNING+1 ];
+	// common camera settings
+  unsigned int			xSize;
+  unsigned int			ySize;
+
+	// END OF COMMON DATA
+
   // connection info
   char			devicePath[ PATH_MAX+1];
   int			fd;
@@ -46,9 +87,6 @@ typedef struct V4L2_STATE {
   uint32_t		currentV4L2Format;
   // buffering for image transfers
   struct buffer*	buffers;
-  unsigned int  	configuredBuffers;
-  int			buffersFree;
-  int			nextBuffer;
   struct v4l2_buffer	currentFrame[ OA_CAM_BUFFERS ];
   // camera status
   int			colourDxK;
@@ -59,33 +97,13 @@ typedef struct V4L2_STATE {
   // have an "off" setting for auto white balance
   uint32_t		autoWhiteBalanceOff;
   // image settings
-  FRAMESIZES		frameSizes[2];
   FRAMERATES		frameRates;
-  unsigned int		xSize;
-  unsigned int		ySize;
   int			frameRateNumerator;
   int			frameRateDenominator;
   // control values
   int			exposureMode;
   int64_t		currentAbsoluteExposure;
-  // thread management
-  pthread_t		controllerThread;
-  pthread_mutex_t	commandQueueMutex;
-  pthread_cond_t	commandComplete;
-  pthread_cond_t	commandQueued;
-  int			stopControllerThread;
-
-  pthread_t		callbackThread;
-  pthread_mutex_t	callbackQueueMutex;
-  pthread_cond_t	callbackQueued;
-  CALLBACK		frameCallbacks[ OA_CAM_BUFFERS ];
-  int			stopCallbackThread;
-  // queues for controls and callbacks
-  DL_LIST		commandQueue;
-  DL_LIST		callbackQueue;
-  // streaming
-  int			isStreaming;
-  CALLBACK		streamingCallback;
+  
   // discrete auto exposure menu item ids
   unsigned int		numAutoExposureItems;
   int64_t		autoExposureMenuItems[8];

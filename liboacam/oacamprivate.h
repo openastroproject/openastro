@@ -46,16 +46,23 @@ typedef struct {
   int64_t               defVal[3][ OA_CAM_CTRL_LAST_P1 ];
 } COMMON_INFO;
 
-extern int		oacamHasAuto ( oaCamera*, int );
+extern int				oacamHasAuto ( oaCamera*, int );
 
-extern void		oacamSetDebugLevel ( int );
-extern void		oacamClearDebugLevel ( int );
-extern void		oacamAddDebugLevel ( int );
-extern void		oacamDebugMsg ( int, const char*, ... );
+extern void				oacamSetDebugLevel ( int );
+extern void				oacamClearDebugLevel ( int );
+extern void				oacamAddDebugLevel ( int );
+extern void				oacamDebugMsg ( int, const char*, ... );
+extern int				oacamReadControl ( oaCamera*, int, oaControlValue* );
 extern int64_t		oacamGetControlValue ( oaControlValue* );
-extern int		_oaCheckCameraArraySize ( CAMERA_LIST* );
-extern void		_oaFreeCameraDeviceList ( CAMERA_LIST* );
-extern int		_oaInitCameraStructs ( oaCamera**, void**, size_t, COMMON_INFO**);
+extern int				oacamSetControl ( oaCamera*, int, oaControlValue*, int );
+extern int				oacamStartStreaming ( oaCamera*, void* (*)(void*, void*,
+											int, void* ), void* );
+extern int				oacamIsStreaming ( oaCamera* );
+extern int				oacamStopStreaming ( oaCamera* );
+extern int				_oaCheckCameraArraySize ( CAMERA_LIST* );
+extern void				_oaFreeCameraDeviceList ( CAMERA_LIST* );
+extern int				_oaInitCameraStructs ( oaCamera**, void**, size_t,
+											COMMON_INFO**);
 
 
 extern char*		installPathRoot;

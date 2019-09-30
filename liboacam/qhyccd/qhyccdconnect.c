@@ -317,8 +317,8 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 	}
 	camera->features.pixelSizeX = pixelSizeX;
 	camera->features.pixelSizeY = pixelSizeY;
-	cameraInfo->maxResolutionX = cameraInfo->currentXSize = x;
-	cameraInfo->maxResolutionY = cameraInfo->currentYSize = y;
+	cameraInfo->maxResolutionX = cameraInfo->xSize = x;
+	cameraInfo->maxResolutionY = cameraInfo->ySize = y;
 
 	cameraInfo->frameSizes[1].numSizes = 1;
 	if (!( cameraInfo->frameSizes[1].sizes = malloc ( sizeof ( FRAMESIZE )))) {

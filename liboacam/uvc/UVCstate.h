@@ -2,7 +2,8 @@
  *
  * UVCstate.h -- UVC camera state header
  *
- * Copyright 2014,2016,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2016,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -36,9 +37,48 @@ struct UVCbuffer {
 };
 
 typedef struct UVC_STATE {
-  int                   initialised;
+	// Data common to all interfaces comes first, so it can be shared across
+	// a union of all state structures
+  int								initialised;
   // camera details
-  unsigned long         index;
+  unsigned long			index;
+  int								cameraType;
+  // thread management
+  pthread_t					controllerThread;
+  pthread_mutex_t		commandQueueMutex;
+  pthread_cond_t		commandComplete;
+  pthread_cond_t		commandQueued;
+  int								stopControllerThread;
+  pthread_t					callbackThread;
+  pthread_mutex_t		callbackQueueMutex;
+  pthread_cond_t		callbackQueued;
+  CALLBACK					frameCallbacks[ OA_CAM_BUFFERS ];
+  int								stopCallbackThread;
+  // queues for controls and callbacks
+  DL_LIST						commandQueue;
+  DL_LIST						callbackQueue;
+  // streaming
+  int								isStreaming;
+  CALLBACK					streamingCallback;
+	int								exposureInProgress;
+	int								abortExposure;
+	// shared buffer config
+  int								configuredBuffers;
+  unsigned char*		xferBuffer;
+  unsigned int			imageBufferLength;
+  int								nextBuffer;
+  int								buffersFree;
+	// common image config
+  unsigned int			maxResolutionX;
+  unsigned int			maxResolutionY;
+  FRAMESIZES				frameSizes[ OA_MAX_BINNING+1 ];
+	// common camera settings
+  unsigned int			xSize;
+  unsigned int			ySize;
+
+	// END OF COMMON DATA
+
+  // camera details
   int			unitId;
   // libuvc connection data
   uvc_context_t*        uvcContext;
@@ -54,47 +94,20 @@ typedef struct UVC_STATE {
   enum uvc_frame_format	frameFormatIdMap[ OA_PIX_FMT_LAST_P1 ];
   // buffering for image transfers
   struct UVCbuffer*     buffers;
-  int                   configuredBuffers;
-  int			nextBuffer;
-  int			buffersFree;
-  unsigned int          imageBufferLength;
   unsigned int          currentFrameLength;
   // camera status
   unsigned int          isColour;
   unsigned int          haveComponentWhiteBalance;
-  uint32_t		xSize;
-  uint32_t		ySize;
   // camera settings
   int32_t		currentPan;
   int32_t		currentTilt;
   // image settings
-  unsigned int          maxResolutionX;
-  unsigned int          maxResolutionY;
-  FRAMESIZES		frameSizes[2];
   FRAMERATES		frameRates;
   int			frameRateNumerator;
   int			frameRateDenominator;
   // control values
   unsigned int          componentBalance;
   int64_t		currentAbsoluteExposure;
-  // thread management
-  pthread_t		controllerThread;
-  pthread_mutex_t	commandQueueMutex;
-  pthread_cond_t	commandComplete;
-  pthread_cond_t	commandQueued;
-  int			stopControllerThread;
-
-  pthread_t		callbackThread;
-  pthread_mutex_t	callbackQueueMutex;
-  pthread_cond_t	callbackQueued;
-  CALLBACK		frameCallbacks[ OA_CAM_BUFFERS ];
-  int			stopCallbackThread;
-  // queues for controls and callbacks
-  DL_LIST		commandQueue;
-  DL_LIST		callbackQueue;
-  // streaming
-  int			isStreaming;
-  CALLBACK		streamingCallback;
   // discrete auto exposure menu item ids
   unsigned int		numAutoExposureItems;
   int64_t		autoExposureMenuItems[8];

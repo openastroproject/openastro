@@ -2,7 +2,8 @@
  *
  * IIDCstate.h -- IEEE1394/IIDC camera state header
  *
- * Copyright 2013,2014,2015,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -31,7 +32,47 @@
 #include <openastro/util.h>
 
 typedef struct IIDC_STATE {
-  int			initialised;
+	// Data common to all interfaces comes first, so it can be shared across
+	// a union of all state structures
+  int								initialised;
+  // camera details
+  unsigned long			index;
+  int								cameraType;
+  // thread management
+  pthread_t					controllerThread;
+  pthread_mutex_t		commandQueueMutex;
+  pthread_cond_t		commandComplete;
+  pthread_cond_t		commandQueued;
+  int								stopControllerThread;
+  pthread_t					callbackThread;
+  pthread_mutex_t		callbackQueueMutex;
+  pthread_cond_t		callbackQueued;
+  CALLBACK					frameCallbacks[ OA_CAM_BUFFERS ];
+  int								stopCallbackThread;
+  // queues for controls and callbacks
+  DL_LIST						commandQueue;
+  DL_LIST						callbackQueue;
+  // streaming
+  int								isStreaming;
+  CALLBACK					streamingCallback;
+	int								exposureInProgress;
+	int								abortExposure;
+	// shared buffer config
+  int								configuredBuffers;
+  unsigned char*		xferBuffer;
+  unsigned int			imageBufferLength;
+  int								nextBuffer;
+  int								buffersFree;
+	// common image config
+  unsigned int			maxResolutionX;
+  unsigned int			maxResolutionY;
+  FRAMESIZES				frameSizes[ OA_MAX_BINNING+1 ];
+	// common camera settings
+  unsigned int			xSize;
+  unsigned int			ySize;
+
+	// END OF COMMON DATA
+
   // libdc1394 connection data
   dc1394camera_t*	iidcHandle;
   // video mode settings
@@ -39,15 +80,10 @@ typedef struct IIDC_STATE {
   dc1394video_mode_t	currentIIDCMode;
   dc1394color_coding_t	currentCodec;
   // buffering for image transfers
-  int			configuredBuffers;
-  int			nextBuffer;
-  int			buffersFree;
   dc1394video_frame_t*	currentFrame;
   // camera status
   int			haveFormat7;
   int			isTISColour;
-  uint32_t		xSize;
-  uint32_t		ySize;
   uint8_t		absoluteSupported[ DC1394_FEATURE_NUM ];
   uint8_t		haveSetpointCooling;
   int32_t		triggerMode;
@@ -56,7 +92,6 @@ typedef struct IIDC_STATE {
   int32_t		triggerDelay;
   int32_t		triggerDelayEnable;
   // image settings
-  FRAMESIZES		frameSizes[2];
   FRAMERATES		frameRates;
   int			frameRateNumerator;
   int			frameRateDenominator;
@@ -64,24 +99,6 @@ typedef struct IIDC_STATE {
   int64_t		currentAbsoluteExposure;
   uint32_t		currentRedBalance;
   uint32_t		currentBlueBalance;
-  // thread management
-  pthread_t		controllerThread;
-  pthread_mutex_t	commandQueueMutex;
-  pthread_cond_t	commandComplete;
-  pthread_cond_t	commandQueued;
-  int			stopControllerThread;
-
-  pthread_t		callbackThread;
-  pthread_mutex_t	callbackQueueMutex;
-  pthread_cond_t	callbackQueued;
-  CALLBACK		frameCallbacks[ OA_CAM_BUFFERS ];
-  int			stopCallbackThread;
-  // queues for controls and callbacks
-  DL_LIST		commandQueue;
-  DL_LIST		callbackQueue;
-  // streaming
-  int			isStreaming;
-  CALLBACK		streamingCallback;
 } IIDC_STATE;
 
 #endif	/* OA_IIDC_STATE_H */

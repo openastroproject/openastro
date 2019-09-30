@@ -333,10 +333,10 @@ _processSetResolution ( QHYCCD_STATE* cameraInfo, OA_COMMAND* command )
     return -OA_ERR_CAMERA_IO;
   }
 
-  cameraInfo->currentXSize = cameraInfo->currentXResolution = size->x;
-  cameraInfo->currentYSize = cameraInfo->currentYResolution = size->y;
-  cameraInfo->imageBufferLength = cameraInfo->currentXSize *
-      cameraInfo->currentYSize * cameraInfo->currentBytesPerPixel;
+  cameraInfo->xSize = cameraInfo->currentXResolution = size->x;
+  cameraInfo->ySize = cameraInfo->currentYResolution = size->y;
+  cameraInfo->imageBufferLength = cameraInfo->xSize *
+      cameraInfo->ySize * cameraInfo->currentBytesPerPixel;
 
   if ( restart ) {
 		return _doStart ( cameraInfo );
@@ -379,10 +379,10 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
     return -OA_ERR_CAMERA_IO;
   }
 
-  cameraInfo->currentXSize = x;
-  cameraInfo->currentYSize = y;
-  cameraInfo->imageBufferLength = cameraInfo->currentXSize *
-      cameraInfo->currentYSize * cameraInfo->currentBytesPerPixel;
+  cameraInfo->xSize = x;
+  cameraInfo->ySize = y;
+  cameraInfo->imageBufferLength = cameraInfo->xSize *
+      cameraInfo->ySize * cameraInfo->currentBytesPerPixel;
 
   if ( restart ) {
 		return _doStart ( cameraInfo );
@@ -404,8 +404,8 @@ _processStreamingStart ( QHYCCD_STATE* cameraInfo, OA_COMMAND* command )
   cameraInfo->streamingCallback.callback = cb->callback;
   cameraInfo->streamingCallback.callbackArg = cb->callbackArg;
 
-  cameraInfo->imageBufferLength = cameraInfo->currentXSize *
-      cameraInfo->currentYSize * cameraInfo->currentBytesPerPixel;
+  cameraInfo->imageBufferLength = cameraInfo->xSize *
+      cameraInfo->ySize * cameraInfo->currentBytesPerPixel;
 
   return _doStart ( cameraInfo );
 }
@@ -475,8 +475,8 @@ _setBinning ( QHYCCD_STATE* cameraInfo, int binMode )
   }
 
   cameraInfo->binMode = binMode;
-  cameraInfo->currentXSize = cameraInfo->currentXResolution = x;
-  cameraInfo->currentYSize = cameraInfo->currentYResolution = y;
+  cameraInfo->xSize = cameraInfo->currentXResolution = x;
+  cameraInfo->ySize = cameraInfo->currentYResolution = y;
 
   return OA_ERR_NONE;
 }
@@ -509,8 +509,8 @@ _setFrameFormat ( QHYCCD_STATE* cameraInfo, int format )
   cameraInfo->currentBitsPerPixel = bitspp;
   // This converts from float, but should be ok for these cameras
   cameraInfo->currentBytesPerPixel = oaFrameFormats[ format ].bytesPerPixel;
-  cameraInfo->imageBufferLength = cameraInfo->currentXSize *
-      cameraInfo->currentYSize * cameraInfo->currentBytesPerPixel;
+  cameraInfo->imageBufferLength = cameraInfo->xSize *
+      cameraInfo->ySize * cameraInfo->currentBytesPerPixel;
 
   return OA_ERR_NONE;
 }

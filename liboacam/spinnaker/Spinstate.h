@@ -2,7 +2,7 @@
  *
  * Spinstate.h -- Point Grey Gig-E Spinnaker camera state header
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -36,28 +36,49 @@ struct Spinbuffer {
 };
 
 typedef struct SPINNAKER_STATE {
-  int			initialised;
+	// Data common to all interfaces comes first, so it can be shared across
+	// a union of all state structures
+  int								initialised;
+  // camera details
+  unsigned long			index;
+  int								cameraType;
+  // thread management
+  pthread_t					controllerThread;
+  pthread_mutex_t		commandQueueMutex;
+  pthread_cond_t		commandComplete;
+  pthread_cond_t		commandQueued;
+  int								stopControllerThread;
+  pthread_t					callbackThread;
+  pthread_mutex_t		callbackQueueMutex;
+  pthread_cond_t		callbackQueued;
+  CALLBACK					frameCallbacks[ OA_CAM_BUFFERS ];
+  int								stopCallbackThread;
+  // queues for controls and callbacks
+  DL_LIST						commandQueue;
+  DL_LIST						callbackQueue;
+  // streaming
+  int								isStreaming;
+  CALLBACK					streamingCallback;
+	int								exposureInProgress;
+	int								abortExposure;
+	// shared buffer config
+  int								configuredBuffers;
+  unsigned char*		xferBuffer;
+  unsigned int			imageBufferLength;
+  int								nextBuffer;
+  int								buffersFree;
+	// common image config
+  unsigned int			maxResolutionX;
+  unsigned int			maxResolutionY;
+  FRAMESIZES				frameSizes[ OA_MAX_BINNING+1 ];
+	// common camera settings
+  unsigned int			xSize;
+  unsigned int			ySize;
+
+	// END OF COMMON DATA
+
   uint64_t		deviceId;
   uint64_t		ipAddress;
-
-  // thread management
-  pthread_t		controllerThread;
-  pthread_mutex_t	commandQueueMutex;
-  pthread_cond_t	commandComplete;
-  pthread_cond_t	commandQueued;
-  int			stopControllerThread;
-
-  pthread_t		callbackThread;
-  pthread_mutex_t	callbackQueueMutex;
-  pthread_cond_t	callbackQueued;
-  CALLBACK		frameCallbacks[ OA_CAM_BUFFERS ];
-  int			stopCallbackThread;
-  // queues for controls and callbacks
-  DL_LIST		commandQueue;
-  DL_LIST		callbackQueue;
-  // streaming
-  int			isStreaming;
-  CALLBACK		streamingCallback;
 
   // pointers to shared library functions so we can use them if they are
   // present

@@ -2,7 +2,8 @@
  *
  * ZWASIstate.h -- ZW ASI camera state header
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -36,10 +37,48 @@ struct ZWASIbuffer {
 
 
 typedef struct ZWASI_STATE {
-  int			initialised;
+	// Data common to all interfaces comes first, so it can be shared across
+	// a union of all state structures
+  int								initialised;
   // camera details
-  int			index;
-  int			cameraType;
+  unsigned long			index;
+  int								cameraType;
+  // thread management
+  pthread_t					controllerThread;
+  pthread_mutex_t		commandQueueMutex;
+  pthread_cond_t		commandComplete;
+  pthread_cond_t		commandQueued;
+  int								stopControllerThread;
+  pthread_t					callbackThread;
+  pthread_mutex_t		callbackQueueMutex;
+  pthread_cond_t		callbackQueued;
+  CALLBACK					frameCallbacks[ OA_CAM_BUFFERS ];
+  int								stopCallbackThread;
+  // queues for controls and callbacks
+  DL_LIST						commandQueue;
+  DL_LIST						callbackQueue;
+  // streaming
+  int								isStreaming;
+  CALLBACK					streamingCallback;
+	int								exposureInProgress;
+	int								abortExposure;
+	// shared buffer config
+  int								configuredBuffers;
+  unsigned char*		xferBuffer;
+  unsigned int			imageBufferLength;
+  int								nextBuffer;
+  int								buffersFree;
+	// common image config
+  unsigned int			maxResolutionX;
+  unsigned int			maxResolutionY;
+  FRAMESIZES				frameSizes[ OA_MAX_BINNING+1 ];
+	// common camera settings
+  unsigned int			xSize;
+  unsigned int			ySize;
+
+	// END OF COMMON DATA
+
+  // camera details
   int			colour;
   long			cameraId;
   int			usb3Cam;
@@ -51,18 +90,8 @@ typedef struct ZWASI_STATE {
   int32_t		greyscaleMode;
   // buffering for image transfers
   struct ZWASIbuffer*	buffers;
-  int			configuredBuffers;
-  int			nextBuffer;
-  int			buffersFree;
   // camera settings
   int			binMode;
-  uint32_t		xSize;
-  uint32_t		ySize;
-  // image settings
-  uint32_t		maxResolutionX;
-  uint32_t		maxResolutionY;
-  int			imageBufferLength;
-  FRAMESIZES		frameSizes[ OA_MAX_BINNING+1 ];
   // control values
   uint32_t		currentBrightness;
   uint32_t		currentGain;
@@ -92,24 +121,6 @@ typedef struct ZWASI_STATE {
   uint32_t		fanEnabled;
   uint32_t		patternAdjust;
   uint32_t		dewHeater;
-  // thread management
-  pthread_t		controllerThread;
-  pthread_mutex_t	commandQueueMutex;
-  pthread_cond_t	commandComplete;
-  pthread_cond_t	commandQueued;
-  int			stopControllerThread;
-
-  pthread_t		callbackThread;
-  pthread_mutex_t	callbackQueueMutex;
-  pthread_cond_t	callbackQueued;
-  CALLBACK		frameCallbacks[ OA_CAM_BUFFERS ];
-  int			stopCallbackThread;
-  // queues for controls and callbacks
-  DL_LIST		commandQueue;
-  DL_LIST		callbackQueue;
-  // streaming
-  int			isStreaming;
-  CALLBACK		streamingCallback;
 } ZWASI_STATE;
 
 #endif	/* OA_ZWASI_STATE_H */

@@ -31,9 +31,13 @@
 #include <limits.h>
 #endif
 
+#include <pthread.h>
+
 #include <openastro/camera.h>
+#include <openastro/util.h>
 
 #include "oacamprivate.h"
+#include "sharedState.h"
 
 
 const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
@@ -327,4 +331,144 @@ oacamGetControlValue ( oaControlValue* v )
   }
 
   return ret;
+}
+
+
+int
+oacamReadControl ( oaCamera* camera, int control,
+    oaControlValue* val )
+{
+  OA_COMMAND    command;
+  SHARED_STATE*  cameraInfo = camera->_private;
+  int     retval;
+
+  // Could do more validation here, but it's a bit messy to do here
+  // and in the controller too.
+
+  OA_CLEAR ( command );
+  command.commandType = OA_CMD_CONTROL_GET;
+  command.controlId = control;
+  command.resultData = val;
+
+  oaDLListAddToTail ( cameraInfo->commandQueue, &command );
+  pthread_cond_broadcast ( &cameraInfo->commandQueued );
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  while ( !command.completed ) {
+    pthread_cond_wait ( &cameraInfo->commandComplete,
+        &cameraInfo->commandQueueMutex );
+  }
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+  retval = command.resultCode;
+
+  return retval;
+}
+
+
+int
+oacamStartStreaming ( oaCamera* camera,
+    void* (*callback)(void*, void*, int, void* ), void* callbackArg )
+{
+  OA_COMMAND			command;
+  CALLBACK				callbackData;
+  int							retval;
+  SHARED_STATE*		cameraInfo = camera->_private;
+
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "liboacam: control: %s ( %p )\n",
+      __FUNCTION__, callback );
+
+  OA_CLEAR ( command );
+  callbackData.callback = callback;
+  callbackData.callbackArg = callbackArg;
+  command.commandType = OA_CMD_START_STREAMING;
+  command.commandData = ( void* ) &callbackData;
+
+  oaDLListAddToTail ( cameraInfo->commandQueue, &command );
+  pthread_cond_broadcast ( &cameraInfo->commandQueued );
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  while ( !command.completed ) {
+    pthread_cond_wait ( &cameraInfo->commandComplete,
+        &cameraInfo->commandQueueMutex );
+  }
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+  retval = command.resultCode;
+
+  return retval;
+}
+
+
+int
+oacamIsStreaming ( oaCamera* camera )
+{
+  SHARED_STATE*	cameraInfo = camera->_private;
+
+  return ( cameraInfo->isStreaming );
+}
+
+
+int
+oacamStopStreaming ( oaCamera* camera )
+{
+  OA_COMMAND			command;
+  int							retval;
+  SHARED_STATE*		cameraInfo = camera->_private;
+
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "liboacam: control: %s()\n", __FUNCTION__ );
+
+  OA_CLEAR ( command );
+  command.commandType = OA_CMD_STOP_STREAMING;
+
+  oaDLListAddToTail ( cameraInfo->commandQueue, &command );
+  pthread_cond_broadcast ( &cameraInfo->commandQueued );
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  while ( !command.completed ) {
+    pthread_cond_wait ( &cameraInfo->commandComplete,
+        &cameraInfo->commandQueueMutex );
+  }
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+  retval = command.resultCode;
+
+  return retval;
+}
+
+
+int
+oacamSetControl ( oaCamera* camera, int control, oaControlValue* val,
+    int dontWait )
+{
+  OA_COMMAND	command;
+  SHARED_STATE*	cameraInfo;
+  int		retval = OA_ERR_NONE;
+	int		modifier, baseVal;
+
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "%s: ( %d, ? )\n", __FUNCTION__, control );
+
+	modifier = OA_CAM_CTRL_MODIFIER( control );
+	baseVal = OA_CAM_CTRL_MODE_BASE ( control );
+	if ( val->valueType != camera->controlType[ modifier ][ baseVal ] ) {
+		fprintf ( stderr, "%s: invalid control type %d for control %d\n",
+            __FUNCTION__, val->valueType, control  );
+		return -OA_ERR_INVALID_CONTROL_TYPE;
+	}
+ 
+  // At this point we have a new control setting that we think is good
+
+  OA_CLEAR ( command );
+  command.commandType = OA_CMD_CONTROL_SET;
+  command.controlId = control;
+  command.commandData = val;
+
+  cameraInfo = camera->_private;
+  oaDLListAddToTail ( cameraInfo->commandQueue, &command );
+  pthread_cond_broadcast ( &cameraInfo->commandQueued );
+  if ( !dontWait ) {
+    pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+    while ( !command.completed ) {
+      pthread_cond_wait ( &cameraInfo->commandComplete,
+          &cameraInfo->commandQueueMutex );
+    }
+    pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+    retval = command.resultCode;
+  }
+
+  return retval;
 }

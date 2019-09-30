@@ -604,7 +604,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   }
 
   if ( -1 == cameraInfo->currentMode ) {
-    fprintf ( stderr, "No suitable video format found on camera %d\n",
+    fprintf ( stderr, "No suitable video format found on camera %ld\n",
         cameraInfo->index );
     FREE_DATA_STRUCTS;
     return 0;
@@ -1339,13 +1339,7 @@ _ZWASIInitFunctionPointers ( oaCamera* camera )
   camera->funcs.closeCamera = oaZWASI2CloseCamera;
 
   camera->funcs.testControl = oaZWASI2CameraTestControl;
-  camera->funcs.readControl = oaZWASI2CameraReadControl;
-  camera->funcs.setControl = oaZWASICameraSetControl;
   camera->funcs.getControlRange = oaZWASICameraGetControlRange;
-
-  camera->funcs.startStreaming = oaZWASICameraStartStreaming;
-  camera->funcs.stopStreaming = oaZWASICameraStopStreaming;
-  camera->funcs.isStreaming = oaZWASICameraIsStreaming;
 
   camera->funcs.setResolution = oaZWASICameraSetResolution;
   camera->funcs.setROI = oaZWASICameraSetResolution;

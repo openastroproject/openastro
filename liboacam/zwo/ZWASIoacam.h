@@ -34,17 +34,8 @@ extern int              oaZWASICloseCamera ( oaCamera* );
 
 extern int		oaZWASICameraTestControl ( oaCamera*, int,
 				oaControlValue* );
-extern int		oaZWASICameraSetControl ( oaCamera*, int,
-				oaControlValue*, int );
-extern int		oaZWASICameraReadControl ( oaCamera*, int,
-				oaControlValue* );
 extern int		oaZWASICameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
-
-extern int              oaZWASICameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int, void* ), void* );
-extern int              oaZWASICameraStopStreaming ( oaCamera* );
-extern int              oaZWASICameraIsStreaming ( oaCamera* );
 
 extern int		oaZWASICameraSetResolution ( oaCamera*, int, int );
 extern int		oaZWASICameraSetROI ( oaCamera*, int, int );

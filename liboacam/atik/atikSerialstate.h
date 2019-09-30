@@ -2,7 +2,7 @@
  *
  * atikSerialstate.h -- Atik serial camera state header
  *
- * Copyright 2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -39,9 +39,47 @@ struct atikSerialbuffer {
 struct AtikSerial_STATE;
 
 typedef struct AtikSerial_STATE {
+	// Data common to all interfaces comes first, so it can be shared across
+	// a union of all state structures
+  int								initialised;
   // camera details
-  unsigned long         index;
-  int                   cameraType;
+  unsigned long			index;
+  int								cameraType;
+  // thread management
+  pthread_t					controllerThread;
+  pthread_mutex_t		commandQueueMutex;
+  pthread_cond_t		commandComplete;
+  pthread_cond_t		commandQueued;
+  int								stopControllerThread;
+  pthread_t					callbackThread;
+  pthread_mutex_t		callbackQueueMutex;
+  pthread_cond_t		callbackQueued;
+  CALLBACK					frameCallbacks[ OA_CAM_BUFFERS ];
+  int								stopCallbackThread;
+  // queues for controls and callbacks
+  DL_LIST						commandQueue;
+  DL_LIST						callbackQueue;
+  // streaming
+  int								isStreaming;
+  CALLBACK					streamingCallback;
+	int								exposureInProgress;
+	int								abortExposure;
+	// shared buffer config
+  int								configuredBuffers;
+  unsigned char*		xferBuffer;
+  unsigned int			imageBufferLength;
+  int								nextBuffer;
+  int								buffersFree;
+	// common image config
+  unsigned int			maxResolutionX;
+  unsigned int			maxResolutionY;
+  FRAMESIZES				frameSizes[ OA_MAX_BINNING+1 ];
+	// common camera settings
+  unsigned int			xSize;
+  unsigned int			ySize;
+
+	// END OF COMMON DATA
+
   // connection data
   int                   fd;
   libusb_context*       usbContext;
@@ -61,11 +99,6 @@ typedef struct AtikSerial_STATE {
   // video mode settings
   // buffering for image transfers
   struct atikSerialbuffer* buffers;
-  int                   configuredBuffers;
-  unsigned char*        xferBuffer;
-  unsigned int          imageBufferLength;
-  int			nextBuffer;
-  int			buffersFree;
   // camera status
   unsigned int          cameraFlags;
   unsigned int		hardwareType;
@@ -77,12 +110,7 @@ typedef struct AtikSerial_STATE {
   unsigned int		binMode;
   unsigned int		horizontalBinMode;
   unsigned int		verticalBinMode;
-  unsigned int          xSize;
-  unsigned int          ySize;
   // image settings
-  unsigned int          maxResolutionX;
-  unsigned int          maxResolutionY;
-  FRAMESIZES            frameSizes[2];
   unsigned int          pixelSizeX;
   unsigned int          pixelSizeY;
   unsigned int          maxBinningX;
@@ -90,24 +118,6 @@ typedef struct AtikSerial_STATE {
   unsigned int          wellDepth;
   // control values
   unsigned int          currentExposure;
-  // thread management
-  pthread_t		controllerThread;
-  pthread_mutex_t	commandQueueMutex;
-  pthread_cond_t	commandComplete;
-  pthread_cond_t	commandQueued;
-  int			stopControllerThread;
-
-  pthread_t		callbackThread;
-  pthread_mutex_t	callbackQueueMutex;
-  pthread_cond_t	callbackQueued;
-  CALLBACK		frameCallbacks[ OA_CAM_BUFFERS ];
-  int			stopCallbackThread;
-  // queues for controls and callbacks
-  DL_LIST		commandQueue;
-  DL_LIST		callbackQueue;
-  // streaming
-  int			isStreaming;
-  CALLBACK		streamingCallback;
 } AtikSerial_STATE;
 
 #endif	/* OA_ATIK_SERIAL_STATE_H */

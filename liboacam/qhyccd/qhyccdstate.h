@@ -36,7 +36,46 @@ struct qhyccdbuffer {
 };
 
 typedef struct qhyccdcam_STATE {
-  int							initialised;
+	// Data common to all interfaces comes first, so it can be shared across
+	// a union of all state structures
+  int								initialised;
+  // camera details
+  unsigned long			index;
+  int								cameraType;
+  // thread management
+  pthread_t					controllerThread;
+  pthread_mutex_t		commandQueueMutex;
+  pthread_cond_t		commandComplete;
+  pthread_cond_t		commandQueued;
+  int								stopControllerThread;
+  pthread_t					callbackThread;
+  pthread_mutex_t		callbackQueueMutex;
+  pthread_cond_t		callbackQueued;
+  CALLBACK					frameCallbacks[ OA_CAM_BUFFERS ];
+  int								stopCallbackThread;
+  // queues for controls and callbacks
+  DL_LIST						commandQueue;
+  DL_LIST						callbackQueue;
+  // streaming
+  int								isStreaming;
+  CALLBACK					streamingCallback;
+	int								exposureInProgress;
+	int								abortExposure;
+	// shared buffer config
+  int								configuredBuffers;
+  unsigned char*		xferBuffer;
+  unsigned int			imageBufferLength;
+  int								nextBuffer;
+  int								buffersFree;
+	// common image config
+  unsigned int			maxResolutionX;
+  unsigned int			maxResolutionY;
+  FRAMESIZES				frameSizes[ OA_MAX_BINNING+1 ];
+	// common camera settings
+  unsigned int			xSize;
+  unsigned int			ySize;
+
+	// END OF COMMON DATA
 
   // connection handle
   char						qhyccdId[64]; // arbitrary size :(
@@ -46,55 +85,18 @@ typedef struct qhyccdcam_STATE {
   int							colour;
   int							has8Bit;
   int							has16Bit;
-  int							maxResolutionX;
-  int							maxResolutionY;
-  FRAMESIZES			frameSizes[ OA_MAX_BINNING+1 ];
 
   // buffering for image transfers
   struct qhyccdbuffer*	buffers;
-  unsigned int		imageBufferLength;
-  int							configuredBuffers;
-  int							nextBuffer;
-  int							buffersFree;
 
   // camera status
   int			currentBitsPerPixel; // this may be redundant
   int			currentBytesPerPixel;
   int			currentVideoFormat;
   int			binMode;
-  int			currentXSize;
-  int			currentYSize;
   unsigned int		currentXResolution;
   unsigned int		currentYResolution;
 	int64_t					currentAbsoluteExposure;
-/*
-  int32_t		exposureMin;
-  int32_t		exposureMax;
-  int32_t		gainMin;
-  int32_t		gainMax;
-  int32_t		speedMax;
-  int			maxBitDepth;
-  // image settings
-	*/
-  // thread management
-  pthread_t		controllerThread;
-  pthread_mutex_t	commandQueueMutex;
-  pthread_cond_t	commandComplete;
-  pthread_cond_t	commandQueued;
-  int			stopControllerThread;
-
-  pthread_t		callbackThread;
-  pthread_mutex_t	callbackQueueMutex;
-  pthread_cond_t	callbackQueued;
-  CALLBACK		frameCallbacks[ OA_CAM_BUFFERS ];
-  int			stopCallbackThread;
-  // queues for controls and callbacks
-  DL_LIST		commandQueue;
-  DL_LIST		callbackQueue;
-  // streaming
-  int			isStreaming;
-  CALLBACK		streamingCallback;
-
 } QHYCCD_STATE;
 
 #endif	/* OA_QHYCCD_STATE_H */

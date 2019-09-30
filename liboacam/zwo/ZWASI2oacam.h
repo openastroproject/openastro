@@ -33,8 +33,6 @@ extern int              oaZWASI2CloseCamera ( oaCamera* );
 
 extern int		oaZWASI2CameraTestControl ( oaCamera*, int,
 				oaControlValue* );
-extern int		oaZWASI2CameraReadControl ( oaCamera*, int,
-				oaControlValue* );
 extern int		oaZWASI2CameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
 

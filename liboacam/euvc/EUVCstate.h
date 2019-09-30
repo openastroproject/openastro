@@ -39,10 +39,47 @@ struct EUVCbuffer {
 
 
 typedef struct EUVC_STATE {
-  int                   initialised;
+	// Data common to all interfaces comes first, so it can be shared across
+	// a union of all state structures
+  int								initialised;
   // camera details
-  unsigned long         index;
-  int                   cameraType;
+  unsigned long			index;
+  int								cameraType;
+  // thread management
+  pthread_t					controllerThread;
+  pthread_mutex_t		commandQueueMutex;
+  pthread_cond_t		commandComplete;
+  pthread_cond_t		commandQueued;
+  int								stopControllerThread;
+  pthread_t					callbackThread;
+  pthread_mutex_t		callbackQueueMutex;
+  pthread_cond_t		callbackQueued;
+  CALLBACK					frameCallbacks[ OA_CAM_BUFFERS ];
+  int								stopCallbackThread;
+  // queues for controls and callbacks
+  DL_LIST						commandQueue;
+  DL_LIST						callbackQueue;
+  // streaming
+  int								isStreaming;
+  CALLBACK					streamingCallback;
+	int								exposureInProgress;
+	int								abortExposure;
+	// shared buffer config
+  int								configuredBuffers;
+  unsigned char*		xferBuffer;
+  unsigned int			imageBufferLength;
+  int								nextBuffer;
+  int								buffersFree;
+	// common image config
+  unsigned int			maxResolutionX;
+  unsigned int			maxResolutionY;
+  FRAMESIZES				frameSizes[ OA_MAX_BINNING+1 ];
+	// common camera settings
+  unsigned int			xSize;
+  unsigned int			ySize;
+
+	// END OF COMMON DATA
+
   uint8_t               cameraTypeFlags;
   uint8_t		controlInterfaceNo;
   uint8_t		controlEndpoint;
@@ -66,10 +103,6 @@ typedef struct EUVC_STATE {
   // video mode settings
   // buffering for image transfers
   struct EUVCbuffer*	buffers;
-  int                   configuredBuffers;
-  unsigned int          imageBufferLength;
-  int			nextBuffer;
-  int			buffersFree;
   struct libusb_transfer* transfers[ EUVC_NUM_TRANSFER_BUFS ];
   unsigned char*	transferBuffers[ EUVC_NUM_TRANSFER_BUFS ];
   // camera status
@@ -83,17 +116,12 @@ typedef struct EUVC_STATE {
   uint8_t		streamFrameId;
   unsigned int		receivedBytes;
   // camera settings
-  unsigned int          xSize;
-  unsigned int          ySize;
   unsigned int          binMode;
   unsigned int          sizeIndex;
   int32_t		currentPan;
   int32_t		currentTilt;
   // image settings
-  uint32_t              maxResolutionX;
-  uint32_t              maxResolutionY;
   unsigned int          bytesPerPixel;
-  FRAMESIZES            frameSizes[ OA_MAX_BINNING+1 ];
   struct frameExtras*   frameInfo[ OA_MAX_BINNING+1 ];
   FRAMERATES*		frameRates;
   uint32_t		currentPixelClock;
@@ -108,25 +136,9 @@ typedef struct EUVC_STATE {
   unsigned int		currentRedBalance;
   // thread management
   pthread_mutex_t       usbMutex;
-  pthread_t		controllerThread;
-  pthread_mutex_t       commandQueueMutex;
-  pthread_cond_t	commandComplete;
-  pthread_cond_t	commandQueued;
-  int			stopControllerThread;
   pthread_t		eventHandler;
 
-  pthread_t		callbackThread;
-  pthread_mutex_t	callbackQueueMutex;
-  pthread_cond_t	callbackQueued;
-  CALLBACK		frameCallbacks[ OA_CAM_BUFFERS ];
-  int			stopCallbackThread;
   pthread_mutex_t	videoCallbackMutex;
-  // queues for controls and callbacks
-  DL_LIST		commandQueue;
-  DL_LIST		callbackQueue;
-  // streaming
-  int			isStreaming;
-  CALLBACK		streamingCallback;
 	// discrete auto exposure menu item ids
 	unsigned int		numAutoExposureItems;
 	int64_t					autoExposureMenuItems[8];

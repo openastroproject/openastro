@@ -57,7 +57,6 @@ _resetCamera ( oaCamera* camera )
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
-*/
 
 
 static int
@@ -86,6 +85,7 @@ _isStreaming ( oaCamera* camera )
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
+*/
 
 
 static const char*
@@ -116,6 +116,7 @@ _getControlDiscreteSet ( oaCamera* camera, int c, int32_t* p1, int64_t** p2 )
 }
 
 
+/*
 static int
 _readControl ( oaCamera* camera, int c, oaControlValue* v )
 {
@@ -132,6 +133,7 @@ _setControl ( oaCamera* camera, int c, oaControlValue* v, int dontWait )
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
+*/
 
 
 static int
@@ -288,15 +290,15 @@ _oaInitCameraFunctionPointers ( oaCamera* camera )
   camera->funcs.initCamera = _initCamera;
   camera->funcs.closeCamera = _closeCamera;
 
-  camera->funcs.readControl = _readControl;
-  camera->funcs.setControl = _setControl;
+  camera->funcs.readControl = oacamReadControl;
+  camera->funcs.setControl = oacamSetControl;
   camera->funcs.testControl = _testControl;
   camera->funcs.getControlRange = _getControlRange;
   camera->funcs.getControlDiscreteSet = _getControlDiscreteSet;
 
-  camera->funcs.startStreaming = _startStreaming;
-  camera->funcs.stopStreaming = _stopStreaming;
-  camera->funcs.isStreaming = _isStreaming;
+  camera->funcs.startStreaming = oacamStartStreaming;
+  camera->funcs.stopStreaming = oacamStopStreaming;
+  camera->funcs.isStreaming = oacamIsStreaming;
 
   camera->funcs.setResolution = _setResolution;
   camera->funcs.setROI = _setROI;

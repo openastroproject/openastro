@@ -552,7 +552,7 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   // the same.  It is not ROI.
 
   numResolutions = devList[ devInfo->devIndex ].model->preview;
-  cameraInfo->currentXSize = cameraInfo->currentYSize = 0;
+  cameraInfo->xSize = cameraInfo->ySize = 0;
   cameraInfo->currentXResolution = cameraInfo->currentYResolution = 0;
 
   if ( numResolutions > OA_MAX_BINNING ) {
@@ -575,12 +575,12 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
 
     // First resolution appears to be the full size of the sensor
     if ( !i ) {
-      cameraInfo->currentXSize = cameraInfo->currentXResolution = x;
-      cameraInfo->currentYSize = cameraInfo->currentYResolution = y;
+      cameraInfo->xSize = cameraInfo->currentXResolution = x;
+      cameraInfo->ySize = cameraInfo->currentYResolution = y;
     }
 
-    binX = cameraInfo->currentXSize / x;
-    binY = cameraInfo->currentYSize / y;
+    binX = cameraInfo->xSize / x;
+    binY = cameraInfo->ySize / y;
 
     if ( binX == binY && binX == ( i + 1 )) { 
       cameraInfo->frameSizes[ binX ].numSizes = 1;
@@ -607,8 +607,8 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   }
   camera->features.flags |= OA_CAM_FEATURE_FIXED_FRAME_SIZES;
 
-  cameraInfo->maxResolutionX = cameraInfo->currentXSize;
-  cameraInfo->maxResolutionY = cameraInfo->currentYSize;
+  cameraInfo->maxResolutionX = cameraInfo->xSize;
+  cameraInfo->maxResolutionY = cameraInfo->ySize;
   cameraInfo->binMode = 1;
 
   if ( numResolutions > 1 ) {

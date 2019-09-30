@@ -38,37 +38,6 @@
 
 
 int
-oaZWASI2CameraReadControl ( oaCamera* camera, int control,
-    oaControlValue* val )
-{
-  OA_COMMAND    command;
-  ZWASI_STATE*  cameraInfo = camera->_private;
-  int     retval;
-
-  // Could do more validation here, but it's a bit messy to do here
-  // and in the controller too.
-
-  OA_CLEAR ( command );
-  command.commandType = OA_CMD_CONTROL_GET;
-  command.controlId = control;
-  command.resultData = val;
-
-  cameraInfo = camera->_private;
-  oaDLListAddToTail ( cameraInfo->commandQueue, &command );
-  pthread_cond_broadcast ( &cameraInfo->commandQueued );
-  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  while ( !command.completed ) {
-    pthread_cond_wait ( &cameraInfo->commandComplete,
-        &cameraInfo->commandQueueMutex );
-  }
-  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
-  retval = command.resultCode;
-
-  return retval;
-}
-
-
-int
 oaZWASI2CameraTestControl ( oaCamera* camera, int control,
     oaControlValue* val )
 {
@@ -135,7 +104,7 @@ oaZWASI2CameraTestControl ( oaCamera* camera, int control,
 
     default:
       // If we reach here it's because we don't recognise the control
-      fprintf ( stderr, "Unrecognised control %d in oaZWASICameraSetControl\n",
+      fprintf ( stderr, "Unrecognised control %d in oaZWASICameraTestControl\n",
           control );
       return -OA_ERR_INVALID_CONTROL;
       break;
