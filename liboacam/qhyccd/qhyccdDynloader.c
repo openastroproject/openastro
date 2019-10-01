@@ -123,7 +123,7 @@ _qhyccdInitLibraryFunctionPointers ( void )
 	char					firmwarePath[ PATH_MAX+1 ];
   const char*		libName = "libqhyccd.dylib";
 #else
-  const char*		libName = "libqhyccd.so.5";
+  const char*		libName = "libqhyccd.so.6";
 #endif
 
 	*libPath = 0;
