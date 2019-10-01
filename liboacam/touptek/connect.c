@@ -703,16 +703,10 @@ TT_FUNC( _, InitFunctionPointers )( oaCamera* camera )
   camera->funcs.initCamera = TT_FUNC( oa, InitCamera );
   camera->funcs.closeCamera = TT_FUNC( oa, CloseCamera );
 
-  camera->funcs.setControl = TT_FUNC( oa, CameraSetControl );
-  camera->funcs.readControl = TT_FUNC( oa, CameraReadControl );
   camera->funcs.testControl = TT_FUNC( oa, CameraTestControl );
   camera->funcs.getControlRange = TT_FUNC( oa, CameraGetControlRange );
   camera->funcs.getControlDiscreteSet =
 		TT_FUNC( oa, CameraGetControlDiscreteSet );
-
-  camera->funcs.startStreaming = TT_FUNC( oa, CameraStartStreaming );
-  camera->funcs.stopStreaming = TT_FUNC( oa, CameraStopStreaming );
-  camera->funcs.isStreaming = TT_FUNC( oa, CameraIsStreaming );
 
   camera->funcs.setResolution = TT_FUNC( oa, CameraSetResolution );
   camera->funcs.setROI = TT_FUNC( oa, CameraSetROI );

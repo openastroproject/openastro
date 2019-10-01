@@ -34,19 +34,10 @@ extern int		TT_FUNC( oa, CloseCamera )( oaCamera* );
 
 extern int		TT_FUNC( oa, CameraTestControl )( oaCamera*, int,
 				oaControlValue* );
-extern int		TT_FUNC( oa, CameraSetControl )( oaCamera*, int,
-				oaControlValue*, int );
-extern int		TT_FUNC( oa, CameraReadControl )( oaCamera*, int,
-				oaControlValue* );
 extern int		TT_FUNC( oa, CameraGetControlRange )( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
 extern int              TT_FUNC( oa, CameraGetControlDiscreteSet )( oaCamera*, int,
                                 int32_t*, int64_t** );
-
-extern int		TT_FUNC( oa, CameraStartStreaming )( oaCamera*,
-				void* (*)(void*, void*, int, void* ), void* );
-extern int		TT_FUNC( oa, CameraStopStreaming )( oaCamera* );
-extern int		TT_FUNC( oa, CameraIsStreaming )( oaCamera* );
 
 extern int		TT_FUNC( oa, CameraSetResolution )( oaCamera*, int, int );
 extern int		TT_FUNC( oa, CameraSetROI )( oaCamera*, int, int );
