@@ -140,7 +140,7 @@ TT_FUNC( oacam, controller )( void* param )
 
 void
 TT_FUNC( _, FrameCallbackV1 )( const void *frame, const BITMAPINFOHEADER*
-    bitmapHeader, BOOL bSnap, void *ptr )
+    bitmapHeader, int bSnap, void *ptr )
 {
   TOUPTEK_STATE*	cameraInfo = ptr;
   int			buffersFree, bitsPerPixel;
