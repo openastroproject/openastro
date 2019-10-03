@@ -446,14 +446,8 @@ _atikSerialInitFunctionPointers ( oaCamera* camera )
   camera->funcs.initCamera = oaAtikSerialInitCamera;
   camera->funcs.closeCamera = oaAtikSerialCloseCamera;
 
-  camera->funcs.setControl = oaAtikSerialCameraSetControl;
-  camera->funcs.readControl = oaAtikSerialCameraReadControl;
   camera->funcs.testControl = oaAtikSerialCameraTestControl;
   camera->funcs.getControlRange = oaAtikSerialCameraGetControlRange;
-
-  camera->funcs.startStreaming = oaAtikSerialCameraStartStreaming;
-  camera->funcs.stopStreaming = oaAtikSerialCameraStopStreaming;
-  camera->funcs.isStreaming = oaAtikSerialCameraIsStreaming;
 
   camera->funcs.setResolution = oaAtikSerialCameraSetResolution;
 

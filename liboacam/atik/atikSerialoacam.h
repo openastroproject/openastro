@@ -47,17 +47,8 @@ extern int              oaAtikSerialCloseCamera ( oaCamera* );
 
 extern int		oaAtikSerialCameraTestControl ( oaCamera*, int,
 			    oaControlValue* );
-extern int		oaAtikSerialCameraSetControl ( oaCamera*, int,
-			    oaControlValue*, int );
-extern int		oaAtikSerialCameraReadControl ( oaCamera*, int,
-			    oaControlValue* );
 extern int		oaAtikSerialCameraGetControlRange ( oaCamera*, int,
 			    int64_t*, int64_t*, int64_t*, int64_t* );
-
-extern int		oaAtikSerialCameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int, void* ), void* );
-extern int		oaAtikSerialCameraStopStreaming ( oaCamera* );
-extern int		oaAtikSerialCameraIsStreaming ( oaCamera* );
 
 extern int		oaAtikSerialCameraSetResolution ( oaCamera*, int, int );
 
