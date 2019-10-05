@@ -1466,15 +1466,9 @@ _FC2InitFunctionPointers ( oaCamera* camera )
   camera->funcs.initCamera = oaFC2InitCamera;
   camera->funcs.closeCamera = oaFC2CloseCamera;
 
-  camera->funcs.setControl = oaFC2CameraSetControl;
-  camera->funcs.readControl = oaFC2CameraReadControl;
   camera->funcs.testControl = oaFC2CameraTestControl;
   camera->funcs.getControlRange = oaFC2CameraGetControlRange;
   camera->funcs.getControlDiscreteSet = oaFC2CameraGetControlDiscreteSet;
-
-  camera->funcs.startStreaming = oaFC2CameraStartStreaming;
-  camera->funcs.stopStreaming = oaFC2CameraStopStreaming;
-  camera->funcs.isStreaming = oaFC2CameraIsStreaming;
 
   camera->funcs.setResolution = oaFC2CameraSetResolution;
   camera->funcs.setROI = oaFC2CameraSetROI;
