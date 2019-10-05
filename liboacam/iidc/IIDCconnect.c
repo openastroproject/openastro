@@ -679,14 +679,8 @@ _IIDCInitFunctionPointers ( oaCamera* camera )
   camera->funcs.initCamera = oaIIDCInitCamera;
   camera->funcs.closeCamera = oaIIDCCloseCamera;
 
-  camera->funcs.setControl = oaIIDCCameraSetControl;
-  camera->funcs.readControl = oaIIDCCameraReadControl;
   camera->funcs.testControl = oaIIDCCameraTestControl;
   camera->funcs.getControlRange = oaIIDCCameraGetControlRange;
-
-  camera->funcs.startStreaming = oaIIDCCameraStartStreaming;
-  camera->funcs.stopStreaming = oaIIDCCameraStopStreaming;
-  camera->funcs.isStreaming = oaIIDCCameraIsStreaming;
 
   camera->funcs.setResolution = oaIIDCCameraSetResolution;
 

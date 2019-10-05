@@ -34,17 +34,8 @@ extern int		oaIIDCCloseCamera ( oaCamera* );
 
 extern int		oaIIDCCameraTestControl ( oaCamera*, int,
 				oaControlValue* );
-extern int		oaIIDCCameraSetControl ( oaCamera*, int,
-				oaControlValue*, int );
-extern int		oaIIDCCameraReadControl ( oaCamera*, int,
-				oaControlValue* );
 extern int		oaIIDCCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
-
-extern int		oaIIDCCameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int, void* ), void* );
-extern int		oaIIDCCameraStopStreaming ( oaCamera* );
-extern int		oaIIDCCameraIsStreaming ( oaCamera* );
 
 extern int		oaIIDCCameraSetResolution ( oaCamera*, int, int );
 
