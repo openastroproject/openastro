@@ -34,17 +34,8 @@ extern int              oaEUVCCloseCamera ( oaCamera* );
 
 extern int		oaEUVCCameraTestControl ( oaCamera*, int,
 				oaControlValue* );
-extern int		oaEUVCCameraSetControl ( oaCamera*, int,
-				oaControlValue*, int );
-extern int		oaEUVCCameraReadControl ( oaCamera*, int,
-				oaControlValue* );
 extern int		oaEUVCCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
-
-extern int		oaEUVCCameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int, void* ), void* );
-extern int              oaEUVCCameraStopStreaming ( oaCamera* );
-extern int              oaEUVCCameraIsStreaming ( oaCamera* );
 
 extern int		oaEUVCCameraSetResolution ( oaCamera*, int, int );
 extern int		oaEUVCCameraSetROI ( oaCamera*, int, int );

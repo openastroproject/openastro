@@ -1438,14 +1438,8 @@ _EUVCInitFunctionPointers ( oaCamera* camera )
   camera->funcs.initCamera = oaEUVCInitCamera;
   camera->funcs.closeCamera = oaEUVCCloseCamera;
 
-  camera->funcs.setControl = oaEUVCCameraSetControl;
-  camera->funcs.readControl = oaEUVCCameraReadControl;
   camera->funcs.testControl = oaEUVCCameraTestControl;
   camera->funcs.getControlRange = oaEUVCCameraGetControlRange;
-
-  camera->funcs.startStreaming = oaEUVCCameraStartStreaming;
-  camera->funcs.stopStreaming = oaEUVCCameraStopStreaming;
-  camera->funcs.isStreaming = oaEUVCCameraIsStreaming;
 
   camera->funcs.setResolution = oaEUVCCameraSetResolution;
   camera->funcs.setROI = oaEUVCCameraSetROI;
