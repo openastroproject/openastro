@@ -257,6 +257,7 @@ _deviceLoadFirmware ( oaCameraDevice* device )
 }
 
 
+/*
 static int
 _startExposure ( oaCamera* camera, time_t when,
 		void* (*callback)(void*, void*, int, void* ), void* callbackArg )
@@ -274,6 +275,7 @@ _abortExposure ( oaCamera* camera )
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
+*/
 
 
 void
@@ -321,6 +323,6 @@ _oaInitCameraFunctionPointers ( oaCamera* camera )
   camera->funcs.getMenuString = _getMenuString;
   camera->funcs.getAutoWBManualSetting = _getAutoWBManualSetting;
 
-  camera->funcs.startExposure = _startExposure;
-  camera->funcs.abortExposure = _abortExposure;
+  camera->funcs.startExposure = oacamStartExposure;
+  camera->funcs.abortExposure = oacamAbortExposure;
 }

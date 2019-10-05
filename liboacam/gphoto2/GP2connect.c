@@ -751,8 +751,6 @@ _GP2InitFunctionPointers ( oaCamera* camera )
   camera->funcs.initCamera = oaGP2InitCamera;
   camera->funcs.closeCamera = oaGP2CloseCamera;
 
-  camera->funcs.setControl = oaGP2CameraSetControl;
-  camera->funcs.readControl = oaGP2CameraReadControl;
 /*
   camera->funcs.testControl = oaGP2CameraTestControl;
 */
@@ -760,10 +758,6 @@ _GP2InitFunctionPointers ( oaCamera* camera )
   camera->funcs.getControlDiscreteSet = oaGP2CameraGetControlDiscreteSet;
 
 /*
-  camera->funcs.startStreaming = oaGP2CameraStartStreaming;
-  camera->funcs.stopStreaming = oaGP2CameraStopStreaming;
-  camera->funcs.isStreaming = oaGP2CameraIsStreaming;
-
   camera->funcs.hasAuto = oacamHasAuto;
   // camera->funcs.isAuto = _isAuto;
 
@@ -771,9 +765,6 @@ _GP2InitFunctionPointers ( oaCamera* camera )
 */
   camera->funcs.getFramePixelFormat = oaGP2CameraGetFramePixelFormat;
   camera->funcs.getMenuString = oaGP2CameraGetMenuString;
-
-	camera->funcs.startExposure = oaGP2CameraStartExposure;
-	camera->funcs.abortExposure = oaGP2CameraAbortExposure;
 }
 
 

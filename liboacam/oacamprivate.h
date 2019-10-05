@@ -59,6 +59,9 @@ extern int				oacamStartStreaming ( oaCamera*, void* (*)(void*, void*,
 											int, void* ), void* );
 extern int				oacamIsStreaming ( oaCamera* );
 extern int				oacamStopStreaming ( oaCamera* );
+extern int				oacamStartExposure ( oaCamera*, time_t,
+											void* (*)(void*, void*, int, void* ), void* );
+extern int				oacamAbortExposure ( oaCamera* );
 extern int				_oaCheckCameraArraySize ( CAMERA_LIST* );
 extern void				_oaFreeCameraDeviceList ( CAMERA_LIST* );
 extern int				_oaInitCameraStructs ( oaCamera**, void**, size_t,

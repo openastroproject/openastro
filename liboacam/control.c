@@ -472,3 +472,61 @@ oacamSetControl ( oaCamera* camera, int control, oaControlValue* val,
 
   return retval;
 }
+
+
+int
+oacamStartExposure ( oaCamera* camera, time_t when,
+    void* (*callback)(void*, void*, int, void* ), void* callbackArg )
+{
+  OA_COMMAND			command;
+  CALLBACK				callbackData;
+  int							retval;
+  SHARED_STATE*		cameraInfo = camera->_private;
+
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "liboacam: startExposure\n", callback );
+
+  OA_CLEAR ( command );
+  callbackData.callback = callback;
+  callbackData.callbackArg = callbackArg;
+  command.commandType = OA_CMD_START_EXPOSURE;
+	command.commandArgs = ( void* ) &when;
+  command.commandData = ( void* ) &callbackData;
+
+  oaDLListAddToTail ( cameraInfo->commandQueue, &command );
+  pthread_cond_broadcast ( &cameraInfo->commandQueued );
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  while ( !command.completed ) {
+    pthread_cond_wait ( &cameraInfo->commandComplete,
+        &cameraInfo->commandQueueMutex );
+  }
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+  retval = command.resultCode;
+
+  return retval;
+}
+
+
+int
+oacamAbortExposure ( oaCamera* camera )
+{
+  OA_COMMAND			command;
+  int							retval;
+  SHARED_STATE*		cameraInfo = camera->_private;
+
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "liboacam: abortExposure\n" );
+
+  OA_CLEAR ( command );
+  command.commandType = OA_CMD_ABORT_EXPOSURE;
+
+  oaDLListAddToTail ( cameraInfo->commandQueue, &command );
+  pthread_cond_broadcast ( &cameraInfo->commandQueued );
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  while ( !command.completed ) {
+    pthread_cond_wait ( &cameraInfo->commandComplete,
+        &cameraInfo->commandQueueMutex );
+  }
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+  retval = command.resultCode;
+
+  return retval;
+}
