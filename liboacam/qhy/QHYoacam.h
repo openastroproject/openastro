@@ -32,18 +32,10 @@ extern int		oaQHYGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaQHYInitCamera ( oaCameraDevice* );
 extern int              oaQHYCloseCamera ( oaCamera* );
 
-extern int		oaQHYCameraSetControl ( oaCamera*, int,
-				oaControlValue*, int );
-extern int		oaQHYCameraReadControl ( oaCamera*, int,
-				oaControlValue* );
 extern int		oaQHYCameraGetControlRange ( oaCamera*, int, int64_t*,
 				 int64_t*, int64_t*, int64_t* );
 
 extern int		oaQHYCameraSetResolution ( oaCamera*, int, int );
-extern int		oaQHYCameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int, void* ), void* );
-extern int		oaQHYCameraIsStreaming ( oaCamera* );
-extern int		oaQHYCameraStopStreaming ( oaCamera* );
 
 extern void*		oacamQHYcallbackHandler ( void* );
 

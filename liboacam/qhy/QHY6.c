@@ -348,14 +348,8 @@ _QHY6InitFunctionPointers ( oaCamera* camera )
   // camera->funcs.initCamera = oaQHYInitCamera;
   camera->funcs.closeCamera = closeCamera;
 
-  camera->funcs.setControl = oaQHYCameraSetControl;
-  camera->funcs.readControl = oaQHYCameraReadControl;
   camera->funcs.testControl = oaQHY6CameraTestControl;
   camera->funcs.getControlRange = oaQHYCameraGetControlRange;
-
-  camera->funcs.startStreaming = oaQHYCameraStartStreaming;
-  camera->funcs.stopStreaming = oaQHYCameraStopStreaming;
-  camera->funcs.isStreaming = oaQHYCameraIsStreaming;
 
   camera->funcs.setResolution = oaQHYCameraSetResolution;
 
