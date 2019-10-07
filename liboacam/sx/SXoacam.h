@@ -34,17 +34,8 @@ extern int              oaSXCloseCamera ( oaCamera* );
 
 extern int		oaSXCameraTestControl ( oaCamera*, int,
 				oaControlValue* );
-extern int		oaSXCameraSetControl ( oaCamera*, int,
-				oaControlValue*, int );
-extern int		oaSXCameraReadControl ( oaCamera*, int,
-				oaControlValue* );
 extern int		oaSXCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
-
-extern int		oaSXCameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int, void* ), void* );
-extern int              oaSXCameraStopStreaming ( oaCamera* );
-extern int              oaSXCameraIsStreaming ( oaCamera* );
 
 extern int		oaSXCameraSetResolution ( oaCamera*, int, int );
 

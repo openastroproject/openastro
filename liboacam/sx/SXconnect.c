@@ -424,14 +424,8 @@ _SXInitFunctionPointers ( oaCamera* camera )
   camera->funcs.initCamera = oaSXInitCamera;
   camera->funcs.closeCamera = oaSXCloseCamera;
 
-  camera->funcs.setControl = oaSXCameraSetControl;
-  camera->funcs.readControl = oaSXCameraReadControl;
   camera->funcs.testControl = oaSXCameraTestControl;
   camera->funcs.getControlRange = oaSXCameraGetControlRange;
-
-  camera->funcs.startStreaming = oaSXCameraStartStreaming;
-  camera->funcs.stopStreaming = oaSXCameraStopStreaming;
-  camera->funcs.isStreaming = oaSXCameraIsStreaming;
 
   camera->funcs.setResolution = oaSXCameraSetResolution;
   camera->funcs.setROI = oaSXCameraSetResolution;
