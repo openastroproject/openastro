@@ -34,19 +34,10 @@ extern int		oaQHYCCDCloseCamera ( oaCamera* );
 
 extern int		oaQHYCCDCameraTestControl ( oaCamera*, int,
 				oaControlValue* );
-extern int		oaQHYCCDCameraSetControl ( oaCamera*, int,
-				oaControlValue*, int );
-extern int		oaQHYCCDCameraReadControl ( oaCamera*, int,
-				oaControlValue* );
 extern int		oaQHYCCDCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
 extern int              oaQHYCCDCameraGetControlDiscreteSet ( oaCamera*, int,
                                 int32_t*, int64_t** );
-
-extern int		oaQHYCCDCameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int, void* ), void* );
-extern int		oaQHYCCDCameraStopStreaming ( oaCamera* );
-extern int		oaQHYCCDCameraIsStreaming ( oaCamera* );
 
 extern int		oaQHYCCDCameraSetResolution ( oaCamera*, int, int );
 extern int		oaQHYCCDCameraSetROI ( oaCamera*, int, int );

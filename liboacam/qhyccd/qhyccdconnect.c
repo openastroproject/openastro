@@ -462,15 +462,9 @@ _QHYCCDInitFunctionPointers ( oaCamera* camera )
   camera->funcs.initCamera = oaQHYCCDInitCamera;
   camera->funcs.closeCamera = oaQHYCCDCloseCamera;
 
-  camera->funcs.setControl = oaQHYCCDCameraSetControl;
-  camera->funcs.readControl = oaQHYCCDCameraReadControl;
   camera->funcs.testControl = oaQHYCCDCameraTestControl;
   camera->funcs.getControlRange = oaQHYCCDCameraGetControlRange;
   camera->funcs.getControlDiscreteSet = oaQHYCCDCameraGetControlDiscreteSet;
-
-  camera->funcs.startStreaming = oaQHYCCDCameraStartStreaming;
-  camera->funcs.stopStreaming = oaQHYCCDCameraStopStreaming;
-  camera->funcs.isStreaming = oaQHYCCDCameraIsStreaming;
 
   camera->funcs.setResolution = oaQHYCCDCameraSetResolution;
   camera->funcs.setROI = oaQHYCCDCameraSetROI;
