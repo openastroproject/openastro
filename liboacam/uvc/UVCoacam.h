@@ -39,19 +39,10 @@ extern int              oaUVCCloseCamera ( oaCamera* );
 
 extern int		oaUVCCameraTestControl ( oaCamera*, int,
 				oaControlValue* );
-extern int		oaUVCCameraSetControl ( oaCamera*, int,
-				oaControlValue*, int );
-extern int		oaUVCCameraReadControl ( oaCamera*, int,
-				oaControlValue* );
 extern int		oaUVCCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
 extern int		oaUVCCameraGetControlDiscreteSet ( oaCamera*, int,
 				int32_t*, int64_t** );
-
-extern int		oaUVCCameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int, void* ), void* );
-extern int              oaUVCCameraStopStreaming ( oaCamera* );
-extern int              oaUVCCameraIsStreaming ( oaCamera* );
 
 extern int		oaUVCCameraSetResolution ( oaCamera*, int, int );
 

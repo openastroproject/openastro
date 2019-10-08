@@ -1145,15 +1145,9 @@ _UVCInitFunctionPointers ( oaCamera* camera )
   camera->funcs.initCamera = oaUVCInitCamera;
   camera->funcs.closeCamera = oaUVCCloseCamera;
 
-  camera->funcs.setControl = oaUVCCameraSetControl;
-  camera->funcs.readControl = oaUVCCameraReadControl;
   camera->funcs.testControl = oaUVCCameraTestControl;
   camera->funcs.getControlRange = oaUVCCameraGetControlRange;
   camera->funcs.getControlDiscreteSet = oaUVCCameraGetControlDiscreteSet;
-
-  camera->funcs.startStreaming = oaUVCCameraStartStreaming;
-  camera->funcs.stopStreaming = oaUVCCameraStopStreaming;
-  camera->funcs.isStreaming = oaUVCCameraIsStreaming;
 
   camera->funcs.setResolution = oaUVCCameraSetResolution;
 
