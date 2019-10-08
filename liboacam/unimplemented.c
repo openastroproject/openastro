@@ -144,7 +144,7 @@ _testControl ( oaCamera* camera, int c, oaControlValue* v )
   return -OA_ERR_UNIMPLEMENTED;
 }
 
-
+/*
 static int
 _setResolution ( oaCamera* camera, int x, int y )
 {
@@ -152,7 +152,7 @@ _setResolution ( oaCamera* camera, int x, int y )
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
-
+*/
 
 static int
 _setROI ( oaCamera* camera, int x, int y )
@@ -302,7 +302,7 @@ _oaInitCameraFunctionPointers ( oaCamera* camera )
   camera->funcs.stopStreaming = oacamStopStreaming;
   camera->funcs.isStreaming = oacamIsStreaming;
 
-  camera->funcs.setResolution = _setResolution;
+  camera->funcs.setResolution = oacamSetResolution;
   camera->funcs.setROI = _setROI;
   camera->funcs.setFrameInterval = _setFrameInterval;
 

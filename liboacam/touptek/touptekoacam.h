@@ -39,7 +39,6 @@ extern int		TT_FUNC( oa, CameraGetControlRange )( oaCamera*, int,
 extern int              TT_FUNC( oa, CameraGetControlDiscreteSet )( oaCamera*, int,
                                 int32_t*, int64_t** );
 
-extern int		TT_FUNC( oa, CameraSetResolution )( oaCamera*, int, int );
 extern int		TT_FUNC( oa, CameraSetROI )( oaCamera*, int, int );
 extern int		TT_FUNC( oa, CameraTestROISize )( oaCamera*, unsigned int,
 			    unsigned int, unsigned int*, unsigned int* );

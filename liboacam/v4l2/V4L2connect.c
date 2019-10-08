@@ -1774,8 +1774,6 @@ _V4L2InitFunctionPointers ( oaCamera* camera )
   camera->funcs.getControlRange = oaV4L2CameraGetControlRange;
   camera->funcs.getControlDiscreteSet = oaV4L2CameraGetControlDiscreteSet;
 
-  camera->funcs.setResolution = oaV4L2CameraSetResolution;
-
   // camera->funcs.resetCamera = oaV4L2CameraReset;
 
   camera->funcs.hasAuto = oacamHasAuto;

@@ -35,8 +35,6 @@ extern int              oaQHYCloseCamera ( oaCamera* );
 extern int		oaQHYCameraGetControlRange ( oaCamera*, int, int64_t*,
 				 int64_t*, int64_t*, int64_t* );
 
-extern int		oaQHYCameraSetResolution ( oaCamera*, int, int );
-
 extern void*		oacamQHYcallbackHandler ( void* );
 
 struct qhycam {

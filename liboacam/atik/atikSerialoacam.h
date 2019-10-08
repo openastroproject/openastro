@@ -50,8 +50,6 @@ extern int		oaAtikSerialCameraTestControl ( oaCamera*, int,
 extern int		oaAtikSerialCameraGetControlRange ( oaCamera*, int,
 			    int64_t*, int64_t*, int64_t*, int64_t* );
 
-extern int		oaAtikSerialCameraSetResolution ( oaCamera*, int, int );
-
 extern void*		oacamAtikSerialcontroller ( void* );
 extern void*		oacamAtikSerialcallbackHandler ( void* );
 

@@ -1218,13 +1218,7 @@ _ZWASIInitFunctionPointers ( oaCamera* camera )
   camera->funcs.closeCamera = oaZWASICloseCamera;
 
   camera->funcs.testControl = oaZWASICameraTestControl;
-  camera->funcs.readControl = oaZWASICameraReadControl;
-  camera->funcs.setControl = oaZWASICameraSetControl;
   camera->funcs.getControlRange = oaZWASICameraGetControlRange;
-
-  camera->funcs.startStreaming = oaZWASICameraStartStreaming;
-  camera->funcs.stopStreaming = oaZWASICameraStopStreaming;
-  camera->funcs.isStreaming = oaZWASICameraIsStreaming;
 
   camera->funcs.setResolution = oaZWASICameraSetResolution;
   camera->funcs.setROI = oaZWASICameraSetResolution;

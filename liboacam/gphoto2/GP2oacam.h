@@ -42,8 +42,6 @@ extern int				oaGP2CameraGetControlRange ( oaCamera*, int, int64_t*,
 extern int				oaGP2CameraGetControlDiscreteSet ( oaCamera*, int, int32_t*,
 											int64_t** );
 
-extern int				oaGP2CameraSetResolution ( oaCamera*, int, int );
-
 extern void*			oacamGP2controller ( void* );
 extern void*			oacamGP2callbackHandler ( void* );
 

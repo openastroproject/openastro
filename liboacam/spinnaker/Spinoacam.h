@@ -35,21 +35,11 @@ extern int		oaSpinCloseCamera ( oaCamera* );
 
 extern int		oaSpinCameraTestControl ( oaCamera*, int,
 				oaControlValue* );
-extern int		oaSpinCameraSetControl ( oaCamera*, int,
-				oaControlValue*, int );
-extern int		oaSpinCameraReadControl ( oaCamera*, int,
-				oaControlValue* );
 extern int		oaSpinCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
 extern int		oaSpinCameraGetControlDiscreteSet ( oaCamera*, int,
 				int32_t*, int64_t** );
 
-extern int		oaSpinCameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int, void* ), void* );
-extern int		oaSpinCameraStopStreaming ( oaCamera* );
-extern int		oaSpinCameraIsStreaming ( oaCamera* );
-
-extern int		oaSpinCameraSetResolution ( oaCamera*, int, int );
 extern int		oaSpinCameraSetROI ( oaCamera*, int, int );
 extern int		oaSpinCameraTestROISize ( oaCamera*, unsigned int,
 			    unsigned int, unsigned int*, unsigned int* );

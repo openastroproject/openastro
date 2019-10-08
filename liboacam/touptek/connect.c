@@ -708,7 +708,6 @@ TT_FUNC( _, InitFunctionPointers )( oaCamera* camera )
   camera->funcs.getControlDiscreteSet =
 		TT_FUNC( oa, CameraGetControlDiscreteSet );
 
-  camera->funcs.setResolution = TT_FUNC( oa, CameraSetResolution );
   camera->funcs.setROI = TT_FUNC( oa, CameraSetROI );
   camera->funcs.testROISize = TT_FUNC( oa, CameraTestROISize );
 

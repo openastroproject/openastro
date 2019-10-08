@@ -391,8 +391,6 @@ _IMG132EInitFunctionPointers ( oaCamera* camera )
   camera->funcs.testControl = oaIMG132ECameraTestControl;
   camera->funcs.getControlRange = oaQHYCameraGetControlRange;
 
-  camera->funcs.setResolution = oaQHYCameraSetResolution;
-
   camera->funcs.hasAuto = oacamHasAuto;
 
   camera->funcs.enumerateFrameSizes = oaIMG132ECameraGetFrameSizes;

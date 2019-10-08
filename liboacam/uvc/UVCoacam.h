@@ -44,8 +44,6 @@ extern int		oaUVCCameraGetControlRange ( oaCamera*, int,
 extern int		oaUVCCameraGetControlDiscreteSet ( oaCamera*, int,
 				int32_t*, int64_t** );
 
-extern int		oaUVCCameraSetResolution ( oaCamera*, int, int );
-
 extern void*		oacamUVCcontroller ( void* );
 extern void*		oacamUVCcallbackHandler ( void* );
 

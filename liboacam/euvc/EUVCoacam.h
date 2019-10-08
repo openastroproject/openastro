@@ -37,7 +37,6 @@ extern int		oaEUVCCameraTestControl ( oaCamera*, int,
 extern int		oaEUVCCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
 
-extern int		oaEUVCCameraSetResolution ( oaCamera*, int, int );
 extern int		oaEUVCCameraSetROI ( oaCamera*, int, int );
 extern int		oaEUVCCameraTestROISize ( oaCamera*, unsigned int,
                             unsigned int, unsigned int*, unsigned int* );

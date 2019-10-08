@@ -45,8 +45,6 @@ extern int		oaV4L2CameraGetControlRange ( oaCamera*, int,
 extern int		oaV4L2CameraGetControlDiscreteSet ( oaCamera*, int,
 				int32_t*, int64_t** );
 
-extern int		oaV4L2CameraSetResolution ( oaCamera*, int, int );
-
 extern void*		oacamV4L2controller ( void* );
 extern void*		oacamV4L2callbackHandler ( void* );
 

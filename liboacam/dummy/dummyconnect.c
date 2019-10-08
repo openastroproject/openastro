@@ -352,15 +352,8 @@ _dummyInitFunctionPointers ( oaCamera* camera )
   camera->funcs.closeCamera = oaDummyCloseCamera;
 
   camera->funcs.testControl = oaDummyCameraTestControl;
-  camera->funcs.readControl = oaDummyCameraReadControl;
-  camera->funcs.setControl = oaDummyCameraSetControl;
   camera->funcs.getControlRange = oaDummyCameraGetControlRange;
 
-  camera->funcs.startStreaming = oaDummyCameraStartStreaming;
-  camera->funcs.stopStreaming = oaDummyCameraStopStreaming;
-  camera->funcs.isStreaming = oaDummyCameraIsStreaming;
-
-  // camera->funcs.setResolution = oaDummyCameraSetResolution;
   // camera->funcs.setROI = oaDummyCameraSetResolution;
 
   camera->funcs.hasAuto = oacamHasAuto;

@@ -1149,8 +1149,6 @@ _UVCInitFunctionPointers ( oaCamera* camera )
   camera->funcs.getControlRange = oaUVCCameraGetControlRange;
   camera->funcs.getControlDiscreteSet = oaUVCCameraGetControlDiscreteSet;
 
-  camera->funcs.setResolution = oaUVCCameraSetResolution;
-
   camera->funcs.hasAuto = oacamHasAuto;
   // camera->funcs.isAuto = _isAuto;
 

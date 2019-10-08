@@ -39,7 +39,6 @@ extern int		oaFC2CameraGetControlRange ( oaCamera*, int,
 extern int		oaFC2CameraGetControlDiscreteSet ( oaCamera*, int,
 				int32_t*, int64_t** );
 
-extern int		oaFC2CameraSetResolution ( oaCamera*, int, int );
 extern int		oaFC2CameraSetROI ( oaCamera*, int, int );
 extern int		oaFC2CameraTestROISize ( oaCamera*, unsigned int,
 			    unsigned int, unsigned int*, unsigned int* );

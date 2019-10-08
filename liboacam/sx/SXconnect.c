@@ -427,9 +427,6 @@ _SXInitFunctionPointers ( oaCamera* camera )
   camera->funcs.testControl = oaSXCameraTestControl;
   camera->funcs.getControlRange = oaSXCameraGetControlRange;
 
-  camera->funcs.setResolution = oaSXCameraSetResolution;
-  camera->funcs.setROI = oaSXCameraSetResolution;
-
   camera->funcs.hasAuto = oacamHasAuto;
   // camera->funcs.isAuto = _isAuto;
 

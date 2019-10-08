@@ -529,8 +529,6 @@ _atikSerialInitFunctionPointers ( oaCamera* camera )
   camera->funcs.testControl = oaAtikSerialCameraTestControl;
   camera->funcs.getControlRange = oaAtikSerialCameraGetControlRange;
 
-  camera->funcs.setResolution = oaAtikSerialCameraSetResolution;
-
   camera->funcs.hasAuto = oacamHasAuto;
   // camera->funcs.isAuto = _isAuto;
 

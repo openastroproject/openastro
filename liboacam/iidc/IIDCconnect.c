@@ -682,8 +682,6 @@ _IIDCInitFunctionPointers ( oaCamera* camera )
   camera->funcs.testControl = oaIIDCCameraTestControl;
   camera->funcs.getControlRange = oaIIDCCameraGetControlRange;
 
-  camera->funcs.setResolution = oaIIDCCameraSetResolution;
-
   camera->funcs.hasAuto = oacamHasAuto;
   // camera->funcs.isAuto = _isAuto;
 

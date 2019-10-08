@@ -311,8 +311,6 @@ _QHY5InitFunctionPointers ( oaCamera* camera )
   camera->funcs.testControl = oaQHY5CameraTestControl;
   camera->funcs.getControlRange = oaQHYCameraGetControlRange;
 
-  camera->funcs.setResolution = oaQHYCameraSetResolution;
-
   camera->funcs.hasAuto = oacamHasAuto;
 
   camera->funcs.enumerateFrameSizes = oaQHY5CameraGetFrameSizes;

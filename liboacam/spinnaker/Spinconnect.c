@@ -1124,17 +1124,10 @@ _spinInitFunctionPointers ( oaCamera* camera )
   camera->funcs.initCamera = oaSpinInitCamera;
   camera->funcs.closeCamera = oaSpinCloseCamera;
 
-  camera->funcs.setControl = oaSpinCameraSetControl;
-  camera->funcs.readControl = oaSpinCameraReadControl;
   camera->funcs.testControl = oaSpinCameraTestControl;
   camera->funcs.getControlRange = oaSpinCameraGetControlRange;
   camera->funcs.getControlDiscreteSet = oaSpinCameraGetControlDiscreteSet;
 
-  camera->funcs.startStreaming = oaSpinCameraStartStreaming;
-  camera->funcs.stopStreaming = oaSpinCameraStopStreaming;
-  camera->funcs.isStreaming = oaSpinCameraIsStreaming;
-
-  camera->funcs.setResolution = oaSpinCameraSetResolution;
   camera->funcs.setROI = oaSpinCameraSetROI;
   camera->funcs.testROISize = oaSpinCameraTestROISize;
 

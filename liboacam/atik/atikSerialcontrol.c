@@ -108,31 +108,3 @@ oaAtikSerialCameraTestControl ( oaCamera* camera, int control,
   // And if we reach here it's because the value wasn't valid
   return -OA_ERR_OUT_OF_RANGE;
 }
-
-
-int
-oaAtikSerialCameraSetResolution ( oaCamera* camera, int x, int y )
-{
-  FRAMESIZE		s;
-  OA_COMMAND		command;
-  AtikSerial_STATE*	cameraInfo = camera->_private;
-  int		retval;
-
-  OA_CLEAR ( command );
-  command.commandType = OA_CMD_RESOLUTION_SET;
-  s.x = x;
-  s.y = y;
-  command.commandData = &s;
-  cameraInfo = camera->_private;
-  oaDLListAddToTail ( cameraInfo->commandQueue, &command );
-  pthread_cond_broadcast ( &cameraInfo->commandQueued );
-  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  while ( !command.completed ) {
-    pthread_cond_wait ( &cameraInfo->commandComplete,
-        &cameraInfo->commandQueueMutex );
-  }
-  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
-  retval = command.resultCode;
-
-  return retval;
-}

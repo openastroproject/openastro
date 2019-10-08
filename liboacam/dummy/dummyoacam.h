@@ -33,17 +33,8 @@ extern int              oaDummyCloseCamera ( oaCamera* );
 
 extern int		oaDummyCameraTestControl ( oaCamera*, int,
 				oaControlValue* );
-extern int		oaDummyCameraSetControl ( oaCamera*, int,
-				oaControlValue*, int );
-extern int		oaDummyCameraReadControl ( oaCamera*, int,
-				oaControlValue* );
 extern int		oaDummyCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
-
-extern int		oaDummyCameraStartStreaming ( oaCamera*,
-								void* (*)(void*, void*, int, void* ), void* );
-extern int		oaDummyCameraStopStreaming ( oaCamera* );
-extern int		oaDummyCameraIsStreaming ( oaCamera* );
 
 extern void*		oacamDummyController ( void* );
 extern void*		oacamDummyCallbackHandler ( void* );

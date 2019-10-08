@@ -37,8 +37,6 @@ extern int		oaSXCameraTestControl ( oaCamera*, int,
 extern int		oaSXCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
 
-extern int		oaSXCameraSetResolution ( oaCamera*, int, int );
-
 extern void*		oacamSXcontroller ( void* );
 extern void*		oacamSXcallbackHandler ( void* );
 
