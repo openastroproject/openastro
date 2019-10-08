@@ -38,21 +38,12 @@ extern int		oaV4L2GetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaV4L2InitCamera ( oaCameraDevice* );
 extern int              oaV4L2CloseCamera ( oaCamera* );
 
-extern int		oaV4L2CameraSetControl ( oaCamera*, int,
-				oaControlValue*, int );
 extern int		oaV4L2CameraTestControl ( oaCamera*, int,
-				oaControlValue* );
-extern int		oaV4L2CameraReadControl ( oaCamera*, int,
 				oaControlValue* );
 extern int		oaV4L2CameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
 extern int		oaV4L2CameraGetControlDiscreteSet ( oaCamera*, int,
 				int32_t*, int64_t** );
-
-extern int		oaV4L2CameraStartStreaming ( oaCamera*,
-				void* (*)(void*, void*, int, void* ), void* );
-extern int		oaV4L2CameraStopStreaming ( oaCamera* );
-extern int		oaV4L2CameraIsStreaming ( oaCamera* );
 
 extern int		oaV4L2CameraSetResolution ( oaCamera*, int, int );
 

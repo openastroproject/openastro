@@ -1770,15 +1770,9 @@ _V4L2InitFunctionPointers ( oaCamera* camera )
   camera->funcs.initCamera = oaV4L2InitCamera;
   camera->funcs.closeCamera = oaV4L2CloseCamera;
 
-  camera->funcs.readControl = oaV4L2CameraReadControl;
-  camera->funcs.setControl = oaV4L2CameraSetControl;
   camera->funcs.testControl = oaV4L2CameraTestControl;
   camera->funcs.getControlRange = oaV4L2CameraGetControlRange;
   camera->funcs.getControlDiscreteSet = oaV4L2CameraGetControlDiscreteSet;
-
-  camera->funcs.startStreaming = oaV4L2CameraStartStreaming;
-  camera->funcs.stopStreaming = oaV4L2CameraStopStreaming;
-  camera->funcs.isStreaming = oaV4L2CameraIsStreaming;
 
   camera->funcs.setResolution = oaV4L2CameraSetResolution;
 
