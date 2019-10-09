@@ -718,9 +718,6 @@ TT_FUNC( _, InitFunctionPointers )( oaCamera* camera )
   camera->funcs.getFramePixelFormat = TT_FUNC( oa, CameraGetFramePixelFormat );
 
   camera->funcs.getMenuString = TT_FUNC( oa, CameraGetMenuString );
-
-	camera->funcs.startExposure = TT_FUNC( oa, CameraStartExposure );
-	camera->funcs.abortExposure = TT_FUNC( oa, CameraAbortExposure );
 }
 
 
