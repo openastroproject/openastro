@@ -184,7 +184,7 @@ _oldQHY6InitCamera ( oaCamera* camera )
 
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY * 2;
-  cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct QHYbuffer ));
+  cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( frameBuffer ));
   for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
     void* m = malloc ( cameraInfo->imageBufferLength );
     if ( m ) {

@@ -30,11 +30,8 @@
 #include <sys/types.h>
 #include <gphoto2/gphoto2-camera.h>
 
+#include "sharedState.h"
 
-struct GP2buffer {
-  void   *start;
-  size_t length;
-};
 
 typedef struct GP2_STATE {
 	// Data common to all interfaces comes first, so it can be shared across
@@ -126,7 +123,7 @@ typedef struct GP2_STATE {
   int									bytesPerPixel;
   int									maxBytesPerPixel;
   // buffering for image transfers
-  struct GP2buffer*		buffers;
+  frameBuffer*				buffers;
   unsigned int				currentBufferLength[ OA_CAM_BUFFERS ];
   // handling exposures
   int									exposurePending;

@@ -30,10 +30,7 @@
 
 #include <openastro/util.h>
 
-struct ZWASIbuffer {  
-  void   *start; 
-  size_t length; 
-};
+#include "sharedState.h"
 
 
 typedef struct ZWASI_STATE {
@@ -89,7 +86,7 @@ typedef struct ZWASI_STATE {
   int32_t		maxBitDepth;
   int32_t		greyscaleMode;
   // buffering for image transfers
-  struct ZWASIbuffer*	buffers;
+  frameBuffer*	buffers;
   // camera settings
   int			binMode;
   // control values

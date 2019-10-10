@@ -1260,7 +1260,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   multiplier = cameraInfo->maxBitDepth / 8;
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY * multiplier;
-  cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct ZWASIbuffer ));
+  cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( frameBuffer ));
   for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
     void* m = malloc ( cameraInfo->imageBufferLength );
     if ( m ) {

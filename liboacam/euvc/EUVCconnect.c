@@ -1282,7 +1282,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
       cameraInfo->maxResolutionY * cameraInfo->bytesPerPixel;
 
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
-      sizeof ( struct EUVCbuffer )))) {
+      sizeof ( frameBuffer )))) {
     void* dummy;
     fprintf ( stderr, "malloc of buffer array failed in %s\n",
         __FUNCTION__ );

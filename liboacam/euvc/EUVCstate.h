@@ -32,11 +32,7 @@
 #include <libusb-1.0/libusb.h>
 #include <pthread.h>
 
-struct EUVCbuffer {
-  void   *start;
-  size_t length;
-};
-
+#include "sharedState.h"
 
 typedef struct EUVC_STATE {
 	// Data common to all interfaces comes first, so it can be shared across
@@ -102,7 +98,7 @@ typedef struct EUVC_STATE {
 	int							reattachStreamIface;
   // video mode settings
   // buffering for image transfers
-  struct EUVCbuffer*	buffers;
+  frameBuffer*		buffers;
   struct libusb_transfer* transfers[ EUVC_NUM_TRANSFER_BUFS ];
   unsigned char*	transferBuffers[ EUVC_NUM_TRANSFER_BUFS ];
   // camera status

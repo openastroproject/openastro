@@ -620,8 +620,7 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   cameraInfo->buffers = 0;
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY * cameraInfo->maxBytesPerPixel;
-  cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof (
-      struct Touptekbuffer ));
+  cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( frameBuffer ));
   for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
     void* m = malloc ( cameraInfo->imageBufferLength );
     if ( m ) {

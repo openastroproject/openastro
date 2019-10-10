@@ -32,10 +32,8 @@
 #include <linux/videodev2.h>
 #include <linux/limits.h>
 
-struct buffer {
-  void   *start;
-  size_t length;
-};
+#include "sharedState.h"
+
 
 typedef struct V4L2_STATE {
 	// Data common to all interfaces comes first, so it can be shared across
@@ -86,7 +84,7 @@ typedef struct V4L2_STATE {
   uint32_t		currentFrameFormat;
   uint32_t		currentV4L2Format;
   // buffering for image transfers
-  struct buffer*	buffers;
+  frameBuffer*			buffers;
   struct v4l2_buffer	currentFrame[ OA_CAM_BUFFERS ];
   // camera status
   int			colourDxK;

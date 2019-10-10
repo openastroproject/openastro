@@ -31,10 +31,8 @@
 #include <sys/types.h>
 #include <libuvc/libuvc.h>
 
-struct UVCbuffer {
-  void   *start;
-  size_t length;
-};
+#include "sharedState.h"
+
 
 typedef struct UVC_STATE {
 	// Data common to all interfaces comes first, so it can be shared across
@@ -93,7 +91,7 @@ typedef struct UVC_STATE {
   const uvc_format_desc_t* frameFormatMap[ OA_PIX_FMT_LAST_P1 ];
   enum uvc_frame_format	frameFormatIdMap[ OA_PIX_FMT_LAST_P1 ];
   // buffering for image transfers
-  struct UVCbuffer*     buffers;
+  frameBuffer*			    buffers;
   unsigned int          currentFrameLength;
   // camera status
   unsigned int          isColour;

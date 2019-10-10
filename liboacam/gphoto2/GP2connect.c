@@ -710,7 +710,7 @@ fprintf ( stderr, "have acpower flag\n" );
 	for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
 		cameraInfo->currentBufferLength[i] = 0;
 	}
-	cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct GP2buffer ));
+	cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( frameBuffer ));
 
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       oacamGP2controller, ( void* ) camera )) {

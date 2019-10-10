@@ -276,7 +276,7 @@ oaDummyInitCamera ( oaCameraDevice* device )
   multiplier = cameraInfo->cameraType ? 2 : 1;
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY * multiplier;
-  cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct dummyBuffer ));
+  cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( frameBuffer ));
   for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
     void* m = malloc ( cameraInfo->imageBufferLength );
     if ( m ) {

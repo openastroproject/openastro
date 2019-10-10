@@ -30,10 +30,8 @@
 #include <qhyccd/qhyccd.h>
 #include <openastro/util.h>
 
-struct qhyccdbuffer {
-  void   *start;
-  size_t length;
-};
+#include "sharedState.h"
+
 
 typedef struct qhyccdcam_STATE {
 	// Data common to all interfaces comes first, so it can be shared across
@@ -87,7 +85,7 @@ typedef struct qhyccdcam_STATE {
   int							has16Bit;
 
   // buffering for image transfers
-  struct qhyccdbuffer*	buffers;
+  frameBuffer*		buffers;
 
   // camera status
   int			currentBitsPerPixel; // this may be redundant

@@ -30,13 +30,8 @@
 #include <sys/types.h>
 #include <pthread.h>
 
-struct atikSerialbuffer {
-  void   *start;
-  size_t length;
-};
+#include "sharedState.h"
 
-
-struct AtikSerial_STATE;
 
 typedef struct AtikSerial_STATE {
 	// Data common to all interfaces comes first, so it can be shared across
@@ -98,9 +93,9 @@ typedef struct AtikSerial_STATE {
                             unsigned char*, int );
   // video mode settings
   // buffering for image transfers
-  struct atikSerialbuffer* buffers;
+  frameBuffer*		buffers;
   // camera status
-  unsigned int          cameraFlags;
+  unsigned int    cameraFlags;
   unsigned int		hardwareType;
   unsigned int		haveFIFO;
   unsigned int		colour;

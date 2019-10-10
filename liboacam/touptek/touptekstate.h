@@ -30,11 +30,8 @@
 #include <openastro/util.h>
 
 #include "touptek-conf.h"
+#include "sharedState.h"
 
-struct Touptekbuffer {
-  void   *start;
-  size_t length;
-};
 
 typedef struct Touptek_STATE {
 	// Data common to all interfaces comes first, so it can be shared across
@@ -87,7 +84,7 @@ typedef struct Touptek_STATE {
   float			currentBytesPerPixel;
   int			currentVideoFormat;
   // buffering for image transfers
-  struct Touptekbuffer*	buffers;
+  frameBuffer*	buffers;
   // camera status
   unsigned int		currentXResolution;
   unsigned int		currentYResolution;

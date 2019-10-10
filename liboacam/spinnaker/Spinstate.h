@@ -30,10 +30,8 @@
 #include <spinnaker/spinc/SpinnakerC.h>
 #include <openastro/util.h>
 
-struct Spinbuffer {
-  void   *start;
-  size_t length;
-};
+#include "sharedState.h"
+
 
 typedef struct SPINNAKER_STATE {
 	// Data common to all interfaces comes first, so it can be shared across

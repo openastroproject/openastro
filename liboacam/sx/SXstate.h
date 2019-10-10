@@ -33,10 +33,7 @@
 
 #include <openastro/util.h>
 
-struct SXbuffer {
-  void   *start;
-  size_t length;
-};
+#include "sharedState.h"
 
 
 typedef struct SX_STATE {
@@ -91,7 +88,7 @@ typedef struct SX_STATE {
   uint32_t		verticalFrontPorch;
   uint32_t		verticalBackPorch;
   // buffering for image transfers
-  struct SXbuffer*	buffers;
+  frameBuffer*		buffers;
   unsigned int          actualImageLength;
   // camera status
   unsigned int          isColour;

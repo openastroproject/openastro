@@ -165,7 +165,7 @@ _QHY5IIInitCamera ( oaCamera* camera )
       cameraInfo->maxResolutionY ) + QHY5II_EOF_LEN;
 
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
-      sizeof ( struct QHYbuffer )))) {
+      sizeof ( frameBuffer )))) {
     fprintf ( stderr, "malloc of buffer array failed in %s\n",
         __FUNCTION__ );
     cameraInfo->stopCallbackThread = 1;

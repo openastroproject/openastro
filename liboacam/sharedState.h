@@ -28,7 +28,15 @@
 #ifndef OA_SHARED_STATE_H
 #define OA_SHARED_STATE_H
 
+#include <sys/types.h>
+
 #include <openastro/camera.h>
+
+
+typedef struct FRAME_BUFFER {
+	void*			start;
+	size_t		length;
+} frameBuffer;
 
 typedef struct SHARED_STATE {
 	// Data common to all interfaces comes first, so it can be shared across

@@ -340,7 +340,7 @@ oaSXInitCamera ( oaCameraDevice* device )
   }
 
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
-      sizeof ( struct SXbuffer )))) {
+      sizeof ( frameBuffer )))) {
     fprintf ( stderr, "malloc of buffer array failed in %s\n",
         __FUNCTION__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );

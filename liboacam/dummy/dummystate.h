@@ -29,10 +29,7 @@
 
 #include <openastro/util.h>
 
-struct dummyBuffer {  
-  void   *start; 
-  size_t length; 
-};
+#include "sharedState.h"
 
 
 typedef struct DUMMY_STATE {
@@ -78,7 +75,7 @@ typedef struct DUMMY_STATE {
 	// END OF COMMON DATA
 
   // buffering for image transfers
-  struct dummyBuffer*	buffers;
+  frameBuffer*			buffers;
   // camera settings
   int			binMode;
   uint32_t		currentBrightness;

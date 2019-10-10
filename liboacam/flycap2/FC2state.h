@@ -30,10 +30,8 @@
 #include <flycapture/C/FlyCapture2_C.h>
 #include <openastro/util.h>
 
-struct FC2buffer {
-  void   *start;
-  size_t length;
-};
+#include "sharedState.h"
+
 
 typedef struct FC2_STATE {
 	// Data common to all interfaces comes first, so it can be shared across
@@ -85,7 +83,7 @@ typedef struct FC2_STATE {
   int			bigEndian;
   unsigned int		availableBinModes;
   // buffering for image transfers
-  struct FC2buffer*	buffers;
+  frameBuffer*		buffers;
 	FRAME_METADATA*		metadataBuffers;
   // camera status
   int			colour;

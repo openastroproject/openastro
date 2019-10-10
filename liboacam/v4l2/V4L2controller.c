@@ -1229,7 +1229,7 @@ _doStart ( V4L2_STATE* cameraInfo )
   cameraInfo->nextBuffer = 0;
   cameraInfo->configuredBuffers = 0;
   cameraInfo->buffersFree = 0;
-  if (!( cameraInfo->buffers = calloc( req.count, sizeof ( struct buffer )))) {
+  if (!( cameraInfo->buffers = calloc( req.count, sizeof ( frameBuffer )))) {
     fprintf ( stderr, "%s: calloc of transfer buffers failed\n", __FUNCTION__ );
     return -OA_ERR_MEM_ALLOC;
   }

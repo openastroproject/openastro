@@ -1358,7 +1358,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   cameraInfo->buffers = 0;
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY * cameraInfo->maxBytesPerPixel;
-  cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct FC2buffer ));
+  cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( frameBuffer ));
   cameraInfo->metadataBuffers = calloc ( OA_CAM_BUFFERS,
 			sizeof ( FRAME_METADATA ));
   for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {

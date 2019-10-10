@@ -32,10 +32,7 @@
 #include <libusb-1.0/libusb.h>
 #include <pthread.h>
 
-struct QHYbuffer {
-  void   *start;
-  size_t length;
-};
+#include "sharedState.h"
 
 
 typedef struct QHY_STATE {
@@ -87,7 +84,7 @@ typedef struct QHY_STATE {
   // video mode settings
   unsigned int          currentFrameFormat;
   // buffering for image transfers
-  struct QHYbuffer*     buffers;
+  frameBuffer*     buffers;
   unsigned int          captureLength;
   struct libusb_transfer* transfers [ QHY_NUM_TRANSFER_BUFS ];
   uint8_t*		transferBuffers [ QHY_NUM_TRANSFER_BUFS ];

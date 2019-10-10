@@ -31,6 +31,9 @@
 #include <dc1394/dc1394.h>
 #include <openastro/util.h>
 
+#include "sharedState.h"
+
+
 typedef struct IIDC_STATE {
 	// Data common to all interfaces comes first, so it can be shared across
 	// a union of all state structures
