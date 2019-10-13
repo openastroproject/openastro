@@ -51,6 +51,9 @@ typedef struct GP2_STATE {
   pthread_cond_t		callbackQueued;
   CALLBACK					frameCallbacks[ OA_CAM_BUFFERS ];
   int								stopCallbackThread;
+	pthread_t					timerThread;
+	pthread_cond_t		timerState;
+	pthread_mutex_t		timerMutex;
   // queues for controls and callbacks
   DL_LIST						commandQueue;
   DL_LIST						callbackQueue;
