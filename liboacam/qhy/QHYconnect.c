@@ -184,13 +184,9 @@ oaQHYInitCamera ( oaCameraDevice* device )
   cameraInfo->droppedFrames = 0;
   cameraInfo->isColour = devInfo->colour;
 
-  // This first one probably isn't required any more
+  // This probably isn't required any more
   pthread_mutex_init ( &cameraInfo->usbMutex, 0 );
-  pthread_mutex_init ( &cameraInfo->commandQueueMutex, 0 );
-  pthread_mutex_init ( &cameraInfo->callbackQueueMutex, 0 );
-  pthread_cond_init ( &cameraInfo->callbackQueued, 0 );
-  pthread_cond_init ( &cameraInfo->commandQueued, 0 );
-  pthread_cond_init ( &cameraInfo->commandComplete, 0 );
+
   cameraInfo->isStreaming = 0;
 
   switch ( cameraInfo->cameraType ) {

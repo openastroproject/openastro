@@ -691,12 +691,6 @@ fprintf ( stderr, "have acpower flag\n" );
 		}
 	}
 
-  pthread_mutex_init ( &cameraInfo->commandQueueMutex, 0 );
-  pthread_mutex_init ( &cameraInfo->callbackQueueMutex, 0 );
-  pthread_cond_init ( &cameraInfo->callbackQueued, 0 );
-  pthread_cond_init ( &cameraInfo->commandQueued, 0 );
-  pthread_cond_init ( &cameraInfo->commandComplete, 0 );
-
   cameraInfo->exposurePending = cameraInfo->exposureInProgress = 0;
 	cameraInfo->captureEnabled = 0;
 

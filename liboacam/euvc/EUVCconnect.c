@@ -1207,17 +1207,11 @@ oaEUVCInitCamera ( oaCameraDevice* device )
     fprintf ( stderr, "need to set up frame rates\n" );
   }
 
-
-  // need to initialise these first two here so they're available for the
+  // need to initialise these two here so they're available for the
   // euvcUsbReadRegister call
 
   pthread_mutex_init ( &cameraInfo->usbMutex, 0 );
-  pthread_mutex_init ( &cameraInfo->commandQueueMutex, 0 );
-  pthread_mutex_init ( &cameraInfo->callbackQueueMutex, 0 );
   pthread_mutex_init ( &cameraInfo->videoCallbackMutex, 0 );
-  pthread_cond_init ( &cameraInfo->callbackQueued, 0 );
-  pthread_cond_init ( &cameraInfo->commandQueued, 0 );
-  pthread_cond_init ( &cameraInfo->commandComplete, 0 );
   cameraInfo->isStreaming = 0;
 
   // Set up the status transfer and callback

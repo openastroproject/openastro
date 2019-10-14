@@ -175,11 +175,6 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   OA_CLEAR ( camera->features );
   _V4L2InitFunctionPointers ( camera );
 
-  pthread_mutex_init ( &cameraInfo->commandQueueMutex, 0 );
-  pthread_mutex_init ( &cameraInfo->callbackQueueMutex, 0 );
-  pthread_cond_init ( &cameraInfo->callbackQueued, 0 );
-  pthread_cond_init ( &cameraInfo->commandQueued, 0 );
-  pthread_cond_init ( &cameraInfo->commandComplete, 0 );
   cameraInfo->isStreaming = 0;
 
   /*

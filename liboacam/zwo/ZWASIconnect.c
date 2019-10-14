@@ -84,11 +84,6 @@ oaZWASIInitCamera ( oaCameraDevice* device )
   OA_CLEAR ( camera->features );
   _ZWASIInitFunctionPointers ( camera );
 
-  pthread_mutex_init ( &cameraInfo->commandQueueMutex, 0 );
-  pthread_mutex_init ( &cameraInfo->callbackQueueMutex, 0 );
-  pthread_cond_init ( &cameraInfo->callbackQueued, 0 );
-  pthread_cond_init ( &cameraInfo->commandQueued, 0 );
-  pthread_cond_init ( &cameraInfo->commandComplete, 0 );
   cameraInfo->isStreaming = 0;
 
   // FIX ME -- should check from scratch for the genuine default values
@@ -1220,7 +1215,6 @@ _ZWASIInitFunctionPointers ( oaCamera* camera )
   camera->funcs.testControl = oaZWASICameraTestControl;
   camera->funcs.getControlRange = oaZWASICameraGetControlRange;
 
-  camera->funcs.setResolution = oaZWASICameraSetResolution;
   camera->funcs.setROI = oaZWASICameraSetResolution;
 
   camera->funcs.hasAuto = oacamHasAuto;

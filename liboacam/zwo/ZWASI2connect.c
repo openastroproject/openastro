@@ -97,11 +97,6 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
   _ZWASIInitFunctionPointers ( camera );
 
-  pthread_mutex_init ( &cameraInfo->commandQueueMutex, 0 );
-  pthread_mutex_init ( &cameraInfo->callbackQueueMutex, 0 );
-  pthread_cond_init ( &cameraInfo->callbackQueued, 0 );
-  pthread_cond_init ( &cameraInfo->commandQueued, 0 );
-  pthread_cond_init ( &cameraInfo->commandComplete, 0 );
   cameraInfo->isStreaming = 0;
 
   if ( p_ASIGetNumOfControls ( cameraInfo->cameraId, &numControls )) {

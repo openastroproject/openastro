@@ -26,10 +26,15 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
+#include <pthread.h>
+
 #include <openastro/camera.h>
+#include <openastro/util.h>
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
+#include "sharedState.h"
 
 
 void
@@ -76,7 +81,7 @@ _oaInitCameraStructs ( oaCamera** camera, void** state, size_t stateSize,
 		COMMON_INFO** common )
 {
 	oaCamera*			p_camera;
-	void*					p_state;
+	SHARED_STATE*	p_state;
 	COMMON_INFO*	p_common;
 
 	if (!( p_camera = ( oaCamera* ) malloc ( sizeof ( oaCamera )))) {
@@ -110,6 +115,14 @@ _oaInitCameraStructs ( oaCamera** camera, void** state, size_t stateSize,
 	p_camera->_common = p_common;
 
 	_oaInitCameraFunctionPointers ( p_camera );
+
+	pthread_mutex_init ( &p_state->commandQueueMutex, 0 );
+	pthread_mutex_init ( &p_state->callbackQueueMutex, 0 );
+	pthread_mutex_init ( &p_state->timerMutex, 0 );
+	pthread_cond_init ( &p_state->callbackQueued, 0 );
+	pthread_cond_init ( &p_state->commandQueued, 0 );
+	pthread_cond_init ( &p_state->commandComplete, 0 );
+	pthread_cond_init ( &p_state->timerState, 0 );
 
 	return OA_ERR_NONE;
 }
