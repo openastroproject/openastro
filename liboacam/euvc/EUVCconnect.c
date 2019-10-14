@@ -1212,7 +1212,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 
   pthread_mutex_init ( &cameraInfo->usbMutex, 0 );
   pthread_mutex_init ( &cameraInfo->videoCallbackMutex, 0 );
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
   // Set up the status transfer and callback
 

@@ -79,7 +79,7 @@ oacamFC2controller ( void* param )
     } else {
       pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
       // stop us busy-waiting
-      streaming = cameraInfo->isStreaming;
+      streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
       if ( !streaming && oaDLListIsEmpty ( cameraInfo->commandQueue )) {
         pthread_cond_wait ( &cameraInfo->commandQueued,
             &cameraInfo->commandQueueMutex );
@@ -544,7 +544,7 @@ _processSetResolution ( FC2_STATE* cameraInfo, OA_COMMAND* command )
   settings.offsetX = ( imageInfo.maxWidth - size->x ) / 2;
   settings.offsetY = ( imageInfo.maxHeight - size->y ) / 2;
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
     restart = 1;
     _doStop ( cameraInfo );
   }
@@ -625,7 +625,7 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
   settings.offsetX = ( imageInfo.maxWidth - x ) / 2;
   settings.offsetY = ( imageInfo.maxHeight - y ) / 2;
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
     restart = 1;
     _doStop ( cameraInfo );
   }
@@ -668,7 +668,7 @@ _processStreamingStart ( FC2_STATE* cameraInfo, OA_COMMAND* command )
   CALLBACK*		cb = command->commandData;
   fc2GigEImageSettings  settings;
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STOPPED ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
@@ -723,7 +723,7 @@ _doStart ( FC2_STATE* cameraInfo )
   }
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 1;
+  cameraInfo->runMode = CAM_RUN_MODE_STREAMING;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   return OA_ERR_NONE;
@@ -733,7 +733,7 @@ _doStart ( FC2_STATE* cameraInfo )
 static int
 _processStreamingStop ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 {
-  if ( !cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STREAMING ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
@@ -747,7 +747,7 @@ _doStop ( FC2_STATE* cameraInfo )
   int		ret;
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   if (( ret = ( *p_fc2StopCapture )( cameraInfo->pgeContext )) !=
@@ -1067,7 +1067,7 @@ _doBinning ( FC2_STATE* cameraInfo, int binMode )
 
   mode = cameraInfo->frameModes[ binMode ][ found ].mode;
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
     restart = 1;
     _doStop ( cameraInfo );
   }
@@ -1170,7 +1170,7 @@ _doFrameFormat ( FC2_STATE* cameraInfo, int format )
       break;
   }
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
     restart = 1;
     _doStop ( cameraInfo );
   }

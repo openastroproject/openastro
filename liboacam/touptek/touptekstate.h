@@ -34,49 +34,8 @@
 
 
 typedef struct Touptek_STATE {
-	// Data common to all interfaces comes first, so it can be shared across
-	// a union of all state structures
-  int								initialised;
-  // camera details
-  unsigned long			index;
-  int								cameraType;
-  // thread management
-  pthread_t					controllerThread;
-  pthread_mutex_t		commandQueueMutex;
-  pthread_cond_t		commandComplete;
-  pthread_cond_t		commandQueued;
-  int								stopControllerThread;
-  pthread_t					callbackThread;
-  pthread_mutex_t		callbackQueueMutex;
-  pthread_cond_t		callbackQueued;
-  CALLBACK					frameCallbacks[ OA_CAM_BUFFERS ];
-  int								stopCallbackThread;
-	pthread_t					timerThread;
-	pthread_cond_t		timerState;
-	pthread_mutex_t		timerMutex;
-  // queues for controls and callbacks
-  DL_LIST						commandQueue;
-  DL_LIST						callbackQueue;
-  // streaming
-  int								isStreaming;
-  CALLBACK					streamingCallback;
-	int								exposureInProgress;
-	int								abortExposure;
-	// shared buffer config
-  int								configuredBuffers;
-  unsigned char*		xferBuffer;
-  unsigned int			imageBufferLength;
-  int								nextBuffer;
-  int								buffersFree;
-	// common image config
-  unsigned int			maxResolutionX;
-  unsigned int			maxResolutionY;
-  FRAMESIZES				frameSizes[ OA_MAX_BINNING+1 ];
-	// common camera settings
-  unsigned int			xSize;
-  unsigned int			ySize;
 
-	// END OF COMMON DATA
+#include "sharedDecs.h"
 
 	unsigned int	libMajorVersion;
 	unsigned int	libMinorVersion;
@@ -94,6 +53,7 @@ typedef struct Touptek_STATE {
   int			colour;
   int32_t		exposureMin;
   int32_t		exposureMax;
+  int32_t		exposureTime;
   int32_t		gainMin;
   int32_t		gainMax;
   int32_t		speedMax;

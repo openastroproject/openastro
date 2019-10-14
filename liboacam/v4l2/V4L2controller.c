@@ -102,7 +102,7 @@ oacamV4L2controller ( void* param )
     } else {
       pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
       // stop us busy-waiting
-      if ( !cameraInfo->isStreaming &&
+      if ( cameraInfo->runMode == CAM_RUN_MODE_STOPPED &&
           oaDLListIsEmpty ( cameraInfo->commandQueue )) {
         pthread_cond_wait ( &cameraInfo->commandQueued,
             &cameraInfo->commandQueueMutex );
@@ -113,7 +113,7 @@ oacamV4L2controller ( void* param )
     do {
       command = oaDLListRemoveFromHead ( cameraInfo->commandQueue );
       pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-      streaming = cameraInfo->isStreaming;
+      streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
       pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
       if ( command ) {
         // This is a bit cack.  Need a neater way to handle this
@@ -205,7 +205,7 @@ oacamV4L2controller ( void* param )
           // This mutex prevents attempts to dequeue frames if streaming
           // has stopped since we last checked
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-          streaming = cameraInfo->isStreaming;
+					streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
           if ( streaming ) {
             OA_CLEAR( cameraInfo->currentFrame[ nextBuffer ]);
             frame = &cameraInfo->currentFrame[ nextBuffer ];
@@ -851,7 +851,7 @@ _processSetResolution ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
   cameraInfo->ySize = size->y;
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  streaming = cameraInfo->isStreaming;
+	streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
   if ( streaming ) {
     return _doCameraConfig ( cameraInfo, command );
@@ -962,7 +962,7 @@ _processSetFrameFormat ( V4L2_STATE* cameraInfo, unsigned int format,
     pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
     cameraInfo->currentV4L2Format = v4l2Format;
     cameraInfo->currentFrameFormat = format;
-    streaming = cameraInfo->isStreaming;
+		streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
     pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
     if ( streaming ) {
       return _doCameraConfig ( cameraInfo, command );
@@ -982,7 +982,7 @@ _processSetFrameInterval ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
   cameraInfo->frameRateNumerator = rate->numerator;
   cameraInfo->frameRateDenominator = rate->denominator;
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  streaming = cameraInfo->isStreaming;
+	streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
   if ( streaming ) {
     return _doCameraConfig ( cameraInfo, command );
@@ -1142,7 +1142,7 @@ _processStreamingStart ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
 {
   CALLBACK*    			cb = command->commandData;
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STOPPED ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
@@ -1292,7 +1292,7 @@ _doStart ( V4L2_STATE* cameraInfo )
   }
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 1;
+  cameraInfo->runMode = CAM_RUN_MODE_STREAMING;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
   return OA_ERR_NONE;
 }
@@ -1305,12 +1305,12 @@ _processStreamingStop ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
   unsigned int		n;
   enum v4l2_buf_type	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-  if ( !cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STREAMING ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_STREAMOFF, &type ) < 0 ) {

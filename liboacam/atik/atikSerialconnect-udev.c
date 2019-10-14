@@ -279,7 +279,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
       OA_CTRL_TYPE_INT64;

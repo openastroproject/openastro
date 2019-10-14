@@ -401,7 +401,7 @@ oacamIsStreaming ( oaCamera* camera )
 {
   SHARED_STATE*	cameraInfo = camera->_private;
 
-  return ( cameraInfo->isStreaming );
+  return ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
 }
 
 

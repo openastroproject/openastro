@@ -107,7 +107,7 @@ SUBDIRS	= euvc iidc pwc qhy sx uvc dummy $(ALTAIRDIR) $(ATIKDIR) \
 	$(RISINGCAMDIR) .
 
 liboacam_la_SOURCES = \
-  control.c debug.c oacam.c unimplemented.c utils.c
+  control.c debug.c oacam.c unimplemented.c utils.c timer.c
 
 liboacam_la_LIBADD = euvc/libeuvc.la iidc/libiidc.la pwc/libpwc.la \
   qhy/libqhy.la sx/libsx.la uvc/libuvc.la dummy/libdummy.la $(ALTAIRLIB) \

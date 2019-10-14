@@ -97,7 +97,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
   _ZWASIInitFunctionPointers ( camera );
 
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
   if ( p_ASIGetNumOfControls ( cameraInfo->cameraId, &numControls )) {
     fprintf ( stderr, "%s: ASIGetNumOfControls returns error\n",

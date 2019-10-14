@@ -77,7 +77,7 @@ oacamV4L2callbackHandler ( void* param )
               callback->bufferLen, 0 );
           // We can only requeue frames if we're still streaming
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-          streaming = cameraInfo->isStreaming;
+          streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
           pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
           if ( streaming ) {
             if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_QBUF, frameData )) {

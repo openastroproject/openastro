@@ -70,7 +70,7 @@ extern HRESULT		( *TT_LIB_PTR( StartPushModeV2 ))( TT_HANDLE,
 extern HRESULT		( *TT_LIB_PTR( Stop ))( TT_HANDLE );
 extern HRESULT		( *TT_LIB_PTR( Pause ))( TT_HANDLE, int );
 extern HRESULT		( *TT_LIB_PTR( Snap ))( TT_HANDLE, unsigned );
-extern HRESULT		( *TT_LIB_PTR( Trigger ))( TT_HANDLE );
+extern HRESULT		( *TT_LIB_PTR( Trigger ))( TT_HANDLE, unsigned short );
 extern HRESULT		( *TT_LIB_PTR( get_Size ))( TT_HANDLE, int*, int* );
 extern HRESULT		( *TT_LIB_PTR( put_Size ))( TT_HANDLE, int, int );
 extern HRESULT		( *TT_LIB_PTR( get_eSize ))( TT_HANDLE, unsigned* );

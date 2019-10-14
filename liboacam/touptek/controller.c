@@ -52,10 +52,11 @@ static int	_doStart ( TOUPTEK_STATE* );
 static int	_doStop ( TOUPTEK_STATE* );
 static int	_setBinning ( TOUPTEK_STATE*, int );
 static int	_setFrameFormat ( TOUPTEK_STATE*, int );
-static void TT_FUNC( _, PullCallbackV1 )( unsigned int, void* );
-static void TT_FUNC( _, PullCallbackV2 )( unsigned int, void* );
-static void _completeCallback ( TOUPTEK_STATE*, const void*, int, int,
-								unsigned int );
+static void	TT_FUNC( _, PullCallbackV1 )( unsigned int, void* );
+static void	TT_FUNC( _, PullCallbackV2 )( unsigned int, void* );
+static void	_completeCallback ( TOUPTEK_STATE*, const void*, int, int,
+									unsigned int );
+static void	_timerCallback ( void* );
 /*
 static int	_setColourMode ( TOUPTEK_STATE*, int );
 static int	_setBitDepth ( TOUPTEK_STATE*, int );
@@ -81,7 +82,7 @@ TT_FUNC( oacam, controller )( void* param )
     } else {
       pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
       // stop us busy-waiting
-      streaming = cameraInfo->isStreaming;
+      streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ? 1 : 0 );
       if ( !streaming && oaDLListIsEmpty ( cameraInfo->commandQueue )) {
         pthread_cond_wait ( &cameraInfo->commandQueued,
             &cameraInfo->commandQueueMutex );
@@ -305,6 +306,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       } else {
         return -OA_ERR_OUT_OF_RANGE;
       }
+			cameraInfo->exposureTime = val;
       return OA_ERR_NONE;
       break;
 
@@ -711,7 +713,7 @@ _processSetResolution ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
     return -OA_ERR_OUT_OF_RANGE;
   }
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
     restart = 1;
     _doStop ( cameraInfo );
   }
@@ -787,7 +789,7 @@ _processStreamingStart ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 {
   CALLBACK*		cb = command->commandData;
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STOPPED ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
@@ -823,7 +825,7 @@ _doStart ( TOUPTEK_STATE* cameraInfo )
 	}
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 1;
+  cameraInfo->runMode = CAM_RUN_MODE_STREAMING;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
   return OA_ERR_NONE;
 }
@@ -832,7 +834,7 @@ _doStart ( TOUPTEK_STATE* cameraInfo )
 static int
 _processStreamingStop ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 {
-  if ( !cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STREAMING ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
@@ -846,7 +848,7 @@ _doStop ( TOUPTEK_STATE* cameraInfo )
   int		ret;
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   if (( ret = ( TT_LIB_PTR( Stop ))( cameraInfo->handle )) < 0 ) {
@@ -875,7 +877,7 @@ _setBinning ( TOUPTEK_STATE* cameraInfo, int binMode )
     return -OA_ERR_CAMERA_IO;
   }
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
     restart = 1;
     _doStop ( cameraInfo );
   }
@@ -912,7 +914,7 @@ _setFrameFormat ( TOUPTEK_STATE* cameraInfo, int format )
     // FIX ME -- could make this more effcient by doing nothing here unless
     // we need to change it
 
-    if ( cameraInfo->isStreaming ) {
+    if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
       restart = 1;
       _doStop ( cameraInfo );
     }
@@ -962,7 +964,7 @@ _processExposureStart ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
   CALLBACK*		cb = command->commandData;
 	int					ret;
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
@@ -970,27 +972,43 @@ _processExposureStart ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 		return OA_ERR_NONE;
 	}
 
-  cameraInfo->streamingCallback.callback = cb->callback;
-  cameraInfo->streamingCallback.callbackArg = cb->callbackArg;
+	if ( cameraInfo->runMode == CAM_RUN_MODE_STOPPED ) {
 
-  cameraInfo->imageBufferLength = cameraInfo->xSize *
-      cameraInfo->ySize * cameraInfo->currentBytesPerPixel;
-
-	if ( cameraInfo->libMajorVersion > 28 ) {
-		if (( ret = ( TT_LIB_PTR( StartPullModeWithCallback ))( cameraInfo->handle,
-				TT_FUNC( _, PullCallbackV2 ), cameraInfo )) < 0 ) {
-			fprintf ( stderr, "%s: " TT_DRIVER "_StartPullModeWithCallback failed: 0x%x\n",
-					__FUNCTION__, ret );
+		if ((( TT_LIB_PTR( put_Option ))( cameraInfo->handle,
+				TT_OPTION( TRIGGER ), 1 )) < 0 ) {
+			fprintf ( stderr, TT_DRIVER "_put_Option ( trigger, single ) failed\n" );
 			return -OA_ERR_CAMERA_IO;
 		}
-  } else {
-		if (( ret = ( TT_LIB_PTR( StartPullModeWithCallback ))( cameraInfo->handle,
-				TT_FUNC( _, PullCallbackV1 ), cameraInfo )) < 0 ) {
-			fprintf ( stderr, "%s: " TT_DRIVER "_StartPullModeWithCallback failed: 0x%x\n",
-					__FUNCTION__, ret );
-			return -OA_ERR_CAMERA_IO;
+
+		cameraInfo->streamingCallback.callback = cb->callback;
+		cameraInfo->streamingCallback.callbackArg = cb->callbackArg;
+
+		cameraInfo->imageBufferLength = cameraInfo->xSize *
+				cameraInfo->ySize * cameraInfo->currentBytesPerPixel;
+
+		if ( cameraInfo->libMajorVersion > 28 ) {
+			if (( ret = ( TT_LIB_PTR( StartPullModeWithCallback ))(
+					cameraInfo->handle, TT_FUNC( _, PullCallbackV2 ),
+					cameraInfo )) < 0 ) {
+				fprintf ( stderr, "%s: " TT_DRIVER
+						"_StartPullModeWithCallback failed: 0x%x\n", __FUNCTION__, ret );
+				return -OA_ERR_CAMERA_IO;
+			}
+		} else {
+			if (( ret = ( TT_LIB_PTR( StartPullModeWithCallback ))(
+					cameraInfo->handle, TT_FUNC( _, PullCallbackV1 ),
+					cameraInfo )) < 0 ) {
+				fprintf ( stderr, "%s: " TT_DRIVER
+						"_StartPullModeWithCallback failed: 0x%x\n", __FUNCTION__, ret );
+				return -OA_ERR_CAMERA_IO;
+			}
 		}
+
+		cameraInfo->runMode = CAM_RUN_MODE_SINGLE_SHOT;
 	}
+
+	cameraInfo->timerCallback = _timerCallback;
+	oacamStartTimer ( cameraInfo->exposureTime, cameraInfo );
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
   cameraInfo->exposureInProgress = 1;
@@ -1066,9 +1084,6 @@ TT_FUNC( _, PullCallbackV1 )( unsigned int event, void* ptr )
 	int										bytesPerPixel, ret, abort;
   unsigned int					dataLength, height, width;
 
-	// FIX ME -- this is very similar to the "push" callback, but not quite
-	// It should be possible to combine the two
-
   pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
   buffersFree = cameraInfo->buffersFree;
   bitsPerPixel = cameraInfo->currentBitsPerPixel;
@@ -1088,6 +1103,7 @@ TT_FUNC( _, PullCallbackV1 )( unsigned int event, void* ptr )
 			return;
 		}
 
+		cameraInfo->exposureInProgress = 0;
 		_completeCallback ( cameraInfo, 0, bitsPerPixel, nextBuffer,
 				dataLength );
 	}
@@ -1102,9 +1118,6 @@ TT_FUNC( _, PullCallbackV2 )( unsigned int event, void* ptr )
   int										buffersFree, nextBuffer, bitsPerPixel;
 	int										bytesPerPixel, ret, abort;
   unsigned int					dataLength;
-
-	// FIX ME -- this is very similar to the "push" callback, but not quite
-	// It should be possible to combine the two
 
   pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
   buffersFree = cameraInfo->buffersFree;
@@ -1125,6 +1138,7 @@ TT_FUNC( _, PullCallbackV2 )( unsigned int event, void* ptr )
 			return;
 		}
 
+		cameraInfo->exposureInProgress = 0;
 		_completeCallback ( cameraInfo, 0, bitsPerPixel, nextBuffer,
 				dataLength );
 	}
@@ -1141,10 +1155,26 @@ _processAbortExposure ( TOUPTEK_STATE* cameraInfo )
   cameraInfo->exposureInProgress = 0;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
+	oacamAbortTimer ( cameraInfo );
+
   if (( ret = ( TT_LIB_PTR( Stop ))( cameraInfo->handle )) < 0 ) {
     fprintf ( stderr, "%s: " TT_DRIVER "_Stop failed: %d\n", __FUNCTION__, ret );
     return -OA_ERR_CAMERA_IO;
   }
 
+	cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
   return OA_ERR_NONE;
+}
+
+
+static void
+_timerCallback ( void* param )
+{
+	TOUPTEK_STATE*		cameraInfo = param;
+	int								ret;
+
+	if (( ret = TT_LIB_PTR( Trigger )( cameraInfo->handle, 1 )) < 0 ) {
+		cameraInfo->exposureInProgress = 0;
+		fprintf ( stderr, "trigger image frame failed, err %04x\n", ret );
+	}
 }

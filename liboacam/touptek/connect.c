@@ -103,7 +103,7 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
     return 0;
   }
 
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
 	camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
 	camera->features.flags |= OA_CAM_FEATURE_STREAMING;

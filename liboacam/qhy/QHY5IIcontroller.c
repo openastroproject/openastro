@@ -77,7 +77,7 @@ oacamQHY5IIcontroller ( void* param )
     } else {
       pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
       // stop us busy-waiting
-      streaming = cameraInfo->isStreaming;
+      streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
       if ( !streaming && oaDLListIsEmpty ( cameraInfo->commandQueue )) {
         pthread_cond_wait ( &cameraInfo->commandQueued,
             &cameraInfo->commandQueueMutex );
@@ -501,7 +501,7 @@ _qhy5iiVideoStreamCallback ( struct libusb_transfer* transfer )
 
   if ( resubmit ) {
     pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-    streaming = cameraInfo->isStreaming;
+    streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
     pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
     if ( streaming ) {
       libusb_submit_transfer ( transfer );
@@ -538,7 +538,7 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
   struct libusb_transfer*       transfer;
   unsigned char			buf[1] = { 100 };
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STOPPED ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
@@ -595,7 +595,7 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
       0, 0, buf, 1, 0 );
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 1;
+  cameraInfo->runMode = CAM_RUN_MODE_STREAMING;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   return OA_ERR_NONE;
@@ -608,14 +608,14 @@ _processStreamingStop ( QHY_STATE* cameraInfo, OA_COMMAND* command )
   int		queueEmpty, i, res, allReleased;
   unsigned char	buf[4] = { 0, 0, 0, 0 };
 
-  if ( !cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STREAMING ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
   _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xc1, 0, 0, buf, 4, 0 );
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   pthread_mutex_lock ( &cameraInfo->videoCallbackMutex );

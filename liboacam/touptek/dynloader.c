@@ -66,7 +66,7 @@ HRESULT		( *TT_LIB_PTR( StartPushModeV2 ))( TT_HANDLE,
 HRESULT		( *TT_LIB_PTR( Stop ))( TT_HANDLE );
 HRESULT		( *TT_LIB_PTR( Pause ))( TT_HANDLE, int );
 HRESULT		( *TT_LIB_PTR( Snap ))( TT_HANDLE, unsigned );
-HRESULT		( *TT_LIB_PTR( Trigger ))( TT_HANDLE );
+HRESULT		( *TT_LIB_PTR( Trigger ))( TT_HANDLE, unsigned short );
 HRESULT		( *TT_LIB_PTR( get_Size ))( TT_HANDLE, int*, int* );
 HRESULT		( *TT_LIB_PTR( put_Size ))( TT_HANDLE, int, int );
 HRESULT		( *TT_LIB_PTR( get_eSize ))( TT_HANDLE, unsigned* );

@@ -67,8 +67,8 @@ extern int				_oaCheckCameraArraySize ( CAMERA_LIST* );
 extern void				_oaFreeCameraDeviceList ( CAMERA_LIST* );
 extern int				_oaInitCameraStructs ( oaCamera**, void**, size_t,
 											COMMON_INFO**);
-extern int				oacamStartTimer ( uint64_t, void*, void* );
-extern int				oacamAbortTimer ( void );
+extern int				oacamStartTimer ( uint64_t, void* );
+extern void				oacamAbortTimer ( void* );
 
 
 extern char*		installPathRoot;
@@ -82,6 +82,10 @@ extern char*		installPathRoot;
 #define OA_CAM_CTRL_AUTO_MAX(x)         maxVal[OA_CAM_CTRL_MODIFIER_AUTO][OA_CAM_CTRL_MODE_BASE(x)]
 #define OA_CAM_CTRL_AUTO_DEF(x)         defVal[OA_CAM_CTRL_MODIFIER_AUTO][OA_CAM_CTRL_MODE_BASE(x)]
 #define OA_CAM_CTRL_AUTO_STEP(x)        stepVal[OA_CAM_CTRL_MODIFIER_AUTO][OA_CAM_CTRL_MODE_BASE(x)]
+
+#define CAM_RUN_MODE_STOPPED			0
+#define	CAM_RUN_MODE_STREAMING		1
+#define	CAM_RUN_MODE_SINGLE_SHOT	2
 
 #define FREE_DATA_STRUCTS		\
 	pthread_mutex_destroy ( &cameraInfo->commandQueueMutex ); \

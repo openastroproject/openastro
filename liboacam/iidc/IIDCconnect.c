@@ -166,7 +166,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
 
   camera->interface = device->interface;
 
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
   // Reset the camera here.  That way hopefully we can be sure that the
   // values we read from the current settings are actually the default

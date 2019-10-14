@@ -70,7 +70,7 @@ oacamZWASI2controller ( void* param )
     } else {
       pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
       // stop us busy-waiting
-      streaming = cameraInfo->isStreaming;
+      streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
       if ( !streaming && oaDLListIsEmpty ( cameraInfo->commandQueue )) {
         pthread_cond_wait ( &cameraInfo->commandQueued,
             &cameraInfo->commandQueueMutex );
@@ -668,8 +668,8 @@ _doFrameReconfiguration ( ZWASI_STATE* cameraInfo )
   unsigned int	actualX, actualY;
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  if ( cameraInfo->isStreaming ) {
-    cameraInfo->isStreaming = 0;
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
+    cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
     restartStreaming = 1;
   }
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
@@ -704,7 +704,7 @@ _doFrameReconfiguration ( ZWASI_STATE* cameraInfo )
   if ( restartStreaming ) {
     usleep ( 300000 );
     p_ASIStartVideoCapture ( cameraInfo->cameraId );
-    cameraInfo->isStreaming = 1;
+    cameraInfo->runMode = CAM_RUN_MODE_STREAMING;
   }
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 }
@@ -715,7 +715,7 @@ _processStreamingStart ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
 {
   CALLBACK*	cb = command->commandData;
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STOPPED ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
@@ -747,7 +747,7 @@ _processStreamingStart ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
   cameraInfo->streamingCallback.callbackArg = cb->callbackArg;
   p_ASIStartVideoCapture ( cameraInfo->cameraId );
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 1;
+  cameraInfo->runMode = CAM_RUN_MODE_STREAMING;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
   return OA_ERR_NONE;
 }
@@ -756,7 +756,7 @@ _processStreamingStart ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
 static int
 _processStreamingStop ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
 {
-  if ( !cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STREAMING ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
@@ -775,7 +775,7 @@ _processStreamingStop ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
 
   p_ASIStopVideoCapture ( cameraInfo->cameraId );
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
   return OA_ERR_NONE;
 }

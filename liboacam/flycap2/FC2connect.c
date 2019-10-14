@@ -204,7 +204,7 @@ oaFC2InitCamera ( oaCameraDevice* device )
   cameraInfo->colour = devInfo->colour;
   cameraInfo->cfaPattern = devInfo->cfaPattern;
 
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
   // FIX ME -- Frame rate is awkward because the maximum exposure time
   // varies with the frame rate.  For the time being if the frame rate

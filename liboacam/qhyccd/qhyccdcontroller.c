@@ -71,7 +71,7 @@ oacamQHYCCDcontroller ( void* param )
     } else {
       pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
       // stop us busy-waiting
-      streaming = cameraInfo->isStreaming;
+      streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
       if ( !streaming && oaDLListIsEmpty ( cameraInfo->commandQueue )) {
         pthread_cond_wait ( &cameraInfo->commandQueued,
             &cameraInfo->commandQueueMutex );
@@ -319,7 +319,7 @@ _processSetResolution ( QHYCCD_STATE* cameraInfo, OA_COMMAND* command )
     return -OA_ERR_OUT_OF_RANGE;
   }
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
     restart = 1;
 		_doStop ( cameraInfo );
   }
@@ -367,7 +367,7 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
   offsetX = ( cameraInfo->currentXResolution - x ) / 2;
   offsetY = ( cameraInfo->currentYResolution - y ) / 2;
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
     restart = 1;
     _doStop ( cameraInfo );
   }
@@ -397,7 +397,7 @@ _processStreamingStart ( QHYCCD_STATE* cameraInfo, OA_COMMAND* command )
 {
   CALLBACK*		cb = command->commandData;
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STOPPED ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
@@ -422,7 +422,7 @@ _doStart ( QHYCCD_STATE* cameraInfo )
 	}
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 1;
+  cameraInfo->runMode = CAM_RUN_MODE_STREAMING;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
   return OA_ERR_NONE;
 }
@@ -431,7 +431,7 @@ _doStart ( QHYCCD_STATE* cameraInfo )
 static int
 _processStreamingStop ( QHYCCD_STATE* cameraInfo, OA_COMMAND* command )
 {
-  if ( !cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STREAMING ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
@@ -445,7 +445,7 @@ _doStop ( QHYCCD_STATE* cameraInfo )
   int		ret;
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   if (( ret = p_StopQHYCCDLive ( cameraInfo->handle )) != QHYCCD_SUCCESS ) {

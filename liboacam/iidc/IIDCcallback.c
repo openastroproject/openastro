@@ -75,7 +75,7 @@ oacamIIDCcallbackHandler ( void* param )
               callback->bufferLen, 0 );
           // We can only requeue frames if we're still streaming
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-          if ( cameraInfo->isStreaming ) {
+          if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
             p_dc1394_capture_enqueue ( cameraInfo->iidcHandle,
 								callback->buffer );
           }

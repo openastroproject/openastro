@@ -71,7 +71,7 @@ oacamEUVCcontroller ( void* param )
     } else {
       pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
       // stop us busy-waiting
-      streaming = cameraInfo->isStreaming;
+      streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
       if ( !streaming && oaDLListIsEmpty ( cameraInfo->commandQueue )) {
         pthread_cond_wait ( &cameraInfo->commandQueued,
             &cameraInfo->commandQueueMutex );
@@ -879,7 +879,7 @@ _processSetResolution ( oaCamera* camera, OA_COMMAND* command )
   x = size->x;
   y = size->y;
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
     // FIX ME -- check for errors?
     _processStreamingStop ( cameraInfo, 0 );
     restartStreaming = 1;
@@ -1139,7 +1139,7 @@ _euvcVideoStreamCallback ( struct libusb_transfer* transfer )
 
   if ( resubmit ) {
     pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-    streaming = cameraInfo->isStreaming;
+    streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
     pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
     if ( streaming ) {
       libusb_submit_transfer ( transfer );
@@ -1175,7 +1175,7 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
   int				txId, ret, txBufferSize, numTxBuffers;
   struct libusb_transfer*	transfer;
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STOPPED ) {
     return -OA_ERR_INVALID_COMMAND;
   }
   if ( command ) {
@@ -1238,7 +1238,7 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
   }
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 1;
+  cameraInfo->runMode = CAM_RUN_MODE_STREAMING;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   return OA_ERR_NONE;
@@ -1250,12 +1250,12 @@ _processStreamingStop ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 {
   int		queueEmpty, i, res, allReleased;
 
-  if ( !cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STREAMING ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   pthread_mutex_lock ( &cameraInfo->videoCallbackMutex );

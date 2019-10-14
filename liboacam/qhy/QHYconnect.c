@@ -187,7 +187,7 @@ oaQHYInitCamera ( oaCameraDevice* device )
   // This probably isn't required any more
   pthread_mutex_init ( &cameraInfo->usbMutex, 0 );
 
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
   switch ( cameraInfo->cameraType ) {
     case CAM_QHY5:

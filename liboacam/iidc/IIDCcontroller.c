@@ -70,7 +70,7 @@ oacamIIDCcontroller ( void* param )
     } else {
       pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
       // stop us busy-waiting
-      streaming = cameraInfo->isStreaming;
+      streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
       if ( !streaming && oaDLListIsEmpty ( cameraInfo->commandQueue )) {
         pthread_cond_wait ( &cameraInfo->commandQueued,
             &cameraInfo->commandQueueMutex );
@@ -140,7 +140,7 @@ oacamIIDCcontroller ( void* param )
           // This mutex prevents attempts to dequeue frames if streaming
           // has stopped since we last checked
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-          streaming = cameraInfo->isStreaming;
+					streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
           if ( streaming ) {
             if ( p_dc1394_capture_dequeue ( cameraInfo->iidcHandle,
                 DC1394_CAPTURE_POLICY_POLL, &cameraInfo->currentFrame )
@@ -670,7 +670,7 @@ _doCameraConfig ( IIDC_STATE* cameraInfo )
   unsigned int			thisOne = 0, requiredFrameRate, i, j;
   int				ret, matched, restart = 0;
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
     restart = 1;
     p_dc1394_video_set_transmission ( cameraInfo->iidcHandle, DC1394_OFF );
     usleep ( cameraInfo->currentAbsoluteExposure );
@@ -682,7 +682,7 @@ _doCameraConfig ( IIDC_STATE* cameraInfo )
       }
     } while ( dummyFrame );
     p_dc1394_capture_stop ( cameraInfo->iidcHandle );
-    cameraInfo->isStreaming = 0;
+    cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
   }
 
   if ( cameraInfo->haveFormat7 ) {
@@ -828,7 +828,7 @@ _doCameraConfig ( IIDC_STATE* cameraInfo )
       return -OA_ERR_CAMERA_IO;
     }
 
-    cameraInfo->isStreaming = 1;
+    cameraInfo->runMode = CAM_RUN_MODE_STREAMING;
     if ( p_dc1394_video_set_transmission ( cameraInfo->iidcHandle,
         DC1394_ON ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_video_set_transmission failed\n",
@@ -846,7 +846,7 @@ _processStreamingStart ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
   int		ret;
   CALLBACK*	cb = command->commandData;
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STOPPED ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
@@ -868,7 +868,7 @@ _processStreamingStart ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
   }
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 1;
+  cameraInfo->runMode = CAM_RUN_MODE_STREAMING;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
   return OA_ERR_NONE;
 }
@@ -879,12 +879,12 @@ _processStreamingStop ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
 {
   int		queueEmpty;
 
-  if ( !cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STREAMING ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   if ( p_dc1394_video_set_transmission ( cameraInfo->iidcHandle, DC1394_OFF )

@@ -175,7 +175,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   OA_CLEAR ( camera->features );
   _V4L2InitFunctionPointers ( camera );
 
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
   /*
    * FIX ME -- this could perhaps be made more efficient as
@@ -1752,7 +1752,6 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  cameraInfo->isStreaming = 0;
   cameraInfo->initialised = 1;
 
   return camera;

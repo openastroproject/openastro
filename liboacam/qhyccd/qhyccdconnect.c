@@ -265,7 +265,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 		}
 	}
 
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
   // force camera into 8-bit mode if it has it
 

@@ -77,7 +77,7 @@ oacamQHY5controller ( void* param )
     } else {
       pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
       // stop us busy-waiting
-      streaming = cameraInfo->isStreaming;
+      streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
       if ( !streaming && oaDLListIsEmpty ( cameraInfo->commandQueue )) {
         pthread_cond_wait ( &cameraInfo->commandQueued,
             &cameraInfo->commandQueueMutex );
@@ -122,7 +122,7 @@ oacamQHY5controller ( void* param )
     } while ( command );
 
     pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-    streaming = cameraInfo->isStreaming;
+    streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
     pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
     if ( streaming ) {
@@ -140,7 +140,7 @@ oacamQHY5controller ( void* param )
           buffersFree = cameraInfo->buffersFree;
           pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-          streaming = cameraInfo->isStreaming;
+					streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
           pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
           if ( buffersFree && streaming ) {
             nextBuffer = cameraInfo->nextBuffer;
@@ -197,7 +197,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentGain = val->int32;
-      if ( cameraInfo->isStreaming ) {
+      if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
         _doCameraConfig ( cameraInfo, command );
       }
       break;
@@ -288,7 +288,7 @@ _processSetResolution ( oaCamera* camera, OA_COMMAND* command )
   cameraInfo->imageBufferLength = cameraInfo->xSize * cameraInfo->ySize;
   cameraInfo->transferTime = QHY5_SENSOR_WIDTH * ( cameraInfo->ySize +
       QHY5_VBLANK ) / QHY5_PIXEL_RATE;
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
     ( void ) _doCameraConfig ( cameraInfo, command );
   }
   return OA_ERR_NONE;
@@ -404,7 +404,7 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
   QHY_STATE*	cameraInfo = camera->_private;
   CALLBACK*	cb = command->commandData;
 
-  if ( cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STOPPED ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
@@ -420,7 +420,7 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
   cameraInfo->captureHeight = _doCameraConfig ( cameraInfo, command );
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 1;
+  cameraInfo->runMode = CAM_RUN_MODE_STREAMING;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   return OA_ERR_NONE;
@@ -432,12 +432,12 @@ _processStreamingStop ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 {
   int		queueEmpty;
 
-  if ( !cameraInfo->isStreaming ) {
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STREAMING ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   // We wait here until the callback queue has drained otherwise a future

@@ -284,7 +284,7 @@ oaSXInitCamera ( oaCameraDevice* device )
       break;
   }
 
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
   // If the camera is interlaced it reports half the number of lines for
   // the full image, so multiply by two

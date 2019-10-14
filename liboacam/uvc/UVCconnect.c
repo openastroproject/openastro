@@ -1085,7 +1085,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
     }
   }
 
-  cameraInfo->isStreaming = 0;
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
   cameraInfo->stopControllerThread = cameraInfo->stopCallbackThread = 0;
   cameraInfo->commandQueue = oaDLListCreate();
