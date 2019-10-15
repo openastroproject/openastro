@@ -1435,7 +1435,6 @@ _EUVCInitFunctionPointers ( oaCamera* camera )
   camera->funcs.testControl = oaEUVCCameraTestControl;
   camera->funcs.getControlRange = oaEUVCCameraGetControlRange;
 
-  camera->funcs.setROI = oaEUVCCameraSetROI;
   camera->funcs.testROISize = oaEUVCCameraTestROISize;
 
   camera->funcs.hasAuto = oacamHasAuto;

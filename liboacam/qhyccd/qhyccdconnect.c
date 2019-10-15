@@ -460,7 +460,6 @@ _QHYCCDInitFunctionPointers ( oaCamera* camera )
   camera->funcs.getControlRange = oaQHYCCDCameraGetControlRange;
   camera->funcs.getControlDiscreteSet = oaQHYCCDCameraGetControlDiscreteSet;
 
-  camera->funcs.setROI = oaQHYCCDCameraSetROI;
   camera->funcs.testROISize = oaQHYCCDCameraTestROISize;
 
   camera->funcs.hasAuto = oacamHasAuto;

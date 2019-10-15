@@ -1465,7 +1465,6 @@ _FC2InitFunctionPointers ( oaCamera* camera )
   camera->funcs.getControlRange = oaFC2CameraGetControlRange;
   camera->funcs.getControlDiscreteSet = oaFC2CameraGetControlDiscreteSet;
 
-  camera->funcs.setROI = oaFC2CameraSetROI;
   camera->funcs.testROISize = oaFC2CameraTestROISize;
 
   camera->funcs.hasAuto = oacamHasAuto;

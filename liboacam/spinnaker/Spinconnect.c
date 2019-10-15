@@ -1128,7 +1128,6 @@ _spinInitFunctionPointers ( oaCamera* camera )
   camera->funcs.getControlRange = oaSpinCameraGetControlRange;
   camera->funcs.getControlDiscreteSet = oaSpinCameraGetControlDiscreteSet;
 
-  camera->funcs.setROI = oaSpinCameraSetROI;
   camera->funcs.testROISize = oaSpinCameraTestROISize;
 
   camera->funcs.hasAuto = oacamHasAuto;

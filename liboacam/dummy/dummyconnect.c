@@ -349,8 +349,6 @@ _dummyInitFunctionPointers ( oaCamera* camera )
   camera->funcs.testControl = oaDummyCameraTestControl;
   camera->funcs.getControlRange = oaDummyCameraGetControlRange;
 
-  // camera->funcs.setROI = oaDummyCameraSetResolution;
-
   camera->funcs.hasAuto = oacamHasAuto;
   //  camera->funcs.isAuto = oaIsAuto;
 
