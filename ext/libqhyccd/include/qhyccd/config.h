@@ -2,8 +2,8 @@
 #define __QHYCCDCONFIG_H__
 
 /*
-0, 6, 0, 1
-0, 2, 0, 8
+0, 6, 0, 2
+0, 2, 0, 9
  
 QHYCCD  (Beijing) Technology Co., Ltd.
  
