@@ -519,6 +519,10 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   camera->features.flags |= OA_CAM_FEATURE_RESET;
   camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
   camera->features.flags |= OA_CAM_FEATURE_STREAMING;
+	// Only available with USB3 cameras
+  if ( camInfo.IsUSB3Camera ) {
+		camera->features.flags |= OA_CAM_FEATURE_SINGLE_SHOT;
+	}
 
   // Ok, now we need to find out what frame formats are supported and
   // which one we want to use

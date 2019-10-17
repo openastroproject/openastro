@@ -45,7 +45,11 @@ static int	_processGetControl ( oaCamera*, OA_COMMAND* );
 static int	_processSetResolution ( ZWASI_STATE*, OA_COMMAND* );
 static int	_processStreamingStart ( ZWASI_STATE*, OA_COMMAND* );
 static int	_processStreamingStop ( ZWASI_STATE*, OA_COMMAND* );
-
+static int	_processExposureStart ( ZWASI_STATE*, OA_COMMAND* );
+static int	_processAbortExposure ( ZWASI_STATE* );
+static int	_processExposureStart ( ZWASI_STATE*, OA_COMMAND* );
+static int	_processAbortExposure ( ZWASI_STATE* );
+static void	_timerCallback ( void* );
 static void	_doFrameReconfiguration ( ZWASI_STATE* );
 
 
@@ -96,6 +100,12 @@ oacamZWASI2controller ( void* param )
             break;
           case OA_CMD_STOP_STREAMING:
             resultCode = _processStreamingStop ( cameraInfo, command );
+            break;
+          case OA_CMD_START_EXPOSURE:
+            resultCode = _processExposureStart ( cameraInfo, command );
+            break;
+          case OA_CMD_ABORT_EXPOSURE:
+            resultCode = _processAbortExposure ( cameraInfo );
             break;
           default:
             resultCode = -OA_ERR_INVALID_CONTROL;
@@ -778,4 +788,250 @@ _processStreamingStop ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
   cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
   return OA_ERR_NONE;
+}
+
+
+static int
+_processExposureStart ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
+{
+  CALLBACK*		cb = command->commandData;
+	int					ret;
+
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
+    return -OA_ERR_INVALID_COMMAND;
+  }
+
+	if ( cameraInfo->exposureInProgress ) {
+		return OA_ERR_NONE;
+	}
+
+	if (( ret = p_ASIStartExposure ( cameraInfo->cameraId, 0 )) < 0 ) {
+		fprintf ( stderr, "ASIStartExposure failed, error %d\n", ret );
+    return -OA_ERR_CAMERA_IO;
+	}
+	cameraInfo->streamingCallback.callback = cb->callback;
+	cameraInfo->streamingCallback.callbackArg = cb->callbackArg;
+	cameraInfo->runMode = CAM_RUN_MODE_SINGLE_SHOT;
+	cameraInfo->timerCallback = _timerCallback;
+	oacamStartTimer ( cameraInfo->currentAbsoluteExposure + 500000, cameraInfo );
+
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  cameraInfo->exposureInProgress = 1;
+  cameraInfo->abortExposure = 0;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+
+  return OA_ERR_NONE;
+}
+
+
+/*
+static void
+_completeCallback ( TOUPTEK_STATE* cameraInfo, const void* frame,
+		int bitsPerPixel, int nextBuffer, unsigned int dataLength )
+{
+	int				shiftBits;
+
+	// Now here's the fun...
+	//
+	// In 12-bit (and presumably 10- and 14-bit) mode, Touptek cameras
+	// appear to return little-endian data, but right-aligned rather than
+	// left-aligned as many other cameras do.  So if we have such an image we
+	// try to fix it here.
+	//
+	// FIX ME -- I'm not sure this is the right place to be doing this.
+	// Perhaps there should be a flag to tell the user whether the data is
+	// left-or right-aligned and they can sort it out.
+
+	if ( bitsPerPixel > 8 && bitsPerPixel < 16 ) {
+		shiftBits = 16 - bitsPerPixel;
+
+		if ( shiftBits ) {
+			uint16_t	*s = cameraInfo->buffers[ nextBuffer ].start;
+			uint16_t	v;
+			unsigned int	i;
+
+			for ( i = 0; i < dataLength; i += 2 ) {
+				v = *s;
+				v <<= shiftBits;
+				*s++ = v;
+			}
+		}
+	} else {
+		if ( frame ) {
+			( void ) memcpy ( cameraInfo->buffers[ nextBuffer ].start, frame,
+					dataLength );
+		}
+	}
+
+	cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
+			OA_CALLBACK_NEW_FRAME;
+	cameraInfo->frameCallbacks[ nextBuffer ].callback =
+			cameraInfo->streamingCallback.callback;
+	cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =
+			cameraInfo->streamingCallback.callbackArg;
+	cameraInfo->frameCallbacks[ nextBuffer ].buffer =
+			cameraInfo->buffers[ nextBuffer ].start;
+	cameraInfo->frameCallbacks[ nextBuffer ].bufferLen = dataLength;
+	pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+	oaDLListAddToTail ( cameraInfo->callbackQueue,
+			&cameraInfo->frameCallbacks[ nextBuffer ]);
+	cameraInfo->buffersFree--;
+	cameraInfo->nextBuffer = ( nextBuffer + 1 ) %
+			cameraInfo->configuredBuffers;
+	pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+	pthread_cond_broadcast ( &cameraInfo->callbackQueued );
+}
+
+
+static void
+TT_FUNC( _, PullCallbackV1 )( unsigned int event, void* ptr )
+{
+	TOUPTEK_STATE*			cameraInfo = ptr;
+  int										buffersFree, nextBuffer, bitsPerPixel;
+	int										bytesPerPixel, ret, abort;
+  unsigned int					dataLength, height, width;
+
+  pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+  buffersFree = cameraInfo->buffersFree;
+  bitsPerPixel = cameraInfo->currentBitsPerPixel;
+  bytesPerPixel = cameraInfo->currentBytesPerPixel;
+	abort = cameraInfo->abortExposure;
+  pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+
+  if ( !abort && buffersFree && event == TT_DEFINE( EVENT_IMAGE )) {
+    dataLength = cameraInfo->imageBufferLength;
+    nextBuffer = cameraInfo->nextBuffer;
+
+		if (( ret = ( TT_LIB_PTR( PullImage ))( cameraInfo->handle,
+				cameraInfo->buffers[ nextBuffer ].start, bytesPerPixel * 8, &height,
+				&width )) < 0 ) {
+			fprintf ( stderr, "%s: " TT_DRIVER "_PullImage failed: 0x%x\n",
+					__FUNCTION__, ret );
+			return;
+		}
+
+		cameraInfo->exposureInProgress = 0;
+		_completeCallback ( cameraInfo, 0, bitsPerPixel, nextBuffer,
+				dataLength );
+	}
+}
+
+
+static void
+TT_FUNC( _, PullCallbackV2 )( unsigned int event, void* ptr )
+{
+	TOUPTEK_STATE*			cameraInfo = ptr;
+	TT_VAR_TYPE( FrameInfoV2 )	frameInfo;
+  int										buffersFree, nextBuffer, bitsPerPixel;
+	int										bytesPerPixel, ret, abort;
+  unsigned int					dataLength;
+
+  pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+  buffersFree = cameraInfo->buffersFree;
+  bitsPerPixel = cameraInfo->currentBitsPerPixel;
+  bytesPerPixel = cameraInfo->currentBytesPerPixel;
+	abort = cameraInfo->abortExposure;
+  pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+
+  if ( !abort && buffersFree && event == TT_DEFINE( EVENT_IMAGE )) {
+    dataLength = cameraInfo->imageBufferLength;
+    nextBuffer = cameraInfo->nextBuffer;
+
+		if (( ret = ( TT_LIB_PTR( PullImageV2 ))( cameraInfo->handle,
+				cameraInfo->buffers[ nextBuffer ].start, bytesPerPixel * 8,
+				&frameInfo )) < 0 ) {
+			fprintf ( stderr, "%s: " TT_DRIVER "_PullImageV2 failed: 0x%x\n",
+					__FUNCTION__, ret );
+			return;
+		}
+
+		cameraInfo->exposureInProgress = 0;
+		_completeCallback ( cameraInfo, 0, bitsPerPixel, nextBuffer,
+				dataLength );
+	}
+}
+*/
+
+
+static int
+_processAbortExposure ( ZWASI_STATE* cameraInfo )
+{
+	int			ret;
+
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  cameraInfo->abortExposure = 1;
+  cameraInfo->exposureInProgress = 0;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+
+	oacamAbortTimer ( cameraInfo );
+
+  if (( ret = p_ASIStopExposure ( cameraInfo->cameraId )) < 0 ) {
+    fprintf ( stderr, "%s: ASIStopExposure failed: %d\n", __FUNCTION__, ret );
+    return -OA_ERR_CAMERA_IO;
+  }
+
+	cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
+  return OA_ERR_NONE;
+}
+
+
+static void
+_timerCallback ( void* param )
+{
+	ZWASI_STATE*				cameraInfo = param;
+	int									ret, buffersFree, nextBuffer;
+	ASI_EXPOSURE_STATUS	status;
+
+	if (( ret = p_ASIGetExpStatus ( cameraInfo->cameraId, &status )) < 0 ) {
+		fprintf ( stderr, "ASIGetExpStatus failed, error %d\n", ret );
+		pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+		cameraInfo->exposureInProgress = 0;
+		pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+		return;
+	}
+
+	if ( status != ASI_EXP_SUCCESS ) {
+		fprintf ( stderr, "ASIGetExpStatus returned status %d\n", status );
+		pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+		cameraInfo->exposureInProgress = 0;
+		pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+		return;
+	}
+
+	pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+	buffersFree = cameraInfo->buffersFree;
+	pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+
+  if ( buffersFree ) {
+    nextBuffer = cameraInfo->nextBuffer;
+		if (( ret = p_ASIGetDataAfterExp ( cameraInfo->cameraId,
+					cameraInfo->buffers[ nextBuffer ].start,
+					cameraInfo->imageBufferLength )) < 0 ) {
+			fprintf ( stderr, "ASIGetDataAfterExp failed, error %d\n", ret );
+			pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+			cameraInfo->exposureInProgress = 0;
+			pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+			return;
+		}
+
+    cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
+        OA_CALLBACK_NEW_FRAME;
+    cameraInfo->frameCallbacks[ nextBuffer ].callback =
+        cameraInfo->streamingCallback.callback;
+    cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =
+        cameraInfo->streamingCallback.callbackArg;
+    cameraInfo->frameCallbacks[ nextBuffer ].buffer =
+        cameraInfo->buffers[ nextBuffer ].start;
+    cameraInfo->frameCallbacks[ nextBuffer ].bufferLen =
+        cameraInfo->imageBufferLength;
+    oaDLListAddToTail ( cameraInfo->callbackQueue,
+        &cameraInfo->frameCallbacks[ nextBuffer ]);
+    pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+    cameraInfo->buffersFree--;
+    cameraInfo->nextBuffer = ( nextBuffer + 1 ) %
+        cameraInfo->configuredBuffers;
+    pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+    pthread_cond_broadcast ( &cameraInfo->callbackQueued );
+  }
+	cameraInfo->exposureInProgress = 0;
 }
