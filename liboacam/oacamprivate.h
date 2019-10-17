@@ -64,6 +64,7 @@ extern int				oacamStartExposure ( oaCamera*, time_t,
 extern int				oacamAbortExposure ( oaCamera* );
 extern int				oacamSetResolution ( oaCamera*, int, int );
 extern int				oacamSetROI ( oaCamera*, int, int );
+extern int				oacamSetFrameInterval ( oaCamera*, int, int );
 
 extern int				_oaCheckCameraArraySize ( CAMERA_LIST* );
 extern void				_oaFreeCameraDeviceList ( CAMERA_LIST* );

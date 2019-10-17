@@ -97,15 +97,6 @@ _testControl ( oaCamera* camera, int c, oaControlValue* v )
 }
 
 
-static int
-_setFrameInterval ( oaCamera* camera, int n, int d )
-{
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
-      camera->deviceName );
-  return -OA_ERR_UNIMPLEMENTED;
-}
-
-
 /*
 static int
 _setControlMulti ( oaCamera* camera )
@@ -217,7 +208,7 @@ _oaInitCameraFunctionPointers ( oaCamera* camera )
 
   camera->funcs.setResolution = oacamSetResolution;
   camera->funcs.setROI = oacamSetROI;
-  camera->funcs.setFrameInterval = _setFrameInterval;
+  camera->funcs.setFrameInterval = oacamSetFrameInterval;
 
 /*
   camera->funcs.resetCamera = _resetCamera;

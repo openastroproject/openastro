@@ -115,35 +115,6 @@ oaUVCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 }
 
 
-int
-oaUVCCameraSetFrameInterval ( oaCamera* camera, int numerator,
-    int denominator )
-{
-  FRAMERATE	r;
-  OA_COMMAND	command;
-  UVC_STATE*	cameraInfo = camera->_private;
-  int		retval;
-
-  OA_CLEAR ( command );
-  command.commandType = OA_CMD_FRAME_INTERVAL_SET;
-  r.numerator = numerator;
-  r.denominator = denominator;
-  command.commandData = &r;
-  cameraInfo = camera->_private;
-  oaDLListAddToTail ( cameraInfo->commandQueue, &command );
-  pthread_cond_broadcast ( &cameraInfo->commandQueued );
-  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
-  while ( !command.completed ) {
-    pthread_cond_wait ( &cameraInfo->commandComplete,
-        &cameraInfo->commandQueueMutex );
-  }
-  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
-  retval = command.resultCode;
-
-  return retval;
-}
-
-
 const char*
 oaUVCCameraGetMenuString ( oaCamera* camera, int control, int index )
 {
