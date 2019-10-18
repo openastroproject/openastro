@@ -1444,7 +1444,6 @@ _EUVCInitFunctionPointers ( oaCamera* camera )
   camera->funcs.getFramePixelFormat = oaEUVCCameraGetFramePixelFormat;
 
   camera->funcs.enumerateFrameRates = oaEUVCCameraGetFrameRates;
-  camera->funcs.setFrameInterval = oaEUVCCameraSetFrameInterval;
 
   camera->funcs.getMenuString = oaEUVCCameraGetMenuString;
 }

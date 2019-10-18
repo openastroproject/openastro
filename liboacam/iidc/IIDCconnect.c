@@ -684,7 +684,6 @@ _IIDCInitFunctionPointers ( oaCamera* camera )
   camera->funcs.getFramePixelFormat = oaIIDCCameraGetFramePixelFormat;
 
   camera->funcs.enumerateFrameRates = oaIIDCCameraGetFrameRates;
-  camera->funcs.setFrameInterval = oaIIDCCameraSetFrameInterval;
 
   camera->funcs.getMenuString = oaIIDCCameraGetMenuString;
 }

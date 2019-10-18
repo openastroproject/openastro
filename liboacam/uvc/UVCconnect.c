@@ -1151,7 +1151,6 @@ _UVCInitFunctionPointers ( oaCamera* camera )
   camera->funcs.getFramePixelFormat = oaUVCCameraGetFramePixelFormat;
 
   camera->funcs.enumerateFrameRates = oaUVCCameraGetFrameRates;
-  camera->funcs.setFrameInterval = oaUVCCameraSetFrameInterval;
 
   camera->funcs.getMenuString = oaUVCCameraGetMenuString;
 }
