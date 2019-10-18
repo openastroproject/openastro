@@ -46,8 +46,6 @@ extern void*			oacamGP2controller ( void* );
 extern void*			oacamGP2callbackHandler ( void* );
 
 extern const FRAMESIZES* oaGP2CameraGetFrameSizes ( oaCamera* );
-extern const FRAMERATES* oaGP2CameraGetFrameRates ( oaCamera*, int, int );
-extern int				oaGP2CameraSetFrameInterval ( oaCamera*, int, int );
 extern int				oaGP2CameraGetFramePixelFormat ( oaCamera* );
 
 extern const char*	oaGP2CameraGetMenuString ( oaCamera*, int, int );
