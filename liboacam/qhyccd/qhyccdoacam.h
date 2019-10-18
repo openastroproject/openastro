@@ -39,7 +39,6 @@ extern int		oaQHYCCDCameraGetControlRange ( oaCamera*, int,
 extern int              oaQHYCCDCameraGetControlDiscreteSet ( oaCamera*, int,
                                 int32_t*, int64_t** );
 
-extern int		oaQHYCCDCameraSetROI ( oaCamera*, int, int );
 extern int		oaQHYCCDCameraTestROISize ( oaCamera*, unsigned int,
 			    unsigned int, unsigned int*, unsigned int* );
 
