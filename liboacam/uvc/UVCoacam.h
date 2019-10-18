@@ -49,7 +49,6 @@ extern void*		oacamUVCcallbackHandler ( void* );
 
 extern const FRAMESIZES* oaUVCCameraGetFrameSizes ( oaCamera* );
 extern const FRAMERATES* oaUVCCameraGetFrameRates ( oaCamera*, int, int );
-extern int		oaUVCCameraSetFrameInterval ( oaCamera*, int, int );
 extern int		oaUVCCameraGetFramePixelFormat ( oaCamera* );
 
 extern const char*	oaUVCCameraGetMenuString ( oaCamera*, int, int );
