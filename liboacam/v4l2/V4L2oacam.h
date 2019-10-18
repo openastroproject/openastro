@@ -50,7 +50,6 @@ extern void*		oacamV4L2callbackHandler ( void* );
 
 extern const FRAMESIZES* oaV4L2CameraGetFrameSizes ( oaCamera* );
 extern const FRAMERATES* oaV4L2CameraGetFrameRates ( oaCamera*, int, int );
-extern int		oaV4L2CameraSetFrameInterval ( oaCamera*, int, int );
 extern int              oaV4L2CameraGetFramePixelFormat ( oaCamera* );
 
 extern int              oaV4L2CameraGetAutoWBManualSetting ( oaCamera* );
