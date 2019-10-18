@@ -37,7 +37,6 @@ extern int		oaEUVCCameraTestControl ( oaCamera*, int,
 extern int		oaEUVCCameraGetControlRange ( oaCamera*, int,
 				int64_t*, int64_t*, int64_t*, int64_t* );
 
-extern int		oaEUVCCameraSetROI ( oaCamera*, int, int );
 extern int		oaEUVCCameraTestROISize ( oaCamera*, unsigned int,
                             unsigned int, unsigned int*, unsigned int* );
 
@@ -47,7 +46,6 @@ extern void*		oacamEUVCcallbackHandler ( void* );
 extern const FRAMESIZES* oaEUVCCameraGetFrameSizes ( oaCamera* );
 extern int		oaEUVCCameraGetFramePixelFormat ( oaCamera* );
 extern const FRAMERATES* oaEUVCCameraGetFrameRates ( oaCamera*, int, int );
-extern int              oaEUVCCameraSetFrameInterval ( oaCamera*, int, int );
 
 extern const char*	oaEUVCCameraGetMenuString ( oaCamera*, int, int );
 
