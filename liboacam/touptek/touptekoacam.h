@@ -51,8 +51,4 @@ extern int		TT_FUNC( oa, CameraGetFramePixelFormat )( oaCamera* );
 
 extern const char*      TT_FUNC( oa, CameraGetMenuString )( oaCamera*, int, int );
 
-extern int	TT_FUNC( oa, CameraStartExposure )( oaCamera*, time_t,
-								void* (*)(void*, void*, int, void* ), void* );
-extern int	TT_FUNC( oa, CameraAbortExposure )( oaCamera* );
-
 #endif	/* OA_TOUPTEK_OACAM_H */
