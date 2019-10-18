@@ -42,7 +42,6 @@ extern void*		oacamIIDCcallbackHandler ( void* );
 
 extern const FRAMESIZES* oaIIDCCameraGetFrameSizes ( oaCamera* );
 extern const FRAMERATES* oaIIDCCameraGetFrameRates ( oaCamera*, int, int );
-extern int		oaIIDCCameraSetFrameInterval ( oaCamera*, int, int );
 extern int		oaIIDCCameraGetFramePixelFormat ( oaCamera* );
 
 extern const char*	oaIIDCCameraGetMenuString ( oaCamera*, int, int );
