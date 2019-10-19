@@ -745,15 +745,15 @@ Camera::frameSizeUnknown ( void )
 
 
 int
-Camera::startExposure ( time_t when,
-		void* ( *callback )( void*, void*, int, void* ), void* state )
+Camera::startExposure ( void* ( *callback )( void*, void*, int, void* ),
+		void* state )
 {
   if ( !initialised ) {
     qWarning() << __FUNCTION__ << " called with camera uninitialised";
     return -1;
   }
 
-  return cameraFuncs.startExposure ( cameraContext, when, callback, state );
+  return cameraFuncs.startExposure ( cameraContext, callback, state );
 }
 
 

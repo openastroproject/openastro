@@ -59,7 +59,7 @@ extern int				oacamStartStreaming ( oaCamera*, void* (*)(void*, void*,
 											int, void* ), void* );
 extern int				oacamIsStreaming ( oaCamera* );
 extern int				oacamStopStreaming ( oaCamera* );
-extern int				oacamStartExposure ( oaCamera*, time_t,
+extern int				oacamStartExposure ( oaCamera*,
 											void* (*)(void*, void*, int, void* ), void* );
 extern int				oacamAbortExposure ( oaCamera* );
 extern int				oacamSetResolution ( oaCamera*, int, int );

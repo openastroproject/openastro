@@ -475,7 +475,7 @@ oacamSetControl ( oaCamera* camera, int control, oaControlValue* val,
 
 
 int
-oacamStartExposure ( oaCamera* camera, time_t when,
+oacamStartExposure ( oaCamera* camera,
     void* (*callback)(void*, void*, int, void* ), void* callbackArg )
 {
   OA_COMMAND			command;
@@ -489,7 +489,6 @@ oacamStartExposure ( oaCamera* camera, time_t when,
   callbackData.callback = callback;
   callbackData.callbackArg = callbackArg;
   command.commandType = OA_CMD_START_EXPOSURE;
-	command.commandArgs = ( void* ) &when;
   command.commandData = ( void* ) &callbackData;
 
   oaDLListAddToTail ( cameraInfo->commandQueue, &command );

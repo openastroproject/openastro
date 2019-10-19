@@ -89,7 +89,6 @@ typedef struct GP2_STATE {
   unsigned int				currentBufferLength[ OA_CAM_BUFFERS ];
   // handling exposures
   int									exposurePending;
-	time_t							exposureStartTime;
   CALLBACK						exposureCallback;
 } GP2_STATE;
 

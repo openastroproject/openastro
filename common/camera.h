@@ -55,7 +55,7 @@ class Camera : public QObject
     int			startStreaming ( void* (*)(void*, void*, int, void* ), void* );
     void		stop ( void );
     void		releaseImageData ( void );
-    int			startExposure ( time_t, void* (*)(void*, void*, int, void* ),
+    int			startExposure ( void* (*)(void*, void*, int, void* ),
 								void* );
 
     int			hasFrameFormat ( int );

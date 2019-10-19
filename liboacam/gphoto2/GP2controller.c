@@ -59,7 +59,6 @@ oacamGP2controller ( void* param )
   int			resultCode;
   int			exposurePending = 0;
   int			exposureInProgress;
-  time_t	exposureStartTime;
 
   do {
     pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
@@ -72,7 +71,6 @@ oacamGP2controller ( void* param )
       // stop us busy-waiting
       exposurePending = cameraInfo->exposurePending;
       exposureInProgress = cameraInfo->exposureInProgress;
-      exposureStartTime = cameraInfo->exposureStartTime;
       if ( !exposurePending && !exposureInProgress &&
 					oaDLListIsEmpty ( cameraInfo->commandQueue )) {
         pthread_cond_wait ( &cameraInfo->commandQueued,
@@ -115,10 +113,7 @@ oacamGP2controller ( void* param )
     } while ( command );
 
 		if ( exposurePending ) {
-			time_t now = time(0);
-			if ( now > exposureStartTime ) {
-				( void ) _startExposure ( camera );
-			}
+			( void ) _startExposure ( camera );
 		} else {
 			if ( exposureInProgress ) {
 				_handleCompletedExposure ( cameraInfo );
@@ -367,7 +362,6 @@ _processExposureSetup ( oaCamera* camera, OA_COMMAND* command )
 
   cameraInfo->exposureCallback.callback = cb->callback;
   cameraInfo->exposureCallback.callbackArg = cb->callbackArg;
-	cameraInfo->exposureStartTime = *(( time_t* ) command->commandArgs );
 
 	if ( cameraInfo->manufacturer == CAMERA_MANUF_CANON && cameraInfo->capture ) {
 		int			onOff = 1;

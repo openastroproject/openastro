@@ -128,7 +128,7 @@ typedef struct oaCameraFuncs {
   int              ( *hasAuto )( struct oaCamera*, int );
   int              ( *isAuto )( struct oaCamera*, int );
 
-	int								( *startExposure )( struct oaCamera*, time_t,
+	int								( *startExposure )( struct oaCamera*,
                        void* (*)(void*, void*, int, void* ), void* );
 	int								( *abortExposure )( struct oaCamera* );
 } oaCameraFuncs;
