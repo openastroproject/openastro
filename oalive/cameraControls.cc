@@ -859,8 +859,6 @@ CameraControls::updateSliderControl ( int control )
 void
 CameraControls::updateCheckboxControl ( int control )
 {
-qDebug() << __FUNCTION__ << control;
-
   int value = ( controlCheckbox[OA_CAM_CTRL_MODIFIER(control)][
       OA_CAM_CTRL_MODE_BASE(control)]->isChecked()) ? 1 : 0;
 

@@ -123,6 +123,7 @@ _oaInitCameraStructs ( oaCamera** camera, void** state, size_t stateSize,
 	pthread_cond_init ( &p_state->commandQueued, 0 );
 	pthread_cond_init ( &p_state->commandComplete, 0 );
 	pthread_cond_init ( &p_state->timerState, 0 );
+	p_state->timerActive = 0;
 
 	return OA_ERR_NONE;
 }

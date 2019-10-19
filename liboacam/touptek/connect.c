@@ -733,6 +733,11 @@ TT_FUNC( oa, CloseCamera )( oaCamera* camera )
     pthread_cond_broadcast ( &cameraInfo->callbackQueued );
     pthread_join ( cameraInfo->callbackThread, &dummy );
 
+		if ( cameraInfo->timerActive ) {
+			pthread_cond_signal ( &( cameraInfo->timerState ));
+			pthread_join ( cameraInfo->timerThread, &dummy );
+		}
+
     ( TT_LIB_PTR( Close )) ( cameraInfo->handle );
 
     oaDLListDelete ( cameraInfo->commandQueue, 1 );

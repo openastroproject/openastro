@@ -48,6 +48,7 @@
 	pthread_mutex_t		timerMutex;
 	struct timespec		timerEnd;
 	void							( *timerCallback )( void* );
+	int								timerActive;
   // queues for controls and callbacks
   DL_LIST						commandQueue;
   DL_LIST						callbackQueue;

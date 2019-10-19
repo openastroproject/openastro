@@ -59,9 +59,12 @@ oacamStartTimer ( uint64_t delayusec, void* param )
 	}
 	cameraInfo->timerEnd.tv_nsec = delayNanoSecs;
 
-	if ( pthread_create ( &( cameraInfo->timerThread ), 0, _oacamTimerThread,
-			( void* ) cameraInfo )) {
-		return -OA_ERR_SYSTEM_ERROR;
+	if ( !cameraInfo->stopControllerThread ) {
+		if ( pthread_create ( &( cameraInfo->timerThread ), 0, _oacamTimerThread,
+				( void* ) cameraInfo )) {
+			return -OA_ERR_SYSTEM_ERROR;
+		}
+		cameraInfo->timerActive = 1;
 	}
 
 	return OA_ERR_NONE;
@@ -80,13 +83,14 @@ _oacamTimerThread ( void* param )
 	pthread_mutex_unlock ( &( cameraInfo->timerMutex ));
 
 	if ( ret ) {
-		if ( ret == ETIMEDOUT ) {
+		if ( ret == ETIMEDOUT && !cameraInfo->stopControllerThread ) {
 			cameraInfo->timerCallback ( cameraInfo );
 		} else {
 			fprintf ( stderr, "timer condition failed with error %d\n", ret );
 		}
 	}
 
+	cameraInfo->timerActive = 0;
 	return 0;
 }
 
