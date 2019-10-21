@@ -27,8 +27,13 @@
 #include <oa_common.h>
 #include <openastro/imgproc.h>
 
+#if HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
+#if HAVE_MATH_H
 #include <math.h>
+#endif
+#include <malloc.h>
 
 
 static int	_cmpUint8 ( const void*, const void* );
@@ -38,7 +43,7 @@ int
 oaStackKappaSigma8 ( void** frameArray, unsigned int numFrames, void* target,
 		unsigned int length, double kappa )
 {
-	uint8_t		values[ 512 ]; // FIX ME -- should be dynamically allocated?
+	uint8_t*	values;
 	uint8_t**	frames = ( uint8_t** ) frameArray;
 	uint8_t*	tgt = target;
   unsigned int i, j;
@@ -46,6 +51,9 @@ oaStackKappaSigma8 ( void** frameArray, unsigned int numFrames, void* target,
 	unsigned int finalMean, medianPos;
 	uint8_t median;
 
+	if (!( values = ( uint8_t* ) malloc ( numFrames ))) {
+		return -1;
+	}
 	medianPos = numFrames >> 1;
 	for ( i = 0; i < length; i++ ) {
 		mean = 0;
@@ -77,6 +85,7 @@ oaStackKappaSigma8 ( void** frameArray, unsigned int numFrames, void* target,
 		*tgt++ = finalMean / numFrames;
 	}
 
+	free (( void* ) values );
   return 0;
 }
 
