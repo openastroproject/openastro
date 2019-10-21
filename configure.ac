@@ -925,7 +925,7 @@ else
 fi
 
 # Checks for header files.
-AC_CHECK_HEADERS([errno.h fcntl.h float.h limits.h math.h stdint.h stdlib.h string.h strings.h sys/ioctl.h sys/time.h unistd.h fitsio.h cfitsio/fitsio.h ftdi.h libftdi/ftdi.h libftdi1/ftdi.h sys/sendfile.h sys/time.h syslog.h stdbool.h])
+AC_CHECK_HEADERS([errno.h fcntl.h float.h limits.h malloc.h math.h stdint.h stdlib.h string.h strings.h sys/ioctl.h sys/time.h unistd.h fitsio.h cfitsio/fitsio.h ftdi.h libftdi/ftdi.h libftdi1/ftdi.h sys/sendfile.h sys/time.h syslog.h stdbool.h])
 # C++ versions
 AC_LANG_PUSH([C++])
 AC_CHECK_HEADERS([cerrno cfloat climits cmath cstdint cstdlib cstring cstrings])

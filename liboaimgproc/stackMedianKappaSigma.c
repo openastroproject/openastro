@@ -33,7 +33,9 @@
 #if HAVE_MATH_H
 #include <math.h>
 #endif
+#if HAVE_MALLOC_H
 #include <malloc.h>
+#endif
 
 
 static int	_cmpUint8 ( const void*, const void* );
