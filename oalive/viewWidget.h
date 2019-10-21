@@ -153,7 +153,6 @@ class ViewWidget : public QFrame
 		unsigned int	previousFrameArraySize;
     unsigned int	nextFrame;
 		unsigned int	maxFrames;
-		unsigned int	frameLimit;
 
     unsigned int	reduceTo8Bit ( void*, void*, int, int, int );
     void		mousePressEvent ( QMouseEvent* );

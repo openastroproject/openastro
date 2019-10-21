@@ -84,7 +84,6 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
 	originalBuffer = 0;
 	previousFrames = 0;
 	maxFrames = nextFrame = previousFrameArraySize = 0;
-	frameLimit = 50;
 	rgbBuffer = 0;
 	rgbBufferSize = 0;
 	abortProcessing = 0;
@@ -617,7 +616,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     self->viewBuffer = self->viewImageBuffer [ self->currentViewBuffer ];
   }
 
-	if ( self->maxFrames < self->frameLimit ) {
+	if ( self->maxFrames < config.maxFramesToStack ) {
 		self->maxFrames++;
 
 		// assign more memory for the array of frame pointers if required
@@ -655,7 +654,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 			viewFrameLength );
 
 	self->nextFrame++;
-	self->nextFrame %= self->frameLimit;
+	self->nextFrame %= config.maxFramesToStack;
 
 	switch ( state->stackingMethod ) {
 		case OA_STACK_NONE:

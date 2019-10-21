@@ -87,6 +87,7 @@ typedef struct
 
 	// processing config
 	double		stackKappa;
+	unsigned int	maxFramesToStack;
 
 } CONFIG;
 

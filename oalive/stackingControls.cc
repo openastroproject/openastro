@@ -56,18 +56,29 @@ StackingControls::StackingControls ( QWidget* parent ) : QWidget ( parent )
 	kappaInput->setFixedWidth ( 100 );
 	kappaInput->setText ( QString::number ( config.stackKappa ));
 
+	stackMaxLabel = new QLabel ( tr ( "Maximum # of frames to stack" ), this );
+	stackMaxInput = new QLineEdit ( this );
+	stackMaxValidator = new QIntValidator ( 2, 100, this );
+	stackMaxInput->setValidator ( stackMaxValidator );
+	stackMaxInput->setFixedWidth ( 100 );
+	stackMaxInput->setText ( QString::number ( config.maxFramesToStack ));
+
   connect ( stackingMethodMenu, SIGNAL( currentIndexChanged ( int )), this,
       SLOT( stackingMethodChanged ( int )));
   connect ( kappaInput, SIGNAL( textEdited( const QString& )), this,
       SLOT( updateKappaValue()));
+  connect ( stackMaxInput, SIGNAL( textEdited( const QString& )), this,
+      SLOT( updateStackMaxValue()));
 
   grid = new QGridLayout;
 	grid->addWidget ( methodLabel, 0, 0 );
 	grid->addWidget ( stackingMethodMenu, 0, 1 );
 	grid->addWidget ( kappaLabel, 1, 0 );
 	grid->addWidget ( kappaInput, 1, 1 );
+	grid->addWidget ( stackMaxLabel, 2, 0 );
+	grid->addWidget ( stackMaxInput, 2, 1 );
 
-  grid->setRowStretch ( 2, 1 );
+  grid->setRowStretch ( 3, 1 );
 
   setLayout ( grid );
 }
@@ -94,4 +105,12 @@ StackingControls::updateKappaValue ( void )
 {
 	QString k = kappaInput->text();
 	config.stackKappa = k.toDouble();
+}
+
+
+void
+StackingControls::updateStackMaxValue ( void )
+{
+	QString m = stackMaxInput->text();
+	config.maxFramesToStack = m.toInt();
 }

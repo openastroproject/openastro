@@ -411,6 +411,7 @@ MainWindow::readConfig ( QString configFile )
     config.saveEachFrame = 0;
     config.saveProcessedImage = 0;
 		config.stackKappa = 2.0;
+		config.maxFramesToStack = 20;
 #endif
     config.captureDirectory = QString ( defaultDir );
 
@@ -593,6 +594,8 @@ MainWindow::readConfig ( QString configFile )
         "" ).toString();
 
     config.stackKappa = settings->value ( "stacking/kappa", 2.0 ).toDouble();
+    config.maxFramesToStack = settings->value ( "stacking/maxFramesToStack",
+				20 ).toInt();
 #endif
 
 #ifdef OACAPTURE
@@ -1141,6 +1144,7 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "files/captureDirectory", config.captureDirectory );
 
   settings->setValue ( "stacking/kappa", config.stackKappa );
+  settings->setValue ( "stacking/maxFramesToStack", config.maxFramesToStack );
 #endif
 
 #ifdef OACAPTURE

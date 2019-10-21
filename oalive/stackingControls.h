@@ -60,8 +60,12 @@ class StackingControls : public QWidget
 		QLabel*							kappaLabel;
 		QLineEdit*					kappaInput;
 		QDoubleValidator*		kappaValidator;
+		QLabel*							stackMaxLabel;
+		QLineEdit*					stackMaxInput;
+		QIntValidator*			stackMaxValidator;
 
   public slots:
     void		stackingMethodChanged ( int );
     void		updateKappaValue ( void );
+    void		updateStackMaxValue ( void );
 };
