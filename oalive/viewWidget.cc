@@ -616,7 +616,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     self->viewBuffer = self->viewImageBuffer [ self->currentViewBuffer ];
   }
 
-	if ( self->maxFrames < config.maxFramesToStack ) {
+	if ( self->maxFrames < config.maxFramesToStack &&
+			self->maxFrames == self->nextFrame ) {
 		self->maxFrames++;
 
 		// assign more memory for the array of frame pointers if required
@@ -655,6 +656,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 
 	self->nextFrame++;
 	self->nextFrame %= config.maxFramesToStack;
+qDebug() << "nextFrame: " << self->nextFrame;
 
 	switch ( state->stackingMethod ) {
 		case OA_STACK_NONE:

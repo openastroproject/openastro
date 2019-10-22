@@ -65,9 +65,9 @@ StackingControls::StackingControls ( QWidget* parent ) : QWidget ( parent )
 
   connect ( stackingMethodMenu, SIGNAL( currentIndexChanged ( int )), this,
       SLOT( stackingMethodChanged ( int )));
-  connect ( kappaInput, SIGNAL( textEdited( const QString& )), this,
+  connect ( kappaInput, SIGNAL( editingFinished()), this,
       SLOT( updateKappaValue()));
-  connect ( stackMaxInput, SIGNAL( textEdited( const QString& )), this,
+  connect ( stackMaxInput, SIGNAL( editingFinished()), this,
       SLOT( updateStackMaxValue()));
 
   grid = new QGridLayout;
