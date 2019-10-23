@@ -227,7 +227,9 @@ typedef enum CONTROL_ID
   CAM_LIVEVIDEOMODE,
   CAM_IS_COLOR,
   hasHardwareFrameCounter,
-  CONTROL_MAX_ID
+  CONTROL_MAX_ID,
+  CAM_HUMIDITY			//!<check if camera has	 humidity sensor  20191021 LYL Unified humidity function
+
 } CONTROL_ID;
 
 /**
