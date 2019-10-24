@@ -158,7 +158,8 @@ const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
 	"Shutter Speed",
 	"Mirror Lockup",
 	"Power Source",
-	"Battery Level"
+	"Battery Level",
+	"Conversion Gain"
 };
 
 const char* oaCameraPresetAWBLabel[ OA_AWB_PRESET_LAST_P1 ] = {

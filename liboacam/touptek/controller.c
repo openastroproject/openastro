@@ -62,6 +62,53 @@ static int	_setColourMode ( TOUPTEK_STATE*, int );
 static int	_setBitDepth ( TOUPTEK_STATE*, int );
 */
 
+/*
+ * Current possible options (as of v39.15529):
+ *
+ * TOUPCAM_OPTION_NOFRAME_TIMEOUT			ignored
+ * TOUPCAM_OPTION_THREAD_PRIORITY			ignored
+ * TOUPCAM_OPTION_PROCESSMODE					ignored
+ * TOUPCAM_OPTION_RAW									implemented
+ * TOUPCAM_OPTION_HISTOGRAM						ignored
+ * TOUPCAM_OPTION_BITDEPTH						implemented
+ * TOUPCAM_OPTION_FAN									ignored
+ * TOUPCAM_OPTION_TEC									implemented
+ * TOUPCAM_OPTION_LINEAR							should be set to 0 in connect()
+ * TOUPCAM_OPTION_CURVE								should be set to 0 in connect()
+ * TOUPCAM_OPTION_TRIGGER							implemented, partially
+ * TOUPCAM_OPTION_RGB									implemented
+ * TOUPCAM_OPTION_COLORMATIX					should be set to 0 in connect()
+ * TOUPCAM_OPTION_WBGAIN							implemented
+ * TOUPCAM_OPTION_TECTARGET						implemented
+ * TOUPCAM_OPTION_AUTOEXP_POLICY
+ * TOUPCAM_OPTION_FRAMERATE						ignored (perhaps required for RPi3?)
+ * TOUPCAM_OPTION_DEMOSAIC						should be set to 0 in connect()
+ * TOUPCAM_OPTION_DEMOSAIC_VIDEO			should be set to 0 in connect()
+ * TOUPCAM_OPTION_DEMOSAIC_STILL			should be set to 0 in connect()
+ * TOUPCAM_OPTION_BLACKLEVEL					implemented
+ * TOUPCAM_OPTION_MULTITHREAD					ignored
+ * TOUPCAM_OPTION_BINNING							implemented, partially
+ * TOUPCAM_OPTION_ROTATE							ignored
+ * TOUPCAM_OPTION_CG									implemented
+ * TOUPCAM_OPTION_PIXEL_FORMAT
+ * TOUPCAM_OPTION_FFC									ignored
+ * TOUPCAM_OPTION_DDR_DEPTH						should be set to 0 in connect()
+ * TOUPCAM_OPTION_DFC									ignored
+ * TOUPCAM_OPTION_SHARPENING
+ * TOUPCAM_OPTION_FACTORY
+ * TOUPCAM_OPTION_TEC_VOLTAGE					ignored
+ * TOUPCAM_OPTION_TEC_VOLTAGE_MAX			ignored
+ * TOUPCAM_OPTION_DEVICE_RESET				ignored
+ * TOUPCAM_OPTION_UPSIDE_DOWN	
+ * TOUPCAM_OPTION_AFPOSITION					ignored
+ * TOUPCAM_OPTION_AFMODE							ignored
+ * TOUPCAM_OPTION_AFZONE							ignored
+ * TOUPCAM_OPTION_AFFEEDBACK					ignored
+ * TOUPCAM_OPTION_TESTPATTERN					ignored
+ * TOUPCAM_OPTION_AUTOEXP_THRESHOLD
+ * TOUPCAM_OPTION_BYTEORDER						should be set to 0 in connect()
+ */
+
 
 void*
 TT_FUNC( oacam, controller )( void* param )
@@ -186,8 +233,9 @@ static int
 _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 {
   TOUPTEK_STATE*	cameraInfo = camera->_private;
-  oaControlValue	*valp = command->commandData;
-  int			control = command->controlId, val = 0;
+	COMMON_INFO*		commonInfo = camera->_common;
+  oaControlValue*	valp = command->commandData;
+  int							control = command->controlId, val = 0;
 
   switch ( control ) {
 
@@ -423,6 +471,91 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       return OA_ERR_NONE;
       break;
 
+		case OA_CAM_CTRL_TEMP_SETPOINT:
+      if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
+        fprintf ( stderr, "%s: invalid control type %d where int32 expected "
+            "for control %d\n", __FUNCTION__, valp->valueType, control );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val = valp->int32;
+      if ( val >= TOUPTEK_SETPOINT_MIN && val <= TOUPTEK_SETPOINT_MAX ) {
+				// Weird one this, as there appears to be more than one way to do
+				// it.  If we have a TEC then set that option, otherwise set the
+				// target temperature.
+				if ( cameraInfo->haveTEC ) {
+					if ((( TT_LIB_PTR( put_Option ))( cameraInfo->handle,
+							TT_OPTION( TECTARGET ), val )) < 0 ) {
+						fprintf ( stderr, TT_DRIVER "_put_Option ( tec target, %d ) "
+								"failed\n", val );
+						return -OA_ERR_CAMERA_IO;
+					}
+				} else {
+					if ((( TT_LIB_PTR( put_Temperature ))( cameraInfo->handle, val ))
+							< 0 ) {
+						fprintf ( stderr, TT_DRIVER "_put_Temperature ( %d ) failed\n",
+								val );
+						return -OA_ERR_CAMERA_IO;
+					}
+        }
+      } else {
+        return -OA_ERR_OUT_OF_RANGE;
+      }
+      return OA_ERR_NONE;
+      break;
+
+		case OA_CAM_CTRL_BLACKLEVEL:
+		{
+			int			bitspp;
+
+      if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
+        fprintf ( stderr, "%s: invalid control type %d where int32 expected "
+            "for control %d\n", __FUNCTION__, valp->valueType, control );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val = valp->int32;
+			// FIX ME -- needs more work, because the black level varies depending
+			// on the bit depth
+		  bitspp = oaFrameFormats[ cameraInfo->currentVideoFormat ].bitsPerPixel;
+			bitspp -= 8;
+			if ( bitspp > 0 ) {
+				int multiplier = 1 << ( bitspp );
+				val *= multiplier;
+			}
+      if ( val >= TT_DEFINE( BLACKLEVEL_MIN ) &&
+					val <= TT_DEFINE ( BLACKLEVEL8_MAX )) {
+				if ((( TT_LIB_PTR( put_Option ))( cameraInfo->handle,
+						TT_OPTION( BLACKLEVEL ), val )) < 0 ) {
+					fprintf ( stderr, TT_DRIVER "_put_Option ( black level, %d ) "
+							"failed\n", val );
+					return -OA_ERR_CAMERA_IO;
+				}
+      } else {
+        return -OA_ERR_OUT_OF_RANGE;
+      }
+      return OA_ERR_NONE;
+      break;
+		}
+		case OA_CAM_CTRL_CONVERSION_GAIN:
+      if ( OA_CTRL_TYPE_INT32 != valp->int32 ) {
+        fprintf ( stderr, "%s: invalid control type %d where int32 expected "
+            "for control %d\n", __FUNCTION__, valp->valueType, control );
+        return -OA_ERR_INVALID_CONTROL_TYPE;
+      }
+      val = valp->int32;
+      if ( val >= 0 && val <=
+					commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_CONVERSION_GAIN )) {
+				if ((( TT_LIB_PTR( put_Option ))( cameraInfo->handle,
+						TT_OPTION( CG ), val )) < 0 ) {
+					fprintf ( stderr, TT_DRIVER "_put_Option ( conversion gain, %d ) "
+							"failed\n", val );
+					return -OA_ERR_CAMERA_IO;
+				}
+      } else {
+        return -OA_ERR_OUT_OF_RANGE;
+      }
+      return OA_ERR_NONE;
+      break;
+
     case OA_CAM_CTRL_BINNING:
       if ( OA_CTRL_TYPE_DISCRETE != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected "
@@ -449,18 +582,23 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       break;
 
     case OA_CAM_CTRL_FAN:
-      if ( OA_CTRL_TYPE_BOOLEAN != valp->valueType ) {
-        fprintf ( stderr, "%s: invalid control type %d where boolean expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
-        return -OA_ERR_INVALID_CONTROL_TYPE;
-      }
-      val = valp->boolean ? 0 : 1;
-      if ((( TT_LIB_PTR( put_Option ))( cameraInfo->handle,
-          TT_OPTION( FAN ), 1 )) < 0 ) {
-        fprintf ( stderr, TT_DRIVER "_put_Option ( fan, %d ) failed\n", val );
-        return -OA_ERR_CAMERA_IO;
-      }
-      return OA_ERR_NONE;
+      if ( OA_CTRL_TYPE_BOOLEAN == valp->valueType ) {
+				val = valp->boolean ? 0 : 1;
+			} else {
+				if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
+					fprintf ( stderr, "%s: invalid control type %d where boolean or "
+							"int32 expected for control %d\n", __FUNCTION__,
+							valp->valueType, control );
+					return -OA_ERR_INVALID_CONTROL_TYPE;
+				}
+				val = valp->int32;
+			}
+			if ((( TT_LIB_PTR( put_Option ))( cameraInfo->handle,
+					TT_OPTION( FAN ), val )) < 0 ) {
+				fprintf ( stderr, TT_DRIVER "_put_Option ( fan, %d ) failed\n", val );
+				return -OA_ERR_CAMERA_IO;
+			}
+			return OA_ERR_NONE;
       break;
 
     case OA_CAM_CTRL_FRAME_FORMAT:
@@ -684,6 +822,46 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
       fprintf ( stderr, "%s: unimplemented control\n", __FUNCTION__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
+
+		case OA_CAM_CTRL_BLACKLEVEL:
+		{
+			int			bitspp, val;
+
+      valp->valueType = OA_CTRL_TYPE_INT32;
+			if ((( TT_LIB_PTR( get_Option ))( cameraInfo->handle,
+					TT_OPTION( BLACKLEVEL ), &val )) < 0 ) {
+				fprintf ( stderr, TT_DRIVER "_get_Option ( black level, %d ) "
+						"failed\n", val );
+				return -OA_ERR_CAMERA_IO;
+			}
+			// FIX ME -- needs more work, because the black level varies depending
+			// on the bit depth
+		  bitspp = oaFrameFormats[ cameraInfo->currentVideoFormat ].bitsPerPixel;
+			bitspp -= 8;
+			if ( bitspp > 0 ) {
+				int divisor = 1 << ( bitspp );
+				val /= divisor;
+			}
+      valp->int32 = val;
+      return OA_ERR_NONE;
+      break;
+		}
+
+		case OA_CAM_CTRL_CONVERSION_GAIN:
+		{
+			int			val;
+
+      valp->valueType = OA_CTRL_TYPE_INT32;
+			if ((( TT_LIB_PTR( get_Option ))( cameraInfo->handle,
+					TT_OPTION( CG ), &val )) < 0 ) {
+				fprintf ( stderr, TT_DRIVER "_get_Option ( gain conversion, %d ) "
+						"failed\n", val );
+				return -OA_ERR_CAMERA_IO;
+			}
+      valp->int32 = val;
+      return OA_ERR_NONE;
+      break;
+		}
   }
 
   fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );

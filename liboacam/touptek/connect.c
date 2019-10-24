@@ -42,6 +42,48 @@
 #define MAKEFOURCC(a, b, c, d) ((uint32_t)(uint8_t)(a) | ((uint32_t)(uint8_t)(b) << 8) | ((uint32_t)(uint8_t)(c) << 16) | ((uint32_t)(uint8_t)(d) << 24))
 #endif
 
+/*
+ * Currently available flags (as of 39.15529):
+ *
+ * TOUPCAM_FLAG_CMOS							ignored
+ * TOUPCAM_FLAG_CCD_PROGRESSIVE		ignored
+ * TOUPCAM_FLAG_CCD_INTERLACED		ignored
+ * TOUPCAM_FLAG_ROI_HARDWARE			handled
+ * TOUPCAM_FLAG_MONO							handled
+ * TOUPCAM_FLAG_BINSKIP_SUPPORTED	handled, but probably incomplete
+ * TOUPCAM_FLAG_USB30							ignored
+ * TOUPCAM_FLAG_TEC								handled
+ * TOUPCAM_FLAG_USB30_OVER_USB20	ignored
+ * TOUPCAM_FLAG_ST4								ignored
+ * TOUPCAM_FLAG_GETTEMPERATURE		handled
+ * TOUPCAM_FLAG_PUTTEMPERATURE		handled
+ * TOUPCAM_FLAG_RAW10							handled
+ * TOUPCAM_FLAG_RAW12							handled
+ * TOUPCAM_FLAG_RAW14							handled
+ * TOUPCAM_FLAG_RAW16							handled
+ * TOUPCAM_FLAG_FAN								handled
+ * TOUPCAM_FLAG_TEC_ONOFF					handled
+ * TOUPCAM_FLAG_ISP								ignored
+ * TOUPCAM_FLAG_TRIGGER_SOFTWARE	handled, perhaps incomplete
+ * TOUPCAM_FLAG_TRIGGER_EXTERNAL	handled, perhaps incomplete
+ * TOUPCAM_FLAG_TRIGGER_SINGLE		handled, perhaps incomplete
+ * TOUPCAM_FLAG_BLACKLEVEL				handled
+ * TOUPCAM_FLAG_AUTO_FOCUS				should support this in the future?
+ * TOUPCAM_FLAG_BUFFER						ignored
+ * TOUPCAM_FLAG_DDR								ignored
+ * TOUPCAM_FLAG_CG								handled
+ * TOUPCAM_FLAG_YUV411
+ * TOUPCAM_FLAG_VUYY
+ * TOUPCAM_FLAG_YUV444
+ * TOUPCAM_FLAG_RGB888						support all of these in the future, but need
+ * TOUPCAM_FLAG_RAW8							to understand how they interact with bit
+ * TOUPCAM_FLAG_GMCY8							depth
+ * TOUPCAM_FLAG_GMCY12
+ * TOUPCAM_FLAG_UYVY
+ * TOUPCAM_FLAG_CGHDR							handled
+ * TOUPCAM_FLAG_GLOBALSHUTTER			ignored
+ * TOUPCAM_FLAG_FOCUSMOTOR				ignored
+ */
 
 static void TT_FUNC( _, InitFunctionPointers ) ( oaCamera* );
 
@@ -205,21 +247,25 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
 
   if ( devList[ devInfo->devIndex ].model->flag &
       TT_FLAG( PUTTEMPERATURE )) {
-    fprintf ( stderr, TT_DRIVER " supports setting temperature, but we "
-        "don't know how to get the range\n" );
-    /*
+		// There don't appear to be any defaults or limits for this, so we'll
+		// just guess.
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMP_SETPOINT ) = OA_CTRL_TYPE_INT32;
-    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TEMP_SETPOINT ) = min;
-    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TEMP_SETPOINT ) = max;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TEMP_SETPOINT ) =
+				TOUPTEK_SETPOINT_MIN;
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TEMP_SETPOINT ) =
+				TOUPTEK_SETPOINT_MAX;
     commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TEMP_SETPOINT ) = 1;
-    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) = def;
-     */
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) = 0;
   }
 
   if ( devList[ devInfo->devIndex ].model->flag &
       TT_FLAG( GETTEMPERATURE )) {
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
   }
+
+  if ( devList[ devInfo->devIndex ].model->flag & TT_FLAG( TEC )) {
+		cameraInfo->haveTEC = 1;
+	}
 
   if ( devList[ devInfo->devIndex ].model->flag & TT_FLAG( TEC_ONOFF )) {
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COOLER ) = OA_CTRL_TYPE_BOOLEAN;
@@ -230,12 +276,42 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   }
 
   if ( devList[ devInfo->devIndex ].model->flag & TT_FLAG( FAN )) {
-    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FAN ) = OA_CTRL_TYPE_BOOLEAN;
-    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_FAN ) = 0;
-    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_FAN ) = 1;
-    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_FAN ) = 1;
-    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FAN ) = 0;
+		cameraInfo->fanSpeedMax = devList[ devInfo->devIndex ].model->maxfanspeed;
+		if ( cameraInfo->fanSpeedMax > 1 ) {
+			camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FAN ) = OA_CTRL_TYPE_INT32;
+			commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_FAN ) = 0;
+			commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_FAN ) = cameraInfo->fanSpeedMax;
+			commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_FAN ) = 1;
+			commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FAN ) = 0;
+		} else {
+			camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FAN ) = OA_CTRL_TYPE_BOOLEAN;
+			commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_FAN ) = 0;
+			commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_FAN ) = 1;
+			commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_FAN ) = 1;
+			commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FAN ) = 0;
+		}
   }
+
+  if ( devList[ devInfo->devIndex ].model->flag & TT_FLAG( BLACKLEVEL )) {
+		// FIX ME -- more work is required here, as there are different
+		// maximum black level values depending on the bit depth
+		camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLACKLEVEL ) = OA_CTRL_TYPE_INT32;
+		commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLACKLEVEL ) =
+				TT_DEFINE( BLACKLEVEL_MIN );
+		commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLACKLEVEL ) =
+				TT_DEFINE( BLACKLEVEL8_MAX );
+		commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLACKLEVEL ) = 1;
+		commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLACKLEVEL ) = 0;
+  }
+
+  if ( devList[ devInfo->devIndex ].model->flag & TT_FLAG( CG )) {
+		camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_CONVERSION_GAIN ) = OA_CTRL_TYPE_MENU;
+		commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_CONVERSION_GAIN ) = 0;
+		commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_CONVERSION_GAIN ) =
+				( devList[ devInfo->devIndex ].model->flag & TT_FLAG( CGHDR )) ? 1 : 2;
+		commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_CONVERSION_GAIN ) = 1;
+		commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_CONVERSION_GAIN ) = 0;
+	}
 
   if ( cameraInfo->colour ) {
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HUE ) = OA_CTRL_TYPE_INT32;

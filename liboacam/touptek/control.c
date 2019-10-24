@@ -160,21 +160,37 @@ TT_FUNC( oa, CameraTestControl )( oaCamera* camera, int control,
 const char*
 TT_FUNC( oa, CameraGetMenuString )( oaCamera* camera, int control, int index )
 { 
-  if ( OA_CAM_CTRL_LED_STATE == control ) {
+	switch ( control ) {
+		case OA_CAM_CTRL_LED_STATE:
+			switch ( index ) { 
+				case 1:
+					return "On";
+					break;
+				case 2:
+					return "Flash";
+					break;
+				case 3:
+					return "Off";
+					break;
+			}
+			return "Invalid index";
+			break;
 
-    switch ( index ) { 
-      case 1:
-        return "On";
-        break;
-      case 2:
-        return "Flash";
-        break;
-      case 3:
-        return "Off";
-        break;
-    }
-    return "Invalid index";
-  }
+		case OA_CAM_CTRL_CONVERSION_GAIN:
+			switch ( index ) { 
+				case 0:
+					return "LCG";
+					break;
+				case 1:
+					return "HCG";
+					break;
+				case 2:
+					return "HDR";
+					break;
+			}
+			return "Invalid index";
+			break;
+	}
 
   fprintf ( stderr, "%s: control not implemented\n", __FUNCTION__ );
   return "";
