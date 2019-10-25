@@ -317,10 +317,19 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 1 : 0;
-      if ((( TT_LIB_PTR( put_VFlip ))( cameraInfo->handle, val )) < 0 ) {
-        fprintf ( stderr, TT_DRIVER "_put_VFlip ( %d ) failed\n", val );
-        return -OA_ERR_CAMERA_IO;
+#ifndef NO_UPSIDE_DOWN
+			if ((( TT_LIB_PTR( put_Option ))( cameraInfo->handle,
+					TT_OPTION( UPSIDE_DOWN ), val )) < 0 ) {
+				// Perhaps it isn't available for this camera, so try VFlip instead
+#endif
+				if ((( TT_LIB_PTR( put_VFlip ))( cameraInfo->handle, val )) < 0 ) {
+					fprintf ( stderr, TT_DRIVER "put_Option ( upside down, %d and "
+							"put_VFlip ( %d ) failed\n", val, val );
+					return -OA_ERR_CAMERA_IO;
+				}
+#ifndef NO_UPSIDE_DOWN
       }
+#endif
       return OA_ERR_NONE;
       break;
 
@@ -701,10 +710,17 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_VFLIP:
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
-      if ((( TT_LIB_PTR( get_VFlip ))( cameraInfo->handle, &val_s32 )) < 0 ) {
-        fprintf ( stderr, TT_DRIVER "_get_VFlip failed\n" );
-        return -OA_ERR_CAMERA_IO;
-      }
+#ifndef NO_UPSIDE_DOWN
+			if ((( TT_LIB_PTR( get_Option ))( cameraInfo->handle,
+					TT_OPTION( UPSIDE_DOWN ), &val_s32 )) < 0 ) {
+#endif
+				if ((( TT_LIB_PTR( get_VFlip ))( cameraInfo->handle, &val_s32 )) < 0 ) {
+					fprintf ( stderr, TT_DRIVER "_get_VFlip failed\n" );
+					return -OA_ERR_CAMERA_IO;
+				}
+#ifndef NO_UPSIDE_DOWN
+			}
+#endif
       valp->boolean = val_s32;
       return OA_ERR_NONE;
       break;

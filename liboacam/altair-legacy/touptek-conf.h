@@ -84,4 +84,7 @@
 // functions
 #define NO_V2_IMAGE_FUNCS
 
+// And it doesn't have an "upside down" option
+#define	NO_UPSIDE_DOWN
+
 #endif	/* OA_LEGACY_ALTAIRCAM_CONF_H */
