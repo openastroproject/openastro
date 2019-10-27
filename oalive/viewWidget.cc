@@ -656,7 +656,6 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 
 	self->nextFrame++;
 	self->nextFrame %= config.maxFramesToStack;
-qDebug() << "nextFrame: " << self->nextFrame;
 
 	switch ( state->stackingMethod ) {
 		case OA_STACK_NONE:
