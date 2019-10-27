@@ -62,6 +62,8 @@ typedef struct Touptek_STATE {
   int			currentBitsPerPixel;
   int32_t		ledState;
   int32_t		ledPeriod;
+  int32_t		fanSpeedMax;
+	int				haveTEC;
 } TOUPTEK_STATE;
 
 #endif	/* OA_TOUPTEK_STATE_H */
