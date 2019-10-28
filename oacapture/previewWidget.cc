@@ -796,7 +796,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
   if ( self->hasDroppedFrames && t.tv_sec != self->secondForDropped &&
       t.tv_sec % 2 == 0 ) {
     emit self->updateDroppedFrames();
-    self->secondForTemperature = t.tv_sec;
+    self->secondForDropped = t.tv_sec;
   }
 	if ( t.tv_sec != self->secondForAutoControls ) {
 		emit self->updateAutoControls();
