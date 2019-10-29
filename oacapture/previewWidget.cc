@@ -360,20 +360,6 @@ PreviewWidget::setVideoFramePixelFormat ( int format )
 
 
 void
-PreviewWidget::enableTempDisplay ( int state )
-{
-  hasTemp = state;
-}
-
-
-void
-PreviewWidget::enableDroppedDisplay ( int state )
-{
-  hasDroppedFrames = state;
-}
-
-
-void
 PreviewWidget::enableFlipX ( int state )
 {
   flipX = state;
@@ -787,21 +773,6 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
       doHistogram = 1;
     }
   }
-
-  if ( self->hasTemp && t.tv_sec != self->secondForTemperature &&
-      t.tv_sec % 5 == 0 ) {
-    emit self->updateTemperature();
-    self->secondForTemperature = t.tv_sec;
-  }
-  if ( self->hasDroppedFrames && t.tv_sec != self->secondForDropped &&
-      t.tv_sec % 2 == 0 ) {
-    emit self->updateDroppedFrames();
-    self->secondForDropped = t.tv_sec;
-  }
-	if ( t.tv_sec != self->secondForAutoControls ) {
-		emit self->updateAutoControls();
-		self->secondForAutoControls = t.tv_sec;
-	}
 
   if ( doDisplay ) {
     emit self->updateDisplay();

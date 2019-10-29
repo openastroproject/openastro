@@ -144,8 +144,6 @@ MainWindow::MainWindow ( QString configFile )
 
   connect ( state.previewWidget, SIGNAL( updateFrameCount ( unsigned int )),
       this, SLOT ( setCapturedFrames ( unsigned int )));
-  connect ( state.previewWidget, SIGNAL( updateDroppedFrames ( void )),
-      this, SLOT ( setDroppedFrames ( void )));
   connect ( state.previewWidget, SIGNAL( updateProgress ( unsigned int )),
       this, SLOT ( setProgress ( unsigned int )));
   connect ( state.previewWidget, SIGNAL( stopRecording ( void )),
@@ -158,11 +156,6 @@ MainWindow::MainWindow ( QString configFile )
       this, SLOT ( setLocation ( void )));
   connect ( state.previewWidget, SIGNAL( updateActualFrameRate (
       double )), state.cameraWidget, SLOT ( setActualFrameRate ( double )));
-  connect ( state.previewWidget, SIGNAL( updateTemperature ( void )),
-      state.cameraWidget, SLOT ( setTemperature ( void )));
-	connect ( state.previewWidget, SIGNAL( updateAutoControls()),
-			state.controlWidget, SLOT( doAutoControlUpdate()));
-
 
   // update filters for matching filter wheels from config
   commonState.filterWheel->updateAllSearchFilters();
@@ -178,6 +171,21 @@ MainWindow::MainWindow ( QString configFile )
     connectCamera ( 0 );
   }
   focusaid->setChecked ( config.showFocusAid );
+
+	// Create timers for updating temperature, dropped frames etc.
+	temperatureTimer = new QTimer ( this );
+	droppedFrameTimer = new QTimer ( this );
+	autoControlsTimer = new QTimer ( this );
+	connect ( temperatureTimer, SIGNAL( timeout()), state.cameraWidget,
+			SLOT( updateTemperature ( void )));
+	connect ( droppedFrameTimer, SIGNAL( timeout()), this,
+      SLOT ( setDroppedFrames ( void )));
+	connect ( autoControlsTimer, SIGNAL( timeout()), state.controlWidget,
+			SLOT( doAutoControlUpdate ( void )));
+
+	temperatureTimer->start ( 5000 );
+	droppedFrameTimer->start ( 2000 );
+	autoControlsTimer->start ( 1000 );
 }
 
 
@@ -186,6 +194,9 @@ MainWindow::~MainWindow()
   // FIX ME -- delete cameras[], filterWheels[]
 
   state.histogramOn = 0;
+	temperatureTimer->stop();
+	droppedFrameTimer->stop();
+	autoControlsTimer->stop();
 
   delete about;
   delete histogram;
@@ -269,6 +280,9 @@ MainWindow::~MainWindow()
   if ( state.histogramWidget ) {
     delete state.histogramWidget;
   }
+	delete temperatureTimer;
+	delete droppedFrameTimer;
+	delete autoControlsTimer;
 }
 
 
@@ -1617,11 +1631,8 @@ MainWindow::connectCamera ( int deviceIndex )
       commonState.camera->videoFramePixelFormat());
   state.cameraWidget->enableBinningControl (
 			commonState.camera->hasBinning ( 2 ));
-  v = commonState.camera->hasControl ( OA_CAM_CTRL_TEMPERATURE );
-  state.previewWidget->enableTempDisplay ( v );
   // styleStatusBarTemp ( v );
   v = commonState.camera->hasControl ( OA_CAM_CTRL_DROPPED );
-  state.previewWidget->enableDroppedDisplay ( v );
   styleStatusBarDroppedFrames ( v );
   if ( state.settingsWidget ) {
     state.settingsWidget->enableTab ( commonState.cameraSettingsIndex, 1 );
@@ -1895,6 +1906,10 @@ MainWindow::setDroppedFrames()
   uint64_t dropped;
   QString stringVal;
 
+	if ( !commonState.camera->isInitialised() ||
+			!commonState.camera->hasControl ( OA_CAM_CTRL_DROPPED )) {
+		return;
+	}
   dropped = commonState.camera->readControl ( OA_CAM_CTRL_DROPPED );
   stringVal.setNum ( dropped );
   droppedValue->setText ( stringVal );

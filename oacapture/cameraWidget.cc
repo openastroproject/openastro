@@ -237,6 +237,11 @@ CameraWidget::setTemperature()
   float temp;
   QString stringVal;
 
+	if ( !commonState.camera->isInitialised() ||
+			!commonState.camera->hasControl ( OA_CAM_CTRL_TEMPERATURE )) {
+		return;
+	}
+
   temp = commonState.camera->getTemperature();
   commonState.cameraTempValid = 1;
   commonState.cameraTemp = temp;

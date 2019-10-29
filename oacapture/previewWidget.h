@@ -57,8 +57,6 @@ class PreviewWidget : public QFrame
     void		setCapturedFramesDisplayInterval ( int );
     void		setEnabled ( int );
     void		setVideoFramePixelFormat ( int );
-    void		enableTempDisplay ( int );
-    void		enableDroppedDisplay ( int );
     void		enableFlipX ( int );
     void		enableFlipY ( int );
     void		enableDemosaic ( int );
@@ -80,14 +78,11 @@ class PreviewWidget : public QFrame
   signals:
     void		updateFrameCount ( unsigned int );
     void		updateActualFrameRate ( double );
-    void		updateTemperature ( void );
-    void		updateDroppedFrames ( void );
     void		updateProgress ( unsigned int );
     void		updateHistogram ( void );
     void		updateDisplay ( void );
     void		stopRecording ( void );
     void		frameWriteFailed ( void );
-    void		updateAutoControls ( void );
 
   private:
     QImage		image;
@@ -105,8 +100,6 @@ class PreviewWidget : public QFrame
     long		secondForTemperature;
     long		secondForDropped;
     long		secondForAutoControls;
-    int			hasTemp;
-    int			hasDroppedFrames;
     int			reticleCentreX;
     int			reticleCentreY;
     int			flipX;

@@ -2013,7 +2013,8 @@ ControlWidget::doAutoControlUpdate ( void )
 {
 	int				type, control, c, i;
 
-	if ( !commonState.camera->hasReadableControls()) {
+	if ( !commonState.camera->isInitialised() ||
+			!commonState.camera->hasReadableControls()) {
 		return;
 	}
 

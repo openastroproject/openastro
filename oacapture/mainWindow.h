@@ -109,6 +109,10 @@ class MainWindow : public QMainWindow
     QLabel*             wheelStatus;
     QLabel*             locationLabel;
     QString    userConfigFile;
+		QTimer*			temperatureTimer;
+		QTimer*			droppedFrameTimer;
+		QTimer*			autoControlsTimer;
+
 
     void		readConfig ( QString );
     void		writeConfig ( QString );
