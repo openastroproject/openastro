@@ -1474,7 +1474,6 @@ _FC2InitFunctionPointers ( oaCamera* camera )
   camera->funcs.getFramePixelFormat = oaFC2CameraGetFramePixelFormat;
 
   camera->funcs.enumerateFrameRates = oaFC2CameraGetFrameRates;
-  camera->funcs.setFrameInterval = oaFC2CameraSetFrameInterval;
 
   camera->funcs.getMenuString = oaFC2CameraGetMenuString;
 }
