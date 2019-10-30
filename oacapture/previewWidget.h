@@ -97,9 +97,6 @@ class PreviewWidget : public QFrame
     int			videoFramePixelFormat;
     int			framesInFpsCalcPeriod;
     unsigned long	fpsCalcPeriodStartTime;
-    long		secondForTemperature;
-    long		secondForDropped;
-    long		secondForAutoControls;
     int			reticleCentreX;
     int			reticleCentreY;
     int			flipX;

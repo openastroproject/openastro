@@ -72,7 +72,6 @@ PreviewWidget::PreviewWidget ( QWidget* parent ) : QFrame ( parent )
   previewEnabled = 1;
   videoFramePixelFormat = OA_PIX_FMT_RGB24;
   framesInFpsCalcPeriod = fpsCalcPeriodStartTime = 0;
-  secondForTemperature = secondForDropped = secondForAutoControls = 0;
   flipX = flipY = 0;
   movingReticle = rotatingReticle = rotationAngle = 0;
   savedXSize = savedYSize = 0;
