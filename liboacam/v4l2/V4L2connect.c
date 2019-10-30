@@ -1776,7 +1776,6 @@ _V4L2InitFunctionPointers ( oaCamera* camera )
   camera->funcs.enumerateFrameSizes = oaV4L2CameraGetFrameSizes;
   camera->funcs.getFramePixelFormat = oaV4L2CameraGetFramePixelFormat;
   camera->funcs.enumerateFrameRates = oaV4L2CameraGetFrameRates;
-  camera->funcs.setFrameInterval = oaV4L2CameraSetFrameInterval;
 
   camera->funcs.getAutoWBManualSetting = oaV4L2CameraGetAutoWBManualSetting;
 
