@@ -73,7 +73,6 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
   lastDisplayUpdateTime = 0;
   frameDisplayInterval = 1000/15; // display frames per second
   videoFramePixelFormat = OA_PIX_FMT_RGB24;
-	secondForTemperature = secondForDropped = secondForAutoControls = 0;
   flipX = flipY = 0;
   movingReticle = rotatingReticle = rotationAngle = 0;
   savedXSize = savedYSize = 0;
@@ -413,20 +412,6 @@ ViewWidget::setVideoFramePixelFormat ( int format )
 
 
 void
-ViewWidget::enableTempDisplay ( int state )
-{
-  hasTemp = state;
-}
-
-
-void
-ViewWidget::enableDroppedDisplay ( int state )
-{
-  hasDroppedFrames = state;
-}
-
-
-void
 ViewWidget::enableFlipX ( int state )
 {
   flipX = state;
@@ -737,21 +722,6 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 	pthread_mutex_lock ( &( self->imageMutex ));
 	self->abortProcessing = 0;
 	pthread_mutex_unlock ( &( self->imageMutex ));
-
-  if ( self->hasTemp && t.tv_sec != self->secondForTemperature &&
-      t.tv_sec % 5 == 0 ) {
-    emit self->updateTemperature();
-    self->secondForTemperature = t.tv_sec;
-  }
-  if ( self->hasDroppedFrames && t.tv_sec != self->secondForDropped &&
-      t.tv_sec % 2 == 0 ) {
-    emit self->updateDroppedFrames();
-    self->secondForTemperature = t.tv_sec;
-  }
-  if ( t.tv_sec > self->minuteForBatteryLevel ) {
-    emit self->updateBatteryLevel();
-    self->minuteForBatteryLevel = t.tv_sec + 60;
-  }
 
 	emit self->updateStackedFrameCount();
 

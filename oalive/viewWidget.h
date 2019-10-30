@@ -49,7 +49,6 @@ class ViewWidget : public QFrame
     			~ViewWidget();
 
     void		setVideoFramePixelFormat ( int );
-    void		enableTempDisplay ( int );
     void		enableFlipX ( int );
     void		enableFlipY ( int );
     static void*	addImage ( void*, void*, int, void* );
@@ -60,7 +59,6 @@ class ViewWidget : public QFrame
     void		configure ( void );
     void		setCapturedFramesDisplayInterval ( int );
     void		setEnabled ( int );
-    void		enableDroppedDisplay ( int );
     void		enableScreenUpdates ( int );
     void		setDisplayFPS ( int );
     void		setFirstFrameTime ( void );
@@ -118,12 +116,6 @@ class ViewWidget : public QFrame
     int			videoFramePixelFormat;
     unsigned int	framesInLastSecond;
     long		secondForFrameCount;
-    long		secondForTemperature;
-    long		secondForDropped;
-    long		secondForAutoControls;
-    long		minuteForBatteryLevel;
-    int			hasTemp;
-    int			hasDroppedFrames;
     int			reticleCentreX;
     int			reticleCentreY;
     int			flipX;

@@ -1312,7 +1312,8 @@ CameraControls::setBatteryLevel ( void )
 {
 	int		v;
 
-  if ( controlType[OA_CAM_CTRL_MODIFIER_STD][ OA_CAM_CTRL_BATTERY_LEVEL ] ==
+	if ( commonState.camera->isInitialised() &&
+			controlType[OA_CAM_CTRL_MODIFIER_STD][ OA_CAM_CTRL_BATTERY_LEVEL ] ==
 			OA_CTRL_TYPE_READONLY ) {
 		v = commonState.camera->readControl ( OA_CAM_CTRL_BATTERY_LEVEL );
 		batteryLevel->setValue ( v );

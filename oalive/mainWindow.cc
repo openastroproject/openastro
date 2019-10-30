@@ -176,10 +176,6 @@ MainWindow::MainWindow ( QString configFile )
       this, SLOT ( setCapturedFrames ( unsigned int )));
   connect ( state.previewWidget, SIGNAL( updateActualFrameRate (
       unsigned int )), this, SLOT ( setActualFrameRate ( unsigned int )));
-  connect ( state.previewWidget, SIGNAL( updateTemperature ( void )),
-      this, SLOT ( setTemperature ( void )));
-  connect ( state.previewWidget, SIGNAL( updateDroppedFrames ( void )),
-      this, SLOT ( setDroppedFrames ( void )));
   connect ( state.previewWidget, SIGNAL( updateProgress ( unsigned int )),
       this, SLOT ( setProgress ( unsigned int )));
   connect ( state.previewWidget, SIGNAL( stopRecording ( void )),
@@ -189,10 +185,6 @@ MainWindow::MainWindow ( QString configFile )
   connect ( state.previewWidget, SIGNAL( frameWriteFailed ( void )),
       this, SLOT ( frameWriteFailedPopup ( void )));
 #else
-  connect ( state.viewWidget, SIGNAL( updateTemperature ( void )),
-      this, SLOT ( setTemperature ( void )));
-  connect ( state.viewWidget, SIGNAL( updateBatteryLevel ( void )),
-      state.cameraControls, SLOT ( setBatteryLevel ( void )));
   connect ( state.viewWidget, SIGNAL( updateStackedFrameCount ( void )),
       this, SLOT ( setStackedFrames ( void )));
   connect ( state.processingControls, SIGNAL( redrawImage ( void )),
@@ -221,6 +213,22 @@ MainWindow::MainWindow ( QString configFile )
     connectCamera ( 0 );
   }
   focusaid->setChecked ( config.showFocusAid );
+
+	// Create timers for updating temperature, dropped frames etc.
+	temperatureTimer = new QTimer ( this );
+	//droppedFrameTimer = new QTimer ( this );
+	batteryLevelTimer = new QTimer ( this );
+	connect ( temperatureTimer, SIGNAL( timeout()), this,
+			SLOT( setTemperature ( void )));
+	/*
+	connect ( droppedFrameTimer, SIGNAL( timeout()), this,
+			SLOT ( setDroppedFrames ( void )));
+	 */
+	connect ( batteryLevelTimer, SIGNAL( timeout()), state.cameraControls,
+      SLOT ( setBatteryLevel ( void )));
+
+	temperatureTimer->start ( 5000 );
+	batteryLevelTimer->start ( 60000 );
 }
 
 
@@ -231,6 +239,11 @@ MainWindow::~MainWindow()
 #ifdef OACAPTURE
   state.histogramOn = 0;
 #endif
+
+	temperatureTimer->stop();
+	//droppedFrameTimer->stop();
+	//autoControlsTimer->stop();
+	batteryLevelTimer->stop();
 
   delete about;
 #ifdef OACAPTURE
@@ -307,6 +320,10 @@ MainWindow::~MainWindow()
     delete state.histogramWidget;
   }
 #endif
+	delete temperatureTimer;
+	//delete droppedFramesTimer;
+	delete batteryLevelTimer;
+	//delete autoControlsTimer;
 }
 
 
@@ -1777,7 +1794,6 @@ MainWindow::connectCamera ( int deviceIndex )
   // FIX ME -- enable binning
   // state.cameraWidget->enableBinningControl ( commonState.camera->hasBinning ( 2 ));
   v = commonState.camera->hasControl ( OA_CAM_CTRL_TEMPERATURE );
-  state.viewWidget->enableTempDisplay ( v );
   styleStatusBarTemp ( v );
 #endif
 
@@ -2043,6 +2059,11 @@ MainWindow::setTemperature()
 {
   float temp;
   QString stringVal;
+
+	if ( !commonState.camera->isInitialised() ||
+			!commonState.camera->hasControl ( OA_CAM_CTRL_TEMPERATURE )) {
+		return;
+	}
 
   temp = commonState.camera->getTemperature();
   commonState.cameraTempValid = 1;

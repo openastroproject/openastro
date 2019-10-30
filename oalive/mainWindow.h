@@ -102,6 +102,9 @@ class MainWindow : public QMainWindow
     int			updateTemperatureLabel;
     QLabel*		wheelStatus;
     QString   userConfigFile;
+		QTimer*		temperatureTimer;
+		QTimer*		droppedFrameTimer;
+		QTimer*		batteryLevelTimer;
 
     void		readConfig ( QString );
     void		writeConfig ( QString );
