@@ -97,6 +97,9 @@ class MainWindow : public QMainWindow
 		QLabel*		stackedLabel;
 		QLabel*		stackedValue;
 
+		QLabel*		timeRemainingLabel;
+		QLabel*		timeRemainingValue;
+
     QStatusBar*		statusLine;
     QLabel*		tempValue;
     int			updateTemperatureLabel;
@@ -105,6 +108,7 @@ class MainWindow : public QMainWindow
 		QTimer*		temperatureTimer;
 		QTimer*		droppedFrameTimer;
 		QTimer*		batteryLevelTimer;
+		QTimer*		timeRemainingTimer;
 
     void		readConfig ( QString );
     void		writeConfig ( QString );
@@ -196,6 +200,7 @@ class MainWindow : public QMainWindow
     void		advancedClosed ( void );
     void		doColouriseSettings ( void );
     void		setTemperature ( void );
+    void		setTimeRemaining ( void );
     void		setStackedFrames ( void );
     void		reveal ( void );
     void		doFITSSettings ( void );

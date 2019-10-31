@@ -57,6 +57,7 @@ class Camera : public QObject
     void		releaseImageData ( void );
     int			startExposure ( void* (*)(void*, void*, int, void* ),
 								void* );
+		uint64_t	exposureTimeLeft ( void );
 
     int			hasFrameFormat ( int );
     int			hasRawMode ( void );

@@ -757,6 +757,18 @@ Camera::startExposure ( void* ( *callback )( void*, void*, int, void* ),
 }
 
 
+uint64_t
+Camera::exposureTimeLeft ( void )
+{
+  if ( !initialised ) {
+    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    return -1;
+  }
+
+  return cameraFuncs.exposureTimeLeft ( cameraContext );
+}
+
+
 int
 Camera::isSingleShot ( void )
 {

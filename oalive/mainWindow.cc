@@ -218,6 +218,7 @@ MainWindow::MainWindow ( QString configFile )
 	temperatureTimer = new QTimer ( this );
 	//droppedFrameTimer = new QTimer ( this );
 	batteryLevelTimer = new QTimer ( this );
+	timeRemainingTimer = new QTimer ( this );
 	connect ( temperatureTimer, SIGNAL( timeout()), this,
 			SLOT( setTemperature ( void )));
 	/*
@@ -226,9 +227,12 @@ MainWindow::MainWindow ( QString configFile )
 	 */
 	connect ( batteryLevelTimer, SIGNAL( timeout()), state.cameraControls,
       SLOT ( setBatteryLevel ( void )));
+	connect ( timeRemainingTimer, SIGNAL( timeout()), this,
+			SLOT ( setTimeRemaining ( void )));
 
 	temperatureTimer->start ( 5000 );
 	batteryLevelTimer->start ( 60000 );
+	timeRemainingTimer->start ( 1000 );
 }
 
 
@@ -244,6 +248,7 @@ MainWindow::~MainWindow()
 	//droppedFrameTimer->stop();
 	//autoControlsTimer->stop();
 	batteryLevelTimer->stop();
+	timeRemainingTimer->stop();
 
   delete about;
 #ifdef OACAPTURE
@@ -324,6 +329,7 @@ MainWindow::~MainWindow()
 	//delete droppedFramesTimer;
 	delete batteryLevelTimer;
 	//delete autoControlsTimer;
+	delete timeRemainingTimer;
 }
 
 
@@ -1387,11 +1393,11 @@ MainWindow::createStatusBar ( void )
   capturedLabel->setFixedWidth ( 60 );
   droppedLabel = new QLabel ( tr ( "Dropped" ));
   droppedLabel->setFixedWidth ( 55 );
-  progressBar = new QProgressBar;
-  progressBar->setFixedWidth ( 200 );
-  progressBar->setRange ( 0, 100 );
-  progressBar->setTextVisible ( true );
 #endif
+
+  timeRemainingLabel = new QLabel ( tr ( "Time remaining: " ));
+  timeRemainingLabel->setFixedWidth ( 100 );
+
 	stackedLabel = new QLabel ( tr ( "Stacked frames:" ));
   stackedLabel->setFixedWidth ( 100 );
 
@@ -1409,7 +1415,11 @@ MainWindow::createStatusBar ( void )
 #endif
 	stackedValue = new QLabel ( "0" );
   stackedValue->setFixedWidth ( 40 );
+  timeRemainingValue = new QLabel ( "0" );
+  timeRemainingValue->setFixedWidth ( 40 );
 
+  statusLine->addPermanentWidget ( timeRemainingLabel );
+  statusLine->addPermanentWidget ( timeRemainingValue );
   statusLine->addPermanentWidget ( stackedLabel );
   statusLine->addPermanentWidget ( stackedValue );
   statusLine->addPermanentWidget ( tempLabel );
@@ -1423,9 +1433,8 @@ MainWindow::createStatusBar ( void )
   statusLine->addPermanentWidget ( capturedValue );
   statusLine->addPermanentWidget ( droppedLabel );
   statusLine->addPermanentWidget ( droppedValue );
-  statusLine->addPermanentWidget ( progressBar );
 #endif
-  
+
   statusLine->showMessage ( tr ( "started" ));
 }
 
@@ -2401,13 +2410,26 @@ MainWindow::aboutDialog ( void )
 }
 
 
-#ifdef OACAPTURE
 void
-MainWindow::setProgress ( unsigned int progress )
+MainWindow::setTimeRemaining ( void )
 {
-  progressBar->setValue ( progress );
+	uint64_t			timeRemaining;
+	float					secsRemaining;
+	QString				stringVal;
+
+	if ( !commonState.camera->isInitialised() ||
+			!commonState.camera->isSingleShot() ||
+			cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) < 3000000 ) {
+		return;
+	}
+
+	// this value will be in usec.
+	timeRemaining = commonState.camera->exposureTimeLeft();
+	secsRemaining = timeRemaining / 1000000.0;
+
+  stringVal.setNum ( secsRemaining, 'g', 2 );
+  timeRemainingValue->setText ( stringVal );
 }
-#endif
 
 
 void

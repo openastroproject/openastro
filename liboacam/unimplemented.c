@@ -229,4 +229,5 @@ _oaInitCameraFunctionPointers ( oaCamera* camera )
 
   camera->funcs.startExposure = oacamStartExposure;
   camera->funcs.abortExposure = oacamAbortExposure;
+  camera->funcs.exposureTimeLeft = oacamExposureTimeLeft;
 }

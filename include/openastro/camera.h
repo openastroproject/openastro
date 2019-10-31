@@ -131,6 +131,7 @@ typedef struct oaCameraFuncs {
 	int								( *startExposure )( struct oaCamera*,
                        void* (*)(void*, void*, int, void* ), void* );
 	int								( *abortExposure )( struct oaCamera* );
+	uint64_t					( *exposureTimeLeft )( struct oaCamera* );
 } oaCameraFuncs;
 
 typedef struct oaCamera {

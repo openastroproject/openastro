@@ -614,3 +614,36 @@ oacamSetFrameInterval ( oaCamera* camera, int numerator, int denominator )
 
   return retval;
 }
+
+
+uint64_t
+oacamExposureTimeLeft ( oaCamera* camera )
+{
+  SHARED_STATE*   cameraInfo = camera->_private;
+	struct timeval	now;
+	int64_t					endSecs, endNanoSecs, leftSecs, leftNanoSecs;
+	uint64_t				usecs;
+
+	if ( cameraInfo->runMode != CAM_RUN_MODE_SINGLE_SHOT ) {
+		return 0;
+	}
+
+	// FIX ME -- Yeah, this might get mangled by timer.c:oacamStartTimer()
+	// whilst we're reading it
+
+  endSecs = cameraInfo->timerEnd.tv_sec;
+  endNanoSecs = cameraInfo->timerEnd.tv_nsec;
+	gettimeofday ( &now, 0 );
+	leftSecs = endSecs - now.tv_sec;
+	leftNanoSecs = endNanoSecs - now.tv_usec * 1000;
+	if ( leftNanoSecs < 0 ) {
+		leftSecs--;
+		leftNanoSecs += 1000000000;
+	}
+  if ( leftSecs < 0 ) {
+		return 0;
+	}
+
+	usecs = leftSecs * 1000000 + leftNanoSecs / 1000;
+	return usecs;
+}
