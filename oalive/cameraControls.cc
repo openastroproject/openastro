@@ -396,16 +396,15 @@ CameraControls::configure ( void )
 							controlLabel[mod][baseVal] = new QLabel ( tr (
 									oaCameraControlLabel[baseVal] ));
 							controlLabel[mod][baseVal]->setWordWrap ( 1 );
-							numUnhandled++;
+							// temperature we handle elsewhere
+							if ( 0 == mod && OA_CAM_CTRL_TEMPERATURE == baseVal ) {
+								added[mod][baseVal] = 1;
+							} else {
+								numUnhandled++;
+							}
 							break;
 
 						case OA_CTRL_TYPE_DISCRETE:
-							// FIX ME -- these really ought to show
-							// don't show these up as unhandled
-							if ( OA_CAM_CTRL_BINNING == c ) {
-								added[mod][baseVal] = 1;
-								break;
-							}
 							/* FALLTHROUGH */
 
 						default:
