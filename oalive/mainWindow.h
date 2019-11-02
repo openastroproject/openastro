@@ -90,10 +90,12 @@ class MainWindow : public QMainWindow
 /*
     QProgressBar*	progressBar;
     QLabel*		capturedValue;
-    QLabel*		droppedValue;
     QLabel*		fpsMaxValue;
     QLabel*		fpsActualValue;
 */
+    QLabel*		droppedLabel;
+    QLabel*		droppedValue;
+
 		QLabel*		stackedLabel;
 		QLabel*		stackedValue;
 
@@ -202,6 +204,8 @@ class MainWindow : public QMainWindow
     void		setTemperature ( void );
     void		setTimeRemaining ( void );
     void		setStackedFrames ( void );
+		void		setDroppedFrames ( void );
+		void		clearDroppedFrames ( void );
     void		reveal ( void );
     void		doFITSSettings ( void );
     void		frameWriteFailedPopup ( void );

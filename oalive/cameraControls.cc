@@ -396,8 +396,9 @@ CameraControls::configure ( void )
 							controlLabel[mod][baseVal] = new QLabel ( tr (
 									oaCameraControlLabel[baseVal] ));
 							controlLabel[mod][baseVal]->setWordWrap ( 1 );
-							// temperature we handle elsewhere
-							if ( 0 == mod && OA_CAM_CTRL_TEMPERATURE == baseVal ) {
+							// temperature and dropped frames we handle elsewhere
+							if ( 0 == mod && ( OA_CAM_CTRL_TEMPERATURE == baseVal ||
+										OA_CAM_CTRL_DROPPED == baseVal )) {
 								added[mod][baseVal] = 1;
 							} else {
 								numUnhandled++;

@@ -216,15 +216,13 @@ MainWindow::MainWindow ( QString configFile )
 
 	// Create timers for updating temperature, dropped frames etc.
 	temperatureTimer = new QTimer ( this );
-	//droppedFrameTimer = new QTimer ( this );
+	droppedFrameTimer = new QTimer ( this );
 	batteryLevelTimer = new QTimer ( this );
 	timeRemainingTimer = new QTimer ( this );
 	connect ( temperatureTimer, SIGNAL( timeout()), this,
 			SLOT( setTemperature ( void )));
-	/*
 	connect ( droppedFrameTimer, SIGNAL( timeout()), this,
 			SLOT ( setDroppedFrames ( void )));
-	 */
 	connect ( batteryLevelTimer, SIGNAL( timeout()), state.cameraControls,
       SLOT ( setBatteryLevel ( void )));
 	connect ( timeRemainingTimer, SIGNAL( timeout()), this,
@@ -233,6 +231,7 @@ MainWindow::MainWindow ( QString configFile )
 	temperatureTimer->start ( 5000 );
 	batteryLevelTimer->start ( 60000 );
 	timeRemainingTimer->start ( 1000 );
+	droppedFrameTimer->start ( 5000 );
 }
 
 
@@ -1391,15 +1390,13 @@ MainWindow::createStatusBar ( void )
   fpsActualLabel->setFixedWidth ( 80 );
   capturedLabel = new QLabel ( tr ( "Captured" ));
   capturedLabel->setFixedWidth ( 60 );
+#endif
   droppedLabel = new QLabel ( tr ( "Dropped" ));
   droppedLabel->setFixedWidth ( 55 );
-#endif
-
-  timeRemainingLabel = new QLabel ( tr ( "Time remaining: " ));
-  timeRemainingLabel->setFixedWidth ( 100 );
-
 	stackedLabel = new QLabel ( tr ( "Stacked frames:" ));
   stackedLabel->setFixedWidth ( 100 );
+  timeRemainingLabel = new QLabel ( tr ( "Time remaining: " ));
+  timeRemainingLabel->setFixedWidth ( 100 );
 
   tempValue = new QLabel ( "" );
   tempValue->setFixedWidth ( 30 );
@@ -1410,9 +1407,9 @@ MainWindow::createStatusBar ( void )
   fpsActualValue->setFixedWidth ( 30 );
   capturedValue = new QLabel ( "0" );
   capturedValue->setFixedWidth ( 40 );
+#endif
   droppedValue = new QLabel ( "0" );
   droppedValue->setFixedWidth ( 40 );
-#endif
 	stackedValue = new QLabel ( "0" );
   stackedValue->setFixedWidth ( 40 );
   timeRemainingValue = new QLabel ( "0" );
@@ -1431,9 +1428,9 @@ MainWindow::createStatusBar ( void )
   statusLine->addPermanentWidget ( fpsActualValue );
   statusLine->addPermanentWidget ( capturedLabel );
   statusLine->addPermanentWidget ( capturedValue );
+#endif
   statusLine->addPermanentWidget ( droppedLabel );
   statusLine->addPermanentWidget ( droppedValue );
-#endif
 
   statusLine->showMessage ( tr ( "started" ));
 }
@@ -1767,8 +1764,8 @@ MainWindow::connectCamera ( int deviceIndex )
   statusLine->showMessage ( commonState.camera->name() +
 			tr ( " connected" ), 5000 );
   clearTemperature();
-#ifdef OACAPTURE
   clearDroppedFrames();
+#ifdef OACAPTURE
   state.captureWidget->enableStartButton ( 1 );
   state.captureWidget->enableProfileSelect ( 1 );
   // FIX ME -- should these happen in the "configure" functions for each
@@ -2107,18 +2104,21 @@ MainWindow::setStackedFrames()
 }
 
 
-#ifdef OACAPTURE
 void
 MainWindow::setDroppedFrames()
 {
   uint64_t dropped;
   QString stringVal;
 
+	if ( !commonState.camera->isInitialised() ||
+			!commonState.camera->hasControl ( OA_CAM_CTRL_DROPPED )) {
+		return;
+	}
+
   dropped = commonState.camera->readControl ( OA_CAM_CTRL_DROPPED );
   stringVal.setNum ( dropped );
   droppedValue->setText ( stringVal );
 }
-#endif
 
 
 void
@@ -2135,13 +2135,11 @@ MainWindow::clearTemperature ( void )
 }
 
 
-#ifdef OACAPTURE
 void
 MainWindow::clearDroppedFrames ( void )
 {
   droppedValue->setText ( "" );
 }
-#endif
 
 
 void
