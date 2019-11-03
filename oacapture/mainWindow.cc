@@ -177,7 +177,7 @@ MainWindow::MainWindow ( QString configFile )
 	droppedFrameTimer = new QTimer ( this );
 	autoControlsTimer = new QTimer ( this );
 	connect ( temperatureTimer, SIGNAL( timeout()), state.cameraWidget,
-			SLOT( updateTemperature ( void )));
+			SLOT( setTemperature ( void )));
 	connect ( droppedFrameTimer, SIGNAL( timeout()), this,
       SLOT ( setDroppedFrames ( void )));
 	connect ( autoControlsTimer, SIGNAL( timeout()), state.controlWidget,
