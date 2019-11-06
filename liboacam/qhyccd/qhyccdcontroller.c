@@ -44,6 +44,9 @@ static int	_processSetResolution ( QHYCCD_STATE*, OA_COMMAND* );
 static int	_processSetROI ( oaCamera*, OA_COMMAND* );
 static int	_processStreamingStart ( QHYCCD_STATE*, OA_COMMAND* );
 static int	_processStreamingStop ( QHYCCD_STATE*, OA_COMMAND* );
+static int	_processExposureStart ( QHYCCD_STATE*, OA_COMMAND* );
+static int	_processAbortExposure ( QHYCCD_STATE* );
+static void	_timerCallback ( void* );
 static int	_doStart ( QHYCCD_STATE* );
 static int	_doStop ( QHYCCD_STATE* );
 static int	_setBinning ( QHYCCD_STATE*, int );
@@ -100,6 +103,12 @@ oacamQHYCCDcontroller ( void* param )
           case OA_CMD_STOP_STREAMING:
             resultCode = _processStreamingStop ( cameraInfo, command );
             break;
+					case OA_CMD_START_EXPOSURE:
+						resultCode = _processExposureStart ( cameraInfo, command );
+						break;
+					case OA_CMD_ABORT_EXPOSURE:
+						resultCode = _processAbortExposure ( cameraInfo );
+						break;
           default:
             fprintf ( stderr, "Invalid command type %d in controller\n",
                 command->commandType );
@@ -396,11 +405,19 @@ static int
 _processStreamingStart ( QHYCCD_STATE* cameraInfo, OA_COMMAND* command )
 {
   CALLBACK*		cb = command->commandData;
+	int					ret;
 
   if ( cameraInfo->runMode != CAM_RUN_MODE_STOPPED ) {
     return -OA_ERR_INVALID_COMMAND;
   }
 
+	if ( cameraInfo->runMode != CAM_RUN_MODE_STREAMING ) {
+		if (( ret = p_SetQHYCCDStreamMode ( cameraInfo->handle, 1 )) !=
+				QHYCCD_SUCCESS ) {
+			fprintf ( stderr, "SetQHYCCDStreamMode failed, error %d\n", ret );
+			return -OA_ERR_CAMERA_IO;
+		}
+	}
   cameraInfo->streamingCallback.callback = cb->callback;
   cameraInfo->streamingCallback.callbackArg = cb->callbackArg;
 
@@ -513,4 +530,130 @@ _setFrameFormat ( QHYCCD_STATE* cameraInfo, int format )
       cameraInfo->ySize * cameraInfo->currentBytesPerPixel;
 
   return OA_ERR_NONE;
+}
+
+
+static int
+_processExposureStart ( QHYCCD_STATE* cameraInfo, OA_COMMAND* command )
+{
+  CALLBACK*		cb = command->commandData;
+	int					ret;
+
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
+    return -OA_ERR_INVALID_COMMAND;
+  }
+
+	if ( cameraInfo->exposureInProgress ) {
+		return OA_ERR_NONE;
+	}
+
+	if ( cameraInfo->runMode != CAM_RUN_MODE_SINGLE_SHOT ) {
+		if (( ret = p_SetQHYCCDStreamMode ( cameraInfo->handle, 0 )) !=
+				QHYCCD_SUCCESS ) {
+			fprintf ( stderr, "SetQHYCCDStreamMode failed, error %d\n", ret );
+			return -OA_ERR_CAMERA_IO;
+		}
+	}
+	if (( ret = p_ExpQHYCCDSingleFrame ( cameraInfo->handle )) < 0 ) {
+		fprintf ( stderr, "ExpQHYCCDSingleFrame failed, error %d\n", ret );
+    return -OA_ERR_CAMERA_IO;
+	}
+	cameraInfo->streamingCallback.callback = cb->callback;
+	cameraInfo->streamingCallback.callbackArg = cb->callbackArg;
+	cameraInfo->runMode = CAM_RUN_MODE_SINGLE_SHOT;
+	cameraInfo->timerCallback = _timerCallback;
+	oacamStartTimer ( cameraInfo->currentAbsoluteExposure + 500000, cameraInfo );
+
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  cameraInfo->exposureInProgress = 1;
+  cameraInfo->abortExposure = 0;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+
+  return OA_ERR_NONE;
+}
+
+
+static int
+_processAbortExposure ( QHYCCD_STATE* cameraInfo )
+{
+	int			ret;
+
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  cameraInfo->abortExposure = 1;
+  cameraInfo->exposureInProgress = 0;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+
+	oacamAbortTimer ( cameraInfo );
+
+  if (( ret = p_CancelQHYCCDExposing ( cameraInfo->handle )) < 0 ) {
+    fprintf ( stderr, "%s: CancelQHYCCDExposing failed: %d\n", __FUNCTION__,
+				ret );
+    return -OA_ERR_CAMERA_IO;
+  }
+
+	cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
+  return OA_ERR_NONE;
+}
+
+
+static void
+_timerCallback ( void* param )
+{
+	QHYCCD_STATE*				cameraInfo = param;
+	int									ret, buffersFree, nextBuffer;
+	int									xsize, ysize, bpp, channels;
+
+	pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+	buffersFree = cameraInfo->buffersFree;
+	pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+
+  if ( buffersFree ) {
+    nextBuffer = cameraInfo->nextBuffer;
+		if (( ret = p_GetQHYCCDSingleFrame ( cameraInfo->handle, &xsize, &ysize,
+				&bpp, &channels, cameraInfo->buffers[ nextBuffer ].start )) !=
+				QHYCCD_SUCCESS ) {
+			fprintf ( stderr, "GetQHYCCDSingleFrame failed, error %d\n", ret );
+			pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+			cameraInfo->exposureInProgress = 0;
+			pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+			if (( ret = p_CancelQHYCCDExposingAndReadout ( cameraInfo->handle )) !=
+					QHYCCD_SUCCESS ) {
+				fprintf ( stderr, "CancelQHYCCDExposingAndReadout failed, error %d\n",
+						ret );
+			}
+			return;
+		}
+
+		if (( ret = p_CancelQHYCCDExposingAndReadout ( cameraInfo->handle )) !=
+				QHYCCD_SUCCESS ) {
+			fprintf ( stderr, "CancelQHYCCDExposingAndReadout failed, error %d\n",
+					ret );
+		}
+		cameraInfo->exposureInProgress = 0;
+    cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
+        OA_CALLBACK_NEW_FRAME;
+    cameraInfo->frameCallbacks[ nextBuffer ].callback =
+        cameraInfo->streamingCallback.callback;
+    cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =
+        cameraInfo->streamingCallback.callbackArg;
+    cameraInfo->frameCallbacks[ nextBuffer ].buffer =
+        cameraInfo->buffers[ nextBuffer ].start;
+    cameraInfo->frameCallbacks[ nextBuffer ].bufferLen =
+        cameraInfo->imageBufferLength;
+    oaDLListAddToTail ( cameraInfo->callbackQueue,
+        &cameraInfo->frameCallbacks[ nextBuffer ]);
+    pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+    cameraInfo->buffersFree--;
+    cameraInfo->nextBuffer = ( nextBuffer + 1 ) %
+        cameraInfo->configuredBuffers;
+    pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+    pthread_cond_broadcast ( &cameraInfo->callbackQueued );
+  } else {
+		if (( ret = p_CancelQHYCCDExposingAndReadout ( cameraInfo->handle )) !=
+				QHYCCD_SUCCESS ) {
+			fprintf ( stderr, "CancelQHYCCDExposingAndReadout failed, error %d\n",
+					ret );
+		}
+		cameraInfo->exposureInProgress = 0;
+	}
 }

@@ -175,7 +175,14 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 	}
 
 	camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS; // allegedy
-	camera->features.flags |= OA_CAM_FEATURE_STREAMING;
+	if ( p_IsQHYCCDControlAvailable ( handle, CAM_LIVEVIDEOMODE ) ==
+			QHYCCD_SUCCESS ) {
+		camera->features.flags |= OA_CAM_FEATURE_STREAMING;
+	}
+	if ( p_IsQHYCCDControlAvailable ( handle, CAM_SINGLEFRAMEMODE ) ==
+			QHYCCD_SUCCESS ) {
+		camera->features.flags |= OA_CAM_FEATURE_SINGLE_SHOT;
+	}
 
 	for ( i = 0; i < numQHYControls; i++ ) {
 		int m = 1, qhyControl = QHYControlData[i].qhyControl;
