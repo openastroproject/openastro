@@ -883,6 +883,7 @@ _timerCallback ( void* param )
 			return;
 		}
 
+		cameraInfo->exposureInProgress = 0;
     cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
         OA_CALLBACK_NEW_FRAME;
     cameraInfo->frameCallbacks[ nextBuffer ].callback =
@@ -901,6 +902,7 @@ _timerCallback ( void* param )
         cameraInfo->configuredBuffers;
     pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
     pthread_cond_broadcast ( &cameraInfo->callbackQueued );
-  }
-	cameraInfo->exposureInProgress = 0;
+  } else {
+		cameraInfo->exposureInProgress = 0;
+	}
 }
