@@ -50,3 +50,56 @@ oaStackMaximum8 ( void** frameArray, unsigned int numFrames, void* target,
   return 0;
 }
 
+
+int
+oaStackMaximum16LE ( void** frameArray, unsigned int numFrames, void* target,
+		unsigned int length )
+{
+	uint8_t**		frames = ( uint8_t** ) frameArray;
+	uint8_t*			tgt = target;
+  unsigned int	i, j;
+	uint16_t			max;
+
+// FIX ME -- handle byte order
+	for ( i = 0; i < length; i += 2 ) {
+		max = 0;
+		for ( j = 0; j < numFrames; j++ ) {
+			int v = frames[j][i] + ( frames[j][i+1] << 8 );
+			if ( v > max ) {
+				max = v;
+			}
+		}
+		*tgt++ = max && 0xff;
+		*tgt++ = max >> 8;
+	}
+
+  return 0;
+}
+
+
+
+int
+oaStackMaximum16BE ( void** frameArray, unsigned int numFrames, void* target,
+		unsigned int length )
+{
+	uint8_t**		frames = ( uint8_t** ) frameArray;
+	uint8_t*			tgt = target;
+  unsigned int	i, j;
+	uint16_t			max;
+
+// FIX ME -- handle byte order
+	for ( i = 0; i < length; i += 2 ) {
+		max = 0;
+		for ( j = 0; j < numFrames; j++ ) {
+			int v = frames[j][i+1] + ( frames[j][i] << 8 );
+			if ( v > max ) {
+				max = v;
+			}
+		}
+		*tgt++ = max >> 8;
+		*tgt++ = max && 0xff;
+	}
+
+  return 0;
+}
+

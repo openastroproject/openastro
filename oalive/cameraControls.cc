@@ -137,6 +137,7 @@ CameraControls::configure ( void )
   for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
 		for ( mod = 0; mod < OA_CAM_CTRL_MODIFIERS_P1; mod++ ) {
 			c = baseVal | ( mod ? ( 0x80 << mod ) : 0 );
+			// FIX ME -- what if these have existing values?
 			controlLabel[mod][baseVal] = nullptr;
 			controlSlider[mod][baseVal] = nullptr;
 			controlSpinbox[mod][baseVal] = nullptr;
@@ -149,6 +150,7 @@ CameraControls::configure ( void )
 				controlType[mod][baseVal] = commonState.camera->hasControl ( c );
 
 				if ( controlType[mod][baseVal] ) {
+
 					switch ( controlType[mod][baseVal] ) {
 
 						case OA_CTRL_TYPE_INT32:
@@ -393,19 +395,52 @@ CameraControls::configure ( void )
 						}
 
 						case OA_CTRL_TYPE_READONLY:
-							controlLabel[mod][baseVal] = new QLabel ( tr (
-									oaCameraControlLabel[baseVal] ));
-							controlLabel[mod][baseVal]->setWordWrap ( 1 );
 							// temperature and dropped frames we handle elsewhere
-							if ( 0 == mod && ( OA_CAM_CTRL_TEMPERATURE == baseVal ||
-										OA_CAM_CTRL_DROPPED == baseVal )) {
-								added[mod][baseVal] = 1;
-							} else {
+							if ( mod != 0 || ( OA_CAM_CTRL_TEMPERATURE != baseVal &&
+									OA_CAM_CTRL_DROPPED != baseVal )) {
+								controlLabel[mod][baseVal] = new QLabel ( tr (
+										oaCameraControlLabel[baseVal] ));
+								controlLabel[mod][baseVal]->setWordWrap ( 1 );
 								numUnhandled++;
 							}
+							added[mod][baseVal] = 1;
 							break;
 
 						case OA_CTRL_TYPE_DISCRETE:
+							if ( 0 == mod && OA_CAM_CTRL_FRAME_FORMAT == baseVal ) {
+								unsigned int format, numActions = 0;
+								inputFormatList.clear();
+								controlLabel[mod][baseVal] = new QLabel ( tr (
+										oaCameraControlLabel[baseVal] ));
+								controlLabel[mod][baseVal]->setWordWrap ( 1 );
+								controlMenu[mod][baseVal] = new QComboBox ( this );
+								for ( format = 1; format < OA_PIX_FMT_LAST_P1; format++ ) {
+									if ( commonState.camera->hasFrameFormat ( format )) {
+										if ( oaFrameFormats[ format ].monochrome ||
+												oaFrameFormats[ format ].rawColour ||
+												oaFrameFormats[ format ].fullColour ) {
+											controlMenu[mod][baseVal]->addItem ( tr (
+													oaFrameFormats[ format ].name ));
+											controlMenu[mod][baseVal]->setItemData ( numActions,
+													tr ( oaFrameFormats[ format ].simpleName ),
+													Qt::ToolTipRole );
+											inputFormatList.append ( format );
+										}
+									}
+								}
+								numMenus++;
+								menuSignalMapper->setMapping (
+										controlMenu[mod][baseVal], c );
+								connect ( controlMenu[mod][baseVal], SIGNAL(
+										currentIndexChanged ( int )), menuSignalMapper,
+										SLOT ( map()));
+							}
+							// FIX ME -- these really ought to show, but
+							// don't show this up as unhandled
+							if ( OA_CAM_CTRL_BINNING == c ) {
+								added[mod][baseVal] = 1;
+								break;
+							}
 							/* FALLTHROUGH */
 
 						default:
@@ -592,6 +627,10 @@ CameraControls::configure ( void )
   col = 0;
   int addedMenus = 0;
   for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
+		// FIX ME -- Add this one in later
+		if ( baseVal == OA_CAM_CTRL_BINNING ) {
+			continue;
+		}
     for ( mod = 0; mod <= OA_CAM_CTRL_MODIFIER_AUTO; mod++ ) {
       c = baseVal | ( mod ? OA_CAM_CTRL_MODIFIER_AUTO_MASK : 0 );
       if ( OA_CTRL_TYPE_MENU == controlType[mod][baseVal] ) {
@@ -607,7 +646,8 @@ CameraControls::configure ( void )
           col++;
         }
       }
-      if ( OA_CTRL_TYPE_DISC_MENU == controlType[mod][baseVal] ) {
+      if ( OA_CTRL_TYPE_DISC_MENU == controlType[mod][baseVal] ||
+					OA_CTRL_TYPE_DISCRETE == controlType[mod][baseVal] ) {
         menuGrid->addWidget ( controlLabel[mod][baseVal], row, col++,
             Qt::AlignRight );
         menuGrid->addWidget ( controlMenu[mod][baseVal], row, col++,
@@ -1041,20 +1081,29 @@ CameraControls::menuChanged ( int control )
   int value;
 
   value = controlMenu[ mod ][ baseVal ]->currentIndex();
-  // FIX ME -- there's an implicit assumption here that menus will have
-  // the same value sequence as the items in the menu. (ie. starting at 0
-  // and incrementing by 1
-  if ( controlType [ mod ][ baseVal ] == OA_CTRL_TYPE_DISC_MENU ) {
-    int32_t count;
-    int64_t *values;
-    commonState.camera->controlDiscreteSet ( control, &count, &values );
-    if ( value < count ) {
-      value = values[value];
-    } else {
-      qWarning() << "Invalid menu value for discrete menu";
-      return;
-    }
-  }
+	if ( 0 == mod && OA_CAM_CTRL_FRAME_FORMAT == baseVal ) {
+		value = inputFormatList[ value ];
+		commonState.camera->setFrameFormat ( value );
+		state.viewWidget->setVideoFramePixelFormat ( value );
+		state.viewWidget->restart();
+		config.inputFrameFormat = value;
+		return;
+	}
+
+	// FIX ME -- there's an implicit assumption here that menus will have
+	// the same value sequence as the items in the menu. (ie. starting at 0
+	// and incrementing by 1
+	if ( controlType [ mod ][ baseVal ] == OA_CTRL_TYPE_DISC_MENU ) {
+		int32_t count;
+		int64_t *values;
+		commonState.camera->controlDiscreteSet ( control, &count, &values );
+		if ( value < count ) {
+			value = values[value];
+		} else {
+			qWarning() << "Invalid menu value for discrete menu";
+			return;
+		}
+	}
   commonState.camera->setControl ( control, value );
 }
 
@@ -1312,8 +1361,7 @@ CameraControls::setBatteryLevel ( void )
 {
 	int		v;
 
-	if ( commonState.camera->isInitialised() &&
-			controlType[OA_CAM_CTRL_MODIFIER_STD][ OA_CAM_CTRL_BATTERY_LEVEL ] ==
+  if ( controlType[OA_CAM_CTRL_MODIFIER_STD][ OA_CAM_CTRL_BATTERY_LEVEL ] ==
 			OA_CTRL_TYPE_READONLY ) {
 		v = commonState.camera->readControl ( OA_CAM_CTRL_BATTERY_LEVEL );
 		batteryLevel->setValue ( v );

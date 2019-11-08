@@ -39,11 +39,12 @@
 
 
 static int	_cmpUint8 ( const void*, const void* );
+static int	_cmpUint16 ( const void*, const void* );
 
 
 int
-oaStackKappaSigma8 ( void** frameArray, unsigned int numFrames, void* target,
-		unsigned int length, double kappa )
+oaStackMedianKappaSigma8 ( void** frameArray, unsigned int numFrames,
+		void* target, unsigned int length, double kappa )
 {
 	uint8_t*	values;
 	uint8_t**	frames = ( uint8_t** ) frameArray;
@@ -99,5 +100,127 @@ _cmpUint8 ( const void* pa, const void* pb )
 
 	a = *(( uint8_t* ) pa );
 	b = *(( uint8_t* ) pb );
+	return ( a - b );
+}
+
+
+int
+oaStackMedianKappaSigma16LE ( void** frameArray, unsigned int numFrames,
+		void* target, unsigned int length, double kappa )
+{
+	uint16_t*			values;
+	uint8_t**			frames = ( uint8_t** ) frameArray;
+	uint8_t*			tgt = target;
+  unsigned int	i, j, v;
+	double				total, mean, sigma, delta, min, max;
+	unsigned int	finalMean, medianPos;
+	uint16_t			median;
+
+	if (!( values = ( uint16_t* ) malloc ( numFrames ))) {
+		return -1;
+	}
+	medianPos = numFrames >> 1;
+	for ( i = 0; i < length; i += 2 ) {
+		mean = 0;
+		total = 0;
+		for ( j = 0; j < numFrames; j++ ) {
+			v = frames[j][i] + ( frames[j][i+1] << 8 );
+			total += v;
+			values[j] = v;
+		}
+		qsort ( values, numFrames, sizeof ( uint16_t ), _cmpUint16 );
+		median = values[ medianPos ];
+		mean = total / numFrames;
+		sigma = 0;
+		for ( j = 0; j < numFrames; j++ ) {
+			delta = ( frames[j][i] + ( frames[j][i+1] << 8 )) - mean;
+			sigma += delta * delta;
+		}
+		sigma /= ( numFrames - 1 );
+		sigma = sqrt ( sigma );
+		min = mean - ( kappa * sigma );
+		max = mean + ( kappa * sigma );
+		finalMean = 0;
+		for ( j = 0; j < numFrames; j++ ) {
+			v = frames[j][i] + ( frames[j][i+1] << 8 );
+			if ( v >= min && v <= max ) {
+				finalMean += v;
+			} else {
+				finalMean += median;
+			}
+		}
+		finalMean /= numFrames;
+		*tgt++ = finalMean & 0xff;
+		*tgt++ = finalMean >> 8;
+	}
+
+	free (( void* ) values );
+  return 0;
+}
+
+
+int
+oaStackMedianKappaSigma16BE ( void** frameArray, unsigned int numFrames,
+		void* target, unsigned int length, double kappa )
+{
+	uint16_t*			values;
+	uint8_t**			frames = ( uint8_t** ) frameArray;
+	uint8_t*			tgt = target;
+  unsigned int	i, j, v;
+	double				total, mean, sigma, delta, min, max;
+	unsigned int	finalMean, medianPos;
+	uint16_t			median;
+
+	if (!( values = ( uint16_t* ) malloc ( numFrames ))) {
+		return -1;
+	}
+	medianPos = numFrames >> 1;
+	for ( i = 0; i < length; i += 2 ) {
+		mean = 0;
+		total = 0;
+		for ( j = 0; j < numFrames; j++ ) {
+			v = frames[j][i+1] + ( frames[j][i] << 8 );
+			total += v;
+			values[j] = v;
+		}
+		qsort ( values, numFrames, sizeof ( uint16_t ), _cmpUint16 );
+		median = values[ medianPos ];
+		mean = total / numFrames;
+		sigma = 0;
+		for ( j = 0; j < numFrames; j++ ) {
+			delta = ( frames[j][i+1] + ( frames[j][i] << 8 )) - mean;
+			sigma += delta * delta;
+		}
+		sigma /= ( numFrames - 1 );
+		sigma = sqrt ( sigma );
+		min = mean - ( kappa * sigma );
+		max = mean + ( kappa * sigma );
+		finalMean = 0;
+		for ( j = 0; j < numFrames; j++ ) {
+			v = frames[j][i+1] + ( frames[j][i] << 8 );
+			if ( v >= min && v <= max ) {
+				finalMean += v;
+			} else {
+				finalMean += median;
+			}
+		}
+		finalMean /= numFrames;
+		*tgt++ = finalMean >> 8;
+		*tgt++ = finalMean & 0xff;
+	}
+
+	free (( void* ) values );
+  return 0;
+}
+
+
+static int
+_cmpUint16 ( const void* pa, const void* pb )
+{
+	uint16_t	a, b;
+
+// FIX ME -- handle byte order
+	a = *(( uint16_t* ) pa );
+	b = *(( uint16_t* ) pb );
 	return ( a - b );
 }

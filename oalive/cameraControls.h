@@ -93,6 +93,7 @@ class CameraControls : public QWidget
 		int			ignoreExposureChanges;
 		QProgressBar*		batteryLevel;
 		QLabel*	powerSource;
+		QList<int>		inputFormatList;
 
   public slots:
     void		updateSliderControl ( int );

@@ -584,23 +584,6 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     self->viewBuffer = self->viewImageBuffer [ self->currentViewBuffer ];
   }
 
-  if (( !oaFrameFormats[ self->viewPixelFormat ].fullColour &&
-      oaFrameFormats[ self->viewPixelFormat ].bytesPerPixel > 1 ) ||
-      ( oaFrameFormats[ self->viewPixelFormat ].fullColour &&
-      oaFrameFormats[ self->viewPixelFormat ].bytesPerPixel > 3 )) {
-    self->currentViewBuffer = ( -1 == self->currentViewBuffer ) ? 0 :
-        !self->currentViewBuffer;
-    ( void ) memcpy ( self->viewImageBuffer[ self->currentViewBuffer ],
-        self->viewBuffer, length );
-    // Do this reduction "in place"
-    self->viewPixelFormat = self->reduceTo8Bit (
-        self->viewImageBuffer[ self->currentViewBuffer ],
-        self->viewImageBuffer[ self->currentViewBuffer ],
-        commonConfig.imageSizeX, commonConfig.imageSizeY,
-				self->viewPixelFormat );
-    self->viewBuffer = self->viewImageBuffer [ self->currentViewBuffer ];
-  }
-
 	if ( self->maxFrames < config.maxFramesToStack &&
 			self->maxFrames == self->nextFrame ) {
 		self->maxFrames++;
@@ -648,14 +631,14 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 			break;
 
 		case OA_STACK_SUM:
-			oaStackSum8 ( self->previousFrames, self->maxFrames,
-					self->originalBuffer, viewFrameLength );
+			oaStackSum ( self->previousFrames, self->maxFrames,
+					self->originalBuffer, viewFrameLength, self->viewPixelFormat );
 			break;
 
     case OA_STACK_MEAN:
 			if ( self->maxFrames > 1 ) {
-				oaStackMean8 ( self->previousFrames, self->maxFrames,
-						self->originalBuffer, viewFrameLength );
+				oaStackMean ( self->previousFrames, self->maxFrames,
+						self->originalBuffer, viewFrameLength, self->viewPixelFormat );
 			} else {
 				memcpy ( self->originalBuffer, self->viewBuffer, viewFrameLength );
 			}
@@ -665,35 +648,30 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 			// no point doing any real work if we don't have at least three
 			// frames
 			if ( self->maxFrames > 2 ) {
-				oaStackMedian8 ( self->previousFrames, self->maxFrames,
-						self->originalBuffer, viewFrameLength );
+				oaStackMedian ( self->previousFrames, self->maxFrames,
+						self->originalBuffer, viewFrameLength, self->viewPixelFormat );
 			} else {
 				memcpy ( self->originalBuffer, self->viewBuffer, viewFrameLength );
 			}
 			break;
 
     case OA_STACK_MAXIMUM:
-			oaStackMaximum8 ( self->previousFrames, self->maxFrames,
-					self->originalBuffer, viewFrameLength );
+			oaStackMaximum ( self->previousFrames, self->maxFrames,
+					self->originalBuffer, viewFrameLength, self->viewPixelFormat );
       break;
 
 		case OA_STACK_KAPPA_SIGMA:
 			// no point doing any real work if we don't have at least three
 			// frames
 			if ( self->maxFrames > 2 ) {
-				oaStackKappaSigma8 ( self->previousFrames, self->maxFrames,
-						self->originalBuffer, viewFrameLength, config.stackKappa );
+				oaStackKappaSigma ( self->previousFrames, self->maxFrames,
+						self->originalBuffer, viewFrameLength, config.stackKappa,
+						self->viewPixelFormat );
 			} else {
 				memcpy ( self->originalBuffer, self->viewBuffer, viewFrameLength );
 			}
 			break;
 	}
-
-  ( void ) gettimeofday ( &t, 0 );
-  unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
-      ( unsigned long ) t.tv_usec / 1000;
-
-	self->_processAndDisplay ( state, self, now, 1 );
 
   output = state->controlsWidget->getProcessedOutputHandler();
   if ( output ) {
@@ -704,6 +682,23 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 				( FRAME_METADATA* ) metadata );
   }
   commonState->captureIndex++;
+
+  if (( !oaFrameFormats[ self->viewPixelFormat ].fullColour &&
+      oaFrameFormats[ self->viewPixelFormat ].bytesPerPixel > 1 ) ||
+      ( oaFrameFormats[ self->viewPixelFormat ].fullColour &&
+      oaFrameFormats[ self->viewPixelFormat ].bytesPerPixel > 3 )) {
+    // Do this reduction "in place"
+    self->viewPixelFormat = self->reduceTo8Bit ( self->originalBuffer,
+				self->originalBuffer, commonConfig.imageSizeX, commonConfig.imageSizeY,
+				self->viewPixelFormat );
+  }
+  self->viewBuffer = self->originalBuffer;
+
+  ( void ) gettimeofday ( &t, 0 );
+  unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
+      ( unsigned long ) t.tv_usec / 1000;
+
+	self->_processAndDisplay ( state, self, now, 1 );
 
   self->framesInLastSecond++;
   if ( t.tv_sec != self->secondForFrameCount ) {
@@ -1204,7 +1199,8 @@ ViewWidget::_processAndDisplay ( void* tmpState, ViewWidget* self,
 	STATE*					state = ( STATE* ) tmpState;
 	unsigned int		frameLength;
 
-	self->viewBuffer = self->originalBuffer;
+	// self->viewBuffer is actually the same as self->originalBuffer on entry
+	// to this function
 
 	if ( !fromCallback ) {
 		// FIX ME -- nasty, nasty, nasty

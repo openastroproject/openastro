@@ -24,7 +24,7 @@
 
 AM_CPPFLAGS = -I$(top_srcdir)/include
 lib_LTLIBRARIES = liboaimgproc.la
-liboaimgproc_la_SOURCES = focus.c sobel.c scharr.c gauss.c stackSum.c \
+liboaimgproc_la_SOURCES = focus.c sobel.c scharr.c gauss.c stack.c stackSum.c \
   stackMean.c stackMedian.c stackMaximum.c stackKappaSigma.c \
 	stackMedianKappaSigma.c \
 	contrast.c clamp.c brightness.c gamma.c
