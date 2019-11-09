@@ -42,7 +42,7 @@
 #define SLIDERS_PER_ROW		1
 #define CHECKBOXES_PER_ROW	2
 #define BUTTONS_PER_ROW		2
-#define MENUS_PER_ROW		2
+#define MENUS_PER_ROW		1
 #define UNHANDLED_PER_ROW	3
 
 #define MENU_RANGE_USEC		0
@@ -654,14 +654,18 @@ CameraControls::configure ( void )
             Qt::AlignLeft );
         added[mod][baseVal] = 1;
         addedMenus++;
-          col++;
+				col++;
       }
-      if ( MENUS_PER_ROW == col ) {
+			// col adds three for each menu item here...
+      if (( 3 * MENUS_PER_ROW ) == col ) {
         col = 0;
         row++;
       }
     }
   }
+	if ( addedMenus ) {
+    menuGrid->setColumnStretch ( MENUS_PER_ROW * 3, 1 );
+	}
   if ( addedMenus && addedMenus < MENUS_PER_ROW ) {
     menuGrid->setColumnStretch ( addedMenus * 2 - 1, 1 );
   }
