@@ -76,11 +76,13 @@ _gp2OpenCamera ( Camera** camera, const char* name, const char* port,
 		if ( p_gp_port_info_list_load ( _gp2PortInfoList ) != GP_OK ) {
 			p_gp_port_info_list_free ( _gp2PortInfoList );
 			p_gp_camera_unref ( *camera );
+			_gp2PortInfoList = 0;
 			return -OA_ERR_CAMERA_IO;
 		}
 		if (( numPorts = p_gp_port_info_list_count ( _gp2PortInfoList )) < 0 ) {
 			p_gp_port_info_list_free ( _gp2PortInfoList );
 			p_gp_camera_unref ( *camera );
+			_gp2PortInfoList = 0;
 			return -OA_ERR_CAMERA_IO;
 		}
 	}
@@ -89,6 +91,7 @@ _gp2OpenCamera ( Camera** camera, const char* name, const char* port,
 			name )) < GP_OK ) {
 		p_gp_port_info_list_free ( _gp2PortInfoList );
 		p_gp_camera_unref ( *camera );
+		_gp2PortInfoList = 0;
 		return -OA_ERR_CAMERA_IO;
 	}
 
@@ -96,12 +99,14 @@ _gp2OpenCamera ( Camera** camera, const char* name, const char* port,
 			&abilities ) != GP_OK ) {
 		p_gp_port_info_list_free ( _gp2PortInfoList );
 		p_gp_camera_unref ( *camera );
+		_gp2PortInfoList = 0;
 		return -OA_ERR_CAMERA_IO;
 	}
 
 	if ( p_gp_camera_set_abilities ( *camera, abilities ) != GP_OK ) {
 		p_gp_port_info_list_free ( _gp2PortInfoList );
 		p_gp_camera_unref ( *camera );
+		_gp2PortInfoList = 0;
 		return -OA_ERR_CAMERA_IO;
 	}
 
@@ -112,6 +117,7 @@ _gp2OpenCamera ( Camera** camera, const char* name, const char* port,
 		}
 		p_gp_port_info_list_free ( _gp2PortInfoList );
 		p_gp_camera_unref ( *camera );
+		_gp2PortInfoList = 0;
 		return -OA_ERR_CAMERA_IO;
 	}
 
@@ -119,12 +125,14 @@ _gp2OpenCamera ( Camera** camera, const char* name, const char* port,
 			&portInfo ) != GP_OK ) {
 		p_gp_port_info_list_free ( _gp2PortInfoList );
 		p_gp_camera_unref ( *camera );
+		_gp2PortInfoList = 0;
 		return -OA_ERR_CAMERA_IO;
 	}
 
 	if ( p_gp_camera_set_port_info ( *camera, portInfo ) != GP_OK ) {
 		p_gp_port_info_list_free ( _gp2PortInfoList );
 		p_gp_camera_unref ( *camera );
+		_gp2PortInfoList = 0;
 		return -OA_ERR_CAMERA_IO;
 	}
 
@@ -132,6 +140,7 @@ _gp2OpenCamera ( Camera** camera, const char* name, const char* port,
 		fprintf ( stderr, "can't init camera\n" );
 		p_gp_port_info_list_free ( _gp2PortInfoList );
 		p_gp_camera_unref ( *camera );
+		_gp2PortInfoList = 0;
 		return -OA_ERR_CAMERA_IO;
 	}
 

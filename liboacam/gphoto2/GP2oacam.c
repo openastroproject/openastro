@@ -84,10 +84,14 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 
   if ( p_gp_list_new ( &cameraList ) != GP_OK ) {
     fprintf ( stderr, "gp_list_new failed\n" );
+		p_gp_list_unref ( cameraList );
+		p_gp_context_unref ( ctx );
     return -OA_ERR_CAMERA_IO;
   }
   if ( p_gp_list_reset ( cameraList ) != GP_OK ) {
     fprintf ( stderr, "gp_list_reset failed\n" );
+		p_gp_list_unref ( cameraList );
+		p_gp_context_unref ( ctx );
     return -OA_ERR_CAMERA_IO;
   }
 
