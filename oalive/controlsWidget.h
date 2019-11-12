@@ -52,6 +52,7 @@ class ControlsWidget : public QWidget
     void		enableButtons ( int );
     void		disableAllButtons ( void );
     OutputHandler*	getProcessedOutputHandler ( void );
+    OutputHandler*	getFrameOutputHandler ( void );
     void		closeOutputHandlers ( void );
     void		connectSignals ( void );
 		int			getZoomFactor ( void );

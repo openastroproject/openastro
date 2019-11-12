@@ -609,6 +609,13 @@ ControlsWidget::openOutputFiles ( void )
 
 
 OutputHandler*
+ControlsWidget::getFrameOutputHandler ( void )
+{
+  return frameOutputHandler;
+}
+
+
+OutputHandler*
 ControlsWidget::getProcessedOutputHandler ( void )
 {
   return processedImageOutputHandler;

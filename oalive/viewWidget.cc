@@ -463,7 +463,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
   int			doHistogram = 0;
   int			writePixelFormat, originalPixelFormat;
   int			ret;
-  OutputHandler*	output;
+  OutputHandler*	outputFrame;
+  OutputHandler*	outputProcessed;
   void*			writeBuffer = imageData;
   const char*		timestamp;
   char*			comment;
@@ -618,6 +619,15 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 		}
 	}
 
+  outputFrame = state->controlsWidget->getFrameOutputHandler();
+  if ( outputFrame ) {
+    timestamp = 0;
+    comment = 0;
+    outputFrame->addFrame ( self->viewBuffer, timestamp,
+        state->cameraControls->getCurrentExposure(), comment,
+				( FRAME_METADATA* ) metadata );
+  }
+
 	// copy the view buffer to the frame history
 	memcpy ( self->previousFrames[ self->nextFrame ], self->viewBuffer,
 			viewFrameLength );
@@ -673,11 +683,11 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 			break;
 	}
 
-  output = state->controlsWidget->getProcessedOutputHandler();
-  if ( output ) {
+  outputProcessed = state->controlsWidget->getProcessedOutputHandler();
+  if ( outputProcessed ) {
     timestamp = 0;
     comment = 0;
-    output->addFrame ( self->viewBuffer, timestamp,
+    outputProcessed->addFrame ( self->viewBuffer, timestamp,
         state->cameraControls->getCurrentExposure(), comment,
 				( FRAME_METADATA* ) metadata );
   }
