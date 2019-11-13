@@ -132,35 +132,35 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
       planeDepth = 2;
       break;
 
-#ifdef RGB48_FITS
     case OA_PIX_FMT_BGR48BE:
       swapRedBlue = 1;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_RGB48BE:
-      bitpix = LONG_IMG;
+      bitpix = USHORT_IMG;
       nAxes = 3;
       if ( *firstByte == 0x34 ) {
         reverseByteOrder = 1;
       }
-      tableType = TULONG;
+      tableType = TUSHORT;
       bytesPerPixel = 6;
       splitPlanes = 1;
-      planeDepth = 4;
+      planeDepth = 2;
       break;
 
     case OA_PIX_FMT_BGR48LE:
       swapRedBlue = 1;
+			/* FALLTHROUGH */
     case OA_PIX_FMT_RGB48LE:
-      bitpix = LONG_IMG;
+      bitpix = USHORT_IMG;
       nAxes = 3;
       if ( *firstByte == 0x12 ) {
         reverseByteOrder = 1;
       }
-      tableType = TULONG;
-      bytesPerPixel = 4;
+      tableType = TUSHORT;
+      bytesPerPixel = 6;
       splitPlanes = 1;
-      planeDepth = 4;
+      planeDepth = 2;
       break;
-#endif
 
     default:
       validFileType = 0;
@@ -291,7 +291,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     }
   }
 
-  if ( 3 == bytesPerPixel ) { // RGB or BGR
+  if ( 3 == bytesPerPixel ) { // RGB24 or BGR24
     unsigned char* redPlane;
     unsigned char* greenPlane;
     unsigned char* bluePlane;
@@ -309,6 +309,36 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
       for ( i = 0; i < frameSize; i += 3 ) {
         *redPlane++ = *s++;
         *greenPlane++ = *s++;
+        *bluePlane++ = *s++;
+      }
+    }
+    outputBuffer = writeBuffer;
+  }
+
+  if ( 6 == bytesPerPixel ) { // RGB48 or BGR48
+    unsigned char* redPlane;
+    unsigned char* greenPlane;
+    unsigned char* bluePlane;
+
+    redPlane = t;
+    greenPlane = redPlane + planeSize;
+    bluePlane = greenPlane + planeSize;
+    if ( swapRedBlue ) { // BGR
+      for ( i = 0; i < frameSize; i += 6 ) {
+        *bluePlane++ = *s++;
+        *bluePlane++ = *s++;
+        *greenPlane++ = *s++;
+        *greenPlane++ = *s++;
+        *redPlane++ = *s++;
+        *redPlane++ = *s++;
+      }
+    } else { // RGB
+      for ( i = 0; i < frameSize; i += 6 ) {
+        *redPlane++ = *s++;
+        *redPlane++ = *s++;
+        *greenPlane++ = *s++;
+        *greenPlane++ = *s++;
+        *bluePlane++ = *s++;
         *bluePlane++ = *s++;
       }
     }
