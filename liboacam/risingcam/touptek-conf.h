@@ -45,7 +45,7 @@
 #define TT_FUNC( prefix, suffix)	prefix ## Nncam ## suffix
 
 // library handle type
-#define	TT_HANDLE									HNnCam
+#define	TT_HANDLE									HNncam
 
 // config flag prefix
 #define	TT_FLAG( flag )						NNCAM_FLAG_ ## flag
