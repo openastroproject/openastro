@@ -222,6 +222,18 @@ if `$PKG_CONFIG --exists libjpeg`; then
   LIBS="`$PKG_CONFIG --libs-only-l libjpeg` $LIBS"
   AC_DEFINE([HAVE_LIBJPG],[1],[Have libjpeg])
   AC_MSG_NOTICE([Using system libjpeg library])
+	AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+			#include <stdio.h>
+			#include <stdlib.h>
+			#include <jpeglib.h>
+			int main()
+			{
+			struct jpeg_decompress_struct cinfo;
+			void *frame = 0;
+			jpeg_create_decompress ( &cinfo );
+			jpeg_mem_src ( &cinfo, ( const unsigned char* ) frame, 10 );
+			}])],
+			[AC_DEFINE([JPEG_MEM_SRC_USES_CONST],[1],[jpeg_mem_src uses const])],[])
 else
   AC_CHECK_LIB([jpeg],[jpeg_create_decompress],[],[
     AC_MSG_ERROR([libjpeg is required])])

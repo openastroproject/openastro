@@ -1001,7 +1001,11 @@ ViewWidget::_unpackJPEG8 ( ViewWidget* self, void* frame, int* size,
 
 	cinfo.err = jpeg_std_error ( &jerr );
 	jpeg_create_decompress ( &cinfo );
-	jpeg_mem_src ( &cinfo, ( const unsigned char* ) frame, *size );
+	jpeg_mem_src ( &cinfo, (
+#if JPEG_MEM_SRC_USES_CONST
+				const
+#endif
+				unsigned char* ) frame, *size );
 	if ( jpeg_read_header ( &cinfo, TRUE ) != 1 ) {
 		qWarning() << "jpeg_read_header failed";
 		jpeg_destroy_decompress ( &cinfo );
