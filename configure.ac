@@ -936,6 +936,16 @@ else
   ])
 fi
 
+# Check for nullptr presence
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+			#include <stdio.h>
+      int main()
+      {
+				void		*a = nullptr;
+				printf ( "%p\n", a );
+      }])],
+      [AC_DEFINE([HAVE_NULLPTR],[1],[nullptr is present])],[])
+
 # Checks for header files.
 AC_CHECK_HEADERS([errno.h fcntl.h float.h limits.h malloc.h math.h stdint.h stdlib.h string.h strings.h sys/ioctl.h sys/time.h unistd.h fitsio.h cfitsio/fitsio.h ftdi.h libftdi/ftdi.h libftdi1/ftdi.h sys/sendfile.h sys/time.h syslog.h stdbool.h])
 # C++ versions

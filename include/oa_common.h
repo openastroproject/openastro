@@ -69,4 +69,8 @@ extern int errno;
 #include <TargetConditionals.h>
 #endif
 
+#if !HAVE_NULLPTR
+#define nullptr NULL
+#endif
+
 #endif /* OA_COMMON_H */

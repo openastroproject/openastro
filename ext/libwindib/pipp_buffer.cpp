@@ -1,3 +1,5 @@
+#include <oa_common.h>
+
 #include <cstring>
 #include <cstdlib>
 //#include <cstdint>
