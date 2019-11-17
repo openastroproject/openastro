@@ -109,6 +109,8 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 	qhyccd_handle*		handle;
   DEVICE_INFO*			devInfo;
   unsigned int			i, j;
+  char *logenv;
+  int loglevel = 0;
   int								found, binModes, maxBytesPerPixel;
 	double						min, max, step, pixelSizeX, pixelSizeY, ddummy;
 	uint32_t					dummy, x, y;
@@ -116,10 +118,21 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 
 	devInfo = device->_private;
 
+  logenv = getenv("QHY_LOG_LEVEL");
+  if (logenv) {
+    loglevel = atoi(logenv);
+  if (loglevel < 0)
+    loglevel = 0;
+  else if (loglevel > 6)
+    loglevel = 6;
+  }
+  p_SetQHYCCDLogLevel (loglevel);
+
   if ( p_InitQHYCCDResource() != QHYCCD_SUCCESS ) {
     fprintf ( stderr, "can't init libqhyccd\n" );
     return 0;
   }
+
   numCameras = ( p_ScanQHYCCD )();
   if ( numCameras < 1 || devInfo->devIndex > numCameras ) {
     p_ReleaseQHYCCDResource();
