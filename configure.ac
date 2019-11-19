@@ -226,6 +226,7 @@ if `$PKG_CONFIG --exists libjpeg`; then
 			#include <stdio.h>
 			#include <stdlib.h>
 			#include <jpeglib.h>
+			extern void jpeg_mem_src (j_decompress_ptr, const unsigned char *, unsigned long );
 			int main()
 			{
 			struct jpeg_decompress_struct cinfo;
@@ -922,7 +923,7 @@ if `$PKG_CONFIG --exists libgphoto2`; then
     AC_MSG_NOTICE([Using static libgphoto2 to avoid system libusb])
     LIBGPHOTO2_LDFLAGS=""
     AC_DEFINE([HAVE_STATIC_LIBGPHOTO2],[1],[Using static libgphoto2])
-    LIBGPHOTO2_LIBS="-static -lgphoto2 -dynamic"
+    LIBGPHOTO2_LIBS="-l:libgphoto2.a -l:libgphoto2_port.a -l:libltdl.a -l:libexif.a"
   fi
   AC_DEFINE([HAVE_LIBGPHOTO2],[1],[Have libgphoto2])
 	have_libgphoto2=yes
@@ -937,6 +938,7 @@ else
 fi
 
 # Check for nullptr presence
+AC_LANG_PUSH(C++)
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 			#include <stdio.h>
       int main()
@@ -945,6 +947,7 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 				printf ( "%p\n", a );
       }])],
       [AC_DEFINE([HAVE_NULLPTR],[1],[nullptr is present])],[])
+AC_LANG_POP(C++)
 
 # Checks for header files.
 AC_CHECK_HEADERS([errno.h fcntl.h float.h limits.h malloc.h math.h stdint.h stdlib.h string.h strings.h sys/ioctl.h sys/time.h unistd.h fitsio.h cfitsio/fitsio.h ftdi.h libftdi/ftdi.h libftdi1/ftdi.h sys/sendfile.h sys/time.h syslog.h stdbool.h])
