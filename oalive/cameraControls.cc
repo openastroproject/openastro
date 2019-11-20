@@ -308,9 +308,9 @@ CameraControls::configure ( void )
 							labelText[0] = '\0';
 							if ( oaCameraControlModifierPrefix[ mod ] ) {
 								strncpy ( labelText, oaCameraControlModifierPrefix[ mod ], 64 );
-								strncat ( labelText, " ", 64 );
+								strncat ( labelText, " ", 63 );
 							}
-							strncat ( labelText, oaCameraControlLabel[baseVal], 64 );
+							strncat ( labelText, oaCameraControlLabel[baseVal], 63 );
 							controlLabel[mod][baseVal] = new QLabel ( tr ( labelText ));
 							controlLabel[mod][baseVal]->setWordWrap ( 1 );
 							commonState.camera->controlRange ( c, &min, &max, &step,
@@ -357,9 +357,9 @@ CameraControls::configure ( void )
 							labelText[0] = '\0';
 							if ( oaCameraControlModifierPrefix[ mod ] ) {
 								strncpy ( labelText, oaCameraControlModifierPrefix[ mod ], 64 );
-								strncat ( labelText, " ", 64 );
+								strncat ( labelText, " ", 63 );
 							}
-							strncat ( labelText, oaCameraControlLabel[baseVal], 64 );
+							strncat ( labelText, oaCameraControlLabel[baseVal], 63 );
 							controlLabel[mod][baseVal] = new QLabel ( tr ( labelText ));
 							controlLabel[mod][baseVal]->setWordWrap ( 1 );
 							commonState.camera->controlDiscreteSet ( c, &count, &values );
