@@ -58,6 +58,10 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
     return ret;
   }
 
+	p_EnableQHYCCDLogFile ( 0 );
+	//p_EnableQHYCCDMessage ( 0 );
+	p_SetQHYCCDLogLevel ( 2 );
+
 	if ( p_InitQHYCCDResource() != QHYCCD_SUCCESS ) {
 		fprintf ( stderr, "can't init libqhyccd\n" );
 		return 0;
