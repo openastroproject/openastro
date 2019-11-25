@@ -75,7 +75,7 @@ TT_FUNC( oa, GetCameras )( CAMERA_LIST* deviceList, unsigned long featureFlags,
     ( void ) strncpy ( dev->deviceName, devList[i].displayname,
         OA_MAX_NAME_LEN+1 );
     _private->devIndex = i;
-    ( void ) strcpy ( _private->deviceId, devList[i].id );
+    ( void ) strncpy ( _private->deviceId, devList[i].id, OA_MAX_DEVICEID_LEN );
     dev->_private = _private;
     dev->initCamera = TT_FUNC( oa, InitCamera );
     dev->hasLoadableFirmware = 0;

@@ -191,7 +191,7 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
     dev->interface = OA_CAM_IF_GPHOTO2;
     _private->devIndex = 0;
     dev->_private = _private;
-		( void ) strncpy ( _private->deviceId, camName, 256 );
+		( void ) strncpy ( _private->deviceId, camName, OA_MAX_DEVICEID_LEN );
 		( void ) strncpy ( _private->sysPath, camPort, PATH_MAX );
 
     dev->initCamera = oaGP2InitCamera;

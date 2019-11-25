@@ -40,6 +40,10 @@
 #include <openastro/debug.h>
 #include <openastro/controlTypes.h>
 
+#define OA_MAX_NAME_LEN		80
+#define OA_MAX_DEVICES		32
+#define	OA_MAX_DEVICEID_LEN	255
+
 typedef struct {
   const int		interfaceType;
   const char*		name;
@@ -64,7 +68,7 @@ typedef struct {
 #ifdef HAVE_LIBFLYCAPTURE2
   fc2PGRGuid		pgeGuid;
 #endif
-  char			deviceId[ 256 ]; // FIX ME -- magic no. spinnaker probably biggest
+  char			deviceId[ OA_MAX_DEVICEID_LEN + 1 ];
   uint32_t		majorVersion;
   uint32_t		minorVersion;
 } DEVICE_INFO;
@@ -85,8 +89,5 @@ typedef struct OA_CONTROL_VALUE {
 #define	OA_DEVICE_CAMERA	1
 #define	OA_DEVICE_FILTERWHEEL	2
 #define	OA_DEVICE_PTR		3
-
-#define OA_MAX_NAME_LEN		80
-#define OA_MAX_DEVICES		32
 
 #endif	/* OPENASTRO_H */

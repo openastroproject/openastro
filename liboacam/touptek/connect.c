@@ -105,7 +105,7 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   unsigned int			i, j, numResolutions, numStillResolutions;
   unsigned int			fourcc, depth, binX, binY, dummy;
   int				x, y;
-  char				toupcamId[128]; // must be longer than 64
+  char				toupcamId[ OA_MAX_DEVICEID_LEN ]; // must be longer than 64
 	void*				tmpPtr;
 
   numCameras = ( TT_LIB_PTR( EnumV2 ))( devList );
@@ -138,7 +138,7 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   } else {
     *toupcamId = 0;
   }
-  ( void ) strcat ( toupcamId, devInfo->deviceId );
+  ( void ) strncat ( toupcamId, devInfo->deviceId, OA_MAX_DEVICEID_LEN );
   if (!( handle = ( TT_LIB_PTR( Open ))( toupcamId ))) {
     fprintf ( stderr, "Can't get " TT_DRIVER "handle\n" );
     FREE_DATA_STRUCTS;

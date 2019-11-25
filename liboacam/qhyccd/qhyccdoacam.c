@@ -118,7 +118,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
     dev->interface = OA_CAM_IF_QHYCCD;
     ( void ) strncpy ( dev->deviceName, qhyccdModel, OA_MAX_NAME_LEN+1 );
     _private->devIndex = i;
-    ( void ) strcpy ( _private->deviceId, qhyccdId );
+    ( void ) strncpy ( _private->deviceId, qhyccdId, OA_MAX_DEVICEID_LEN );
     dev->_private = _private;
     dev->initCamera = oaQHYCCDInitCamera;
     dev->hasLoadableFirmware = 0;
