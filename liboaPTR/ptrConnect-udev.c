@@ -2,7 +2,8 @@
  *
  * ptrConnect-udev.c -- Initialise PTR device (udev)
  *
- * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -89,7 +90,7 @@ oaPTRInit ( oaPTRDevice* device )
   pthread_mutex_init ( &privateInfo->ioMutex, 0 );
 
   ( void ) strcpy ( ptr->deviceName, device->deviceName );
-  ( void ) strcpy ( privateInfo->devicePath, devInfo->sysPath );
+  ( void ) strncpy ( privateInfo->devicePath, devInfo->sysPath, PATH_MAX );
 
   privateInfo->initialised = 0;
   privateInfo->index = -1;

@@ -2,7 +2,8 @@
  *
  * xagylInit-udev.c -- Initialise Xagyl filter wheels (udev)
  *
- * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -79,7 +80,7 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
   pthread_mutex_init ( &privateInfo->ioMutex, 0 );
 
   ( void ) strcpy ( wheel->deviceName, device->deviceName );
-  ( void ) strcpy ( privateInfo->devicePath, devInfo->sysPath );
+  ( void ) strncpy ( privateInfo->devicePath, devInfo->sysPath, PATH_MAX );
 
   privateInfo->initialised = 0;
   privateInfo->index = -1;

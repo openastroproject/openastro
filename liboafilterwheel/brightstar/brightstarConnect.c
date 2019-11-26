@@ -2,7 +2,7 @@
  *
  * brightstarConnect.c -- Initialise Brightstar filter wheel
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -78,7 +78,7 @@ oaBrightstarInitFilterWheel ( oaFilterWheelDevice* device )
   pthread_mutex_init ( &privateInfo->ioMutex, 0 );
 
   ( void ) strcpy ( wheel->deviceName, device->deviceName );
-  ( void ) strcpy ( privateInfo->devicePath, devInfo->sysPath );
+  ( void ) strncpy ( privateInfo->devicePath, devInfo->sysPath, PATH_MAX );
 
   privateInfo->initialised = 0;
   privateInfo->index = -1;

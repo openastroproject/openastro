@@ -2,7 +2,8 @@
  *
  * V4L2oacam.c -- main entrypoint for V4L2 Cameras
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2019
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -56,8 +57,8 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 {
   DIR*			dirp;
   struct dirent*	entry;
-  char			nameFile[ PATH_MAX ];
-  char			sysPath[ PATH_MAX ];
+  char			nameFile[ PATH_MAX+1 ];
+  char			sysPath[ PATH_MAX+1 ];
   FILE*			fp;
   char			name[ OA_MAX_NAME_LEN+1 ];
   unsigned int		numFound = 0, index;
@@ -82,9 +83,9 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       }
       index = atoi ( entry->d_name+5 );
       
-      ( void ) snprintf ( sysPath, PATH_MAX-1, "%s/%s", SYS_V4L_PATH,
+      ( void ) snprintf ( sysPath, PATH_MAX, "%s/%s", SYS_V4L_PATH,
           entry->d_name );
-      ( void ) snprintf ( nameFile, PATH_MAX-1, "%s/name", sysPath );
+      ( void ) snprintf ( nameFile, PATH_MAX, "%s/name", sysPath );
       if (!( fp = fopen ( nameFile, "r" ))) {
         closedir ( dirp );
         return -OA_ERR_SYSTEM_ERROR;
