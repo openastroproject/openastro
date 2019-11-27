@@ -39,11 +39,6 @@
 int
 oaBrightstarGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
 {
-  // want to find all the usb serial devices and see which have
-  // a VID:PID of 0403:6001 or VID:PID 0403:6015.  Further check
-  // that the serial number for the device is either A4008T44 or
-  // DA001CEZ
-
   struct udev*			udev;
   struct udev_enumerate*	enumerate;
   struct udev_list_entry*	devices;
