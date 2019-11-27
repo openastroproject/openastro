@@ -93,6 +93,7 @@ class ViewWidget : public QFrame
     void		stopRecording ( void );
     void		startNextExposure ( void );
 		void		updateStackedFrameCount ( void );
+		void		enableSpinner ( int );
 
   private:
 		void			_recalcCoeffs ( void );

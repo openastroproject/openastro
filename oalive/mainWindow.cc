@@ -232,6 +232,11 @@ MainWindow::MainWindow ( QString configFile )
 	batteryLevelTimer->start ( 60000 );
 	timeRemainingTimer->start ( 1000 );
 	droppedFrameTimer->start ( 5000 );
+
+	spinner = new WaitingSpinnerWidget ( this, true, false );
+	spinner->setColor ( QColor ( 200, 200, 200 ));
+	connect ( state.viewWidget, SIGNAL( enableSpinner ( int )), this,
+			SLOT ( showSpinner ( int )));
 }
 
 
@@ -329,6 +334,8 @@ MainWindow::~MainWindow()
 	delete batteryLevelTimer;
 	//delete autoControlsTimer;
 	delete timeRemainingTimer;
+
+	delete spinner;
 }
 
 
@@ -3295,4 +3302,15 @@ MainWindow::createFileFailed ( void )
 {
   QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,
       tr ( "Unable to create file for output" ));
+}
+
+
+void
+MainWindow::showSpinner ( int enable )
+{
+	if ( enable ) {
+		spinner->start();
+	} else {
+		spinner->stop();
+	}
 }

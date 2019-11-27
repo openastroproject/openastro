@@ -45,6 +45,7 @@ extern "C" {
 #include "filterSettings.h"
 #include "generalSettings.h"
 #include "cameraSettings.h"
+#include "waitingSpinnerWidget.h"
 
 #include "viewWidget.h"
 #include "focusOverlay.h"
@@ -175,6 +176,8 @@ class MainWindow : public QMainWindow
 */
     QColorDialog*	colourDialog;
 
+		WaitingSpinnerWidget*	spinner;
+
   public slots:
     void		connectCamera( int );
     void		disconnectCamera ( void );
@@ -213,4 +216,5 @@ class MainWindow : public QMainWindow
     int     outputExists ( void );
     void    outputExistsUnwritable ( void );
     void    createFileFailed ( void );
+		void		showSpinner ( int );
 };

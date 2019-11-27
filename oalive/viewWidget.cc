@@ -475,6 +475,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 	self->abortProcessing = 1;
   pthread_mutex_unlock ( &( self->imageMutex ));
 
+  emit self->enableSpinner ( 1 );
+
   // write straight from the data if possible
   self->viewBuffer = imageData;
 	self->currentViewBuffer = -1;
@@ -486,6 +488,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 		if ( self->_unpackImageFrame ( self, imageData, &length,
 				&self->viewPixelFormat, &width, &height ) != OA_ERR_NONE ) {
 			qWarning() << "unpackImageFrame failed";
+			emit self->enableSpinner ( 0 );
 			return 0;
 		}
 		if ( width != commonConfig.imageSizeX ||
@@ -502,11 +505,13 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 		if ( length != self->expectedSize ) {
 			// qWarning() << "size mismatch.  have:" << length << " expected: "
 			//    << self->expectedSize;
+			emit self->enableSpinner ( 0 );
 			return 0;
 		}
 	}
 
 	if (( ret = self->checkBuffers ( self ))) {
+		emit self->enableSpinner ( 0 );
 		return 0;
 	}
 
@@ -596,6 +601,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 					( self->previousFrameArraySize + 10 ) * sizeof ( void* )))) {
 				qDebug() << "realloc of frame history failed!";
 				self->maxFrames--;
+				emit self->enableSpinner ( 0 );
 				return 0;
 			}
 
@@ -615,6 +621,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 		if (!( self->previousFrames[ self->nextFrame ] =
 				malloc ( viewFrameLength ))) {
 			qDebug() << "malloc of frame history buffer failed!";
+			emit self->enableSpinner ( 0 );
 			return 0;
 		}
 	}
@@ -728,6 +735,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 	self->abortProcessing = 0;
 	pthread_mutex_unlock ( &( self->imageMutex ));
 
+	emit self->enableSpinner ( 0 );
 	emit self->updateStackedFrameCount();
 
   if ( doHistogram ) {
