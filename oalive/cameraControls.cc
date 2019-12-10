@@ -205,14 +205,14 @@ CameraControls::configure ( void )
 									haveRangeMenu = 1;
 									showStep = 1;
 									exposureRangeMenu = new QComboBox ( this );
-									for ( i = minRangeIndex; i < maxRangeIndex; i++ ) {
+									for ( i = minRangeIndex; i <= maxRangeIndex; i++ ) {
 										exposureRangeMenu->addItem ( tr ( rangeMenuLabels[i] ));
 									}
 
 									// update the intervalMenuOption if what we currently have
 									// doesn't fit the menus
 
-									if ( config.intervalMenuOption < minRangeIndex &&
+									if ( config.intervalMenuOption < minRangeIndex ||
 											config.intervalMenuOption > maxRangeIndex ) {
 										config.intervalMenuOption = minRangeIndex;
 									}
@@ -227,9 +227,9 @@ CameraControls::configure ( void )
 										if ( showMax < 1 ) { showMax = 1; }
 										def /= rangeMultipliers[ config.intervalMenuOption ];
 										if ( def < 1 ) { def = 1; }
-										exposureRangeMenu->setCurrentIndex (
-												config.intervalMenuOption );
 									}
+									exposureRangeMenu->setCurrentIndex (
+											config.intervalMenuOption - minRangeIndex );
 
 									// FIX ME -- what if showMin and showMax are both now 1?
 								}
@@ -243,11 +243,6 @@ CameraControls::configure ( void )
 
 							controlSlider[mod][baseVal]->setSingleStep ( showStep );
 							controlSpinbox[mod][baseVal]->setSingleStep ( showStep );
-
-							sliderSignalMapper->setMapping ( controlSpinbox[mod][baseVal],
-									c );
-							connect ( controlSpinbox[mod][baseVal], SIGNAL(
-									valueChanged ( int )), sliderSignalMapper, SLOT( map()));
 
 							if (readableControls ) {
 								cameraConf.CONTROL_VALUE( c ) =
@@ -266,6 +261,11 @@ CameraControls::configure ( void )
 							}
 							controlSlider[mod][baseVal]->setValue ( v );
 							controlSpinbox[mod][baseVal]->setValue ( v );
+
+							sliderSignalMapper->setMapping ( controlSpinbox[mod][baseVal],
+									c );
+							connect ( controlSpinbox[mod][baseVal], SIGNAL(
+									valueChanged ( int )), sliderSignalMapper, SLOT( map()));
 
 							break;
 						}
