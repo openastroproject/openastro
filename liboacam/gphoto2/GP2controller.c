@@ -47,6 +47,7 @@ static int	_processAbortExposure ( oaCamera* );
 static int	_startExposure ( oaCamera* );
 static int	_setWidgetValue ( GP2_STATE*, CameraWidget*, const void* );
 static int	_handleCompletedExposure ( GP2_STATE* );
+static void	_timerCallback ( void* );
 
 
 void*
@@ -141,6 +142,12 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 		valp->valueType = OA_CTRL_TYPE_BOOLEAN;
 		valp->boolean =
 				cameraInfo->customFuncStr[ cameraInfo->mirrorLockupPos ] - '0';
+		return OA_ERR_NONE;
+	}
+
+	if ( control == OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) {
+		valp->valueType = OA_CTRL_TYPE_INT64;
+		valp->int64 = cameraInfo->bulbExposureTime;
 		return OA_ERR_NONE;
 	}
 
@@ -250,8 +257,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
   GP2_STATE*			cameraInfo = camera->_private;
 	CameraWidget*		widget = 0;
 	const char**		options = 0;
-	int							numOptions;
-	int							newVal;
+	int							numOptions, newVal, ret;
 	const void*			valuePointer;
 
 	if ( control == OA_CAM_CTRL_MIRROR_LOCKUP ) {
@@ -321,7 +327,17 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 		valuePointer = options[newVal];
 	}
 
-	return _setWidgetValue ( cameraInfo, widget, valuePointer );
+	ret = _setWidgetValue ( cameraInfo, widget, valuePointer );
+
+	if ( OA_ERR_NONE == ret && OA_CAM_CTRL_SHUTTER_SPEED == control ) {
+		if ( !strcasecmp ( options[newVal], "bulb" )) {
+			cameraInfo->bulbModeEnabled = 1;
+		} else {
+			cameraInfo->bulbModeEnabled = 0;
+		}
+	}
+
+	return ret;
 }
 
 
@@ -386,11 +402,24 @@ static int
 _startExposure ( oaCamera* camera )
 {
   GP2_STATE*	cameraInfo = camera->_private;
+	int					ret;
+
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
   cameraInfo->exposurePending = 0;
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
-	p_gp_camera_trigger_capture ( cameraInfo->handle, cameraInfo->ctx );
+	if ( cameraInfo->bulbModeEnabled ) {
+		int		enable = cameraInfo->bulbPressOption;
+		if (( ret = _setWidgetValue ( cameraInfo, cameraInfo->bulbMode,
+				&enable )) != GP_OK ) {
+			fprintf ( stderr, "starting bulb mode on failed with error %d\n", ret );
+			return -OA_ERR_CAMERA_IO;
+		}
+		cameraInfo->timerCallback = _timerCallback;
+		oacamStartTimer ( cameraInfo->bulbExposureTime, cameraInfo );
+	} else {
+		p_gp_camera_trigger_capture ( cameraInfo->handle, cameraInfo->ctx );
+	}
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
   cameraInfo->exposureInProgress = 1;
@@ -531,3 +560,15 @@ _processAbortExposure ( oaCamera* camera )
 }
 
 
+static void
+_timerCallback ( void* param )
+{
+	GP2_STATE*			cameraInfo = param;
+	int							release, ret;
+		
+	release = cameraInfo->bulbReleaseOption;
+	if (( ret = _setWidgetValue ( cameraInfo, cameraInfo->bulbMode,
+			&release )) != GP_OK ) {
+		fprintf ( stderr, "release bulb mode on failed with error %d\n", ret );
+	}
+}

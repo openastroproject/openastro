@@ -237,6 +237,19 @@ oaGP2InitCamera ( oaCameraDevice* device )
     return 0;
   }
 
+	// Finally, "actions"
+
+	if ( _gp2FindWidget ( cameraInfo->rootWidget, "actions",
+			&cameraInfo->actions ) != OA_ERR_NONE ) {
+		fprintf ( stderr, "Can't get actions widget for camera '%s' at port '%s'\n",
+				camName, camPort );
+		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
+		p_gp_list_unref ( cameraList );
+		p_gp_context_unref ( cameraInfo->ctx );
+		FREE_DATA_STRUCTS;
+    return 0;
+  }
+
 	// Use the status widget to try to determine the camera manufacturer.
 	// There appear to be a number of possibilities here:
 	//
@@ -469,6 +482,87 @@ fprintf ( stderr, "have acpower flag\n" );
 			FREE_DATA_STRUCTS;
 			return 0;
 		}
+
+		// And again for Canon only, /main/actions/eosremoterelease (bulb mode)
+
+		if (( ret = _GP2ProcessMenuWidget ( cameraInfo->actions, "eosremoterelease",
+				&cameraInfo->bulbMode, &cameraInfo->bulbModeType,
+				&cameraInfo->numBulbModeOptions, camName, camPort )) != OA_ERR_NONE &&
+				ret != -OA_ERR_INVALID_COMMAND ) {
+			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
+			p_gp_list_unref ( cameraList );
+			p_gp_context_unref ( cameraInfo->ctx );
+			FREE_DATA_STRUCTS;
+			return 0;
+		}
+
+		// If the action exists, work out which are the "immediate" (or
+		// "press full" if "immediate" doesn't exist) and "release full" options
+
+		if ( ret == OA_ERR_NONE ) {
+			int optsFound = 0;
+			cameraInfo->bulbPressOption = cameraInfo->bulbReleaseOption = -1;
+			( void ) oaGP2CameraGetMenuString ( camera, OA_CAM_CTRL_BULB_MODE, 0 );
+			for ( i = 0; i < cameraInfo->numBulbModeOptions; i++ ) {
+				if ( !strcasecmp ( cameraInfo->bulbModeOptions[i], "immediate" )) {
+					// only increment this if we've not already found "press full"
+					if ( cameraInfo->bulbPressOption == -1 ) {
+						optsFound++;
+					}
+					cameraInfo->bulbPressOption = i;
+				}
+				if ( -1 == cameraInfo->bulbPressOption &&
+						!strcasecmp ( cameraInfo->bulbModeOptions[i], "press full" )) {
+					cameraInfo->bulbPressOption = i;
+					optsFound++;
+				}
+				if ( !strcasecmp ( cameraInfo->bulbModeOptions[i], "release full" )) {
+					cameraInfo->bulbReleaseOption = i;
+					optsFound++;
+				}
+			}
+			// This isn't going to work unless we found them both
+			if ( optsFound != 2 ) {
+				cameraInfo->bulbMode = 0;
+			}
+		}
+	}
+
+	// Check for bulb mode (/main/actions/bulb) if we didn't already find it
+	// for Canon as eosremoterelease
+
+	if ( !cameraInfo->bulbMode ) {
+fprintf ( stderr, "checking for bulb\n" );
+		if (( ret = _GP2ProcessToggleWidget ( cameraInfo->actions, "bulb",
+				&cameraInfo->bulbMode, camName, camPort )) != OA_ERR_NONE &&
+				ret != -OA_ERR_INVALID_COMMAND ) {
+			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
+			p_gp_list_unref ( cameraList );
+			p_gp_context_unref ( cameraInfo->ctx );
+			FREE_DATA_STRUCTS;
+			return 0;
+		}
+		if ( ret == OA_ERR_NONE ) {
+			cameraInfo->bulbModeType = GP_WIDGET_TOGGLE;
+		}
+	}
+
+	// Set up an absolute exposure setting for use with bulb mode if the
+	// camera has it
+
+	if ( cameraInfo->bulbMode ) {
+fprintf ( stderr, "have some bulb mode\n" );
+		camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BULB_MODE ) = OA_CTRL_TYPE_READONLY;
+		camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+							OA_CTRL_TYPE_INT64;
+		// min is 1 second
+		commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1000000;
+		// max is 30 minutes
+		commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1800000000;
+		commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+		// default is 30 seconds
+		commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+				cameraInfo->bulbExposureTime = 30000000;
 	}
 
 	camera->features.flags |= OA_CAM_FEATURE_SINGLE_SHOT;

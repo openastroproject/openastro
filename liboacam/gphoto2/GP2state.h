@@ -46,6 +46,7 @@ typedef struct GP2_STATE {
 	CameraWidget*				captureSettings;
 	CameraWidget*				settings;
 	CameraWidget*				status;
+	CameraWidget*				actions;
 	CameraWidget*				iso;
 	CameraWidgetType		isoType;
 	int									numIsoOptions;
@@ -76,10 +77,18 @@ typedef struct GP2_STATE {
 	int									jpegOption;
 	int									rawOption;
 	CameraWidget*				capture;
+	CameraWidget*				bulbMode;
+	CameraWidgetType		bulbModeType;
+	int									numBulbModeOptions;
+	const char**				bulbModeOptions;
 	int									currentFormatOption;
 	int									numFormatMenuValues;
 	int64_t							formatMenuValues[2];
 	int									captureEnabled;
+	int									bulbPressOption;
+	int									bulbReleaseOption;
+	int									bulbExposureTime;
+	int									bulbModeEnabled;
   // video mode settings
   int									currentFrameFormat;
   int									bytesPerPixel;

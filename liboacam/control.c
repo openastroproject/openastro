@@ -159,7 +159,8 @@ const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
 	"Mirror Lockup",
 	"Power Source",
 	"Battery Level",
-	"Conversion Gain"
+	"Conversion Gain",
+	"Bulb Mode"
 };
 
 const char* oaCameraPresetAWBLabel[ OA_AWB_PRESET_LAST_P1 ] = {

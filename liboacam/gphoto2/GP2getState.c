@@ -93,6 +93,12 @@ oaGP2CameraGetMenuString ( oaCamera* camera, int control, int index )
 			options = cameraInfo->frameFormatOptions;
 			poptions = &cameraInfo->frameFormatOptions;
 			break;
+		case OA_CAM_CTRL_BULB_MODE:
+			widget = cameraInfo->bulbMode;
+			numOptions = cameraInfo->numBulbModeOptions;
+			options = cameraInfo->bulbModeOptions;
+			poptions = &cameraInfo->bulbModeOptions;
+			break;
 		default:
 			return "Invalid control";
 			break;
