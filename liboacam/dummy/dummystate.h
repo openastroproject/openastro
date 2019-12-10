@@ -36,6 +36,9 @@ typedef struct DUMMY_STATE {
 
 #include "sharedDecs.h"
 
+	int					numIsoOptions;
+	int					numShutterSpeedOptions;
+
   // buffering for image transfers
   frameBuffer*			buffers;
   // camera settings

@@ -39,6 +39,8 @@
 
 
 static void _dummyInitFunctionPointers ( oaCamera* );
+static int	_initAstroCamera ( oaCamera*, DUMMY_STATE*, COMMON_INFO* );
+static int	_initDSLR ( oaCamera*, DUMMY_STATE*, COMMON_INFO* );
 
 /**
  * Initialise a given camera device
@@ -51,7 +53,7 @@ oaDummyInitCamera ( oaCameraDevice* device )
   DEVICE_INFO*		devInfo;
   DUMMY_STATE*		cameraInfo;
   COMMON_INFO*		commonInfo;
-  int          		i, j, multiplier;
+  int          		i, j, multiplier, ret;
 
   oacamDebugMsg ( DEBUG_CAM_INIT, "dummy: init: %s ()\n", __FUNCTION__ );
 
@@ -76,192 +78,15 @@ oaDummyInitCamera ( oaCameraDevice* device )
 
   cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_INT32;
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = 0;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = 100;
-  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) =
-			cameraInfo->currentGain = 50;
-
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
-      OA_CTRL_TYPE_INT64;
-	// this is in microseconds
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1000;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
-			cameraInfo->cameraType ? 300000000 : 30000000;
-  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
-			cameraInfo->currentAbsoluteExposure =
-			cameraInfo->cameraType ? 1000000 : 10000;
-
-	// Skip gamma for the moment
-	/*
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAMMA ) = OA_CTRL_TYPE_INT32;
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA ) = 0
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA ) = 100;
-  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAMMA ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) =
-			cameraInfo->currentGamma = 50;
-	 */
-
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BRIGHTNESS ) = OA_CTRL_TYPE_INT32;
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BRIGHTNESS ) = 0;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BRIGHTNESS ) = 32;
-  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BRIGHTNESS ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) =
-			cameraInfo->currentBrightness = 0;
-
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HFLIP ) = OA_CTRL_TYPE_BOOLEAN;
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HFLIP ) = 0;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HFLIP ) = 1;
-  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HFLIP ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HFLIP ) =
-      cameraInfo->currentHFlip = 0;
-
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_VFLIP ) = OA_CTRL_TYPE_BOOLEAN;
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_VFLIP ) = 0;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_VFLIP ) = 1;
-  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_VFLIP ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_VFLIP ) =
-      cameraInfo->currentVFlip = 0;
-
-  // might be handy to have this one later?
-	/*
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COOLER ) = OA_CTRL_TYPE_BOOLEAN;
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_COOLER ) = 0;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_COOLER ) = 1;
-  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_COOLER ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER ) = 
-      cameraInfo->coolerEnabled = currentValue = 0;
-	 */
-
-  // and this one
-	/*
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMP_SETPOINT ) = OA_CTRL_TYPE_INT32;
-	// 1/10ths of a degree
-  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TEMP_SETPOINT ) = -3000;
-  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TEMP_SETPOINT ) = 100;
-        controlCaps.MaxValue;
-  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TEMP_SETPOINT ) = 1;
-  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) =
-			cameraInfo->currentSetPoint = 0;
-	 */
-
-	camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
-
-  camera->features.flags |= OA_CAM_FEATURE_ROI;
-  camera->features.flags |= OA_CAM_FEATURE_RESET;
-  camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
-  camera->features.flags |= OA_CAM_FEATURE_FIXED_FRAME_SIZES;
-  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
-  cameraInfo->binMode = OA_BIN_MODE_NONE;
-
-  for ( i = 1; i <= OA_MAX_BINNING; i++ ) {
-    cameraInfo->frameSizes[i].numSizes = 0;
-    cameraInfo->frameSizes[i].sizes = 0;
-  }
-
-	switch ( cameraInfo->cameraType ) {
-		case 0:  // planetary
-      camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
-			camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
-			cameraInfo->maxResolutionX = 1280;
-			cameraInfo->maxResolutionY = 960;
-			camera->features.flags |= OA_CAM_FEATURE_STREAMING;
-      if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
-          18, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
-        FREE_DATA_STRUCTS;
-        return 0;
-      }
-      if (!( cameraInfo->frameSizes[2].sizes =
-          ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
-        free (( void* ) cameraInfo->frameSizes[1].sizes );
-        FREE_DATA_STRUCTS;
-        return 0;
-      }
-      cameraInfo->frameSizes[1].sizes[0].x = 1280;
-      cameraInfo->frameSizes[1].sizes[0].y = 960;
-      cameraInfo->frameSizes[1].sizes[1].x = 1280;
-      cameraInfo->frameSizes[1].sizes[1].y = 720;
-      cameraInfo->frameSizes[1].sizes[2].x = 1280;
-      cameraInfo->frameSizes[1].sizes[2].y = 600;
-      cameraInfo->frameSizes[1].sizes[3].x = 1280;
-      cameraInfo->frameSizes[1].sizes[3].y = 400;
-      cameraInfo->frameSizes[1].sizes[4].x = 960;
-      cameraInfo->frameSizes[1].sizes[4].y = 960;
-      cameraInfo->frameSizes[1].sizes[5].x = 1024;
-      cameraInfo->frameSizes[1].sizes[5].y = 768;
-      cameraInfo->frameSizes[1].sizes[6].x = 1024;
-      cameraInfo->frameSizes[1].sizes[6].y = 600;
-      cameraInfo->frameSizes[1].sizes[7].x = 1024;
-      cameraInfo->frameSizes[1].sizes[7].y = 400;
-      cameraInfo->frameSizes[1].sizes[8].x = 800;
-      cameraInfo->frameSizes[1].sizes[8].y = 800;
-      cameraInfo->frameSizes[1].sizes[9].x = 800;
-      cameraInfo->frameSizes[1].sizes[9].y = 640;
-      cameraInfo->frameSizes[1].sizes[10].x = 800;
-      cameraInfo->frameSizes[1].sizes[10].y = 512;
-      cameraInfo->frameSizes[1].sizes[11].x = 800;
-      cameraInfo->frameSizes[1].sizes[11].y = 320;
-      cameraInfo->frameSizes[1].sizes[12].x = 640;
-      cameraInfo->frameSizes[1].sizes[12].y = 560;
-      cameraInfo->frameSizes[1].sizes[13].x = 640;
-      cameraInfo->frameSizes[1].sizes[13].y = 480;
-      cameraInfo->frameSizes[1].sizes[14].x = 512;
-      cameraInfo->frameSizes[1].sizes[14].y = 440;
-      cameraInfo->frameSizes[1].sizes[15].x = 512;
-      cameraInfo->frameSizes[1].sizes[15].y = 400;
-      cameraInfo->frameSizes[1].sizes[16].x = 480;
-      cameraInfo->frameSizes[1].sizes[16].y = 320;
-      cameraInfo->frameSizes[1].sizes[17].x = 320;
-      cameraInfo->frameSizes[1].sizes[17].y = 240;
-      cameraInfo->frameSizes[1].numSizes = 18;
-
-      cameraInfo->frameSizes[2].sizes[0].x = 640;
-      cameraInfo->frameSizes[2].sizes[0].y = 480;
-      cameraInfo->frameSizes[2].numSizes = 1;
-
-      camera->features.pixelSizeX = 3750;
-      camera->features.pixelSizeY = 3750;
-			break;
-
-		case 1:  // DSO
-      camera->frameFormats[ OA_PIX_FMT_GREY16BE ] = 16;
-			camera->features.flags |= OA_CAM_FEATURE_DEMOSAIC_MODE;
-			cameraInfo->maxResolutionX = 4656;
-			cameraInfo->maxResolutionY = 3250;
-      if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
-          6, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
-        FREE_DATA_STRUCTS;
-        return 0;
-      }
-
-      cameraInfo->frameSizes[1].sizes[0].x = 4656;
-      cameraInfo->frameSizes[1].sizes[0].y = 3520;
-      cameraInfo->frameSizes[1].sizes[1].x = 3840;
-      cameraInfo->frameSizes[1].sizes[1].y = 2160;
-      cameraInfo->frameSizes[1].sizes[2].x = 1920;
-      cameraInfo->frameSizes[1].sizes[2].y = 1680;
-      cameraInfo->frameSizes[1].sizes[3].x = 1280;
-      cameraInfo->frameSizes[1].sizes[3].y = 960;
-      cameraInfo->frameSizes[1].sizes[4].x = 640;
-      cameraInfo->frameSizes[1].sizes[4].y = 480;
-      cameraInfo->frameSizes[1].sizes[5].x = 320;
-      cameraInfo->frameSizes[1].sizes[5].y = 240;
-      cameraInfo->frameSizes[1].numSizes = 6;
-
-      cameraInfo->frameSizes[2].sizes[0].x = 2328;
-      cameraInfo->frameSizes[2].sizes[0].y = 1760;
-      cameraInfo->frameSizes[2].numSizes = 1;
-
-      camera->features.pixelSizeX = 3800;
-      camera->features.pixelSizeY = 3800;
-			break;
-  }
+	if ( cameraInfo->cameraType < 2 ) {
+		ret = _initAstroCamera ( camera, cameraInfo, commonInfo );
+	} else {
+		ret = _initDSLR ( camera, cameraInfo, commonInfo );
+	}
+	if ( ret != OA_ERR_NONE ) {
+		FREE_DATA_STRUCTS;
+		return 0;
+	}
 
   cameraInfo->xSize = cameraInfo->maxResolutionX;
   cameraInfo->ySize = cameraInfo->maxResolutionY;
@@ -401,4 +226,237 @@ oaDummyCloseCamera ( oaCamera* camera )
    return -OA_ERR_INVALID_CAMERA;
   }
   return OA_ERR_NONE;
+}
+
+
+static int
+_initAstroCamera ( oaCamera* camera, DUMMY_STATE* cameraInfo,
+		COMMON_INFO* commonInfo )
+{
+	int				i;
+
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = 100;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) =
+			cameraInfo->currentGain = 50;
+
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+      OA_CTRL_TYPE_INT64;
+	// this is in microseconds
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1000;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+			cameraInfo->cameraType ? 300000000 : 30000000;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+			cameraInfo->currentAbsoluteExposure =
+			cameraInfo->cameraType ? 1000000 : 10000;
+
+	// Skip gamma for the moment
+	/*
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAMMA ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA ) = 0
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA ) = 100;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAMMA ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) =
+			cameraInfo->currentGamma = 50;
+	 */
+
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BRIGHTNESS ) = OA_CTRL_TYPE_INT32;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BRIGHTNESS ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BRIGHTNESS ) = 32;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BRIGHTNESS ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS ) =
+			cameraInfo->currentBrightness = 0;
+
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HFLIP ) = OA_CTRL_TYPE_BOOLEAN;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HFLIP ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HFLIP ) = 1;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HFLIP ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HFLIP ) =
+      cameraInfo->currentHFlip = 0;
+
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_VFLIP ) = OA_CTRL_TYPE_BOOLEAN;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_VFLIP ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_VFLIP ) = 1;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_VFLIP ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_VFLIP ) =
+      cameraInfo->currentVFlip = 0;
+
+  // might be handy to have this one later?
+	/*
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COOLER ) = OA_CTRL_TYPE_BOOLEAN;
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_COOLER ) = 0;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_COOLER ) = 1;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_COOLER ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER ) = 
+      cameraInfo->coolerEnabled = currentValue = 0;
+	 */
+
+  // and this one
+	/*
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMP_SETPOINT ) = OA_CTRL_TYPE_INT32;
+	// 1/10ths of a degree
+  commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TEMP_SETPOINT ) = -3000;
+  commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TEMP_SETPOINT ) = 100;
+        controlCaps.MaxValue;
+  commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TEMP_SETPOINT ) = 1;
+  commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) =
+			cameraInfo->currentSetPoint = 0;
+	 */
+
+	camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_DISCRETE;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
+
+  camera->features.flags |= OA_CAM_FEATURE_ROI;
+  camera->features.flags |= OA_CAM_FEATURE_RESET;
+  camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
+  camera->features.flags |= OA_CAM_FEATURE_FIXED_FRAME_SIZES;
+  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
+  cameraInfo->binMode = OA_BIN_MODE_NONE;
+
+  for ( i = 1; i <= OA_MAX_BINNING; i++ ) {
+    cameraInfo->frameSizes[i].numSizes = 0;
+    cameraInfo->frameSizes[i].sizes = 0;
+  }
+
+	switch ( cameraInfo->cameraType ) {
+		case 0:  // planetary
+      camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
+			camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
+			cameraInfo->maxResolutionX = 1280;
+			cameraInfo->maxResolutionY = 960;
+			camera->features.flags |= OA_CAM_FEATURE_STREAMING;
+      if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
+          18, sizeof ( FRAMESIZE )))) {
+        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+        return 0;
+      }
+      if (!( cameraInfo->frameSizes[2].sizes =
+          ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
+        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+        free (( void* ) cameraInfo->frameSizes[1].sizes );
+        return 0;
+      }
+      cameraInfo->frameSizes[1].sizes[0].x = 1280;
+      cameraInfo->frameSizes[1].sizes[0].y = 960;
+      cameraInfo->frameSizes[1].sizes[1].x = 1280;
+      cameraInfo->frameSizes[1].sizes[1].y = 720;
+      cameraInfo->frameSizes[1].sizes[2].x = 1280;
+      cameraInfo->frameSizes[1].sizes[2].y = 600;
+      cameraInfo->frameSizes[1].sizes[3].x = 1280;
+      cameraInfo->frameSizes[1].sizes[3].y = 400;
+      cameraInfo->frameSizes[1].sizes[4].x = 960;
+      cameraInfo->frameSizes[1].sizes[4].y = 960;
+      cameraInfo->frameSizes[1].sizes[5].x = 1024;
+      cameraInfo->frameSizes[1].sizes[5].y = 768;
+      cameraInfo->frameSizes[1].sizes[6].x = 1024;
+      cameraInfo->frameSizes[1].sizes[6].y = 600;
+      cameraInfo->frameSizes[1].sizes[7].x = 1024;
+      cameraInfo->frameSizes[1].sizes[7].y = 400;
+      cameraInfo->frameSizes[1].sizes[8].x = 800;
+      cameraInfo->frameSizes[1].sizes[8].y = 800;
+      cameraInfo->frameSizes[1].sizes[9].x = 800;
+      cameraInfo->frameSizes[1].sizes[9].y = 640;
+      cameraInfo->frameSizes[1].sizes[10].x = 800;
+      cameraInfo->frameSizes[1].sizes[10].y = 512;
+      cameraInfo->frameSizes[1].sizes[11].x = 800;
+      cameraInfo->frameSizes[1].sizes[11].y = 320;
+      cameraInfo->frameSizes[1].sizes[12].x = 640;
+      cameraInfo->frameSizes[1].sizes[12].y = 560;
+      cameraInfo->frameSizes[1].sizes[13].x = 640;
+      cameraInfo->frameSizes[1].sizes[13].y = 480;
+      cameraInfo->frameSizes[1].sizes[14].x = 512;
+      cameraInfo->frameSizes[1].sizes[14].y = 440;
+      cameraInfo->frameSizes[1].sizes[15].x = 512;
+      cameraInfo->frameSizes[1].sizes[15].y = 400;
+      cameraInfo->frameSizes[1].sizes[16].x = 480;
+      cameraInfo->frameSizes[1].sizes[16].y = 320;
+      cameraInfo->frameSizes[1].sizes[17].x = 320;
+      cameraInfo->frameSizes[1].sizes[17].y = 240;
+      cameraInfo->frameSizes[1].numSizes = 18;
+
+      cameraInfo->frameSizes[2].sizes[0].x = 640;
+      cameraInfo->frameSizes[2].sizes[0].y = 480;
+      cameraInfo->frameSizes[2].numSizes = 1;
+
+      camera->features.pixelSizeX = 3750;
+      camera->features.pixelSizeY = 3750;
+			break;
+
+		case 1:  // DSO
+      camera->frameFormats[ OA_PIX_FMT_GREY16BE ] = 16;
+			camera->features.flags |= OA_CAM_FEATURE_DEMOSAIC_MODE;
+			cameraInfo->maxResolutionX = 4656;
+			cameraInfo->maxResolutionY = 3250;
+      if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
+          6, sizeof ( FRAMESIZE )))) {
+        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+        return 0;
+      }
+
+      cameraInfo->frameSizes[1].sizes[0].x = 4656;
+      cameraInfo->frameSizes[1].sizes[0].y = 3520;
+      cameraInfo->frameSizes[1].sizes[1].x = 3840;
+      cameraInfo->frameSizes[1].sizes[1].y = 2160;
+      cameraInfo->frameSizes[1].sizes[2].x = 1920;
+      cameraInfo->frameSizes[1].sizes[2].y = 1680;
+      cameraInfo->frameSizes[1].sizes[3].x = 1280;
+      cameraInfo->frameSizes[1].sizes[3].y = 960;
+      cameraInfo->frameSizes[1].sizes[4].x = 640;
+      cameraInfo->frameSizes[1].sizes[4].y = 480;
+      cameraInfo->frameSizes[1].sizes[5].x = 320;
+      cameraInfo->frameSizes[1].sizes[5].y = 240;
+      cameraInfo->frameSizes[1].numSizes = 6;
+
+      cameraInfo->frameSizes[2].sizes[0].x = 2328;
+      cameraInfo->frameSizes[2].sizes[0].y = 1760;
+      cameraInfo->frameSizes[2].numSizes = 1;
+
+      camera->features.pixelSizeX = 3800;
+      camera->features.pixelSizeY = 3800;
+			break;
+  }
+
+	return OA_ERR_NONE;
+}
+
+
+static int
+_initDSLR ( oaCamera* camera, DUMMY_STATE* cameraInfo,
+		COMMON_INFO* commonInfo )
+{
+	static const char*	isoSettings[] = {
+		"ISO100", "ISO200", "ISO400", "ISO800", "ISO1600"
+	};
+	static const char*	speedSettings[] = {
+		"bulb", "1/1000", "1/500", "1/250", "1/200", "1/100", "1/50", "1/25",
+		"1/20", "1/10", "1/5", "1/4", "1/3", "1/2", "1", "2", "3", "4", "5",
+		"10", "15", "20", "25", "30"
+	};
+
+	camera->OA_CAM_CTRL_TYPE ( OA_CAM_CTRL_POWER_SOURCE ) =
+			OA_CTRL_TYPE_READONLY;
+	camera->OA_CAM_CTRL_TYPE ( OA_CAM_CTRL_BATTERY_LEVEL ) =
+			OA_CTRL_TYPE_READONLY;
+
+	camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_ISO ) = OA_CTRL_TYPE_MENU;
+	cameraInfo->numIsoOptions = sizeof ( isoSettings ) / sizeof ( char* );
+	commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_ISO ) = 0;
+	commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_ISO ) =
+			cameraInfo->numIsoOptions - 1;
+	commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_ISO ) = 1;
+	commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_ISO ) = 0;
+
+	camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SHUTTER_SPEED ) = OA_CTRL_TYPE_MENU;
+	cameraInfo->numShutterSpeedOptions = sizeof ( speedSettings ) /
+			sizeof ( char* );
+	commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SHUTTER_SPEED ) = 0;
+	commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SHUTTER_SPEED ) =
+			cameraInfo->numShutterSpeedOptions - 1;
+	commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SHUTTER_SPEED ) = 1;
+	commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SHUTTER_SPEED ) = 0;
+
+	return OA_ERR_NONE;
 }

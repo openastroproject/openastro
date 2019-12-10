@@ -31,61 +31,60 @@
 #include "oacamprivate.h"
 #include "dummyoacam.h"
 
+#define	NUM_DUMMIES	3
 
 int
 oaDummyGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 		int flags )
 {
-  unsigned int		i;
+  unsigned int		i, j;
   int							ret;
-  oaCameraDevice*	dev[2];
-  DEVICE_INFO*		_private[2];
+  oaCameraDevice*	dev[ NUM_DUMMIES ];
+  DEVICE_INFO*		_private[ NUM_DUMMIES ];
 
-	// Create two cameras -- one for planetary and one for DSO
+	// Create three cameras -- one planetary, one astro DSO and one DSLR
 
-	if (!( dev[0] = malloc ( sizeof ( oaCameraDevice )))) {
-    return -OA_ERR_MEM_ALLOC;
+	for ( i = 0; i < NUM_DUMMIES; i++ ) {
+		if (!( dev[i] = malloc ( sizeof ( oaCameraDevice )))) {
+			if ( i ) {
+				for ( j = 0; j < i; j++ ) {
+					( void ) free (( void* ) dev[j] );
+				}
+			}
+			return -OA_ERR_MEM_ALLOC;
+		}
+		if (!( _private[i] = malloc ( sizeof ( DEVICE_INFO )))) {
+			for ( j = 0; j <= i; j++ ) {
+				( void ) free (( void* ) dev[j] );
+				if ( j < i ) {
+					( void ) free (( void* ) _private[j] );
+				}
+			}
+			return -OA_ERR_MEM_ALLOC;
+		}
+		_private[i]->devType = 0;
+		_private[i]->devIndex = 0;
+		dev[i]->interface = OA_CAM_IF_DUMMY;
+		dev[i]->_private = _private[i];
+		dev[i]->initCamera = oaDummyInitCamera;
+		dev[i]->hasLoadableFirmware = 0;
+		_oaInitCameraDeviceFunctionPointers ( dev[i] );
   }
-	if (!( dev[1] = malloc ( sizeof ( oaCameraDevice )))) {
-    ( void ) free (( void* ) dev[0] );
-    return -OA_ERR_MEM_ALLOC;
-  }
 
-  if (!( _private[0] = malloc ( sizeof ( DEVICE_INFO )))) {
-    ( void ) free (( void* ) dev[0] );
-    ( void ) free (( void* ) dev[1] );
-    return -OA_ERR_MEM_ALLOC;
-  }
-  if (!( _private[1] = malloc ( sizeof ( DEVICE_INFO )))) {
-    ( void ) free (( void* ) dev[0] );
-    ( void ) free (( void* ) dev[1] );
-    ( void ) free (( void* ) _private[0] );
-    return -OA_ERR_MEM_ALLOC;
-  }
-
-  _oaInitCameraDeviceFunctionPointers ( dev[0] );
-  _oaInitCameraDeviceFunctionPointers ( dev[1] );
-
-  dev[0]->interface = dev[1]->interface = OA_CAM_IF_DUMMY;
-  _private[0]->devType = _private[1]->devType = 0;
-  _private[0]->devIndex = _private[1]->devIndex = 0;
 	( void ) strncpy ( dev[0]->deviceName, "Planetary cam", OA_MAX_NAME_LEN );
 	( void ) strncpy ( dev[1]->deviceName, "DSO cam", OA_MAX_NAME_LEN );
-  dev[0]->_private = _private[0];
-  dev[1]->_private = _private[1];
-  dev[0]->initCamera = dev[1]->initCamera = oaDummyInitCamera;
-  dev[0]->hasLoadableFirmware = dev[1]->hasLoadableFirmware = 0;
+	( void ) strncpy ( dev[2]->deviceName, "DSLR", OA_MAX_NAME_LEN );
 
 	for ( i = 0; i < 2; i++ ) {
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
-      ( void ) free (( void* ) dev[0] );
-      ( void ) free (( void* ) dev[1] );
-      ( void ) free (( void* ) _private[0] );
-      ( void ) free (( void* ) _private[1] );
-      return ret;
+			for ( j = 0; j < NUM_DUMMIES; j++ ) {
+				( void ) free (( void* ) dev[j] );
+				( void ) free (( void* ) _private[j] );
+				return ret;
+			}
     }
     deviceList->cameraList[ deviceList->numCameras++ ] = dev[i];
   }
 
-  return 2;
+  return NUM_DUMMIES;
 }
