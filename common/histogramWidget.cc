@@ -66,8 +66,8 @@ HistogramWidget::HistogramWidget ( const char* appName, QWidget* parent ) :
   newLayoutIsSplit = histogramConf.splitHistogram;
 	if ( appName ) {
 		char		str[ 256 ];
-		( void ) strncpy ( str, appName, 256 );
-		( void ) strncat ( str, " Histogram", 256 );
+		( void ) strncpy ( str, appName, 255 );
+		( void ) strncat ( str, " Histogram", 255 );
 		setWindowTitle ( str );
 		setWindowIcon ( QIcon ( ":/qt-icons/barchart.png" ));
 	}
