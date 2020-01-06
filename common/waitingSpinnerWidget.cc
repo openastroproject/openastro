@@ -200,7 +200,8 @@ bool WaitingSpinnerWidget::isSpinning() const {
 }
 
 void WaitingSpinnerWidget::setRoundness(qreal roundness) {
-    _roundness = std::max(0.0, std::min(100.0, roundness));
+    _roundness = std::max(0.0, std::min(100.0,
+				static_cast<double> ( roundness )));
 }
 
 void WaitingSpinnerWidget::setColor(QColor color) {
@@ -270,7 +271,8 @@ QColor WaitingSpinnerWidget::currentLineColor(int countDistance, int totalNrOfLi
         qreal resultAlpha = color.alphaF() - gradient * countDistance;
 
         // If alpha is out of bounds, clip it.
-        resultAlpha = std::min(1.0, std::max(0.0, resultAlpha));
+        resultAlpha = std::min(1.0, std::max(0.0,
+						static_cast<double> ( resultAlpha )));
         color.setAlphaF(resultAlpha);
     }
     return color;
