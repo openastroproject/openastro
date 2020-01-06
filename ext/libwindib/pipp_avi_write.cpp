@@ -323,8 +323,10 @@ void c_pipp_avi_write::frame_added()
         avi_superindex_header.entries_in_use++;
         uint64_t base_offset = ftell64(avi_fp) + sizeof(_00db_chunk_header);
         //uint64_t base_offset = ftell64(avi_fp) - frame_size;
-        avi_stdindex_header.base_offset[1] = (uint32_t)(base_offset >> 32);
-        avi_stdindex_header.base_offset[0] = (uint32_t)(base_offset & 0xFFFFFFFF);
+        avi_stdindex_header.base_offset[1] =
+						static_cast<uint32_t>(base_offset >> 32);
+        avi_stdindex_header.base_offset[0] =
+						static_cast<uint32_t>(base_offset & 0xFFFFFFFF);
     }
     
     total_frame_count++;  // Increment frame counts
@@ -344,8 +346,10 @@ void c_pipp_avi_write::frame_added()
             // Grab position of first frame in this RIFF for the base offset
             avi_superindex_header.entries_in_use++;
             uint64_t base_offset = ftell64(avi_fp) + sizeof(_00db_chunk_header);
-            avi_stdindex_header.base_offset[1] = (uint32_t)(base_offset >> 32);
-            avi_stdindex_header.base_offset[0] = (uint32_t)(base_offset & 0xFFFFFFFF);
+            avi_stdindex_header.base_offset[1] =
+								static_cast<uint32_t> (base_offset >> 32);
+            avi_stdindex_header.base_offset[0] =
+								static_cast<uint32_t> (base_offset & 0xFFFFFFFF);
             current_frame_count = 0;
         }
     }
@@ -446,9 +450,11 @@ int32_t c_pipp_avi_write::create(
     // Update AVI structures
     main_avih_header.width = width;
     main_avih_header.height = height;
-    uint64_t us_per_frame = (uint64_t)1000000 * (uint64_t)fps_scale;
+    uint64_t us_per_frame = static_cast<uint64_t>( 1000000 ) *
+				static_cast<uint64_t>( fps_scale );
     us_per_frame /= fps_rate;
-    main_avih_header.micro_sec_per_frame = (uint32_t)us_per_frame;
+    main_avih_header.micro_sec_per_frame =
+				static_cast<uint32_t>( us_per_frame );
     vids_stream_header.rate = fps_rate;
     vids_stream_header.scale = fps_scale;
     vids_stream_header.frame.right = width;

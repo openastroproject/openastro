@@ -2,7 +2,7 @@
  *
  * outputPNG.cc -- PNG output class
  *
- * Copyright 2016,2017,2018,2019
+ * Copyright 2016,2017,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -161,13 +161,13 @@ int
 OutputPNG::openOutput ( void )
 {
   if ( validFileType ) {
-    if (!( writeBuffer = ( unsigned char* ) malloc ( frameSize ))) {
+    if (!( writeBuffer = static_cast<unsigned char*>( malloc ( frameSize )))) {
       qWarning() << "write buffer allocation failed";
       return -1;
     }
 
-    if (!( rowPointers = ( png_bytep* ) calloc ( ySize,
-        sizeof ( png_bytep )))) {
+    if (!( rowPointers = static_cast<png_bytep*>( calloc ( ySize,
+        sizeof ( png_bytep ))))) {
       free ( writeBuffer );
       writeBuffer = 0;
       qWarning() << "row pointers allocation failed";
@@ -237,9 +237,9 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   // the constructor and just the ones that can change per frame handled
   // here?
 
-  pngComments[ numComments ].key = ( char* ) "DATE-OBS";
+  pngComments[ numComments ].key = const_cast<char *>( "DATE-OBS" );
   if ( timestampStr ) {
-    pngComments[ numComments ].text = ( char* ) timestampStr;
+    pngComments[ numComments ].text = const_cast<char *>( timestampStr );
     numComments++;
   } else {
     QDateTime now = QDateTime::currentDateTimeUtc();
@@ -251,7 +251,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
-  pngComments[ numComments ].key = ( char* ) "OBSERVER";
+  pngComments[ numComments ].key = const_cast<char *>( "OBSERVER" );
   if ( fitsConf.observer != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
         fitsConf.observer.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
@@ -259,7 +259,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
-  pngComments[ numComments ].key = ( char* ) "OBJECT";
+  pngComments[ numComments ].key = const_cast<char *>( "OBJECT" );
   stringBuffs[ numComments ][0] = 0;
   int currentTargetId = trampolines->getCurrentTargetId();
   if ( currentTargetId > 0 && currentTargetId != TGT_UNKNOWN ) {
@@ -275,7 +275,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
-  pngComments[ numComments ].key = ( char* ) "TELESCOP";
+  pngComments[ numComments ].key = const_cast<char *>( "TELESCOP" );
   if ( fitsConf.telescope != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
         fitsConf.telescope.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
@@ -283,7 +283,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
-  pngComments[ numComments ].key = ( char* ) "INSTRUME";
+  pngComments[ numComments ].key = const_cast<char *>( "INSTRUME" );
   if ( fitsConf.instrument != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
         fitsConf.instrument.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
@@ -291,7 +291,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
-  pngComments[ numComments ].key = ( char* ) "COMMENT1";
+  pngComments[ numComments ].key = const_cast<char *>( "COMMENT1" );
   if ( fitsConf.comment != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
         fitsConf.comment.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
@@ -299,7 +299,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
-  pngComments[ numComments ].key = ( char* ) "COMMENT2";
+  pngComments[ numComments ].key = const_cast<char *>( "COMMENT2" );
   if ( commentStr && *commentStr ) {
     ( void ) strncpy ( stringBuffs[ numComments ], commentStr,
         PNG_KEYWORD_MAX_LENGTH+1 );
@@ -307,14 +307,14 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
-  pngComments[ numComments ].key = ( char* ) "FORMATIN";
+  pngComments[ numComments ].key = const_cast<char *>( "FORMATIN" );
   snprintf ( stringBuffs[ numComments ], PNG_KEYWORD_MAX_LENGTH+1, "%s (%s)",
       oaFrameFormats[ imageFormat ].name,
       oaFrameFormats[ imageFormat ].simpleName );
   pngComments[ numComments ].text = stringBuffs[ numComments ];
   numComments++;
 
-  pngComments[ numComments ].key = ( char* ) "FOCALLEN";
+  pngComments[ numComments ].key = const_cast<char *>( "FOCALLEN" );
   if ( fitsConf.focalLength != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
         fitsConf.focalLength.toStdString().c_str(),
@@ -323,7 +323,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
-  pngComments[ numComments ].key = ( char* ) "APTDIA";
+  pngComments[ numComments ].key = const_cast<char *>( "APTDIA" );
   if ( fitsConf.apertureDia != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
         fitsConf.apertureDia.toStdString().c_str(),
@@ -332,7 +332,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   } 
 
-  pngComments[ numComments ].key = ( char* ) "APTAREA";
+  pngComments[ numComments ].key = const_cast<char *>( "APTAREA" );
   if ( fitsConf.apertureArea != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
         fitsConf.apertureArea.toStdString().c_str(),
@@ -341,7 +341,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
-  pngComments[ numComments ].key = ( char* ) "XPIXSZ";
+  pngComments[ numComments ].key = const_cast<char *>( "XPIXSZ" );
   stringBuffs[ numComments ][0] = 0;
   if ( fitsConf.pixelSizeX != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
@@ -361,7 +361,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
-  pngComments[ numComments ].key = ( char* ) "YPIXSZ";
+  pngComments[ numComments ].key = const_cast<char *>( "YPIXSZ" );
   stringBuffs[ numComments ][0] = 0;
   if ( fitsConf.pixelSizeY != "" ) {
     ( void ) strncpy ( stringBuffs[ numComments ],
@@ -381,7 +381,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     numComments++;
   }
 
-  pngComments[ numComments ].key = ( char* ) "XORGSUBF";
+  pngComments[ numComments ].key = const_cast<char *>( "XORGSUBF" );
   if ( fitsConf.subframeOriginX != "" ) {
     xorg = fitsConf.subframeOriginX.toInt();
   } else {
@@ -396,7 +396,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   pngComments[ numComments ].text = stringBuffs[ numComments ];
   numComments++;
 
-  pngComments[ numComments ].key = ( char* ) "YORGSUBF";
+  pngComments[ numComments ].key = const_cast<char *>( "YORGSUBF" );
   if ( fitsConf.subframeOriginY != "" ) {
     yorg = fitsConf.subframeOriginY.toInt();
   } else {
@@ -411,7 +411,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   pngComments[ numComments ].text = stringBuffs[ numComments ];
   numComments++;
 
-  pngComments[ numComments ].key = ( char* ) "FILTER";
+  pngComments[ numComments ].key = const_cast<char *>( "FILTER" );
   QString currentFilter = trampolines->getCurrentFilterName();
   if ( fitsConf.filter != "" ) {
     currentFilter = fitsConf.filter;
@@ -424,7 +424,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   }
 
   stringBuffs[ numComments ][0] = 0;
-  pngComments[ numComments ].key = ( char* ) "SITELAT";
+  pngComments[ numComments ].key = const_cast<char *>( "SITELAT" );
   if ( commonState.gpsValid ) {
     ( void ) sprintf ( stringBuffs[ numComments ], "%g",
 		commonState.latitude );
@@ -440,7 +440,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   }
 
   stringBuffs[ numComments ][0] = 0;
-  pngComments[ numComments ].key = ( char* ) "SITELONG";
+  pngComments[ numComments ].key = const_cast<char *>( "SITELONG" );
   if ( commonState.gpsValid ) {
     ( void ) sprintf ( stringBuffs[ numComments ], "%g",
 				commonState.longitude );
@@ -456,7 +456,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   }
 
 	stringBuffs[ numComments ][0] = 0;
-  pngComments[ numComments ].key = ( char* ) "SITEELEV";
+  pngComments[ numComments ].key = const_cast<char *>( "SITEELEV" );
   if ( commonState.gpsValid ) {
     ( void ) sprintf ( stringBuffs[ numComments ], "%g",
 		commonState.altitude );
@@ -466,18 +466,18 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   if ( stringBuffs[ numComments ][0] ) {
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
-    pngComments[ numComments ].key = ( char* ) "ELEVATIO";
+    pngComments[ numComments ].key = const_cast<char *>( "ELEVATIO" );
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
   }
 
   snprintf ( stringBuffs[ numComments ], PNG_KEYWORD_MAX_LENGTH+1, "%s %s",
 			applicationName, applicationVersion );
-  pngComments[ numComments ].key = ( char* ) "SWCREATE";
+  pngComments[ numComments ].key = const_cast<char *>( "SWCREATE" );
   pngComments[ numComments ].text = stringBuffs[ numComments ];
   numComments++;
 
-  pngComments[ numComments ].key = ( char* ) "EXPTIME";
+  pngComments[ numComments ].key = const_cast<char *>( "EXPTIME" );
   ( void ) sprintf ( stringBuffs[ numComments ], "%g", expTime / 1000000.0 );
   pngComments[ numComments ].text = stringBuffs[ numComments ];
   numComments++;
@@ -489,39 +489,39 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     // manner from that
     switch ( imageFormat ) {
       case OA_DEMOSAIC_BGGR:
-        xoff = ( char* ) "0";
-        yoff = ( char* ) "1";
+        xoff = const_cast<char *>( "0" );
+        yoff = const_cast<char *>( "1" );
         break;
       case OA_DEMOSAIC_RGGB:
-        xoff = ( char* ) "1";
-        yoff = ( char* ) "0";
+        xoff = const_cast<char *>( "1" );
+        yoff = const_cast<char *>( "0" );
         break;
       case OA_DEMOSAIC_GBRG:
-        xoff = ( char* ) "1";
-        yoff = ( char* ) "1";
+        xoff = const_cast<char *>( "1" );
+        yoff = const_cast<char *>( "1" );
         break;
       case OA_DEMOSAIC_GRBG:
-        xoff = ( char* ) "0";
-        yoff = ( char* ) "0";
+        xoff = const_cast<char *>( "0" );
+        yoff = const_cast<char *>( "0" );
         break;
       default: // clearly this shouldn't ever happen
-        xoff = ( char* ) "0";
-        yoff = ( char* ) "0";
+        xoff = const_cast<char *>( "0" );
+        yoff = const_cast<char *>( "0" );
         break;
     }
 
-    pngComments[ numComments ].key = ( char* ) "BAYERPAT";
-    pngComments[ numComments ].text = ( char* ) "TRUE";
+    pngComments[ numComments ].key = const_cast<char *>( "BAYERPAT" );
+    pngComments[ numComments ].text = const_cast<char *>( "TRUE" );
     numComments++;
-    pngComments[ numComments ].key = ( char* ) "XBAYROFF";
+    pngComments[ numComments ].key = const_cast<char *>( "XBAYROFF" );
     pngComments[ numComments ].text = xoff;
     numComments++;
-    pngComments[ numComments ].key = ( char* ) "YBAYROFF";
+    pngComments[ numComments ].key = const_cast<char *>( "YBAYROFF" );
     pngComments[ numComments ].text = yoff;
     numComments++;
   }
 
-  pngComments[ numComments ].key = ( char* ) "CCD-TEMP";
+  pngComments[ numComments ].key = const_cast<char *>( "CCD-TEMP" );
   if ( commonState.cameraTempValid ) {
     ( void ) sprintf ( stringBuffs[ numComments ], "%g",
 				commonState.cameraTemp );
@@ -531,12 +531,12 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
 
   if ( commonState.binningValid ) {
-    pngComments[ numComments ].key = ( char* ) "XBINNING";
+    pngComments[ numComments ].key = const_cast<char *>( "XBINNING" );
     ( void ) sprintf ( stringBuffs[ numComments ], "%d",
 				commonState.binModeX );
     pngComments[ numComments ].text = stringBuffs[ numComments ];
     numComments++;
-    pngComments[ numComments ].key = ( char* ) "YBINNING";
+    pngComments[ numComments ].key = const_cast<char *>( "YBINNING" );
     ( void ) sprintf ( stringBuffs[ numComments ], "%d",
 				commonState.binModeY );
     pngComments[ numComments ].text = stringBuffs[ numComments ];
@@ -544,7 +544,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   }
 
 	if ( metadata && metadata->frameCounterValid ) {
-		pngComments[ numComments ].key = ( char* ) "FRAMESEQ";
+		pngComments[ numComments ].key = const_cast<char *>( "FRAMESEQ" );
 		( void ) sprintf ( stringBuffs[ numComments ], "%d",
 				metadata->frameCounter );
 		pngComments[ numComments ].text = stringBuffs[ numComments ];
@@ -560,7 +560,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   // swap R and B if we need to
   // I've done this in for separate loops to avoid tests inside the loops
 
-  s = ( unsigned char* ) frame;
+  s = static_cast<unsigned char*>( frame );
   t = writeBuffer;
 
   if ( 16 == pixelDepth ) {
@@ -587,7 +587,7 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
     }
   }
 
-  t = ( unsigned char* ) buffer;
+  t = static_cast<unsigned char*>( buffer );
   for ( i = 0; i < ySize; i++ ) {
     rowPointers[i] = t;
     t += rowLength;

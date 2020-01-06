@@ -2,7 +2,7 @@
  *
  * demosaicSettings.cc -- class for the demosaic settings in the settings UI
  *
- * Copyright 2013,2014,2015,2016,2018
+ * Copyright 2013,2014,2015,2016,2018,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -177,7 +177,7 @@ DemosaicSettings::DemosaicSettings ( QWidget* parent, int demosaic,
 
 DemosaicSettings::~DemosaicSettings()
 {
-  trampolines->destroyLayout (( QLayout* ) hbox );
+  trampolines->destroyLayout ( static_cast<QLayout*>( hbox ));
 }
 
 

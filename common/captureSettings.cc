@@ -2,7 +2,7 @@
  *
  * captureSettings.cc -- class for the capture tab in the settings dialog
  *
- * Copyright 2013,2014,2018
+ * Copyright 2013,2014,2018,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -91,7 +91,7 @@ CaptureSettings::CaptureSettings ( QWidget* parent, int formats,
 
 CaptureSettings::~CaptureSettings()
 {
-  trampolines->destroyLayout (( QLayout* ) vLayout );
+  trampolines->destroyLayout ( static_cast<QLayout*>( vLayout ));
 }
 
 

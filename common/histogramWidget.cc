@@ -2,7 +2,7 @@
  *
  * histogramWidget.cc -- class for the histogram display
  *
- * Copyright 2013,2014,2017,2018,2019
+ * Copyright 2013,2014,2017,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -277,8 +277,8 @@ HistogramWidget::_processGreyscaleHistogram ( void* imageData,
     if ( oaFrameFormats[ format ].littleEndian ) {
       int b1, b2;
       for ( i = 0; i < length; i += step ) {
-        b1 = *(( uint8_t* ) imageData + i );
-        b2 = *(( uint8_t* ) imageData + i + 1 );
+        b1 = *( static_cast<uint8_t*>( imageData ) + i );
+        b2 = *( static_cast<uint8_t*>( imageData ) + i + 1 );
         intensity = b1 + ( b2 << 8 );
         maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
         minIntensity = intensity < minIntensity ? intensity : minIntensity;
@@ -287,8 +287,8 @@ HistogramWidget::_processGreyscaleHistogram ( void* imageData,
     } else {
       int b1, b2;
       for ( i = 0; i < length; i += step ) {
-        b1 = *(( uint8_t* ) imageData + i );
-        b2 = *(( uint8_t* ) imageData + i + 1 );
+        b1 = *( static_cast<uint8_t*>( imageData ) + i );
+        b2 = *( static_cast<uint8_t*>( imageData ) + i + 1 );
         intensity = ( b1 << 8 ) + b2;
         maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
         minIntensity = intensity < minIntensity ? intensity : minIntensity;
@@ -297,7 +297,7 @@ HistogramWidget::_processGreyscaleHistogram ( void* imageData,
     }
   } else {
     for ( i = 0; i < length; i += step ) {
-      intensity = *(( uint8_t* ) imageData + i );
+      intensity = *( static_cast<uint8_t*>( imageData ) + i );
       maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
       minIntensity = intensity < minIntensity ? intensity : minIntensity;
       grey[ intensity ]++;
@@ -344,21 +344,21 @@ HistogramWidget::_processRGBHistogram ( void* imageData,
   bzero ( blue, sizeof( int ) * 256 );
   int intensity;
   for ( i = 0; i < length; i += step ) {
-    intensity = *(( uint8_t* ) imageData + i );
+    intensity = *( static_cast<uint8_t*>( imageData ) + i );
     maxRedIntensity = intensity > maxRedIntensity ? intensity :
         maxRedIntensity;
     maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
     minIntensity = intensity < minIntensity ? intensity : minIntensity;
     swapRed[ intensity ]++;
 
-    intensity = *(( uint8_t* ) imageData + i + 1 );
+    intensity = *( static_cast<uint8_t*>( imageData ) + i + 1 );
     maxGreenIntensity = intensity > maxGreenIntensity ? intensity :
         maxGreenIntensity;
     maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
     minIntensity = intensity < minIntensity ? intensity : minIntensity;
     green[ intensity ]++;
 
-    intensity = *(( uint8_t* ) imageData + i + 2 );
+    intensity = *( static_cast<uint8_t*>( imageData ) + i + 2 );
     maxBlueIntensity = intensity > maxBlueIntensity ? intensity :
         maxBlueIntensity;
     maxIntensity = intensity > maxIntensity ? intensity : maxIntensity;
@@ -449,18 +449,18 @@ HistogramWidget::_processMosaicHistogram ( void* imageData,
     if ( oaFrameFormats[ format ].bitsPerPixel == 16 ) {
       if ( oaFrameFormats[ format ].littleEndian ) {
         int b1, b2;
-        b1 = *(( uint8_t* ) imageData + i );
-        b2 = *(( uint8_t* ) imageData + i + 1 );
+        b1 = *( static_cast<uint8_t*>( imageData ) + i );
+        b2 = *( static_cast<uint8_t*>( imageData ) + i + 1 );
         intensity = b1 + ( b2 << 8 );
       } else {
         int b1, b2;
-        b1 = *(( uint8_t* ) imageData + i );
-        b2 = *(( uint8_t* ) imageData + i + 1 );
+        b1 = *( static_cast<uint8_t*>( imageData ) + i );
+        b2 = *( static_cast<uint8_t*>( imageData ) + i + 1 );
         intensity = ( b1 << 8 ) + b2;
       }
     } else {
       if ( oaFrameFormats[ format ].bitsPerPixel == 8 ) {
-        intensity = *(( uint8_t* ) imageData + i );
+        intensity = *( static_cast<uint8_t*>( imageData ) + i );
       } else {
         qWarning() << __FUNCTION__ << "can't handle bit depth" <<
             oaFrameFormats[ format ].bitsPerPixel;

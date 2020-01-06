@@ -2,7 +2,8 @@
  *
  * histogramSettings.cc -- class for the histogram settings in the settings UI
  *
- * Copyright 2013,2014,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2017,2018,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -59,7 +60,7 @@ HistogramSettings::HistogramSettings ( QWidget* parent,
 
 HistogramSettings::~HistogramSettings()
 {
-  trampolines->destroyLayout (( QLayout* ) box );
+  trampolines->destroyLayout ( static_cast<QLayout*>( box ));
 }
 
 

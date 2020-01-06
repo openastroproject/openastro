@@ -2,7 +2,7 @@
  *
  * generalSettings.cc -- class for general settings in the settings UI
  *
- * Copyright 2013,2014,2015,2017,2018
+ * Copyright 2013,2014,2015,2017,2018,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -187,7 +187,7 @@ GeneralSettings::GeneralSettings ( QWidget* parent, QWidget* top,
 
 GeneralSettings::~GeneralSettings()
 {
-  trampolines->destroyLayout (( QLayout* ) box );
+  trampolines->destroyLayout ( static_cast<QLayout*>( box ));
 }
 
 

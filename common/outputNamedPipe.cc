@@ -2,7 +2,7 @@
  *
  * outputNamedPipe.cc -- Named pipe output class
  *
- * Copyright 2019
+ * Copyright 2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -139,7 +139,8 @@ OutputNamedPipe::openOutput ( void )
 
   if ( validFileType ) {
 		if ( swapRedBlue ) {
-			if (!( writeBuffer = ( unsigned char* ) malloc ( frameSize ))) {
+			if (!( writeBuffer = static_cast<unsigned char*>(
+						malloc ( frameSize )))) {
 				qWarning() << "write buffer allocation failed";
 				return -1;
 			}
@@ -149,7 +150,7 @@ OutputNamedPipe::openOutput ( void )
 					O_WRONLY )) < 0 ) {
 			qWarning() << "Unable to open" << fullSaveFilePath << "for append." <<
 					"Error" << strerror ( errno );
-			( void ) free (( void* ) writeBuffer );
+			( void ) free ( static_cast<void*>( writeBuffer ));
 			writeBuffer = 0;
 			return -1;
 		}
@@ -169,10 +170,10 @@ OutputNamedPipe::addFrame ( void* frame,
 	int								i;
 	unsigned char*		s;
 	unsigned char*		t;
-	unsigned char*		buffer = ( unsigned char* ) frame;
+	unsigned char*		buffer = static_cast<unsigned char*>( frame );
 
 	if ( swapRedBlue ) {
-		s = ( unsigned char* ) frame;
+		s = static_cast<unsigned char*>( frame );
 		t = writeBuffer;
 		for ( i = 0; i < frameSize; i += 3, s += 3 ) {
 			*t++ = *( s + 2 );

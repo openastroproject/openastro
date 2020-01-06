@@ -2,7 +2,8 @@
  *
  * outputHandler.cc -- output hander (mostly) virtual class
  *
- * Copyright 2013,2014,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2018,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -99,7 +100,7 @@ OutputHandler::generateFilename ( void )
   gain = QString("%1").arg ( trampolines->getCurrentGain());
   exposure = trampolines->getCurrentExposure();
   exposureMs = QString("%1").arg ( exposure / 1000 );
-  exposureS = QString("%1").arg (( int ) ( exposure / 1000000 ));
+  exposureS = QString("%1").arg ( static_cast<int> ( exposure / 1000000 ));
 
   filename = filenameTemplate;
   filename.replace ( "%DATE", date );

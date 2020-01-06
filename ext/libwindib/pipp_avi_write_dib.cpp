@@ -100,7 +100,8 @@ int32_t c_pipp_avi_write_dib::write_frame(
             if (bytes_per_pixel == 3) {
                 // Colour version 
                 for (int32_t y = 0; y < height; y++) {
-                    uint16_t *src_ptr = (uint16_t *)data + (y * line_length);
+                    uint16_t *src_ptr = reinterpret_cast<uint16_t*>( data ) +
+												(y * line_length);
                     uint8_t *dst_ptr = buffer + (y * (line_length + line_gap));
                     for (uint32_t x = 0; x < line_length; x++) {
                         *dst_ptr++ = *src_ptr++ >> 8;
@@ -109,7 +110,7 @@ int32_t c_pipp_avi_write_dib::write_frame(
             } else {
                 // Mono version
                 // uint16_t *src_ptr = (uint16_t *)data + colour;
-                uint16_t *src_ptr = (uint16_t *)data;
+                uint16_t *src_ptr = reinterpret_cast<uint16_t*>( data );
                 uint8_t *dst_ptr = buffer;
                 for (int32_t y = 0; y < height; y++) {
                     memcpy ( dst_ptr, src_ptr, width * 2 );

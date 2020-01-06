@@ -2,7 +2,7 @@
  *
  * outputFFMPEG.cc -- FFMPEG output class
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -267,7 +267,7 @@ OutputFFMPEG::addFrame ( void* frame,
         AV_PIX_FMT_RGB24 && storedPixelFormat == AV_PIX_FMT_BGR24 )) {
       // Quick hack to swap the R and B bytes...
       uint8_t* t = picture->data[0];
-      uint8_t* s = ( uint8_t*) frame;
+      uint8_t* s = static_cast<uint8_t*>( frame );
       int l = 0;
       while ( l < frameSize ) {
         *t++ = *( s + 2 );
@@ -281,7 +281,7 @@ OutputFFMPEG::addFrame ( void* frame,
           storedPixelFormat == AV_PIX_FMT_GRAY16BE ) {
         // Really this is just for quicktime
         uint8_t* t = picture->data[0];
-        uint8_t* s = ( uint8_t*) frame;
+				uint8_t* s = static_cast<uint8_t*>( frame );
         int l = 0;
         while ( l < frameSize ) {
           *t++ = *s++;
@@ -293,7 +293,7 @@ OutputFFMPEG::addFrame ( void* frame,
             storedPixelFormat == AV_PIX_FMT_GRAY16BE ) {
           // again, just for quicktime
           uint8_t* t = picture->data[0];
-          uint8_t* s = ( uint8_t*) frame;
+					uint8_t* s = static_cast<uint8_t*>( frame );
           int l = 0;
           while ( l < frameSize ) {
             *(t+1) = *s++;
@@ -308,7 +308,7 @@ OutputFFMPEG::addFrame ( void* frame,
       }
     }
   } else {
-    memcpy ( picture->data[0], ( uint8_t* ) frame, frameSize );
+    memcpy ( picture->data[0], static_cast<uint8_t*>( frame ), frameSize );
   }
 
   if ( av_frame_make_writable ( picture ) < 0 ) {
@@ -508,7 +508,8 @@ OutputFFMPEG::addVideoStream ( AVFormatContext* formatContext,
 #endif
 
   videoOutputBufferSize = 5 * xSize * ySize * bpp;
-  videoOutputBuffer = ( uint8_t* ) av_malloc ( videoOutputBufferSize );
+  videoOutputBuffer =
+			static_cast<uint8_t*>( av_malloc ( videoOutputBufferSize ));
 
   if (!( picture = allocatePicture ( codecContext->pix_fmt,
       codecContext->width, codecContext->height ))) {

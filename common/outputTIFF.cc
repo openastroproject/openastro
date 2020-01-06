@@ -2,7 +2,7 @@
  *
  * outputTIFF.cc -- TIFF output class
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -49,7 +49,7 @@ OutputTIFF::OutputTIFF ( int x, int y, int n, int d, int fmt,
   uint16_t byteOrderTest = 0x1234;
   uint8_t* firstByte;
 
-  firstByte = ( uint8_t* ) &byteOrderTest;
+  firstByte = reinterpret_cast<uint8_t*>( &byteOrderTest );
 
   writesDiscreteFiles = 1;
   frameCount = 0;
@@ -167,7 +167,7 @@ int
 OutputTIFF::openOutput ( void )
 {
   if ( validFileType ) {
-    if (!( writeBuffer = ( unsigned char* ) malloc ( frameSize ))) {;
+    if (!( writeBuffer = static_cast<unsigned char*>( malloc ( frameSize )))) {
       qWarning() << "write buffer allocation failed";
       return -1;
     }
@@ -227,7 +227,7 @@ OutputTIFF::addFrame ( void* frame, const char* timestampStr,
   // swap R and B if we need to
   // I've done this in for separate loops to avoid tests inside the loops
 
-  s = ( unsigned char* ) frame;
+  s = static_cast<unsigned char*>( frame );
   t = writeBuffer;
 
   if ( 16 == pixelDepth ) {

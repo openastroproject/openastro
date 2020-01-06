@@ -2,7 +2,7 @@
  *
  * cameraWidget.cc -- class for the camera widget in the UI
  *
- * Copyright 2013,2014,2015,2017,2018,2019
+ * Copyright 2013,2014,2015,2017,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -96,7 +96,7 @@ CameraWidget::CameraWidget ( QWidget* parent ) : QGroupBox ( parent )
 CameraWidget::~CameraWidget()
 {
   if ( grid ) {
-    state.mainWindow->destroyLayout (( QLayout* ) grid );
+    state.mainWindow->destroyLayout ( static_cast<QLayout*>( grid ));
   }
 }
 
@@ -225,7 +225,8 @@ CameraWidget::setActualFrameRate ( double fps )
   QString stringVal;
 
   // precision, eg 100, 10.0, 1.00, 0.10, 0.01
-  stringVal.setNum ( fps, 'f', std::min(2, std::max(0, 2-(int)log10(fps))) );
+  stringVal.setNum ( fps, 'f', std::min ( 2, std::max ( 0,
+			2 - static_cast<int>( log10 ( fps )))));
   fpsActualValue->setText ( stringVal );
   state.currentFPS = fps;
 }

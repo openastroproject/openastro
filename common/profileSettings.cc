@@ -2,7 +2,8 @@
  *
  * profileSettings.cc -- class for profile settings tab in the settings UI
  *
- * Copyright 2013,2014,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2018,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -120,7 +121,7 @@ ProfileSettings::ProfileSettings ( QWidget* parent, trampolineFuncs* redirs ) :
 
 ProfileSettings::~ProfileSettings()
 {
-  trampolines->destroyLayout (( QLayout* ) hbox );
+  trampolines->destroyLayout ( static_cast<QLayout*>( hbox ));
 }
 
 

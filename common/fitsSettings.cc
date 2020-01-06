@@ -2,7 +2,8 @@
  *
  * fitsSettings.cc -- class for the FITS data tab in the settings dialog
  *
- * Copyright 2015,2016,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2017,2018,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -215,7 +216,7 @@ FITSSettings::FITSSettings ( QWidget* parent, trampolineFuncs* redirs ) :
 FITSSettings::~FITSSettings()
 {
   if ( grid ) {
-		trampolines->destroyLayout (( QLayout* ) grid );
+		trampolines->destroyLayout ( static_cast<QLayout*>( grid ));
   }
 }
 

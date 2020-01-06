@@ -2,7 +2,8 @@
  *
  * advancedSettings.cc -- the advanced settings widget class
  *
- * Copyright 2014,2015,2016,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2018,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -280,7 +281,7 @@ AdvancedSettings::AdvancedSettings ( QWidget* parent, int device,
 
 AdvancedSettings::~AdvancedSettings()
 {
-  trampolines->destroyLayout (( QLayout* ) vbox );
+  trampolines->destroyLayout ( static_cast<QLayout*>( vbox ));
 }
 
 

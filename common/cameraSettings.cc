@@ -2,7 +2,7 @@
  *
  * cameraSettings.cc -- class for the camera tab in the settings dialog
  *
- * Copyright 2014,2015,2016,2017,2018,2019
+ * Copyright 2014,2015,2016,2017,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -72,7 +72,7 @@ CameraSettings::configure ( void )
   int numSliderCheckboxes = 0, numUnhandled = 0;
 
   if ( layout ) {
-    trampolines->destroyLayout (( QLayout* ) layout );
+    trampolines->destroyLayout ( static_cast<QLayout*>( layout ));
     delete sliderSignalMapper;
     delete checkboxSignalMapper;
     delete buttonSignalMapper;
@@ -561,7 +561,7 @@ CameraSettings::configure ( void )
 CameraSettings::~CameraSettings()
 {
   if ( layout ) {
-    trampolines->destroyLayout (( QLayout* ) layout );
+    trampolines->destroyLayout ( static_cast<QLayout*>( layout ));
   }
   if ( sliderSignalMapper ) {
     delete sliderSignalMapper;

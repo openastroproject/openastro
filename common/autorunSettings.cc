@@ -2,7 +2,8 @@
  *
  * autorunSettings.cc -- class for autorun settings in the settings widget
  *
- * Copyright 2013,2014,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2018,2019,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -167,7 +168,7 @@ AutorunSettings::~AutorunSettings()
 {
   delete delayValidator;
   delete numRunsValidator;
-  trampolines->destroyLayout (( QLayout* ) mainBox );
+  trampolines->destroyLayout ( static_cast<QLayout*>( mainBox ));
 }
 
 

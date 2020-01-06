@@ -2,7 +2,7 @@
  *
  * settingsWidget.cc -- the main settings widget wrapper class
  *
- * Copyright 2013,2014,2015,2017,2018
+ * Copyright 2013,2014,2015,2017,2018,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -131,7 +131,7 @@ SettingsWidget::SettingsWidget ( QWidget* parent, QWidget* topWidget,
 
 SettingsWidget::~SettingsWidget()
 {
-  trampolines.destroyLayout (( QLayout* ) vbox );
+  trampolines.destroyLayout ( static_cast<QLayout*>( vbox ));
 }
 
 
@@ -300,5 +300,5 @@ SettingsWidget::updateFrameRate ( int index )
 QWidget*
 SettingsWidget::getTabset ( void )
 {
-  return ( QWidget* ) tabSet;
+  return dynamic_cast<QWidget*>( tabSet );
 }

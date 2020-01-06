@@ -2,7 +2,7 @@
  *
  * timerSettings.cc -- class for the timer settings in the settings UI
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -191,7 +191,7 @@ TimerSettings::TimerSettings ( QWidget* parent, QString appName,
 
 TimerSettings::~TimerSettings()
 {
-  trampolines->destroyLayout (( QLayout* ) box );
+  trampolines->destroyLayout ( static_cast<QLayout*>( box ));
 }
 
 
