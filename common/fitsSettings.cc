@@ -216,7 +216,7 @@ FITSSettings::FITSSettings ( QWidget* parent, trampolineFuncs* redirs ) :
 FITSSettings::~FITSSettings()
 {
   if ( grid ) {
-		trampolines->destroyLayout ( static_cast<QLayout*>( grid ));
+		trampolines->destroyLayout ( dynamic_cast<QLayout*>( grid ));
   }
 }
 

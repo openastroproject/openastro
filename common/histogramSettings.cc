@@ -60,7 +60,7 @@ HistogramSettings::HistogramSettings ( QWidget* parent,
 
 HistogramSettings::~HistogramSettings()
 {
-  trampolines->destroyLayout ( static_cast<QLayout*>( box ));
+  trampolines->destroyLayout ( dynamic_cast<QLayout*>( box ));
 }
 
 

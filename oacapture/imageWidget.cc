@@ -143,7 +143,7 @@ ImageWidget::ImageWidget ( QWidget* parent ) : QGroupBox ( parent )
 
 ImageWidget::~ImageWidget()
 {
-  state.mainWindow->destroyLayout ( static_cast<QLayout*>( grid ));
+  state.mainWindow->destroyLayout ( dynamic_cast<QLayout*>( grid ));
 }
 
 

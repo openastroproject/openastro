@@ -121,7 +121,7 @@ ProfileSettings::ProfileSettings ( QWidget* parent, trampolineFuncs* redirs ) :
 
 ProfileSettings::~ProfileSettings()
 {
-  trampolines->destroyLayout ( static_cast<QLayout*>( hbox ));
+  trampolines->destroyLayout ( dynamic_cast<QLayout*>( hbox ));
 }
 
 

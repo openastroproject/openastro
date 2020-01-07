@@ -336,7 +336,7 @@ CaptureWidget::CaptureWidget ( QWidget* parent ) : QGroupBox ( parent )
 
 CaptureWidget::~CaptureWidget()
 {
-  state.mainWindow->destroyLayout ( static_cast<QLayout*>( box ));
+  state.mainWindow->destroyLayout ( dynamic_cast<QLayout*>( box ));
 }
 
 

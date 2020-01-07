@@ -168,7 +168,7 @@ AutorunSettings::~AutorunSettings()
 {
   delete delayValidator;
   delete numRunsValidator;
-  trampolines->destroyLayout ( static_cast<QLayout*>( mainBox ));
+  trampolines->destroyLayout ( dynamic_cast<QLayout*>( mainBox ));
 }
 
 

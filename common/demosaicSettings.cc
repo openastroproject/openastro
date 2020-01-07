@@ -177,7 +177,7 @@ DemosaicSettings::DemosaicSettings ( QWidget* parent, int demosaic,
 
 DemosaicSettings::~DemosaicSettings()
 {
-  trampolines->destroyLayout ( static_cast<QLayout*>( hbox ));
+  trampolines->destroyLayout ( dynamic_cast<QLayout*>( hbox ));
 }
 
 

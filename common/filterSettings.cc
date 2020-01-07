@@ -128,7 +128,7 @@ FilterSettings::FilterSettings ( QWidget* parent, trampolineFuncs* redirs ) :
 
 FilterSettings::~FilterSettings()
 {
-  trampolines->destroyLayout ( static_cast<QLayout*>( hbox ));
+  trampolines->destroyLayout ( dynamic_cast<QLayout*>( hbox ));
 }
 
 

@@ -96,7 +96,7 @@ CameraWidget::CameraWidget ( QWidget* parent ) : QGroupBox ( parent )
 CameraWidget::~CameraWidget()
 {
   if ( grid ) {
-    state.mainWindow->destroyLayout ( static_cast<QLayout*>( grid ));
+    state.mainWindow->destroyLayout ( dynamic_cast<QLayout*>( grid ));
   }
 }
 

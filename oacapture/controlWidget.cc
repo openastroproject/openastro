@@ -306,7 +306,7 @@ ControlWidget::ControlWidget ( QWidget* parent ) : QGroupBox ( parent )
 
 ControlWidget::~ControlWidget()
 {
-  state.mainWindow->destroyLayout ( static_cast<QLayout*>( grid ));
+  state.mainWindow->destroyLayout ( dynamic_cast<QLayout*>( grid ));
 }
 
 

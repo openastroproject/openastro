@@ -72,7 +72,7 @@ CameraSettings::configure ( void )
   int numSliderCheckboxes = 0, numUnhandled = 0;
 
   if ( layout ) {
-    trampolines->destroyLayout ( static_cast<QLayout*>( layout ));
+    trampolines->destroyLayout ( dynamic_cast<QLayout*>( layout ));
     delete sliderSignalMapper;
     delete checkboxSignalMapper;
     delete buttonSignalMapper;
@@ -561,7 +561,7 @@ CameraSettings::configure ( void )
 CameraSettings::~CameraSettings()
 {
   if ( layout ) {
-    trampolines->destroyLayout ( static_cast<QLayout*>( layout ));
+    trampolines->destroyLayout ( dynamic_cast<QLayout*>( layout ));
   }
   if ( sliderSignalMapper ) {
     delete sliderSignalMapper;

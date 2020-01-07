@@ -91,7 +91,7 @@ CaptureSettings::CaptureSettings ( QWidget* parent, int formats,
 
 CaptureSettings::~CaptureSettings()
 {
-  trampolines->destroyLayout ( static_cast<QLayout*>( vLayout ));
+  trampolines->destroyLayout ( dynamic_cast<QLayout*>( vLayout ));
 }
 
 

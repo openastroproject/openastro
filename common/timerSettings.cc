@@ -191,7 +191,7 @@ TimerSettings::TimerSettings ( QWidget* parent, QString appName,
 
 TimerSettings::~TimerSettings()
 {
-  trampolines->destroyLayout ( static_cast<QLayout*>( box ));
+  trampolines->destroyLayout ( dynamic_cast<QLayout*>( box ));
 }
 
 

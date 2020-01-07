@@ -187,7 +187,7 @@ GeneralSettings::GeneralSettings ( QWidget* parent, QWidget* top,
 
 GeneralSettings::~GeneralSettings()
 {
-  trampolines->destroyLayout ( static_cast<QLayout*>( box ));
+  trampolines->destroyLayout ( dynamic_cast<QLayout*>( box ));
 }
 
 

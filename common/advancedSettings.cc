@@ -281,7 +281,7 @@ AdvancedSettings::AdvancedSettings ( QWidget* parent, int device,
 
 AdvancedSettings::~AdvancedSettings()
 {
-  trampolines->destroyLayout ( static_cast<QLayout*>( vbox ));
+  trampolines->destroyLayout ( dynamic_cast<QLayout*>( vbox ));
 }
 
 
