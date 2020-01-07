@@ -2,7 +2,8 @@
  *
  * cameraControls.cc -- class for the camera tab in the settings dialog
  *
- * Copyright 2015,2017,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -112,7 +113,7 @@ CameraControls::configure ( void )
 	}
 
   if ( layout ) {
-    state.mainWindow->destroyLayout (( QLayout* ) layout );
+    state.mainWindow->destroyLayout ( dynamic_cast<QLayout*>( layout ));
     delete sliderSignalMapper;
     delete checkboxSignalMapper;
     delete buttonSignalMapper;
@@ -782,7 +783,7 @@ CameraControls::configure ( void )
 CameraControls::~CameraControls()
 {
   if ( layout ) {
-    state.mainWindow->destroyLayout (( QLayout* ) layout );
+    state.mainWindow->destroyLayout ( dynamic_cast<QLayout*>( layout ));
   }
   if ( sliderSignalMapper ) {
     delete sliderSignalMapper;

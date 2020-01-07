@@ -2,7 +2,8 @@
  *
  * displayWindow.cc -- managing class for the main display area
  *
- * Copyright 2013,2014,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2019,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -72,7 +73,7 @@ DisplayWindow::DisplayWindow ( QWidget* parent ) : QWidget ( parent )
   previewScroller = new QScrollArea ( this );
   previewWidget = new PreviewWidget ( previewScroller );
   state.previewWidget = previewWidget;
-  commonState.viewerWidget = ( QWidget* ) previewWidget;
+  commonState.viewerWidget = dynamic_cast<QWidget*>( previewWidget );
   // These figures are a bit arbitrary, but give a size that should work
   // initially on small displays
   // previewScroller->setMinimumSize ( 640, 240 );
@@ -98,7 +99,7 @@ DisplayWindow::DisplayWindow ( QWidget* parent ) : QWidget ( parent )
 
 DisplayWindow::~DisplayWindow()
 {
-  state.mainWindow->destroyLayout (( QLayout* ) outerBox );
+  state.mainWindow->destroyLayout ( dynamic_cast<QLayout*>( outerBox ));
 }
 
 

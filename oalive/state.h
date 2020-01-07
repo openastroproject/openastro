@@ -2,7 +2,8 @@
  *
  * state.h -- global application state datastructures
  *
- * Copyright 2015,2017,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -60,4 +61,5 @@ typedef struct
 extern STATE		state;
 
 #define TOP_WIDGET ( state.settingsWidget ? state.settingsWidget->getTabset() :\
-    ( state.mainWindow ? ( QWidget* ) state.mainWindow : ( QWidget* ) this ))
+    ( state.mainWindow ? dynamic_cast<QWidget*>( state.mainWindow ) : \
+		dynamic_cast<QWidget*>( this )))

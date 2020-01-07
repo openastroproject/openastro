@@ -2,7 +2,7 @@
  *
  * controlWidget.cc -- class for the control widget in the UI
  *
- * Copyright 2013,2014,2015,2017,2019
+ * Copyright 2013,2014,2015,2017,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -306,7 +306,7 @@ ControlWidget::ControlWidget ( QWidget* parent ) : QGroupBox ( parent )
 
 ControlWidget::~ControlWidget()
 {
-  state.mainWindow->destroyLayout (( QLayout* ) grid );
+  state.mainWindow->destroyLayout ( static_cast<QLayout*>( grid ));
 }
 
 

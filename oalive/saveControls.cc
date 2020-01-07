@@ -2,7 +2,8 @@
  *
  * saveControls.cc -- class for the save data tab in the settings dialog
  *
- * Copyright 2015,2017,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -187,7 +188,7 @@ SaveControls::SaveControls ( QWidget* parent ) : QWidget ( parent )
 SaveControls::~SaveControls()
 {
   if ( layout ) {
-    state.mainWindow->destroyLayout (( QLayout* ) layout );
+    state.mainWindow->destroyLayout ( dynamic_cast<QLayout*>( layout ));
   }
 }
 

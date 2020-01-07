@@ -2,7 +2,7 @@
  *
  * mainWindow.cc -- the main controlling window class
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -1109,7 +1109,7 @@ MainWindow::writeConfig ( QString configFile )
     // don't particularly like this cast, but it seems to be the only way
     // to do it
     settings->setValue ( "controlValue",
-        ( qlonglong ) cameraConf.controlValues[i] );
+        reinterpret_cast<qlonglong>( cameraConf.controlValues[i] ));
   }
   settings->endArray();
 
@@ -2642,7 +2642,7 @@ MainWindow::createPreviewWindow()
   state.focusOverlay = focusOverlay;
   previewWidget = new PreviewWidget ( previewScroller );
   state.previewWidget = previewWidget;
-  commonState.viewerWidget = ( QWidget* ) previewWidget;
+  commonState.viewerWidget = dynamic_cast<QWidget*>( previewWidget );
 
   // These figures are a bit arbitrary, but give a size that should work
   // initially on small displays

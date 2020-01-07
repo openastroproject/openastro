@@ -1,8 +1,9 @@
 /*****************************************************************************
  *
- * stackingControlss.cc -- class for the stacking tab in the settings dialog
+ * stackingControls.cc -- class for the stacking tab in the settings dialog
  *
- * Copyright 2015,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2018,2019,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -87,7 +88,7 @@ StackingControls::StackingControls ( QWidget* parent ) : QWidget ( parent )
 StackingControls::~StackingControls()
 {
   if ( grid ) {
-    state.mainWindow->destroyLayout (( QLayout* ) grid );
+    state.mainWindow->destroyLayout ( dynamic_cast<QLayout*>( grid ));
   }
 }
 

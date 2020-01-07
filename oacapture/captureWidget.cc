@@ -2,7 +2,7 @@
  *
  * captureWidget.cc -- class for the capture widget in the UI
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -336,7 +336,7 @@ CaptureWidget::CaptureWidget ( QWidget* parent ) : QGroupBox ( parent )
 
 CaptureWidget::~CaptureWidget()
 {
-  state.mainWindow->destroyLayout (( QLayout* ) box );
+  state.mainWindow->destroyLayout ( static_cast<QLayout*>( box ));
 }
 
 
@@ -406,7 +406,8 @@ CaptureWidget::pauseRecording ( void )
   unsigned long now, timeLeft;
 
   ( void ) gettimeofday ( &t, 0 );
-  now = ( unsigned long ) t.tv_sec * 1000 + ( unsigned long ) t.tv_usec / 1000;
+  now = static_cast<unsigned long>( t.tv_sec ) * 1000 +
+			static_cast<unsigned long>( t.tv_usec ) / 1000;
 
   if ( pauseButton->isChecked()) {
     state.pauseEnabled = 1;
@@ -766,8 +767,8 @@ CaptureWidget::doStartRecording ( int autorunFlag )
   if ( commonConfig.limitEnabled && commonConfig.secondsLimitValue ) {
     struct timeval t;
     ( void ) gettimeofday ( &t, 0 );
-    unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
-        ( unsigned long ) t.tv_usec / 1000;
+    unsigned long now = static_cast<unsigned long>( t.tv_sec ) * 1000 +
+        static_cast<unsigned long>( t.tv_usec ) / 1000;
     recordingStartTime = now;
     recordingEndTime = now + commonConfig.secondsLimitValue * 1000;
   }
@@ -1416,12 +1417,12 @@ CaptureWidget::writeSettings ( OutputHandler* out )
     struct tm* tmp = localtime ( &now );
     QString timeStr;
     timeStr = QString ("%1-%2-%3 %4:%5:%6").
-        arg (( int ) tmp->tm_year + 1900, 4 ).
-        arg (( int ) tmp->tm_mon + 1, 2, 10, QChar('0')).
-        arg (( int ) tmp->tm_mday, 2, 10, QChar('0')).
-        arg (( int ) tmp->tm_hour, 2, 10, QChar('0')).
-        arg (( int ) tmp->tm_min, 2, 10, QChar('0')).
-        arg (( int ) tmp->tm_sec, 2, 10, QChar('0'));
+        arg ( static_cast<int>( tmp->tm_year ) + 1900, 4 ).
+        arg ( static_cast<int>( tmp->tm_mon ) + 1, 2, 10, QChar('0')).
+        arg ( static_cast<int>( tmp->tm_mday ), 2, 10, QChar('0')).
+        arg ( static_cast<int>( tmp->tm_hour ), 2, 10, QChar('0')).
+        arg ( static_cast<int>( tmp->tm_min ), 2, 10, QChar('0')).
+        arg ( static_cast<int>( tmp->tm_sec ), 2, 10, QChar('0'));
     settings << APPLICATION_NAME << " " << VERSION_STR << std::endl;
     settings << std::endl;
     settings << tr ( "Camera: " ).toStdString().c_str() <<
@@ -1586,9 +1587,9 @@ CaptureWidget::writeSettings ( OutputHandler* out )
     time_t t = state.firstFrameTime / 1000;
     tmp = localtime ( &t );
     timeStr = QString ("%1:%2:%3.%4").
-        arg (( int ) tmp->tm_hour, 2, 10, QChar('0')).
-        arg (( int ) tmp->tm_min, 2, 10, QChar('0')).
-        arg (( int ) tmp->tm_sec, 2, 10, QChar('0')).
+        arg ( static_cast<int>( tmp->tm_hour ), 2, 10, QChar('0')).
+        arg ( static_cast<int>( tmp->tm_min ), 2, 10, QChar('0')).
+        arg ( static_cast<int>( tmp->tm_sec ), 2, 10, QChar('0')).
         arg ( state.firstFrameTime % 1000, 3, 10, QChar('0'));
     settings << tr ( "First frame: " ).toStdString().c_str() <<
         timeStr.toStdString() << std::endl;
@@ -1597,9 +1598,9 @@ CaptureWidget::writeSettings ( OutputHandler* out )
     t = midTime / 1000;
     tmp = localtime ( &t );
     timeStr = QString ("%1:%2:%3.%4").
-        arg (( int ) tmp->tm_hour, 2, 10, QChar('0')).
-        arg (( int ) tmp->tm_min, 2, 10, QChar('0')).
-        arg (( int ) tmp->tm_sec, 2, 10, QChar('0')).
+        arg ( static_cast<int>( tmp->tm_hour ), 2, 10, QChar('0')).
+        arg ( static_cast<int>( tmp->tm_min ), 2, 10, QChar('0')).
+        arg ( static_cast<int>( tmp->tm_sec ), 2, 10, QChar('0')).
         arg ( midTime % 1000, 3, 10, QChar('0') );
     settings << tr ( "Middle: " ).toStdString().c_str() <<
         timeStr.toStdString();
@@ -1611,26 +1612,27 @@ CaptureWidget::writeSettings ( OutputHandler* out )
     t = state.lastFrameTime / 1000;
     tmp = localtime ( &t );
     timeStr = QString ("%1:%2:%3.%4").
-        arg (( int ) tmp->tm_hour, 2, 10, QChar('0')).
-        arg (( int ) tmp->tm_min, 2, 10, QChar('0')).
-        arg (( int ) tmp->tm_sec, 2, 10, QChar('0')).
+        arg ( static_cast<int>( tmp->tm_hour ), 2, 10, QChar('0')).
+        arg ( static_cast<int>( tmp->tm_min ), 2, 10, QChar('0')).
+        arg ( static_cast<int>( tmp->tm_sec ), 2, 10, QChar('0')).
         arg ( state.lastFrameTime % 1000, 3, 10, QChar('0') );
     settings << tr ( "Last frame: " ).toStdString().c_str() <<
         timeStr.toStdString() << std::endl;
 
     duration = state.lastFrameTime - state.firstFrameTime;
     timeStr = QString ("%1.%2").
-        arg (( int ) duration / 1000, 1, 10, QChar('0')).
-        arg (( int ) duration % 1000, 3, 10, QChar('0'));
+        arg ( static_cast<int>( duration ) / 1000, 1, 10, QChar('0')).
+        arg ( static_cast<int>( duration ) % 1000, 3, 10, QChar('0'));
     settings << tr ( "Duration (seconds): " ).toStdString().c_str() <<
         timeStr.toStdString() << std::endl;
 
     settings << tr ( "Frames captured: " ).toStdString().c_str() <<
         out->getFrameCount() << std::endl;
 
-    float fps = ( float ) out->getFrameCount() / ( duration / 1000.0 );
+    float fps = static_cast<float>( out->getFrameCount()) /
+				( duration / 1000.0 );
     settings << tr ( "Frames per second (average): " ).toStdString().c_str()
-        << ( int ) fps;
+        <<  static_cast<int>( fps );
     if ( state.captureWasPaused ) {
       settings << tr ( " (recording paused)" ).toStdString().c_str();
     }

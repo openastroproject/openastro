@@ -2,7 +2,7 @@
  *
  * imageWidget.cc -- class for the image controls in the UI
  *
- * Copyright 2013,2014,2015,2016,2018
+ * Copyright 2013,2014,2015,2016,2018,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -143,7 +143,7 @@ ImageWidget::ImageWidget ( QWidget* parent ) : QGroupBox ( parent )
 
 ImageWidget::~ImageWidget()
 {
-  state.mainWindow->destroyLayout (( QLayout* ) grid );
+  state.mainWindow->destroyLayout ( static_cast<QLayout*>( grid ));
 }
 
 

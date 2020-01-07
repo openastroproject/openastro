@@ -2,7 +2,7 @@
  *
  * viewWidget.cc -- class for the preview window in the UI (and more)
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -159,14 +159,14 @@ ViewWidget::~ViewWidget()
 		unsigned int i;
 		if ( maxFrames ) {
 			for ( i = 0; i < maxFrames; i++ ) {
-				free (( void* ) previousFrames[i] );
+				free ( static_cast<void*>( previousFrames[i] ));
 			}
 		}
-		free (( void* ) previousFrames );
+		free ( static_cast<void*>( previousFrames ));
 	}
 
 	if ( rgbBuffer ) {
-		free (( void* ) rgbBuffer );
+		free ( static_cast<void*>( rgbBuffer ));
 	}
 }
 
@@ -204,7 +204,7 @@ ViewWidget::updateFrameSize ( void )
 	if ( previousFrames && maxFrames ) {
 		unsigned int i;
 		for ( i = 0; i < maxFrames; i++ ) {
-			free (( void* ) previousFrames[i] );
+			free ( static_cast<void*>( previousFrames[i] ));
 			previousFrames[i] = 0;
 		}
 	}
@@ -365,7 +365,7 @@ ViewWidget::wheelEvent ( QWheelEvent* event )
     event->ignore();
   } else {
     int x = event->x();
-    qreal scale = ( qreal ) abs ( x - reticleCentreX ) / 50;
+    qreal scale = static_cast<qreal>( abs ( x - reticleCentreX )) / 50;
     rotationAngle += direction * scale;
     if ( 0 == rotationAngle ) {
       rotationTransform.reset();
@@ -456,8 +456,8 @@ ViewWidget::setMonoPalette ( QColor colour )
 void*
 ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 {
-	COMMON_STATE*	commonState = ( COMMON_STATE* ) args;
-  STATE*		state = ( STATE* ) commonState->localState;
+	COMMON_STATE*	commonState = static_cast<COMMON_STATE*>( args );
+  STATE*		state = static_cast<STATE*>( commonState->localState );
   ViewWidget*		self = state->viewWidget;
   struct timeval	t;
   int			doHistogram = 0;
@@ -597,8 +597,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 		// assign more memory for the array of frame pointers if required
 		if ( self->previousFrameArraySize < self->maxFrames ) {
 			void**		tmpPtr;
-			if (!( tmpPtr = ( void** ) realloc ( self->previousFrames,
-					( self->previousFrameArraySize + 10 ) * sizeof ( void* )))) {
+			if (!( tmpPtr = static_cast<void**>( realloc ( self->previousFrames,
+					( self->previousFrameArraySize + 10 ) * sizeof ( void* ))))) {
 				qDebug() << "realloc of frame history failed!";
 				self->maxFrames--;
 				emit self->enableSpinner ( 0 );
@@ -632,7 +632,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     comment = 0;
     outputFrame->addFrame ( self->viewBuffer, timestamp,
         state->cameraControls->getCurrentExposure(), comment,
-				( FRAME_METADATA* ) metadata );
+				static_cast<FRAME_METADATA*>( metadata ));
   }
 
 	// copy the view buffer to the frame history
@@ -696,7 +696,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     comment = 0;
     outputProcessed->addFrame ( self->viewBuffer, timestamp,
         state->cameraControls->getCurrentExposure(), comment,
-				( FRAME_METADATA* ) metadata );
+				static_cast<FRAME_METADATA*>( metadata ));
   }
   commonState->captureIndex++;
 
@@ -712,8 +712,8 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
   self->viewBuffer = self->originalBuffer;
 
   ( void ) gettimeofday ( &t, 0 );
-  unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
-      ( unsigned long ) t.tv_usec / 1000;
+  unsigned long now = static_cast<unsigned long>( t.tv_sec ) * 1000 +
+      static_cast<unsigned long>( t.tv_usec ) / 1000;
 
 	self->_processAndDisplay ( state, self, now, 1 );
 
@@ -808,7 +808,7 @@ ViewWidget::restart()
   // FIX ME -- should perhaps protect these with a mutex?
 	if ( previousFrames && maxFrames ) {
 		for ( i = 0; i < maxFrames; i++ ) {
-			free (( void* ) previousFrames[i] );
+			free ( static_cast<void*>( previousFrames[i] ));
 			previousFrames[i] = 0;
 		}
 	}
@@ -1009,11 +1009,12 @@ ViewWidget::_unpackJPEG8 ( ViewWidget* self, void* frame, int* size,
 
 	cinfo.err = jpeg_std_error ( &jerr );
 	jpeg_create_decompress ( &cinfo );
-	jpeg_mem_src ( &cinfo, (
+	jpeg_mem_src ( &cinfo,
+				static_cast<
 #if JPEG_MEM_SRC_USES_CONST
 				const
 #endif
-				unsigned char* ) frame, *size );
+				unsigned char*>( frame ), *size );
 	if ( jpeg_read_header ( &cinfo, TRUE ) != 1 ) {
 		qWarning() << "jpeg_read_header failed";
 		jpeg_destroy_decompress ( &cinfo );
@@ -1056,7 +1057,7 @@ ViewWidget::_unpackJPEG8 ( ViewWidget* self, void* frame, int* size,
 		}
 	}
 
-	bufferPtr = ( unsigned char* ) self->rgbBuffer;
+	bufferPtr = static_cast<unsigned char*>( self->rgbBuffer );
 	while ( cinfo.output_scanline < cinfo.output_height ) {
 		jpeg_read_scanlines ( &cinfo, &bufferPtr, 1 );
 		bufferPtr += stride;
@@ -1207,9 +1208,9 @@ ViewWidget::redrawImage ( void )
 	struct timeval		t;
 
   ( void ) gettimeofday ( &t, 0 );
-  unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
-      ( unsigned long ) t.tv_usec / 1000;
-	_processAndDisplay (( void* ) &state, this, now, 0 );
+  unsigned long now = static_cast<unsigned long>( t.tv_sec ) * 1000 +
+      static_cast<unsigned long>( t.tv_usec ) / 1000;
+	_processAndDisplay ( static_cast<void*>( &state ), this, now, 0 );
 }
 
 
@@ -1218,7 +1219,7 @@ ViewWidget::_processAndDisplay ( void* tmpState, ViewWidget* self,
 		unsigned long now, int fromCallback )
 {
   int							doDisplay = 0, abort;
-	STATE*					state = ( STATE* ) tmpState;
+	STATE*					state = static_cast<STATE*>( tmpState );
 	unsigned int		frameLength;
 
 	// self->viewBuffer is actually the same as self->originalBuffer on entry
@@ -1239,18 +1240,19 @@ ViewWidget::_processAndDisplay ( void* tmpState, ViewWidget* self,
 		// we know we have an 8-bit mono image at this point
 		unsigned int	i;
 		double	val, newVal;
-		uint8_t*	src = ( uint8_t* ) self->viewBuffer;
+		uint8_t*	src = static_cast<uint8_t*>( self->viewBuffer );
 		uint8_t*	tgt;
 
 		frameLength = commonConfig.imageSizeX * commonConfig.imageSizeY;
     self->currentViewBuffer = ( -1 == self->currentViewBuffer ) ? 0 :
         !self->currentViewBuffer;
-		tgt = ( uint8_t* ) self->viewImageBuffer [ self->currentViewBuffer ];
+		tgt = static_cast<uint8_t*>(
+				self->viewImageBuffer [ self->currentViewBuffer ]);
 		for ( i = 0; i < frameLength; i++ ) {
 			val = src[ i ];
 			newVal = oaclamp ( 0, 255, pow ( val * self->coeff_r * self->coeff_c
 					+ self->coeff_tbr, self->gammaExponent ));
-			tgt[ i ] = ( uint8_t )( newVal + 0.5 );
+			tgt[ i ] = static_cast<uint8_t>( newVal + 0.5 );
 
 			if ( !fromCallback ) {
 				// FIX ME -- nasty, nasty, nasty
@@ -1268,13 +1270,14 @@ ViewWidget::_processAndDisplay ( void* tmpState, ViewWidget* self,
 		// we know we have an RGB24 image at this point
 		unsigned int	i;
 		double	valR, valG, valB, newValR, newValG, newValB;
-		uint8_t*	src = ( uint8_t* ) self->viewBuffer;
+		uint8_t*	src = static_cast<uint8_t*>( self->viewBuffer );
 		uint8_t*	tgt;
 
 		frameLength = commonConfig.imageSizeX * commonConfig.imageSizeY * 3;
     self->currentViewBuffer = ( -1 == self->currentViewBuffer ) ? 0 :
         !self->currentViewBuffer;
-		tgt = ( uint8_t* ) self->viewImageBuffer [ self->currentViewBuffer ];
+		tgt = static_cast<uint8_t*>(
+				self->viewImageBuffer [ self->currentViewBuffer ]);
 		for ( i = 0; i < frameLength; i += 3 ) {
 			valR = src[ i ];
 			valG = src[ i + 1 ];
@@ -1288,9 +1291,9 @@ ViewWidget::_processAndDisplay ( void* tmpState, ViewWidget* self,
 			newValB = oaclamp ( 0, 255, pow ( valR * self->coeff_b1 +
 					valG * self->coeff_b2 + valB * self->coeff_b3 + self->coeff_tbr,
 					self->gammaExponent ));
-			tgt[ i ] = ( int )( newValR + 0.5 );
-			tgt[ i + 1 ] = ( int )( newValG + 0.5 );
-			tgt[ i + 2 ] = ( int )( newValB + 0.5 );
+			tgt[ i ] = static_cast<int>( newValR + 0.5 );
+			tgt[ i + 1 ] = static_cast<int> ( newValG + 0.5 );
+			tgt[ i + 2 ] = static_cast<int> ( newValB + 0.5 );
 
 			if ( !fromCallback ) {
 				// FIX ME -- nasty, nasty, nasty
@@ -1326,7 +1329,7 @@ ViewWidget::_processAndDisplay ( void* tmpState, ViewWidget* self,
 
     // First deal with anything that's mono
     if ( OA_PIX_FMT_GREY8 == self->videoFramePixelFormat ) {
-      newImage = new QImage (( const uint8_t* ) self->viewBuffer,
+      newImage = new QImage ( static_cast<const uint8_t*>( self->viewBuffer ),
           commonConfig.imageSizeX, commonConfig.imageSizeY,
 					commonConfig.imageSizeX, QImage::Format_Indexed8 );
       if ( OA_PIX_FMT_GREY8 == self->viewPixelFormat &&
@@ -1342,7 +1345,7 @@ ViewWidget::_processAndDisplay ( void* tmpState, ViewWidget* self,
       // Need the stride size here or QImage appears to "tear" the
       // right hand edge of the image when the X dimension is an odd
       // number of pixels
-      newImage = new QImage (( const uint8_t* ) self->viewBuffer,
+      newImage = new QImage ( static_cast<const uint8_t*>( self->viewBuffer ),
           commonConfig.imageSizeX, commonConfig.imageSizeY,
 					commonConfig.imageSizeX * 3, QImage::Format_RGB888 );
       if ( OA_PIX_FMT_BGR24 == self->viewPixelFormat ) {

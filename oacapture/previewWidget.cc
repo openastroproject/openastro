@@ -2,7 +2,7 @@
  *
  * previewWidget.cc -- class for the preview window in the UI (and more)
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -305,7 +305,7 @@ PreviewWidget::wheelEvent ( QWheelEvent* event )
     event->ignore();
   } else {
     int x = event->x();
-    qreal scale = ( qreal ) abs ( x - reticleCentreX ) / 50;
+    qreal scale = static_cast<qreal>( abs ( x - reticleCentreX )) / 50;
     rotationAngle += direction * scale;
     if ( 0 == rotationAngle ) {
       rotationTransform.reset();
@@ -433,8 +433,8 @@ void*
 PreviewWidget::updatePreview ( void* args, void* imageData, int length,
 		void* metadata )
 {
-  COMMON_STATE*		commonState = ( COMMON_STATE* ) args;
-  STATE*					state = ( STATE* ) commonState->localState;
+  COMMON_STATE*		commonState = static_cast<COMMON_STATE*>( args );
+  STATE*					state = static_cast<STATE*>( commonState->localState );
   PreviewWidget*	self = state->previewWidget;
   struct timeval	t;
   int			doDisplay = 0;
@@ -566,8 +566,8 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
   }
 
   ( void ) gettimeofday ( &t, 0 );
-  unsigned long now = ( unsigned long ) t.tv_sec * 1000 +
-      ( unsigned long ) t.tv_usec / 1000;
+  unsigned long now = static_cast<unsigned long>( t.tv_sec ) * 1000 +
+      static_cast<unsigned long>( t.tv_usec ) / 1000;
 
   int cfaPattern = demosaicConf.cfaPattern;
   if ( OA_DEMOSAIC_AUTO == cfaPattern &&
@@ -618,7 +618,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
       if ( OA_PIX_FMT_GREY8 == previewPixelFormat ||
            ( oaFrameFormats[ previewPixelFormat ].rawColour &&
            ( !self->demosaic || !demosaicConf.demosaicPreview ))) {
-        newImage = new QImage (( const uint8_t* ) previewBuffer,
+        newImage = new QImage ( static_cast<const uint8_t*>( previewBuffer ),
             commonConfig.imageSizeX, commonConfig.imageSizeY,
 						commonConfig.imageSizeX, QImage::Format_Indexed8 );
         if ( OA_PIX_FMT_GREY8 == previewPixelFormat &&
@@ -634,7 +634,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
         // Need the stride size here or QImage appears to "tear" the
         // right hand edge of the image when the X dimension is an odd
         // number of pixels
-        newImage = new QImage (( const uint8_t* ) previewBuffer,
+        newImage = new QImage ( static_cast<const uint8_t*>( previewBuffer ),
             commonConfig.imageSizeX, commonConfig.imageSizeY,
 						commonConfig.imageSizeX * 3, QImage::Format_RGB888 );
         if ( OA_PIX_FMT_BGR24 == previewPixelFormat ) {
@@ -740,7 +740,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
       if ( output->addFrame ( writeBuffer, timestamp,
           // This call should be thread-safe
           state->controlWidget->getCurrentExposure(), comment,
-					( FRAME_METADATA* ) metadata ) < 0 ) {
+					static_cast<FRAME_METADATA*>( metadata )) < 0 ) {
         self->recordingInProgress = 0;
         self->manualStop = 0;
         state->autorunEnabled = 0;
@@ -832,7 +832,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
           }
         }
       } else {
-        emit self->updateProgress (( unsigned int ) percentage );
+        emit self->updateProgress ( static_cast<unsigned int>( percentage ));
       }
     }
   }

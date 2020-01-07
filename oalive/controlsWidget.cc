@@ -2,7 +2,7 @@
  *
  * controlsWidget.cc -- the tab block for the controls
  *
- * Copyright 2015,2017,2018,2019
+ * Copyright 2015,2017,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -127,7 +127,7 @@ ControlsWidget::ControlsWidget ( QWidget* parent __attribute((unused)))
 
 ControlsWidget::~ControlsWidget()
 {
-  state.mainWindow->destroyLayout (( QLayout* ) mainBox );
+  state.mainWindow->destroyLayout ( dynamic_cast<QLayout*>( mainBox ));
   state.cameraControls = 0;
   state.processingControls = 0;
 }

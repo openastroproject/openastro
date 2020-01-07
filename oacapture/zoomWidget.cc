@@ -2,7 +2,8 @@
  *
  * zoomWidget.cc -- class for the zoom control widget in the main UI
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -181,7 +182,7 @@ ZoomWidget::ZoomWidget ( QWidget* parent ) : QGroupBox ( parent )
 
 ZoomWidget::~ZoomWidget()
 {
-  state.mainWindow->destroyLayout (( QLayout* ) box );
+  state.mainWindow->destroyLayout ( dynamic_cast<QLayout*>( box ));
 }
 
 

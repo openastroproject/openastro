@@ -2,7 +2,8 @@
  *
  * processingControls.cc -- class for the processing tab in the settings dialog
  *
- * Copyright 2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -161,7 +162,7 @@ ProcessingControls::connectHistogramSignal ( void )
 ProcessingControls::~ProcessingControls()
 {
   if ( controlBox ) {
-    state.mainWindow->destroyLayout (( QLayout* ) controlBox );
+    state.mainWindow->destroyLayout ( dynamic_cast<QLayout*>( controlBox ));
   }
 }
 
