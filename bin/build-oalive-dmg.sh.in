@@ -65,7 +65,12 @@ do
   then
     cp $libfile $APPDIR/Contents/MacOS
 	else
-		echo "Can't find $libfile"
+		libfile=ext/lib$lib/mac/lib$lib.dylib
+		if [ -f $libfile ]
+			cp $libfile $APPDIR/Contents/MacOS
+		else
+			echo "Can't find $libfile"
+		fi
   fi
 done
 
@@ -78,6 +83,8 @@ install_name_tool -change /System/Library/Frameworks/CoreGraphics.framework/Vers
 install_name_tool -change /System/Library/Frameworks/ImageIO.framework/Versions/A/ImageIO /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/ImageIO $APPDIR/Contents/Frameworks/QtGui.framework/Versions/4/QtGui
 
 install_name_tool -change /System/Library/Frameworks/CFNetwork.framework/Versions/A/CFNetwork /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CFNetwork.framework/CFNetwork $APPDIR/Contents/Frameworks/QtNetwork.framework/Versions/4/QtNetwork
+
+install_name_tool -change /opt/local/lib/libgcc/libstdc++.6.dylib @executable_path/../Frameworks/libstdc++.6.dylib $APPDIR/Contents/MacOS/oaCapture
 
 # This one is because libqhyccd has a hard-coded path to the library
 # /usr/local/lib/libusb-1.0.0.dylib
