@@ -1,5 +1,5 @@
-#ifndef __CONFIG_H__
-#define __CONFIG_H__
+#ifndef __QHYCCDCONFIG_H__
+#define __QHYCCDCONFIG_H__
 
 /*
  20, 2, 3,1

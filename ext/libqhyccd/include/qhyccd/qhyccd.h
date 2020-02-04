@@ -1,21 +1,18 @@
+#ifndef __QHYCCD_H__
+#define __QHYCCD_H__
 
-#include "qhyccderr.h"
-#include "qhyccdcamdef.h"
-#include "qhyccdstruct.h"
-#include "stdint.h"
-#include "config.h"
+#include <qhyccd/qhyccderr.h>
+#include <qhyccd/qhyccdcamdef.h>
+#include <qhyccd/qhyccdstruct.h>
+#include <stdint.h>
+#include <qhyccd/config.h>
+#if defined(_WIN32) || defined(__cplusplus)
 #include <functional>
-
-
-
-
+#endif
 
 #if defined (_WIN32)
 #include "cyapi.h"
 #endif
-
-#ifndef __QHYCCD_H__
-#define __QHYCCD_H__
 
 typedef void qhyccd_handle;
 
@@ -25,8 +22,11 @@ EXPORTFUNC void STDCALL SetQHYCCDAutoDetectCamera(bool enable);
 EXPORTC void STDCALL SetQHYCCDLogLevel(uint8_t logLevel);
 
 #if defined(__linux__ )&&!defined (__ANDROID__)
-
+#ifdef __cplusplus
 EXPORTC void STDCALL SetQHYCCDLogFunction(std::function<void(const std::string &message)> logFunction);
+#else
+EXPORTC void STDCALL SetQHYCCDLogFunction(void (*) ( const char* ));
+#endif
 EXPORTC void STDCALL SetQHYCCDBufferNumber(uint32_t BufNumber);
 
 #endif
