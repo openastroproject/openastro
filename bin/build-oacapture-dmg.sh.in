@@ -71,6 +71,7 @@ do
 	else
 		libfile=ext/lib$lib/mac/lib$lib.dylib
 		if [ -f $libfile ]
+		then
 			cp $libfile $APPDIR/Contents/MacOS
 		else
 			echo "Can't find $libfile"
