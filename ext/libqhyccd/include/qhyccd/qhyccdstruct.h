@@ -1,7 +1,13 @@
+
+#include "config.h"
+
+
+
+
+
+
 #ifndef __QHYCCDSTRUCTDEF_H__
 #define __QHYCCDSTRUCTDEF_H__
-
-#include <qhyccd/config.h>
 
 #if defined (_WIN32)
 #ifndef EXPORTFUNC
@@ -14,18 +20,12 @@
 #define EXPORTC extern "C"
 #endif
 #else
-#ifdef __cplusplus
 #define EXPORTFUNC extern "C"
 #define STDCALL
 #define EXPORTC extern "C"
-#else
-#define EXPORTFUNC
-#define STDCALL
-#define EXPORTC
-#endif
 #endif
 
-#include <stdint.h>
+#include "stdint.h"
 
 
 #if defined (_WIN32)
@@ -63,7 +63,8 @@ typedef uint64_t QHYDWORD;
 
 
 
-#define		MAX_READMODE_NUMBER			8
+#define		MAX_READMODE_NUMBER					8
+#define		MAX_READMODE_CAMARA_NUMBER			8
 
 
 /**
@@ -105,7 +106,7 @@ typedef struct ccdreg
 }
 CCDREG;
 
-typedef struct BIOREG
+struct BIOREG
 {
   uint16_t LineSize;
   uint16_t PatchNumber;
@@ -117,7 +118,7 @@ typedef struct BIOREG
   uint8_t  BIOCCD_Mode;
   uint8_t  BIOCCD_Video;
   uint8_t  SDRAM_Bypass;
-} BIOREG;
+};
 
 
 
@@ -158,7 +159,7 @@ LowLevelStatus;
  *
  * List of the function could be control
  */
-typedef enum CONTROL_ID
+enum CONTROL_ID
 {
   CONTROL_BRIGHTNESS = 0, //!< image brightness
   CONTROL_CONTRAST,       //!< image contrast
@@ -230,23 +231,23 @@ typedef enum CONTROL_ID
   CONTROL_MAX_ID,
   CAM_HUMIDITY			//!<check if camera has	 humidity sensor  20191021 LYL Unified humidity function
 
-} CONTROL_ID;
+};
 
 /**
  * debayer mode for mono to color */
-typedef enum BAYER_ID
+enum BAYER_ID
 {
   BAYER_GB = 1,
   BAYER_GR,
   BAYER_BG,
   BAYER_RG
-} BAYER_ID;
+};
 
-typedef enum CodecID
+enum CodecID
 {
   NONE_CODEC,
   H261_CODEC
-} CodecID;
+};
 
 typedef struct _QHYCamReadModeInfo
 {
