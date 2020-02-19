@@ -513,36 +513,24 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
     fits_write_key_str ( fptr, "FILTER", cString, "", &status );
   }
 
-  stringBuff[0] = 0;
   if ( commonState.gpsValid ) {
-    ( void ) sprintf ( stringBuff, "%+8.6e", commonState.latitude );
-  }
-  if ( !stringBuff[0] && fitsConf.siteLatitude != "" ) {
-    ( void ) strncpy ( stringBuff,
-        fitsConf.siteLatitude.toStdString().c_str(), FLEN_VALUE+1 );
-  }
-  if ( stringBuff[0] ) {
-    fits_write_key_str ( fptr, "SITELAT", cString, "", &status );
-  }
-
-  stringBuff[0] = 0;
-  if ( commonState.gpsValid ) {
-    ( void ) sprintf ( stringBuff, "%+8.6e", commonState.longitude );
-  }
-  if ( !stringBuff[0] && fitsConf.siteLongitude != "" ) {
-    ( void ) strncpy ( stringBuff,
-        fitsConf.siteLongitude.toStdString().c_str(), FLEN_VALUE+1 );
-  }
-  if ( stringBuff[0] ) {
-    fits_write_key_str ( fptr, "SITELONG", cString, "", &status );
-  }
-
-	stringBuff[0] = 0;
-  if ( commonState.gpsValid ) {
-    ( void ) sprintf ( stringBuff, "%+8.6e", commonState.altitude );
-    fits_write_key_str ( fptr, "SITEELEV", cString, "", &status );
-    ( void ) sprintf ( stringBuff, "%g", commonState.altitude );
-    fits_write_key_str ( fptr, "ELEVATIO", cString, "", &status );
+    fits_write_key_flt ( fptr, "SITELAT", commonState.latitude, -6, "",
+				&status );
+    fits_write_key_flt ( fptr, "SITELONG", commonState.longitude, -6, "",
+				&status );
+    fits_write_key_flt ( fptr, "SITEELEV", commonState.altitude, -6, "",
+				&status );
+    fits_write_key_flt ( fptr, "ELEVATIO", commonState.altitude, -6, "",
+				&status );
+  } else {
+		if ( fitsConf.siteLatitude != "" ) {
+			fits_write_key_flt ( fptr, "SITELAT", fitsConf.siteLatitude.toFloat(),
+					-6, "", &status );
+		}
+		if ( fitsConf.siteLongitude != "" ) {
+			fits_write_key_flt ( fptr, "SITELONG", fitsConf.siteLongitude.toFloat(),
+					-6, "", &status );
+		}
   }
 
 	( void ) snprintf ( stringBuff, FLEN_VALUE, "%s %s", applicationName,
