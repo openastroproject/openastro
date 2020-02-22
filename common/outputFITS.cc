@@ -514,22 +514,22 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   }
 
   if ( commonState.gpsValid ) {
-    fits_write_key_flt ( fptr, "SITELAT", commonState.latitude, -6, "",
+    fits_write_key_flt ( fptr, "SITELAT", commonState.latitude, -8, "",
 				&status );
-    fits_write_key_flt ( fptr, "SITELONG", commonState.longitude, -6, "",
+    fits_write_key_flt ( fptr, "SITELONG", commonState.longitude, -8, "",
 				&status );
-    fits_write_key_flt ( fptr, "SITEELEV", commonState.altitude, -6, "",
+    fits_write_key_flt ( fptr, "SITEELEV", commonState.altitude, -8, "",
 				&status );
-    fits_write_key_flt ( fptr, "ELEVATIO", commonState.altitude, -6, "",
+    fits_write_key_flt ( fptr, "ELEVATIO", commonState.altitude, -8, "",
 				&status );
   } else {
 		if ( fitsConf.siteLatitude != "" ) {
 			fits_write_key_flt ( fptr, "SITELAT", fitsConf.siteLatitude.toFloat(),
-					-6, "", &status );
+					-8, "", &status );
 		}
 		if ( fitsConf.siteLongitude != "" ) {
 			fits_write_key_flt ( fptr, "SITELONG", fitsConf.siteLongitude.toFloat(),
-					-6, "", &status );
+					-8, "", &status );
 		}
   }
 
