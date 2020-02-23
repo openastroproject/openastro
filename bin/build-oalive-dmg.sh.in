@@ -75,6 +75,25 @@ do
   fi
 done
 
+# These system libraries will be dynamically loaded and aren't picked up by
+# macdeployqt
+
+for lib in gphoto2 dc1394
+do
+	libfile=/opt/local/lib/lib$lib.dylib
+	if [ -f $libfile ]
+	then
+		if [ -f $APPDIR/Contents/Frameworks/$libfile ]
+		then
+			echo "lib$lib.dylib already present"
+		else
+			cp $libfile $APPDIR/Contents/MacOS
+		fi
+	else
+		echo "Can't file $libfile"
+	fi
+done
+
 # These are for compatibility with older releases of OSX
 
 install_name_tool -change /System/Library/Frameworks/CoreText.framework/Versions/A/CoreText  /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreText.framework/Versions/A/CoreText $APPDIR/Contents/Frameworks/QtGui.framework/Versions/4/QtGui
