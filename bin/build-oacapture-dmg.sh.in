@@ -2,7 +2,7 @@
 #
 # build-oacapture-dmg.sh.in -- Build a DMG install file from built binaries
 #
-# Copyright 2013,2014,2015,2016,2018,2019
+# Copyright 2013,2014,2015,2016,2018,2019,2020
 #     James Fidell (james@openastroproject.org)
 #
 # License:
