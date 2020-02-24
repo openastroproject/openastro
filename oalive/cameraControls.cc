@@ -135,6 +135,8 @@ CameraControls::configure ( void )
   buttonSignalMapper = new QSignalMapper ( this );
   menuSignalMapper = new QSignalMapper ( this );
 
+	inputFormatList.clear();
+
   for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
 		for ( mod = 0; mod < OA_CAM_CTRL_MODIFIERS_P1; mod++ ) {
 			c = baseVal | ( mod ? ( 0x80 << mod ) : 0 );
@@ -372,6 +374,10 @@ CameraControls::configure ( void )
 								if ( c == OA_CAM_CTRL_FRAME_FORMAT ) {
 									controlMenu[mod][baseVal]->addItem ( tr (
 											oaFrameFormats[ values[i]].name ));
+									controlMenu[mod][baseVal]->setItemData ( i,
+											tr ( oaFrameFormats[ values[i]].simpleName ),
+											Qt::ToolTipRole );
+									inputFormatList.append ( values[i]);
 								} else {
 									controlMenu[mod][baseVal]->addItem ( tr (
 											commonState.camera->getMenuString ( c, values[i] )));
@@ -410,7 +416,6 @@ CameraControls::configure ( void )
 						case OA_CTRL_TYPE_DISCRETE:
 							if ( 0 == mod && OA_CAM_CTRL_FRAME_FORMAT == baseVal ) {
 								unsigned int format, numActions = 0;
-								inputFormatList.clear();
 								controlLabel[mod][baseVal] = new QLabel ( tr (
 										oaCameraControlLabel[baseVal] ));
 								controlLabel[mod][baseVal]->setWordWrap ( 1 );
