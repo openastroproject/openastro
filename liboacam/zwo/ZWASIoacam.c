@@ -2,7 +2,8 @@
  *
  * ZWASIoacam.c -- main entrypoint for ZW ASI Cameras
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -108,7 +109,6 @@ oaZWASIGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       _private->devIndex = i;
       dev->_private = _private;
       dev->initCamera = oaZWASIInitCamera;
-      dev->hasLoadableFirmware = 0;
       if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
         ( void ) free (( void* ) _private );
         return ret;

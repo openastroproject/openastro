@@ -2,7 +2,8 @@
  *
  * EUVCoacam.c -- main entrypoint for TIS EUVC cameras
  *
- * Copyright 2015,2016,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -157,7 +158,6 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         _private->productId = EUVCCameraList[j].productId;
         dev->_private = _private;
         dev->initCamera = oaEUVCInitCamera;
-        dev->hasLoadableFirmware = 0;
         // store the device data here so we can use it later
         _private->misc = j;
         if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {

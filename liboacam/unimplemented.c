@@ -2,7 +2,8 @@
  *
  * unimplemented.c -- catch-all for unimplemented camera functions
  *
- * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -187,6 +188,11 @@ _oaInitCameraDeviceFunctionPointers ( oaCameraDevice* device )
 {
   device->initCamera = _initCamera;
   device->loadFirmware = _deviceLoadFirmware;
+
+	// Tidy up a couple of other things whilst we're here...
+
+	device->hasLoadableFirmware = 0;
+	device->firmwareLoaded = 0;
 }
 
 

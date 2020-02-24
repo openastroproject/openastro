@@ -2,7 +2,7 @@
  *
  * dummyoacam.c -- main entrypoint for dummy camera
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -67,7 +67,6 @@ oaDummyGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 		dev[i]->interface = OA_CAM_IF_DUMMY;
 		dev[i]->_private = _private[i];
 		dev[i]->initCamera = oaDummyInitCamera;
-		dev[i]->hasLoadableFirmware = 0;
 		_oaInitCameraDeviceFunctionPointers ( dev[i] );
   }
 

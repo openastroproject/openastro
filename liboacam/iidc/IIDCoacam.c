@@ -2,7 +2,7 @@
  *
  * IIDCoacam.c -- main entrypoint for IEE1394/IIDC Cameras
  *
- * Copyright 2013,2014,2015,2016,2018,2019
+ * Copyright 2013,2014,2015,2016,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -106,7 +106,6 @@ oaIIDCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
     _private->unit = unit;
     dev->_private = _private;
     dev->initCamera = oaIIDCInitCamera;
-    dev->hasLoadableFirmware = 0;
     p_dc1394_camera_free ( device );
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
       free (( void* ) dev );

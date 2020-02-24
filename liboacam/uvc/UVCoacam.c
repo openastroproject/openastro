@@ -2,7 +2,7 @@
  *
  * UVCoacam.c -- main entrypoint for UVC Cameras
  *
- * Copyright 2013,2014,2015,2016,2019
+ * Copyright 2013,2014,2015,2016,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -116,7 +116,6 @@ oaUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
     // dev->vendorId = desc->vendorId;
     // dev->productId = desc->productId;
     dev->initCamera = oaUVCInitCamera;
-    dev->hasLoadableFirmware = 0;
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
       ( void ) free (( void* ) dev );
       ( void ) free (( void* ) _private );

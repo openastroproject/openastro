@@ -2,7 +2,8 @@
  *
  * atikSerialoacam-udev.c -- main entrypoint for Atik serial support via udev
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -142,7 +143,6 @@ oaAtikSerialGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         _private->devType = atikCameraList[ match ].devType;
         _private->vendorId = atikCameraList[ match ].vendorId;
         _private->productId = atikCameraList[ match ].productId;
-        cam->hasLoadableFirmware = 0;
         ( void ) strncpy ( _private->sysPath, deviceNode, PATH_MAX );
         if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
           free ( dev );

@@ -2,7 +2,8 @@
  *
  * FC2oacam.c -- main entrypoint for Point Grey Gig-E Cameras
  *
- * Copyright 2015,2016,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018,2019,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -193,7 +194,6 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
     memcpy (( void* ) &_private->pgeGuid, ( void* ) &guid, sizeof ( guid ));
     dev->_private = _private;
     dev->initCamera = oaFC2InitCamera;
-    dev->hasLoadableFirmware = 0;
     if ((( _private->colour = devList[i].isColorCamera ) ? 1 : 0 )) {
       switch ( devList[i].bayerTileFormat ) {
         case FC2_BT_RGGB:

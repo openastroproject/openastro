@@ -2,7 +2,8 @@
  *
  * atikSerialoacam-ftdi.c -- main entrypoint for Atik serial support via udev
  *
- * Copyright 2013,2014,2015,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -150,7 +151,6 @@ oaAtikSerialGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       _private->devIndex = ( busNum << 8 ) | addr;
       _private->vendorId = atikCameraList[ matchedVidPid ].vendorId;
       _private->productId = atikCameraList[ matchedVidPid ].productId;
-      camera->hasLoadableFirmware = 0;
       if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
         free ( camera );
         free ( _private );

@@ -2,7 +2,7 @@
  *
  * V4L2oacam.c -- main entrypoint for V4L2 Cameras
  *
- * Copyright 2013,2014,2015,2016,2019
+ * Copyright 2013,2014,2015,2016,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -115,7 +115,6 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       _private->devIndex = index;
       dev->_private = _private;
       dev->initCamera = oaV4L2InitCamera;
-      dev->hasLoadableFirmware = 0;
       ( void ) strncpy ( _private->sysPath, sysPath, PATH_MAX );
       if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
         closedir ( dirp );

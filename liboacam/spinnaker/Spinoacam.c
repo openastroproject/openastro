@@ -2,7 +2,7 @@
  *
  * SPinoacam.c -- main entrypoint for Point Grey Spinnaker interface
  *
- * Copyright 2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -995,7 +995,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 
           devices[ numFound ]._private = &_private[ numFound ];
           devices[ numFound ].initCamera = oaSpinInitCamera;
-          devices[ numFound ].hasLoadableFirmware = 0;
           if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
             ( void ) free (( void* ) devices );
             ( void ) free (( void* ) _private );

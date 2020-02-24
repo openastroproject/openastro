@@ -2,7 +2,7 @@
  *
  * qhyccdDynloader.c -- dynamic loader for libqhyccd
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *

@@ -2,7 +2,7 @@
  *
  * qhyccdoacam.c -- main entrypoint for libqhyccd camera support
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -121,7 +121,6 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
     ( void ) strncpy ( _private->deviceId, qhyccdId, OA_MAX_DEVICEID_LEN );
     dev->_private = _private;
     dev->initCamera = oaQHYCCDInitCamera;
-    dev->hasLoadableFirmware = 0;
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
 			p_ReleaseQHYCCDResource();
       ( void ) free (( void* ) dev );
