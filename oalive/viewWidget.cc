@@ -86,6 +86,7 @@ ViewWidget::ViewWidget ( QWidget* parent ) : QFrame ( parent )
 	rgbBuffer = 0;
 	rgbBufferSize = 0;
 	abortProcessing = 0;
+	secondForFrameCount = 0;
 
   int r = config.currentColouriseColour.red();
   int g = config.currentColouriseColour.green();
