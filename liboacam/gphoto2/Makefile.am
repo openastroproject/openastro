@@ -26,7 +26,7 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/include \
   -I$(top_srcdir)/ext/libusb \
   -I$(top_srcdir)/liboacam \
-  $(LIBGPHOTO2_CFLAGS) \
+  $(SHLIBS_CFLAGS) $(LIBGPHOTO2_CFLAGS) \
   $(DYNLIB_EXTN_CFLAGS)
 
 noinst_LTLIBRARIES = libgphoto2.la
