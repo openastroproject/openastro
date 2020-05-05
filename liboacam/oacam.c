@@ -2,7 +2,7 @@
  *
  * oacam.c -- main camera library entrypoint
  *
- * Copyright 2013,2014,2015,2016,2018,2019
+ * Copyright 2013,2014,2015,2016,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -274,7 +274,7 @@ oaInterface	oaCameraInterfaces[] = {
     OA_CAM_IF_STARSHOOTG,
     "Starshoot G",
     "SSG",
-    oaStarshootGetCameras,
+    oaStarshootgGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },

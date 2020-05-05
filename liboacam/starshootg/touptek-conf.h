@@ -2,7 +2,7 @@
  *
  * touptek-conf.h -- Touptek build configuration for Starshoot G cameras
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -42,10 +42,10 @@
 // 9. OA_CAM_IF_<name>
 
 // Function name
-#define TT_FUNC( prefix, suffix)	prefix ## Starshoot ## suffix
+#define TT_FUNC( prefix, suffix)	prefix ## Starshootg ## suffix
 
 // library handle type
-#define	TT_HANDLE									HStarshootG
+#define	TT_HANDLE									HStarshootg
 
 // config flag prefix
 #define	TT_FLAG( flag )						STARSHOOTG_FLAG_ ## flag

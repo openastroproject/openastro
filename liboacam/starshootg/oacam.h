@@ -2,7 +2,7 @@
  *
  * oacam.h -- header for Starshoot camera API
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -27,6 +27,6 @@
 #ifndef OA_STARSHOOTG_OACAM_H
 #define OA_STARSHOOTG_OACAM_H
 
-extern int		oaStarshootGetCameras ( CAMERA_LIST*, unsigned long, int );
+extern int		oaStarshootgGetCameras ( CAMERA_LIST*, unsigned long, int );
 
 #endif	/* OA_STARSHOOTG_OACAM_H */
