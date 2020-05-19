@@ -2,3 +2,7 @@
   title="Oacapture" command="/usr/bin/oacapture" \
   icon16x16="/usr/share/pixmaps/oacapture16.xpm" \
   icon32x32="/usr/share/pixmaps/oacapture32.xpm"
+?package(oalive):needs="X11" section="Applications/Science" \
+  title="Oalive" command="/usr/bin/oalive" \
+  icon16x16="/usr/share/pixmaps/oalive16.xpm" \
+  icon32x32="/usr/share/pixmaps/oalive32.xpm"
