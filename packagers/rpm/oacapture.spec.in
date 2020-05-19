@@ -39,10 +39,11 @@ Requires:       qt-x11
 Requires:       xz-libs
 Requires:       libjpeg-turbo
 Requires:       libftdi
-Requires:       libasicamera
-Requires:       libefwfilter
 Requires:       libuvc
 Requires:       libpng
+Requires:       SDL
+Requires:       libdc1394
+Requires:       libv4l
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
 BuildRequires:  systemd-devel
@@ -60,6 +61,15 @@ BuildRequires:  libuvc-devel
 BuildRequires:  libpng-devel
 BuildRequires:  libraw-devel
 BuildRequires:  libgphoto2-devel
+BuildRequires:  libaltaircam-devel
+BuildRequires:  libv4l-devel
+BuildRequires:  libaltaircamlegacy-devel
+BuildRequires:  LibRaw-devel
+BuildRequires:  SDL-devel
+BuildRequires:  libudev-devel
+BuildRequires:  libtoupcam-devel
+BuildRequires:  libnncam-devel
+BuildRequires:  libstarshootg-devel
 BuildRequires:  qt
 BuildRequires:  qt-config
 BuildRequires:  qt-devel
@@ -90,11 +100,14 @@ BuildRequires: systemd
 %install
 %make_install
 desktop-file-validate %{buildroot}/%{_datadir}/applications/oacapture.desktop
+desktop-file-validate %{buildroot}/%{_datadir}/applications/oalive.desktop
 
 %files
 /usr/bin/oacapture
+/usr/bin/oalive
 /lib/udev/rules.d/*
 /usr/share/applications/oacapture.desktop
+/usr/share/applications/oalive.desktop
 /usr/share/icons/hicolor/*/apps/*
 
 %post
