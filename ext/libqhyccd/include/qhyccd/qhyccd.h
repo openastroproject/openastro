@@ -34,6 +34,9 @@ EXPORTC void STDCALL SetQHYCCDBufferNumber(uint32_t BufNumber);
 EXPORTC void STDCALL EnableQHYCCDMessage(bool enable);
 EXPORTC void STDCALL EnableQHYCCDLogFile(bool enable);
 
+EXPORTC uint32_t STDCALL SetQHYCCDSingleFrameTimeOut(qhyccd_handle *h,uint32_t time);  
+
+
 EXPORTC const char* STDCALL GetTimeStamp();
 
 /** \fn uint32_t InitQHYCCDResource()
