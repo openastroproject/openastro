@@ -39,7 +39,6 @@ Requires:       qt-x11
 Requires:       xz-libs
 Requires:       libjpeg-turbo
 Requires:       libftdi
-Requires:       libuvc
 Requires:       libpng
 Requires:       SDL
 Requires:       libdc1394
