@@ -101,10 +101,15 @@ GPHOTO2DIR = gphoto2
 GPHOTO2LIB = $(GPHOTO2DIR)/libgphoto2.la
 endif
 
+if LIBOMEGONPROCAM_COND
+OMEGONPROCAMDIR = omegonpro
+OMEGONPROCAMLIB = $(OMEGONPROCAMDIR)/libomegoncam.la
+endif
+
 SUBDIRS	= euvc iidc pwc qhy sx uvc dummy $(ALTAIRDIR) $(ATIKDIR) \
 	$(MALLINCAMDIR) $(FC2DIR) $(SPINDIR) $(TOUPCAMDIR) $(V4L2DIR) $(ZWODIR) \
 	$(ALTAIRLEGACYDIR) $(QHYCCDDIR) $(GPHOTO2DIR) $(STARSHOOTGDIR) \
-	$(RISINGCAMDIR) .
+	$(RISINGCAMDIR) $(OMEGONPROCAMDIR) .
 
 liboacam_la_SOURCES = \
   control.c debug.c oacam.c unimplemented.c utils.c timer.c
@@ -113,7 +118,7 @@ liboacam_la_LIBADD = euvc/libeuvc.la iidc/libiidc.la pwc/libpwc.la \
   qhy/libqhy.la sx/libsx.la uvc/libuvc.la dummy/libdummy.la $(ALTAIRLIB) \
 	$(ATIKLIB) $(MALLINCAMLIB) $(FC2LIB) $(SPINLIB) $(TOUPCAMLIB) $(V4L2LIB) \
 	$(ZWOLIB) $(ALTAIRLEGACYLIB) $(QHYCCDLIB) $(GPHOTO2LIB) $(STARSHOOTGLIB) \
-	$(RISINGCAMLIB)
+	$(RISINGCAMLIB) $(OMEGONPROCAMLIB)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

@@ -2,7 +2,7 @@
  *
  * camera.h -- camera API header
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -55,8 +55,9 @@ enum oaCameraInterfaceType {
 	OA_CAM_IF_RISINGCAM		= 18,
   OA_CAM_IF_SPINNAKER			= 19,
   OA_CAM_IF_GPHOTO2			= 20,
-  OA_CAM_IF_DUMMY			= 21,
-  OA_CAM_IF_COUNT			= 22
+  OA_CAM_IF_OMEGONPROCAM			= 21,
+  OA_CAM_IF_DUMMY			= 22,
+  OA_CAM_IF_COUNT			= 23
 };
 
 extern oaInterface	oaCameraInterfaces[ OA_CAM_IF_COUNT + 1 ];

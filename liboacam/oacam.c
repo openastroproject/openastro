@@ -95,6 +95,9 @@
 #if HAVE_LIBGPHOTO2
 #include "gphoto2/GP2oacam.h"
 #endif
+#if HAVE_LIBOMEGONPROCAM
+#include "omegonpro/oacam.h"
+#endif
 
 
 oaInterface	oaCameraInterfaces[] = {
@@ -311,6 +314,18 @@ oaInterface	oaCameraInterfaces[] = {
     "gphoto2",
     "GP2",
     oaGP2GetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if HAVE_LIBOMEGONPROCAM
+  {
+    OA_CAM_IF_OMEGONPROCAM,
+    "Risingcam",
+    "RCam",
+    oaOmegonprocamGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },
