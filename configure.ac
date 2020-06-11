@@ -1323,7 +1323,8 @@ case $host in
     AC_CONFIG_LINKS([$ext5/libaltaircamlegacy/libaltaircamlegacy.dylib:ext/libaltaircamlegacy/mac64/libaltaircamlegacy.dylib])
     AC_CONFIG_LINKS([$ext6/libqhyccd/libqhyccd.dylib:ext/libqhyccd/mac64/libqhyccd.dylib])
     AC_CONFIG_LINKS([$ext7/libstarshootg/libstarshootg.dylib:ext/libstarshootg/mac/libstarshootg.dylib])
-    AC_CONFIG_LINKS([$ext7/libnncam/libnncam.dylib:ext/libnncam/mac/libnncam.dylib])
+    AC_CONFIG_LINKS([$ext8/libnncam/libnncam.dylib:ext/libnncam/mac/libnncam.dylib])
+    AC_CONFIG_LINKS([$ext9/libomegonpro/libomegonprocam.dylib:ext/libomegonpro/mac64/libomegonprocam.dylib])
     OSX_FRAMEWORKS="-framework Carbon -framework VideoDecodeAcceleration -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
     FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
 		SHLIBS_CFLAGS="-DSHLIB_PATH=\\\"/MacOS/\\\""
@@ -1335,28 +1336,28 @@ case $host in
     AC_DEFINE([USB_OVERFLOW_HANGS],[1],[USB overflow causes hang])
     ;;
   i?86-*-*)
-    AC_CONFIG_LINKS([$ext7/libASICamera/libASICamera2.a:ext/libASICamera/x86/libASICamera2.a])
-    AC_CONFIG_LINKS([$ext8/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/x86/libEFWFilter.a])
+    AC_CONFIG_LINKS([$extA/libASICamera/libASICamera2.a:ext/libASICamera/x86/libASICamera2.a])
+    AC_CONFIG_LINKS([$extB/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/x86/libEFWFilter.a])
     ;;
   x86_64-*-*)
-    AC_CONFIG_LINKS([$ext9/libASICamera/libASICamera2.a:ext/libASICamera/x64/libASICamera2.a])
-    AC_CONFIG_LINKS([$extA/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/x64/libEFWFilter.a])
+    AC_CONFIG_LINKS([$extC/libASICamera/libASICamera2.a:ext/libASICamera/x64/libASICamera2.a])
+    AC_CONFIG_LINKS([$extD/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/x64/libEFWFilter.a])
     ;;
   armv8l-*-*|aarch64-*-*)
-    AC_CONFIG_LINKS([$extB/libASICamera/libASICamera2.a:ext/libASICamera/armv8/libASICamera2.a])
-    AC_CONFIG_LINKS([$extC/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv8/libEFWFilter.a])
+    AC_CONFIG_LINKS([$extE/libASICamera/libASICamera2.a:ext/libASICamera/armv8/libASICamera2.a])
+    AC_CONFIG_LINKS([$extF/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv8/libEFWFilter.a])
     ;;
   armv7l-*-*)
-    AC_CONFIG_LINKS([$extD/libASICamera/libASICamera2.a:ext/libASICamera/armv7/libASICamera2.a])
-    AC_CONFIG_LINKS([$extE/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv7/libEFWFilter.a])
+    AC_CONFIG_LINKS([$extG/libASICamera/libASICamera2.a:ext/libASICamera/armv7/libASICamera2.a])
+    AC_CONFIG_LINKS([$extH/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv7/libEFWFilter.a])
     ;;
   armv6l-*-*)
-    AC_CONFIG_LINKS([$extF/libASICamera/libASICamera2.a:ext/libASICamera/armv6/libASICamera2.a])
-    AC_CONFIG_LINKS([$extG/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv6/libEFWFilter.a])
+    AC_CONFIG_LINKS([$extI/libASICamera/libASICamera2.a:ext/libASICamera/armv6/libASICamera2.a])
+    AC_CONFIG_LINKS([$extJ/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv6/libEFWFilter.a])
     ;;
   armv5l-*-*)
-    AC_CONFIG_LINKS([$extH/libASICamera/libASICamera2.a:ext/libASICamera/armv5/libASICamera2.a])
-    AC_CONFIG_LINKS([$extI/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv5/libEFWFilter.a])
+    AC_CONFIG_LINKS([$extK/libASICamera/libASICamera2.a:ext/libASICamera/armv5/libASICamera2.a])
+    AC_CONFIG_LINKS([$extL/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv5/libEFWFilter.a])
     ;;
   *)
     if test "x$use_system_libasicamera2" != "xyes" -o "x$use_system_libefwfilter" != "xyes"
@@ -1479,6 +1480,16 @@ then
 	fi
 fi
 
+if test "x$use_system_libomegonprocam" == "xno"
+then
+	if test "x$have_omegonprocam" != "xno"
+	then
+		LIBOMEGONPROCAM_CFLAGS="-I \$(top_srcdir)/ext/libomegonpro/include"
+		LIBOMEGONPROCAM_LIBS=""
+		AC_DEFINE([HAVE_LIBOMEGONPROCAM],[1],[Have Omegon library support])
+	fi
+fi
+
 AC_DEFINE([HAVE_LIBMALLINCAM],[1],[Have Mallincam library support])
 
 AC_SUBST(OSX_FRAMEWORKS)
@@ -1501,6 +1512,8 @@ AC_SUBST(LIBSTARSHOOTG_CFLAGS)
 AC_SUBST(LIBSTARSHOOTG_LIBS)
 AC_SUBST(LIBNNCAM_CFLAGS)
 AC_SUBST(LIBNNCAM_LIBS)
+AC_SUBST(LIBOMEGONPROCAM_CFLAGS)
+AC_SUBST(LIBOMEGONPROCAM_LIBS)
 AC_SUBST(LIBQHYCCD_CFLAGS)
 AC_SUBST(LIBQHYCCD_LIBS)
 AC_SUBST(LIBGPHOTO2_CFLAGS)
