@@ -2,7 +2,7 @@
  *
  * V4L2state.h -- V4L2 camera state header
  *
- * Copyright 2013,2014,2015,2018,2019
+ * Copyright 2013,2014,2015,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -67,6 +67,15 @@ typedef struct V4L2_STATE {
   // discrete auto exposure menu item ids
   unsigned int		numAutoExposureItems;
   int64_t		autoExposureMenuItems[8];
+
+  // frame size configuration
+  int32_t		framesizeType;
+  uint32_t		minWidth;
+  uint32_t		maxWidth;
+  uint32_t		stepWidth;
+  uint32_t		minHeight;
+  uint32_t		maxHeight;
+  uint32_t		stepHeight;
 } V4L2_STATE;
 
 #endif	/* OA_V4L2_STATE_H */

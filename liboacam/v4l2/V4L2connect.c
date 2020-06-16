@@ -2,7 +2,7 @@
  *
  * V4L2connect.c -- Initialise V4L2 cameras
  *
- * Copyright 2013,2014,2015,2017,2018,2019
+ * Copyright 2013,2014,2015,2017,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -1057,6 +1057,11 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 #endif
         fprintf ( stderr, "currently unsupported V4L2 control 0x%x\n", id );
         break;
+
+      default:
+        fprintf ( stderr, "unknown V4L2 control 0x%x\n", id );
+        break;
+
     }
   }
 
@@ -1662,6 +1667,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   cameraInfo->frameSizes[1].numSizes = 0;
   cameraInfo->frameSizes[1].sizes = 0;
 
+  cameraInfo->framesizeType = 0;
   j = 0;
   while ( 1 ) {
     OA_CLEAR ( fsize );
@@ -1675,27 +1681,54 @@ oaV4L2InitCamera ( oaCameraDevice* device )
       }
     }
     // FIX ME -- we can't handle mixed frame types here
-    if ( V4L2_FRMSIZE_TYPE_DISCRETE == fsize.type ) {
-      if (!( tmpPtr = realloc ( cameraInfo->frameSizes[1].sizes,
-					( j+1 ) * sizeof ( FRAMESIZE )))) {
-        v4l2_close ( cameraInfo->fd );
-				if ( cameraInfo->frameSizes[1].numSizes ) {
-					free (( void* ) cameraInfo->frameSizes[1].sizes );
-				}
-        FREE_DATA_STRUCTS;
-        return 0;
-      }
-			cameraInfo->frameSizes[1].sizes = tmpPtr;
-      cameraInfo->frameSizes[1].sizes[j].x = fsize.discrete.width;
-      cameraInfo->frameSizes[1].sizes[j].y = fsize.discrete.height;
-    } else {
-      fprintf ( stderr, "Can't handle framesizing type %d\n", fsize.type );
-    }
+		if ( cameraInfo->framesizeType && cameraInfo->framesizeType !=
+				fsize.type ) {
+			fprintf ( stderr, "Got framesize %d when already seen %d\n",
+				fsize.type, cameraInfo->framesizeType );
+		}
+		cameraInfo->framesizeType = fsize.type;
+		switch ( fsize.type ) {
+			case V4L2_FRMSIZE_TYPE_DISCRETE:
+     		if (!( tmpPtr = realloc ( cameraInfo->frameSizes[1].sizes,
+						( j+1 ) * sizeof ( FRAMESIZE )))) {
+       		v4l2_close ( cameraInfo->fd );
+					if ( cameraInfo->frameSizes[1].numSizes ) {
+						free (( void* ) cameraInfo->frameSizes[1].sizes );
+					}
+       		FREE_DATA_STRUCTS;
+       		return 0;
+     		}
+				cameraInfo->frameSizes[1].sizes = tmpPtr;
+     		cameraInfo->frameSizes[1].sizes[j].x = fsize.discrete.width;
+     		cameraInfo->frameSizes[1].sizes[j].y = fsize.discrete.height;
+				camera->features.flags |= OA_CAM_FEATURE_FIXED_FRAME_SIZES;
+				break;
+
+			case V4L2_FRMSIZE_TYPE_STEPWISE:
+			case V4L2_FRMSIZE_TYPE_CONTINUOUS:
+     		if (!( tmpPtr = realloc ( cameraInfo->frameSizes[1].sizes,
+						( j+1 ) * sizeof ( FRAMESIZE )))) {
+       		v4l2_close ( cameraInfo->fd );
+					if ( cameraInfo->frameSizes[1].numSizes ) {
+						free (( void* ) cameraInfo->frameSizes[1].sizes );
+					}
+       		FREE_DATA_STRUCTS;
+       		return 0;
+     		}
+				cameraInfo->frameSizes[1].sizes = tmpPtr;
+     		cameraInfo->frameSizes[1].sizes[j].x = fsize.stepwise.max_width;
+     		cameraInfo->frameSizes[1].sizes[j].y = fsize.stepwise.max_height;
+				cameraInfo->minWidth = fsize.stepwise.min_width;
+				cameraInfo->maxWidth = fsize.stepwise.max_width;
+				cameraInfo->stepWidth = fsize.stepwise.step_width;
+				cameraInfo->minHeight = fsize.stepwise.min_height;
+				cameraInfo->maxHeight = fsize.stepwise.max_height;
+				cameraInfo->stepHeight = fsize.stepwise.step_height;
+				break;
+		}
     j++;
   }
   cameraInfo->frameSizes[1].numSizes = j;
-
-	camera->features.flags |= OA_CAM_FEATURE_FIXED_FRAME_SIZES;
 
   OA_CLEAR( parm );
   parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
