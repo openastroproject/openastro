@@ -2423,7 +2423,7 @@ MainWindow::setTimeRemaining ( void )
 	QString				stringVal;
 
 	if ( !commonState.camera->isInitialised() ||
-			!commonState.camera->isSingleShot() ||
+			!commonState.camera->hasSingleShot() ||
 			cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) < 3000000 ) {
 		return;
 	}

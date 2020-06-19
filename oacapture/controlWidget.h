@@ -2,7 +2,7 @@
  *
  * controlWidget.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2019
+ * Copyright 2013,2014,2015,2016,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -122,6 +122,7 @@ class ControlWidget : public QGroupBox
     QList<int>		intervalMultipliers;
     QList<int>		enabledIntervals;
     int64_t		intervalMultiplier;
+		int32_t		configureComplete;
 
     void		_setSelectableControl ( int, int );
     void		_doFrameRateChange ( int, int );

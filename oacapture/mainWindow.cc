@@ -101,6 +101,7 @@ MainWindow::MainWindow ( QString configFile )
   commonState.cameraTempValid = 0;
   commonState.gpsValid = 0;
   commonState.binningValid = 0;
+	state.singleShotMode = 0;
 
   // The gtk+ style doesn't enable group box borders by default, which makes
   // the display look confusing.
@@ -1644,8 +1645,22 @@ MainWindow::connectCamera ( int deviceIndex )
 
   // start regardless of whether we're displaying or capturing the
   // data
-  commonState.camera->startStreaming ( &PreviewWidget::updatePreview,
-			&commonState );
+	//
+	// If the absolute exposure time is supported and exposure time is greater
+	// than one second and the camera supports single shot mode, use that as
+	// it's often more accurate
+
+	if ( commonState.camera->hasSingleShot() &&
+			commonState.camera->hasControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) &&
+			cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) >= 1000000 ) {
+		state.singleShotMode = 1;
+		commonState.camera->startExposure ( &PreviewWidget::updatePreview,
+              &commonState );
+	} else {
+		commonState.camera->startStreaming ( &PreviewWidget::updatePreview,
+				&commonState );
+	}
+
 	if ( !commonState.camera->hasReadableControls()) {
 		state.controlWidget->disableAutoControls();
 	}

@@ -2,7 +2,7 @@
  *
  * camera.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2018,2019
+ * Copyright 2013,2014,2015,2016,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -67,6 +67,7 @@ class Camera : public QObject
     int     hasFixedFrameSizes ( void );
     int     hasUnknownFrameSize ( void );
 		int			hasReadableControls ( void );
+		int			hasSingleShot ( void );
     int			hasControl ( int );
     int			hasAuto ( int );
     int			isAuto ( int );
@@ -74,7 +75,6 @@ class Camera : public QObject
     int			hasFrameRateSupport ( void );
     int			isColour ( void );
     int			isInitialised ( void );
-    int			isSingleShot ( void );
     int			pixelSizeX ( void );
     int			pixelSizeY ( void );
     int			frameSizeUnknown ( void );

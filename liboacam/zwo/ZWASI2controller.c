@@ -2,7 +2,8 @@
  *
  * ZWASIcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2017,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -851,6 +852,7 @@ _timerCallback ( void* param )
 	int									ret, buffersFree, nextBuffer;
 	ASI_EXPOSURE_STATUS	status;
 
+retry:
 	if (( ret = p_ASIGetExpStatus ( cameraInfo->cameraId, &status )) < 0 ) {
 		fprintf ( stderr, "ASIGetExpStatus failed, error %d\n", ret );
 		pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
@@ -860,6 +862,11 @@ _timerCallback ( void* param )
 	}
 
 	if ( status != ASI_EXP_SUCCESS ) {
+		if ( status == ASI_EXP_WORKING ) {
+			// FIX ME -- busy waiting here is pretty ugly :(
+			usleep(100000);
+			goto retry;
+		}
 		fprintf ( stderr, "ASIGetExpStatus returned status %d\n", status );
 		pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
 		cameraInfo->exposureInProgress = 0;

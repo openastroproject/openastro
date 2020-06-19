@@ -2,7 +2,7 @@
  *
  * camera.cc -- camera interface class
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -770,7 +770,7 @@ Camera::exposureTimeLeft ( void )
 
 
 int
-Camera::isSingleShot ( void )
+Camera::hasSingleShot ( void )
 {
   if ( !initialised ) {
     qWarning() << __FUNCTION__ << " called with camera uninitialised";

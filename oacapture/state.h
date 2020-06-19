@@ -60,6 +60,7 @@ typedef struct
   unsigned long		autorunStartNext;
   int			pauseEnabled;
   int			captureWasPaused;
+	int			singleShotMode;
 
   QString		lastRecordedFile;
   QString		currentDirectory;

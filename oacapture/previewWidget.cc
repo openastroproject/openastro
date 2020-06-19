@@ -837,6 +837,10 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
     }
   }
 
+	if ( state->singleShotMode ) {
+		commonState->camera->startExposure ( self->updatePreview, commonState );
+	}
+
   if ( state->autorunEnabled && state->autorunStartNext &&
       now > state->autorunStartNext ) {
     state->autorunStartNext = 0;

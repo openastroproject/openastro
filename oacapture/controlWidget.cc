@@ -301,6 +301,8 @@ ControlWidget::ControlWidget ( QWidget* parent ) : QGroupBox ( parent )
 
   ignoreFrameRateChanges = ignoreSelectableControlChanges =
       ignoreIntervalChanges = ignoreExposureChanges = 0;
+
+	configureComplete = 0;
 }
 
 
@@ -315,6 +317,8 @@ ControlWidget::configure ( void )
 {
   int64_t	min, max, step, def;
   int		minOption, maxOption, readableControls;
+
+	configureComplete = 0;
 
 	// There's a side-effect here in that hasReadableControls() returns 0
 	// if the camera is not initialised, so we can test this and rely on not
@@ -954,6 +958,8 @@ ControlWidget::configure ( void )
       theoreticalFPS = 1;
     }
   }
+
+	configureComplete = 1;
 }
 
 
@@ -1135,6 +1141,34 @@ ControlWidget::updateExposure ( int value )
     if ( value ) {
       state.cameraWidget->showFPSMaxValue ( 1000000 / usecValue );
     }
+
+		if ( configureComplete ) {
+			// if the camera supports single shot mode and the exposure time is
+			// greater than one second and the current mode is streaming, switch
+			// to single shot mode.  If the exposure time is less than one second and
+			// the current mode is single shot, switch to streaming.
+
+			if ( commonState.camera->hasSingleShot()) {
+				if ( usecValue >= 1000000 ) {
+					if ( !state.singleShotMode ) {
+						commonState.camera->stop();
+						state.singleShotMode = 1;
+						commonState.camera->startExposure ( &PreviewWidget::updatePreview,
+								&commonState );
+					}
+				} else {
+					if ( state.singleShotMode ) {
+						if ( usecValue < 1000000 ) {
+							commonState.camera->stop();
+							state.singleShotMode = 0;
+							commonState.camera->startStreaming (
+									&PreviewWidget::updatePreview, &commonState );
+						}
+					}
+				}
+			}
+		}
+
     cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = value;
     SET_PROFILE_CONTROL( OA_CAM_CTRL_EXPOSURE_ABSOLUTE, value );
     // convert value back to microseconds from milliseconds
