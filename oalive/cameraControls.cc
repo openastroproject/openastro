@@ -310,7 +310,7 @@ CameraControls::configure ( void )
 
 							labelText[0] = '\0';
 							if ( oaCameraControlModifierPrefix[ mod ] ) {
-								strncpy ( labelText, oaCameraControlModifierPrefix[ mod ], 64 );
+								strncpy ( labelText, oaCameraControlModifierPrefix[ mod ], 63 );
 								strncat ( labelText, " ", 63 );
 							}
 							strncat ( labelText, oaCameraControlLabel[baseVal], 63 );
@@ -359,7 +359,7 @@ CameraControls::configure ( void )
 
 							labelText[0] = '\0';
 							if ( oaCameraControlModifierPrefix[ mod ] ) {
-								strncpy ( labelText, oaCameraControlModifierPrefix[ mod ], 64 );
+								strncpy ( labelText, oaCameraControlModifierPrefix[ mod ], 63 );
 								strncat ( labelText, " ", 63 );
 							}
 							strncat ( labelText, oaCameraControlLabel[baseVal], 63 );
