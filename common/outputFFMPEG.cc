@@ -55,7 +55,9 @@ OutputFFMPEG::OutputFFMPEG ( int x, int y, int n, int d, int fmt,
     OutputHandler ( x, y, n, d, fileTemplate, trampolines )
 {
   if ( !libavStarted ) {
+#ifdef FFMPEGV3
     av_register_all();
+#endif
     av_log_set_level ( AV_LOG_QUIET );
     // av_log_set_level ( AV_LOG_INFO );
     libavStarted = 1;
@@ -221,8 +223,12 @@ OutputFFMPEG::openOutput ( void )
 
   formatContext->oformat = outputFormat;
 
+#if FFMPEGV3
   snprintf ( formatContext->filename, sizeof ( formatContext->filename ),
     "%s", fullSaveFilePath.toStdString().c_str());
+#else
+  formatContext->url = av_strdup ( fullSaveFilePath.toStdString().c_str());
+#endif
 
   // av_log_set_level ( AV_LOG_DEBUG );
 

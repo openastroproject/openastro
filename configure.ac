@@ -359,6 +359,9 @@ fi
 if `$PKG_CONFIG --exists 'libavformat >= 57.0.0'`; then
   flags=`$PKG_CONFIG --cflags-only-I libavformat`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
+  if `$PKG_CONFIG --exists 'libavformat < 58.0.0'`; then
+    flags="$flags -DFFMPEGV3"
+  fi
   if test $useisystemInclude -eq 1; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
