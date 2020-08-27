@@ -249,7 +249,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   int i, status = 0;
   fitsfile* fptr;
   void* outputBuffer = frame;
-  char stringBuff[FLEN_VALUE+1];
+  char stringBuff[FLEN_VALUE+2];
   float pixelSize = 0;
   int xorg, yorg;
   // Hack to get around older versions of library using char* rather
