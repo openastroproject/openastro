@@ -161,7 +161,12 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  // FIX ME -- check for streaming?  V4L2_CAP_STREAMING
+  if (!( cap.capabilities & V4L2_CAP_STREAMING )) {
+		fprintf ( stderr, "%s does not support streaming",
+				camera->deviceName );
+	} else {
+		camera->features.flags |= OA_CAM_FEATURE_STREAMING;
+	}
 
   // And now what controls the device supports
 
@@ -1326,7 +1331,6 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   cameraInfo->currentV4L2Format = 0;
 
   camera->features.flags |= OA_CAM_FEATURE_RESET;
-  camera->features.flags |= OA_CAM_FEATURE_STREAMING;
   if ( cameraInfo->isSPC900 ) {
     camera->features.pixelSizeX = 5600;
     camera->features.pixelSizeY = 5600;
