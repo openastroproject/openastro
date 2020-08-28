@@ -2,7 +2,7 @@
  *
  * V4L2.h -- header for cameras using the V4L2 interface
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -30,5 +30,7 @@
 #define DEF_EXPOSURE_MODE       V4L2_EXPOSURE_AUTO
 
 #define	V4L2_MAX_MENU_ITEM_LENGTH	32
+
+extern int	_getExtendedControl ( int, int, oaControlValue* );
 
 #endif	/* OA_V4L2_H */

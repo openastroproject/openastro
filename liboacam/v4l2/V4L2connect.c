@@ -730,6 +730,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               ctrl.default_value
               * 100;
+
+					// Now get the actual setting of this value to use for the
+					// currentAbsoluteExposure setting
+
+					oaControlValue		val;
+					val.valueType = OA_CTRL_TYPE_INT32;
+					getExtendedControl ( cameraInfo->fd, V4L2_CID_EXPOSURE_ABSOLUTE,
+							&val );
+					cameraInfo->currentAbsoluteExposure = val.int32;
+
         } else {
           if ( ctrl.type ) {
             fprintf ( stderr, "absolute exposure is not INTEGER (%d)\n",
