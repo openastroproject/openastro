@@ -38,8 +38,12 @@
 #if HAVE_LIMITS_H
 #include <limits.h>
 #endif
+#if HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
 #include <dirent.h>
 #include <ctype.h>
+#include <linux/videodev2.h>
 #include <libv4l2.h>
 
 #include "unimplemented.h"
@@ -55,16 +59,19 @@ int
 oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 		int flags )
 {
-  DIR*			dirp;
-  struct dirent*	entry;
-  char			nameFile[ PATH_MAX+1 ];
-  char			sysPath[ PATH_MAX+1 ];
-  FILE*			fp;
-  char			name[ OA_MAX_NAME_LEN+1 ];
-  unsigned int		numFound = 0, index;
-  int			ret;
-  oaCameraDevice*       dev;
-  DEVICE_INFO*		_private;
+  DIR*											dirp;
+  struct dirent*						entry;
+  char											nameFile[ PATH_MAX+1 ];
+  char											sysPath[ PATH_MAX+1 ];
+  char											devicePath[ PATH_MAX+1 ];
+  FILE*											fp;
+  char											name[ OA_MAX_NAME_LEN+1 ];
+  unsigned int							numFound = 0, index;
+  int												ret;
+  int												fd;
+  oaCameraDevice*					  dev;
+  DEVICE_INFO*							_private;
+	struct v4l2_capability		cap;
 
   if ( access ( SYS_V4L_PATH, X_OK )) {
     return 0;
@@ -95,9 +102,36 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         fclose ( fp );
         return -OA_ERR_SYSTEM_ERROR;
       }
-      // remove terminating LF
       fclose ( fp );
+      // remove terminating LF
       name[ strlen ( name ) - 1] = 0;
+
+			// path name for device is /dev/video<index>
+			( void ) snprintf ( devicePath, PATH_MAX, "/dev/video%d", index );
+			if (( fd = v4l2_open ( devicePath, O_RDWR | O_NONBLOCK, 0 )) < 0 ) {
+				fprintf ( stderr, "%s: cannot open video device '%s'\n", __FUNCTION__,
+						devicePath );
+				// carry on through the list of device we've found
+				continue;
+			}
+
+			// Now get the capabilites and make sure this is a capture device
+
+			OA_CLEAR ( cap );
+			if ( -1 == v4l2_ioctl ( fd, VIDIOC_QUERYCAP, &cap )) {
+				if ( EINVAL == errno ) {
+					fprintf ( stderr, "%s is not a V4L2 device\n", devicePath );
+				} else {
+					perror ( "VIDIOC_QUERYCAP" );
+				}
+				v4l2_close ( fd );
+				continue;
+			}
+			v4l2_close ( fd );
+
+			if (!( cap.capabilities & V4L2_CAP_VIDEO_CAPTURE )) {
+				continue;
+			}
 
       // now we can drop the data into the list
       if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
