@@ -1659,8 +1659,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
   OA_CLEAR ( format );
   format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  format.fmt.pix.width = 1;
-  format.fmt.pix.height = 1;
+  format.fmt.pix.width = 640;
+  format.fmt.pix.height = 480;
   format.fmt.pix.pixelformat = cameraInfo->currentV4L2Format;
   format.fmt.pix.field = V4L2_FIELD_NONE;
   if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_S_FMT, &format )) {
