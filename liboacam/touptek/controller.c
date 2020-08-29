@@ -2,7 +2,7 @@
  *
  * controller.c -- Main camera controller thread
  *
- * Copyright 2019
+ * Copyright 2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:

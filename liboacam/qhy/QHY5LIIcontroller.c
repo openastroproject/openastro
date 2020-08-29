@@ -2,7 +2,8 @@
  *
  * QHY5LIIcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2017,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *

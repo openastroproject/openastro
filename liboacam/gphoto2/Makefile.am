@@ -1,7 +1,7 @@
 #
 # Makefile.am -- liboacam gphoto2 Makefile template
 #
-# Copyright 2019 James Fidell (james@openastroproject.org)
+# Copyright 2019,2020 James Fidell (james@openastroproject.org)
 #
 # License:
 #
