@@ -1158,7 +1158,6 @@ _doStart ( V4L2_STATE* cameraInfo )
   struct v4l2_format		fmt;
   struct v4l2_buffer		buf;
   struct v4l2_requestbuffers	req;
-  struct v4l2_streamparm	parm;
   enum v4l2_buf_type		type;
   unsigned int			m, n;
 
@@ -1188,32 +1187,6 @@ _doStart ( V4L2_STATE* cameraInfo )
         cameraInfo->xSize, cameraInfo->ySize, fmt.fmt.pix.width,
         fmt.fmt.pix.height );
     return -OA_ERR_OUT_OF_RANGE;
-  }
-
-  OA_CLEAR( parm );
-  parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_G_PARM, &parm )) {
-    if ( errno != EINVAL ) {
-      perror ( "VIDIOC_G_PARM v4l2ioctl failed" );
-      return -OA_ERR_CAMERA_IO;
-    }
-  }
-
-  // FIX ME -- changing frameRates here may have unpleasant knock-on
-  // effects
-
-  if ( V4L2_CAP_TIMEPERFRAME == parm.parm.capture.capability ) {
-    OA_CLEAR( parm );
-    parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    parm.parm.capture.capability = V4L2_CAP_TIMEPERFRAME;
-    parm.parm.capture.timeperframe.numerator = cameraInfo->frameRateNumerator;
-    parm.parm.capture.timeperframe.denominator =
-        cameraInfo->frameRateDenominator;
-//  camera->features.hasFrameRates = 1;
-    if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_S_PARM, &parm )) {
-      perror ( "VIDIOC_S_PARM v4l2ioctl failed" );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
   }
 
   OA_CLEAR( req );

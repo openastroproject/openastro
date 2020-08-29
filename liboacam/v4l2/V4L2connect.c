@@ -75,7 +75,6 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   struct v4l2_fmtdesc		formatDesc;
   struct v4l2_format		format;
   struct v4l2_frmsizeenum	fsize;
-  struct v4l2_streamparm        parm;
   DEVICE_INFO*			devInfo;
   V4L2_STATE*			cameraInfo;
   COMMON_INFO*			commonInfo;
@@ -1744,33 +1743,6 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   }
   cameraInfo->frameSizes[1].numSizes = j;
 
-  OA_CLEAR( parm );
-  parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_G_PARM, &parm )) {
-    if ( errno != EINVAL ) {
-      perror ( "VIDIOC_G_PARM v4l2ioctl failed" );
-      v4l2_close ( cameraInfo->fd );
-      free (( void* ) cameraInfo->frameSizes[1].sizes );
-      FREE_DATA_STRUCTS;
-      return 0;
-    }
-  }
-  if ( V4L2_CAP_TIMEPERFRAME == parm.parm.capture.capability ) {
-    OA_CLEAR( parm );
-    parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    parm.parm.capture.capability = V4L2_CAP_TIMEPERFRAME;
-    parm.parm.capture.timeperframe.numerator = 1;
-    parm.parm.capture.timeperframe.denominator = 1;
-		camera->features.flags |= OA_CAM_FEATURE_FRAME_RATES;
-    if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_S_PARM, &parm )) {
-      perror ( "VIDIOC_S_PARM v4l2ioctl failed" );
-      v4l2_close ( cameraInfo->fd );
-      free (( void* ) cameraInfo->frameSizes[1].sizes );
-      FREE_DATA_STRUCTS;
-      return 0;
-    }
-  }
-
   cameraInfo->stopControllerThread = cameraInfo->stopCallbackThread = 0;
   cameraInfo->commandQueue = oaDLListCreate();
   cameraInfo->callbackQueue = oaDLListCreate();
@@ -1850,9 +1822,6 @@ oaV4L2CloseCamera ( oaCamera* camera )
 
     if ( cameraInfo->fd >= 0 ) {
       v4l2_close ( cameraInfo->fd );
-    }
-    if ( cameraInfo->frameRates.numRates ) {
-     free (( void* ) cameraInfo->frameRates.rates );
     }
     if ( cameraInfo->frameSizes[1].numSizes ) {
       free (( void* ) cameraInfo->frameSizes[1].sizes );
