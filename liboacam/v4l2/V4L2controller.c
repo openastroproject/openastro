@@ -2,7 +2,7 @@
  *
  * V4L2controller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2017,2018,2019
+ * Copyright 2015,2016,2017,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -58,7 +58,6 @@ static int	_processGetMenuItem ( V4L2_STATE*, OA_COMMAND* );
 static int	_setUserControl ( int, int, int );
 static int	_getUserControl ( int, int );
 static int	_setExtendedControl ( int, int, oaControlValue* );
-static int	_getExtendedControl ( int, int, oaControlValue* );
 static int	_doCameraConfig ( V4L2_STATE*, OA_COMMAND* );
 static int	_doStart ( V4L2_STATE* );
 

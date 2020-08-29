@@ -736,7 +736,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
 					oaControlValue		val;
 					val.valueType = OA_CTRL_TYPE_INT32;
-					getExtendedControl ( cameraInfo->fd, V4L2_CID_EXPOSURE_ABSOLUTE,
+					_getExtendedControl ( cameraInfo->fd, V4L2_CID_EXPOSURE_ABSOLUTE,
 							&val );
 					cameraInfo->currentAbsoluteExposure = val.int32;
 
