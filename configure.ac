@@ -28,8 +28,8 @@ AC_PROG_LIBTOOL
 
 AC_CHECK_PROGS(MOC, [moc moc-qt5 moc-qt4])
 AC_CHECK_PROGS(UIC, [uic uic-qt5 uic-qt4])
-AC_CHECK_PROGS(RCC, [rcc])
-AC_CHECK_PROGS(LCONVERT, [lconvert])
+AC_CHECK_PROGS(RCC, [rcc rcc-qt5])
+AC_CHECK_PROGS(LCONVERT, [lconvert lconvert-qt5])
 if test -z "$MOC" || test -z "$UIC" || test -z "$RCC" || test -z "$LCONVERT"
 then
 AC_MSG_ERROR([Qt utility programs moc, uic, rcc and lconvert are required.])
