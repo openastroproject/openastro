@@ -1023,6 +1023,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 #endif
 
 
+			case V4L2_CID_EXPOSURE_AUTO_PRIORITY:
       case V4L2_CID_BAND_STOP_FILTER:
 #ifdef V4L2_CID_AUTO_EXPOSURE_PRIORITY
       case V4L2_CID_AUTO_EXPOSURE_PRIORITY:
