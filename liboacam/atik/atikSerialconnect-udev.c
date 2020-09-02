@@ -2,7 +2,7 @@
  *
  * atikSerialconnect-udev.c -- Initialise Atik serial cameras via udev
  *
- * Copyright 2014,2015,2016,2018,2019
+ * Copyright 2014,2015,2016,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -474,7 +474,7 @@ oaAtikSerialCloseCamera ( oaCamera* camera )
     close ( cameraInfo->fd );
 
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
-    oaDLListDelete ( cameraInfo->callbackQueue, 1 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 0 );
 
     free (( void* ) cameraInfo->frameSizes[1].sizes );
 

@@ -2,7 +2,7 @@
  *
  * GP2connect.c -- Initialise libgphoto2 cameras
  *
- * Copyright 2019
+ * Copyright 2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -1017,7 +1017,7 @@ oaGP2CloseCamera ( oaCamera* camera )
     }
 
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
-    oaDLListDelete ( cameraInfo->callbackQueue, 1 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 0 );
 
     free (( void* ) cameraInfo->buffers );
     free (( void* ) cameraInfo );

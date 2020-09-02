@@ -2,7 +2,7 @@
  *
  * qhyccdconnect.c -- Initialise cameras supported by libqhyccd
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -498,7 +498,7 @@ oaQHYCCDCloseCamera ( oaCamera* camera )
     ( p_CloseQHYCCD ) ( cameraInfo->handle );
 
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
-    oaDLListDelete ( cameraInfo->callbackQueue, 1 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 0 );
 
     p_ReleaseQHYCCDResource();
 

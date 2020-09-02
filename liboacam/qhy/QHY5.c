@@ -2,7 +2,7 @@
  *
  * QHY5.c -- QHY5 camera interface
  *
- * Copyright 2013,2014,2015,2017,2018,2019
+ * Copyright 2013,2014,2015,2017,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -286,7 +286,7 @@ oaQHY5CloseCamera ( oaCamera* camera )
     free (( void* ) cameraInfo->frameSizes[1].sizes );
 
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
-    oaDLListDelete ( cameraInfo->callbackQueue, 1 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 0 );
 
     free (( void* ) cameraInfo->xferBuffer );
     free (( void* ) cameraInfo->buffers );

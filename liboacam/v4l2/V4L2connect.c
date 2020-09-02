@@ -1828,7 +1828,7 @@ oaV4L2CloseCamera ( oaCamera* camera )
     }
 
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
-    oaDLListDelete ( cameraInfo->callbackQueue, 1 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 0 );
 
     free (( void* ) camera->_common );
     free (( void* ) cameraInfo );

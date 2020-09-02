@@ -2,7 +2,7 @@
  *
  * atikSerialconnect-ftdi.c -- Initialise Atik serial cameras using libftdi1
  *
- * Copyright 2014,2015,2016,2017,2018,2019
+ * Copyright 2014,2015,2016,2017,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -555,7 +555,7 @@ oaAtikSerialCloseCamera ( oaCamera* camera )
     ftdi_free ( cameraInfo->ftdiContext );
 
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
-    oaDLListDelete ( cameraInfo->callbackQueue, 1 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 0 );
 
     free (( void* ) cameraInfo->frameSizes[1].sizes );
 

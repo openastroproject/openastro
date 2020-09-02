@@ -2,7 +2,7 @@
  *
  * dummyconnect.c -- Initialise dummy cameras
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -215,7 +215,7 @@ oaDummyCloseCamera ( oaCamera* camera )
     }
 
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
-    oaDLListDelete ( cameraInfo->callbackQueue, 1 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 0 );
 
     free (( void* ) cameraInfo->buffers );
     free (( void* ) cameraInfo );

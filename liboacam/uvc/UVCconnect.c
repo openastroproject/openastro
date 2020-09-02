@@ -2,7 +2,7 @@
  *
  * UVCconnect.c -- Initialise UVC cameras
  *
- * Copyright 2014,2015,2016,2017,2018,2019
+ * Copyright 2014,2015,2016,2017,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -1294,7 +1294,7 @@ oaUVCCloseCamera ( oaCamera* camera )
     free (( void* ) cameraInfo->frameSizes[1].sizes );
 
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
-    oaDLListDelete ( cameraInfo->callbackQueue, 1 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 0 );
 
     free (( void* ) cameraInfo->buffers );
     free (( void* ) cameraInfo );

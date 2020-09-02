@@ -134,7 +134,7 @@ PreviewWidget::updatePreviewSize ( void )
   recalculateDimensions ( zoomFactor );
   expectedSize = commonConfig.imageSizeX * commonConfig.imageSizeY *
       oaFrameFormats[ videoFramePixelFormat ].bytesPerPixel;
-  int newBufferLength = commonConfig.imageSizeX * commonConfig.imageSizeY * 3;
+  int newBufferLength = commonConfig.imageSizeX * commonConfig.imageSizeY * 6;
   if ( newBufferLength > previewBufferLength ) {
     if (!( previewImageBuffer[0] = realloc ( previewImageBuffer[0],
         newBufferLength ))) {
@@ -450,11 +450,16 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
   char			commentStr[64];
   char*			comment;
 
-  // don't do anything if the length is not as expected
+  // don't do anything if the length is less than expected.  If the frame
+  // is longer than expected, just truncate it
   if ( length != self->expectedSize ) {
     //qWarning() << "size mismatch.  have:" << length << " expected: "
 		//		<< self->expectedSize;
-    return 0;
+    if ( length > self->expectedSize ) {
+      length = self->expectedSize;
+    } else {
+      return 0;
+    }
   }
 
   // assign the temporary buffers for image transforms if they

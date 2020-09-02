@@ -2,7 +2,7 @@
  *
  * FC2connect.c -- Initialise Point Grey Gig-E cameras
  *
- * Copyright 2015,2016,2017,2018,2019
+ * Copyright 2015,2016,2017,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -1518,7 +1518,7 @@ oaFC2CloseCamera ( oaCamera* camera )
 		}
 
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
-    oaDLListDelete ( cameraInfo->callbackQueue, 1 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 0 );
 
     free (( void* ) cameraInfo->metadataBuffers );
 		free (( void* ) cameraInfo->buffers );

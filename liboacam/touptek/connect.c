@@ -2,7 +2,7 @@
  *
  * connect.c -- Initialise Touptek-based cameras
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -817,7 +817,7 @@ TT_FUNC( oa, CloseCamera )( oaCamera* camera )
     ( TT_LIB_PTR( Close )) ( cameraInfo->handle );
 
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
-    oaDLListDelete ( cameraInfo->callbackQueue, 1 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 0 );
 
     for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
       free (( void* ) cameraInfo->buffers[j].start );

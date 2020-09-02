@@ -2,7 +2,7 @@
  *
  * IIDCconnect.c -- Initialise IEEE1394/IIDC cameras
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -1085,7 +1085,7 @@ oaIIDCCloseCamera ( oaCamera* camera )
     free (( void* ) cameraInfo->frameSizes[1].sizes );
 
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
-    oaDLListDelete ( cameraInfo->callbackQueue, 1 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 0 );
 
     free (( void* ) camera->_common );
     free (( void* ) cameraInfo );

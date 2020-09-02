@@ -2,7 +2,7 @@
  *
  * IMG132E.c -- IMG132E camera interface
  *
- * Copyright 2017,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2017,2018,2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -292,7 +292,7 @@ oaIMG132ECloseCamera ( oaCamera* camera )
     free (( void* ) cameraInfo->frameSizes[1].sizes );
 
     oaDLListDelete ( cameraInfo->commandQueue, 1 );
-    oaDLListDelete ( cameraInfo->callbackQueue, 1 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 0 );
 
     free (( void* ) cameraInfo->buffers );
     free (( void* ) cameraInfo );
