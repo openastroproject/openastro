@@ -442,6 +442,7 @@ fi
 if test $use_system_ffmpeg = "no"
 then
   AC_DEFINE([INTERNAL_FFMPEG],[1],[Using internal FFmpeg libraries])
+  AC_DEFINE([FFMPEGV3],[1],[FFmpeg is V3])
 fi
 
 use_system_libusb=no
