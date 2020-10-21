@@ -2,7 +2,7 @@
  *
  * mainWindow.h -- class declaration
  *
- * Copyright 2015,2016,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018,2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -139,6 +139,7 @@ class MainWindow : public QMainWindow
     QSignalMapper*	advancedFilterWheelSignalMapper;
     QAction*		reticle;
     QAction*		focusaid;
+    QAction*		spinner;
     QAction*		derotate;
     QAction*		general;
     QAction*		capture;
@@ -176,7 +177,7 @@ class MainWindow : public QMainWindow
 */
     QColorDialog*	colourDialog;
 
-		WaitingSpinnerWidget*	spinner;
+		WaitingSpinnerWidget*	waitSpinner;
 
   public slots:
     void		connectCamera( int );
@@ -190,6 +191,7 @@ class MainWindow : public QMainWindow
     void		quit ( void );
     void		enableReticle ( void );
     void		enableFocusAid ( void );
+    void		enableSpinner ( void );
     void		aboutDialog ( void );
     void		doGeneralSettings ( void );
     void		doCaptureSettings ( void );

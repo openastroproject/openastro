@@ -50,6 +50,7 @@ typedef struct
   int			showHistogram;
   int			showReticle;
   int			showFocusAid;
+  int			showSpinner;
   int			derotate;
   int			flipX;
   int			flipY;

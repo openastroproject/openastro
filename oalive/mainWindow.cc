@@ -233,8 +233,8 @@ MainWindow::MainWindow ( QString configFile )
 	timeRemainingTimer->start ( 1000 );
 	droppedFrameTimer->start ( 5000 );
 
-	spinner = new WaitingSpinnerWidget ( this, true, false );
-	spinner->setColor ( QColor ( 200, 200, 200 ));
+	waitSpinner = new WaitingSpinnerWidget ( this, true, false );
+	waitSpinner->setColor ( QColor ( 200, 200, 200 ));
 	connect ( state.viewWidget, SIGNAL( enableSpinner ( int )), this,
 			SLOT ( showSpinner ( int )));
 }
@@ -335,7 +335,7 @@ MainWindow::~MainWindow()
 	//delete autoControlsTimer;
 	delete timeRemainingTimer;
 
-	delete spinner;
+	delete waitSpinner;
 }
 
 
@@ -400,6 +400,9 @@ MainWindow::readConfig ( QString configFile )
 #endif
     config.showReticle = 0;
     config.showFocusAid = 0;
+#ifdef OALIVE
+    config.showSpinner = 0;
+#endif
 
     commonConfig.binning2x2 = 0;
     commonConfig.colourise = 0;
@@ -531,6 +534,9 @@ MainWindow::readConfig ( QString configFile )
 #endif
     config.showReticle = settings->value ( "options/showReticle", 0 ).toInt();
     config.showFocusAid = settings->value ( "options/showFocusAid", 0 ).toInt();
+#ifdef OALIVE
+    config.showSpinner = settings->value ( "options/showSpinner", 0 ).toInt();
+#endif
 #ifdef OACAPTURE
     config.cutout = settings->value ( "options/cutout", 0 ).toInt();
     config.darkFrame = settings->value ( "options/darkFrame", 0 ).toInt();
@@ -1107,6 +1113,9 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "options/showReticle", config.showReticle );
   settings->setValue ( "options/showFocusAid", config.showFocusAid );
   settings->setValue ( "options/demosaic", config.demosaic );
+#ifdef OALIVE
+  settings->setValue ( "options/showSpinner", config.showSpinner );
+#endif
 
   settings->setValue ( "camera/binning2x2", commonConfig.binning2x2 );
   settings->setValue ( "camera/colourise", commonConfig.colourise );
@@ -1518,6 +1527,15 @@ MainWindow::createMenus ( void )
   reticle->setCheckable ( true );
   connect ( reticle, SIGNAL( changed()), this, SLOT( enableReticle()));
   reticle->setChecked ( config.showReticle );
+
+#ifdef OALIVE
+  spinner = new QAction ( /* QIcon ( ":/qt-icons/spinner.png" ), */
+      tr ( "Spinner" ), this );
+  spinner->setStatusTip ( tr ( "Show spinner when processing images" ));
+  spinner->setCheckable ( true );
+  connect ( spinner, SIGNAL( changed()), this, SLOT( enableSpinner()));
+  spinner->setChecked ( config.showSpinner );
+#endif
 
 #ifdef OACAPTURE
   cutout = new QAction ( tr ( "Cut Out" ), this );
@@ -2280,6 +2298,13 @@ void
 MainWindow::enableReticle ( void )
 {
   config.showReticle = reticle->isChecked() ? 1 : 0;
+}
+
+
+void
+MainWindow::enableSpinner ( void )
+{
+  config.showSpinner = spinner->isChecked() ? 1 : 0;
 }
 
 
@@ -3309,8 +3334,8 @@ void
 MainWindow::showSpinner ( int enable )
 {
 	if ( enable ) {
-		spinner->start();
+		waitSpinner->start();
 	} else {
-		spinner->stop();
+		waitSpinner->stop();
 	}
 }
