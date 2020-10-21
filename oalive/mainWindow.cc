@@ -401,7 +401,7 @@ MainWindow::readConfig ( QString configFile )
     config.showReticle = 0;
     config.showFocusAid = 0;
 #ifdef OALIVE
-    config.showSpinner = 0;
+    config.showSpinner = 1;
 #endif
 
     commonConfig.binning2x2 = 0;
@@ -1593,6 +1593,9 @@ MainWindow::createMenus ( void )
 #endif
 #endif
   optionsMenu->addAction ( focusaid );
+#if OALIVE
+  optionsMenu->addAction ( spinner );
+#endif
 #ifdef OACAPTURE
 #ifdef ENABLE_DARKFRAME
   optionsMenu->addAction ( darkframe );
@@ -2305,6 +2308,9 @@ void
 MainWindow::enableSpinner ( void )
 {
   config.showSpinner = spinner->isChecked() ? 1 : 0;
+	if ( !config.showSpinner ) {
+		waitSpinner->stop();
+	}
 }
 
 
@@ -3334,7 +3340,9 @@ void
 MainWindow::showSpinner ( int enable )
 {
 	if ( enable ) {
-		waitSpinner->start();
+		if ( config.showSpinner ) {
+			waitSpinner->start();
+		}
 	} else {
 		waitSpinner->stop();
 	}
