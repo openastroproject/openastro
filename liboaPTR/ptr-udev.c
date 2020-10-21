@@ -2,7 +2,8 @@
  *
  * ptr-udev.c -- Find PTR devices using (Linux) udev
  *
- * Copyright 2015,2017,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -103,7 +104,8 @@ oaPTREnumerate ( PTR_LIST* deviceList )
 #ifdef PTRV1
       if ( !strcmp ( "04d8", vid ) && !strcmp ( "00df", pid )) {
 #else
-      if ( !strcmp ( "04b4", vid ) && !strcmp ( "0003", pid )) {
+      if ( !strcmp ( "04b4", vid ) && !strcmp ( "0003", pid ) &&
+					!strncmp ( "98765413000102", serialNo, 14 )) {
 #endif
         havePTR = 1;
       }
