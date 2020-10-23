@@ -2,7 +2,7 @@
  *
  * stackMaximum.c -- maximum stacking method
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -69,7 +69,7 @@ oaStackMaximum16LE ( void** frameArray, unsigned int numFrames, void* target,
 				max = v;
 			}
 		}
-		*tgt++ = max && 0xff;
+		*tgt++ = max & 0xff;
 		*tgt++ = max >> 8;
 	}
 
@@ -97,7 +97,7 @@ oaStackMaximum16BE ( void** frameArray, unsigned int numFrames, void* target,
 			}
 		}
 		*tgt++ = max >> 8;
-		*tgt++ = max && 0xff;
+		*tgt++ = max & 0xff;
 	}
 
   return 0;

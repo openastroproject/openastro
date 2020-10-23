@@ -2,7 +2,7 @@
  *
  * stackSum.c -- sum stacking method
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -63,7 +63,7 @@ oaStackSum16LE ( void** frameArray, unsigned int numFrames, void* target,
 		for ( j = 0; j < numFrames; j++ ) {
 			v += frames[j][i] + ( frames[j][i+1] << 8 );
 		}
-		*tgt++ = v && 0xff;
+		*tgt++ = v & 0xff;
 		*tgt++ = v >> 8;
 	}
 
@@ -86,7 +86,7 @@ oaStackSum16BE ( void** frameArray, unsigned int numFrames, void* target,
 			v += frames[j][i+1] + ( frames[j][i] << 8 );
 		}
 		*tgt++ = v >> 8;
-		*tgt++ = v && 0xff;
+		*tgt++ = v & 0xff;
 	}
 
   return 0;

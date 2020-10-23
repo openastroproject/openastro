@@ -2,7 +2,7 @@
  *
  * stackKappaSigma.c -- kappa sigma stacking method
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -112,7 +112,7 @@ oaStackKappaSigma16LE ( void** frameArray, unsigned int numFrames, void* target,
 		}
 		if ( numSamples ) {
 			uint16_t	v = finalMean / numSamples;
-			*tgt++ = v && 0xff;
+			*tgt++ = v & 0xff;
 			*tgt++ = v >> 8;
 		} else {
 			fprintf ( stderr, "no samples are between %f and %f\n", min, max );
@@ -162,7 +162,7 @@ oaStackKappaSigma16BE ( void** frameArray, unsigned int numFrames, void* target,
 		if ( numSamples ) {
 			uint16_t	v = finalMean / numSamples;
 			*tgt++ = v >> 8;
-			*tgt++ = v && 0xff;
+			*tgt++ = v & 0xff;
 		} else {
 			fprintf ( stderr, "no samples are between %f and %f\n", min, max );
 			*tgt++ = 0;
