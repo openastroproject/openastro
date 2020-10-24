@@ -43,8 +43,8 @@
 #include "demosaicSettings.h"
 
 
-SettingsWidget::SettingsWidget ( QWidget* parent, QWidget* topWidget,
-		QString appName, unsigned int settings, int videoFormats, int demosaicOpts,
+SettingsWidget::SettingsWidget ( QWidget* parent, QString appName,
+		unsigned int settings, int videoFormats, int demosaicOpts,
 		trampolineFuncs* trampolines )
 {
 	applicationName = appName;
@@ -73,7 +73,7 @@ SettingsWidget::SettingsWidget ( QWidget* parent, QWidget* topWidget,
         QIcon ( ":/qt-icons/capture.png" ), tr ( "Capture" ));
 	}
 	if ( reqdWindows & SETTINGS_CAMERA ) {
-    cameras = new CameraSettings ( this, topWidget, trampolines );
+    cameras = new CameraSettings ( this, trampolines );
     commonState.cameraSettingsIndex = tabSet->addTab ( cameras,
         QIcon ( ":/qt-icons/planetary-camera.png" ), tr ( "Camera" ));
 	}

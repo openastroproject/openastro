@@ -2,7 +2,7 @@
  *
  * cameraSettings.h -- class declaration
  *
- * Copyright 2014,2015,2016,2018
+ * Copyright 2014,2015,2016,2018,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -56,7 +56,7 @@ class CameraSettings : public QWidget
   Q_OBJECT
 
   public:
-    			CameraSettings ( QWidget*, QWidget*, trampolineFuncs* );
+    			CameraSettings ( QWidget*, trampolineFuncs* );
     			~CameraSettings();
     void		configure ( void );
     void		storeSettings ( void );
@@ -95,7 +95,7 @@ class CameraSettings : public QWidget
     QCheckBox*		forceFrameFormat;
     QComboBox*		selectedFrameFormat;
     QHBoxLayout*	frameHBoxLayout;
-		QWidget*					topWidget;
+		QWidget*			parentWidget;
 		trampolineFuncs*	trampolines;
 
   public slots:

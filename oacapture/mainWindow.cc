@@ -2308,8 +2308,8 @@ void
 MainWindow::createSettingsWidget ( void )
 {
   if ( !state.settingsWidget ) {
-    state.settingsWidget = new SettingsWidget ( this, TOP_WIDGET,
-				APPLICATION_NAME, OACAPTURE_SETTINGS, 1, 1, &trampolines );
+    state.settingsWidget = new SettingsWidget ( this, APPLICATION_NAME,
+			OACAPTURE_SETTINGS, 1, 1, &trampolines );
     state.settingsWidget->setWindowFlags ( Qt::WindowStaysOnTopHint );
     state.settingsWidget->setAttribute ( Qt::WA_DeleteOnClose );
     state.settingsWidget->enableTab ( commonState.cameraSettingsIndex,

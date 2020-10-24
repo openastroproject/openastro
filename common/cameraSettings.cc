@@ -48,9 +48,8 @@ extern "C" {
 #define UNHANDLED_PER_ROW	6
 
 
-CameraSettings::CameraSettings ( QWidget* parent, QWidget* top,
-		trampolineFuncs* redirs ) :
-		QWidget ( parent ), topWidget ( top ), trampolines ( redirs )
+CameraSettings::CameraSettings ( QWidget* parent, trampolineFuncs* redirs ) :
+		QWidget ( parent ), parentWidget ( parent ), trampolines ( redirs )
 {
   layout = 0;
   sliderSignalMapper = 0;
@@ -706,7 +705,7 @@ CameraSettings::buttonPushed ( int control )
         }
       }
 
-      QMessageBox::warning ( topWidget, tr ( "Restore Settings" ),
+      QMessageBox::warning ( parentWidget, tr ( "Restore Settings" ),
           tr ( "Depending on how this function is implemented in the camera "
           "it is possible that the control settings may now be set to "
           "incorrect values" ));

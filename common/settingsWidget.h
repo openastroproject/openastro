@@ -2,7 +2,7 @@
  *
  * settingsWidget.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2018
+ * Copyright 2013,2014,2015,2016,2018,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -66,7 +66,7 @@ class SettingsWidget : public QWidget
   Q_OBJECT
 
   public:
-    			SettingsWidget ( QWidget*, QWidget*, QString, unsigned int, int, int,
+    			SettingsWidget ( QWidget*, QString, unsigned int, int, int,
 							trampolineFuncs* );
     			~SettingsWidget();
     void		setActiveTab ( int );
