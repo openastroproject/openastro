@@ -133,6 +133,16 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 				continue;
 			}
 
+			if (!( cap.capabilities & V4L2_CAP_STREAMING )) {
+				continue;
+			}
+
+			// Very ugly, but I've not been able to find a more appropriate way
+			// of ignoring these devices yet
+			if (!strncmp ( "bcm2835-isp-", name, 12 )) {
+				continue;
+			}
+
       // now we can drop the data into the list
       if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
         closedir ( dirp );
