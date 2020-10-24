@@ -2,7 +2,7 @@
  *
  * sxInit.c -- Initialise Starlight Xpress filter wheels
  *
- * Copyright 2014,2015,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -26,7 +26,11 @@
 
 #include <oa_common.h>
 
+#if HAVE_HIDAPI_HIDAPI_H
+#include <hidapi/hidapi.h>
+#else
 #include <hidapi.h>
+#endif
 #include <errno.h>
 #include <pthread.h>
 

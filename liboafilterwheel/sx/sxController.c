@@ -2,7 +2,7 @@
  *
  * sxController.c -- Starlight Xpress filter wheel controller thread
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -28,7 +28,11 @@
 
 #include <pthread.h>
 #include <errno.h>
+#if HAVE_HIDAPI_HIDAPI_H
+#include <hidapi/hidapi.h>
+#else
 #include <hidapi.h>
+#endif
 
 #include <openastro/util.h>
 #include <openastro/filterwheel.h>

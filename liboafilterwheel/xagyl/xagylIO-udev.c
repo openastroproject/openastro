@@ -2,7 +2,7 @@
  *
  * xagylIO-udev.c -- Xagyl filter wheel IO routines (libudev)
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -30,7 +30,6 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <termios.h>
-#include <hidapi.h>
 #include <pthread.h>
 
 #include <openastro/util.h>

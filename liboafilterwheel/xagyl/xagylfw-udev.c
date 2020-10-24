@@ -2,7 +2,8 @@
  *
  * xagylfw-udev.c -- Find Xagyl filter wheels using (Linux) udev
  *
- * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -28,7 +29,6 @@
 
 #include <libudev.h>
 #include <errno.h>
-#include <hidapi.h>
 #ifdef XAGYL_READ_FOUND_WHEEL
 #include <sys/ioctl.h>
 #include <fcntl.h>

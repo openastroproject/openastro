@@ -2,7 +2,8 @@
  *
  * oafwprivate.h -- shared declarations not exposed to the cruel world
  *
- * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -34,7 +35,11 @@
 #include <libftdi1/ftdi.h>
 #endif
 #endif
+#if HAVE_HIDAPI_HIDAPI_H
+#include <hidapi/hidapi.h>
+#else
 #include <hidapi.h>
+#endif
 
 #include <openastro/controller.h>
 

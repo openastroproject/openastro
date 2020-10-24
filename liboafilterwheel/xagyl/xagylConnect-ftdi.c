@@ -2,7 +2,7 @@
  *
  * xagylInit-ftdi.c -- Initialise Xagyl filter wheels (libftdi)
  *
- * Copyright 2014,2015,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -28,7 +28,6 @@
 
 #include <errno.h>
 #include <pthread.h>
-#include <hidapi.h>
 #include <libusb-1.0/libusb.h>
 #include <libftdi1/ftdi.h>
 

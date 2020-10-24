@@ -40,7 +40,7 @@ checkSystemFFMPEG=0
 checkSystemLibusb=1
 checkSystemDC1394=1
 checkSystemLibuvc=0
-checkSystemLibhidapi=0
+checkSystemLibhidapi=1
 checkSystemLibasicamera=0
 checkSystemLibefwfilter=0
 checkSystemLibtoupcam=0
@@ -60,7 +60,6 @@ case $host in
     checkSystemFFMPEG=1
     checkSystemDC1394=1
     checkSystemLibuvc=1
-    checkSystemLibhidapi=1
     checkSystemLibasicamera=1
     checkSystemLibefwfilter=1
     checkSystemLibtoupcam=1
@@ -149,7 +148,6 @@ have_libavformat=no
 have_libavutil=no
 have_libavcodec=no
 internal_uvc=no
-have_libhidapi=no
 have_libgphoto2=no
 
 case $host in
@@ -575,22 +573,26 @@ then
       mylibdir="`$PKG_CONFIG --variable=libdir hidapi-libusb`"
       LIBHIDAPI_LIBS="$mylibdir/libhidapi-libusb.a"
     fi
-    have_libhidapi=yes
     use_system_libhidapi=yes
     AC_DEFINE([HAVE_LIBHIDAPI],[1],[Have libhidapi-libusb library])
   else
-  # commented out because we can't be sure of the version
-  #  AC_CHECK_LIB([hidapi-libusb],[hid_open],[
-  #    LIBS="-lhidapi-libusb $LIBS"
-  #    AC_DEFINE([HAVE_LIBHIDAPI],[1],[Have libhidapi-libusb library])
-  #    have_libhidapi=yes
-  #  ],[
-      AC_MSG_WARN([No suitable version of system libhidapi-libusb library found.  Using internal version.])
-  # ])
+    AC_CHECK_LIB([hidapi-libusb],[hid_open],[
+      LIBS="-lhidapi-libusb $LIBS"
+      AC_DEFINE([HAVE_LIBHIDAPI],[1],[Have libhidapi-libusb library])
+      use_system_libhidapi=yes
+    ],[
+      AC_CHECK_LIB([hidapi],[hid_open],[
+        LIBS="-lhidapi $LIBS"
+        AC_DEFINE([HAVE_LIBHIDAPI],[1],[Have libhidapilibrary])
+        use_system_libhidapi=yes
+      ],[
+        AC_MSG_WARN([No suitable version of system libhidapi library found.  Using internal version.])
+      ])
+    ])
   fi
 else
   # we'll always have this, because we use a local copy
-  AC_DEFINE([HAVE_LIBHIDAPI],[1],[Have libhidapi-libusb library])
+  AC_DEFINE([HAVE_LIBHIDAPI],[1],[Have libhidapi library])
 fi
 
 if `$PKG_CONFIG --exists libftdi1`; then
@@ -990,7 +992,7 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 AC_LANG_POP(C++)
 
 # Checks for header files.
-AC_CHECK_HEADERS([errno.h fcntl.h float.h limits.h malloc.h math.h stdint.h stdlib.h string.h strings.h sys/ioctl.h sys/time.h unistd.h fitsio.h cfitsio/fitsio.h ftdi.h libftdi/ftdi.h libftdi1/ftdi.h sys/sendfile.h sys/time.h syslog.h stdbool.h])
+AC_CHECK_HEADERS([errno.h fcntl.h float.h limits.h malloc.h math.h stdint.h stdlib.h string.h strings.h sys/ioctl.h sys/time.h unistd.h fitsio.h cfitsio/fitsio.h ftdi.h libftdi/ftdi.h libftdi1/ftdi.h sys/sendfile.h sys/time.h syslog.h stdbool.h hidapi/hidapi.h])
 # C++ versions
 AC_LANG_PUSH([C++])
 AC_CHECK_HEADERS([cerrno cfloat climits cmath cstdint cstdlib cstring cstrings])
@@ -1332,7 +1334,10 @@ case $host in
     OSX_FRAMEWORKS="-framework Carbon -framework VideoDecodeAcceleration -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
     FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
 		SHLIBS_CFLAGS="-DSHLIB_PATH=\\\"/MacOS/\\\""
-    LIBHIDAPI_LIBS="\$(top_builddir)/ext/libhidapi/mac/libhidapi.la"
+    if test "x$use_system_libhidapi" == "xno"
+    then
+      LIBHIDAPI_LIBS="\$(top_builddir)/ext/libhidapi/mac/libhidapi.la"
+    fi
     APP_PATH_CFLAGS="-DUSE_APP_PATH=1"
     DEFAULT_PATH_CFLAGS="-DUSE_HOME_DEFAULT=1"
     DYNLIB_EXTN_CFLAGS="-DDYNLIB_EXT_DYLIB"

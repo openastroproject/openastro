@@ -2,7 +2,7 @@
  *
  * oafw.c -- main filter wheel library entrypoint
  *
- * Copyright 2014,2015,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -29,8 +29,6 @@
 #if HAVE_LIMITS_H
 #include <limits.h> 
 #endif
-
-#include <hidapi.h>
 
 #include <openastro/filterwheel.h>
 #include <openastro/util.h>

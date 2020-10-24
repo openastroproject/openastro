@@ -2,7 +2,7 @@
  *
  * unimplemented.c -- catch-all for unimplemented filter wheel functions
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -25,8 +25,6 @@
  *****************************************************************************/
 
 #include <oa_common.h>
-
-#include <hidapi.h>
 
 #include <openastro/filterwheel.h>
 #include <openastro/util.h>

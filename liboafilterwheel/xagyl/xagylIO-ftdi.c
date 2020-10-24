@@ -2,7 +2,7 @@
  *
  * xagylIO-ftdi.c -- Xagyl filter wheel IO routines (libftdi)
  *
- * Copyright 2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -28,7 +28,6 @@
 
 #include <errno.h>
 #include <pthread.h>
-#include <hidapi.h>
 #include <libftdi1/ftdi.h>
 
 #include <openastro/util.h>

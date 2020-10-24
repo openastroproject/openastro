@@ -2,7 +2,7 @@
  *
  * sxIO.c -- Starlight Xpress filter wheel IO routines
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -26,7 +26,11 @@
 
 #include <oa_common.h>
 
+#if HAVE_HIDAPI_HIDAPI_H
+#include <hidapi/hidapi.h>
+#else
 #include <hidapi.h>
+#endif
 
 #include <errno.h>
 #include <sys/ioctl.h>

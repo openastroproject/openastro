@@ -2,7 +2,7 @@
  *
  * utils.c -- random support functions for filter wheels
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -25,8 +25,6 @@
  *****************************************************************************/
 
 #include <oa_common.h>
-
-#include <hidapi.h>
 
 #include <openastro/util.h>
 #include <openastro/filterwheel.h>

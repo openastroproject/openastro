@@ -2,7 +2,7 @@
  *
  * xagylInit-udev.c -- Initialise Xagyl filter wheels (udev)
  *
- * Copyright 2014,2015,2017,2018,2019
+ * Copyright 2014,2015,2017,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -31,7 +31,6 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <termios.h>
-#include <hidapi.h>
 #include <pthread.h>
 
 #include <openastro/util.h>

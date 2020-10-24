@@ -2,7 +2,8 @@
  *
  * sxfw.c -- Control Starlight Xpress filter wheels
  *
- * Copyright 2014,2015,2016,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2016,2018,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -27,7 +28,11 @@
 #include <oa_common.h>
 
 #include <errno.h>
+#if HAVE_HIDAPI_HIDAPI_H
+#include <hidapi/hidapi.h>
+#else
 #include <hidapi.h>
+#endif
 
 #include <openastro/util.h>
 #include <openastro/filterwheel.h>

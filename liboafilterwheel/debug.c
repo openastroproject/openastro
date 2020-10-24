@@ -2,7 +2,7 @@
  *
  * debug.c -- debug message handling
  *
- * Copyright 2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -30,7 +30,6 @@
 #include <stdarg.h>
 #endif
 #include <libusb-1.0/libusb.h>
-#include <hidapi.h>
 
 #include <openastro/filterwheel.h>
 #include <openastro/util.h>

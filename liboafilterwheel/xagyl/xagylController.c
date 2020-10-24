@@ -2,7 +2,7 @@
  *
  * xagylController.c -- Xagyl filter wheel control functions
  *
- * Copyright 2015, 2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -31,7 +31,6 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <termios.h>
-#include <hidapi.h>
 
 #include <openastro/util.h>
 #include <openastro/filterwheel.h>
