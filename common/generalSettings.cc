@@ -36,11 +36,10 @@
 
 generalConfig generalConf;
 
-GeneralSettings::GeneralSettings ( QWidget* parent, QWidget* top,
-		QString appName, int split, int fps, trampolineFuncs* redirs ) :
-		QWidget ( parent ), topWidget ( top ), applicationName ( appName ),
-		splitControls ( split ), fpsControls ( fps ), trampolines ( redirs ),
-		parentWidget ( parent )
+GeneralSettings::GeneralSettings ( QWidget* parent, QString appName,
+		int split, int fps, trampolineFuncs* redirs ) :
+		QWidget ( parent ), applicationName ( appName ), splitControls ( split ),
+		fpsControls ( fps ), trampolines ( redirs ), parentWidget ( parent )
 {
 #ifdef SAVE_OPTION
   saveBox = new QCheckBox ( tr ( "Load and save settings automatically" ),
@@ -155,14 +154,14 @@ GeneralSettings::GeneralSettings ( QWidget* parent, QWidget* top,
   setLayout ( box );
 
 #ifdef SAVE_OPTION
-  connect ( saveBox, SIGNAL ( stateChanged ( int )), parent,
+  connect ( saveBox, SIGNAL ( stateChanged ( int )), parentWidget,
       SLOT ( dataChanged()));
 #endif
-  connect ( reticleButtons, SIGNAL ( buttonClicked ( int )), parent,
+  connect ( reticleButtons, SIGNAL ( buttonClicked ( int )), parentWidget,
       SLOT ( dataChanged()));
-  connect ( saveCaptureSettings, SIGNAL ( stateChanged ( int )), parent,
+  connect ( saveCaptureSettings, SIGNAL ( stateChanged ( int )), parentWidget,
       SLOT ( dataChanged()));
-  connect ( connectSole, SIGNAL ( stateChanged ( int )), parent,
+  connect ( connectSole, SIGNAL ( stateChanged ( int )), parentWidget,
       SLOT ( dataChanged()));
 	if ( splitControls ) {
     connect ( dockable, SIGNAL ( stateChanged ( int )), this,
@@ -173,7 +172,7 @@ GeneralSettings::GeneralSettings ( QWidget* parent, QWidget* top,
         SLOT ( showRestartWarning()));
 	}
 	if ( fpsControls ) {
-    connect ( fpsSlider, SIGNAL ( valueChanged ( int )), parent,
+    connect ( fpsSlider, SIGNAL ( valueChanged ( int )), parentWidget,
         SLOT ( dataChanged()));
     connect ( fpsSlider, SIGNAL ( valueChanged ( int )), this,
         SLOT ( updateFPSLabel ( int )));
@@ -246,7 +245,7 @@ GeneralSettings::showRestartWarning ( void )
         "selections to make the controls dockable or appear on the right." );
   }
 
-  QMessageBox::warning ( topWidget, applicationName, msg1 + msg2 );
+  QMessageBox::warning ( parentWidget, applicationName, msg1 + msg2 );
 	QMetaObject::invokeMethod ( parentWidget, "dataChanged",
 			Qt::QueuedConnection );
 }
