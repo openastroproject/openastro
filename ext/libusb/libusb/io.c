@@ -3,6 +3,8 @@
  * I/O functions for libusb
  * Copyright © 2007-2009 Daniel Drake <dsd@gentoo.org>
  * Copyright © 2001 Johannes Erdfelt <johannes@erdfelt.com>
+ * Copyright © 2019 Nathan Hjelm <hjelmn@cs.umm.edu>
+ * Copyright © 2019 Google LLC. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,6 +33,7 @@
 #include <sys/time.h>
 #endif
 #ifdef USBI_TIMERFD_AVAILABLE
+#include <unistd.h>
 #include <sys/timerfd.h>
 #endif
 
@@ -1129,6 +1132,7 @@ int usbi_io_init(struct libusb_context *ctx)
 	usbi_tls_key_create(&ctx->event_handling_key);
 	list_init(&ctx->flying_transfers);
 	list_init(&ctx->ipollfds);
+	list_init(&ctx->removed_ipollfds);
 	list_init(&ctx->hotplug_msgs);
 	list_init(&ctx->completed_transfers);
 
@@ -1177,6 +1181,15 @@ err:
 	return r;
 }
 
+static void cleanup_removed_pollfds(struct libusb_context *ctx)
+{
+	struct usbi_pollfd *ipollfd, *tmp;
+	list_for_each_entry_safe(ipollfd, tmp, &ctx->removed_ipollfds, list, struct usbi_pollfd) {
+		list_del(&ipollfd->list);
+		free(ipollfd);
+	}
+}
+
 void usbi_io_exit(struct libusb_context *ctx)
 {
 	usbi_remove_pollfd(ctx, ctx->event_pipe[0]);
@@ -1194,8 +1207,8 @@ void usbi_io_exit(struct libusb_context *ctx)
 	usbi_cond_destroy(&ctx->event_waiters_cond);
 	usbi_mutex_destroy(&ctx->event_data_lock);
 	usbi_tls_key_delete(ctx->event_handling_key);
-	if (ctx->pollfds)
-		free(ctx->pollfds);
+	free(ctx->pollfds);
+	cleanup_removed_pollfds(ctx);
 }
 
 static int calculate_timeout(struct usbi_transfer *transfer)
@@ -1249,7 +1262,7 @@ static int calculate_timeout(struct usbi_transfer *transfer)
  * use it on a non-isochronous endpoint. If you do this, ensure that at time
  * of submission, num_iso_packets is 0 and that type is set appropriately.
  *
- * \param iso_packets number of isochronous packet descriptors to allocate
+ * \param iso_packets number of isochronous packet descriptors to allocate. Must be non-negative.
  * \returns a newly allocated transfer, or NULL on error
  */
 DEFAULT_VISIBILITY
@@ -1257,12 +1270,18 @@ struct libusb_transfer * LIBUSB_CALL libusb_alloc_transfer(
 	int iso_packets)
 {
 	struct libusb_transfer *transfer;
-	size_t os_alloc_size = usbi_backend.transfer_priv_size;
-	size_t alloc_size = sizeof(struct usbi_transfer)
+	size_t os_alloc_size;
+	size_t alloc_size;
+	struct usbi_transfer *itransfer;
+
+	assert(iso_packets >= 0);
+
+	os_alloc_size = usbi_backend.transfer_priv_size;
+	alloc_size = sizeof(struct usbi_transfer)
 		+ sizeof(struct libusb_transfer)
-		+ (sizeof(struct libusb_iso_packet_descriptor) * iso_packets)
+		+ (sizeof(struct libusb_iso_packet_descriptor) * (size_t)iso_packets)
 		+ os_alloc_size;
-	struct usbi_transfer *itransfer = calloc(1, alloc_size);
+	itransfer = calloc(1, alloc_size);
 	if (!itransfer)
 		return NULL;
 
@@ -1297,7 +1316,7 @@ void API_EXPORTED libusb_free_transfer(struct libusb_transfer *transfer)
 		return;
 
 	usbi_dbg("transfer %p", transfer);
-	if (transfer->flags & LIBUSB_TRANSFER_FREE_BUFFER && transfer->buffer)
+	if (transfer->flags & LIBUSB_TRANSFER_FREE_BUFFER)
 		free(transfer->buffer);
 
 	itransfer = LIBUSB_TRANSFER_TO_USBI_TRANSFER(transfer);
@@ -1706,15 +1725,19 @@ int usbi_handle_transfer_cancellation(struct usbi_transfer *transfer)
  * function will be called the next time an event handler runs. */
 void usbi_signal_transfer_completion(struct usbi_transfer *transfer)
 {
-	struct libusb_context *ctx = ITRANSFER_CTX(transfer);
-	int pending_events;
+	libusb_device_handle *dev_handle = USBI_TRANSFER_TO_LIBUSB_TRANSFER(transfer)->dev_handle;
 
-	usbi_mutex_lock(&ctx->event_data_lock);
-	pending_events = usbi_pending_events(ctx);
-	list_add_tail(&transfer->completed_list, &ctx->completed_transfers);
-	if (!pending_events)
-		usbi_signal_event(ctx);
-	usbi_mutex_unlock(&ctx->event_data_lock);
+	if (dev_handle) {
+		struct libusb_context *ctx = HANDLE_CTX(dev_handle);
+		int pending_events;
+
+		usbi_mutex_lock(&ctx->event_data_lock);
+		pending_events = usbi_pending_events(ctx);
+		list_add_tail(&transfer->completed_list, &ctx->completed_transfers);
+		if (!pending_events)
+			usbi_signal_event(ctx);
+		usbi_mutex_unlock(&ctx->event_data_lock);
+	}
 }
 
 /** \ingroup libusb_poll
@@ -2082,9 +2105,16 @@ static int handle_events(struct libusb_context *ctx, struct timeval *tv)
 
 	/* prevent attempts to recursively handle events (e.g. calling into
 	 * libusb_handle_events() from within a hotplug or transfer callback) */
+	usbi_mutex_lock(&ctx->event_data_lock);
+	r = 0;
 	if (usbi_handling_events(ctx))
-		return LIBUSB_ERROR_BUSY;
-	usbi_start_event_handling(ctx);
+		r = LIBUSB_ERROR_BUSY;
+	else
+		usbi_start_event_handling(ctx);
+	usbi_mutex_unlock(&ctx->event_data_lock);
+
+	if (r)
+		return r;
 
 	/* there are certain fds that libusb uses internally, currently:
 	 *
@@ -2103,13 +2133,13 @@ static int handle_events(struct libusb_context *ctx, struct timeval *tv)
 	/* only reallocate the poll fds when the list of poll fds has been modified
 	 * since the last poll, otherwise reuse them to save the additional overhead */
 	usbi_mutex_lock(&ctx->event_data_lock);
+	/* clean up removed poll fds */
+	cleanup_removed_pollfds(ctx);
 	if (ctx->event_flags & USBI_EVENT_POLLFDS_MODIFIED) {
 		usbi_dbg("poll fds modified, reallocating");
 
-		if (ctx->pollfds) {
-			free(ctx->pollfds);
-			ctx->pollfds = NULL;
-		}
+		free(ctx->pollfds);
+		ctx->pollfds = NULL;
 
 		/* sanity check - it is invalid for a context to have fewer than the
 		 * required internal fds (memory corruption?) */
@@ -2139,6 +2169,7 @@ static int handle_events(struct libusb_context *ctx, struct timeval *tv)
 	}
 	fds = ctx->pollfds;
 	nfds = ctx->pollfds_cnt;
+	usbi_inc_fds_ref(fds, nfds);
 	usbi_mutex_unlock(&ctx->event_data_lock);
 
 	timeout_ms = (int)(tv->tv_sec * 1000) + (tv->tv_usec / 1000);
@@ -2147,7 +2178,7 @@ static int handle_events(struct libusb_context *ctx, struct timeval *tv)
 	if (tv->tv_usec % 1000)
 		timeout_ms++;
 
-	usbi_dbg("poll() %d fds with timeout in %dms", nfds, timeout_ms);
+	usbi_dbg("poll() %d fds with timeout in %dms", (int)nfds, timeout_ms);
 	r = usbi_poll(fds, nfds, timeout_ms);
 	usbi_dbg("poll() returned %d", r);
 	if (r == 0) {
@@ -2265,12 +2296,27 @@ static int handle_events(struct libusb_context *ctx, struct timeval *tv)
 	}
 #endif
 
+	list_for_each_entry(ipollfd, &ctx->removed_ipollfds, list, struct usbi_pollfd) {
+		for (i = internal_nfds ; i < nfds ; ++i) {
+			if (ipollfd->pollfd.fd == fds[i].fd) {
+				/* pollfd was removed between the creation of the fd
+				 * array and here. remove any triggered revent as
+				 * it is no longer relevant */
+				usbi_dbg("pollfd %d was removed. ignoring raised events",
+					 fds[i].fd);
+				fds[i].revents = 0;
+				break;
+			}
+		}
+	}
+
 	r = usbi_backend.handle_events(ctx, fds + internal_nfds, nfds - internal_nfds, r);
 	if (r)
 		usbi_err(ctx, "backend handle_events failed with error %d", r);
 
 done:
 	usbi_end_event_handling(ctx);
+	usbi_dec_fds_ref(fds, nfds);
 	return r;
 }
 
@@ -2598,7 +2644,7 @@ int API_EXPORTED libusb_get_next_timeout(libusb_context *ctx,
 		timerclear(tv);
 	} else {
 		timersub(&next_timeout, &cur_tv, tv);
-		usbi_dbg("next timeout in %d.%06ds", tv->tv_sec, tv->tv_usec);
+		usbi_dbg("next timeout in %ld.%06lds", (long)tv->tv_sec, (long)tv->tv_usec);
 	}
 
 	return 1;
@@ -2695,10 +2741,11 @@ void usbi_remove_pollfd(struct libusb_context *ctx, int fd)
 	}
 
 	list_del(&ipollfd->list);
+	list_add_tail(&ipollfd->list, &ctx->removed_ipollfds);
 	ctx->pollfds_cnt--;
 	usbi_fd_notification(ctx);
 	usbi_mutex_unlock(&ctx->event_data_lock);
-	free(ipollfd);
+
 	if (ctx->fd_removed_cb)
 		ctx->fd_removed_cb(fd, ctx->fd_cb_user_data);
 }
@@ -2755,15 +2802,12 @@ out:
  * Since version 1.0.20, \ref LIBUSB_API_VERSION >= 0x01000104
  *
  * It is legal to call this function with a NULL pollfd list. In this case,
- * the function will simply return safely.
+ * the function will simply do nothing.
  *
  * \param pollfds the list of libusb_pollfd structures to free
  */
 void API_EXPORTED libusb_free_pollfds(const struct libusb_pollfd **pollfds)
 {
-	if (!pollfds)
-		return;
-
 	free((void *)pollfds);
 }
 

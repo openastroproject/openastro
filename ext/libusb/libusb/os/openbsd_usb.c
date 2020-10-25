@@ -90,55 +90,35 @@ static int _bus_open(int);
 
 
 const struct usbi_os_backend usbi_backend = {
-	"Synchronous OpenBSD backend",
-	0,
-	NULL,				/* init() */
-	NULL,				/* exit() */
-	NULL,				/* set_option() */
-	obsd_get_device_list,
-	NULL,				/* hotplug_poll */
-	obsd_open,
-	obsd_close,
+	.name = "Synchronous OpenBSD backend",
+	.get_device_list = obsd_get_device_list,
+	.open = obsd_open,
+	.close = obsd_close,
 
-	obsd_get_device_descriptor,
-	obsd_get_active_config_descriptor,
-	obsd_get_config_descriptor,
-	NULL,				/* get_config_descriptor_by_value() */
+	.get_device_descriptor = obsd_get_device_descriptor,
+	.get_active_config_descriptor = obsd_get_active_config_descriptor,
+	.get_config_descriptor = obsd_get_config_descriptor,
 
-	obsd_get_configuration,
-	obsd_set_configuration,
+	.get_configuration = obsd_get_configuration,
+	.set_configuration = obsd_set_configuration,
 
-	obsd_claim_interface,
-	obsd_release_interface,
+	.claim_interface = obsd_claim_interface,
+	.release_interface = obsd_release_interface,
 
-	obsd_set_interface_altsetting,
-	obsd_clear_halt,
-	obsd_reset_device,
+	.set_interface_altsetting = obsd_set_interface_altsetting,
+	.clear_halt = obsd_clear_halt,
+	.reset_device = obsd_reset_device,
+	.destroy_device = obsd_destroy_device,
 
-	NULL,				/* alloc_streams */
-	NULL,				/* free_streams */
+	.submit_transfer = obsd_submit_transfer,
+	.cancel_transfer = obsd_cancel_transfer,
+	.clear_transfer_priv = obsd_clear_transfer_priv,
 
-	NULL,				/* dev_mem_alloc() */
-	NULL,				/* dev_mem_free() */
+	.handle_transfer_completion = obsd_handle_transfer_completion,
 
-	NULL,				/* kernel_driver_active() */
-	NULL,				/* detach_kernel_driver() */
-	NULL,				/* attach_kernel_driver() */
-
-	obsd_destroy_device,
-
-	obsd_submit_transfer,
-	obsd_cancel_transfer,
-	obsd_clear_transfer_priv,
-
-	NULL,				/* handle_events() */
-	obsd_handle_transfer_completion,
-
-	obsd_clock_gettime,
-	0,				/* context_priv_size */
-	sizeof(struct device_priv),
-	sizeof(struct handle_priv),
-	0,				/* transfer_priv_size */
+	.clock_gettime = obsd_clock_gettime,
+	.device_priv_size = sizeof(struct device_priv),
+	.device_handle_priv_size = sizeof(struct handle_priv),
 };
 
 #define DEVPATH	"/dev/"
@@ -305,7 +285,7 @@ obsd_get_active_config_descriptor(struct libusb_device *dev,
 
 	len = MIN(len, UGETW(ucd->wTotalLength));
 
-	usbi_dbg("len %d", len);
+	usbi_dbg("len %zu", len);
 
 	memcpy(buf, dpriv->cdesc, len);
 
@@ -330,7 +310,7 @@ obsd_get_config_descriptor(struct libusb_device *dev, uint8_t idx,
 	udf.udf_size = len;
 	udf.udf_data = buf;
 
-	usbi_dbg("index %d, len %d", udf.udf_config_index, len);
+	usbi_dbg("index %d, len %zu", udf.udf_config_index, len);
 
 	if (ioctl(fd, USB_DEVICE_GET_FDESC, &udf) < 0) {
 		err = errno;
@@ -539,8 +519,6 @@ obsd_handle_transfer_completion(struct usbi_transfer *itransfer)
 int
 obsd_clock_gettime(int clkid, struct timespec *tp)
 {
-	usbi_dbg("clock %d", clkid);
-
 	if (clkid == USBI_CLOCK_REALTIME)
 		return clock_gettime(CLOCK_REALTIME, tp);
 

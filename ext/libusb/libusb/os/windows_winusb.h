@@ -397,7 +397,9 @@ typedef union _USB_NODE_CONNECTION_INFORMATION_EX_V2_FLAGS {
 	struct {
 		ULONG DeviceIsOperatingAtSuperSpeedOrHigher:1;
 		ULONG DeviceIsSuperSpeedCapableOrHigher:1;
-		ULONG ReservedMBZ:30;
+		ULONG DeviceIsOperatingAtSuperSpeedPlusOrHigher:1;
+		ULONG DeviceIsSuperSpeedPlusCapableOrHigher:1;
+		ULONG ReservedMBZ:28;
 	};
 } USB_NODE_CONNECTION_INFORMATION_EX_V2_FLAGS, *PUSB_NODE_CONNECTION_INFORMATION_EX_V2_FLAGS;
 
@@ -412,6 +414,7 @@ typedef struct _USB_NODE_CONNECTION_INFORMATION_EX_V2 {
 
 /* winusb.dll interface */
 
+/* pipe policies */
 #define SHORT_PACKET_TERMINATE	0x01
 #define AUTO_CLEAR_STALL	0x02
 #define PIPE_TRANSFER_TIMEOUT	0x03
@@ -420,6 +423,8 @@ typedef struct _USB_NODE_CONNECTION_INFORMATION_EX_V2 {
 #define AUTO_FLUSH		0x06
 #define RAW_IO			0x07
 #define MAXIMUM_TRANSFER_SIZE	0x08
+/* libusbK */
+#define ISO_ALWAYS_START_ASAP	0x21
 
 typedef enum _USBD_PIPE_TYPE {
 	UsbdPipeTypeControl,
@@ -503,6 +508,60 @@ typedef BOOL (WINAPI *WinUsb_WritePipe_t)(
 	ULONG BufferLength,
 	PULONG LengthTransferred,
 	LPOVERLAPPED Overlapped
+);
+
+typedef PVOID WINUSB_ISOCH_BUFFER_HANDLE, *PWINUSB_ISOCH_BUFFER_HANDLE;
+
+typedef BOOL (WINAPI *WinUsb_RegisterIsochBuffer_t)(
+	WINUSB_INTERFACE_HANDLE InterfaceHandle,
+	UCHAR PipeID,
+	PVOID Buffer,
+	ULONG BufferLength,
+	PWINUSB_ISOCH_BUFFER_HANDLE BufferHandle
+);
+
+typedef BOOL (WINAPI *WinUsb_UnregisterIsochBuffer_t)(
+	WINUSB_ISOCH_BUFFER_HANDLE BufferHandle
+);
+
+typedef BOOL (WINAPI *WinUsb_WriteIsochPipeAsap_t)(
+	WINUSB_ISOCH_BUFFER_HANDLE BufferHandle,
+	ULONG Offset,
+	ULONG Length,
+	BOOL ContinueStream,
+	LPOVERLAPPED Overlapped
+);
+
+typedef LONG USBD_STATUS;
+typedef struct {
+	ULONG Offset;
+	ULONG Length;
+	USBD_STATUS Status;
+} USBD_ISO_PACKET_DESCRIPTOR, *PUSBD_ISO_PACKET_DESCRIPTOR;
+
+typedef BOOL (WINAPI *WinUsb_ReadIsochPipeAsap_t)(
+	PWINUSB_ISOCH_BUFFER_HANDLE BufferHandle,
+	ULONG Offset,
+	ULONG Length,
+	BOOL ContinueStream,
+	ULONG NumberOfPackets,
+	PUSBD_ISO_PACKET_DESCRIPTOR IsoPacketDescriptors,
+	LPOVERLAPPED Overlapped
+);
+
+typedef struct {
+	USBD_PIPE_TYPE PipeType;
+	UCHAR PipeId;
+	USHORT MaximumPacketSize;
+	UCHAR Interval;
+	ULONG MaximumBytesPerInterval;
+} WINUSB_PIPE_INFORMATION_EX, *PWINUSB_PIPE_INFORMATION_EX;
+
+typedef BOOL (WINAPI *WinUsb_QueryPipeEx_t)(
+	WINUSB_INTERFACE_HANDLE InterfaceHandle,
+	UCHAR AlternateInterfaceHandle,
+	UCHAR PipeIndex,
+	PWINUSB_PIPE_INFORMATION_EX PipeInformationEx
 );
 
 /* /!\ These must match the ones from the official libusbk.h */
@@ -616,8 +675,17 @@ struct winusb_interface {
 	WinUsb_SetCurrentAlternateSetting_t SetCurrentAlternateSetting;
 	WinUsb_SetPipePolicy_t SetPipePolicy;
 	WinUsb_WritePipe_t WritePipe;
+
+	// Isochoronous functions for LibUSBk sub api:
 	WinUsb_IsoReadPipe_t IsoReadPipe;
 	WinUsb_IsoWritePipe_t IsoWritePipe;
+
+	// Isochronous functions for Microsoft WinUSB sub api (native WinUSB):
+	WinUsb_RegisterIsochBuffer_t RegisterIsochBuffer;
+	WinUsb_UnregisterIsochBuffer_t UnregisterIsochBuffer;
+	WinUsb_WriteIsochPipeAsap_t WriteIsochPipeAsap;
+	WinUsb_ReadIsochPipeAsap_t ReadIsochPipeAsap;
+	WinUsb_QueryPipeEx_t QueryPipeEx;
 };
 
 /* hid.dll interface */

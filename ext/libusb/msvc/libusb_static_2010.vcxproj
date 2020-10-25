@@ -38,12 +38,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <IntDir>$(SolutionDir)..\$(Platform)\$(Configuration)\lib\$(TargetName)\</IntDir>
-    <OutDir>$(SolutionDir)..\$(Platform)\$(Configuration)\lib\</OutDir>
+    <IntDir>$(ProjectDir)..\$(Platform)\$(Configuration)\lib\$(TargetName)\</IntDir>
+    <OutDir>$(ProjectDir)..\$(Platform)\$(Configuration)\lib\</OutDir>
     <TargetName>libusb-1.0</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>.;..\libusb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WINVER=0x0501;_WIN32_WINNT=0x0501;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
