@@ -92,7 +92,8 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       
       ( void ) snprintf ( sysPath, PATH_MAX, "%s/%s", SYS_V4L_PATH,
           entry->d_name );
-      ( void ) snprintf ( nameFile, PATH_MAX, "%s/name", sysPath );
+      ( void ) strcpy ( nameFile, sysPath );
+      ( void ) strncat ( nameFile, "/name", PATH_MAX );
       if (!( fp = fopen ( nameFile, "r" ))) {
         closedir ( dirp );
         return -OA_ERR_SYSTEM_ERROR;

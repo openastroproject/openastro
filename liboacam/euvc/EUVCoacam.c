@@ -135,8 +135,9 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
           *product = 0;
         }
         libusb_close ( handle );
-        ( void ) snprintf ( fullname, OA_MAX_NAME_LEN, "%s %s", manufacturer,
-            product );
+	( void ) strcpy ( fullname, manufacturer );
+	( void ) strncat ( fullname, " ", OA_MAX_NAME_LEN );
+	( void ) strncat ( fullname, product, OA_MAX_NAME_LEN );
 
         // now we can drop the data into the list
         if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {

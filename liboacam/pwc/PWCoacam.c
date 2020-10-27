@@ -2,7 +2,7 @@
  *
  * PWCoacam.c -- main entrypoint for non V4L2 PWC camera
  *
- * Copyright 2013,2014,2015,2016,2018
+ * Copyright 2013,2014,2015,2016,2018,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -127,8 +127,9 @@ oaPWCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         return -OA_ERR_MEM_ALLOC;
       }
       dev->interface = OA_CAM_IF_PWC;
-      ( void ) snprintf ( fullname, OA_MAX_NAME_LEN, "%s %s", manufacturer,
-          product );
+      ( void ) strcpy ( fullname, manufacturer );
+      ( void ) strncat ( fullname, " ", OA_MAX_NAME_LEN );
+      ( void ) strncat ( fullname, product, OA_MAX_NAME_LEN );
       ( void ) strcpy ( dev->deviceName, fullname );
       _private->devIndex = index;
       dev->initCamera = oaPWCInitCamera;
