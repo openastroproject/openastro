@@ -2,7 +2,7 @@
  *
  * ZWASIstate.h -- ZW ASI camera state header
  *
- * Copyright 2013,2014,2015,2017,2019
+ * Copyright 2013,2014,2015,2017,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -67,15 +67,15 @@ typedef struct ZWASI_STATE {
   uint32_t		coolerEnabled;
   uint32_t		currentSetPoint;
   uint32_t		currentCoolerPower;
-  uint32_t		autoGain;
-  uint32_t		autoBrightness;
-  uint32_t		autoExposure;
-  uint32_t		autoGamma;
-  uint32_t		autoBlueBalance;
-  uint32_t		autoRedBalance;
-  uint32_t		autoUSBTraffic;
-  uint32_t		autoOverclock;
-  uint32_t		autoHighSpeed;
+  int32_t		autoGain;
+  int32_t		autoBrightness;
+  int32_t		autoExposure;
+  int32_t		autoGamma;
+  int32_t		autoBlueBalance;
+  int32_t		autoRedBalance;
+  int32_t		autoUSBTraffic;
+  int32_t		autoOverclock;
+  int32_t		autoHighSpeed;
   uint32_t		monoBinning;
   uint32_t		fanEnabled;
   uint32_t		patternAdjust;

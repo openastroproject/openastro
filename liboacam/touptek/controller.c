@@ -712,16 +712,17 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
 #ifndef NO_UPSIDE_DOWN
 			if ((( TT_LIB_PTR( get_Option ))( cameraInfo->handle,
-					TT_OPTION( UPSIDE_DOWN ), &val_s32 )) < 0 ) {
+					TT_OPTION( UPSIDE_DOWN ), &val_u32 )) < 0 ) {
 #endif
 				if ((( TT_LIB_PTR( get_VFlip ))( cameraInfo->handle, &val_s32 )) < 0 ) {
 					fprintf ( stderr, TT_DRIVER "_get_VFlip failed\n" );
 					return -OA_ERR_CAMERA_IO;
 				}
+				val_u32 = val_s32 ? 1 : 0;
 #ifndef NO_UPSIDE_DOWN
 			}
 #endif
-      valp->boolean = val_s32;
+      valp->boolean = val_u32;
       return OA_ERR_NONE;
       break;
 
@@ -841,7 +842,8 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
 		case OA_CAM_CTRL_BLACKLEVEL:
 		{
-			int			bitspp, val;
+			int						bitspp;
+			unsigned int	val;
 
       valp->valueType = OA_CTRL_TYPE_INT32;
 			if ((( TT_LIB_PTR( get_Option ))( cameraInfo->handle,
@@ -865,7 +867,7 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 
 		case OA_CAM_CTRL_CONVERSION_GAIN:
 		{
-			int			val;
+			unsigned int		val;
 
       valp->valueType = OA_CTRL_TYPE_INT32;
 			if ((( TT_LIB_PTR( get_Option ))( cameraInfo->handle,
