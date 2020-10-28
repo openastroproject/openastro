@@ -2,7 +2,7 @@
  *
  * atikSerialIO-ftdi.c -- Atik serial camera IO routines (libftdi1)
  *
- * Copyright 2014,2016 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2016,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -47,7 +47,11 @@ _atikFTDISerialCamWrite ( AtikSerial_STATE* cameraInfo,
 {
   struct ftdi_context* ftdiContext = cameraInfo->ftdiContext;
 
+#if HAVE_FTDI_TCIOFLUSH
+  if ( ftdi_tcioflush ( ftdiContext )) {
+#else
   if ( ftdi_usb_purge_buffers ( ftdiContext )) {
+#endif
     fprintf ( stderr, "FTDI buffer purge failed\n" );
     return -OA_ERR_CAMERA_IO;
   }

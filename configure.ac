@@ -632,6 +632,13 @@ else
   fi
 fi
 
+if test "x$have_ftdi1" == "xyes"
+then
+  AC_CHECK_LIB([ftdi],[ftdi_tcioflush],[
+		AC_DEFINE([HAVE_FTDI_TCIOFLUSH],[1],[Have ftdi_tcioflush function])
+	])
+fi
+
 use_system_libasicamera2=no
 if test $checkSystemLibasicamera -eq 1
 then
