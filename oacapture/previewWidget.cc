@@ -744,7 +744,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
 				// QString dateStr = now.toString ( Qt::ISODate );
 				QString dateStr = now.toString ( "yyyy-MM-ddThh:mm:ss.zzz" );
 				( void ) strncpy ( timestampStr,
-						dateStr.toStdString().c_str(), sizeof ( timestampStr ));
+						dateStr.toStdString().c_str(), sizeof ( timestampStr ) - 1);
         timestamp = timestampStr;
         comment = nullptr;
       }

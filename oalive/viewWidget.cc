@@ -633,7 +633,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 		// QString dateStr = now.toString ( Qt::ISODate );
 		QString dateStr = now.toString ( "yyyy-MM-ddThh:mm:ss.zzz" );
 		( void ) strncpy ( timestamp,
-				dateStr.toStdString().c_str(), sizeof ( timestamp ));
+				dateStr.toStdString().c_str(), sizeof ( timestamp ) - 1);
     comment = 0;
     outputFrame->addFrame ( self->viewBuffer, timestamp,
         state->cameraControls->getCurrentExposure(), comment,
@@ -701,7 +701,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 		// QString dateStr = now.toString ( Qt::ISODate );
 		QString dateStr = now.toString ( "yyyy-MM-ddThh:mm:ss.zzz" );
 		( void ) strncpy ( timestamp,
-				dateStr.toStdString().c_str(), sizeof ( timestamp ));
+				dateStr.toStdString().c_str(), sizeof ( timestamp ) - 1);
     comment = 0;
     outputProcessed->addFrame ( self->viewBuffer, timestamp,
         state->cameraControls->getCurrentExposure(), comment,
