@@ -467,7 +467,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
   OutputHandler*	outputFrame;
   OutputHandler*	outputProcessed;
   void*			writeBuffer = imageData;
-  const char*		timestamp;
+  char		timestamp[64];
   char*			comment;
 	unsigned int	width, height;
 
@@ -629,7 +629,11 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 
   outputFrame = state->controlsWidget->getFrameOutputHandler();
   if ( outputFrame ) {
-    timestamp = 0;
+		QDateTime now = QDateTime::currentDateTimeUtc();
+		// QString dateStr = now.toString ( Qt::ISODate );
+		QString dateStr = now.toString ( "yyyy-MM-ddThh:mm:ss.zzz" );
+		( void ) strncpy ( timestamp,
+				dateStr.toStdString().c_str(), sizeof ( timestamp ));
     comment = 0;
     outputFrame->addFrame ( self->viewBuffer, timestamp,
         state->cameraControls->getCurrentExposure(), comment,
@@ -693,7 +697,11 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 
   outputProcessed = state->controlsWidget->getProcessedOutputHandler();
   if ( outputProcessed ) {
-    timestamp = 0;
+		QDateTime now = QDateTime::currentDateTimeUtc();
+		// QString dateStr = now.toString ( Qt::ISODate );
+		QString dateStr = now.toString ( "yyyy-MM-ddThh:mm:ss.zzz" );
+		( void ) strncpy ( timestamp,
+				dateStr.toStdString().c_str(), sizeof ( timestamp ));
     comment = 0;
     outputProcessed->addFrame ( self->viewBuffer, timestamp,
         state->cameraControls->getCurrentExposure(), comment,

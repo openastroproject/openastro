@@ -446,6 +446,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
   int			currentPreviewBuffer = -1;
   int			writeDemosaicPreviewBuffer = 0;
   int			maxLength;
+	char		timestampStr[64];
   const char*		timestamp;
   char			commentStr[64];
   char*			comment;
@@ -739,7 +740,12 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
         comment = commentStr;
         ( void ) snprintf ( comment, 64, "Timer frame index: %d\n", ts->index );
       } else {
-        timestamp = nullptr;
+				QDateTime now = QDateTime::currentDateTimeUtc();
+				// QString dateStr = now.toString ( Qt::ISODate );
+				QString dateStr = now.toString ( "yyyy-MM-ddThh:mm:ss.zzz" );
+				( void ) strncpy ( timestampStr,
+						dateStr.toStdString().c_str(), sizeof ( timestampStr ));
+        timestamp = timestampStr;
         comment = nullptr;
       }
       if ( output->addFrame ( writeBuffer, timestamp,

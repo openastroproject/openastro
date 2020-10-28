@@ -238,18 +238,8 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
   // here?
 
   pngComments[ numComments ].key = const_cast<char *>( "DATE-OBS" );
-  if ( timestampStr ) {
-    pngComments[ numComments ].text = const_cast<char *>( timestampStr );
-    numComments++;
-  } else {
-    QDateTime now = QDateTime::currentDateTimeUtc();
-    // QString dateStr = now.toString ( Qt::ISODate );
-    QString dateStr = now.toString ( "yyyy-MM-ddThh:mm:ss.zzz" );
-    ( void ) strncpy ( stringBuffs[ numComments ],
-        dateStr.toStdString().c_str(), PNG_KEYWORD_MAX_LENGTH+1 );
-    pngComments[ numComments ].text = stringBuffs[ numComments ];
-    numComments++;
-  }
+  pngComments[ numComments ].text = const_cast<char *>( timestampStr );
+  numComments++;
 
   pngComments[ numComments ].key = const_cast<char *>( "OBSERVER" );
   if ( fitsConf.observer != "" ) {

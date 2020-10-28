@@ -373,17 +373,7 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
    * 'yyyy-mm-dd' or 'yyyy-mm-ddTHH:MM:SS[.sss]'.
    */
 
-  if ( timestampStr ) {
-    fits_write_key_str ( fptr, "DATE-OBS", timestampStr, "", &status );
-  } else {
-    QDateTime now = QDateTime::currentDateTimeUtc();
-    // QString dateStr = now.toString ( Qt::ISODate );
-    QString dateStr = now.toString ( "yyyy-MM-ddThh:mm:ss.zzz" );
-    ( void ) strncpy ( stringBuff,
-        dateStr.toStdString().c_str(), FLEN_VALUE+1 );
-    fits_write_key_str ( fptr, "DATE-OBS", cString, "UTC", &status );
-  }
-
+  fits_write_key_str ( fptr, "DATE-OBS", timestampStr, "", &status );
   fits_write_date ( fptr, &status );
 
   if ( fitsConf.observer != "" ) {

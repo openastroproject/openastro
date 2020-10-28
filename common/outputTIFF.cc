@@ -216,9 +216,7 @@ OutputTIFF::addFrame ( void* frame, const char* timestampStr,
 	( void ) snprintf ( tiffField, 128, "%s %s", applicationName,
 			applicationVersion );
   TIFFSetField ( handle, TIFFTAG_SOFTWARE, tiffField );
-  if ( timestampStr && *timestampStr ) {
-    TIFFSetField ( handle, TIFFTAG_DATETIME, timestampStr );
-  }
+  TIFFSetField ( handle, TIFFTAG_DATETIME, timestampStr );
   if ( commentStr && *commentStr ) {
     TIFFSetField ( handle, TIFFTAG_IMAGEDESCRIPTION, commentStr );
   }
