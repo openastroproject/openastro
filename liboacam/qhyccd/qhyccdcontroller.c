@@ -601,7 +601,7 @@ _timerCallback ( void* param )
 {
 	QHYCCD_STATE*				cameraInfo = param;
 	int									ret, buffersFree, nextBuffer;
-	int									xsize, ysize, bpp, channels;
+	unsigned int				xsize, ysize, bpp, channels;
 
 	pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
 	buffersFree = cameraInfo->buffersFree;
