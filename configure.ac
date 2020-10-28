@@ -635,7 +635,10 @@ fi
 if test "x$have_ftdi1" == "xyes"
 then
   AC_CHECK_LIB([ftdi],[ftdi_tcioflush],[
-		AC_DEFINE([HAVE_FTDI_TCIOFLUSH],[1],[Have ftdi_tcioflush function])
+		AC_DEFINE([HAVE_FTDI_TCIOFLUSH],[1],[Have ftdi_tcioflush function])],[
+		AC_CHECK_LIB([ftdi1],[ftdi_tcioflush],[
+			AC_DEFINE([HAVE_FTDI_TCIOFLUSH],[1],[Have ftdi_tcioflush function])
+		])
 	])
 fi
 
