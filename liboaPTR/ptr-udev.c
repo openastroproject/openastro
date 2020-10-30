@@ -265,7 +265,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
 #endif
             FD_ZERO ( &readable );
             FD_SET ( ptrDesc, &readable );
-            timeout.tv_sec = 2;
+            timeout.tv_sec = 5;
             timeout.tv_usec = 0;
             if ( select ( ptrDesc + 1, &readable, 0, 0, &timeout ) == 0 ) {
               fprintf ( stderr, "%s: PTR select #3 timed out\n", __FUNCTION__ );

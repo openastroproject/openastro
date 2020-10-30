@@ -2,7 +2,7 @@
  *
  * ptrController.c -- PTR device control functions
  *
- * Copyright 2015,2016,2017,2018,2019
+ * Copyright 2015,2016,2017,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -54,7 +54,9 @@ static int	_processGPSFetch ( PRIVATE_INFO*, OA_COMMAND* );
 static int	_processGPSFetchCached ( PRIVATE_INFO*, OA_COMMAND* );
 static int	_doSync ( PRIVATE_INFO* );
 static int	_readTimestamp ( uint32_t, int, char* );
+/*
 static int	_processTimestampGPSData ( PRIVATE_INFO*, const char* );
+ */
 
 
 void*
@@ -125,7 +127,8 @@ oaPTRcontroller ( void* param )
           fprintf ( stderr, ")\n" );
         } else {
           if (( readBuffer[0] != 'T' && readBuffer[0] != 'S' ) ||
-              readBuffer[1] != ':' || readBuffer[8] != ':' ) {
+              readBuffer[1] != ':' || readBuffer[8] != ':' ||
+							readBuffer[11] != ':' ) {
             if ( strncmp ( readBuffer, "Acquisition sequence complete", 29 )) {
               fprintf ( stderr, "%s: read invalid timestamp format '%s'\n",
                   __FUNCTION__, readBuffer );
@@ -137,11 +140,16 @@ oaPTRcontroller ( void* param )
               fprintf ( stderr, "%s: read timestamp %d, expected %d\n",
                   __FUNCTION__, frameNumber, deviceInfo->timestampExpected );
             } else {
-	      timestampOffset = 9;
-	      if ( deviceInfo->version >= 0x0200 ) {
+							timestampOffset = 12;
+							/*
+							 * Doesn't appear to be applicable any more as extended
+							 * timestamps are no longer available
+							 *
+							if ( deviceInfo->version >= 0x0200 ) {
                 timestampOffset = _processTimestampGPSData ( deviceInfo,
-		    readBuffer + 9 ) + 9;
+										readBuffer + 9 ) + 9;
               }
+							 */
               pthread_mutex_lock ( &deviceInfo->callbackQueueMutex );
               available = deviceInfo->timestampsAvailable;
               pthread_mutex_unlock ( &deviceInfo->callbackQueueMutex );
@@ -152,6 +160,9 @@ oaPTRcontroller ( void* param )
 										timestampOffset );
                 deviceInfo->timestampBuffer[( deviceInfo->timestampExpected -
                     1 ) % OA_TIMESTAMP_BUFFERS ].index = frameNumber;
+                ( void ) strncpy ( deviceInfo->timestampBuffer[(
+										deviceInfo->timestampExpected - 1 ) %
+										OA_TIMESTAMP_BUFFERS ].status, readBuffer + 9, 2 );
                 pthread_mutex_lock ( &deviceInfo->callbackQueueMutex );
                 if ( deviceInfo->firstTimestamp < 0 ) {
                   deviceInfo->firstTimestamp = 0;
@@ -444,11 +455,18 @@ _processPTRStart ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
       break;
 
     case OA_TIMER_MODE_STROBE:
+			/*
+			 * Not applicable any more as extended timestamps are no longer
+			 * available
+			 *
       if ( deviceInfo->version >= 0x0200 ) {
         sprintf ( commandStr, "strobe -afe %d\r", deviceInfo->requestedCount );
       } else {
+			 */
         sprintf ( commandStr, "strobe %d\r", deviceInfo->requestedCount );
+			/*
       }
+			 */
       break;
 
     default:
@@ -780,6 +798,10 @@ _processGPSFetchCached ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 }
 
 
+/*
+ * As extended timestamps are no longer available, this function
+ * is rendundant
+ *
 static int
 _processTimestampGPSData ( PRIVATE_INFO* deviceInfo, const char* buffer )
 {
@@ -824,3 +846,4 @@ _processTimestampGPSData ( PRIVATE_INFO* deviceInfo, const char* buffer )
   deviceInfo->validGPS = 1;
 	return ( p - buffer );
 }
+ */

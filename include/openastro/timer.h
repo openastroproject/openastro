@@ -2,7 +2,7 @@
  *
  * timer.h -- Timer API header
  *
- * Copyright 2015,2016,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -29,6 +29,7 @@
 
 typedef struct {
   char		timestamp[64];
+	char		status[16];
   uint32_t	index;
 } oaTimerStamp;
 

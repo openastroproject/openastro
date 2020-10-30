@@ -2,7 +2,7 @@
  *
  * oaptrprivate.h -- shared declarations not exposed to the cruel world
  *
- * Copyright 2015,2016,2017,2018,2019
+ * Copyright 2015,2016,2017,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -103,6 +103,6 @@ extern void		_oaFreePTRDeviceList ( PTR_LIST* );
 
 #define PTR_TIMESTAMP_BUFFER_LEN_V1_0 28
 #define PTR_TIMESTAMP_BUFFER_LEN_V1_1 32
-#define PTR_TIMESTAMP_BUFFER_LEN_V2   64
+#define PTR_TIMESTAMP_BUFFER_LEN_V2   36
 
 #endif /* OA_PTR_PRIVATE_H */
