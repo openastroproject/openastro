@@ -2,7 +2,8 @@
  *
  * timer.h -- Timer API header
  *
- * Copyright 2015,2016,2018,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -58,5 +59,12 @@ extern void		oaAddTimerIDFilter ( userDeviceConfig* );
 #define OA_TIMER_MODE_UNSET	0
 #define OA_TIMER_MODE_TRIGGER	1
 #define OA_TIMER_MODE_STROBE	2
+
+typedef struct TIMER_METADATA {
+	unsigned int		statusValid : 1;
+	unsigned int		sequenceNoValid : 1;
+	char						status[16];
+	uint32_t				sequenceNo;
+} TIMER_METADATA;
 
 #endif	/* OPENASTRO_TIMER_H */

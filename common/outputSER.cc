@@ -2,7 +2,7 @@
  *
  * outputSER.cc -- SER output class
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -239,7 +239,8 @@ int
 OutputSER::addFrame ( void* frame, const char* timestampStr,
 		int64_t expTime __attribute__((unused)),
     const char* commentStr __attribute__((unused)),
-		FRAME_METADATA* metadata __attribute__((unused)))
+		FRAME_METADATA* metadata __attribute__((unused)),
+		TIMER_METADATA* timerData __attribute__((unused)))
 {
   int ret;
 

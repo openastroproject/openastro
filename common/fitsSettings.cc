@@ -35,8 +35,9 @@ extern "C" {
 #include "cfitsio/fitsio.h" 
 #endif
 #endif
-}
 
+#include <openastro/timer.h>
+}
 
 #include "captureSettings.h"
 #include "outputHandler.h"

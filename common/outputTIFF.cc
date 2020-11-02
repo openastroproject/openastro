@@ -179,7 +179,8 @@ OutputTIFF::openOutput ( void )
 int
 OutputTIFF::addFrame ( void* frame, const char* timestampStr,
 		int64_t expTime __attribute__((unused)), const char* commentStr,
-		FRAME_METADATA* metadata __attribute__((unused)))
+		FRAME_METADATA* metadata __attribute__((unused)),
+		TIMER_METADATA* timerData __attribute__((unused)))
 {
   int            ret, i;
   TIFF*          handle;

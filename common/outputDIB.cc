@@ -31,6 +31,7 @@
 
 extern "C" {
 #include <openastro/camera.h>
+#include <openastro/timer.h>
 }
 
 #include "pipp_avi_write_dib.h"
@@ -104,7 +105,8 @@ OutputDIB::addFrame ( void* frame,
 		const char* timestampStr __attribute__((unused)),
 		int64_t expTime __attribute__((unused)),
     const char* commentStr __attribute((unused)),
-		FRAME_METADATA* metadata __attribute__((unused)))
+		FRAME_METADATA* metadata __attribute__((unused)),
+		TIMER_METADATA* timerData __attribute__((unused)))
 {
   outputFile->write_frame ( static_cast<uint8_t*>( frame ), 0, bpp, 0 );
   frameCount++;

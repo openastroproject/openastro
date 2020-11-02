@@ -180,7 +180,8 @@ OutputPNG::openOutput ( void )
 
 int
 OutputPNG::addFrame ( void* frame, const char* timestampStr,
-    int64_t expTime, const char* commentStr, FRAME_METADATA* metadata )
+    int64_t expTime, const char* commentStr, FRAME_METADATA* metadata,
+		TIMER_METADATA* timerData )
 {
   int			i;
   FILE*			handle;
@@ -539,6 +540,23 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 				metadata->frameCounter );
 		pngComments[ numComments ].text = stringBuffs[ numComments ];
 		numComments++;
+	}
+
+	if ( timerData ) {
+		if ( timerData->statusValid ) {
+			pngComments[ numComments ].key = const_cast<char *>( "TSQUAL" );
+			( void ) strncpy ( stringBuffs[ numComments ], timerData->status,
+					PNG_KEYWORD_MAX_LENGTH+1 );
+			pngComments[ numComments ].text = stringBuffs[ numComments ];
+			numComments++;
+		}
+		if ( timerData->sequenceNoValid ) {
+			pngComments[ numComments ].key = const_cast<char *>( "TSSEQ" );
+			( void ) sprintf ( stringBuffs[ numComments ], "%d",
+					timerData->sequenceNo );
+			pngComments[ numComments ].text = stringBuffs[ numComments ];
+			numComments++;
+		}
 	}
 
   for ( i = 0; i < numComments; i++ ) {

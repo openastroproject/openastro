@@ -637,7 +637,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     comment = 0;
     outputFrame->addFrame ( self->viewBuffer, timestamp,
         state->cameraControls->getCurrentExposure(), comment,
-				static_cast<FRAME_METADATA*>( metadata ));
+				static_cast<FRAME_METADATA*>( metadata ), nullptr );
   }
 
 	// copy the view buffer to the frame history
@@ -705,7 +705,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
     comment = 0;
     outputProcessed->addFrame ( self->viewBuffer, timestamp,
         state->cameraControls->getCurrentExposure(), comment,
-				static_cast<FRAME_METADATA*>( metadata ));
+				static_cast<FRAME_METADATA*>( metadata ), nullptr );
   }
   commonState->captureIndex++;
 

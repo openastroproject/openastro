@@ -2,7 +2,7 @@
  *
  * outputNamedPipe.h -- class declaration
  *
- * Copyright 2019
+ * Copyright 2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -38,7 +38,7 @@ class OutputNamedPipe : public OutputHandler
     			~OutputNamedPipe();
     int			openOutput ( void );
     int			addFrame ( void*, const char*, int64_t, const char*,
-								FRAME_METADATA* );
+								FRAME_METADATA*, TIMER_METADATA* );
     void		closeOutput ( void );
     int			outputExists ( void );
     int			outputWritable ( void );

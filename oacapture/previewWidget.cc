@@ -733,10 +733,15 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
         writePixelFormat = OA_DEMOSAIC_FMT ( writePixelFormat );
       }
       // These calls should be thread-safe
+			TIMER_METADATA	timerData;
+			timerData.statusValid = timerData.sequenceNoValid = 0;
       if ( commonState->timer->isInitialised() &&
 					commonState->timer->isRunning()) {
         oaTimerStamp* ts = commonState->timer->readTimestamp();
         timestamp = ts->timestamp;
+				timerData.statusValid = timerData.sequenceNoValid = 1;
+				( void ) strcpy ( timerData.status, ts->status );
+				timerData.sequenceNo = ts->index;
         comment = commentStr;
         ( void ) snprintf ( comment, 64, "Timer frame index: %d\n", ts->index );
       } else {
@@ -751,7 +756,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
       if ( output->addFrame ( writeBuffer, timestamp,
           // This call should be thread-safe
           state->controlWidget->getCurrentExposure(), comment,
-					static_cast<FRAME_METADATA*>( metadata )) < 0 ) {
+					static_cast<FRAME_METADATA*>( metadata ), &timerData ) < 0 ) {
         self->recordingInProgress = 0;
         self->manualStop = 0;
         state->autorunEnabled = 0;

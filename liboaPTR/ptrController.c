@@ -644,6 +644,8 @@ _processTimestampFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   ( void ) strcpy ( p, q );
   tsp->index = deviceInfo->timestampBuffer [ first ].index;
 
+	( void ) strcpy ( tsp->status, deviceInfo->timestampBuffer [ first ].status );
+
   pthread_mutex_lock ( &deviceInfo->callbackQueueMutex );
   deviceInfo->firstTimestamp = ( deviceInfo->firstTimestamp + 1 ) %
       OA_TIMESTAMP_BUFFERS;

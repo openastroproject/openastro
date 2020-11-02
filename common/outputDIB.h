@@ -2,7 +2,7 @@
  *
  * outputDIB.h -- class declaration
  *
- * Copyright 2015,2016,2017,2018,2019
+ * Copyright 2015,2016,2017,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -39,7 +39,7 @@ class OutputDIB : public OutputHandler
     			~OutputDIB();
     int			openOutput ( void );
     int			addFrame ( void*, const char*, int64_t, const char*,
-								FRAME_METADATA* );
+								FRAME_METADATA*, TIMER_METADATA* );
     int			outputExists ( void );
     int			outputWritable ( void );
     void		closeOutput();

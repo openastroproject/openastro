@@ -37,6 +37,7 @@ extern "C" {
 #endif
 
 #include <openastro/camera.h>
+#include <openastro/timer.h>
 #include <openastro/demosaic.h>
 #include <openastro/video/formats.h>
 }
@@ -242,7 +243,8 @@ OutputFITS::openOutput ( void )
 
 int
 OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
-    int64_t expTime, const char* commentStr, FRAME_METADATA* metadata )
+    int64_t expTime, const char* commentStr, FRAME_METADATA* metadata,
+		TIMER_METADATA* timerData )
 {
   unsigned char* s;
   unsigned char* t;
@@ -570,6 +572,15 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 	if ( metadata && metadata->frameCounterValid ) {
 		fits_write_key_lng ( fptr, "FRAMESEQ", metadata->frameCounter, "",
 				&status );
+	}
+
+	if ( timerData ) {
+		if ( timerData->statusValid ) {
+			fits_write_key_str ( fptr, "TSQUAL", timerData->status, "", &status );
+		}
+		if ( timerData->sequenceNoValid ) {
+			fits_write_key_lng ( fptr, "TSSEQ", timerData->sequenceNo, "", &status );
+		}
 	}
 
   if ( fits_write_img ( fptr, tableType, 1, elements * ( nAxes == 3 ? 3 : 1 ),
