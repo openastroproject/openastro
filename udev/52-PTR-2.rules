@@ -1,0 +1,17 @@
+#
+# 52-ptr-2.rules
+#
+# 2019-12-31
+#
+# Assign device name "/dev/PTR-2" to fully configured PTR-2 module when
+# connected. Disable parity checking on "/dev/PTR-2".
+#
+SUBSYSTEM=="tty", \
+  ACTION=="add",
+  ATTRS{idVendor}=="04b4", \
+  ATTRS{idProduct}=="0003", \
+  ATTRS{serial}=="98765413000102*", \
+  TAG+="uaccess", \
+  SYMLINK="PTR-2", \
+  RUN+="/bin/stty -f /dev/PTR-2 3000000", \
+  ENV{ID_MM_DEVICE_IGNORE}="1"
