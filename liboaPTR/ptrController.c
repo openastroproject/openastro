@@ -155,15 +155,17 @@ oaPTRcontroller ( void* param )
               available = deviceInfo->timestampsAvailable;
               pthread_mutex_unlock ( &deviceInfo->callbackQueueMutex );
               if ( available < OA_TIMESTAMP_BUFFERS ) {
-                ( void ) strcpy ( deviceInfo->timestampBuffer[
-                    ( deviceInfo->timestampExpected - 1 ) %
-                    OA_TIMESTAMP_BUFFERS ].timestamp, readBuffer +
-										timestampOffset );
-                deviceInfo->timestampBuffer[( deviceInfo->timestampExpected -
-                    1 ) % OA_TIMESTAMP_BUFFERS ].index = frameNumber;
-                ( void ) strncpy ( deviceInfo->timestampBuffer[(
-										deviceInfo->timestampExpected - 1 ) %
-										OA_TIMESTAMP_BUFFERS ].status, readBuffer + 9, 2 );
+								int			idx = deviceInfo->timestampExpected %
+														OA_TIMESTAMP_BUFFERS;
+
+                ( void ) strcpy (
+										deviceInfo->timestampBuffer[ idx ].timestamp,
+										readBuffer + timestampOffset );
+                deviceInfo->timestampBuffer[ idx ].index = frameNumber;
+                ( void ) strncpy (
+										deviceInfo->timestampBuffer[ idx ].status,
+										readBuffer + 9, 2 );
+
                 pthread_mutex_lock ( &deviceInfo->callbackQueueMutex );
                 if ( deviceInfo->firstTimestamp < 0 ) {
                   deviceInfo->firstTimestamp = 0;
@@ -642,8 +644,8 @@ _processTimestampFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
     *p++ = ':';
   }
   ( void ) strcpy ( p, q );
-  tsp->index = deviceInfo->timestampBuffer [ first ].index;
 
+  tsp->index = deviceInfo->timestampBuffer [ first ].index;
 	( void ) strcpy ( tsp->status, deviceInfo->timestampBuffer [ first ].status );
 
   pthread_mutex_lock ( &deviceInfo->callbackQueueMutex );
