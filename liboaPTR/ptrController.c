@@ -137,8 +137,9 @@ oaPTRcontroller ( void* param )
             strncpy ( numberBuffer, readBuffer + 2, 6 );
             frameNumber = atoi ( numberBuffer );
             if ( frameNumber != deviceInfo->timestampExpected ) {
-              fprintf ( stderr, "%s: read timestamp %d, expected %d\n",
-                  __FUNCTION__, frameNumber, deviceInfo->timestampExpected );
+              fprintf ( stderr, "%s: read timestamp %d, expected %d ('%s')\n",
+                  __FUNCTION__, frameNumber, deviceInfo->timestampExpected,
+									readBuffer );
             } else {
 							timestampOffset = 12;
 							/*
@@ -445,7 +446,7 @@ _processPTRStart ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   usleep ( 100000 );
 
   deviceInfo->timestampsAvailable = 0;
-  deviceInfo->timestampExpected = 1;
+  deviceInfo->timestampExpected = 0;
   deviceInfo->timestampCountdown = deviceInfo->requestedCount;
   deviceInfo->firstTimestamp = -1;
   switch ( deviceInfo->requestedMode ) {
