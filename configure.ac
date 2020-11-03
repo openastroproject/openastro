@@ -26,6 +26,10 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
+AC_ARG_VAR(MOC,Path to moc executable)
+AC_ARG_VAR(UIC,Path to uic executable)
+AC_ARG_VAR(RCC,Path to rcc executable)
+AC_ARG_VAR(LCONVERT,Path to lconvert executable)
 AC_CHECK_PROGS(MOC, [moc moc-qt5 moc-qt4])
 AC_CHECK_PROGS(UIC, [uic uic-qt5 uic-qt4])
 AC_CHECK_PROGS(RCC, [rcc rcc-qt5])
@@ -34,6 +38,9 @@ if test -z "$MOC" || test -z "$UIC" || test -z "$RCC" || test -z "$LCONVERT"
 then
 AC_MSG_ERROR([Qt utility programs moc, uic, rcc and lconvert are required.])
 fi
+
+AC_ARG_VAR(PYLON_CONFIG,Path to pylon-config executable)
+AC_PATH_PROG(PYLON_CONFIG,[pylon-config],,[$PATH:/opt/pylon/bin])
 
 checkQtForPIC=0
 checkSystemFFMPEG=0
@@ -926,6 +933,15 @@ then
   fi
 fi
 
+if test -n "$PYLON_CONFIG"
+then
+  AC_MSG_NOTICE([Using Basler pylon library])
+	PYLON_CFLAGS=`$PYLON_CONFIG --cflags-only-I pylonc`
+	PYLON_LDFLAGS=`$PYLON_CONFIG --libs-only-L --libs-rpath pylonc`
+	PYLON_LIBS=`$PYLON_CONFIG --libs-only-l pylonc`
+	AC_DEFINE([HAVE_PYLON],[1],[Have Basler Pylon SDK])
+fi
+
 AC_CHECK_LIB([m],[exp10],[
   AC_DEFINE([HAVE_EXP10],[1],[Have exp10 function in libm])
 ],[
@@ -1535,6 +1551,9 @@ AC_SUBST(LIBOMEGONPROCAM_CFLAGS)
 AC_SUBST(LIBOMEGONPROCAM_LIBS)
 AC_SUBST(LIBQHYCCD_CFLAGS)
 AC_SUBST(LIBQHYCCD_LIBS)
+AC_SUBST(PYLON_CFLAGS)
+AC_SUBST(PYLON_LDFLAGS)
+AC_SUBST(PYLON_LIBS)
 AC_SUBST(LIBGPHOTO2_CFLAGS)
 AC_SUBST(LIBGPHOTO2_LIBS)
 AC_SUBST(LIBZWOFW_LIBS)
@@ -1565,11 +1584,12 @@ AM_CONDITIONAL([LIBNNCAM_COND], [test "x$have_nncam" == "xyes"])
 AM_CONDITIONAL([LIBOMEGONPROCAM_COND], [test "x$have_omegonprocam" == "xyes"])
 AM_CONDITIONAL([LIBQHYCCD_COND], [test "x$have_qhyccd" == "xyes"])
 AM_CONDITIONAL([LIBGPHOTO2_COND], [test "x$have_libgphoto2" == "xyes"])
+AM_CONDITIONAL([PYLON_COND], [test -n "$PYLON_CONFIG"])
 AM_CONDITIONAL([LIBFFMPEG_COND], [test "x$use_system_ffmpeg" == "xno"])
 AM_CONDITIONAL([LIBUSB_COND], [test "x$use_system_libusb" == "xno"])
 AM_CONDITIONAL([BUILD_LIBUSB_COND], [test "x$build_libusb" == "xyes"])
 AM_CONDITIONAL([LIBHIDAPI_COND], [test "x$use_system_libhidapi" == "xno"])
 AM_CONDITIONAL([INT_LIBUVC_COND], [test "x$internal_uvc" == "xyes"])
 
-AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/altair-legacy/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/qhy/Makefile liboacam/qhyccd/Makefile liboacam/starshootg/Makefile liboacam/risingcam/Makefile liboacam/omegonpro/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboacam/dummy/Makefile liboacam/gphoto2/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
+AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/altair-legacy/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/pylon/Makefile liboacam/qhy/Makefile liboacam/qhyccd/Makefile liboacam/starshootg/Makefile liboacam/risingcam/Makefile liboacam/omegonpro/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboacam/dummy/Makefile liboacam/gphoto2/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
 AC_OUTPUT

@@ -56,8 +56,9 @@ enum oaCameraInterfaceType {
   OA_CAM_IF_SPINNAKER			= 19,
   OA_CAM_IF_GPHOTO2			= 20,
   OA_CAM_IF_OMEGONPROCAM			= 21,
-  OA_CAM_IF_DUMMY			= 22,
-  OA_CAM_IF_COUNT			= 23
+  OA_CAM_IF_PYLON			= 22,
+  OA_CAM_IF_DUMMY			= 23,
+  OA_CAM_IF_COUNT			= 24
 };
 
 extern oaInterface	oaCameraInterfaces[ OA_CAM_IF_COUNT + 1 ];

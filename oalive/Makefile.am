@@ -65,6 +65,7 @@ oalive_LDADD = \
   $(LIBASI2_LIBS) \
   $(LIBZWOFW_LIBS) \
   $(LIBGPHOTO2_LIBS) \
+  $(PYLON_LDFLAGS) $(PYLON_LIBS) \
   $(OSX_FRAMEWORKS) \
   -lpthread
 

@@ -98,6 +98,9 @@
 #if HAVE_LIBOMEGONPROCAM
 #include "omegonpro/oacam.h"
 #endif
+#if HAVE_PYLON
+#include "pylon/oacam.h"
+#endif
 
 
 oaInterface	oaCameraInterfaces[] = {
@@ -326,6 +329,18 @@ oaInterface	oaCameraInterfaces[] = {
     "Risingcam",
     "RCam",
     oaOmegonprocamGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if HAVE_PYLON
+  {
+    OA_CAM_IF_PYLON,
+    "PYLON",
+    "Pylon",
+    oaPylonGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },
