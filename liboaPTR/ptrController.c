@@ -54,6 +54,8 @@ static int	_processGPSFetch ( PRIVATE_INFO*, OA_COMMAND* );
 static int	_processGPSFetchCached ( PRIVATE_INFO*, OA_COMMAND* );
 static int	_doSync ( PRIVATE_INFO* );
 static int	_readTimestamp ( uint32_t, int, char* );
+static void	_readResultCode ( PRIVATE_INFO*, int );
+
 /*
 static int	_processTimestampGPSData ( PRIVATE_INFO*, const char* );
  */
@@ -174,6 +176,9 @@ oaPTRcontroller ( void* param )
                 pthread_mutex_unlock ( &deviceInfo->callbackQueueMutex );
                 pthread_cond_broadcast ( &deviceInfo->callbackQueued );
                 if ( !--deviceInfo->timestampCountdown ) {
+									if ( deviceInfo->version >= 0x0200 ) {
+										_readResultCode ( deviceInfo, idx );
+									}
                   deviceInfo->isRunning = 0;
                 }
               } else {
@@ -647,6 +652,8 @@ _processTimestampFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 
   tsp->index = deviceInfo->timestampBuffer [ first ].index;
 	( void ) strcpy ( tsp->status, deviceInfo->timestampBuffer [ first ].status );
+	( void ) strcpy ( tsp->resultCode,
+			deviceInfo->timestampBuffer [ first ].resultCode );
 
   pthread_mutex_lock ( &deviceInfo->callbackQueueMutex );
   deviceInfo->firstTimestamp = ( deviceInfo->firstTimestamp + 1 ) %
@@ -802,6 +809,46 @@ _processGPSFetchCached ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 	return OA_ERR_NONE;
 }
 
+
+static void
+_readResultCode ( PRIVATE_INFO* deviceInfo, int idx )
+{
+	char	readBuffer[ 16 ];
+	int		numRead, i;
+
+	// FIX ME -- this is all a bit gross, copying code and being a bit
+	// careless with string sizes.  Should really clean it up.
+
+	deviceInfo->timestampBuffer[ idx ].resultCode[0] = '\0';
+
+	numRead = _readTimestamp ( deviceInfo->version, deviceInfo->fd, readBuffer );
+  if ( numRead != 5 ) { // 5 == result code length
+    fprintf ( stderr, "%s: read incorrect result code length %d (",
+				__FUNCTION__, numRead );
+		if ( numRead > 0 ) {
+			for ( i = 0; i < numRead; i++ ) {
+				if ( readBuffer[i] < 32 ) {
+					fprintf ( stderr, "%02x ", readBuffer[i] );
+				} else {
+					fprintf ( stderr, "%c ", readBuffer[i] );
+				}
+			}
+			fprintf ( stderr, ")\n" );
+			return;
+		}
+	}
+
+	if (( readBuffer[0] != 'T' && readBuffer[0] != 'C' ) ||
+			!isdigit ( readBuffer[1]) || !isdigit ( readBuffer[2]) ||
+			!isdigit ( readBuffer[3]) || !isdigit ( readBuffer[4])) {
+		fprintf ( stderr, "%s: read invalid result code format '%s'\n",
+				__FUNCTION__, readBuffer );
+		return;
+	}
+
+	( void ) strcpy ( deviceInfo->timestampBuffer[ idx ].resultCode,
+			readBuffer );
+}
 
 /*
  * As extended timestamps are no longer available, this function

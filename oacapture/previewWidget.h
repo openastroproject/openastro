@@ -2,7 +2,7 @@
  *
  * previewWidget.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2018,2019
+ * Copyright 2013,2014,2015,2016,2018,2019,2020
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -66,6 +66,7 @@ class PreviewWidget : public QFrame
     void		setFirstFrameTime ( void );
     void		beginRecording ( void );
     void		forceRecordingStop ( void );
+		const char*	getTimerResultCode ( void );
 
   public slots:
     void		recentreReticle ( void );
@@ -122,6 +123,7 @@ class PreviewWidget : public QFrame
     int			recordingInProgress;
     int			manualStop;
     int			focusScore;
+		char		lastTimerResultCode[64];
 
     unsigned int	reduceTo8Bit ( void*, void*, int, int, int );
     void		mousePressEvent ( QMouseEvent* );

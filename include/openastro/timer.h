@@ -31,6 +31,7 @@
 typedef struct {
   char		timestamp[64];
 	char		status[16];
+	char		resultCode[16];
   uint32_t	index;
 } oaTimerStamp;
 

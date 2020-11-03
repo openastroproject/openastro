@@ -1407,6 +1407,7 @@ void
 CaptureWidget::writeSettings ( OutputHandler* out )
 {
   unsigned long duration;
+	const char*		timerResultCode;
 
   QString settingsFile = out->getRecordingBasename();
   settingsFile += ".txt";
@@ -1683,6 +1684,12 @@ CaptureWidget::writeSettings ( OutputHandler* out )
 				commonState.altitude << std::endl;
 		}
 	
+		timerResultCode = state.previewWidget->getTimerResultCode();
+		if ( timerResultCode && *timerResultCode ) {
+			settings << tr ( "Timer result code: ").toStdString().c_str() <<
+				timerResultCode << std::endl;
+		}
+
     settings.close();
   } else {
     QMessageBox::warning ( TOP_WIDGET, APPLICATION_NAME,

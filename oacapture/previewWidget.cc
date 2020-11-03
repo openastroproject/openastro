@@ -735,6 +735,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
       // These calls should be thread-safe
 			TIMER_METADATA	timerData;
 			timerData.statusValid = timerData.sequenceNoValid = 0;
+			self->lastTimerResultCode[0] = '\0';
       if ( commonState->timer->isInitialised() &&
 					commonState->timer->isRunning()) {
         oaTimerStamp* ts = commonState->timer->readTimestamp();
@@ -742,6 +743,7 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
 				timerData.statusValid = timerData.sequenceNoValid = 1;
 				( void ) strcpy ( timerData.status, ts->status );
 				timerData.sequenceNo = ts->index;
+				( void ) strcpy ( self->lastTimerResultCode, ts->resultCode );
         comment = commentStr;
         ( void ) snprintf ( comment, 64, "Timer frame index: %d\n", ts->index );
       } else {
@@ -938,4 +940,11 @@ PreviewWidget::reduceTo8Bit ( void* sourceData, void* targetData, int xSize,
   }
 
   return outputFormat;
+}
+
+
+const char*
+PreviewWidget::getTimerResultCode ( void )
+{
+	return lastTimerResultCode;
 }
