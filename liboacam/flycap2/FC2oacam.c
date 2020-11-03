@@ -171,6 +171,7 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
      */
 
     if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
+			// FIX ME -- does this need to happen?
       _oaFreeCameraDeviceList ( deviceList );
       ( *p_fc2DestroyContext )( pgeContext );
       ( void ) free (( void* ) devList );
