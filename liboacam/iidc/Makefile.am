@@ -1,7 +1,7 @@
 #
 # Makefile.am -- liboacam IIDC Makefile template
 #
-# Copyright 2018 James Fidell (james@openastroproject.org)
+# Copyright 2018,2020 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -26,7 +26,7 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/include \
   -I$(top_srcdir)/ext/libusb \
   -I$(top_srcdir)/liboacam \
-  $(LIBUSB_CFLAGS) \
+  $(LIBUSB_CFLAGS) $(SHLIBS_CFLAGS) \
   $(LIBDC1394_CFLAGS) \
   $(DYNLIB_EXTN_CFLAGS)
 

@@ -2,7 +2,7 @@
  *
  * iidcDynloader.c -- handle dynamic loading of libdc1394
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -40,6 +40,7 @@
 #include <openastro/errno.h>
 #include <dc1394/dc1394.h>
 
+#include "oacamprivate.h"
 #include "IIDCprivate.h"
 
 
@@ -126,11 +127,28 @@ _iidcInitLibraryFunctionPointers ( void )
 {
 #if HAVE_LIBDL && !HAVE_STATIC_LIBDC1394
 	static void*		libHandle = 0;
+	char						libPath[ PATH_MAX+1 ];
+#if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
+  const char*		libName = "libdc1394.dylib";
+#else
+  const char*		libName = "libdc1394.so.22";
+#endif
 
-	if ( !libHandle ) {
-		if (!( libHandle = dlopen( "libdc1394.so.22", RTLD_LAZY ))) {
-			return OA_ERR_LIBRARY_NOT_FOUND;
+	*libPath = 0;
+	dlerror();
+  if ( !libHandle ) {
+		if ( installPathRoot ) {
+			( void ) strncpy ( libPath, installPathRoot, PATH_MAX );
 		}
+#ifdef SHLIB_PATH
+		( void ) strncat ( libPath, SHLIB_PATH, PATH_MAX );
+#endif
+		( void ) strncat ( libPath, libName, PATH_MAX );
+
+    if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
+      fprintf ( stderr, "can't load %s:\n%s\n", libPath, dlerror());
+      return OA_ERR_LIBRARY_NOT_FOUND;
+    }
 	}
 
 	dlerror();
