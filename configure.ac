@@ -937,7 +937,7 @@ if test -n "$PYLON_CONFIG"
 then
   AC_MSG_NOTICE([Using Basler pylon library])
 	PYLON_CFLAGS=`$PYLON_CONFIG --cflags-only-I pylonc`
-	PYLON_LDFLAGS=`$PYLON_CONFIG --libs-only-L --libs-rpath pylonc`
+	PYLON_LDFLAGS=`$PYLON_CONFIG --libs-only-L pylonc`
 	PYLON_LIBS=`$PYLON_CONFIG --libs-only-l pylonc`
 	AC_DEFINE([HAVE_PYLON],[1],[Have Basler Pylon SDK])
 fi
