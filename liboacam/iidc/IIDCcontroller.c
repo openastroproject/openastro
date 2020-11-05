@@ -2,7 +2,7 @@
  *
  * IIDCcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2017,2018,2019
+ * Copyright 2015,2016,2017,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -505,10 +505,10 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
       case OA_PIX_FMT_RGB24:
         cameraInfo->currentCodec = DC1394_COLOR_CODING_RGB8;
         break;
-      case OA_PIX_FMT_GREY16LE:
+      case OA_PIX_FMT_GREY16BE:
         cameraInfo->currentCodec = DC1394_COLOR_CODING_MONO16;
         break;
-      case OA_PIX_FMT_RGB48LE:
+      case OA_PIX_FMT_RGB48BE:
         cameraInfo->currentCodec = DC1394_COLOR_CODING_RGB16;
         break;
       case OA_PIX_FMT_GBRG8:
@@ -518,7 +518,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
           cameraInfo->currentCodec = DC1394_COLOR_CODING_RAW8;
         }
         break;
-      case OA_PIX_FMT_GBRG16LE:
+      case OA_PIX_FMT_GBRG16BE:
         cameraInfo->currentCodec = DC1394_COLOR_CODING_RAW16;
         break;
     }

@@ -783,7 +783,7 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
                 !camera->frameFormats[ OA_PIX_FMT_GREY8 ]) {
               cameraInfo->currentIIDCMode = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
               cameraInfo->currentCodec = coding;
-							// little endian is a guess here
+							// IIDC is big endian by definition
               cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY16BE;
             }
             camera->frameFormats[ OA_PIX_FMT_GREY16BE ] = 1;
@@ -794,7 +794,7 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
             if ( !rgbModeFound ) {
               cameraInfo->currentIIDCMode = DC1394_VIDEO_MODE_FORMAT7_MIN + i;
               cameraInfo->currentCodec = coding;
-							// another little-endian guess
+							// IIDC is big endian by definition
               cameraInfo->currentFrameFormat = OA_PIX_FMT_RGB48BE;
               rgbModeFound = 1;
             }
@@ -822,8 +822,7 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
               cameraInfo->currentCodec = coding;
               cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG16BE;
             }
-            // This is also a guess.  Could be GRBG, RGGB or BGGR, and could
-            // be little-endian
+            // This is also a guess.  Could be GRBG, RGGB or BGGR
             camera->frameFormats[ OA_PIX_FMT_GBRG16BE ] = 1;
 						camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
             rawModeFound = 1;
@@ -999,7 +998,7 @@ _processNonFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
             !camera->frameFormats[ OA_PIX_FMT_GREY8 ]) {
           cameraInfo->currentIIDCMode = videoModes.modes[i];
           cameraInfo->currentCodec = codec;
-					// little endian is a guess here
+					// IIDC is big endian by definition
           cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY16BE;
         }
         camera->frameFormats[ OA_PIX_FMT_GREY16BE ] = 1;
@@ -1009,7 +1008,7 @@ _processNonFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
         if ( !rgbModeFound ) {
           cameraInfo->currentIIDCMode = videoModes.modes[i];
           cameraInfo->currentCodec = codec;
-					// another little-endian guess
+					// IIDC is big endian by definition
           cameraInfo->currentFrameFormat = OA_PIX_FMT_RGB48BE;
           rgbModeFound = 1;
         }
@@ -1035,8 +1034,7 @@ _processNonFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
           cameraInfo->currentCodec = codec;
           cameraInfo->currentFrameFormat = OA_PIX_FMT_GBRG16BE;
         }
-        // This is also a guess.  Could be GRBG, RGGB or BGGR, and could
-        // be big-endian
+        // This is also a guess.  Could be GRBG, RGGB or BGGR
         camera->frameFormats[ OA_PIX_FMT_GBRG16BE ] = 1;
 				camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
         rawModeFound = 1;
