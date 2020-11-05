@@ -190,7 +190,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
 {
   oaControlValue	*val = command->commandData;
   int			control = command->controlId;
-  int			found, iidcControl = 0;
+  int			found, ret, iidcControl = 0;
   unsigned int		i;
 
   for ( i = 0, found = -1; found < 0 && i < numIIDCControls; i++ ) {
@@ -522,7 +522,10 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
         cameraInfo->currentCodec = DC1394_COLOR_CODING_RAW16;
         break;
     }
-    return _doCameraConfig ( cameraInfo );
+    if (( ret = _doCameraConfig ( cameraInfo )) == OA_ERR_NONE ) {
+			cameraInfo->currentFrameFormat = format;
+		}
+		return ret;
   }
 
   fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
