@@ -101,6 +101,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
   dc1394camera_t*       iidcCam;
   dc1394video_modes_t   videoModes;
   dc1394featureset_t    features;
+	dc1394feature_info_t	frFeature;
   oaCamera*             camera;
   int                   oaControl, oaAutoControl, oaOnOffControl, use1394B;
   unsigned int		i;
@@ -158,12 +159,6 @@ oaIIDCInitCamera ( oaCameraDevice* device )
     }
   }
 
-  if ( p_dc1394_feature_get_all ( iidcCam, &features ) != DC1394_SUCCESS ) {
-    fprintf ( stderr, "%s: dc1394_feature_get_all failed\n", __FUNCTION__ );
-    FREE_DATA_STRUCTS;
-    return 0;
-  }
-
   camera->interface = device->interface;
 
   cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
@@ -179,6 +174,30 @@ oaIIDCInitCamera ( oaCameraDevice* device )
   // a problem on Linux, but makes OSX barf if we don't.
   usleep ( 60000 );
 
+	// Some IIDC cameras allow longer exposures if the frame rate is turned
+	// off (assuming they support it), so do that first before requesting
+	// the data for all features supported by the camera
+
+	frFeature.id = DC1394_FEATURE_FRAME_RATE;
+  if ( p_dc1394_feature_get ( iidcCam, &frFeature ) != DC1394_SUCCESS ) {
+    fprintf ( stderr, "%s: dc1394_feature_get ( frame rate ) failed\n",
+			__FUNCTION__ );
+    FREE_DATA_STRUCTS;
+    return 0;
+  }
+
+	if ( frFeature.available && frFeature.on_off_capable && frFeature.is_on ) {
+		if ( p_dc1394_feature_set_power ( iidcCam, DC1394_FEATURE_FRAME_RATE,
+				DC1394_OFF ) != DC1394_SUCCESS ) {
+			fprintf ( stderr, "Unable to turn off frame rate control\n" );
+		}
+	}
+
+  if ( p_dc1394_feature_get_all ( iidcCam, &features ) != DC1394_SUCCESS ) {
+    fprintf ( stderr, "%s: dc1394_feature_get_all failed\n", __FUNCTION__ );
+    FREE_DATA_STRUCTS;
+    return 0;
+  }
 
   // FIX ME
   // There's a lot of work still to be done here.  For most stuff I'm

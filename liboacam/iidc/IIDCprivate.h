@@ -2,7 +2,7 @@
  *
  * IIDCprivate.h -- internal header for IIDC camera interface
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -53,6 +53,8 @@ extern dc1394error_t		( *p_dc1394_external_trigger_set_power )(
 														dc1394camera_t*, dc1394switch_t );
 extern dc1394error_t		( *p_dc1394_feature_get_absolute_value )(
 														dc1394camera_t*, dc1394feature_t, float* );
+extern dc1394error_t		( *p_dc1394_feature_get )( dc1394camera_t*,
+														dc1394feature_info_t* );
 extern dc1394error_t		( *p_dc1394_feature_get_all )( dc1394camera_t*,
 														dc1394featureset_t* );
 extern dc1394error_t		( *p_dc1394_feature_get_mode )( dc1394camera_t*,

@@ -67,6 +67,8 @@ dc1394error_t		( *p_dc1394_external_trigger_set_power )( dc1394camera_t*,
 										dc1394switch_t );
 dc1394error_t		( *p_dc1394_feature_get_absolute_value )( dc1394camera_t*,
 										dc1394feature_t, float* );
+dc1394error_t		( *p_dc1394_feature_get )( dc1394camera_t*,
+											dc1394feature_info_t* );
 dc1394error_t		( *p_dc1394_feature_get_all )( dc1394camera_t*,
 											dc1394featureset_t* );
 dc1394error_t		( *p_dc1394_feature_get_mode )( dc1394camera_t*,
@@ -246,6 +248,13 @@ _iidcInitLibraryFunctionPointers ( void )
 
   if (!( *( void** )( &p_dc1394_feature_get_absolute_value ) =
 			_getDLSym ( libHandle, "dc1394_feature_get_absolute_value" ))) {
+    dlclose ( libHandle );
+    libHandle = 0;
+    return OA_ERR_SYMBOL_NOT_FOUND;
+  }
+
+  if (!( *( void** )( &p_dc1394_feature_get ) = _getDLSym ( libHandle,
+      "dc1394_feature_get" ))) {
     dlclose ( libHandle );
     libHandle = 0;
     return OA_ERR_SYMBOL_NOT_FOUND;
