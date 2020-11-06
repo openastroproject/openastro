@@ -59,7 +59,7 @@ ln -s . $APPDIR/Contents/Resources/firmware/qhy/firmware
 
 /opt/local/bin/macdeployqt $APPDIR
 
-for lib in toupcam mallincam altaircam altaircamlegacy qhyccd
+for lib in toupcam mallincam altaircam altaircamlegacy qhyccd omegonprocam nncam starshootg
 do
   libfile=ext/lib$lib/mac64/lib$lib.dylib
   if [ -f $libfile ]
