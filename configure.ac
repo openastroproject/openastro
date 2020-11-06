@@ -1356,7 +1356,7 @@ case $host in
     AC_CONFIG_LINKS([$ext6/libqhyccd/libqhyccd.dylib:ext/libqhyccd/mac64/libqhyccd.dylib])
     AC_CONFIG_LINKS([$ext7/libstarshootg/libstarshootg.dylib:ext/libstarshootg/mac/libstarshootg.dylib])
     AC_CONFIG_LINKS([$ext8/libnncam/libnncam.dylib:ext/libnncam/mac/libnncam.dylib])
-    AC_CONFIG_LINKS([$ext9/libomegonpro/libomegonprocam.dylib:ext/libomegonpro/mac64/libomegonprocam.dylib])
+    AC_CONFIG_LINKS([$ext9/libomegonprocam/libomegonprocam.dylib:ext/libomegonprocam/mac64/libomegonprocam.dylib])
     OSX_FRAMEWORKS="-framework Carbon -framework VideoDecodeAcceleration -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
     FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
 		SHLIBS_CFLAGS="-DSHLIB_PATH=\\\"/MacOS/\\\""
@@ -1519,7 +1519,7 @@ if test "x$use_system_libomegonprocam" == "xno"
 then
 	if test "x$have_omegonprocam" != "xno"
 	then
-		LIBOMEGONPROCAM_CFLAGS="-I \$(top_srcdir)/ext/libomegonpro/include"
+		LIBOMEGONPROCAM_CFLAGS="-I \$(top_srcdir)/ext/libomegonprocam/include"
 		LIBOMEGONPROCAM_LIBS=""
 		AC_DEFINE([HAVE_LIBOMEGONPROCAM],[1],[Have Omegon library support])
 	fi
