@@ -2,7 +2,8 @@
  *
  * oavideo.c -- main oavideo library entrypoint
  *
- * Copyright 2014,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2017,2018,2020
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -43,8 +44,26 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
 
   switch ( sourceFormat ) {
     case OA_PIX_FMT_GREY10_16BE:
+      length = 2 * xSize * ySize;
+      if ( OA_PIX_FMT_GREY8 == targetFormat ) {
+        oaBigEndianShifted16BitTo8Bit ( source, target, length, 2 );
+        result = 0;
+      }
+      break;
     case OA_PIX_FMT_GREY12_16BE:
+      length = 2 * xSize * ySize;
+      if ( OA_PIX_FMT_GREY8 == targetFormat ) {
+        oaBigEndianShifted16BitTo8Bit ( source, target, length, 4 );
+        result = 0;
+      }
+      break;
     case OA_PIX_FMT_GREY14_16BE:
+      length = 2 * xSize * ySize;
+      if ( OA_PIX_FMT_GREY8 == targetFormat ) {
+        oaBigEndianShifted16BitTo8Bit ( source, target, length, 6 );
+        result = 0;
+      }
+      break;
     case OA_PIX_FMT_GREY16BE:
       length = 2 * xSize * ySize;
       if ( OA_PIX_FMT_GREY8 == targetFormat ) {
@@ -81,8 +100,26 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
       }
       break;
     case OA_PIX_FMT_GREY10_16LE:
+      length = 2 * xSize * ySize;
+      if ( OA_PIX_FMT_GREY8 == targetFormat ) {
+        oaLittleEndianShifted16BitTo8Bit ( source, target, length, 2 );
+        result = 0;
+      }
+      break;
     case OA_PIX_FMT_GREY12_16LE:
+      length = 2 * xSize * ySize;
+      if ( OA_PIX_FMT_GREY8 == targetFormat ) {
+        oaLittleEndianShifted16BitTo8Bit ( source, target, length, 4 );
+        result = 0;
+      }
+      break;
     case OA_PIX_FMT_GREY14_16LE:
+      length = 2 * xSize * ySize;
+      if ( OA_PIX_FMT_GREY8 == targetFormat ) {
+        oaLittleEndianShifted16BitTo8Bit ( source, target, length, 6 );
+        result = 0;
+      }
+      break;
     case OA_PIX_FMT_GREY16LE:
       length = 2 * xSize * ySize;
       if ( OA_PIX_FMT_GREY8 == targetFormat ) {

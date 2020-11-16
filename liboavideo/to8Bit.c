@@ -57,6 +57,46 @@ oaLittleEndian16BitTo8Bit ( void* source, void* target, unsigned int length )
 
 
 void
+oaBigEndianShifted16BitTo8Bit ( void* source, void* target,
+		unsigned int length, unsigned int shift )
+{
+  uint8_t*	s = source;
+  uint8_t*	t = target;
+	uint16_t	val16;
+	uint8_t		val8;
+  
+  do {
+		val16 = ( *s++ ) << 8;
+		val16 |= *s++;
+		val16 >>= shift;
+		val8 = val16 & 0xff;
+    *t++ = val8;
+    length -= 2;
+  } while ( length );
+}
+
+
+void
+oaLittleEndianShifted16BitTo8Bit ( void* source, void* target,
+		unsigned int length, unsigned int shift )
+{
+  uint8_t*	s = source;
+  uint8_t*	t = target;
+	uint16_t	val16;
+	uint8_t		val8;
+  
+  do {
+		val16 = *s++;
+		val16 |= ( *s++ ) << 8;
+		val16 >>= shift;
+		val8 = val16 & 0xff;
+    *t++ = val8;
+    length -= 2;
+  } while ( length );
+}
+
+
+void
 oaPackedGrey12ToGrey8 ( void* source, void* target, unsigned int length )
 {
   uint8_t*	s = source;
