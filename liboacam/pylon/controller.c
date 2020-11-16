@@ -435,14 +435,16 @@ _processGetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ):
 		{
-			_Bool			curr;
+			char			curr[256];
+			size_t		len;
 
+			len = sizeof ( curr );
 			val->valueType = OA_CTRL_TYPE_BOOLEAN;
-			if ( p_PylonDeviceGetBooleanFeature ( cameraInfo->deviceHandle,
-					"ExposureAuto", &curr ) != GENAPI_E_OK ) {
+			if ( p_PylonDeviceFeatureToString ( cameraInfo->deviceHandle,
+					"ExposureAuto", curr, &len ) != GENAPI_E_OK ) {
 				fprintf ( stderr, "Get ExposureAuto failed\n" );
 			}
-			val->boolean = curr ? 1 : 0;
+			val->boolean = !strcmp ( curr, "Continuous" );
 			break;
 		}
 		default:
