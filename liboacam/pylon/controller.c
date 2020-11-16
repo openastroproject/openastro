@@ -784,94 +784,36 @@ _doBinning ( PYLON_STATE* cameraInfo, int binMode )
 static int
 _doFrameFormat ( PYLON_STATE* cameraInfo, int format )
 {
-/*
-  fc2GigEImageSettings	settings;
-  int			restart = 0;
+  int							i, n, restart = 0;
+	const char*			pylonFormat = 0;
+	GENAPIC_RESULT	res;
 
-  if (( p_fc2GetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
-      FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get FC2 image settings\n" );
-    return -OA_ERR_CAMERA_IO;
-  }
+	n = sizeof ( _frameFormats ) / sizeof ( pylonFrameInfo );
+	for ( i = 0; i < n && !pylonFormat; i++ ) {
+		if ( _frameFormats[i].pixFormat == format ) {
+			pylonFormat = _frameFormats[i].pylonName;
+		}
+	}
 
-  switch ( format ) {
-    case OA_PIX_FMT_GREY8:
-      settings.pixelFormat = FC2_PIXEL_FORMAT_MONO8;
-      break;
-    case OA_PIX_FMT_YUV411:
-      settings.pixelFormat = FC2_PIXEL_FORMAT_411YUV8;
-      break;
-    case OA_PIX_FMT_YUV422:
-      settings.pixelFormat = FC2_PIXEL_FORMAT_422YUV8;
-      break;
-    case OA_PIX_FMT_YUV444:
-      settings.pixelFormat = FC2_PIXEL_FORMAT_444YUV8;
-      break;
-    case OA_PIX_FMT_RGB24:
-      settings.pixelFormat = FC2_PIXEL_FORMAT_RGB8;
-      break;
-    case OA_PIX_FMT_GREY16BE:
-    case OA_PIX_FMT_GREY16LE:
-      settings.pixelFormat = FC2_PIXEL_FORMAT_MONO16;
-      break;
-    case OA_PIX_FMT_RGB48BE:
-    case OA_PIX_FMT_RGB48LE:
-      settings.pixelFormat = FC2_PIXEL_FORMAT_RGB16;
-      break;
-    case OA_PIX_FMT_RGGB8:
-    case OA_PIX_FMT_BGGR8:
-    case OA_PIX_FMT_GRBG8:
-    case OA_PIX_FMT_GBRG8:
-      settings.pixelFormat = FC2_PIXEL_FORMAT_RAW8;
-      break;
-    case OA_PIX_FMT_RGGB16BE:
-    case OA_PIX_FMT_RGGB16LE:
-    case OA_PIX_FMT_BGGR16BE:
-    case OA_PIX_FMT_BGGR16LE:
-    case OA_PIX_FMT_GRBG16BE:
-    case OA_PIX_FMT_GRBG16LE:
-    case OA_PIX_FMT_GBRG16BE:
-    case OA_PIX_FMT_GBRG16LE:
-      settings.pixelFormat = FC2_PIXEL_FORMAT_RAW16;
-      break;
-    case OA_PIX_FMT_GREY12:
-      settings.pixelFormat = FC2_PIXEL_FORMAT_MONO12;
-      break;
-    case OA_PIX_FMT_RGGB12:
-    case OA_PIX_FMT_BGGR12:
-    case OA_PIX_FMT_GRBG12:
-    case OA_PIX_FMT_GBRG12:
-      settings.pixelFormat = FC2_PIXEL_FORMAT_RAW12;
-      break;
-    case OA_PIX_FMT_BGR24:
-      settings.pixelFormat = FC2_PIXEL_FORMAT_BGR;
-      break;
-    case OA_PIX_FMT_BGR48BE:
-    case OA_PIX_FMT_BGR48LE:
-      settings.pixelFormat = FC2_PIXEL_FORMAT_BGR16;
-      break;
-  }
+	if ( !pylonFormat ) {
+		return -OA_ERR_OUT_OF_RANGE;
+	}
 
   if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
     restart = 1;
     _doStop ( cameraInfo );
   }
 
-  if (( p_fc2SetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
-      FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set FC2 image settings\n" );
-    return -OA_ERR_CAMERA_IO;
-  }
-
-  cameraInfo->currentVideoFormat = settings.pixelFormat;
+	if (( res = p_PylonDeviceFeatureFromString ( cameraInfo->deviceHandle,
+			"PixelFormat", pylonFormat )) != GENAPI_E_OK ) {
+		unsigned int r = res;
+		fprintf ( stderr, "set PixelFormat (%s) failed: %08x\n", pylonFormat, r );
+	}
   cameraInfo->currentFrameFormat = format;
-  cameraInfo->currentBytesPerPixel = oaFrameFormats[ format ].bytesPerPixel;
-  cameraInfo->imageBufferLength = cameraInfo->xSize * cameraInfo->ySize *
-    cameraInfo->currentBytesPerPixel;
 
   if ( restart ) {
     _doStart ( cameraInfo );
   }
-*/
+
   return OA_ERR_NONE;
 }
