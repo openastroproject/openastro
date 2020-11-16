@@ -414,7 +414,8 @@ ControlWidget::configure ( void )
     selectableControlsAllowed[1][ c ] = -1;
     // the index of this control in each of the drop-downs
     selectableControlIndexes[0][ c ] = selectableControlIndexes[1][ c ] = -1;
-    if ( c != OA_CAM_CTRL_GAIN && c != state.preferredExposureControl ) {
+    if ( c != OA_CAM_CTRL_GAIN && c != state.preferredExposureControl &&
+				c != OA_CAM_CTRL_BINNING ) {
       type = commonState.camera->hasControl ( c );
       if ( OA_CTRL_TYPE_INT32 == type || OA_CTRL_TYPE_INT64 == type ) {
         if ( replaceSelectable1 <= 0 ) {
