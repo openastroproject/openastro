@@ -611,8 +611,6 @@ oaPylonInitCamera ( oaCameraDevice* device )
 		commonInfo->OA_CAM_CTRL_STEP( expTimeCtrl ) = istep;
 		// a guess here
 		commonInfo->OA_CAM_CTRL_DEF( expTimeCtrl ) = icurr;
-		fprintf ( stderr, "exposure time: %ld, %ld, %ld, %ld\n", imin, imax,
-				istep, icurr );
 	}
 
 	// And do we have an auto mode for exposure?
