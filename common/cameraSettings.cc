@@ -112,6 +112,11 @@ CameraSettings::configure ( void )
             case OA_CTRL_TYPE_INT32:
             case OA_CTRL_TYPE_INT64:
             {
+              // don't show these up as unhandled
+              if ( OA_CAM_CTRL_BINNING == c ) {
+                added[mod][baseVal] = 1;
+                break;
+              }
               numSliders++;
               controlLabel[mod][baseVal] = new QLabel ( tr (
                   oaCameraControlLabel[baseVal] ));
@@ -323,10 +328,11 @@ CameraSettings::configure ( void )
   for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
     for ( mod = OA_CAM_CTRL_MODIFIER_STD; mod < OA_CAM_CTRL_MODIFIERS_P1;
         mod++ ) {
-      if ( OA_CTRL_TYPE_INT32 ==
+      if (( OA_CTRL_TYPE_INT32 ==
           controlType[OA_CAM_CTRL_MODIFIER_STD][baseVal] ||
           OA_CTRL_TYPE_INT64 ==
-          controlType[OA_CAM_CTRL_MODIFIER_STD][baseVal] ) {
+          controlType[OA_CAM_CTRL_MODIFIER_STD][baseVal] ) &&
+          !added[mod][baseVal]) {
         if ( OA_CAM_CTRL_MODIFIER_STD == mod ) {
           sliderGrid->addWidget ( controlLabel[mod][baseVal], row, col++ );
           sliderGrid->addWidget ( controlSlider[mod][baseVal], row, col + 2 );
