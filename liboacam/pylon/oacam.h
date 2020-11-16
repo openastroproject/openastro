@@ -28,6 +28,30 @@
 #ifndef OA_PYLON_OACAM_H
 #define OA_PYLON_OACAM_H
 
-extern int		oaPylonGetCameras ( CAMERA_LIST*, unsigned long, int );
+extern int				oaPylonGetCameras ( CAMERA_LIST*, unsigned long, int );
+extern oaCamera*	oaPylonInitCamera ( oaCameraDevice* );
+
+extern int		oaPylonCloseCamera ( oaCamera* );
+
+extern int		oaPylonCameraTestControl ( oaCamera*, int,
+				oaControlValue* );
+extern int		oaPylonCameraGetControlRange ( oaCamera*, int,
+				int64_t*, int64_t*, int64_t*, int64_t* );
+/*
+extern int		oaPylonCameraGetControlDiscreteSet ( oaCamera*, int,
+				int32_t*, int64_t** );
+*/
+
+extern int		oaPylonCameraTestROISize ( oaCamera*, unsigned int,
+			    unsigned int, unsigned int*, unsigned int* );
+
+extern void*		oacamPylonController ( void* );
+extern void*		oacamPylonCallbackHandler ( void* );
+
+extern const FRAMESIZES* oaPylonCameraGetFrameSizes ( oaCamera* );
+//extern const FRAMERATES* oaPylonCameraGetFrameRates ( oaCamera*, int, int );
+extern int		oaPylonCameraGetFramePixelFormat ( oaCamera* );
+
+//extern const char*	oaPylonCameraGetMenuString ( oaCamera*, int, int );
 
 #endif	/* OA_PYLON_OACAM_H */

@@ -34,9 +34,8 @@
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
-#include "oacam.h"
 #include "private.h"
-
+#include "oacam.h"
 
 /**
  * Cycle through the list of cameras returned by the Pylon library
@@ -58,58 +57,60 @@ oaPylonGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 		return ret;
 	}
 
-	( *p_PylonInitialize )();
+	( p_PylonInitialize )();
 
-	if (( *p_PylonEnumerateDevices )( &numCameras ) != GENAPI_E_OK ) {
+	if (( p_PylonEnumerateDevices )( &numCameras ) != GENAPI_E_OK ) {
 		fprintf ( stderr, "Can't enumerate Basler devices\n" );
-		( *p_PylonTerminate )();
+		( p_PylonTerminate )();
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
   if ( !numCameras ) {
-		( *p_PylonTerminate )();
+		( p_PylonTerminate )();
     return 0;
   }
 
   for ( i = 0; i < numCameras; i++ ) {
-		if (( *p_PylonCreateDeviceByIndex )( i, &deviceHandle ) != GENAPI_E_OK ) {
+		if (( p_PylonCreateDeviceByIndex )( i, &deviceHandle ) != GENAPI_E_OK ) {
 			fprintf ( stderr, "Error creating Basler device by index\n" );
-			( *p_PylonTerminate )();
+			( p_PylonTerminate )();
 			return -OA_ERR_SYSTEM_ERROR;
 		}
 
-		if (( *p_PylonDeviceOpen )( deviceHandle, PYLONC_ACCESS_MODE_CONTROL ) !=
+		if (( p_PylonDeviceOpen )( deviceHandle, PYLONC_ACCESS_MODE_CONTROL ) !=
 				GENAPI_E_OK ) {
 			fprintf ( stderr, "Error opening Basler device %d\n", i );
-			( *p_PylonTerminate )();
+			( p_PylonTerminate )();
 			return -OA_ERR_SYSTEM_ERROR;
 		}
 
-		if (( *p_PylonDeviceFeatureIsReadable )( deviceHandle,
+		if (( p_PylonDeviceFeatureIsReadable )( deviceHandle,
 				"DeviceModelName" )) {
 			size = sizeof ( buffer );
-			if (( *p_PylonDeviceFeatureToString )( deviceHandle, "DeviceModelName",
+			if (( p_PylonDeviceFeatureToString )( deviceHandle, "DeviceModelName",
 					buffer, &size ) != GENAPI_E_OK ) {
 				fprintf ( stderr, "Reading Basler DeviceModelName failed" );
-				( *p_PylonDeviceClose )( deviceHandle );
-			  ( *p_PylonTerminate )();
+				( p_PylonDeviceClose )( deviceHandle );
+				( p_PylonDestroyDevice )( deviceHandle );
+			  ( p_PylonTerminate )();
 				return -OA_ERR_SYSTEM_ERROR;
 			}
 		} else {
 			( void ) strcpy ( buffer, "unknown camera" );
 		}
 
-		( *p_PylonDeviceClose )( deviceHandle );
+		( p_PylonDeviceClose )( deviceHandle );
+		( p_PylonDestroyDevice )( deviceHandle );
 
     if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
 			_oaFreeCameraDeviceList ( deviceList );
-			( *p_PylonTerminate )();
+			( p_PylonTerminate )();
       return -OA_ERR_MEM_ALLOC;
     }
 
     if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
       ( void ) free (( void* ) dev );
-			( *p_PylonTerminate )();
+			( p_PylonTerminate )();
       return -OA_ERR_MEM_ALLOC;
     }
 
@@ -117,18 +118,25 @@ oaPylonGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
     dev->interface = OA_CAM_IF_PYLON;
     ( void ) strncpy ( dev->deviceName, buffer, OA_MAX_NAME_LEN );
     dev->_private = _private;
-    // dev->initCamera = oaPylonInitCamera;
+    dev->initCamera = oaPylonInitCamera;
+		_private->devIndex = i;
+
+		/* FIX ME
+		 * Perhaps we should use the info handle entry for the serial number
+		 * to identify the camera?
+		 * Or use PylonGetDeviceInfoHandle to get the IP address?
+		 */
 
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
       ( void ) free (( void* ) dev );
       ( void ) free (( void* ) _private );
-			( *p_PylonTerminate )();
+			( p_PylonTerminate )();
       return ret;
     }
     deviceList->cameraList[ deviceList->numCameras++ ] = dev;
     numFound++;
   }
 
-	( *p_PylonTerminate )();
+	( p_PylonTerminate )();
   return numFound;
 }

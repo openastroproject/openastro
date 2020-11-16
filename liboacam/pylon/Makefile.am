@@ -30,7 +30,8 @@ AM_CPPFLAGS = \
 
 noinst_LTLIBRARIES = libpylon.la
 
-libpylon_la_SOURCES = oacam.c dynloader.c
+libpylon_la_SOURCES = oacam.c dynloader.c connect.c nodes.c controller.c \
+											callback.c control.c getState.c roi.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

@@ -2,7 +2,7 @@
  *
  * controller.h -- common definitions for device controller queues
  *
- * Copyright 2015,2016,2017,2018,2019
+ * Copyright 2015,2016,2017,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -46,6 +46,7 @@ typedef struct {
   void*                 buffer;
   void*                 metadata;
   int                   bufferLen;
+	unsigned int					bufferIdx;
 } CALLBACK;
 
 #define OA_CMD_CONTROL_SET              0x01
