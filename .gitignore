@@ -88,6 +88,7 @@ ui_*.h
 # Other files created at build time
 .deps
 .libs
+.dirstamp
 *.pc
 /ext/libusb/doc/doxygen.cfg
 /ext/libusb/examples/dpfp
