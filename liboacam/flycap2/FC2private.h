@@ -82,4 +82,4 @@ extern fc2Error				( *p_fc2SetEmbeddedImageInfo )( fc2Context,
 													fc2EmbeddedImageInfo* );
 
 
-#endif	/* OA_FC2_OACAM_H */
+#endif	/* OA_FC2_PRIVATE_H */
