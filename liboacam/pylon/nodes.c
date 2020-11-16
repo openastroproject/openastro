@@ -61,10 +61,10 @@ _pylonGetEnumerationNode ( NODEMAP_HANDLE nodeMap, const char* nodeName,
 			fprintf ( stderr, "GenApiNodeIsReadable ('%s') failed\n", nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
-	}
-	if ( !res ) {
-		fprintf ( stderr, "node %s is not readable\n", nodeName );
-		return -OA_ERR_NOT_READABLE;
+		if ( !res ) {
+			fprintf ( stderr, "node %s is not readable\n", nodeName );
+			return -OA_ERR_NOT_READABLE;
+		}
 	}
 
 	if ( readWrite & 0x2 ) {
@@ -72,10 +72,10 @@ _pylonGetEnumerationNode ( NODEMAP_HANDLE nodeMap, const char* nodeName,
 			fprintf ( stderr, "GenApiNodeIsWritable ('%s') failed\n", nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
-	}
-	if ( !res ) {
-		fprintf ( stderr, "node %s is not writeable\n", nodeName );
-		return -OA_ERR_NOT_WRITEABLE;
+		if ( !res ) {
+			fprintf ( stderr, "node %s is not writeable\n", nodeName );
+			return -OA_ERR_NOT_WRITEABLE;
+		}
 	}
 
 	return OA_ERR_NONE;
@@ -108,10 +108,10 @@ _pylonGetBooleanNode ( NODEMAP_HANDLE nodeMap, const char* nodeName,
 			fprintf ( stderr, "GenApiNodeIsReadable ('%s') failed\n", nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
-	}
-	if ( !res ) {
-		fprintf ( stderr, "node %s is not readable\n", nodeName );
-		return -OA_ERR_NOT_READABLE;
+		if ( !res ) {
+			fprintf ( stderr, "node %s is not readable\n", nodeName );
+			return -OA_ERR_NOT_READABLE;
+		}
 	}
 
 	if ( readWrite & 0x2 ) {
@@ -119,10 +119,10 @@ _pylonGetBooleanNode ( NODEMAP_HANDLE nodeMap, const char* nodeName,
 			fprintf ( stderr, "GenApiNodeIsWritable ('%s') failed\n", nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
-	}
-	if ( !res ) {
-		fprintf ( stderr, "node %s is not writeable\n", nodeName );
-		return -OA_ERR_NOT_WRITEABLE;
+		if ( !res ) {
+			fprintf ( stderr, "node %s is not writeable\n", nodeName );
+			return -OA_ERR_NOT_WRITEABLE;
+		}
 	}
 
 	return OA_ERR_NONE;
@@ -155,10 +155,10 @@ _pylonGetIntNode ( NODEMAP_HANDLE nodeMap, const char* nodeName,
 			fprintf ( stderr, "GenApiNodeIsReadable ('%s') failed\n", nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
-	}
-	if ( !res ) {
-		fprintf ( stderr, "node %s is not readable\n", nodeName );
-		return -OA_ERR_NOT_READABLE;
+		if ( !res ) {
+			fprintf ( stderr, "node %s is not readable\n", nodeName );
+			return -OA_ERR_NOT_READABLE;
+		}
 	}
 
 	if ( readWrite & 0x2 ) {
@@ -166,10 +166,10 @@ _pylonGetIntNode ( NODEMAP_HANDLE nodeMap, const char* nodeName,
 			fprintf ( stderr, "GenApiNodeIsWritable ('%s') failed\n", nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
-	}
-	if ( !res ) {
-		fprintf ( stderr, "node %s is not writeable\n", nodeName );
-		return -OA_ERR_NOT_WRITEABLE;
+		if ( !res ) {
+			fprintf ( stderr, "node %s is not writeable\n", nodeName );
+			return -OA_ERR_NOT_WRITEABLE;
+		}
 	}
 
 	return OA_ERR_NONE;
@@ -202,10 +202,10 @@ _pylonGetFloatNode ( NODEMAP_HANDLE nodeMap, const char* nodeName,
 			fprintf ( stderr, "GenApiNodeIsReadable ('%s') failed\n", nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
-	}
-	if ( !res ) {
-		fprintf ( stderr, "node %s is not readable\n", nodeName );
-		return -OA_ERR_NOT_READABLE;
+		if ( !res ) {
+			fprintf ( stderr, "node %s is not readable\n", nodeName );
+			return -OA_ERR_NOT_READABLE;
+		}
 	}
 
 	if ( readWrite & 0x2 ) {
@@ -213,10 +213,10 @@ _pylonGetFloatNode ( NODEMAP_HANDLE nodeMap, const char* nodeName,
 			fprintf ( stderr, "GenApiNodeIsWritable ('%s') failed\n", nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
-	}
-	if ( !res ) {
-		fprintf ( stderr, "node %s is not writeable\n", nodeName );
-		return -OA_ERR_NOT_WRITEABLE;
+		if ( !res ) {
+			fprintf ( stderr, "node %s is not writeable\n", nodeName );
+			return -OA_ERR_NOT_WRITEABLE;
+		}
 	}
 
 	return OA_ERR_NONE;
