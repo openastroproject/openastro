@@ -698,8 +698,6 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			CLOSE_PYLON;
 			return 0;
 		}
-		fprintf ( stderr, "hbin: %ld, %ld, %ld, %ld\n", hmin, hmax, hstep,
-				hcurr );
 		cameraInfo->node_BinningHorizontal = node;
 		if ( hmax > 1 ) {
 			if (( ret = _pylonGetIntNode ( nodeMap, "BinningVertical", 0x03,
@@ -711,8 +709,6 @@ oaPylonInitCamera ( oaCameraDevice* device )
 					CLOSE_PYLON;
 					return 0;
 				}
-				fprintf ( stderr, "hbin: %ld, %ld, %ld, %ld\n", vmin, vmax, vstep,
-						vcurr );
 			}
 			cameraInfo->node_BinningVertical = node;
 			if ( vmax > 1 ) {
@@ -748,8 +744,6 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			CLOSE_PYLON;
 			return 0;
 		}
-		fprintf ( stderr, "width: %ld, %ld, %ld, %ld\n", imin, imax, istep,
-				icurr );
 		cameraInfo->minResolutionX = imin;
 		cameraInfo->maxResolutionX = imax;
 		cameraInfo->xSize = icurr;
@@ -772,8 +766,6 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			CLOSE_PYLON;
 			return 0;
 		}
-		fprintf ( stderr, "height: %ld, %ld, %ld, %ld\n", imin, imax, istep,
-				icurr );
 		cameraInfo->minResolutionY = imin;
 		cameraInfo->maxResolutionY = imax;
 		cameraInfo->ySize = icurr;
