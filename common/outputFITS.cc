@@ -108,6 +108,9 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
     case OA_PIX_FMT_RGGB16LE:
     case OA_PIX_FMT_GBRG16LE:
     case OA_PIX_FMT_GRBG16LE:
+    case OA_PIX_FMT_GREY10_16LE:
+    case OA_PIX_FMT_GREY12_16LE:
+    case OA_PIX_FMT_GREY14_16LE:
       bitpix = USHORT_IMG;
       nAxes = 2;
       if ( *firstByte == 0x12 ) {
@@ -119,6 +122,9 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
       break;
 
     case OA_PIX_FMT_GREY16BE:
+    case OA_PIX_FMT_GREY10_16BE:
+    case OA_PIX_FMT_GREY12_16BE:
+    case OA_PIX_FMT_GREY14_16BE:
     case OA_PIX_FMT_BGGR16BE:
     case OA_PIX_FMT_RGGB16BE:
     case OA_PIX_FMT_GBRG16BE:
