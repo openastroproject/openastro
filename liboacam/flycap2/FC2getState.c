@@ -197,6 +197,8 @@ oaFC2CameraGetFramePixelFormat ( oaCamera* camera )
       return OA_PIX_FMT_BGR24;
       break;
     case FC2_PIXEL_FORMAT_MONO12:
+      return OA_PIX_FMT_GREY12P;
+			break;
     case FC2_PIXEL_FORMAT_MONO16:
     case FC2_PIXEL_FORMAT_S_MONO16:
       return cameraInfo->bigEndian ? OA_PIX_FMT_GREY16BE : OA_PIX_FMT_GREY16LE;

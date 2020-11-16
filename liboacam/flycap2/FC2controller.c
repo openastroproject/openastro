@@ -1152,7 +1152,7 @@ _doFrameFormat ( FC2_STATE* cameraInfo, int format )
     case OA_PIX_FMT_GBRG16LE:
       settings.pixelFormat = FC2_PIXEL_FORMAT_RAW16;
       break;
-    case OA_PIX_FMT_GREY12:
+    case OA_PIX_FMT_GREY12P:
       settings.pixelFormat = FC2_PIXEL_FORMAT_MONO12;
       break;
     case OA_PIX_FMT_RGGB12:

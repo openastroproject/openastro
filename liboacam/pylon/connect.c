@@ -45,7 +45,7 @@ static void _pylonInitFunctionPointers ( oaCamera* );
 
 pylonFrameInfo	_frameFormats[17] = {
 	{ "Mono8", OA_PIX_FMT_GREY8 },
-	{ "Mono10", OA_PIX_FMT_GREY10 },
+	{ "Mono10", OA_PIX_FMT_GREY10_16LE },
 	{ "Mono12", OA_PIX_FMT_GREY12_16LE },
 	{ "RGB8", OA_PIX_FMT_RGB24 },
 	{ "BGR8", OA_PIX_FMT_BGR24 },

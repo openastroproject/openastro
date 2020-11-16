@@ -101,15 +101,28 @@ oaPackedGrey12ToGrey8 ( void* source, void* target, unsigned int length )
 {
   uint8_t*	s = source;
   uint8_t*	t = target;
-  unsigned int	l = 0;
+  uint8_t		val;
 
-  // This may not be very nice if the image width is not even
+	// I'm unconvinced all 12-bit packed formats are like this one (which is
+	// actually the Point Grey/FLIR Blackfly format) and appears to be:
+	//
+	// byte 0 high 8 bits
+	// byte 0 low 4 bits
+	// byte 1 low 4 bits
+	// byte 1 high 8 bits
+	//
+	// The Basler documentaton for Pylon suggests theirs is more like:
+	//
+	// byte 0 low 8 bits
+	// byte 0 high 4 bits
+	// byte 1 high 4 bits
+	// byte 1 low 8 bits
 
-  while ( length-- ) {
-    if ( l % 3 != 1 ) {
-      *t++ = *s;
-    }
-    s++;
-    l++;
-  }
+	do {
+		val = *s++;
+		s++;
+		*t++ = val;
+		*t++ = *s++;
+		length -= 3;
+	} while ( length );
 }

@@ -452,8 +452,8 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .lossless		= 1,
     .packed		= 0,
     .planar		= 0
-  }, {  // OA_PIX_FMT_GREY10
-    .name		= "MONO10",
+  }, {  // OA_PIX_FMT_GREY10P
+    .name		= "MONO10 packed",
     .simpleName		= "10bpp monochrome",
     .bytesPerPixel	= 1.25,
     .bitsPerPixel	= 10,
@@ -467,8 +467,8 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .lossless		= 1,
     .packed		= 1,
     .planar		= 0
-  }, {  // OA_PIX_FMT_GREY12
-    .name		= "MONO12",
+  }, {  // OA_PIX_FMT_GREY12P
+    .name		= "MONO12 packed",
     .simpleName		= "12bpp monochrome",
     .bytesPerPixel	= 1.5,
     .bitsPerPixel	= 12,
@@ -482,8 +482,8 @@ frameFormatInfo oaFrameFormats[OA_PIX_FMT_LAST_P1] = {
     .lossless		= 1,
     .packed		= 1,
     .planar		= 0
-  }, {  // OA_PIX_FMT_GREY14
-    .name		= "MONO14",
+  }, {  // OA_PIX_FMT_GREY14P
+    .name		= "MONO14 packed",
     .simpleName		= "14bpp monochrome",
     .bytesPerPixel	= 1.75,
     .bitsPerPixel	= 14,

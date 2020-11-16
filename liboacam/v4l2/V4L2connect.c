@@ -1424,17 +1424,17 @@ oaV4L2InitCamera ( oaCameraDevice* device )
         case V4L2_PIX_FMT_Y10:
           if ( !cameraInfo->currentV4L2Format ) {
             cameraInfo->currentV4L2Format = formatDesc.pixelformat;
-            cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY10;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY10_16LE;
           }
-          camera->frameFormats [ OA_PIX_FMT_GREY10 ] = 1;
+          camera->frameFormats [ OA_PIX_FMT_GREY10_16LE ] = 1;
           break;
 
         case V4L2_PIX_FMT_Y12:
           if ( !cameraInfo->currentV4L2Format ) {
             cameraInfo->currentV4L2Format = formatDesc.pixelformat;
-            cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY12;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_GREY12_16LE;
           }
-          camera->frameFormats [ OA_PIX_FMT_GREY12 ] = 1;
+          camera->frameFormats [ OA_PIX_FMT_GREY12_16LE ] = 1;
           break;
 
         case V4L2_PIX_FMT_Y16:
