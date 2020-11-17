@@ -595,6 +595,9 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
 				&status );
   }
 
+	// we always write data bottom-up
+  fits_write_key_str ( fptr, "ROWORDER", "BOTTOM-UP", "", &status );
+
 	if ( metadata && metadata->frameCounterValid ) {
 		fits_write_key_lng ( fptr, "FRAMESEQ", metadata->frameCounter, "",
 				&status );
