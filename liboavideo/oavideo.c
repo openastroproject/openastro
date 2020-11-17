@@ -31,6 +31,7 @@
 
 #include "yuv.h"
 #include "to8Bit.h"
+#include "unpack.h"
 
 
 int
@@ -157,9 +158,19 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
       break;
     case OA_PIX_FMT_GREY12P:
       length = xSize * ySize * 3 / 2;
-      if ( OA_PIX_FMT_GREY8 == targetFormat ) {
-        oaPackedGrey12ToGrey8 ( source, target, length );
-        result = 0;
+			switch ( targetFormat ) {
+				case OA_PIX_FMT_GREY8:
+					oaPackedGrey12ToGrey8 ( source, target, length );
+					result = 0;
+					break;
+				case OA_PIX_FMT_GREY12_16BE:
+					oaBigEndianPackedGrey12ToGrey16 ( source, target, length );
+					result = 0;
+					break;
+				case OA_PIX_FMT_GREY12_16LE:
+					oaLittleEndianPackedGrey12ToGrey16 ( source, target, length );
+					result = 0;
+					break;
       }
       break;
 

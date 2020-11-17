@@ -46,6 +46,7 @@ class OutputFITS : public OutputHandler
     int			validFileType;
     int			reverseByteOrder;
     int			swapRedBlue;
+		int			unpackedFormat;
     int			frameSize;
     int			planeSize;
     int			fitsSize;

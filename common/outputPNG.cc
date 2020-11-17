@@ -32,6 +32,7 @@ extern "C" {
 
 #include <openastro/camera.h>
 #include <openastro/demosaic.h>
+#include <openastro/video.h>
 #include <openastro/video/formats.h>
 };
 
@@ -64,6 +65,7 @@ OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt,
   colour = 0;
   writeBuffer = 0;
   rowPointers = 0;
+	unpackedFormat = 0;
 
   switch ( fmt ) {
 
@@ -84,6 +86,11 @@ OutputPNG::OutputPNG ( int x, int y, int n, int d, int fmt,
 
     case OA_PIX_FMT_GREY16BE:
       pixelDepth = 16;
+      break;
+
+    case OA_PIX_FMT_GREY12P:
+      pixelDepth = 16;
+      unpackedFormat = OA_PIX_FMT_GREY12_16BE;
       break;
 
     case OA_PIX_FMT_BGR48BE:
@@ -196,6 +203,11 @@ OutputPNG::addFrame ( void* frame, const char* timestampStr,
 
   filenameRoot = getNewFilename();
   fullSaveFilePath = filenameRoot + ".png";
+
+	if ( unpackedFormat ) {
+		oaconvert ( frame, writeBuffer, xSize, ySize, imageFormat, unpackedFormat );
+		buffer = writeBuffer;
+	}
 
   if (!( handle = fopen ( fullSaveFilePath.toStdString().c_str(), "wb" ))) {
     qWarning() << "open of " << fullSaveFilePath << " failed";

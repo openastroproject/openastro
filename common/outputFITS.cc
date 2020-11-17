@@ -39,6 +39,7 @@ extern "C" {
 #include <openastro/camera.h>
 #include <openastro/timer.h>
 #include <openastro/demosaic.h>
+#include <openastro/video.h>
 #include <openastro/video/formats.h>
 }
 
@@ -77,6 +78,7 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
   splitPlanes = 0;
   writeBuffer = 0;
   elements = 0;
+	unpackedFormat = 0;
 
   switch ( fmt ) {
 
@@ -119,6 +121,19 @@ OutputFITS::OutputFITS ( int x, int y, int n, int d, int fmt,
       tableType = TUSHORT;
       bytesPerPixel = 2;
       planeDepth = 2;
+      break;
+
+    case OA_PIX_FMT_GREY12P:
+      bitpix = USHORT_IMG;
+      nAxes = 2;
+      tableType = TUSHORT;
+      bytesPerPixel = 2;
+      planeDepth = 2;
+      if ( *firstByte == 0x12 ) {
+				unpackedFormat = OA_PIX_FMT_GREY12_16BE;
+			} else {
+				unpackedFormat = OA_PIX_FMT_GREY12_16LE;
+			}
       break;
 
     case OA_PIX_FMT_GREY16BE:
@@ -234,7 +249,7 @@ int
 OutputFITS::openOutput ( void )
 {
   if ( validFileType ) {
-    if ( reverseByteOrder || swapRedBlue || nAxes == 3 ) {
+    if ( reverseByteOrder || swapRedBlue || nAxes == 3 || unpackedFormat ) {
       if (!( writeBuffer =
 						static_cast<unsigned char*>( malloc ( fitsSize )))) {
         qWarning() << "write buffer allocation failed";
@@ -290,15 +305,20 @@ OutputFITS::addFrame ( void* frame, const char* constTimestampStr,
   s = static_cast<unsigned char*>( frame );
   t = writeBuffer;
 
-  if ( 2 == bytesPerPixel ) {
-    if ( reverseByteOrder ) {
-      for ( i = 0; i < frameSize; i += 2, s += 2 ) {
-        *t++ = *( s + 1 );
-        *t++ = *s;
-      }
-			outputBuffer = writeBuffer;
-    }
-  }
+	if ( unpackedFormat ) {
+		oaconvert ( frame, writeBuffer, xSize, ySize, imageFormat, unpackedFormat );
+		outputBuffer = writeBuffer;
+	} else {
+		if ( 2 == bytesPerPixel ) {
+			if ( reverseByteOrder ) {
+				for ( i = 0; i < frameSize; i += 2, s += 2 ) {
+					*t++ = *( s + 1 );
+					*t++ = *s;
+				}
+				outputBuffer = writeBuffer;
+			}
+		}
+	}
 
   if ( 3 == bytesPerPixel ) { // RGB24 or BGR24
     unsigned char* redPlane;

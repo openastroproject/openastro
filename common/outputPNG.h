@@ -56,6 +56,7 @@ class OutputPNG : public OutputHandler
     int			reverseByteOrder;
     int			swapRedBlue;
     int			colour;
+		int			unpackedFormat;
     int			frameSize;
     unsigned char*	writeBuffer;
     png_structp		pngPtr;
