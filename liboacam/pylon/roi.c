@@ -45,8 +45,8 @@ oaPylonCameraTestROISize ( oaCamera* camera, unsigned int tryX,
 	dX = tryX - cameraInfo->minResolutionX;
 	dY = tryY - cameraInfo->minResolutionY;
 
-  if ( tryX <= cameraInfo->minResolutionX &&
-			tryY <= cameraInfo->minResolutionY &&
+  if ( tryX <= cameraInfo->maxResolutionX &&
+			tryY <= cameraInfo->maxResolutionY &&
       (( dX % cameraInfo->xSizeStep ) == 0 ) &&
 			(( dY % cameraInfo->ySizeStep ) == 0 )) {
     return OA_ERR_NONE;
