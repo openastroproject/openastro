@@ -241,14 +241,14 @@ _processSetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 			if ( cameraInfo->gainIsFloat ) {
 				fprintf ( stderr, "float gain value not currently supported\n" );
 			} else {
-				if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
+				if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
 					fprintf ( stderr,
-						"%s: invalid control type %d where int32 expected\n",
-						__FUNCTION__, val->valueType );
+						"%s: invalid control (%d) type %d where int32 expected\n",
+						__FUNCTION__, control, val->valueType );
 					return -OA_ERR_INVALID_CONTROL_TYPE;
 				}
 				if ( p_PylonDeviceSetIntegerFeature ( cameraInfo->deviceHandle,
-						"GainRaw", val->int32 ) != GENAPI_E_OK ) {
+						"GainRaw", val->int64 ) != GENAPI_E_OK ) {
 					fprintf ( stderr, "set GainRaw failed\n" );
 				}
 			}
