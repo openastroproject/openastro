@@ -54,7 +54,7 @@ oaBigEndianPackedGrey12ToGrey16 ( void* source, void* target,
 
 	do {
 		val16 = *s++ << 4;
-		val16 |= ( *s && 0x0f );
+		val16 |= ( *s & 0x0f );
 		*t++ = ( val16 >> 8 );
 		*t++ = ( val16 & 0xff );
 
@@ -92,7 +92,7 @@ oaLittleEndianPackedGrey12ToGrey16 ( void* source, void* target,
 
 	do {
 		val16 = *s++ << 4;
-		val16 |= ( *s && 0x0f );
+		val16 |= ( *s & 0x0f );
 		*t++ = ( val16 & 0xff );
 		*t++ = ( val16 >> 8 );
 
