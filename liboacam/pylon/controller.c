@@ -90,6 +90,7 @@ oacamPylonController ( void* param )
           case OA_CMD_CONTROL_GET:
             resultCode = _processGetControl ( cameraInfo, command );
             break;
+					case OA_CMD_RESOLUTION_SET:
           case OA_CMD_ROI_SET:
             resultCode = _processSetROI ( camera, command );
             break;
@@ -99,8 +100,6 @@ oacamPylonController ( void* param )
           case OA_CMD_STOP_STREAMING:
             resultCode = _processStreamingStop ( cameraInfo, command );
             break;
-					case OA_CMD_RESOLUTION_SET:
-						resultCode = OA_ERR_NONE;
 						break;
           default:
             fprintf ( stderr, "Invalid command type %d in controller\n",
@@ -494,6 +493,14 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
     _doStop ( cameraInfo );
   }
 
+	if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
+			"OffsetX", 0 ) != GENAPI_E_OK ) {
+		fprintf ( stderr, "reset OffsetX failed\n" );
+	}
+	if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
+			"OffsetY", 0 ) != GENAPI_E_OK ) {
+		fprintf ( stderr, "reset OffsetY failed\n" );
+	}
 	if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
 			"Width", size->x ) != GENAPI_E_OK ) {
 		fprintf ( stderr, "set Width failed\n" );
