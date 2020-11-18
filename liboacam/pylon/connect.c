@@ -459,6 +459,14 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			"ExposureAuto", "Off" ) == GENAPI_E_OK ) {
 		fprintf ( stderr, "set ExposureAuto failed\n" );
 	}
+	if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
+			"OffsetX", 0 ) != GENAPI_E_OK ) {
+		fprintf ( stderr, "set OffsetX failed\n" );
+	}
+	if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
+			"OffsetY", 0 ) != GENAPI_E_OK ) {
+		fprintf ( stderr, "set OffsetY failed\n" );
+	}
 
 	// There are a number of options here depending on the version of the
 	// naming conventions used by the camera.
@@ -987,6 +995,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
       "Height", cameraInfo->maxResolutionY ) != GENAPI_E_OK ) {
     fprintf ( stderr, "set Height failed\n" );
   }
+	cameraInfo->xSize = cameraInfo->maxResolutionX;
+	cameraInfo->ySize = cameraInfo->maxResolutionY;
 
 	cameraInfo->binMode = OA_BIN_MODE_NONE;
 	cameraInfo->currentBytesPerPixel = 1;
