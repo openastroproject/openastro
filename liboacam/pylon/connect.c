@@ -103,6 +103,13 @@ oaPylonInitCamera ( oaCameraDevice* device )
 	double										fmin, fmax, fcurr;
 	size_t										len;
 
+	/*
+	 * I've probably made some of this a lot harder for myself than needs
+	 * be, using the GenApi interface rather than the Pylon one.  That's
+	 * probably down to me learning the two whilst trying to write the code
+	 * to get the camera to work.  I should come back and tidy it up later.
+	 */
+
   if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
       sizeof ( PYLON_STATE ), &commonInfo ) != OA_ERR_NONE ) {
     return 0;
@@ -418,6 +425,41 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
   camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
 
+	// FIX ME -- put the camera into a known state?
+	//   RGB8/Mono8
+
+  if ( p_PylonDeviceExecuteCommandFeature ( cameraInfo->deviceHandle,
+      "AcquisitionStop" ) != GENAPI_E_OK ) {
+    fprintf ( stderr, "PylonDeviceExecuteCommandFeature failed\n" );
+  }
+
+  if ( p_PylonDeviceSetIntegerFeature ( cameraInfo->deviceHandle,
+      "BinningHorizontal", 1 ) != GENAPI_E_OK ) {
+    fprintf ( stderr, "set BinningHorizontal failed\n" );
+  }
+  if ( p_PylonDeviceSetIntegerFeature ( cameraInfo->deviceHandle,
+      "BinningVertical", 1 ) != GENAPI_E_OK ) {
+    fprintf ( stderr, "set BinningVertical failed\n" );
+  }
+
+	if ( p_PylonDeviceSetBooleanFeature ( cameraInfo->deviceHandle,
+			"ReverseX", 0 ) != GENAPI_E_OK ) {
+    fprintf ( stderr, "set HFLIP failed\n" );
+  }
+	if ( p_PylonDeviceSetBooleanFeature ( cameraInfo->deviceHandle,
+			"ReverseY", 0 ) != GENAPI_E_OK ) {
+    fprintf ( stderr, "set VFLIP failed\n" );
+  }
+
+  if (( p_PylonDeviceFeatureFromString )( cameraInfo->deviceHandle,
+			"GainAuto", "Off" ) == GENAPI_E_OK ) {
+		fprintf ( stderr, "set GainAuto failed\n" );
+	}
+  if (( p_PylonDeviceFeatureFromString )( cameraInfo->deviceHandle,
+			"ExposureAuto", "Off" ) == GENAPI_E_OK ) {
+		fprintf ( stderr, "set ExposureAuto failed\n" );
+	}
+
 	// There are a number of options here depending on the version of the
 	// naming conventions used by the camera.
 
@@ -447,8 +489,6 @@ oaPylonInitCamera ( oaCameraDevice* device )
 				CLOSE_PYLON;
 				return 0;
 			}
-			fprintf ( stderr, "gain: %ld, %ld, %ld, %ld\n", imin, imax, istep,
-					icurr );
 			camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) = OA_CTRL_TYPE_INT64;
 			commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = imin;
 			commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = imax;
@@ -891,7 +931,6 @@ oaPylonInitCamera ( oaCameraDevice* device )
 		cameraInfo->frameSizes[i].numSizes = 1;
 	}
   camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
-  camera->features.flags |= OA_CAM_FEATURE_FIXED_FRAME_SIZES;
 
 	if (( ret = _pylonGetEnumerationNode ( nodeMap, "AcquisitionMode", 0x1,
 			&node )) == OA_ERR_NONE ) {
@@ -940,18 +979,21 @@ oaPylonInitCamera ( oaCameraDevice* device )
 		return 0;
 	}
 
+  if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
+      "Width", cameraInfo->maxResolutionX ) != GENAPI_E_OK ) {
+    fprintf ( stderr, "set Width failed\n" );
+  }
+  if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
+      "Height", cameraInfo->maxResolutionY ) != GENAPI_E_OK ) {
+    fprintf ( stderr, "set Height failed\n" );
+  }
+
 	cameraInfo->binMode = OA_BIN_MODE_NONE;
 	cameraInfo->currentBytesPerPixel = 1;
 	cameraInfo->imageBufferLength = 0;
 	cameraInfo->currentAbsoluteExposure = 100; // dummy value
 
 	// FIX ME -- Handle frame rates?
-
-	// FIX ME -- put the camera into a known state?
-	//   full size frame
-	//   no binning
-	//   RGB8/Mono8
-	//   unflipped
 
 	// Don't know if these will need turning off, but it's in the demo
 	// code.
@@ -962,10 +1004,10 @@ oaPylonInitCamera ( oaCameraDevice* device )
 					"TriggerSelector", "AcquisitionStart" ) == GENAPI_E_OK ) {
       if (( p_PylonDeviceFeatureFromString )( cameraInfo->deviceHandle,
 						"TriggerMode", "Off" ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "Can't set TriggerMode\n" );
+				fprintf ( stderr, "Can't set TriggerMode #1\n" );
 			}
 		} else {
-			fprintf ( stderr, "Can't set TriggerSelector\n" );
+			fprintf ( stderr, "Can't set TriggerSelector #1\n" );
 		}
 	}
 
@@ -975,10 +1017,10 @@ oaPylonInitCamera ( oaCameraDevice* device )
 					"TriggerSelector", "FrameBurstStart" ) == GENAPI_E_OK ) {
       if (( p_PylonDeviceFeatureFromString )( cameraInfo->deviceHandle,
 						"TriggerMode", "Off" ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "Can't set TriggerMode\n" );
+				fprintf ( stderr, "Can't set TriggerMode #2\n" );
 			}
 		} else {
-			fprintf ( stderr, "Can't set TriggerSelector\n" );
+			fprintf ( stderr, "Can't set TriggerSelector #2\n" );
 		}
 	}
 
@@ -988,10 +1030,10 @@ oaPylonInitCamera ( oaCameraDevice* device )
 					"TriggerSelector", "FrameStart" ) == GENAPI_E_OK ) {
       if (( p_PylonDeviceFeatureFromString )( cameraInfo->deviceHandle,
 						"TriggerMode", "Off" ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "Can't set TriggerMode\n" );
+				fprintf ( stderr, "Can't set TriggerMode #3\n" );
 			}
 		} else {
-			fprintf ( stderr, "Can't set TriggerSelector\n" );
+			fprintf ( stderr, "Can't set TriggerSelector #3\n" );
 		}
 	}
 
