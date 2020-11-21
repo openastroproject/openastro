@@ -1677,6 +1677,11 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     FREE_DATA_STRUCTS;
     return 0;
   }
+  cameraInfo->strideLength = format.fmt.pix.bytesperline;
+  cameraInfo->expectedStride = cameraInfo->xSize *
+      oaFrameFormats [ cameraInfo->currentFrameFormat ].strideFactor;
+  cameraInfo->excessStride = cameraInfo->strideLength -
+			cameraInfo->expectedStride;
 
   cameraInfo->frameSizes[1].numSizes = 0;
   cameraInfo->frameSizes[1].sizes = 0;

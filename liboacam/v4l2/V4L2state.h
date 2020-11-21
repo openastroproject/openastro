@@ -76,6 +76,9 @@ typedef struct V4L2_STATE {
   uint32_t		minHeight;
   uint32_t		maxHeight;
   uint32_t		stepHeight;
+  uint32_t		strideLength;
+  uint32_t		expectedStride;
+  uint32_t		excessStride;
 } V4L2_STATE;
 
 #endif	/* OA_V4L2_STATE_H */

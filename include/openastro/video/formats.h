@@ -196,6 +196,7 @@ typedef struct {
   const char*	name;
   const char*	simpleName;
   float		bytesPerPixel;
+  float		strideFactor;
   unsigned int	bitsPerPixel;
   unsigned int	cfaPattern;
   unsigned int	littleEndian : 1;

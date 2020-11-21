@@ -232,6 +232,18 @@ oacamV4L2controller ( void* param )
             cameraInfo->frameCallbacks[ nextBuffer ].buffer = frame;
             cameraInfo->frameCallbacks[ nextBuffer ].bufferLen =
                 frame->bytesused;
+						if ( cameraInfo->excessStride > 0 ) {
+							uint32_t	i;
+							uint8_t*	s = cameraInfo->buffers[ frame->index ].start;
+							uint8_t*	t = cameraInfo->buffers[ frame->index ].start;
+							for ( i = 0; i < cameraInfo->ySize; i++ ) {
+								( void ) memcpy ( t, s, cameraInfo->expectedStride );
+								t += cameraInfo->expectedStride;
+								s += cameraInfo->strideLength;
+							}
+            	cameraInfo->frameCallbacks[ nextBuffer ].bufferLen =
+									t - ( uint8_t* ) cameraInfo->buffers[ frame->index ].start; 
+						}
             pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
             oaDLListAddToTail ( cameraInfo->callbackQueue,
                 &cameraInfo->frameCallbacks[ nextBuffer ]);
@@ -1188,6 +1200,11 @@ _doStart ( V4L2_STATE* cameraInfo )
         fmt.fmt.pix.height );
     return -OA_ERR_OUT_OF_RANGE;
   }
+  cameraInfo->strideLength = fmt.fmt.pix.bytesperline;
+  cameraInfo->expectedStride = cameraInfo->xSize *
+      oaFrameFormats [ cameraInfo->currentFrameFormat ].strideFactor;
+  cameraInfo->excessStride = cameraInfo->strideLength -
+			cameraInfo->expectedStride;
 
   OA_CLEAR( req );
   req.count = OA_CAM_BUFFERS;
