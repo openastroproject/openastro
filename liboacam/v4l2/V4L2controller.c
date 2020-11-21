@@ -1171,7 +1171,7 @@ _doStart ( V4L2_STATE* cameraInfo )
   struct v4l2_buffer		buf;
   struct v4l2_requestbuffers	req;
   enum v4l2_buf_type		type;
-  unsigned int			m, n;
+  unsigned int			m, n, reqdBuffers;
 
   OA_CLEAR ( fmt );
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -1207,13 +1207,19 @@ _doStart ( V4L2_STATE* cameraInfo )
 			cameraInfo->expectedStride;
 
   OA_CLEAR( req );
+#if V4L2_MEMORY_RESTRICTED
+  req.count = 3;
+#else
   req.count = OA_CAM_BUFFERS;
+#endif
+  reqdBuffers = req.count;
   req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   req.memory = V4L2_MEMORY_MMAP;
   if ( v4l2ioctl( cameraInfo->fd, VIDIOC_REQBUFS, &req )) {
     perror ( "VIDIOC_REQBUFS v4l2ioctl failed" );
     return -OA_ERR_SYSTEM_ERROR;
   }
+  cameraInfo->buffersGranted = req.count;
 
   cameraInfo->nextBuffer = 0;
   cameraInfo->configuredBuffers = 0;
@@ -1312,7 +1318,8 @@ _processStreamingStop ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
   queueEmpty = 0;
   do {
     pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
-    queueEmpty = ( OA_CAM_BUFFERS == cameraInfo->buffersFree ) ? 1 : 0;
+    queueEmpty = ( cameraInfo->buffersGranted ==
+        cameraInfo->buffersFree ) ? 1 : 0;
     pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
     if ( !queueEmpty ) {
       usleep ( 100 );

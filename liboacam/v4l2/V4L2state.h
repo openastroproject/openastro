@@ -48,6 +48,7 @@ typedef struct V4L2_STATE {
   // buffering for image transfers
   frameBuffer*			buffers;
   struct v4l2_buffer	currentFrame[ OA_CAM_BUFFERS ];
+  unsigned int		buffersGranted;
   // camera status
   int			colourDxK;
   int			monoDMK;

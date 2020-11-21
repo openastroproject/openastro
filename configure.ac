@@ -1383,14 +1383,17 @@ case $host in
     AC_CONFIG_LINKS([$extF/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv8/libEFWFilter.a])
     ;;
   armv7l-*-*)
+    AC_DEFINE([V4L2_MEMORY_RESTRICTED],[1],[Memory for V4L2 buffers may be tight])
     AC_CONFIG_LINKS([$extG/libASICamera/libASICamera2.a:ext/libASICamera/armv7/libASICamera2.a])
     AC_CONFIG_LINKS([$extH/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv7/libEFWFilter.a])
     ;;
   armv6l-*-*)
+    AC_DEFINE([V4L2_MEMORY_RESTRICTED],[1],[Memory for V4L2 buffers may be tight])
     AC_CONFIG_LINKS([$extI/libASICamera/libASICamera2.a:ext/libASICamera/armv6/libASICamera2.a])
     AC_CONFIG_LINKS([$extJ/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv6/libEFWFilter.a])
     ;;
   armv5l-*-*)
+    AC_DEFINE([V4L2_MEMORY_RESTRICTED],[1],[Memory for V4L2 buffers may be tight])
     AC_CONFIG_LINKS([$extK/libASICamera/libASICamera2.a:ext/libASICamera/armv5/libASICamera2.a])
     AC_CONFIG_LINKS([$extL/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv5/libEFWFilter.a])
     ;;
