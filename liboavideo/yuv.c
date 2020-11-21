@@ -2,7 +2,7 @@
  *
  * yuv.c -- convert YUV formats to RGB888
  *
- * Copyright 2014 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -170,10 +170,10 @@ oaYUYVtoRGB888 ( void* source, void* target, unsigned int xSize,
 
     // first pixel
 
-    r32 = y1 + lut_1_4075[v];
-    o = lut_0_3455[u] - lut_0_7169[v];
+    r32 = y1 + lut_1_370705[v];
+    o = lut_0_698001[v] - lut_0_337633[u];
     g32 = y1 - o;
-    b32 = y1 + lut_1_7790[u];
+    b32 = y1 + lut_1_732446[u];
     r8 = CLAMP(r32,0,255);
     g8 = CLAMP(g32,0,255);
     b8 = CLAMP(b32,0,255);
@@ -183,9 +183,9 @@ oaYUYVtoRGB888 ( void* source, void* target, unsigned int xSize,
 
     // second pixel
 
-    r32 = y2 + lut_1_4075[v];
+    r32 = y2 + lut_1_370705[v];
     g32 = y2 - o;
-    b32 = y2 + lut_1_7790[u];
+    b32 = y2 + lut_1_732446[u];
     r8 = CLAMP(r32,0,255);
     g8 = CLAMP(g32,0,255);
     b8 = CLAMP(b32,0,255);
@@ -217,10 +217,10 @@ oaUYVYtoRGB888 ( void* source, void* target, unsigned int xSize,
 
     // first pixel
 
-    r32 = y1 + lut_1_4075[v];
-    o = lut_0_3455[u] - lut_0_7169[v];
+    r32 = y1 + lut_1_370705[v];
+    o = lut_0_698001[v] - lut_0_337633[u];
     g32 = y1 - o;
-    b32 = y1 + lut_1_7790[u];
+    b32 = y1 + lut_1_732446[u];
     r8 = CLAMP(r32,0,255);
     g8 = CLAMP(g32,0,255);
     b8 = CLAMP(b32,0,255);
@@ -230,9 +230,9 @@ oaUYVYtoRGB888 ( void* source, void* target, unsigned int xSize,
 
     // second pixel
 
-    r32 = y2 + lut_1_4075[v];
+    r32 = y2 + lut_1_370705[v];
     g32 = y2 - o;
-    b32 = y2 + lut_1_7790[u];
+    b32 = y2 + lut_1_732446[u];
     r8 = CLAMP(r32,0,255);
     g8 = CLAMP(g32,0,255);
     b8 = CLAMP(b32,0,255);
