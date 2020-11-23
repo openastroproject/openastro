@@ -261,6 +261,7 @@ void
 t_checkTimerWarnings ( void )
 {
 	QString		msg;
+	int				showMsg = 0;
 
   if (( CAPTURE_FITS != commonConfig.fileTypeOption && CAPTURE_TIFF !=
 			commonConfig.fileTypeOption ) || !commonConfig.limitEnabled ||
@@ -268,7 +269,7 @@ t_checkTimerWarnings ( void )
     msg = QCoreApplication::translate ( "SettingsWidget",
 				"\n\nWhen using timer mode the image capture type should "
         "be FITS/TIFF/PNG and a frame-based capture limit should be set." );
-    QMessageBox::warning ( state.settingsWidget, APPLICATION_NAME, msg );
+		showMsg = 1;
   }
   if ( commonState.camera && commonState.camera->isInitialised()) {
     if ( commonState.camera->hasControl ( OA_CAM_CTRL_TRIGGER_ENABLE ) &&
@@ -277,6 +278,7 @@ t_checkTimerWarnings ( void )
       msg = QCoreApplication::translate ( "SettingsWidget",
 					"\n\nThe timer is in trigger mode but the camera is "
           "not.  These two settings should be the same." );
+			showMsg = 1;
     }
     if ( commonState.camera->hasControl ( OA_CAM_CTRL_STROBE_ENABLE ) &&
         timerConf.timerMode == OA_TIMER_MODE_STROBE &&
@@ -284,9 +286,12 @@ t_checkTimerWarnings ( void )
       msg = QCoreApplication::translate ( "SettingsWidget",
 					"\n\nThe timer is in strobe mode but the camera is "
           "not.  These two settings should be the same." );
+			showMsg = 1;
     }
-    QMessageBox::warning ( state.settingsWidget, APPLICATION_NAME, msg );
   }
+	if ( showMsg ) {
+		QMessageBox::warning ( state.settingsWidget, APPLICATION_NAME, msg );
+	}
 }
 
 
