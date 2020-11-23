@@ -1171,7 +1171,7 @@ _doStart ( V4L2_STATE* cameraInfo )
   struct v4l2_buffer		buf;
   struct v4l2_requestbuffers	req;
   enum v4l2_buf_type		type;
-  unsigned int			m, n, reqdBuffers;
+  unsigned int			m, n;
 
   OA_CLEAR ( fmt );
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -1212,7 +1212,6 @@ _doStart ( V4L2_STATE* cameraInfo )
 #else
   req.count = OA_CAM_BUFFERS;
 #endif
-  reqdBuffers = req.count;
   req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   req.memory = V4L2_MEMORY_MMAP;
   if ( v4l2ioctl( cameraInfo->fd, VIDIOC_REQBUFS, &req )) {
