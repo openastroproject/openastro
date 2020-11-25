@@ -2,7 +2,7 @@
  *
  * FC2controller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2017,2018,2019
+ * Copyright 2015,2016,2017,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -446,18 +446,23 @@ _processGetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
       fprintf ( stderr, "Can't get FC2 control %d\n", pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
-    if ( !oaIsAuto ( control )) {
-      if ( pgeControl != FC2_TEMPERATURE ) {
-        val->valueType = OA_CTRL_TYPE_INT32;
-        val->int32 = property.valueA;
-      } else {
-        val->valueType = OA_CTRL_TYPE_READONLY;
-        val->int32 = property.valueA / 10;
-      }
-    } else {
+    if ( oaIsAuto ( control )) {
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
       val->boolean = property.autoManualMode ? 1 : 0;
-    }
+		} else {
+			if ( oaIsOnOff ( control )) {
+				val->valueType = OA_CTRL_TYPE_BOOLEAN;
+				val->boolean = property.onOff ? 1 : 0;
+			} else {
+				if ( pgeControl != FC2_TEMPERATURE ) {
+					val->valueType = OA_CTRL_TYPE_INT32;
+					val->int32 = property.valueA;
+				} else {
+					val->valueType = OA_CTRL_TYPE_READONLY;
+					val->int32 = property.valueA / 10;
+				}
+			}
+		}
     return OA_ERR_NONE;
   }
 

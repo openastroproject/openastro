@@ -169,6 +169,7 @@ extern void		oaSetCameraDebugLevel ( int );
 extern int		oaGetAutoForControl ( int );
 extern int		oaGetControlForAuto ( int );
 extern int		oaIsAuto ( int );
+extern int		oaIsOnOff ( int );
 extern void		oaSetRootPath ( const char* );
 
 // FIX ME -- These may no longer be required

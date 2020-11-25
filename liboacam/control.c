@@ -2,7 +2,7 @@
  *
  * control.c -- interface for camera control functions
  *
- * Copyright 2013,2014,2015,2016,2017,2019
+ * Copyright 2013,2014,2015,2016,2017,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -289,6 +289,14 @@ oaIsAuto ( int control )
 {
   // FIX ME -- change for control being out of range?
   return OA_CAM_CTRL_IS_AUTO(control) ? 1 : 0;
+}
+
+
+int
+oaIsOnOff ( int control )
+{
+  // FIX ME -- change for control being out of range?
+  return OA_CAM_CTRL_IS_ON_OFF(control) ? 1 : 0;
 }
 
 
