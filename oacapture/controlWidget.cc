@@ -317,6 +317,7 @@ ControlWidget::configure ( void )
 {
   int64_t	min, max, step, def;
   int		minOption, maxOption, readableControls;
+  int		autoctrl, onoffctrl;
 
 	configureComplete = 0;
 
@@ -456,6 +457,22 @@ ControlWidget::configure ( void )
         selectableControlSpinbox[ c ]->setSingleStep ( step );
         if ( readableControls ) {
 					cameraConf.CONTROL_VALUE( c ) = commonState.camera->readControl ( c );
+					autoctrl = oaGetAutoForControl ( c );
+					if ( selectableControlCheckbox[ c ] && autoctrl >= 0 &&
+							commonState.camera->hasControl ( autoctrl ) ==
+							OA_CTRL_TYPE_BOOLEAN ) {
+						cameraConf.CONTROL_VALUE( autoctrl ) =
+								commonState.camera->readControl ( autoctrl );
+						selectableControlCheckbox[ c ]->setChecked (
+								cameraConf.CONTROL_VALUE( autoctrl ));
+					}
+					onoffctrl = oaGetOnOffForControl ( c );
+					if ( onoffctrl >= 0 &&
+							commonState.camera->hasControl ( onoffctrl ) ==
+							OA_CTRL_TYPE_BOOLEAN ) {
+						cameraConf.CONTROL_VALUE( onoffctrl ) =
+								commonState.camera->readControl ( onoffctrl );
+					}
 				} else {
 					cameraConf.CONTROL_VALUE( c ) = def;
 				}
@@ -473,7 +490,6 @@ ControlWidget::configure ( void )
   grid->removeItem ( grid->itemAtPosition ( 2, 1 ));
   grid->removeItem ( grid->itemAtPosition ( 2, 2 ));
   grid->removeItem ( grid->itemAtPosition ( 2, 3 ));
-  int autoctrl;
   if ( replaceSelectable1 >= 0 ) {
     selectableControlMenu[0]->show();
     autoctrl = oaGetAutoForControl ( config.selectableControl[0] );
@@ -911,24 +927,31 @@ ControlWidget::configure ( void )
   }
 
 	// Now run through all possible controls and set all of those that are
-	// boolean and we haven't already dealt with to their default values
+	// boolean and we haven't already dealt with to their default values if
+	// we don't have readable controls
 
-  for ( int c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-		for ( int m = OA_CAM_CTRL_MODIFIER_STD; m < OA_CAM_CTRL_MODIFIERS_P1;
-        m++ ) {
-			int control = ( m << 8 ) + c;
-			if ( OA_CTRL_TYPE_BOOLEAN == commonState.camera->hasControl ( control )) {
-				if ( c != OA_CAM_CTRL_GAIN && c != state.preferredExposureControl &&
-						c != config.selectableControl[0] &&
-						c != config.selectableControl[1] ) {
-					int64_t min, max, step, def;
+	if ( !readableControls ) {
+		for ( int c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
+			for ( int m = OA_CAM_CTRL_MODIFIER_STD; m < OA_CAM_CTRL_MODIFIERS_P1;
+					m++ ) {
+				int control = ( m << 8 ) + c;
+				if ( OA_CTRL_TYPE_BOOLEAN ==
+						commonState.camera->hasControl ( control )) {
+					if ( c != OA_CAM_CTRL_GAIN && c != state.preferredExposureControl &&
+							c != config.selectableControl[0] &&
+							c != config.selectableControl[1] ) {
 
-					commonState.camera->controlRange ( c, &min, &max, &step, &def );
-          cameraConf.CONTROL_VALUE( control ) = def;
-				  SET_PROFILE_CONTROL( control, def );
-					commonState.camera->setControl ( control, def );
-					if ( state.settingsWidget ) {
-						state.settingsWidget->updateControl ( control, def );
+						int64_t min, max, step, def;
+
+						commonState.camera->controlRange ( control, &min, &max, &step,
+								&def );
+						cameraConf.CONTROL_VALUE( control ) = def;
+						SET_PROFILE_CONTROL( control, def );
+						commonState.camera->setControl ( control, def );
+						if ( state.settingsWidget ) {
+							state.settingsWidget->updateControl ( control,
+									cameraConf.CONTROL_VALUE( control ));
+						}
 					}
 				}
 			}

@@ -656,3 +656,10 @@ oacamExposureTimeLeft ( oaCamera* camera )
 	usecs = leftSecs * 1000000 + leftNanoSecs / 1000;
 	return usecs;
 }
+
+
+int
+oaGetOnOffForControl ( int control )
+{
+  return OA_CAM_CTRL_MODE_ON_OFF(control);
+}

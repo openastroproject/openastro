@@ -167,6 +167,7 @@ extern unsigned		oaGetCameraAPIVersion ( void );
 extern const char*	oaGetCameraAPIVersionStr ( void );
 extern void		oaSetCameraDebugLevel ( int );
 extern int		oaGetAutoForControl ( int );
+extern int		oaGetOnOffForControl ( int );
 extern int		oaGetControlForAuto ( int );
 extern int		oaIsAuto ( int );
 extern int		oaIsOnOff ( int );

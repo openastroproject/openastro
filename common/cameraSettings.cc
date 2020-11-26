@@ -813,6 +813,8 @@ CameraSettings::updateControl ( int control, int value )
         OA_CAM_CTRL_MODE_BASE( control )];
   }
 
+	// FIX ME -- should disable these *and* auto if the control is ON_OFF?
+
 	if ( OA_CAM_CTRL_IS_AUTO ( control )) {
 		controlSlider[ OA_CAM_CTRL_MODIFIER_STD ]
 			[ OA_CAM_CTRL_MODE_BASE( control )]->setEnabled ( !value );

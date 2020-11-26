@@ -426,7 +426,9 @@ _processGetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 
   for ( i = 0, found = 0; !found && i < numFC2Controls; i++ ) {
     if ( pgeControls[i].oaControl == control ||
-        pgeControls[i].oaAutoControl == control ) {
+        pgeControls[i].oaAutoControl == control ||
+        ( OA_CAM_CTRL_IS_ON_OFF( control ) && pgeControls[i].oaControl ==
+        OA_CAM_CTRL_MODE_BASE ( control ))) {
       pgeControl = pgeControls[i].pgeControl;
       found = 1;
     }
