@@ -215,6 +215,8 @@ oaGetAutoForControl ( int control )
     case OA_CAM_CTRL_OVERCLOCK:
     case OA_CAM_CTRL_EXPOSURE_VALUE:
     case OA_CAM_CTRL_SHARPNESS:
+    case OA_CAM_CTRL_PAN_ABSOLUTE:
+    case OA_CAM_CTRL_TILT_ABSOLUTE:
       return OA_CAM_CTRL_MODE_AUTO(control);
       break;
   }
