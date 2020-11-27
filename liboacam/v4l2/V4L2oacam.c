@@ -130,11 +130,11 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 			}
 			v4l2_close ( fd );
 
-			if (!( cap.capabilities & V4L2_CAP_VIDEO_CAPTURE )) {
+			if (!( cap.device_caps & V4L2_CAP_VIDEO_CAPTURE )) {
 				continue;
 			}
 
-			if (!( cap.capabilities & V4L2_CAP_STREAMING )) {
+			if (!( cap.device_caps & V4L2_CAP_STREAMING )) {
 				continue;
 			}
 

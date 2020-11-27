@@ -152,7 +152,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  if (!( cap.capabilities & V4L2_CAP_VIDEO_CAPTURE )) {
+  if (!( cap.device_caps & V4L2_CAP_VIDEO_CAPTURE )) {
     fprintf ( stderr, "%s does not support video capture",
       camera->deviceName );
     v4l2_close ( cameraInfo->fd );
@@ -160,7 +160,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     return 0;
   }
 
-  if (!( cap.capabilities & V4L2_CAP_STREAMING )) {
+  if (!( cap.device_caps & V4L2_CAP_STREAMING )) {
 		fprintf ( stderr, "%s does not support streaming",
 				camera->deviceName );
 	} else {
