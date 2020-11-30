@@ -221,8 +221,14 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 			QHYCCD_SUCCESS ) ? 1 : 0;
 	cameraInfo->has16Bit = ( p_IsQHYCCDControlAvailable ( handle, CAM_16BITS ) ==
 		QHYCCD_SUCCESS ) ? 1 : 0;
+	if ( cameraInfo->has8Bit && cameraInfo->has16Bit &&
+			p_IsQHYCCDControlAvailable ( handle, CONTROL_TRANSFERBIT ) !=
+			QHYCCD_SUCCESS ) {
+		fprintf ( stderr,
+			"Odd.  8-bit & 16-bit modes supported, but no way to switch\n" );
+	}
 
-	// Assuming all 16-bit modes are big-endian here...
+	// Assuming all 16-bit modes are little-endian here...
 
 	// We can't tell if the data might be 12 bits padded to 16
 
@@ -237,20 +243,36 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 		camera->features.flags |= OA_CAM_FEATURE_DEMOSAIC_MODE;
 		switch ( cfaMask ) {
 			case BAYER_GB:
-				camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
-				camera->frameFormats[ OA_PIX_FMT_GBRG16LE ] = 1;
+				if ( cameraInfo->has8Bit ) {
+					camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
+				}
+				if ( cameraInfo->has16Bit ) {
+					camera->frameFormats[ OA_PIX_FMT_GBRG16LE ] = 1;
+				}
 				break;
 			case BAYER_GR:
-				camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
-				camera->frameFormats[ OA_PIX_FMT_GRBG16LE ] = 1;
+				if ( cameraInfo->has8Bit ) {
+					camera->frameFormats[ OA_PIX_FMT_GRBG8 ] = 1;
+				}
+				if ( cameraInfo->has16Bit ) {
+					camera->frameFormats[ OA_PIX_FMT_GRBG16LE ] = 1;
+				}
 				break;
 			case BAYER_BG:
-				camera->frameFormats[ OA_PIX_FMT_BGGR8 ] = 1;
-				camera->frameFormats[ OA_PIX_FMT_BGGR16LE ] = 1;
+				if ( cameraInfo->has8Bit ) {
+					camera->frameFormats[ OA_PIX_FMT_BGGR8 ] = 1;
+				}
+				if ( cameraInfo->has16Bit ) {
+					camera->frameFormats[ OA_PIX_FMT_BGGR16LE ] = 1;
+				}
 				break;
 			case BAYER_RG:
-				camera->frameFormats[ OA_PIX_FMT_RGGB8 ] = 1;
-				camera->frameFormats[ OA_PIX_FMT_RGGB16LE ] = 1;
+				if ( cameraInfo->has8Bit ) {
+					camera->frameFormats[ OA_PIX_FMT_RGGB8 ] = 1;
+				}
+				if ( cameraInfo->has16Bit ) {
+					camera->frameFormats[ OA_PIX_FMT_RGGB16LE ] = 1;
+				}
 				break;
 		}
 		// Force RGB images for startup of colour cameras
