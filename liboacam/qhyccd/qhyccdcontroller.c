@@ -2,7 +2,7 @@
  *
  * qhyccdcontroller.c -- Main camera controller thread
  *
- * Copyright 2019  James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020  James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -503,6 +503,12 @@ static int
 _setFrameFormat ( QHYCCD_STATE* cameraInfo, int format )
 {
   int           bitspp;
+  int           restart = 0;
+
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
+    restart = 1;
+		_doStop ( cameraInfo );
+  }
 
 	// Handle change of bit depth
 	bitspp = oaFrameFormats[ format ].bitsPerPixel;
@@ -511,6 +517,15 @@ _setFrameFormat ( QHYCCD_STATE* cameraInfo, int format )
 				bitspp );
 		return -OA_ERR_CAMERA_IO;
 	}
+
+	// It appears that we must reset the resolution when the image depth changes
+
+	if ( p_SetQHYCCDResolution ( cameraInfo->handle, 0, 0, cameraInfo->xSize,
+			cameraInfo->ySize ) != QHYCCD_SUCCESS ) {
+    fprintf ( stderr, "Can't set QHYCCD ROI ( %d, %d, %d, %d\n", 0,
+				0, cameraInfo->xSize, cameraInfo->ySize );
+    return -OA_ERR_CAMERA_IO;
+  }
 
 	if ( cameraInfo->colour ) {
 		// Colour can also switch between raw and RGB
@@ -528,6 +543,10 @@ _setFrameFormat ( QHYCCD_STATE* cameraInfo, int format )
   cameraInfo->currentBytesPerPixel = oaFrameFormats[ format ].bytesPerPixel;
   cameraInfo->imageBufferLength = cameraInfo->xSize *
       cameraInfo->ySize * cameraInfo->currentBytesPerPixel;
+
+  if ( restart ) {
+		return _doStart ( cameraInfo );
+  }
 
   return OA_ERR_NONE;
 }
