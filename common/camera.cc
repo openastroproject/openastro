@@ -636,7 +636,36 @@ Camera::videoFramePixelFormat ( void )
             format = OA_PIX_FMT_GYMC16BE;
             break;
         }
-      }
+      } else {
+				if ( format == OA_PIX_FMT_GREY8 ) {
+					switch ( demosaicConf.cfaPattern ) {
+						case OA_DEMOSAIC_RGGB:
+							format = OA_PIX_FMT_RGGB8;
+							break;
+						case OA_DEMOSAIC_BGGR:
+							format = OA_PIX_FMT_BGGR8;
+							break;
+						case OA_DEMOSAIC_GRBG:
+							format = OA_PIX_FMT_GRBG8;
+							break;
+						case OA_DEMOSAIC_GBRG:
+							format = OA_PIX_FMT_GBRG8;
+							break;
+						case OA_DEMOSAIC_CMYG:
+							format = OA_PIX_FMT_CMYG8;
+							break;
+						case OA_DEMOSAIC_MCGY:
+							format = OA_PIX_FMT_MCGY8;
+							break;
+						case OA_DEMOSAIC_YGCM:
+							format = OA_PIX_FMT_YGCM8;
+							break;
+						case OA_DEMOSAIC_GYMC:
+							format = OA_PIX_FMT_GYMC8;
+							break;
+					}
+        }
+			}
     }
   }
   return format;
