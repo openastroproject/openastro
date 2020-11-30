@@ -1233,16 +1233,17 @@ _completeCallback ( TOUPTEK_STATE* cameraInfo, const void* frame,
 
 	if ( bitsPerPixel > 8 && bitsPerPixel < 16 ) {
 		shiftBits = 16 - bitsPerPixel;
-
 		if ( shiftBits ) {
-			uint16_t	*s = cameraInfo->buffers[ nextBuffer ].start;
-			uint16_t	v;
-			unsigned int	i;
+			const uint16_t	*s;
+			uint16_t				*t = cameraInfo->buffers[ nextBuffer ].start;
+			uint16_t				v;
+			unsigned int		i;
 
+			s = frame ? frame : t;
 			for ( i = 0; i < dataLength; i += 2 ) {
-				v = *s;
+				v = *s++;
 				v <<= shiftBits;
-				*s++ = v;
+				*t++ = v;
 			}
 		}
 	} else {
