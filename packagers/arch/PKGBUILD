@@ -8,8 +8,9 @@ depends=('qt5-base' 'qt5-tools' 'cfitsio' 'autoconf-archive')
 url="http://www.openastroproject.org/oacapture/"
 optdepends=('fxload: support for QHY5 cameras')
 
-source=("https://github.com/openastroproject/openastro/archive/v1.4.0.tar.gz" "oacapture-slash-lib.diff")
-sha1sums=("921dddfcdd0ae91de273c770f8b79c567ff197b6" "9fc44f9fbc00c8da87a9b6b0dbb6e8dee3e9bdc1")
+source=("https://github.com/openastroproject/openastro/archive/v1.8.0.tar.gz" "oacapture-slash-lib.diff")
+# Getting the checksum correct for the first file is hard :)
+sha1sums=("SKIP" "9fc44f9fbc00c8da87a9b6b0dbb6e8dee3e9bdc1")
 
 build() {
 	cd "openastro-${pkgver}"
