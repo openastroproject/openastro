@@ -48,12 +48,6 @@
 #endif
 #endif
 
-// These are guesses for the maximum and minimum setpoint temperatures,
-// since there doesn't appear to be any way to find them.
-
-#define	TOUPTEK_SETPOINT_MIN	-400
-#define	TOUPTEK_SETPOINT_MAX	200
-
 extern int				TT_FUNC( _, InitLibraryFunctionPointers )( void );
 
 extern const char*	( *TT_LIB_PTR( Version ))();

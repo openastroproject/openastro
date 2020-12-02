@@ -56,7 +56,6 @@
  * TOUPCAM_FLAG_USB30_OVER_USB20	ignored
  * TOUPCAM_FLAG_ST4								ignored
  * TOUPCAM_FLAG_GETTEMPERATURE		handled
- * TOUPCAM_FLAG_PUTTEMPERATURE		handled
  * TOUPCAM_FLAG_RAW10							handled
  * TOUPCAM_FLAG_RAW12							handled
  * TOUPCAM_FLAG_RAW14							handled
@@ -246,19 +245,6 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SPEED ) = cameraInfo->speedMax;
 
   if ( devList[ devInfo->devIndex ].model->flag &
-      TT_FLAG( PUTTEMPERATURE )) {
-		// There don't appear to be any defaults or limits for this, so we'll
-		// just guess.
-    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMP_SETPOINT ) = OA_CTRL_TYPE_INT32;
-    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TEMP_SETPOINT ) =
-				TOUPTEK_SETPOINT_MIN;
-    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TEMP_SETPOINT ) =
-				TOUPTEK_SETPOINT_MAX;
-    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TEMP_SETPOINT ) = 1;
-    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) = 0;
-  }
-
-  if ( devList[ devInfo->devIndex ].model->flag &
       TT_FLAG( GETTEMPERATURE )) {
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) = OA_CTRL_TYPE_READONLY;
   }
@@ -268,11 +254,21 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
 	}
 
   if ( devList[ devInfo->devIndex ].model->flag & TT_FLAG( TEC_ONOFF )) {
+		cameraInfo->haveTEC = 1;
     camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_COOLER ) = OA_CTRL_TYPE_BOOLEAN;
     commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_COOLER ) = 0;
     commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_COOLER ) = 1;
     commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_COOLER ) = 1;
     commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_COOLER ) = 0;
+    camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMP_SETPOINT ) = OA_CTRL_TYPE_INT32;
+    commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TEMP_SETPOINT ) =
+				TT_DEFINE( TEC_TARGET_MIN );
+    commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TEMP_SETPOINT ) =
+				TT_DEFINE( TEC_TARGET_MAX );
+    commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TEMP_SETPOINT ) = 1;
+    commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TEMP_SETPOINT ) =
+				TT_DEFINE( TEC_TARGET_DEF );
+
   }
 
   if ( devList[ devInfo->devIndex ].model->flag & TT_FLAG( FAN )) {

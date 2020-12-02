@@ -487,7 +487,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->int32;
-      if ( val >= TOUPTEK_SETPOINT_MIN && val <= TOUPTEK_SETPOINT_MAX ) {
+      if ( val >= TT_DEFINE( TEC_TARGET_MIN ) &&
+					val <= TT_DEFINE( TEC_TARGET_MIN )) {
 				// Weird one this, as there appears to be more than one way to do
 				// it.  If we have a TEC then set that option, otherwise set the
 				// target temperature.
