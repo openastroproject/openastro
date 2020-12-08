@@ -78,6 +78,7 @@ BuildRequires:  autoconf
 BuildRequires:  autoconf-archive
 BuildRequires:  libtool
 BuildRequires:  desktop-file-utils
+BuildRequires:  hidapi-devel
 Source:         oacapture-%{version}.tar.bz2
 
 %description
