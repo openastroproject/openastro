@@ -979,7 +979,7 @@ then
 fi
 
 if `$PKG_CONFIG --exists libgphoto2`; then
-  AC_MSG_NOTICE([Using system libqpgoto2 library])
+  AC_MSG_NOTICE([Using system libgphoto2 library])
   flags=`$PKG_CONFIG --cflags-only-I libgphoto2`
   if test $useisystemInclude -eq 1; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
