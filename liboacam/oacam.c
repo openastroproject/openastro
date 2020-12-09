@@ -101,6 +101,9 @@
 #if HAVE_PYLON
 #include "pylon/oacam.h"
 #endif
+#if HAVE_LIBSVBCAMERASDK
+#include "svbony/SVBoacam.h"
+#endif
 
 
 oaInterface	oaCameraInterfaces[] = {
@@ -341,6 +344,18 @@ oaInterface	oaCameraInterfaces[] = {
     "PYLON",
     "Pylon",
     oaPylonGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if HAVE_LIBSVBCAMERASDK
+  {
+    OA_CAM_IF_SVB,
+    "SVBony",
+    "SVB",
+    oaSVBGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },

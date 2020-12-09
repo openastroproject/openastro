@@ -58,6 +58,7 @@ checkSystemLibnncam=0
 checkSystemLibmallincam=0
 checkSystemLibomegonprocam=0
 checkSystemLibqhyccd=0
+checkSystemLibsvbcamerasdk=0
 useisystemInclude=0
 build_libusb=no
 zwoSupportedArch=yes
@@ -77,6 +78,7 @@ case $host in
     checkSystemLibnncam=1
     checkSystemLibmallincam=1
     checkSystemLibomegonprocam=1
+		checkSystemLibsvbcamerasdk=1
     ;;
   *-apple-*)
     useisystemInclude=1
@@ -156,6 +158,7 @@ have_libavutil=no
 have_libavcodec=no
 internal_uvc=no
 have_libgphoto2=no
+have_svbcamerasdk=no
 
 case $host in
   x86_64-apple-*)
@@ -933,6 +936,27 @@ then
   fi
 fi
 
+if `$PKG_CONFIG --exists libsvbcamerasdk`; then
+  flags=`$PKG_CONFIG --cflags-only-I libsvbcamerasdk`
+  MOC_CFLAGS="$flags $MOC_CFLAGS"
+  if test $useisystemInclude -eq 1; then
+    flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+  fi
+  CPPFLAGS="$flags $CPPFLAGS"
+# LDFLAGS="`$PKG_CONFIG --libs-only-L libsvbcamerasdk` $LDFLAGS"
+# LIBS="`$PKG_CONFIG --libs-only-l libsvbcamerasdk` $LIBS"
+  have_svbcamerasdk=yes
+  AC_DEFINE([HAVE_LIBSVBCAMERASDK],[1],[Have SVBony library])
+  AC_MSG_NOTICE([Using system SVBony library])
+else
+  AC_CHECK_LIB([SVBCameraSDK],[SVBGetNumOfConnectedCameras],[
+    LIBS="-lSVBCameraSDK $LIBS"
+    AC_DEFINE([HAVE_LIBSVBCAMERASDK],[1],[Have SVBony library])
+		have_svbcamerasdk=yes
+  ],[
+    AC_MSG_WARN([No SVBony library found.  SVBony cameras will not be supported using this library])])
+fi
+
 if test -n "$PYLON_CONFIG"
 then
   AC_MSG_NOTICE([Using Basler pylon library])
@@ -1559,6 +1583,9 @@ AC_SUBST(PYLON_LDFLAGS)
 AC_SUBST(PYLON_LIBS)
 AC_SUBST(LIBGPHOTO2_CFLAGS)
 AC_SUBST(LIBGPHOTO2_LIBS)
+AC_SUBST(LIBSVBCAMERASDK_CFLAGS)
+AC_SUBST(LIBSVBCAMERASDK_LDFLAGS)
+AC_SUBST(LIBSVBCAMERASDK_LIBS)
 AC_SUBST(LIBZWOFW_LIBS)
 AC_SUBST(LIBFTDI_CFLAGS)
 AC_SUBST(LIBFTDI_LIBS)
@@ -1588,11 +1615,12 @@ AM_CONDITIONAL([LIBOMEGONPROCAM_COND], [test "x$have_omegonprocam" == "xyes"])
 AM_CONDITIONAL([LIBQHYCCD_COND], [test "x$have_qhyccd" == "xyes"])
 AM_CONDITIONAL([LIBGPHOTO2_COND], [test "x$have_libgphoto2" == "xyes"])
 AM_CONDITIONAL([PYLON_COND], [test -n "$PYLON_CONFIG"])
+AM_CONDITIONAL([LIBSVBCAMERASDK_COND], [test "x$have_svbcamerasdk" == "xyes"])
 AM_CONDITIONAL([LIBFFMPEG_COND], [test "x$use_system_ffmpeg" == "xno"])
 AM_CONDITIONAL([LIBUSB_COND], [test "x$use_system_libusb" == "xno"])
 AM_CONDITIONAL([BUILD_LIBUSB_COND], [test "x$build_libusb" == "xyes"])
 AM_CONDITIONAL([LIBHIDAPI_COND], [test "x$use_system_libhidapi" == "xno"])
 AM_CONDITIONAL([INT_LIBUVC_COND], [test "x$internal_uvc" == "xyes"])
 
-AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/altair-legacy/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/pylon/Makefile liboacam/qhy/Makefile liboacam/qhyccd/Makefile liboacam/starshootg/Makefile liboacam/risingcam/Makefile liboacam/omegonpro/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboacam/dummy/Makefile liboacam/gphoto2/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
+AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/altair-legacy/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/pylon/Makefile liboacam/qhy/Makefile liboacam/qhyccd/Makefile liboacam/starshootg/Makefile liboacam/risingcam/Makefile liboacam/omegonpro/Makefile liboacam/svbony/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboacam/dummy/Makefile liboacam/gphoto2/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
 AC_OUTPUT
