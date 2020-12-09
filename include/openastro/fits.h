@@ -2,7 +2,7 @@
  *
  * fits.h -- FITS file data header
  *
- * Copyright 2017 James Fidell (james@openastroproject.org)
+ * Copyright 2017,2020 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -66,4 +66,4 @@ extern fitsKeyword fitsKeywords[86];
 #define OA_FITS_KEY_BZERO	11
 #define OA_FITS_KEY_HISTORY	12
 
-#endif	/* OPENASTRO_SER_H */
+#endif	/* OPENASTRO_FITS_H */
