@@ -10,7 +10,7 @@ optdepends=('fxload: support for QHY5 cameras')
 
 source=("https://github.com/openastroproject/openastro/archive/v1.8.0.tar.gz" "oacapture-slash-lib.diff")
 # Getting the checksum correct for the first file is hard :)
-sha1sums=("SKIP" "9fc44f9fbc00c8da87a9b6b0dbb6e8dee3e9bdc1")
+sha1sums=("SKIP" "f54ca4bd5759048d606c4a475e0eed56f851963d")
 
 build() {
 	cd "openastro-${pkgver}"
