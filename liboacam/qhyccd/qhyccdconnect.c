@@ -428,6 +428,10 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
     }
   }
 
+	if ( p_IsQHYCCDControlAvailable ( handle, CAM_GPS ) == QHYCCD_SUCCESS ) {
+		camera->features.flags |= OA_CAM_FEATURE_GPS;
+	}
+
   cameraInfo->stopControllerThread = cameraInfo->stopCallbackThread = 0;
   cameraInfo->commandQueue = oaDLListCreate();
   cameraInfo->callbackQueue = oaDLListCreate();
