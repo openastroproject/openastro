@@ -2,7 +2,7 @@
  *
  * oacam-features.h -- camera API (sub)header for camera features
  *
- * Copyright 2014,2015,2016,2018,2019
+ * Copyright 2014,2015,2016,2018,2019,2020
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -51,5 +51,6 @@ typedef struct oaCameraFeatures {
 #define OA_CAM_FEATURE_STREAMING							0x00000800
 #define OA_CAM_FEATURE_SINGLE_SHOT						0x00001000
 #define OA_CAM_FEATURE_FRAME_SIZE_UNKNOWN			0x00002000
+#define OA_CAM_FEATURE_GPS										0x00004000
 
 #endif	/* OPENASTRO_CAMERA_FEATURES_H */
