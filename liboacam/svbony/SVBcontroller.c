@@ -746,8 +746,12 @@ _doFrameReconfiguration ( SVB_STATE* cameraInfo )
   if (( actualY * cameraInfo->binMode ) > cameraInfo->maxResolutionY ) {
     actualY = cameraInfo->maxResolutionY / cameraInfo->binMode;
   }
-  p_SVBSetROIFormat ( cameraInfo->cameraId, cameraInfo->xSize,
-      cameraInfo->ySize, cameraInfo->binMode, cameraInfo->currentMode );
+  p_SVBSetROIFormat ( cameraInfo->cameraId,
+			( cameraInfo->maxResolutionX - cameraInfo->xSize ) / 2, cameraInfo->xSize,
+			( cameraInfo->maxResolutionY - cameraInfo->ySize ) / 2, cameraInfo->ySize,
+			cameraInfo->binMode );
+  p_SVBSetOutputImageType ( cameraInfo->cameraId, cameraInfo->currentMode );
+
   if ( OA_BIN_MODE_NONE == cameraInfo->binMode &&
       ( cameraInfo->xSize != cameraInfo->maxResolutionX ||
       cameraInfo->ySize != cameraInfo->maxResolutionY )) {

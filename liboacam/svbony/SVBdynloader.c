@@ -54,13 +54,11 @@ SVB_ERROR_CODE	( *p_SVBGetControlValue )( int, SVB_CONTROL_TYPE, long*,
 										SVB_BOOL* );
 SVB_ERROR_CODE	( *p_SVBSetControlValue )( int, SVB_CONTROL_TYPE, long,
 										SVB_BOOL );
-SVB_ERROR_CODE	( *p_SVBSetROIFormat )( int, int, int, int, SVB_IMG_TYPE ); 
-SVB_ERROR_CODE	( *p_SVBGetROIFormat )( int, int*, int*,  int*, SVB_IMG_TYPE* );
-//SVB_ERROR_CODE	( *p_SVBSetStartPos )( int, int, int ); 
-//SVB_ERROR_CODE	( *p_SVBGetStartPos )( int, int*, int* ); 
-SVB_ERROR_CODE	( *p_SVBGetDroppedFrames )( int,int* ); 
-//SVB_ERROR_CODE	( *p_SVBEnableDarkSubtract )( int, char* );
-//SVB_ERROR_CODE	( *p_SVBDisableDarkSubtract )( int );
+SVB_ERROR_CODE	( *p_SVBGetOutputImageType )( int, SVB_IMG_TYPE* );
+SVB_ERROR_CODE	( *p_SVBSetOutputImageType )( int, SVB_IMG_TYPE );
+SVB_ERROR_CODE	( *p_SVBSetROIFormat )( int, int, int, int, int, int ); 
+SVB_ERROR_CODE	( *p_SVBGetROIFormat )( int, int*, int*,  int*, int*, int* );
+SVB_ERROR_CODE	( *p_SVBGetDroppedFrames )( int, int* ); 
 SVB_ERROR_CODE	( *p_SVBStartVideoCapture )( int );
 SVB_ERROR_CODE	( *p_SVBStopVideoCapture )( int );
 SVB_ERROR_CODE	( *p_SVBGetVideoData )( int, unsigned char*, long, int );
@@ -68,21 +66,17 @@ SVB_ERROR_CODE	( *p_SVBGetVideoData )( int, unsigned char*, long, int );
 //SVB_ERROR_CODE	( *p_SVBPulseGuideOff )( int, SVB_GUIDE_DIRECTION );
 SVB_ERROR_CODE	( *p_SVBStartExposure )( int, SVB_BOOL );
 SVB_ERROR_CODE	( *p_SVBStopExposure )( int );
-//SVB_ERROR_CODE	( *p_SVBGetExpStatus )( int, SVB_EXPOSURE_STATUS* );
-//SVB_ERROR_CODE	( *p_SVBGetDataAfterExp )( int, unsigned char*, long );
-//SVB_ERROR_CODE	( *p_SVBGetID )( int, SVB_ID* );
-//SVB_ERROR_CODE	( *p_SVBSetID )( int, SVB_ID );
-//SVB_ERROR_CODE	( *p_SVBGetGainOffset )( int, int*, int*, int*, int* );
 char*						( *p_SVBGetSDKVersion )( void );
 SVB_ERROR_CODE	( *p_SVBGetCameraSupportMode )( int, SVB_SUPPORTED_MODE* );
 SVB_ERROR_CODE	( *p_SVBGetCameraMode )( int, SVB_CAMERA_MODE* );
 SVB_ERROR_CODE	( *p_SVBSetCameraMode )( int, SVB_CAMERA_MODE );
-SVB_ERROR_CODE	( *p_SVBSendSoftTrigger )( int, SVB_BOOL );
+SVB_ERROR_CODE	( *p_SVBSendSoftTrigger )( int );
 SVB_ERROR_CODE	( *p_SVBGetSerialNumber )( int, SVB_SN* );
 SVB_ERROR_CODE	( *p_SVBSetTriggerOutputIOConf )( int, SVB_TRIG_OUTPUT_PIN,
 										SVB_BOOL, long, long);
 SVB_ERROR_CODE	( *p_SVBGetTriggerOutputIOConf )( int, SVB_TRIG_OUTPUT_PIN,
 										SVB_BOOL*, long*, long* );
+SVB_ERROR_CODE	( *p_SVBGetSensorPixelSize )( int, float* );
 
 #if HAVE_LIBDL && !HAVE_STATIC_LIBSVBCAMERASDK
 static void*    _getDLSym ( void*, const char* );
@@ -158,6 +152,20 @@ _svbInitLibraryFunctionPointers ( void )
     return OA_ERR_SYMBOL_NOT_FOUND;
   }
 
+  if (!( *( void** )( &p_SVBGetOutputImageType ) = _getDLSym ( libHandle,
+      "SVBGetOutputImageType" ))) {
+    dlclose ( libHandle );
+    libHandle = 0;
+    return OA_ERR_SYMBOL_NOT_FOUND;
+  }
+
+  if (!( *( void** )( &p_SVBSetOutputImageType ) = _getDLSym ( libHandle,
+      "SVBSetOutputImageType" ))) {
+    dlclose ( libHandle );
+    libHandle = 0;
+    return OA_ERR_SYMBOL_NOT_FOUND;
+  }
+
   if (!( *( void** )( &p_SVBSetROIFormat ) = _getDLSym ( libHandle,
       "SVBSetROIFormat" ))) {
     dlclose ( libHandle );
@@ -172,22 +180,6 @@ _svbInitLibraryFunctionPointers ( void )
     return OA_ERR_SYMBOL_NOT_FOUND;
   }
 
-/*
-  if (!( *( void** )( &p_SVBSetStartPos ) = _getDLSym ( libHandle,
-      "SVBSetStartPos" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetStartPos ) = _getDLSym ( libHandle,
-      "SVBGetStartPos" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-*/
-
   if (!( *( void** )( &p_SVBGetDroppedFrames ) = _getDLSym ( libHandle,
       "SVBGetDroppedFrames" ))) {
     dlclose ( libHandle );
@@ -195,21 +187,6 @@ _svbInitLibraryFunctionPointers ( void )
     return OA_ERR_SYMBOL_NOT_FOUND;
   }
 
-/*
-  if (!( *( void** )( &p_SVBEnableDarkSubtract ) = _getDLSym ( libHandle,
-      "SVBEnableDarkSubtract" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBDisableDarkSubtract ) = _getDLSym ( libHandle,
-      "SVBDisableDarkSubtract" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-*/
   if (!( *( void** )( &p_SVBStartVideoCapture ) = _getDLSym ( libHandle,
       "SVBStartVideoCapture" ))) {
     dlclose ( libHandle );
@@ -230,77 +207,6 @@ _svbInitLibraryFunctionPointers ( void )
     libHandle = 0;
     return OA_ERR_SYMBOL_NOT_FOUND;
   }
-
-/*
-  if (!( *( void** )( &p_SVBPulseGuideOn ) = _getDLSym ( libHandle,
-      "SVBPulseGuideOn" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBPulseGuideOff ) = _getDLSym ( libHandle,
-      "SVBPulseGuideOff" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-*/
-
-/*
-  if (!( *( void** )( &p_SVBStartExposure ) = _getDLSym ( libHandle,
-      "SVBStartExposure" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBStopExposure ) = _getDLSym ( libHandle,
-      "SVBStopExposure" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetExpStatus ) = _getDLSym ( libHandle,
-      "SVBGetExpStatus" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetDataAfterExp ) = _getDLSym ( libHandle,
-      "SVBGetDataAfterExp" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-*/
-
-/*
-  if (!( *( void** )( &p_SVBGetID ) = _getDLSym ( libHandle,
-      "SVBGetID" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBSetID ) = _getDLSym ( libHandle,
-      "SVBSetID" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-*/
-
-/*
-  if (!( *( void** )( &p_SVBGetGainOffset ) = _getDLSym ( libHandle,
-      "SVBGetGainOffset" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-*/
 
   if (!( *( void** )( &p_SVBGetSDKVersion ) = _getDLSym ( libHandle,
       "SVBGetSDKVersion" ))) {
@@ -369,25 +275,16 @@ _svbInitLibraryFunctionPointers ( void )
 	p_SVBGetControlCaps = SVBGetControlCaps;
 	p_SVBGetControlValue = SVBGetControlValue;
 	p_SVBSetControlValue = SVBSetControlValue;
+	p_SVBGetOutputImageType = SVBGetOutputImageType;
+	p_SVBSetOutputImageType = SVBSetOutputImageType;
 	p_SVBSetROIFormat = SVBSetROIFormat;
 	p_SVBGetROIFormat = SVBGetROIFormat;
-//	p_SVBSetStartPos = SVBSetStartPos;
-//	p_SVBGetStartPos = SVBGetStartPos;
 	p_SVBGetDroppedFrames = SVBGetDroppedFrames;
-//	p_SVBEnableDarkSubtract = SVBEnableDarkSubtract;
-//	p_SVBDisableDarkSubtract = SVBDisableDarkSubtract;
 	p_SVBStartVideoCapture = SVBStartVideoCapture;
 	p_SVBStopVideoCapture = SVBStopVideoCapture;
 	p_SVBGetVideoData = SVBGetVideoData;
 //	p_SVBPulseGuideOn = SVBPulseGuideOn;
 //	p_SVBPulseGuideOff = SVBPulseGuideOff;
-//	p_SVBStartExposure = SVBStartExposure;
-//	p_SVBStopExposure = SVBStopExposure;
-//	p_SVBGetExpStatus = SVBGetExpStatus;
-//	p_SVBGetDataAfterExp = SVBGetDataAfterExp;
-//	p_SVBGetID = SVBGetID;
-//	p_SVBSetID = SVBSetID;
-//	p_SVBGetGainOffset = SVBGetGainOffset;
 	p_SVBGetSDKVersion = SVBGetSDKVersion;
 	p_SVBGetCameraSupportMode = SVBGetCameraSupportMode;
 	p_SVBGetCameraMode = SVBGetCameraMode;

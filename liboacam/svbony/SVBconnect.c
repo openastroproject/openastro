@@ -668,8 +668,9 @@ oaSVBInitCamera ( oaCameraDevice* device )
   cameraInfo->buffers = 0;
   cameraInfo->configuredBuffers = 0;
 
-  p_SVBSetROIFormat ( cameraInfo->cameraId, cameraInfo->xSize,
-      cameraInfo->ySize, cameraInfo->binMode, cameraInfo->currentMode );
+  p_SVBSetROIFormat ( cameraInfo->cameraId, 0, 0, cameraInfo->xSize,
+      cameraInfo->ySize, cameraInfo->binMode );
+	p_SVBSetOutputImageType ( cameraInfo->cameraId, cameraInfo->currentMode );
 
   // The largest buffer size we should need
   // RGB colour is 3 bytes per pixel, mono one for 8-bit, two for 16-bit,

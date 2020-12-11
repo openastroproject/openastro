@@ -43,10 +43,11 @@ extern SVB_ERROR_CODE	( *p_SVBGetControlValue )( int, SVB_CONTROL_TYPE, long*,
 													SVB_BOOL* );
 extern SVB_ERROR_CODE	( *p_SVBSetControlValue )( int, SVB_CONTROL_TYPE, long,
 													SVB_BOOL );
-extern SVB_ERROR_CODE	( *p_SVBSetROIFormat )( int, int, int, int,
-													SVB_IMG_TYPE ); 
-extern SVB_ERROR_CODE	( *p_SVBGetROIFormat )( int, int*, int*,  int*,
-													SVB_IMG_TYPE* );
+extern SVB_ERROR_CODE	( *p_SVBSetROIFormat )( int, int, int, int, int, int );
+extern SVB_ERROR_CODE	( *p_SVBGetROIFormat )( int, int*, int*,  int*, int*,
+													int* );
+extern SVB_ERROR_CODE	( *p_SVBSetOutputImageType )( int, int );
+extern SVB_ERROR_CODE	( *p_SVBGetOutputImageType )( int, int* );
 //extern SVB_ERROR_CODE	( *p_SVBSetStartPos )( int, int, int ); 
 //extern SVB_ERROR_CODE	( *p_SVBGetStartPos )( int, int*, int* ); 
 extern SVB_ERROR_CODE	( *p_SVBGetDroppedFrames )( int,int* ); 
@@ -69,7 +70,7 @@ extern SVB_ERROR_CODE	( *p_SVBGetCameraSupportMode )( int,
 													SVB_SUPPORTED_MODE* );
 extern SVB_ERROR_CODE	( *p_SVBGetCameraMode )( int, SVB_CAMERA_MODE* );
 extern SVB_ERROR_CODE	( *p_SVBSetCameraMode )( int, SVB_CAMERA_MODE );
-extern SVB_ERROR_CODE	( *p_SVBSendSoftTrigger )( int, SVB_BOOL );
+extern SVB_ERROR_CODE	( *p_SVBSendSoftTrigger )( int );
 extern SVB_ERROR_CODE	( *p_SVBGetSerialNumber )( int, SVB_SN* );
 extern SVB_ERROR_CODE	( *p_SVBSetTriggerOutputIOConf )( int,
 													SVB_TRIG_OUTPUT_PIN, SVB_BOOL, long, long);
