@@ -86,7 +86,9 @@ typedef struct FRAMERATES {
 
 typedef struct FRAME_METADATA {
 	unsigned int		frameCounterValid : 1;
+	unsigned int		gpsTimeValid : 1;
 	unsigned int		frameCounter;
+	char						gpsTime[ 64 ];
 } FRAME_METADATA;
 
 struct oaCamera;
