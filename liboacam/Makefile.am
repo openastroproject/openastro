@@ -111,7 +111,7 @@ PYLONDIR = pylon
 PYLONLIB = $(PYLONDIR)/libpylon.la
 endif
 
-if PYLON_COND
+if LIBSVBCAMERASDK_COND
 SVBONYDIR = svbony
 SVBONYLIB = $(SVBONYDIR)/libsvbony.la
 endif
