@@ -167,7 +167,7 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_PylonDeviceOpen )( deviceHandle, PYLONC_ACCESS_MODE_CONTROL |
 			PYLONC_ACCESS_MODE_STREAM ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "Error opening Basler device %d\n", i );
+		fprintf ( stderr, "Error opening Basler device\n" );
 		FREE_DATA_STRUCTS;
 		( p_PylonTerminate )();
 		return 0;
