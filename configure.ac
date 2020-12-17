@@ -42,46 +42,75 @@ fi
 AC_ARG_VAR(PYLON_CONFIG,Path to pylon-config executable)
 AC_PATH_PROG(PYLON_CONFIG,[pylon-config],,[$PATH:/opt/pylon/bin])
 
-checkQtForPIC=0
-checkSystemFFMPEG=0
-checkSystemLibusb=1
-checkSystemDC1394=1
-checkSystemLibuvc=0
-checkSystemLibhidapi=1
-checkSystemLibasicamera=0
-checkSystemLibefwfilter=0
-checkSystemLibtoupcam=0
-checkSystemLibaltaircam=0
-checkSystemLibaltaircamlegacy=0
-checkSystemLibstarshootg=0
-checkSystemLibnncam=0
-checkSystemLibmallincam=0
-checkSystemLibomegonprocam=0
-checkSystemLibqhyccd=0
-checkSystemLibsvbcamerasdk=0
-useisystemInclude=0
+armelavailable=yes
+case $host in
+  *-apple-*|i?86-*-*|x86_64-*-*|armv[78]l-*-*|aarch64-*-*)
+		;;
+  armv[56]l-*-*)
+		armelavailable=no
+		;;
+esac
+have_v4l2=no
+have_udev=no
+have_ftdi1=no
+have_flycapture2=no
+have_spinnaker=no
+have_dl=no
+have_toupcam=$armelavailable
+have_mallincam=$armelavailable
+have_altaircam=$armelavailable
+have_altaircamlegacy=$armelavailable
+have_starshootg=$armelavailable
+have_nncam=$armelavailable
+have_omegonprocam=$armelavailable
+have_qhyccd=$armelavailable
+have_libavformat=no
+have_libavutil=no
+have_libavcodec=no
+internal_uvc=no
+have_libgphoto2=no
+have_svbcamerasdk=no
+
+checkQtForPIC=no
+checkSystemFFMPEG=no
+checkSystemLibusb=yes
+checkSystemDC1394=yes
+checkSystemLibuvc=no
+checkSystemLibhidapi=yes
+checkSystemLibasicamera=no
+checkSystemLibefwfilter=no
+checkSystemLibtoupcam=no
+checkSystemLibaltaircam=no
+checkSystemLibaltaircamlegacy=no
+checkSystemLibstarshootg=no
+checkSystemLibnncam=no
+checkSystemLibmallincam=no
+checkSystemLibomegonprocam=no
+checkSystemLibqhyccd=no
+checkSystemLibsvbcamerasdk=no
+useisystemInclude=no
 build_libusb=no
 zwoSupportedArch=yes
 case $host in
   *-linux-*)
-    checkQtForPIC=1
-    checkSystemFFMPEG=1
-    checkSystemDC1394=1
-    checkSystemLibuvc=1
-    checkSystemLibasicamera=1
-    checkSystemLibefwfilter=1
-    checkSystemLibtoupcam=1
-    checkSystemLibqhyccd=1
-    checkSystemLibaltaircam=1
-    checkSystemLibaltaircamlegacy=1
-    checkSystemLibstarshootg=1
-    checkSystemLibnncam=1
-    checkSystemLibmallincam=1
-    checkSystemLibomegonprocam=1
-		checkSystemLibsvbcamerasdk=1
+    checkQtForPIC=yes
+    checkSystemFFMPEG=yes
+    checkSystemDC1394=yes
+    checkSystemLibuvc=yes
+    checkSystemLibasicamera=yes
+    checkSystemLibefwfilter=yes
+    checkSystemLibtoupcam=$armelavailable
+		checkSystemLibqhyccd=$armelavailable
+		checkSystemLibaltaircam=$armelavailable
+		checkSystemLibaltaircamlegacy=$armelavailable
+		checkSystemLibmallincam=$armelavailable
+    checkSystemLibstarshootg=$armelavailable
+    checkSystemLibnncam=$armelavailable
+    checkSystemLibomegonprocam=$armelavailable
+		checkSystemLibsvbcamerasdk=yes
     ;;
   *-apple-*)
-    useisystemInclude=1
+    useisystemInclude=yes
     build_libusb=yes
     ;;
 esac
@@ -99,10 +128,10 @@ fi
 
 if test "$have_qt5" == "yes"
 then
-  PKG_CHECK_MODULES(QT5, [Qt5Core, Qt5Gui, Qt5Network, Qt5Widgets], [], [
+  PKG_CHECK_MODULES(QT5, [Qt5Core, Qt5Gui, Qt5Widgets], [], [
     AC_MSG_ERROR([Qt5 libraries are required.])])
   AC_MSG_NOTICE([Building using Qt5])
-  if test $checkQtForPIC -ne 0; then
+  if test "$checkQtForPIC" == "yes"; then
     $PKG_CONFIG --variable=qt_config Qt5Core | grep -q reduce_relocations
     red_rel=$?
     if test $red_rel -eq 0; then
@@ -110,14 +139,14 @@ then
       AC_MSG_NOTICE([Qt5 appears to require compilation with -fPIC])
     fi
   fi
-  flags=`$PKG_CONFIG --cflags-only-I Qt5Core Qt5Gui Qt5Network Qt5Widgets`
+  flags=`$PKG_CONFIG --cflags-only-I Qt5Core Qt5Gui Qt5Widgets`
   MOC_CFLAGS="$flags"
-  if test $useisystemInclude -eq 1; then
+  if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/-I/-isystem/g'`
   fi
   CPPFLAGS="$flags $CPPFLAGS"
-  LDFLAGS="`$PKG_CONFIG --libs-only-L Qt5Core Qt5Gui Qt5Network Qt5Widgets` $LDFLAGS"
-  LIBS="`$PKG_CONFIG --libs-only-l Qt5Core Qt5Gui Qt5Network Qt5Widgets` $LIBS"
+  LDFLAGS="`$PKG_CONFIG --libs-only-L Qt5Core Qt5Gui Qt5Widgets` $LDFLAGS"
+  LIBS="`$PKG_CONFIG --libs-only-l Qt5Core Qt5Gui Qt5Widgets` $LIBS"
   AC_DEFINE([HAVE_QT5],[1],[Have Qt5])
 else
   PKG_CHECK_MODULES(QT, [QtCore, QtGui, QtNetwork], [], [
@@ -128,7 +157,7 @@ else
   AC_MSG_NOTICE([Building using Qt4])
   flags=`$PKG_CONFIG --cflags-only-I QtCore QtGui QtNetwork`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
-  if test $useisystemInclude -eq 1; then
+  if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/-I/-isystem/g'`
   fi
   CPPFLAGS="$flags $CPPFLAGS"
@@ -138,27 +167,6 @@ else
 fi
 
 # Checks for libraries.
-
-have_v4l2=no
-have_udev=no
-have_ftdi1=no
-have_flycapture2=no
-have_spinnaker=no
-have_dl=no
-have_toupcam=yes
-have_mallincam=yes
-have_altaircam=yes
-have_altaircamlegacy=yes
-have_starshootg=yes
-have_nncam=yes
-have_omegonprocam=yes
-have_qhyccd=yes
-have_libavformat=no
-have_libavutil=no
-have_libavcodec=no
-internal_uvc=no
-have_libgphoto2=no
-have_svbcamerasdk=no
 
 case $host in
   x86_64-apple-*)
@@ -174,7 +182,7 @@ esac
 if `$PKG_CONFIG --exists libv4l2`; then
   flags=`$PKG_CONFIG --cflags-only-I libv4l2`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
-  if test $useisystemInclude -eq 1; then
+  if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   CPPFLAGS="$flags $CPPFLAGS"
@@ -195,7 +203,7 @@ fi
 if `$PKG_CONFIG --exists libtiff-4`; then
   flags=`$PKG_CONFIG --cflags-only-I libtiff-4`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
-  if test $useisystemInclude -eq 1; then
+  if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   CPPFLAGS="$flags $CPPFLAGS"
@@ -211,7 +219,7 @@ fi
 if `$PKG_CONFIG --exists libpng`; then
   flags=`$PKG_CONFIG --cflags-only-I libpng`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
-  if test $useisystemInclude -eq 1; then
+  if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   CPPFLAGS="$flags $CPPFLAGS"
@@ -227,7 +235,7 @@ fi
 if `$PKG_CONFIG --exists libjpeg`; then
   flags=`$PKG_CONFIG --cflags-only-I libjpeg`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
-  if test $useisystemInclude -eq 1; then
+  if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   CPPFLAGS="$flags $CPPFLAGS"
@@ -256,7 +264,7 @@ fi
 if `$PKG_CONFIG --exists libraw`; then
   flags=`$PKG_CONFIG --cflags-only-I libraw`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
-  if test $useisystemInclude -eq 1; then
+  if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   CPPFLAGS="$flags $CPPFLAGS"
@@ -272,7 +280,7 @@ fi
 if `$PKG_CONFIG --exists cfitsio`; then
   flags=`$PKG_CONFIG --cflags-only-I cfitsio`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
-  if test $useisystemInclude -eq 1; then
+  if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   CPPFLAGS="$flags $CPPFLAGS"
@@ -290,7 +298,7 @@ fi
 if `$PKG_CONFIG --exists libbz2`; then
   flags=`$PKG_CONFIG --cflags-only-I libbz2`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
-  if test $useisystemInclude -eq 1; then
+  if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   CPPFLAGS="$flags $CPPFLAGS"
@@ -307,7 +315,7 @@ fi
 if `$PKG_CONFIG --exists zlib`; then
   flags=`$PKG_CONFIG --cflags-only-I zlib`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
-  if test $useisystemInclude -eq 1; then
+  if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   CPPFLAGS="$flags $CPPFLAGS"
@@ -324,7 +332,7 @@ fi
 if `$PKG_CONFIG --exists liblzma`; then
   flags=`$PKG_CONFIG --cflags-only-I liblzma`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
-  if test $useisystemInclude -eq 1; then
+  if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   CPPFLAGS="$flags $CPPFLAGS"
@@ -344,7 +352,7 @@ FFM_LDFLAGS=''
 FFM_LIBS=''
 
 use_system_ffmpeg=no
-if test $checkSystemFFMPEG -eq 1
+if test "$checkSystemFFMPEG" == "yes"
 then
 
 # Some things can make you quite sweary, like people changing the names
@@ -355,7 +363,7 @@ then
 if `$PKG_CONFIG --exists 'libavcodec >= 57.0.0'`; then
   flags=`$PKG_CONFIG --cflags-only-I libavcodec`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
-  if test $useisystemInclude -eq 1; then
+  if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   FFM_CPPFLAGS="$flags $FFM_CPPFLAGS"
@@ -370,7 +378,7 @@ if `$PKG_CONFIG --exists 'libavformat >= 57.0.0'`; then
   if `$PKG_CONFIG --exists 'libavformat < 58.0.0'`; then
     flags="$flags -DFFMPEGV3"
   fi
-  if test $useisystemInclude -eq 1; then
+  if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   FFM_CPPFLAGS="$flags $FFM_CPPFLAGS"
@@ -382,7 +390,7 @@ fi
 if `$PKG_CONFIG --exists 'libavutil >= 54.20.100'`; then
   flags=`$PKG_CONFIG --cflags-only-I libavutil`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
-  if test $useisystemInclude -eq 1; then
+  if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   FFM_CPPFLAGS="$flags $FFM_CPPFLAGS"
@@ -396,7 +404,7 @@ then
   if `$PKG_CONFIG --exists 'libavcodec-ffmpeg >= 57.0.0'`; then
     flags=`$PKG_CONFIG --cflags-only-I libavcodec-ffmpeg`
     MOC_CFLAGS="$flags $MOC_CFLAGS"
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     FFM_CPPFLAGS="$flags $FFM_CPPFLAGS"
@@ -410,7 +418,7 @@ then
   if `$PKG_CONFIG --exists 'libavformat-ffmpeg >= 57.0.0'`; then
     flags=`$PKG_CONFIG --cflags-only-I libavformat-ffmpeg`
     MOC_CFLAGS="$flags $MOC_CFLAGS"
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     FFM_CPPFLAGS="$flags $FFM_CPPFLAGS"
@@ -418,13 +426,13 @@ then
     FFM_LIBS="`$PKG_CONFIG --libs-only-l libavformat-ffmpeg` $FFM_LIBS"
     have_libavformat=yes
   else
-    AC_MSG_WARN([No suitable version of system libavcodec found.])
+    AC_MSG_WARN([No suitable version of system libavformat found.])
   fi
 
   if `$PKG_CONFIG --exists 'libavutil-ffmpeg >= 54.20.100'`; then
     flags=`$PKG_CONFIG --cflags-only-I libavutil-ffmpeg`
     MOC_CFLAGS="$flags $MOC_CFLAGS"
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     FFM_CPPFLAGS="$flags $FFM_CPPFLAGS"
@@ -454,11 +462,11 @@ then
 fi
 
 use_system_libusb=no
-if test $checkSystemLibusb -eq 1
+if test "$checkSystemLibusb" == "yes"
 then
   if `$PKG_CONFIG --exists 'libusb-1.0 >= 1.0.21'`; then
     flags=`$PKG_CONFIG --cflags-only-I libusb-1.0`
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     LIBUSB_CFLAGS="$flags"
@@ -484,12 +492,12 @@ else
 fi
 
 use_system_dc1394=no
-if test $checkSystemDC1394 -eq 1
+if test "$checkSystemDC1394" == "yes"
 then
   if `$PKG_CONFIG --exists 'libdc1394-2 >= 2.2.4'`; then
     AC_MSG_NOTICE([Using system libdc1394 library])
     flags=`$PKG_CONFIG --cflags-only-I libdc1394-2`
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     LIBDC1394_CFLAGS="$flags"
@@ -520,12 +528,12 @@ then
 fi
 
 use_system_libuvc=no
-if test $checkSystemLibuvc -eq 1
+if test "$checkSystemLibuvc" == "yes"
 then
   if `$PKG_CONFIG --exists 'libuvc >= 0.0.5'`; then
     AC_MSG_NOTICE([Using system libuvc library for build])
     flags=`$PKG_CONFIG --cflags-only-I libuvc`
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     LIBUVC_CFLAGS="$flags"
@@ -563,12 +571,12 @@ else
 fi
 
 use_system_libhidapi=no
-if test $checkSystemLibhidapi -eq 1
+if test "$checkSystemLibhidapi" == "yes"
 then
   if `$PKG_CONFIG --exists 'hidapi-libusb >= 0.8.0'`; then
     AC_MSG_NOTICE([Using system libhidapi-libusb library])
     flags=`$PKG_CONFIG --cflags-only-I hidapi-libusb`
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     LIBHIDAPI_CFLAGS="$flags"
@@ -607,7 +615,7 @@ fi
 
 if `$PKG_CONFIG --exists libftdi1`; then
   flags=`$PKG_CONFIG --cflags-only-I libftdi1`
-  if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   LIBFTDI_CFLAGS="$flags"
@@ -653,12 +661,12 @@ then
 fi
 
 use_system_libasicamera2=no
-if test $checkSystemLibasicamera -eq 1
+if test "$checkSystemLibasicamera" == "yes"
 then
   if `$PKG_CONFIG --exists libasicamera2`; then
     AC_MSG_NOTICE([Using system libASICamera2 library])
     flags=`$PKG_CONFIG --cflags-only-I libasicamera2`
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     LIBASI2_CFLAGS="$flags"
@@ -689,12 +697,12 @@ then
 fi
 
 use_system_libefwfilter=no
-if test $checkSystemLibefwfilter -eq 1
+if test "$checkSystemLibefwfilter" == "yes"
 then
   if `$PKG_CONFIG --exists libefwfilter`; then
     AC_MSG_NOTICE([Using system libEFWFilter library])
     flags=`$PKG_CONFIG --cflags-only-I libefwfilter`
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     LIBZWOFW_CFLAGS="$flags"
@@ -726,12 +734,12 @@ fi
 
 use_system_libtoupcam=no
 use_system_libmallincam=no
-if test $checkSystemLibtoupcam -eq 1
+if test "$checkSystemLibtoupcam" == "yes"
 then
   if `$PKG_CONFIG --exists libtoupcam`; then
     AC_MSG_NOTICE([Using system libtoupcam library])
     flags=`$PKG_CONFIG --cflags-only-I libtoupcam`
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     LIBTOUPCAM_CFLAGS="$flags"
@@ -756,12 +764,12 @@ then
 fi
 
 use_system_libaltaircam=no
-if test $checkSystemLibaltaircam -eq 1
+if test "$checkSystemLibaltaircam" == "yes"
 then
   if `$PKG_CONFIG --exists libaltaircam`; then
     AC_MSG_NOTICE([Using system libaltaircam library])
     flags=`$PKG_CONFIG --cflags-only-I libaltaircam`
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     LIBALTAIRCAM_CFLAGS="$flags"
@@ -786,12 +794,12 @@ then
 fi
 
 use_system_libaltaircamlegacy=no
-if test $checkSystemLibaltaircamlegacy -eq 1
+if test "$checkSystemLibaltaircamlegacy" == "yes"
 then
   if `$PKG_CONFIG --exists libaltaircamlegacy`; then
     AC_MSG_NOTICE([Using system libaltaircamlegacy library])
     flags=`$PKG_CONFIG --cflags-only-I libaltaircamlegacy`
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     LIBALTAIRCAM_LEGACY_CFLAGS="$flags"
@@ -816,12 +824,12 @@ then
 fi
 
 use_system_libstarshootg=no
-if test $checkSystemLibstarshootg -eq 1
+if test "$checkSystemLibstarshootg" == "yes"
 then
   if `$PKG_CONFIG --exists libstarshootg`; then
     AC_MSG_NOTICE([Using system libstarshootg library])
     flags=`$PKG_CONFIG --cflags-only-I libstarshootg`
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     LIBSTARSHOOTG_CFLAGS="$flags"
@@ -846,12 +854,12 @@ then
 fi
 
 use_system_libnncam=no
-if test $checkSystemLibnncam -eq 1
+if test "$checkSystemLibnncam" == "yes"
 then
   if `$PKG_CONFIG --exists libnncam`; then
     AC_MSG_NOTICE([Using system libnncam library])
     flags=`$PKG_CONFIG --cflags-only-I libnncam`
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     LIBNNCAM_CFLAGS="$flags"
@@ -876,12 +884,12 @@ then
 fi
 
 use_system_libomegonprocam=no
-if test $checkSystemLibomegonprocam -eq 1
+if test "$checkSystemLibomegonprocam" == "yes"
 then
   if `$PKG_CONFIG --exists libomegonprocam`; then
     AC_MSG_NOTICE([Using system libomegonprocam library])
     flags=`$PKG_CONFIG --cflags-only-I libomegonprocam`
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     LIBOMEGONPROCAM_CFLAGS="$flags"
@@ -907,12 +915,12 @@ fi
 
 
 use_system_libqhyccd=no
-if test $checkSystemLibqhyccd -eq 1
+if test "$checkSystemLibqhyccd" == "yes"
 then
   if `$PKG_CONFIG --exists libqhyccd`; then
     AC_MSG_NOTICE([Using system libqhyccd library])
     flags=`$PKG_CONFIG --cflags-only-I libqhyccd`
-    if test $useisystemInclude -eq 1; then
+		if test "$useisystemInclude" == "yes"; then
       flags=`echo "$flags" | sed 's/^-I/-isystem/'`
     fi
     LIBQHYCCD_CFLAGS="$flags"
@@ -939,7 +947,7 @@ fi
 if `$PKG_CONFIG --exists libsvbcamerasdk`; then
   flags=`$PKG_CONFIG --cflags-only-I libsvbcamerasdk`
   MOC_CFLAGS="$flags $MOC_CFLAGS"
-  if test $useisystemInclude -eq 1; then
+	if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   CPPFLAGS="$flags $CPPFLAGS"
@@ -1005,7 +1013,7 @@ fi
 if `$PKG_CONFIG --exists libgphoto2`; then
   AC_MSG_NOTICE([Using system libgphoto2 library])
   flags=`$PKG_CONFIG --cflags-only-I libgphoto2`
-  if test $useisystemInclude -eq 1; then
+	if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
   LIBGPHOTO2_CFLAGS="$flags"
