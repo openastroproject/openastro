@@ -299,14 +299,17 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
   // force camera into 8-bit mode if it has it
 
 	if ( cameraInfo->has8Bit ) {
-		if ( p_SetQHYCCDBitsMode ( handle, 8 ) !=
-				QHYCCD_SUCCESS ) {
-      fprintf ( stderr,
-          "SetQHYCCDParam ( transferbit, 8 ) returns error\n" );
-			p_CloseQHYCCD ( handle );
-			p_ReleaseQHYCCDResource();
-      FREE_DATA_STRUCTS;
-      return 0;
+		if ( p_IsQHYCCDControlAvailable ( handle, CONTROL_TRANSFERBIT ) ==
+			QHYCCD_SUCCESS ) {
+			if ( p_SetQHYCCDBitsMode ( handle, 8 ) !=
+					QHYCCD_SUCCESS ) {
+				fprintf ( stderr,
+						"SetQHYCCDParam ( transferbit, 8 ) returns error\n" );
+				p_CloseQHYCCD ( handle );
+				p_ReleaseQHYCCDResource();
+				FREE_DATA_STRUCTS;
+				return 0;
+			}
     }
 		if ( cameraInfo->colour ) {
 			cameraInfo->currentVideoFormat = OA_PIX_FMT_RGB24;
