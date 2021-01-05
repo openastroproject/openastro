@@ -500,7 +500,7 @@ OutputFFMPEG::addVideoStream ( AVFormatContext* formatContext,
 
   if (( ret = avcodec_open2 ( codecContext, codec, 0 )) < 0 ) {
     av_strerror( ret, errbuf, sizeof(errbuf));
-    qWarning() << "couldn't open codec, error:" << errbuf;
+    qWarning() << "couldn't open codec" << codecId << ", error:" << errbuf;
     return 0;
   }
 

@@ -43,32 +43,13 @@ OutputAVI::OutputAVI ( int x, int y, int n, int d, int fmt,
 		QString fileTemplate, trampolineFuncs* trampolines) :
     OutputFFMPEG ( x, y, n, d, fmt, fileTemplate, trampolines )
 {
-  videoCodec = AV_CODEC_ID_UTVIDEO;
+  videoCodec = AV_CODEC_ID_RAWVIDEO;
 
   switch ( fmt ) {
-    case OA_PIX_FMT_GREY8:
-    case OA_PIX_FMT_GREY16LE:
-    case OA_PIX_FMT_GREY16BE:
-    case OA_PIX_FMT_BGGR8:
-    case OA_PIX_FMT_RGGB8:
-    case OA_PIX_FMT_GRBG8:
-    case OA_PIX_FMT_GBRG8:
-    case OA_PIX_FMT_BGGR16LE:
-    case OA_PIX_FMT_BGGR16BE:
-    case OA_PIX_FMT_RGGB16LE:
-    case OA_PIX_FMT_RGGB16BE:
-    case OA_PIX_FMT_GBRG16LE:
-    case OA_PIX_FMT_GBRG16BE:
-    case OA_PIX_FMT_GRBG16LE:
-    case OA_PIX_FMT_GRBG16BE:
-    case OA_PIX_FMT_YUV444P:
-    case OA_PIX_FMT_YUV422P:
+    case OA_PIX_FMT_RGB24:
     case OA_PIX_FMT_YUV420P:
-    case OA_PIX_FMT_YUV411P:
-    case OA_PIX_FMT_YUV410P:
-    case OA_PIX_FMT_YUYV:
-    case OA_PIX_FMT_UYVY:
-      videoCodec = AV_CODEC_ID_RAWVIDEO;
+    case OA_PIX_FMT_YUV422P:
+      videoCodec = AV_CODEC_ID_UTVIDEO;
       break;
   }
 }
