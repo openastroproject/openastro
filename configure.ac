@@ -112,6 +112,7 @@ case $host in
   *-apple-*)
     useisystemInclude=yes
     build_libusb=yes
+		have_svbcamerasdk=yes
     ;;
 esac
 
@@ -944,36 +945,41 @@ then
   fi
 fi
 
-if `$PKG_CONFIG --exists libsvbcamerasdk`; then
-  flags=`$PKG_CONFIG --cflags-only-I libsvbcamerasdk`
-  MOC_CFLAGS="$flags $MOC_CFLAGS"
-	if test "$useisystemInclude" == "yes"; then
-    flags=`echo "$flags" | sed 's/^-I/-isystem/'`
-  fi
-  CPPFLAGS="$flags $CPPFLAGS"
-# LDFLAGS="`$PKG_CONFIG --libs-only-L libsvbcamerasdk` $LDFLAGS"
-# LIBS="`$PKG_CONFIG --libs-only-l libsvbcamerasdk` $LIBS"
-  have_svbcamerasdk=yes
-  AC_DEFINE([HAVE_LIBSVBCAMERASDK],[1],[Have SVBony library])
-  AC_MSG_NOTICE([Using system SVBony library])
-else
-  AC_CHECK_LIB([SVBCameraSDK],[SVBGetNumOfConnectedCameras],[
-    LIBS="-lSVBCameraSDK $LIBS"
-    AC_DEFINE([HAVE_LIBSVBCAMERASDK],[1],[Have SVBony library])
-		have_svbcamerasdk=yes
-  ],[
-    AC_MSG_WARN([No SVBony library found.  SVBony cameras will not be supported using this library])])
+use_system_libsvbcamerasdk=no
+if test "$checkSystemLibsvbcamerasdk" == "yes"
+then
+	if `$PKG_CONFIG --exists libsvbcamerasdk`; then
+  	flags=`$PKG_CONFIG --cflags-only-I libsvbcamerasdk`
+  	MOC_CFLAGS="$flags $MOC_CFLAGS"
+		if test "$useisystemInclude" == "yes"; then
+    	flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+  	fi
+  	CPPFLAGS="$flags $CPPFLAGS"
+	# LDFLAGS="`$PKG_CONFIG --libs-only-L libsvbcamerasdk` $LDFLAGS"
+	# LIBS="`$PKG_CONFIG --libs-only-l libsvbcamerasdk` $LIBS"
+  	have_svbcamerasdk=yes
+	use_system_libsvbcamerasdk=yes
+  	AC_DEFINE([HAVE_LIBSVBCAMERASDK],[1],[Have SVBony library])
+  	AC_MSG_NOTICE([Using system SVBony library])
+	else
+  	AC_CHECK_LIB([SVBCameraSDK],[SVBGetNumOfConnectedCameras],[
+    	LIBS="-lSVBCameraSDK $LIBS"
+    	AC_DEFINE([HAVE_LIBSVBCAMERASDK],[1],[Have SVBony library])
+			have_svbcamerasdk=yes
+  	],[
+    	AC_MSG_WARN([No SVBony library found.  SVBony cameras will not be supported using this library])])
+	fi
 fi
-
+	
 if test -n "$PYLON_CONFIG"
 then
-  AC_MSG_NOTICE([Using Basler pylon library])
+ 	AC_MSG_NOTICE([Using Basler pylon library])
 	PYLON_CFLAGS=`$PYLON_CONFIG --cflags-only-I pylonc`
-# PYLON_LDFLAGS=`$PYLON_CONFIG --libs-only-L pylonc`
-# PYLON_LIBS=`$PYLON_CONFIG --libs-only-l pylonc`
+	# PYLON_LDFLAGS=`$PYLON_CONFIG --libs-only-L pylonc`
+	# PYLON_LIBS=`$PYLON_CONFIG --libs-only-l pylonc`
 	AC_DEFINE([HAVE_PYLON],[1],[Have Basler Pylon SDK])
 fi
-
+	
 AC_CHECK_LIB([m],[exp10],[
   AC_DEFINE([HAVE_EXP10],[1],[Have exp10 function in libm])
 ],[
@@ -1389,6 +1395,7 @@ case $host in
     AC_CONFIG_LINKS([$ext7/libstarshootg/libstarshootg.dylib:ext/libstarshootg/mac/libstarshootg.dylib])
     AC_CONFIG_LINKS([$ext8/libnncam/libnncam.dylib:ext/libnncam/mac/libnncam.dylib])
     AC_CONFIG_LINKS([$ext9/libomegonprocam/libomegonprocam.dylib:ext/libomegonprocam/mac64/libomegonprocam.dylib])
+    AC_CONFIG_LINKS([$extA/libSVBCameraSDK/libSVBCameraSDK.a:ext/libSVBCameraSDK/lib/mac64/libSVBCameraSDK.a])
     OSX_FRAMEWORKS="-framework Carbon -framework VideoDecodeAcceleration -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
     FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
 		SHLIBS_CFLAGS="-DSHLIB_PATH=\\\"/MacOS/\\\""
@@ -1557,6 +1564,17 @@ then
 		LIBOMEGONPROCAM_CFLAGS="-I \$(top_srcdir)/ext/libomegonprocam/include"
 		LIBOMEGONPROCAM_LIBS=""
 		AC_DEFINE([HAVE_LIBOMEGONPROCAM],[1],[Have Omegon library support])
+	fi
+fi
+
+if test "x$use_system_libsvbcamerasdk" == "xno"
+then
+	if test "x$have_svbcamerasdk" != "xno"
+	then
+		LIBSVBCAMERASDK_CFLAGS="-I \$(top_srcdir)/ext/libSVBCameraSDK/include"
+		LIBSVBCAMERASDK_LIBS="\$(top_builddir)/ext/libSVBCameraSDK/libSVBCameraSDK.a"
+		AC_DEFINE([HAVE_LIBSVBCAMERASDK],[1],[Have SVBony library support])
+		AC_DEFINE([HAVE_STATIC_LIBSVBCAMERASDK],[1],[Using static SVBony library])
 	fi
 fi
 

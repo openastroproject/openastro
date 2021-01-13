@@ -25,7 +25,7 @@
 AM_CPPFLAGS = \
   -I$(top_srcdir)/include \
   -I$(top_srcdir)/liboacam \
-  $(LIBSVB_CFLAGS) \
+  $(LIBSVBCAMERASDK_CFLAGS) \
   $(DYNLIB_EXTN_CFLAGS)
 
 noinst_LTLIBRARIES = libsvbony.la
