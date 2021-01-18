@@ -1,7 +1,7 @@
 #
 # 70-iidc-cameras.rules -- Udev rules for IEEE1394/IIDC/DCAM cameras
 #
-# Copyright 2014,2019 James Fidell (james@openastroproject.org)
+# Copyright 2014,2019,2021 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -21,6 +21,9 @@
 # along with the Open Astro Project.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
+
+# Set new minimum value for usbfs memory
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="1e10", RUN+="/bin/sh -c 'test -f /sys/module/usbcore/parameters/usbfs_memory_mb && test `cat /sys/module/usbcore/parameters/usbfs_memory_mb` -lt 200 && echo 200 >/sys/module/usbcore/parameters/usbfs_memory_mb'"
 
 # Point Grey Firefly MV Color
 SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="2000", TAG+="uaccess"
