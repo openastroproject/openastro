@@ -37,3 +37,15 @@ SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="2003", TAG+="uaccess
 SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="2004", TAG+="uaccess"
 # Point Grey Chameleon Mono
 SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="2005", TAG+="uaccess"
+# Point Grey Flea 3
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="3000", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="3005", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="3006", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="3008", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="300a", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="300b", TAG+="uaccess"
+# Point Grey Grasshopper 3
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="3103", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="3300", TAG+="uaccess"
+# Point Grey Ladybug 5
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e10", ATTR{idProduct}=="3800", TAG+="uaccess"
