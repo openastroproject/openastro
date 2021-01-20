@@ -2,7 +2,7 @@
  *
  * mainWindow.cc -- the main controlling window class
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -472,8 +472,7 @@ MainWindow::readConfig ( QString configFile )
 				"camera/binning2x2", 0 ).toInt();
     commonConfig.colourise = settings->value (
 				"camera/colourise", 0 ).toInt();
-    // FIX ME -- reset these temporarily.  needs fixing properly
-    commonConfig.binning2x2 = 0;
+    // FIX ME -- reset this temporarily.  needs fixing properly
     commonConfig.colourise = 0;
     config.inputFrameFormat = settings->value ( "camera/inputFrameFormat",
         OA_PIX_FMT_RGB24 ).toInt();

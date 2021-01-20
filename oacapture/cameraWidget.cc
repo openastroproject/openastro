@@ -2,7 +2,7 @@
  *
  * cameraWidget.cc -- class for the camera widget in the UI
  *
- * Copyright 2013,2014,2015,2017,2018,2019,2020
+ * Copyright 2013,2014,2015,2017,2018,2019,2020,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -148,10 +148,18 @@ CameraWidget::configure ( void )
     updateForceFrameFormat ( 0, cameraConf.forceInputFrameFormat );
   }
 	binning = commonState.camera->hasBinning ( 2 ) ? 1 : 0;
-	if ( binning ) {
-		commonState.camera->setControl ( OA_CAM_CTRL_BINNING, OA_BIN_MODE_NONE );
-	}
 	binning2x2->setEnabled ( binning );
+	if ( binning ) {
+		if ( commonConfig.binning2x2 ) {
+			commonState.camera->setControl ( OA_CAM_CTRL_BINNING, OA_BIN_MODE_2x2 );
+		} else {
+			commonState.camera->setControl ( OA_CAM_CTRL_BINNING, OA_BIN_MODE_NONE );
+		}
+    commonState.binningValid = 1;
+	} else {
+		commonConfig.binning2x2 = 0;
+	}
+	binning2x2->setChecked ( commonConfig.binning2x2 );
 }
 
 
