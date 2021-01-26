@@ -86,8 +86,6 @@ oaPTRcontroller ( void* param )
       timestampLength = PTR_TIMESTAMP_BUFFER_LEN_V2;
     }
   }
-  timeout.tv_sec = 0;
-  timeout.tv_usec = 10000;
   do {
     pthread_mutex_lock ( &deviceInfo->commandQueueMutex );
     exitThread = deviceInfo->stopControllerThread;
@@ -97,20 +95,19 @@ oaPTRcontroller ( void* param )
     } else {
       pthread_mutex_lock ( &deviceInfo->commandQueueMutex );
       // stop us busy-waiting
-      if ( oaDLListIsEmpty ( deviceInfo->commandQueue )) {
+			running = deviceInfo->isRunning;
+      if ( !running && oaDLListIsEmpty ( deviceInfo->commandQueue )) {
         pthread_cond_wait ( &deviceInfo->commandQueued,
             &deviceInfo->commandQueueMutex );
       }
       pthread_mutex_unlock ( &deviceInfo->commandQueueMutex );
     }
 
-    pthread_mutex_lock ( &deviceInfo->commandQueueMutex );
-    running = deviceInfo->isRunning;
-    pthread_mutex_unlock ( &deviceInfo->commandQueueMutex );
-
     if ( running ) {
       FD_ZERO ( &readable );
       FD_SET ( deviceInfo->fd, &readable );
+			timeout.tv_sec = 0;
+			timeout.tv_usec = 10000;
       if ( select ( deviceInfo->fd + 1, &readable, 0, 0, &timeout ) == 1 ) {
         numRead = _readTimestamp ( deviceInfo->version, deviceInfo->fd,
             readBuffer );
@@ -191,6 +188,7 @@ oaPTRcontroller ( void* param )
         }
       }
     }
+
     // do {
       command = oaDLListRemoveFromHead ( deviceInfo->commandQueue );
       if ( command ) {
