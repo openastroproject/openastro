@@ -274,7 +274,7 @@ t_checkTimerWarnings ( void )
   if ( commonState.camera && commonState.camera->isInitialised()) {
     if ( commonState.camera->hasControl ( OA_CAM_CTRL_TRIGGER_ENABLE ) &&
         timerConf.timerMode == OA_TIMER_MODE_TRIGGER &&
-        !commonState.camera->readControl ( OA_CAM_CTRL_TRIGGER_ENABLE )) {
+				!cameraConf.CONTROL_VALUE( OA_CAM_CTRL_TRIGGER_ENABLE )) {
       msg = QCoreApplication::translate ( "SettingsWidget",
 					"\n\nThe timer is in trigger mode but the camera is "
           "not.  These two settings should be the same." );
