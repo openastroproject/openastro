@@ -2,7 +2,7 @@
  *
  * captureWidget.cc -- class for the capture widget in the UI
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -1347,7 +1347,7 @@ CaptureWidget::updateSettingsFromProfile ( void )
       profileConf.profiles[ commonConfig.profileOption ].secondsLimitValue;
 
   for ( int i = 1; i < OA_CAM_CTRL_LAST_P1; i++ ) {
-    for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_P1; j++ ) {
+    for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_LAST_P1; j++ ) {
       cameraConf.controlValues[j][i] =
         profileConf.profiles[ commonConfig.profileOption ].filterProfiles[
         commonConfig.filterOption ].controls[j][i];
@@ -1365,7 +1365,7 @@ void
 CaptureWidget::updateFilterSettingsFromProfile ( void )
 {
   for ( int i = 1; i < OA_CAM_CTRL_LAST_P1; i++ ) {
-    for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_P1; j++ ) {
+    for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_LAST_P1; j++ ) {
       cameraConf.controlValues[j][i] =
         profileConf.profiles[ commonConfig.profileOption ].filterProfiles[
         commonConfig.filterOption ].controls[j][i];

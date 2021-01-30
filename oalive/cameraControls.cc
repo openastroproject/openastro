@@ -2,7 +2,7 @@
  *
  * cameraControls.cc -- class for the camera tab in the settings dialog
  *
- * Copyright 2015,2017,2018,2019,2020
+ * Copyright 2015,2017,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -103,7 +103,7 @@ void
 CameraControls::configure ( void )
 {
   int		baseVal, mod, c;
-  int		added[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
+  int		added[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ][ OA_CAM_CTRL_LAST_P1 ];
   int		numSliders = 0, numCheckboxes = 0, numMenus = 0;
   int		numSliderCheckboxes = 0, numUnhandled = 0, numButtons = 0;
   int		haveRangeMenu = 0, readableControls = 0;
@@ -138,7 +138,7 @@ CameraControls::configure ( void )
 	inputFormatList.clear();
 
   for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
-		for ( mod = 0; mod < OA_CAM_CTRL_MODIFIERS_P1; mod++ ) {
+		for ( mod = 0; mod < OA_CAM_CTRL_MODIFIERS_LAST_P1; mod++ ) {
 			c = baseVal | ( mod ? ( 0x80 << mod ) : 0 );
 			// FIX ME -- what if these have existing values?
 			controlLabel[mod][baseVal] = nullptr;
@@ -508,7 +508,7 @@ CameraControls::configure ( void )
 
   for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
     col = 0;
-    for ( mod = OA_CAM_CTRL_MODIFIER_STD; mod < OA_CAM_CTRL_MODIFIERS_P1;
+    for ( mod = OA_CAM_CTRL_MODIFIER_STD; mod < OA_CAM_CTRL_MODIFIERS_LAST_P1;
         mod++ ) {
       if ( OA_CTRL_TYPE_INT32 ==
           controlType[OA_CAM_CTRL_MODIFIER_STD][baseVal] ||
@@ -547,7 +547,7 @@ CameraControls::configure ( void )
         }
         // last time through, we want to add two to account for the slider and
         // spinbox added above
-        if (( OA_CAM_CTRL_MODIFIERS_P1 - 1 ) == mod ) {
+        if (( OA_CAM_CTRL_MODIFIERS_LAST_P1 - 1 ) == mod ) {
           col += 2;
         }
       }
@@ -583,7 +583,7 @@ CameraControls::configure ( void )
   col = 0;
   int addedBoxes = 0;
   for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
-    for ( mod = 0; mod < OA_CAM_CTRL_MODIFIERS_P1; mod++ ) {
+    for ( mod = 0; mod < OA_CAM_CTRL_MODIFIERS_LAST_P1; mod++ ) {
       if ( OA_CTRL_TYPE_BOOLEAN == controlType[mod][baseVal] &&
           !added[mod][baseVal]) {
         checkboxGrid->addWidget ( controlCheckbox[mod][baseVal], row, col++ );

@@ -809,7 +809,7 @@ MainWindow::readConfig ( QString configFile )
       for ( int j = 1; j < OA_CAM_CTRL_LAST_P1; j++ ) {
         if ( filterConf.numFilters ) {
 	  for ( int k = 0; k < filterConf.numFilters; k++ ) {
-            for ( int i = 0; i < OA_CAM_CTRL_MODIFIERS_P1; i++ ) {
+            for ( int i = 0; i < OA_CAM_CTRL_MODIFIERS_LAST_P1; i++ ) {
               p.filterProfiles[ k ].controls[ i ][ j ] =
                   cameraConf.controlValues[ i ][ j ];
             }
@@ -1106,10 +1106,13 @@ MainWindow::writeConfig ( QString configFile )
   settings->beginWriteArray ( "controls" );
   for ( int i = 1; i < OA_CAM_CTRL_LAST_P1; i++ ) {
     settings->setArrayIndex ( i-1 );
-    // don't particularly like this cast, but it seems to be the only way
-    // to do it
-    settings->setValue ( "controlValue",
-        reinterpret_cast<qlonglong>( cameraConf.controlValues[i] ));
+		settings->beginWriteArray ( "modifiers" );
+		for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_LAST_P1; j++ ) {
+			settings->setArrayIndex ( j );
+			settings->setValue ( "controlValue",
+					static_cast<qlonglong> ( cameraConf.controlValues[j][i] ));
+		}
+		settings->endArray();
   }
   settings->endArray();
 
@@ -1144,7 +1147,7 @@ MainWindow::writeConfig ( QString configFile )
           for ( int k = 1; k < OA_CAM_CTRL_LAST_P1; k++ ) {
             settings->setArrayIndex ( k - 1 );
             settings->beginWriteArray ( "modifiers" );
-            for ( int l = 0; l < OA_CAM_CTRL_MODIFIERS_P1; l++ ) {
+            for ( int l = 0; l < OA_CAM_CTRL_MODIFIERS_LAST_P1; l++ ) {
               settings->setArrayIndex ( l );
               settings->setValue ( "controlValue",
                   profileConf.profiles[i].filterProfiles[j].controls[l][k]);
@@ -1608,7 +1611,7 @@ MainWindow::connectCamera ( int deviceIndex )
       profileConf.numProfiles && commonConfig.filterOption >= 0 &&
 			commonConfig.filterOption < filterConf.numFilters ) {
     for ( uint8_t c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-      for ( uint8_t m = 1; m < OA_CAM_CTRL_MODIFIERS_P1; m++ ) {
+      for ( uint8_t m = 1; m < OA_CAM_CTRL_MODIFIERS_LAST_P1; m++ ) {
         cameraConf.controlValues[ m ][ c ] =
           profileConf.profiles[ commonConfig.profileOption ].filterProfiles[
               commonConfig.filterOption ].controls[ m ][ c ];

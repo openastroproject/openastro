@@ -2,7 +2,7 @@
  *
  * controlWidget.cc -- class for the control widget in the UI
  *
- * Copyright 2013,2014,2015,2017,2019,2020
+ * Copyright 2013,2014,2015,2017,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -932,7 +932,7 @@ ControlWidget::configure ( void )
 
 	if ( !readableControls ) {
 		for ( int c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-			for ( int m = OA_CAM_CTRL_MODIFIER_STD; m < OA_CAM_CTRL_MODIFIERS_P1;
+			for ( int m = OA_CAM_CTRL_MODIFIER_STD; m < OA_CAM_CTRL_MODIFIERS_LAST_P1;
 					m++ ) {
 				int control = ( m << 8 ) + c;
 				if ( OA_CTRL_TYPE_BOOLEAN ==
@@ -2150,7 +2150,7 @@ ControlWidget::resetCamera ( void )
 	// to ignore any of the slider settings
 
   for ( int c = 1; c < OA_CAM_CTRL_LAST_P1; c++ ) {
-		for ( int m = OA_CAM_CTRL_MODIFIER_STD; m < OA_CAM_CTRL_MODIFIERS_P1;
+		for ( int m = OA_CAM_CTRL_MODIFIER_STD; m < OA_CAM_CTRL_MODIFIERS_LAST_P1;
         m++ ) {
 			int control = ( m << 8 ) + c;
 			commonState.camera->controlRange ( control, &min, &max, &step, &def );

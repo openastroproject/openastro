@@ -2,7 +2,7 @@
  *
  * qhyccdconnect.c -- Initialise cameras supported by libqhyccd
  *
- * Copyright 2019,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *

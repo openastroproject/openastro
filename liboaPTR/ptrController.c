@@ -2,7 +2,7 @@
  *
  * ptrController.c -- PTR device control functions
  *
- * Copyright 2015,2016,2017,2018,2019,2020
+ * Copyright 2015,2016,2017,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:

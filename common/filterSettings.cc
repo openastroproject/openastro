@@ -2,7 +2,7 @@
  *
  * filterSettings.cc -- class for the filter settings tab in the settings UI
  *
- * Copyright 2013,2014,2015,2016,2018,2020
+ * Copyright 2013,2014,2015,2016,2018,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -191,7 +191,7 @@ FilterSettings::storeSettings ( void )
           FILTER_PROFILE fp;
           fp.filterName = f.filterName;
           for ( int j = 1; j <  OA_CAM_CTRL_LAST_P1; j++ ) {
-            for ( int k = 0; k <  OA_CAM_CTRL_MODIFIERS_P1; k++ ) {
+            for ( int k = 0; k <  OA_CAM_CTRL_MODIFIERS_LAST_P1; k++ ) {
               fp.controls[k][j] = cameraConf.controlValues[ k ][ j ];
             }
           }

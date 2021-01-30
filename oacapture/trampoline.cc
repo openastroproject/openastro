@@ -2,7 +2,7 @@
  *
  * trampoline.cc -- redirected function calls
  *
- * Copyright 2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *

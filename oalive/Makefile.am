@@ -1,7 +1,7 @@
 #
 # Makefile.am -- oalive Makefile template
 #
-# Copyright 2013,2014,2015,2016,2017,2018,2020
+# Copyright 2013,2014,2015,2016,2017,2018,2020,2021
 #   James Fidell (james@openastroproject.org)
 #
 # License:

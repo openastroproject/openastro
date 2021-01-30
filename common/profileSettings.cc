@@ -2,7 +2,7 @@
  *
  * profileSettings.cc -- class for profile settings tab in the settings UI
  *
- * Copyright 2013,2014,2018,2020
+ * Copyright 2013,2014,2018,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -173,7 +173,7 @@ ProfileSettings::addEntry ( void )
     FILTER_PROFILE fp;
     fp.filterName = filterConf.filters[ j ].filterName;
     for ( int i = 1; i < OA_CAM_CTRL_LAST_P1; i++ ) {
-      for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_P1; j++ ) {
+      for ( int j = 0; j < OA_CAM_CTRL_MODIFIERS_LAST_P1; j++ ) {
         fp.controls[j][i] = cameraConf.controlValues[ j ][ i ];
       }
     }

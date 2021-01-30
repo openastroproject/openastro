@@ -1,7 +1,7 @@
 #
 # Makefile.am -- liboacam SVBony Makefile template
 #
-# Copyright 2020 James Fidell (james@openastroproject.org)
+# Copyright 2020,2021 James Fidell (james@openastroproject.org)
 #
 # License:
 #

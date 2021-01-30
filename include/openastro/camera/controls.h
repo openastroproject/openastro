@@ -2,7 +2,7 @@
  *
  * oacam-controls.h -- camera API (sub)header for camera controls
  *
- * Copyright 2014,2015,2016,2017,2018,2019
+ * Copyright 2014,2015,2016,2017,2018,2019,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -163,7 +163,7 @@
 #define OA_CAM_CTRL_MODIFIER_STD	0
 #define OA_CAM_CTRL_MODIFIER_AUTO	1
 #define OA_CAM_CTRL_MODIFIER_ON_OFF	2
-#define OA_CAM_CTRL_MODIFIERS_P1	(OA_CAM_CTRL_MODIFIER_ON_OFF+1)
+#define OA_CAM_CTRL_MODIFIERS_LAST_P1	(OA_CAM_CTRL_MODIFIER_ON_OFF+1)
 
 #define OA_CAM_CTRL_MODIFIER_BASE_MASK		0xff
 #define OA_CAM_CTRL_MODIFIER_AUTO_MASK		0x100
@@ -235,7 +235,7 @@
 #define OA_BATTERY_POWER	1
 
 extern const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ];
-extern const char* oaCameraControlModifierPrefix[ OA_CAM_CTRL_MODIFIERS_P1 ];
+extern const char* oaCameraControlModifierPrefix[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ];
 extern const char* oaCameraPresetAWBLabel[ OA_AWB_PRESET_LAST_P1 ];
 extern const char* oaCameraAutoExposureLabel[ OA_EXPOSURE_TYPE_LAST_P1 ];
 

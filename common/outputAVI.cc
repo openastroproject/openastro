@@ -2,7 +2,7 @@
  *
  * outputAVI.cc -- AVI output class
  *
- * Copyright 2013,2014,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2018,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *

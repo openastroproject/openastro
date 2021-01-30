@@ -2,7 +2,7 @@
  *
  * camera.h -- camera API header
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -145,7 +145,7 @@ typedef struct oaCamera {
   unsigned long			cameraInterfaceInfo;
   char				deviceName[OA_MAX_NAME_LEN+1];
   oaCameraFuncs			funcs;
-  uint8_t			controlType[OA_CAM_CTRL_MODIFIERS_P1][OA_CAM_CTRL_LAST_P1];
+  uint8_t			controlType[OA_CAM_CTRL_MODIFIERS_LAST_P1][OA_CAM_CTRL_LAST_P1];
   uint8_t			frameFormats[ OA_PIX_FMT_LAST_P1 ];
   oaCameraFeatures		features;
   void*				_common;

@@ -2,7 +2,7 @@
  *
  * cameraControls.h -- class declaration
  *
- * Copyright 2015,2016,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -67,15 +67,15 @@ class CameraControls : public QWidget
     QSignalMapper*	checkboxSignalMapper;
     QSignalMapper*	buttonSignalMapper;
     QSignalMapper*	menuSignalMapper;
-    QLabel*		controlLabel[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
-    QSlider*		controlSlider[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
-    QSpinBox*		controlSpinbox[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
-    QCheckBox*		controlCheckbox[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
-    QPushButton*	controlButton[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
-    QComboBox*		controlMenu[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
+    QLabel*		controlLabel[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ][ OA_CAM_CTRL_LAST_P1 ];
+    QSlider*		controlSlider[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ][ OA_CAM_CTRL_LAST_P1 ];
+    QSpinBox*		controlSpinbox[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ][ OA_CAM_CTRL_LAST_P1 ];
+    QCheckBox*		controlCheckbox[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ][ OA_CAM_CTRL_LAST_P1 ];
+    QPushButton*	controlButton[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ][ OA_CAM_CTRL_LAST_P1 ];
+    QComboBox*		controlMenu[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ][ OA_CAM_CTRL_LAST_P1 ];
     QLabel*		autoLabel1;
     QLabel*		onOffLabel1;
-    int			controlType [ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
+    int			controlType [ OA_CAM_CTRL_MODIFIERS_LAST_P1 ][ OA_CAM_CTRL_LAST_P1 ];
     QLabel*		frameRateLabel;
     QSlider*		frameRateSlider;
     QComboBox*		frameRateMenu;

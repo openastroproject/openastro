@@ -2,7 +2,7 @@
  *
  * control.c -- interface for camera control functions
  *
- * Copyright 2013,2014,2015,2016,2017,2019,2020
+ * Copyright 2013,2014,2015,2016,2017,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -182,7 +182,7 @@ const char* oaCameraAutoExposureLabel[ OA_EXPOSURE_TYPE_LAST_P1 ] = {
   "Aperture Priority"
 };
 
-const char* oaCameraControlModifierPrefix[ OA_CAM_CTRL_MODIFIERS_P1 ] = {
+const char* oaCameraControlModifierPrefix[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ] = {
   "",
   "Auto ",
   "Enable "

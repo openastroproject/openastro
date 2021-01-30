@@ -2,7 +2,7 @@
  *
  * cameraSettings.h -- class declaration
  *
- * Copyright 2014,2015,2016,2018,2020
+ * Copyright 2014,2015,2016,2018,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -44,7 +44,7 @@ extern "C" {
 
 
 typedef struct {
-	int64_t				controlValues[OA_CAM_CTRL_MODIFIERS_P1][ OA_CAM_CTRL_LAST_P1 ];
+	int64_t				controlValues[OA_CAM_CTRL_MODIFIERS_LAST_P1][ OA_CAM_CTRL_LAST_P1 ];
 	int						forceInputFrameFormat;
 } cameraConfig;
 
@@ -77,18 +77,18 @@ class CameraSettings : public QWidget
     QSignalMapper*	checkboxSignalMapper;
     QSignalMapper*	buttonSignalMapper;
     QSignalMapper*	menuSignalMapper;
-    QLabel*		controlLabel[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
-    QSlider*		controlSlider[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
-    QSpinBox*		controlSpinbox[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
-    QCheckBox*		controlCheckbox[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
-    QPushButton*	controlButton[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
-    QComboBox*		controlMenu[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
+    QLabel*		controlLabel[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ][ OA_CAM_CTRL_LAST_P1 ];
+    QSlider*		controlSlider[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ][ OA_CAM_CTRL_LAST_P1 ];
+    QSpinBox*		controlSpinbox[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ][ OA_CAM_CTRL_LAST_P1 ];
+    QCheckBox*		controlCheckbox[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ][ OA_CAM_CTRL_LAST_P1 ];
+    QPushButton*	controlButton[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ][ OA_CAM_CTRL_LAST_P1 ];
+    QComboBox*		controlMenu[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ][ OA_CAM_CTRL_LAST_P1 ];
     QPushButton*	defaultButton;
     QLabel*		autoLabel1;
     QLabel*		autoLabel2;
     QLabel*		onOffLabel1;
     QLabel*		onOffLabel2;
-    int			controlType[ OA_CAM_CTRL_MODIFIERS_P1 ][ OA_CAM_CTRL_LAST_P1 ];
+    int			controlType[ OA_CAM_CTRL_MODIFIERS_LAST_P1 ][ OA_CAM_CTRL_LAST_P1 ];
     QLabel*		frameRateLabel;
     QSlider*		frameRateSlider;
     QComboBox*		frameRateMenu;

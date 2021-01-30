@@ -2,7 +2,7 @@
  *
  * profile.h -- declaration of data structures for configuration profiles
  *
- * Copyright 2018
+ * Copyright 2018,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -40,7 +40,7 @@ extern "C" {
 
 typedef struct {
   QString	filterName;
-  int		controls[OA_CAM_CTRL_MODIFIERS_P1][ OA_CAM_CTRL_LAST_P1 ];
+  int		controls[OA_CAM_CTRL_MODIFIERS_LAST_P1][ OA_CAM_CTRL_LAST_P1 ];
   int		intervalMenuOption;
 } FILTER_PROFILE;
 
