@@ -736,9 +736,15 @@ PreviewWidget::updatePreview ( void* args, void* imageData, int length,
 			TIMER_METADATA	timerData;
 			timerData.statusValid = timerData.sequenceNoValid = 0;
 			self->lastTimerResultCode[0] = '\0';
-      if ( commonState->timer->isInitialised() &&
-					commonState->timer->isRunning()) {
-        oaTimerStamp* ts = commonState->timer->readTimestamp();
+			int haveTimestamp = 0;
+      oaTimerStamp* ts;
+      if ( commonState->timer->isInitialised()) {
+        ts = commonState->timer->readTimestamp();
+				if ( ts->timestamp[0] ) {
+					haveTimestamp = 1;
+				}
+			}
+			if ( haveTimestamp ) {
         timestamp = ts->timestamp;
 				timerData.statusValid = timerData.sequenceNoValid = 1;
 				( void ) strcpy ( timerData.status, ts->status );
