@@ -750,6 +750,14 @@ CaptureWidget::doStartRecording ( int autorunFlag )
     }
     usleep ( exposureTime );
 
+		// Enable trigger mode at this point if required.  It will be disabled
+		// when capture stops
+		if ( cameraConf.CONTROL_VALUE( OA_CAM_CTRL_TRIGGER_ENABLE ) &&
+				commonState.camera->hasControl ( OA_CAM_CTRL_TRIGGER_ENABLE ) ==
+				OA_CTRL_TYPE_BOOLEAN ) {
+			commonState.camera->setControl ( OA_CAM_CTRL_TRIGGER_ENABLE, 1 );
+		}
+
     emit writeStatusMessage ( tr ( "Starting timer" ));
     commonState.timer->start();
 
@@ -802,6 +810,14 @@ CaptureWidget::stopRecording ( void )
   // shouldn't need this as it should get done in
   // setButtonsForRecordingStopped()
   // stopButton->setEnabled ( 0 );
+
+	// Disable trigger mode at this point if it would have been enabled when
+	// capture was started
+	if ( cameraConf.CONTROL_VALUE( OA_CAM_CTRL_TRIGGER_ENABLE ) &&
+			commonState.camera->hasControl ( OA_CAM_CTRL_TRIGGER_ENABLE ) ==
+			OA_CTRL_TYPE_BOOLEAN ) {
+		commonState.camera->setControl ( OA_CAM_CTRL_TRIGGER_ENABLE, 0 );
+	}
 }
 
 
@@ -816,6 +832,15 @@ CaptureWidget::doStopRecording ( void )
     writeSettings ( outputHandler );
   }
   closeOutputHandler();
+
+	// Disable trigger mode at this point if it would have been enabled when
+	// capture was started
+	if ( cameraConf.CONTROL_VALUE( OA_CAM_CTRL_TRIGGER_ENABLE ) &&
+			commonState.camera->hasControl ( OA_CAM_CTRL_TRIGGER_ENABLE ) ==
+			OA_CTRL_TYPE_BOOLEAN ) {
+		commonState.camera->setControl ( OA_CAM_CTRL_TRIGGER_ENABLE, 0 );
+	}
+
   emit configureButtonsAfterStop();
 }
 

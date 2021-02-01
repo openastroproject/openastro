@@ -1742,7 +1742,11 @@ ControlWidget::updateCheckbox ( int control, int value )
     }
     cameraConf.CONTROL_VALUE( control ) = value;
     SET_PROFILE_CONTROL( control, value );
-    commonState.camera->setControl ( control, value );
+		// Don't enable trigger mode at this point because it stops frames arriving
+		// for preview.  We'll do it later when capture is started
+		if ( control != OA_CAM_CTRL_TRIGGER_ENABLE || !value ) {
+			commonState.camera->setControl ( control, value );
+		}
   }
 }
 
