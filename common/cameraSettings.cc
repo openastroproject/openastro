@@ -717,45 +717,52 @@ CameraSettings::buttonPushed ( int control )
           "incorrect values" ));
     }
   } else {
+
+		// This is the "reset to defaults" option
+
     int64_t min, max, step, def;
 
     for ( baseVal = 1; baseVal < OA_CAM_CTRL_LAST_P1; baseVal++ ) {
       for ( mod = 0; mod <= OA_CAM_CTRL_MODIFIER_AUTO; mod++ ) {
         c = baseVal | ( mod ? OA_CAM_CTRL_MODIFIER_AUTO_MASK : 0 );
-        switch ( controlType[mod][baseVal] ) {
+				// FIX ME -- need to fix this long term, but getting a reset of
+				// the binning control is more complicated
+				if ( c != OA_CAM_CTRL_BINNING ) {
+					switch ( controlType[mod][baseVal] ) {
 
-          case OA_CTRL_TYPE_BOOLEAN:
-            commonState.camera->controlRange ( c, &min, &max, &step, &def );
-            controlCheckbox[mod][baseVal]->setChecked ( def );
-            cameraConf.CONTROL_VALUE(c) = def;
-            SET_PROFILE_CONTROL( c, def );
-            break;
+						case OA_CTRL_TYPE_BOOLEAN:
+							commonState.camera->controlRange ( c, &min, &max, &step, &def );
+							controlCheckbox[mod][baseVal]->setChecked ( def );
+							cameraConf.CONTROL_VALUE(c) = def;
+							SET_PROFILE_CONTROL( c, def );
+							break;
 
-          case OA_CTRL_TYPE_INT32:
-          case OA_CTRL_TYPE_INT64:
-            commonState.camera->controlRange ( c, &min, &max, &step, &def );
-            controlSpinbox[mod][baseVal]->setValue ( def );
-            cameraConf.CONTROL_VALUE(c) = def;
-            SET_PROFILE_CONTROL( c, def );
-            break;
+						case OA_CTRL_TYPE_INT32:
+						case OA_CTRL_TYPE_INT64:
+							commonState.camera->controlRange ( c, &min, &max, &step, &def );
+							controlSpinbox[mod][baseVal]->setValue ( def );
+							cameraConf.CONTROL_VALUE(c) = def;
+							SET_PROFILE_CONTROL( c, def );
+							break;
 
-          case OA_CTRL_TYPE_MENU:
-            commonState.camera->controlRange ( c, &min, &max, &step, &def );
-            controlMenu[mod][baseVal]->setCurrentIndex ( def );
-            cameraConf.CONTROL_VALUE(c) = def;
-            SET_PROFILE_CONTROL( c, def );
-            break;
+						case OA_CTRL_TYPE_MENU:
+							commonState.camera->controlRange ( c, &min, &max, &step, &def );
+							controlMenu[mod][baseVal]->setCurrentIndex ( def );
+							cameraConf.CONTROL_VALUE(c) = def;
+							SET_PROFILE_CONTROL( c, def );
+							break;
 
-          case OA_CTRL_TYPE_UNAVAILABLE:
-          case OA_CTRL_TYPE_BUTTON:
-          case OA_CTRL_TYPE_READONLY:
-            break;
+						case OA_CTRL_TYPE_UNAVAILABLE:
+						case OA_CTRL_TYPE_BUTTON:
+						case OA_CTRL_TYPE_READONLY:
+							break;
 
-          default:
-            fprintf ( stderr, "control type %d not handled in %s\n",
-                controlType[mod][baseVal], __FUNCTION__ );
-            break;
-        }
+						default:
+							fprintf ( stderr, "control type %d not handled in %s\n",
+									controlType[mod][baseVal], __FUNCTION__ );
+							break;
+					}
+				}
       }
     }
   }
