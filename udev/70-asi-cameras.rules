@@ -1,7 +1,7 @@
 #
 # 70-asi-cameras.rules -- Udev rules for ZWO ASI cameras
 #
-# Copyright 2013,2014,2015,2016,2018,2019
+# Copyright 2013,2014,2015,2016,2018,2019,2021
 #   James Fidell (james@openastroproject.org)
 #
 # License:
@@ -24,7 +24,7 @@
 #
 
 # Set new minimum value for usbfs memory
-SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="03c3", RUN+="/bin/sh -c 'test -f /sys/module/usbcore/parameters/usbfs_memory_mb && test `cat /sys/module/usbcore/parameters/usbfs_memory_mb` -lt 200 && echo 200 >/sys/module/usbcore/parameters/usbfs_memory_mb'"
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="03c3", RUN+="/bin/sh -c 'test -f /sys/module/usbcore/parameters/usbfs_memory_mb && test `cat /sys/module/usbcore/parameters/usbfs_memory_mb` -lt 256 && echo 256 >/sys/module/usbcore/parameters/usbfs_memory_mb'"
 
 # ASI030MC
 SUBSYSTEM=="usb", ATTR{idVendor}=="03c3", ATTR{idProduct}=="030a", TAG+="uaccess"

@@ -1,7 +1,7 @@
 #
 # 70-tis-cameras-euvc.rules -- Udev rules for true UVC TIS cameras
 #
-# Copyright 2013,2014,2019 James Fidell (james@openastroproject.org)
+# Copyright 2013,2014,2019,2021 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -23,7 +23,7 @@
 #
 
 ACTION!="add", GOTO="tis_euvc_end"
-ACTION=="add", ATTR{idVendor}=="199e", RUN+="/bin/sh -c 'test -f /sys/module/usbcore/parameters/usbfs_memory_mb && test `cat /sys/module/usbcore/parameters/usbfs_memory_mb` -lt 200 && echo 200 >/sys/module/usbcore/parameters/usbfs_memory_mb'"
+ACTION=="add", ATTR{idVendor}=="199e", RUN+="/bin/sh -c 'test -f /sys/module/usbcore/parameters/usbfs_memory_mb && test `cat /sys/module/usbcore/parameters/usbfs_memory_mb` -lt 256 && echo 256 >/sys/module/usbcore/parameters/usbfs_memory_mb'"
 SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", GOTO="tis_euvc_test"
 SUBSYSTEM!="usb_device", GOTO="tis_euvc_end"
 
