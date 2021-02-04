@@ -1098,17 +1098,26 @@ ControlWidget::exposureMenuChanged ( int index )
     return;
   }
 
+	int mult = intervalMultipliers [ config.intervalMenuOption ];
   int newMin = minSettings[ index ];
   int newMax = maxSettings[ index ];
+	uint64_t newMinUsec= newMin * mult;
+	uint64_t newMaxUsec = newMax * mult;
   int newSetting, control;
+	uint64_t newSettingUsec;
 
   control = usingAbsoluteExposure ? OA_CAM_CTRL_EXPOSURE_ABSOLUTE :
       OA_CAM_CTRL_EXPOSURE_UNSCALED;
-  newSetting = cameraConf.CONTROL_VALUE( control );
-  if ( newSetting < newMin ) { newSetting = newMin; }
-  if ( newSetting > newMax ) { newSetting = newMax; }
+  newSettingUsec = cameraConf.CONTROL_VALUE( control );
+  if ( newSettingUsec < newMinUsec ) { newSettingUsec = newMinUsec; }
+  if ( newSettingUsec > newMaxUsec ) { newSettingUsec = newMaxUsec; }
+	newSetting = newSettingUsec / mult;
   
+  // If this isn't done there's a needless change of setting should the
+  // current value be outside the range
+  ignoreExposureChanges = 1;
   exposureSlider->setRange ( newMin, newMax );
+  ignoreExposureChanges = 0;
   exposureSlider->setValue ( newSetting );
   exposureSpinbox->setRange ( newMin, newMax );
   exposureSpinbox->setValue ( newSetting );
@@ -1121,8 +1130,7 @@ ControlWidget::exposureMenuChanged ( int index )
 
   if ( !commonState.camera->hasFrameRateSupport()) {
     if ( usingAbsoluteExposure ) {
-      theoreticalFPSNumerator = newSetting *
-          intervalMultipliers [ config.intervalMenuOption ];
+      theoreticalFPSNumerator = newSetting * mult;
       theoreticalFPSDenominator = 1000000;
       if ( theoreticalFPSNumerator && theoreticalFPSDenominator ) {
         while ( theoreticalFPSNumerator % 10 == 0 &&
@@ -1131,8 +1139,7 @@ ControlWidget::exposureMenuChanged ( int index )
           theoreticalFPSDenominator /= 10;
         }
       }
-      theoreticalFPS = 1000000 /
-          intervalMultipliers [ config.intervalMenuOption ] / newSetting;
+      theoreticalFPS = 1000000 / newSettingUsec;
     } else {
       // we don't really have a clue here, so set it to 1?
       theoreticalFPSNumerator = 1;
@@ -1142,8 +1149,7 @@ ControlWidget::exposureMenuChanged ( int index )
   }
   if ( usingAbsoluteExposure ) {
     if ( newSetting ) {
-      state.cameraWidget->showFPSMaxValue ( 1000000 /
-          intervalMultipliers [ config.intervalMenuOption ] / newSetting );
+      state.cameraWidget->showFPSMaxValue ( 1000000 / newSettingUsec );
     }
   } else {
     state.cameraWidget->clearFPSMaxValue();

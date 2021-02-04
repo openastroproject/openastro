@@ -2,7 +2,7 @@
  *
  * FC2controller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2017,2018,2019,2020
+ * Copyright 2015,2016,2017,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -480,7 +480,13 @@ _processGetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
     }
     val->valueType = OA_CTRL_TYPE_INT64;
     decval = property.absValue;
-    val->int64 = decval * 1000.0;
+		// A nasty hack to cope with the fact that what might have been set
+		// previously can get rounded down (eg. 20.0 might end up as 19.9...)
+    val->int64 = decval;
+		if ( val->int64 + 0.5 < decval ) {
+			val->int64++;
+		}
+		val->int64 *= 1000;
     return OA_ERR_NONE;
   }
 
