@@ -310,6 +310,18 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
         result = 0;
       }
       break;
+    case OA_PIX_FMT_NV12:
+      if ( OA_PIX_FMT_RGB24 == targetFormat ) {
+        oaNV12toRGB888 ( source, target, xSize, ySize );
+        result = 0;
+      }
+      break;
+    case OA_PIX_FMT_NV21:
+      if ( OA_PIX_FMT_RGB24 == targetFormat ) {
+        oaNV21toRGB888 ( source, target, xSize, ySize );
+        result = 0;
+      }
+      break;
     case OA_PIX_FMT_YUV411:
       if ( OA_PIX_FMT_RGB24 == targetFormat ) {
         oaYUV411toRGB888 ( source, target, xSize, ySize );

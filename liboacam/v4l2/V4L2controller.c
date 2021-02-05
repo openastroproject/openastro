@@ -911,6 +911,17 @@ _processSetFrameFormat ( V4L2_STATE* cameraInfo, unsigned int format,
     case OA_PIX_FMT_UYVY:
       v4l2Format = V4L2_PIX_FMT_UYVY;
       break;
+    case OA_PIX_FMT_NV12:
+      v4l2Format = V4L2_PIX_FMT_NV12;
+      break;
+    case OA_PIX_FMT_NV21:
+      v4l2Format = V4L2_PIX_FMT_NV21;
+      break;
+#ifdef V4L2_PIX_FMT_YV12
+    case OA_PIX_FMT_YV12:
+      v4l2Format = V4L2_PIX_FMT_YV12;
+      break;
+#endif
     case OA_PIX_FMT_YUV422P:
       v4l2Format = V4L2_PIX_FMT_YUV422P;
       break;

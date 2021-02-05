@@ -35,5 +35,8 @@ extern void	oaYUV411toRGB888 ( void*, void*, unsigned int, unsigned int );
 extern void	oaYUYVtoRGB888 ( void*, void*, unsigned int, unsigned int );
 extern void	oaUYVYtoRGB888 ( void*, void*, unsigned int, unsigned int );
 extern void	oaYVYUtoRGB888 ( void*, void*, unsigned int, unsigned int );
+extern void	oaNV12toRGB888 ( void*, void*, unsigned int, unsigned int );
+extern void	oaNV21toRGB888 ( void*, void*, unsigned int, unsigned int );
+extern void	oaYV12toRGB888 ( void*, void*, unsigned int, unsigned int );
 
 #endif	/* OPENASTRO_VIDEO_YUV_H */

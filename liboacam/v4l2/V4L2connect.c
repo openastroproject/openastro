@@ -1479,6 +1479,32 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           camera->frameFormats [ OA_PIX_FMT_UYVY ] = 1;
           break;
 
+        case V4L2_PIX_FMT_NV12:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_NV12;
+          }
+          camera->frameFormats [ OA_PIX_FMT_NV12 ] = 1;
+          break;
+
+        case V4L2_PIX_FMT_NV21:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_NV21;
+          }
+          camera->frameFormats [ OA_PIX_FMT_NV21 ] = 1;
+          break;
+
+#ifdef V4L2_PIX_FMT_YV12
+        case V4L2_PIX_FMT_YV12:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_YV12;
+          }
+          camera->frameFormats [ OA_PIX_FMT_YV12 ] = 1;
+          break;
+#endif
+
         case V4L2_PIX_FMT_YUV422P:
           if ( !cameraInfo->currentV4L2Format ) {
             cameraInfo->currentV4L2Format = formatDesc.pixelformat;

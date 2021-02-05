@@ -166,6 +166,14 @@ OutputFFMPEG::OutputFFMPEG ( int x, int y, int n, int d, int fmt,
       actualPixelFormat = storedPixelFormat = AV_PIX_FMT_UYVY422;
       bpp = 2;
       break;
+    case OA_PIX_FMT_NV12:
+      actualPixelFormat = storedPixelFormat = AV_PIX_FMT_NV12;
+      bpp = 1.25;
+      break;
+    case OA_PIX_FMT_NV21:
+      actualPixelFormat = storedPixelFormat = AV_PIX_FMT_NV21;
+      bpp = 1.25;
+      break;
   }
 
   fullSaveFilePath = "";
