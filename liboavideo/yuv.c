@@ -294,6 +294,128 @@ oaYVYUtoRGB888 ( void* source, void* target, unsigned int xSize,
 
 
 void
+oaNV12toRGB888 ( void* source, void* target, unsigned int xSize,
+    unsigned int ySize )
+{
+  unsigned int len = xSize * ySize;
+  uint8_t* lp = ( uint8_t* ) source;
+  uint8_t* cp = ( uint8_t* ) source;
+  uint8_t* t = ( uint8_t* ) target;
+  int32_t r32, g32, b32, i, j;
+  uint8_t r8, g8, b8, y1, y2, u, v;
+  float o, lut1, lut2;
+  uint8_t* scp;
+
+	cp += len; // start of chrominance data
+	scp = cp;
+ 
+	for ( j = 0; j < ySize; j++ ) {
+		for ( i = 0; i < xSize; i += 2 ) {
+			y1 = *lp++;
+			y2 = *lp++;
+			u = *cp++;
+			v = *cp++;
+
+			o = lut_0_698001[v] - lut_0_337633[u];
+			lut1 = lut_1_370705[v];
+			lut2 = lut_1_732446[u];
+
+			// first pixel
+
+			r32 = y1 + lut1;
+			g32 = y1 - o;
+			b32 = y1 + lut2;
+			r8 = CLAMP(r32,0,255);
+			g8 = CLAMP(g32,0,255);
+			b8 = CLAMP(b32,0,255);
+			*t++ = r8;
+			*t++ = g8;
+			*t++ = b8;
+
+			// second pixel
+
+			r32 = y2 + lut1;
+			g32 = y2 - o;
+			b32 = y2 + lut2;
+			r8 = CLAMP(r32,0,255);
+			g8 = CLAMP(g32,0,255);
+			b8 = CLAMP(b32,0,255);
+			*t++ = r8;
+			*t++ = g8;
+			*t++ = b8;
+		}
+
+		if ( j % 2 ) {
+			scp = cp;
+		} else {
+			cp = scp;
+		}
+	}
+}
+
+
+void
+oaNV21toRGB888 ( void* source, void* target, unsigned int xSize,
+    unsigned int ySize )
+{
+  unsigned int len = xSize * ySize;
+  uint8_t* lp = ( uint8_t* ) source;
+  uint8_t* cp = ( uint8_t* ) source;
+  uint8_t* t = ( uint8_t* ) target;
+  int32_t r32, g32, b32, i, j;
+  uint8_t r8, g8, b8, y1, y2, u, v;
+  float o, lut1, lut2;
+  uint8_t* scp;
+
+	cp += len; // start of chrominance data
+	scp = cp;
+ 
+	for ( j = 0; j < ySize; j++ ) {
+		for ( i = 0; i < xSize; i += 2 ) {
+			y1 = *lp++;
+			y2 = *lp++;
+			v = *cp++;
+			u = *cp++;
+
+			o = lut_0_698001[v] - lut_0_337633[u];
+			lut1 = lut_1_370705[v];
+			lut2 = lut_1_732446[u];
+
+			// first pixel
+
+			r32 = y1 + lut1;
+			g32 = y1 - o;
+			b32 = y1 + lut2;
+			r8 = CLAMP(r32,0,255);
+			g8 = CLAMP(g32,0,255);
+			b8 = CLAMP(b32,0,255);
+			*t++ = r8;
+			*t++ = g8;
+			*t++ = b8;
+
+			// second pixel
+
+			r32 = y2 + lut1;
+			g32 = y2 - o;
+			b32 = y2 + lut2;
+			r8 = CLAMP(r32,0,255);
+			g8 = CLAMP(g32,0,255);
+			b8 = CLAMP(b32,0,255);
+			*t++ = r8;
+			*t++ = g8;
+			*t++ = b8;
+		}
+
+		if ( j % 2 ) {
+			scp = cp;
+		} else {
+			cp = scp;
+		}
+	}
+}
+
+
+void
 oaYUV411toRGB888 ( void* source, void* target, unsigned int xSize,
     unsigned int ySize )
 {
