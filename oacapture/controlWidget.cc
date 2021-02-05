@@ -318,6 +318,7 @@ ControlWidget::configure ( void )
   int64_t	min, max, step, def;
   int		minOption, maxOption, readableControls;
   int		autoctrl, onoffctrl;
+  int		type;
 
 	configureComplete = 0;
 
@@ -375,7 +376,6 @@ ControlWidget::configure ( void )
   }
 
   int replaceSelectable1 = 0;
-  int type;
   if ( config.selectableControl[0] == -1 ) {
     // we can't allow this one
     replaceSelectable1 = -1;
@@ -455,26 +455,30 @@ ControlWidget::configure ( void )
         selectableControlSlider[ c ]->setSingleStep ( step );
         selectableControlSpinbox[ c ]->setRange ( min, max );
         selectableControlSpinbox[ c ]->setSingleStep ( step );
-        if ( readableControls ) {
-					cameraConf.CONTROL_VALUE( c ) = commonState.camera->readControl ( c );
-					autoctrl = oaGetAutoForControl ( c );
-					if ( selectableControlCheckbox[ c ] && autoctrl >= 0 &&
-							commonState.camera->hasControl ( autoctrl ) ==
-							OA_CTRL_TYPE_BOOLEAN ) {
-						cameraConf.CONTROL_VALUE( autoctrl ) =
-								commonState.camera->readControl ( autoctrl );
-						selectableControlCheckbox[ c ]->setChecked (
-								cameraConf.CONTROL_VALUE( autoctrl ));
+				if ( c != OA_CAM_CTRL_TRIGGER_DELAY && c != OA_CAM_CTRL_STROBE_DELAY &&
+						c != OA_CAM_CTRL_STROBE_DURATION ) {
+					if ( readableControls ) {
+						cameraConf.CONTROL_VALUE( c ) =
+								commonState.camera->readControl ( c );
+						autoctrl = oaGetAutoForControl ( c );
+						if ( selectableControlCheckbox[ c ] && autoctrl >= 0 &&
+								commonState.camera->hasControl ( autoctrl ) ==
+								OA_CTRL_TYPE_BOOLEAN ) {
+							cameraConf.CONTROL_VALUE( autoctrl ) =
+									commonState.camera->readControl ( autoctrl );
+							selectableControlCheckbox[ c ]->setChecked (
+									cameraConf.CONTROL_VALUE( autoctrl ));
+						}
+						onoffctrl = oaGetOnOffForControl ( c );
+						if ( onoffctrl >= 0 &&
+								commonState.camera->hasControl ( onoffctrl ) ==
+								OA_CTRL_TYPE_BOOLEAN ) {
+							cameraConf.CONTROL_VALUE( onoffctrl ) =
+									commonState.camera->readControl ( onoffctrl );
+						}
+					} else {
+						cameraConf.CONTROL_VALUE( c ) = def;
 					}
-					onoffctrl = oaGetOnOffForControl ( c );
-					if ( onoffctrl >= 0 &&
-							commonState.camera->hasControl ( onoffctrl ) ==
-							OA_CTRL_TYPE_BOOLEAN ) {
-						cameraConf.CONTROL_VALUE( onoffctrl ) =
-								commonState.camera->readControl ( onoffctrl );
-					}
-				} else {
-					cameraConf.CONTROL_VALUE( c ) = def;
 				}
         selectableControlSlider[ c ]->setValue (
 						cameraConf.CONTROL_VALUE( c ));
@@ -955,6 +959,77 @@ ControlWidget::configure ( void )
 					}
 				}
 			}
+		}
+	}
+
+	// OA_CAM_CTRL_TRIGGER_DELAY, OA_CAM_CTRL_STROBE_DELAY and
+	// OA_CAM_CTRL_STROBE_DURATION are set from the current application values
+	// in all cases
+
+	if (( type = commonState.camera->hasControl ( OA_CAM_CTRL_TRIGGER_DELAY ))) {
+		if ( type == OA_CTRL_TYPE_INT32 || type == OA_CTRL_TYPE_INT64 ) {
+			commonState.camera->setControl ( OA_CAM_CTRL_TRIGGER_DELAY,
+					cameraConf.CONTROL_VALUE( OA_CAM_CTRL_TRIGGER_DELAY ));
+		}
+	}
+	if (( type = commonState.camera->hasControl ( OA_CAM_CTRL_STROBE_DELAY ))) {
+		if ( type == OA_CTRL_TYPE_INT32 || type == OA_CTRL_TYPE_INT64 ) {
+			commonState.camera->setControl ( OA_CAM_CTRL_STROBE_DELAY,
+					cameraConf.CONTROL_VALUE( OA_CAM_CTRL_STROBE_DELAY ));
+		}
+	}
+	if (( type = commonState.camera->hasControl( OA_CAM_CTRL_STROBE_DURATION ))) {
+		if ( type == OA_CTRL_TYPE_INT32 || type == OA_CTRL_TYPE_INT64 ) {
+			commonState.camera->setControl ( OA_CAM_CTRL_STROBE_DURATION,
+					cameraConf.CONTROL_VALUE( OA_CAM_CTRL_STROBE_DURATION ));
+		}
+	}
+
+	// OA_CAM_CTRL_TRIGGER_ENABLE is always set to off (assuming it is boolean)
+	// regardless of the application setting, which isn't changed
+
+	if ( OA_CTRL_TYPE_BOOLEAN == commonState.camera->hasControl (
+			OA_CAM_CTRL_TRIGGER_ENABLE )) {
+		commonState.camera->setControl ( OA_CAM_CTRL_TRIGGER_ENABLE, 0 );
+	}
+
+	// OA_CAM_CTRL_STROBE_ENABLE and OA_CAM_CTRL_TRIGGER_DELAY_ENABLE are
+	// set from the current application values if they are boolean
+
+	if ( OA_CTRL_TYPE_BOOLEAN == commonState.camera->hasControl (
+			OA_CAM_CTRL_STROBE_ENABLE )) {
+		commonState.camera->setControl ( OA_CAM_CTRL_STROBE_ENABLE,
+				cameraConf.CONTROL_VALUE( OA_CAM_CTRL_STROBE_ENABLE ));
+	}
+	if ( OA_CTRL_TYPE_BOOLEAN == commonState.camera->hasControl (
+			OA_CAM_CTRL_TRIGGER_DELAY_ENABLE )) {
+		commonState.camera->setControl ( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE,
+				cameraConf.CONTROL_VALUE( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ));
+	}
+
+	// OA_CAM_CTRL_TRIGGER_MODE, OA_CAM_CTRL_TRIGGER_POLARITY and
+	// OA_CAM_CTRL_STROBE_POLARITY are set from the current application values
+	// if they are int values or a menu
+
+	if (( type = commonState.camera->hasControl ( OA_CAM_CTRL_TRIGGER_MODE ))) {
+		if ( type == OA_CTRL_TYPE_INT32 || type == OA_CTRL_TYPE_INT64 ||
+				type == OA_CTRL_TYPE_MENU ) {
+			commonState.camera->setControl ( OA_CAM_CTRL_TRIGGER_MODE,
+					cameraConf.CONTROL_VALUE( OA_CAM_CTRL_TRIGGER_MODE ));
+		}
+	}
+	if (( type = commonState.camera->hasControl( OA_CAM_CTRL_TRIGGER_POLARITY))) {
+		if ( type == OA_CTRL_TYPE_INT32 || type == OA_CTRL_TYPE_INT64 ||
+				type == OA_CTRL_TYPE_MENU ) {
+			commonState.camera->setControl ( OA_CAM_CTRL_TRIGGER_POLARITY,
+					cameraConf.CONTROL_VALUE( OA_CAM_CTRL_TRIGGER_POLARITY ));
+		}
+	}
+	if (( type = commonState.camera->hasControl( OA_CAM_CTRL_STROBE_POLARITY ))) {
+		if ( type == OA_CTRL_TYPE_INT32 || type == OA_CTRL_TYPE_INT64 ||
+				type == OA_CTRL_TYPE_MENU ) {
+			commonState.camera->setControl ( OA_CAM_CTRL_STROBE_POLARITY,
+					cameraConf.CONTROL_VALUE( OA_CAM_CTRL_STROBE_POLARITY ));
 		}
 	}
 
