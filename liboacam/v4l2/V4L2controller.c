@@ -2,7 +2,7 @@
  *
  * V4L2controller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2017,2018,2019,2020
+ * Copyright 2015,2016,2017,2018,2019,2020,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -904,6 +904,9 @@ _processSetFrameFormat ( V4L2_STATE* cameraInfo, unsigned int format,
 #endif
     case OA_PIX_FMT_YUYV:
       v4l2Format = V4L2_PIX_FMT_YUYV;
+      break;
+    case OA_PIX_FMT_YVYU:
+      v4l2Format = V4L2_PIX_FMT_YVYU;
       break;
     case OA_PIX_FMT_UYVY:
       v4l2Format = V4L2_PIX_FMT_UYVY;

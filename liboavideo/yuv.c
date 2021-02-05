@@ -2,7 +2,8 @@
  *
  * yuv.c -- convert YUV formats to RGB888
  *
- * Copyright 2014,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2020,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -214,6 +215,53 @@ oaUYVYtoRGB888 ( void* source, void* target, unsigned int xSize,
     y1 = *s++;
     v = *s++;
     y2 = *s++;
+
+    // first pixel
+
+    r32 = y1 + lut_1_370705[v];
+    o = lut_0_698001[v] - lut_0_337633[u];
+    g32 = y1 - o;
+    b32 = y1 + lut_1_732446[u];
+    r8 = CLAMP(r32,0,255);
+    g8 = CLAMP(g32,0,255);
+    b8 = CLAMP(b32,0,255);
+    *t++ = r8;
+    *t++ = g8;
+    *t++ = b8;
+
+    // second pixel
+
+    r32 = y2 + lut_1_370705[v];
+    g32 = y2 - o;
+    b32 = y2 + lut_1_732446[u];
+    r8 = CLAMP(r32,0,255);
+    g8 = CLAMP(g32,0,255);
+    b8 = CLAMP(b32,0,255);
+    *t++ = r8;
+    *t++ = g8;
+    *t++ = b8;
+
+    len -= 2;
+  }
+}
+
+
+void
+oaYVYUtoRGB888 ( void* source, void* target, unsigned int xSize,
+    unsigned int ySize )
+{
+  unsigned int len = xSize * ySize;
+  uint8_t* s = ( uint8_t* ) source;
+  uint8_t* t = ( uint8_t* ) target;
+  int32_t r32, g32, b32;
+  uint8_t r8, g8, b8, y1, y2, u, v;
+  float o;
+
+  while ( len > 0 ) {
+    y1 = *s++;
+    v = *s++;
+    y2 = *s++;
+    u = *s++;
 
     // first pixel
 

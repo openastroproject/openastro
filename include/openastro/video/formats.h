@@ -2,7 +2,8 @@
  *
  * formats.h -- camera API (sub)header for frame formats
  *
- * Copyright 2014,2017,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2017,2018,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -87,67 +88,68 @@
 #define OA_PIX_FMT_YUV422  		49
 #define OA_PIX_FMT_YUYV  		OA_PIX_FMT_YUV422
 #define OA_PIX_FMT_UYVY  		50
-#define OA_PIX_FMT_YUV420 		51
-#define OA_PIX_FMT_YUV411 		52
-#define OA_PIX_FMT_YUV410 		53
+#define OA_PIX_FMT_YVYU  		51
+#define OA_PIX_FMT_YUV420 		52
+#define OA_PIX_FMT_YUV411 		53
+#define OA_PIX_FMT_YUV410 		54
 
-#define OA_PIX_FMT_GREY10_16BE          54
+#define OA_PIX_FMT_GREY10_16BE          55
 #define OA_PIX_FMT_GRAY10_16BE          OA_PIX_FMT_GREY10_16BE
-#define OA_PIX_FMT_GREY10_16LE          55
+#define OA_PIX_FMT_GREY10_16LE          56
 #define OA_PIX_FMT_GRAY10_16LE          OA_PIX_FMT_GREY10_16LE
-#define OA_PIX_FMT_GREY12_16BE          56
+#define OA_PIX_FMT_GREY12_16BE          57
 #define OA_PIX_FMT_GRAY12_16BE          OA_PIX_FMT_GREY12_16BE
-#define OA_PIX_FMT_GREY12_16LE          57
+#define OA_PIX_FMT_GREY12_16LE          58
 #define OA_PIX_FMT_GRAY12_16LE          OA_PIX_FMT_GREY12_16LE
-#define OA_PIX_FMT_GREY14_16BE          58
+#define OA_PIX_FMT_GREY14_16BE          59
 #define OA_PIX_FMT_GRAY14_16BE          OA_PIX_FMT_GREY14_16BE
-#define OA_PIX_FMT_GREY14_16LE          59
+#define OA_PIX_FMT_GREY14_16LE          60
 #define OA_PIX_FMT_GRAY14_16LE          OA_PIX_FMT_GREY14_16LE
 
-#define OA_PIX_FMT_BGGR10_16BE          60
-#define OA_PIX_FMT_BGGR10_16LE          61
-#define OA_PIX_FMT_RGGB10_16BE          62
-#define OA_PIX_FMT_RGGB10_16LE          63
-#define OA_PIX_FMT_GBRG10_16BE          64
-#define OA_PIX_FMT_GBRG10_16LE          65
-#define OA_PIX_FMT_GRBG10_16BE          66
-#define OA_PIX_FMT_GRBG10_16LE          67
-#define OA_PIX_FMT_BGGR12_16BE          68
-#define OA_PIX_FMT_BGGR12_16LE          69
-#define OA_PIX_FMT_RGGB12_16BE          70
-#define OA_PIX_FMT_RGGB12_16LE          71
-#define OA_PIX_FMT_GBRG12_16BE          72
-#define OA_PIX_FMT_GBRG12_16LE          73
-#define OA_PIX_FMT_GRBG12_16BE          74
-#define OA_PIX_FMT_GRBG12_16LE          75
-#define OA_PIX_FMT_BGGR14_16BE          76
-#define OA_PIX_FMT_BGGR14_16LE          77
-#define OA_PIX_FMT_RGGB14_16BE          78
-#define OA_PIX_FMT_RGGB14_16LE          79
-#define OA_PIX_FMT_GBRG14_16BE          80
-#define OA_PIX_FMT_GBRG14_16LE          81
-#define OA_PIX_FMT_GRBG14_16BE          82
-#define OA_PIX_FMT_GRBG14_16LE          83
+#define OA_PIX_FMT_BGGR10_16BE          61
+#define OA_PIX_FMT_BGGR10_16LE          62
+#define OA_PIX_FMT_RGGB10_16BE          63
+#define OA_PIX_FMT_RGGB10_16LE          64
+#define OA_PIX_FMT_GBRG10_16BE          65
+#define OA_PIX_FMT_GBRG10_16LE          66
+#define OA_PIX_FMT_GRBG10_16BE          67
+#define OA_PIX_FMT_GRBG10_16LE          68
+#define OA_PIX_FMT_BGGR12_16BE          69
+#define OA_PIX_FMT_BGGR12_16LE          70
+#define OA_PIX_FMT_RGGB12_16BE          71
+#define OA_PIX_FMT_RGGB12_16LE          72
+#define OA_PIX_FMT_GBRG12_16BE          73
+#define OA_PIX_FMT_GBRG12_16LE          74
+#define OA_PIX_FMT_GRBG12_16BE          75
+#define OA_PIX_FMT_GRBG12_16LE          76
+#define OA_PIX_FMT_BGGR14_16BE          77
+#define OA_PIX_FMT_BGGR14_16LE          78
+#define OA_PIX_FMT_RGGB14_16BE          79
+#define OA_PIX_FMT_RGGB14_16LE          80
+#define OA_PIX_FMT_GBRG14_16BE          81
+#define OA_PIX_FMT_GBRG14_16LE          82
+#define OA_PIX_FMT_GRBG14_16BE          83
+#define OA_PIX_FMT_GRBG14_16LE          84
 
-#define OA_PIX_FMT_CMYG8                84
-#define OA_PIX_FMT_MCGY8                85
-#define OA_PIX_FMT_YGCM8                86
-#define OA_PIX_FMT_GYMC8                87
-#define OA_PIX_FMT_CMYG16BE             88
-#define OA_PIX_FMT_CMYG16LE             89
-#define OA_PIX_FMT_MCGY16BE             90
-#define OA_PIX_FMT_MCGY16LE             91
-#define OA_PIX_FMT_YGCM16BE             92
-#define OA_PIX_FMT_YGCM16LE             93
-#define OA_PIX_FMT_GYMC16BE             94
-#define OA_PIX_FMT_GYMC16LE             95
+#define OA_PIX_FMT_CMYG8                85
+#define OA_PIX_FMT_MCGY8                86
+#define OA_PIX_FMT_YGCM8                87
+#define OA_PIX_FMT_GYMC8                88
+#define OA_PIX_FMT_CMYG16BE             89
+#define OA_PIX_FMT_CMYG16LE             90
+#define OA_PIX_FMT_MCGY16BE             91
+#define OA_PIX_FMT_MCGY16LE             92
+#define OA_PIX_FMT_YGCM16BE             93
+#define OA_PIX_FMT_YGCM16LE             94
+#define OA_PIX_FMT_GYMC16BE             95
+#define OA_PIX_FMT_GYMC16LE             96
 
-#define	OA_PIX_FMT_JPEG8								96
+#define	OA_PIX_FMT_JPEG8								97
 
-#define	OA_PIX_FMT_CANON_CRW						97
-#define	OA_PIX_FMT_CANON_CR2						98
-#define	OA_PIX_FMT_CANON_CR3						99
-#define	OA_PIX_FMT_NIKON_NEF						100
+#define	OA_PIX_FMT_CANON_CRW						98
+#define	OA_PIX_FMT_CANON_CR2						99
+#define	OA_PIX_FMT_CANON_CR3						100
+#define	OA_PIX_FMT_NIKON_NEF						101
 
 // Adding more frame formats here requires the oaFrameFormats table
 // updating in liboavideo/formats.c
@@ -177,15 +179,8 @@
 #define QUICKTIME_OK(f)	(( f == OA_PIX_FMT_RGB24 ) || \
     ( f == OA_PIX_FMT_BGR24 ) || ( f == OA_PIX_FMT_GREY8 ))
 
-#define UTVIDEO_OK(f) (!(( f == OA_PIX_FMT_GREY8 ) || \
-    ( f == OA_PIX_FMT_GREY16LE ) || ( f == OA_PIX_FMT_GREY16BE ) || \
-    ( f == OA_PIX_FMT_BGGR8 ) || ( f == OA_PIX_FMT_RGGB8 ) || \
-    ( f == OA_PIX_FMT_GRBG8 ) || ( f == OA_PIX_FMT_GBRG8 ) || \
-    ( f == OA_PIX_FMT_BGGR16LE ) || ( f == OA_PIX_FMT_BGGR16BE ) || \
-    ( f == OA_PIX_FMT_RGGB16LE ) || ( f == OA_PIX_FMT_RGGB16BE ) || \
-    ( f == OA_PIX_FMT_GBRG16LE ) || ( f == OA_PIX_FMT_GBRG16BE ) || \
-    ( f == OA_PIX_FMT_GRBG16LE ) || ( f == OA_PIX_FMT_GRBG16BE ) || \
-    ( f == OA_PIX_FMT_YUYV )))
+#define UTVIDEO_OK(f) (( f == OA_PIX_FMT_RGB24 ) || \
+    ( f == OA_PIX_FMT_YUV420P ) || ( f == OA_PIX_FMT_YUV422P ))
 
 #define WINDIB_OK(f) (( f == OA_PIX_FMT_GREY8 ) || \
     ( f == OA_PIX_FMT_BGGR8 ) || ( f == OA_PIX_FMT_RGGB8 ) || \

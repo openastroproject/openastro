@@ -158,6 +158,10 @@ OutputFFMPEG::OutputFFMPEG ( int x, int y, int n, int d, int fmt,
       actualPixelFormat = storedPixelFormat = AV_PIX_FMT_YUYV422;
       bpp = 2;
       break;
+    case OA_PIX_FMT_YVYU:
+      actualPixelFormat = storedPixelFormat = AV_PIX_FMT_YVYU422;
+      bpp = 2;
+      break;
     case OA_PIX_FMT_UYVY:
       actualPixelFormat = storedPixelFormat = AV_PIX_FMT_UYVY422;
       bpp = 2;

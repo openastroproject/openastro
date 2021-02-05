@@ -2,7 +2,7 @@
  *
  * V4L2connect.c -- Initialise V4L2 cameras
  *
- * Copyright 2013,2014,2015,2017,2018,2019,2020
+ * Copyright 2013,2014,2015,2017,2018,2019,2020,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -1461,6 +1461,14 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             cameraInfo->currentFrameFormat = OA_PIX_FMT_YUYV;
           }
           camera->frameFormats [ OA_PIX_FMT_YUYV ] = 1;
+          break;
+
+        case V4L2_PIX_FMT_YVYU:
+          if ( !cameraInfo->currentV4L2Format ) {
+            cameraInfo->currentV4L2Format = formatDesc.pixelformat;
+            cameraInfo->currentFrameFormat = OA_PIX_FMT_YVYU;
+          }
+          camera->frameFormats [ OA_PIX_FMT_YVYU ] = 1;
           break;
 
         case V4L2_PIX_FMT_UYVY:

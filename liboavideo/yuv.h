@@ -2,7 +2,8 @@
  *
  * yuv.h -- convert YUV formats to RGB888 header
  *
- * Copyright 2014,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2018,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -33,5 +34,6 @@ extern void	oaYUV420PtoRGB888 ( void*, void*, unsigned int, unsigned int );
 extern void	oaYUV411toRGB888 ( void*, void*, unsigned int, unsigned int );
 extern void	oaYUYVtoRGB888 ( void*, void*, unsigned int, unsigned int );
 extern void	oaUYVYtoRGB888 ( void*, void*, unsigned int, unsigned int );
+extern void	oaYVYUtoRGB888 ( void*, void*, unsigned int, unsigned int );
 
 #endif	/* OPENASTRO_VIDEO_YUV_H */

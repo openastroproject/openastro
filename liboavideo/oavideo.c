@@ -2,7 +2,7 @@
  *
  * oavideo.c -- main oavideo library entrypoint
  *
- * Copyright 2014,2017,2018,2020
+ * Copyright 2014,2017,2018,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -301,6 +301,12 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
     case OA_PIX_FMT_UYVY:
       if ( OA_PIX_FMT_RGB24 == targetFormat ) {
         oaUYVYtoRGB888 ( source, target, xSize, ySize );
+        result = 0;
+      }
+      break;
+    case OA_PIX_FMT_YVYU:
+      if ( OA_PIX_FMT_RGB24 == targetFormat ) {
+        oaYVYUtoRGB888 ( source, target, xSize, ySize );
         result = 0;
       }
       break;
