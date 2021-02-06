@@ -154,10 +154,15 @@
 #define	OA_PIX_FMT_CANON_CR3						103
 #define	OA_PIX_FMT_NIKON_NEF						104
 
+#define	OA_PIX_FMT_RGBA									105
+#define	OA_PIX_FMT_ARGB									106
+#define	OA_PIX_FMT_BGRA									107
+#define	OA_PIX_FMT_ABGR									108
+
 // Adding more frame formats here requires the oaFrameFormats table
 // updating in liboavideo/formats.c
 
-#define OA_PIX_FMT_LAST_P1		OA_PIX_FMT_NIKON_NEF+1
+#define OA_PIX_FMT_LAST_P1		OA_PIX_FMT_ABGR+1
 
 #define OA_DEMOSAIC_FMT(x) \
   ((( x == OA_PIX_FMT_BGGR8 ) || ( x == OA_PIX_FMT_RGGB8 ) || \
@@ -203,6 +208,7 @@ typedef struct {
   unsigned int	useLibraw : 1;
   unsigned int	fullColour : 1;
   unsigned int	lumChrom : 1;
+	unsigned int	hasAlpha : 1;
   unsigned int	lossless : 1;
   unsigned int	packed : 1;
   unsigned int	planar : 1;
