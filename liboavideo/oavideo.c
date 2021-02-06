@@ -32,6 +32,7 @@
 #include "yuv.h"
 #include "to8Bit.h"
 #include "unpack.h"
+#include "alpha.h"
 
 
 int
@@ -329,6 +330,30 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
       } else {
         fprintf ( stderr, "unknown target format for YUV411: %d\n",
             targetFormat );
+      }
+      break;
+    case OA_PIX_FMT_RGBA:
+      if ( OA_PIX_FMT_RGB24 == targetFormat ) {
+        oaRGBAtoRGB888 ( source, target, xSize, ySize );
+        result = 0;
+      }
+      break;
+    case OA_PIX_FMT_ARGB:
+      if ( OA_PIX_FMT_RGB24 == targetFormat ) {
+        oaARGBtoRGB888 ( source, target, xSize, ySize );
+        result = 0;
+      }
+      break;
+    case OA_PIX_FMT_BGRA:
+      if ( OA_PIX_FMT_RGB24 == targetFormat ) {
+        oaBGRAtoRGB888 ( source, target, xSize, ySize );
+        result = 0;
+      }
+      break;
+    case OA_PIX_FMT_ABGR:
+      if ( OA_PIX_FMT_RGB24 == targetFormat ) {
+        oaABGRtoRGB888 ( source, target, xSize, ySize );
+        result = 0;
       }
       break;
     case OA_PIX_FMT_BGGR10:
