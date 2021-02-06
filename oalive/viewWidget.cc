@@ -2,7 +2,7 @@
  *
  * viewWidget.cc -- class for the preview window in the UI (and more)
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -453,6 +453,7 @@ ViewWidget::setMonoPalette ( QColor colour )
   } 
 }
 
+#define NEXT_FREE_BUFFER(x) ( -1 == x ) ? 0 : !x
 
 void*
 ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
@@ -481,6 +482,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
   // write straight from the data if possible
   self->viewBuffer = imageData;
 	self->currentViewBuffer = -1;
+	self->currentWriteBuffer = -1;
 	self->viewPixelFormat = writePixelFormat = originalPixelFormat =
 			self->videoFramePixelFormat;
 
@@ -523,8 +525,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
       oaFrameFormats[ self->viewPixelFormat ].packed ) {
     // this is going to make the flip quite ugly and means we need to
     // start using currentPreviewBuffer too
-    self->currentViewBuffer = ( -1 == self->currentViewBuffer ) ? 0 :
-        !self->currentViewBuffer;
+    self->currentViewBuffer = NEXT_FREE_BUFFER ( self->currentViewBuffer );
     // Convert luminance/chrominance and packed raw colour to RGB.
     // Packed mono should become GREY8.  We're only converting for
     // preview here, so nothing needs to be more than 8 bits wide
@@ -556,19 +557,45 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
 					commonConfig.imageSizeY, self->viewPixelFormat, axis );
     }
   } else {
+
+		// Remove any alpha channel.  This affects both the preview and
+		// the written images, so they can be left pointing to the same thing
+		// at this point
+
+		if ( oaFrameFormats[ self->videoFramePixelFormat ].fullColour &&
+				oaFrameFormats[ self->videoFramePixelFormat ].hasAlpha &&
+				oaFrameFormats[ self->videoFramePixelFormat ].bitsPerPixel == 32 ) {
+			self->currentWriteBuffer = NEXT_FREE_BUFFER ( self->currentWriteBuffer );
+			self->viewPixelFormat = writePixelFormat = OA_PIX_FMT_RGB24;
+			// use the conversion to copy into the write buffer
+			( void ) oaconvert ( writeBuffer,
+					self->writeImageBuffer[ self->currentWriteBuffer ],
+					commonConfig.imageSizeX, commonConfig.imageSizeY,
+					self->videoFramePixelFormat, self->viewPixelFormat );
+			self->viewBuffer = writeBuffer =
+					self->writeImageBuffer[ self->currentWriteBuffer ];
+		}
+
     // do a vertical/horizontal flip if required
     if ( self->flipX || self->flipY ) {
       // this is going to make a mess for data we intend to demosaic.
       // the user will have to deal with that
 			int axis = ( self->flipX ? OA_FLIP_X : 0 ) | ( self->flipY ?
 					OA_FLIP_Y : 0 );
-      ( void ) memcpy ( self->writeImageBuffer[0], writeBuffer, length );
-      oaFlipImage ( self->writeImageBuffer[0], commonConfig.imageSizeX,
-					commonConfig.imageSizeY, writePixelFormat, axis );
+			if ( -1 == self->currentWriteBuffer ) {
+				( void ) memcpy ( self->writeImageBuffer[0], writeBuffer, length );
+				self->currentWriteBuffer = 0;
+			} else {
+				self->currentWriteBuffer = !self->currentWriteBuffer;
+			}
+			// this is an in-place flip
+      oaFlipImage ( self->writeImageBuffer[ self->currentWriteBuffer ],
+					commonConfig.imageSizeX, commonConfig.imageSizeY, writePixelFormat,
+					axis );
       // both preview and write will come from this buffer for the
       // time being.  This may change later on
-      self->viewBuffer = self->writeImageBuffer[0];
-      writeBuffer = self->writeImageBuffer[0];
+      self->viewBuffer = self->writeImageBuffer[ self->currentWriteBuffer ];
+      writeBuffer = self->writeImageBuffer[ self->currentWriteBuffer ];
     }
   }
 
@@ -579,8 +606,7 @@ ViewWidget::addImage ( void* args, void* imageData, int length, void* metadata )
   }
 
   if ( oaFrameFormats[ self->viewPixelFormat ].rawColour ) {
-    self->currentViewBuffer = ( -1 == self->currentViewBuffer ) ? 0 :
-				!self->currentViewBuffer;
+    self->currentViewBuffer = NEXT_FREE_BUFFER ( self->currentViewBuffer );
     // Use the demosaicking to copy the data to the previewImageBuffer
     ( void ) oademosaic ( self->viewBuffer,
         self->viewImageBuffer[ self->currentViewBuffer ],
@@ -1253,8 +1279,7 @@ ViewWidget::_processAndDisplay ( void* tmpState, ViewWidget* self,
 		uint8_t*	tgt;
 
 		frameLength = commonConfig.imageSizeX * commonConfig.imageSizeY;
-    self->currentViewBuffer = ( -1 == self->currentViewBuffer ) ? 0 :
-        !self->currentViewBuffer;
+    self->currentViewBuffer = NEXT_FREE_BUFFER ( self->currentViewBuffer );
 		tgt = static_cast<uint8_t*>(
 				self->viewImageBuffer [ self->currentViewBuffer ]);
 		for ( i = 0; i < frameLength; i++ ) {
@@ -1283,8 +1308,7 @@ ViewWidget::_processAndDisplay ( void* tmpState, ViewWidget* self,
 		uint8_t*	tgt;
 
 		frameLength = commonConfig.imageSizeX * commonConfig.imageSizeY * 3;
-    self->currentViewBuffer = ( -1 == self->currentViewBuffer ) ? 0 :
-        !self->currentViewBuffer;
+    self->currentViewBuffer = NEXT_FREE_BUFFER ( self->currentViewBuffer );
 		tgt = static_cast<uint8_t*>(
 				self->viewImageBuffer [ self->currentViewBuffer ]);
 		for ( i = 0; i < frameLength; i += 3 ) {

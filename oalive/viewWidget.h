@@ -2,7 +2,8 @@
  *
  * viewWidget.h -- class declaration
  *
- * Copyright 2015,2016,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -186,6 +187,7 @@ class ViewWidget : public QFrame
 
 		int						viewPixelFormat;
 		int						currentViewBuffer;
+		int						currentWriteBuffer;
 		void*					viewBuffer;
 		void*					originalBuffer;
 		int						abortProcessing;

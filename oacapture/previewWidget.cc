@@ -429,7 +429,7 @@ PreviewWidget::setMonoPalette ( QColor colour )
 }
 
 
-#define NEXT_FREE_BUFFER(x) ( -1 == x ) ? 0 : !x;
+#define NEXT_FREE_BUFFER(x) ( -1 == x ) ? 0 : !x
 
 void*
 PreviewWidget::updatePreview ( void* args, void* imageData, int length,
