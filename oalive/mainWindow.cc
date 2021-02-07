@@ -453,7 +453,11 @@ MainWindow::readConfig ( QString configFile )
 #endif
     config.saveCaptureSettings = 1;
 #ifdef OACAPTURE
+#if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
+    config.windowsCompatibleAVI = 1;
+#else
     config.windowsCompatibleAVI = 0;
+#endif
     config.useUtVideo = 0;
 #endif
     config.indexDigits = 6;

@@ -387,7 +387,11 @@ MainWindow::readConfig ( QString configFile )
     autorunConf.autorunDelay = 0;
     generalConf.saveCaptureSettings = 1;
 
+#if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
+    captureConf.windowsCompatibleAVI = 1;
+#else
     captureConf.windowsCompatibleAVI = 0;
+#endif
     captureConf.useUtVideo = 0;
     captureConf.indexDigits = 6;
 
