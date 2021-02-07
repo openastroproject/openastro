@@ -2,7 +2,7 @@
  *
  * ZWASIcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2017,2018,2019,2020
+ * Copyright 2015,2017,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -365,6 +365,24 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       cameraInfo->currentCoolerPower = val->int32;
       break;
 
+    case OA_CAM_CTRL_MAX_AUTO_EXPOSURE:
+		{
+			ASI_BOOL			dummy = 0;
+
+      p_ASISetControlValue ( cameraInfo->cameraId, ASI_AUTO_MAX_EXP,
+					val->int32, dummy );
+      break;
+		}
+
+    case OA_CAM_CTRL_MAX_AUTO_GAIN:
+		{
+			ASI_BOOL			dummy = 0;
+
+      p_ASISetControlValue ( cameraInfo->cameraId, ASI_AUTO_MAX_GAIN,
+					val->int32, dummy );
+      break;
+		}
+
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
       p_ASISetControlValue ( cameraInfo->cameraId, ASI_GAIN,
           cameraInfo->currentGain, val->boolean );
@@ -636,6 +654,20 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_COOLER_POWER:
       p_ASIGetControlValue ( cameraInfo->cameraId, ASI_COOLER_POWER_PERC,
 					&ctrlVal, &boolVal );
+			val->valueType = OA_CTRL_TYPE_INT32;
+			val->int32 = ctrlVal;
+      break;
+
+		case OA_CAM_CTRL_MAX_AUTO_EXPOSURE:
+      p_ASIGetControlValue ( cameraInfo->cameraId, ASI_AUTO_MAX_EXP, &ctrlVal,
+          &boolVal );
+			val->valueType = OA_CTRL_TYPE_INT32;
+			val->int32 = ctrlVal;
+      break;
+
+		case OA_CAM_CTRL_MAX_AUTO_GAIN:
+      p_ASIGetControlValue ( cameraInfo->cameraId, ASI_AUTO_MAX_GAIN, &ctrlVal,
+          &boolVal );
 			val->valueType = OA_CTRL_TYPE_INT32;
 			val->int32 = ctrlVal;
       break;

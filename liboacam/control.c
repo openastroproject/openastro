@@ -125,7 +125,7 @@ const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
   "Auto White Balance Speed",
   "Auto White Balance Delay",
   "Auto White Balance Temp",
-  "Max Auto Exposure",
+  "Max Auto Exposure (ms)",
   "Max Auto Gain",
   "Interlace Enable",
   "Focus",

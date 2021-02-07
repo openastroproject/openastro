@@ -2,7 +2,7 @@
  *
  * ZWASI2connect.c -- Initialise ZW ASI cameras APIv2
  *
- * Copyright 2015,2017,2018,2019,2020
+ * Copyright 2015,2017,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -479,6 +479,17 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
           break;
 
         case ASI_AUTO_MAX_GAIN:
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_MAX_AUTO_GAIN ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_MAX_AUTO_GAIN ) =
+              controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_MAX_AUTO_GAIN ) =
+              controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_MAX_AUTO_GAIN ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_MAX_AUTO_GAIN ) =
+              controlCaps.DefaultValue;
+          break;
+
 #if HAVE_DECL_ASI_AUTO_MAX_EXP_MS
         case ASI_AUTO_MAX_EXP:
 #endif
