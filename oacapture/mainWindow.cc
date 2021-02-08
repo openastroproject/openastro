@@ -1632,10 +1632,8 @@ MainWindow::connectCamera ( int deviceIndex )
   clearDroppedFrames();
   state.captureWidget->enableStartButton ( 1 );
   state.captureWidget->enableProfileSelect ( 1 );
-  // FIX ME -- should these happen in the "configure" functions for each
+  // FIX ME -- should this happen in the "configure" functions for each
   // widget?
-  state.previewWidget->setVideoFramePixelFormat (
-      commonState.camera->videoFramePixelFormat());
   state.cameraWidget->enableBinningControl (
 			commonState.camera->hasBinning ( 2 ));
   // styleStatusBarTemp ( v );

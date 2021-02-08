@@ -340,7 +340,10 @@ CameraWidget::updateForceFrameFormat ( unsigned int oldFormat,
 {
   unsigned int n;
 
-  if ( oldFormat == 0 ) {
+  if ( 0 == oldFormat ) {
+		if ( 0 == newFormat ) {
+			return;
+		}
     // We didn't previously have a forced format set.  Disable the menu.
     // If the new format is not in the menu already, add it at the start.
     // Set the current index to the relevant option.
@@ -355,11 +358,12 @@ CameraWidget::updateForceFrameFormat ( unsigned int oldFormat,
       inputFormatMenu->insertItem ( 0, tr ( oaFrameFormats[ newFormat ].name ));
       inputFormatMenu->setItemData ( 0,
           tr ( oaFrameFormats[ newFormat ].simpleName ), Qt::ToolTipRole );
+			inputFormatList.prepend ( newFormat );
       inputFormatMenu->setCurrentIndex ( 0 );
     }
   }
 
-  if ( newFormat == 0 ) {
+  if ( 0 == newFormat ) {
     // forced format has been disabled.  Enable the menu.  If the old
     // format isn't supported by the camera, delete it from the menu.
 
@@ -367,6 +371,7 @@ CameraWidget::updateForceFrameFormat ( unsigned int oldFormat,
       inputFormatMenu->removeItem ( 0 );
     }
     inputFormatMenu->setEnabled ( 1 );
+		inputFormatList.removeFirst();
     connect ( inputFormatMenu, SIGNAL( currentIndexChanged ( int )), 
         this, SLOT( changeFrameFormat ( int )));
   }
@@ -379,11 +384,14 @@ CameraWidget::updateForceFrameFormat ( unsigned int oldFormat,
 
     if ( !commonState.camera->hasFrameFormat ( oldFormat )) {
       inputFormatMenu->removeItem ( 0 );
+			inputFormatList.removeFirst();
     }
     if ( commonState.camera->hasFrameFormat ( newFormat )) {
       n = inputFormatList.indexOf ( newFormat );
       inputFormatMenu->setCurrentIndex ( n );
+			cameraConf.forceInputFrameFormat = 0;
     } else {
+			inputFormatList.prepend ( newFormat );
       inputFormatMenu->insertItem ( 0, tr ( oaFrameFormats[ newFormat ].name ));
       inputFormatMenu->setCurrentIndex ( 0 );
     }
