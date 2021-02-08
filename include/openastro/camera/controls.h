@@ -153,8 +153,9 @@
 #define	OA_CAM_CTRL_BATTERY_LEVEL							117
 #define	OA_CAM_CTRL_CONVERSION_GAIN						118
 #define	OA_CAM_CTRL_BULB_MODE									119
+#define	OA_CAM_CTRL_BRIGHTNESS_TARGET					120
 // Adding more items here may require updating liboacam/control.c
-#define	OA_CAM_CTRL_LAST_P1										OA_CAM_CTRL_BULB_MODE+1
+#define	OA_CAM_CTRL_LAST_P1										OA_CAM_CTRL_BRIGHTNESS_TARGET+1
 
 // Adding more here will need camera.h and oacamprivate.h changing to make
 // the array bigger and require the the OA_CAM_CTRL_MODIFIER define

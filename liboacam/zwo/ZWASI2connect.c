@@ -490,10 +490,21 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
               controlCaps.DefaultValue;
           break;
 
+        case ASI_AUTO_TARGET_BRIGHTNESS:
+          camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BRIGHTNESS_TARGET ) =
+              OA_CTRL_TYPE_INT32;
+          commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BRIGHTNESS_TARGET ) =
+              controlCaps.MinValue;
+          commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BRIGHTNESS_TARGET ) =
+              controlCaps.MaxValue;
+          commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BRIGHTNESS_TARGET ) = 1;
+          commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BRIGHTNESS_TARGET ) =
+              controlCaps.DefaultValue;
+          break;
+
 #if HAVE_DECL_ASI_AUTO_MAX_EXP_MS
         case ASI_AUTO_MAX_EXP:
 #endif
-        case ASI_AUTO_MAX_BRIGHTNESS:
         case ASI_HARDWARE_BIN:
           fprintf ( stderr, "%s: control %s is not supported\n", __FUNCTION__,
               controlCaps.Name );

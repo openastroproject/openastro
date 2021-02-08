@@ -383,6 +383,15 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       break;
 		}
 
+    case OA_CAM_CTRL_BRIGHTNESS_TARGET:
+		{
+			ASI_BOOL			dummy = 0;
+
+      p_ASISetControlValue ( cameraInfo->cameraId, ASI_AUTO_TARGET_BRIGHTNESS,
+					val->int32, dummy );
+      break;
+		}
+
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
       p_ASISetControlValue ( cameraInfo->cameraId, ASI_GAIN,
           cameraInfo->currentGain, val->boolean );
@@ -668,6 +677,13 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 		case OA_CAM_CTRL_MAX_AUTO_GAIN:
       p_ASIGetControlValue ( cameraInfo->cameraId, ASI_AUTO_MAX_GAIN, &ctrlVal,
           &boolVal );
+			val->valueType = OA_CTRL_TYPE_INT32;
+			val->int32 = ctrlVal;
+      break;
+
+		case OA_CAM_CTRL_BRIGHTNESS_TARGET:
+      p_ASIGetControlValue ( cameraInfo->cameraId, ASI_AUTO_TARGET_BRIGHTNESS,
+					&ctrlVal, &boolVal );
 			val->valueType = OA_CTRL_TYPE_INT32;
 			val->int32 = ctrlVal;
       break;

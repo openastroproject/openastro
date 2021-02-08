@@ -160,7 +160,8 @@ const char* oaCameraControlLabel[ OA_CAM_CTRL_LAST_P1 ] = {
 	"Power Source",
 	"Battery Level",
 	"Conversion Gain",
-	"Bulb Mode"
+	"Bulb Mode",
+	"Brightness Target"
 };
 
 const char* oaCameraPresetAWBLabel[ OA_AWB_PRESET_LAST_P1 ] = {
