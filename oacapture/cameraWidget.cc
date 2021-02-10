@@ -338,7 +338,8 @@ void
 CameraWidget::updateForceFrameFormat ( unsigned int oldFormat,
     unsigned int newFormat )
 {
-  unsigned int n;
+  unsigned int	n;
+	int						reconnectSlot = 0;
 
   if ( 0 == oldFormat ) {
 		if ( 0 == newFormat ) {
@@ -364,16 +365,13 @@ CameraWidget::updateForceFrameFormat ( unsigned int oldFormat,
   }
 
   if ( 0 == newFormat ) {
-    // forced format has been disabled.  Enable the menu.  If the old
-    // format isn't supported by the camera, delete it from the menu.
+    // forced format has been disabled.  Enable the menu and set a flag
+		// to reconnect its slot at the end.  Then just set the newFormat to
+		// whatever it used to be and fall through
 
-    if ( !commonState.camera->hasFrameFormat ( oldFormat )) {
-      inputFormatMenu->removeItem ( 0 );
-    }
     inputFormatMenu->setEnabled ( 1 );
-		inputFormatList.removeFirst();
-    connect ( inputFormatMenu, SIGNAL( currentIndexChanged ( int )), 
-        this, SLOT( changeFrameFormat ( int )));
+		reconnectSlot = 1;
+		newFormat = config.inputFrameFormat;
   }
 
   if ( oldFormat && newFormat ) {
@@ -405,4 +403,9 @@ CameraWidget::updateForceFrameFormat ( unsigned int oldFormat,
     state.previewWidget->setVideoFramePixelFormat (
         inputFormatList[ inputFormatMenu->currentIndex()]);
   }
+
+	if ( reconnectSlot ) {
+    connect ( inputFormatMenu, SIGNAL( currentIndexChanged ( int )), 
+        this, SLOT( changeFrameFormat ( int )));
+	}
 }
