@@ -258,6 +258,10 @@ oacamV4L2controller ( void* param )
     }
   } while ( !exitThread );
 
+	if ( CAM_RUN_MODE_STREAMING == cameraInfo->runMode ) {
+		resultCode = _processStreamingStop ( cameraInfo, 0 );
+	}
+
   return 0;
 }
 
