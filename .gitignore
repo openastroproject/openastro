@@ -90,7 +90,9 @@ ui_*.h
 .libs
 .dirstamp
 *.pc
+/conftmTj6i/
 /ext/libusb/doc/doxygen.cfg
+/ext/libusb/libusb-1.0
 /ext/libusb/examples/dpfp
 /ext/libusb/examples/dpfp_threaded
 /ext/libusb/examples/fxload
