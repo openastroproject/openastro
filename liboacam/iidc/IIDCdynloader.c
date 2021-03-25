@@ -2,7 +2,7 @@
  *
  * iidcDynloader.c -- handle dynamic loading of libdc1394
  *
- * Copyright 2019,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *

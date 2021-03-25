@@ -2,7 +2,7 @@
  *
  * IIDCprivate.h -- internal header for IIDC camera interface
  *
- * Copyright 2019,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -107,5 +107,7 @@ extern dc1394error_t		( *p_dc1394_video_set_operation_mode )( dc1394camera_t*,
 														dc1394operation_mode_t );
 extern dc1394error_t		( *p_dc1394_video_set_transmission )( dc1394camera_t*,
 														dc1394switch_t );
+extern dc1394error_t		( *p_dc1394_format7_get_unit_size )( dc1394camera_t*,
+											dc1394video_mode_t, uint32_t*, uint32_t* );
 
 #endif	/* OA_IIDC_PRIVATE_H */
