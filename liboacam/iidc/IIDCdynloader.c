@@ -119,6 +119,8 @@ dc1394error_t		( *p_dc1394_video_set_operation_mode )( dc1394camera_t*,
 											dc1394operation_mode_t );
 dc1394error_t		( *p_dc1394_video_set_transmission )( dc1394camera_t*,
 											dc1394switch_t );
+dc1394error_t		( *p_dc1394_format7_get_unit_size )( dc1394camera_t*,
+											dc1394video_mode_t, uint32_t*, uint32_t* );
 
 #if HAVE_LIBDL && !HAVE_STATIC_LIBDC1394
 static void*    _getDLSym ( void*, const char* );
@@ -435,6 +437,12 @@ _iidcInitLibraryFunctionPointers ( void )
     return OA_ERR_SYMBOL_NOT_FOUND;
   }
 
+  if (!( *( void** )( &p_dc1394_format7_get_unit_size ) =
+			_getDLSym ( libHandle, "dc1394_format7_get_unit_size" ))) {
+    dlclose ( libHandle );
+    libHandle = 0;
+    return OA_ERR_SYMBOL_NOT_FOUND;
+  }
 
 #else
 #if HAVE_STATIC_LIBDC1394
