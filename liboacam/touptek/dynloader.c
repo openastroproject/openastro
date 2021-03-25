@@ -2,7 +2,7 @@
  *
  * dynloader.c -- handle dynamic loading of interface library
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -45,7 +45,7 @@
 // Pointers to library functions so we can use them via libdl.
 
 const char*	( *TT_LIB_PTR( Version ))();
-unsigned	( *TT_LIB_PTR( EnumV2 ))( TT_VAR_TYPE( InstV2* ));
+unsigned	( *TT_LIB_PTR( EnumV2 ))( TT_VAR_TYPE( DeviceV2* ));
 TT_HANDLE	( *TT_LIB_PTR( Open ))( const char* );
 TT_HANDLE	( *TT_LIB_PTR( OpenByIndex ))( unsigned );
 void		( *TT_LIB_PTR( Close ))( TT_HANDLE );
@@ -1091,9 +1091,9 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 #ifdef	TT_PATCH_BINARY
 		oalib = !strcmp ( "32.13483.20181206", TT_LIB_PTR( Version()));
 	  if ( oalib ) {
-			unsigned				( *p_Toupcam_EnumV2 )( TT_VAR_TYPE( InstV2* ));
+			unsigned				( *p_Toupcam_EnumV2 )( TT_VAR_TYPE( DeviceV2* ));
 			if (( *( void** )( &p_Toupcam_EnumV2 ) = _getDLSym ( libHandle,
-				  "_Z14Toupcam_EnumV2P13ToupcamInstV2" ))) {
+				  "_Z14Toupcam_EnumV2P13ToupcamDeviceV2" ))) {
 				// Now comes the really ugly bit.  Patch the data section of the loaded
 				// Touptek library to match the new USB product IDs.  Actually, this
 				// probably even gives "ugly" a bad name.

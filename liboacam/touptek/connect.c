@@ -2,7 +2,7 @@
  *
  * connect.c -- Initialise Touptek-based cameras
  *
- * Copyright 2019,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -96,7 +96,7 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   oaCamera*			camera;
   TOUPTEK_STATE*		cameraInfo;
   COMMON_INFO*			commonInfo;
-  TT_VAR_TYPE( InstV2 )			devList[ TT_DEFINE( MAX )];
+  TT_VAR_TYPE( DeviceV2 )			devList[ TT_DEFINE( MAX )];
   unsigned int			numCameras, min, max, def;
   unsigned short		smin, smax, sdef;
   TT_HANDLE					handle;

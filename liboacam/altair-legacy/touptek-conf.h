@@ -2,7 +2,7 @@
  *
  * touptek-conf.h -- Touptek build configuration for legacy Altair cameras
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -86,5 +86,8 @@
 
 // And it doesn't have an "upside down" option
 #define	NO_UPSIDE_DOWN
+
+// Finally, we need to use the old ...InstV2 type rather than ...DeviceV2
+#define	AltaircamDeviceV2	AltaircamInstV2
 
 #endif	/* OA_LEGACY_ALTAIRCAM_CONF_H */

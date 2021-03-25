@@ -2,7 +2,7 @@
  *
  * private.h -- private header for Touptek-based camera API
  *
- * Copyright 2019,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -51,7 +51,7 @@
 extern int				TT_FUNC( _, InitLibraryFunctionPointers )( void );
 
 extern const char*	( *TT_LIB_PTR( Version ))();
-extern unsigned		( *TT_LIB_PTR( EnumV2 ))( TT_VAR_TYPE ( InstV2* ));
+extern unsigned		( *TT_LIB_PTR( EnumV2 ))( TT_VAR_TYPE ( DeviceV2* ));
 extern TT_HANDLE		( *TT_LIB_PTR( Open ))( const char* );
 extern TT_HANDLE		( *TT_LIB_PTR( OpenByIndex ))( unsigned );
 extern void			( *TT_LIB_PTR( Close ))( TT_HANDLE );

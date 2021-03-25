@@ -2,7 +2,7 @@
  *
  * oacam.c -- main entrypoint for Touptek cameras
  *
- * Copyright 2019,2020
+ * Copyright 2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -44,7 +44,7 @@ int
 TT_FUNC( oa, GetCameras )( CAMERA_LIST* deviceList, unsigned long featureFlags,
 		int flags )
 {
-  TT_VAR_TYPE( InstV2 )		devList[ TT_DEFINE( MAX )];
+  TT_VAR_TYPE( DeviceV2 )		devList[ TT_DEFINE( MAX )];
   unsigned int		numCameras;
   unsigned int		i;
   oaCameraDevice*       dev;
