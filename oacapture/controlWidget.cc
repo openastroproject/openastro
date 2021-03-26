@@ -457,14 +457,9 @@ ControlWidget::configure ( void )
         selectableControlSpinbox[ c ]->setSingleStep ( step );
 				if ( c != OA_CAM_CTRL_TRIGGER_DELAY && c != OA_CAM_CTRL_STROBE_DELAY &&
 						c != OA_CAM_CTRL_STROBE_DURATION ) {
-qDebug() << "point #1";
 					if ( readableControls ) {
-qDebug() << "point #2";
 						cameraConf.CONTROL_VALUE( c ) =
 								commonState.camera->readControl ( c );
-if ( c == OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) {
-qDebug() << "read abs exposure:" << cameraConf.CONTROL_VALUE( c );
-}
 						autoctrl = oaGetAutoForControl ( c );
 						if ( selectableControlCheckbox[ c ] && autoctrl >= 0 &&
 								commonState.camera->hasControl ( autoctrl ) ==
@@ -482,7 +477,6 @@ qDebug() << "read abs exposure:" << cameraConf.CONTROL_VALUE( c );
 									commonState.camera->readControl ( onoffctrl );
 						}
 					} else {
-qDebug() << "point #3";
 						cameraConf.CONTROL_VALUE( c ) = def;
 					}
 				}
@@ -727,14 +721,11 @@ qDebug() << "point #3";
     intervalSizeMenu->show();
 
 		if ( readableControls ) {
-qDebug() << "point #4";
 			cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
 				commonState.camera->readControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
 		} else {
-qDebug() << "point #5";
 			cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = def;
 		}
-qDebug() << "read abs exposure:" << cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
     setting = cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE );
 
     switch ( config.intervalMenuOption ) {
@@ -1193,10 +1184,8 @@ ControlWidget::exposureMenuChanged ( int index )
   control = usingAbsoluteExposure ? OA_CAM_CTRL_EXPOSURE_ABSOLUTE :
       OA_CAM_CTRL_EXPOSURE_UNSCALED;
   newSettingUsec = cameraConf.CONTROL_VALUE( control );
-qDebug() << "min, max, new" << newMinUsec << newMaxUsec << newSettingUsec;
   if ( newSettingUsec < newMinUsec ) { newSettingUsec = newMinUsec; }
   if ( newSettingUsec > newMaxUsec ) { newSettingUsec = newMaxUsec; }
-qDebug() << "modified setting:" << newSettingUsec;
 	newSetting = newSettingUsec / mult;
   
   // If this isn't done there's a needless change of setting should the
@@ -1214,7 +1203,6 @@ qDebug() << "modified setting:" << newSettingUsec;
   }
   ignoreExposureChanges = 0;
 	if ( newSetting != cameraConf.CONTROL_VALUE( control )) {
-qDebug() << "updating exposure setting";
 		updateExposure ( newSetting );
 	}
 
@@ -1261,7 +1249,6 @@ ControlWidget::updateExposure ( int value )
     if ( value ) {
       state.cameraWidget->showFPSMaxValue ( 1000000 / usecValue );
     }
-qDebug() << "update exposure to" << usecValue;
 
 		if ( configureComplete ) {
 			// if the camera supports single shot mode and the exposure time is
