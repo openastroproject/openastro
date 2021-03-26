@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * occulationWidget.h -- class declaration
+ * occultationWidget.h -- class declaration
  *
  * Copyright 2021
  *     Dave Tucker (dave@dtucker.co.uk)
@@ -33,10 +33,10 @@
 #include "timerSettings.h"
 #include "state.h"
 #include "commonState.h"
-#include "occulationWidget.h"
+#include "occultationWidget.h"
 #include "configuration.h"
 
-OcculationWidget::OcculationWidget(const char *appName, QWidget *parent) :
+OccultationWidget::OccultationWidget(const char *appName, QWidget *parent) :
 		QWidget(parent) {
 	windowSizeX = 300;
 	windowSizeY = 300;
@@ -46,7 +46,7 @@ OcculationWidget::OcculationWidget(const char *appName, QWidget *parent) :
 		(void) strncpy(str, appName, 255);
 		(void) strncat(str, " Targeted Capture Controls", 255);
 		setWindowTitle(str);
-		setWindowIcon(QIcon(":/qt-icons/occulation.png"));
+		setWindowIcon(QIcon(":/qt-icons/occultation.png"));
 	}
 
 	intervalMultipliers << 1 << 1000 << 1000000 << 60000000;
@@ -117,24 +117,24 @@ OcculationWidget::OcculationWidget(const char *appName, QWidget *parent) :
 	setLayout(grid);
 }
 
-OcculationWidget::~OcculationWidget() {
+OccultationWidget::~OccultationWidget() {
 }
 
-QSize OcculationWidget::sizeHint() const {
+QSize OccultationWidget::sizeHint() const {
 	QSize size(windowSizeX, windowSizeY);
 	return size;
 }
 
-void OcculationWidget::externalLEDCheckboxChanged(int value) {
+void OccultationWidget::externalLEDCheckboxChanged(int value) {
 	QMetaObject::invokeMethod(state.mainWindow, "enableTimerExternalLED",
 			Qt::DirectConnection, Q_ARG(int, value));
 }
 
-void OcculationWidget::enableBinningControl(int value) {
+void OccultationWidget::enableBinningControl(int value) {
 	binning2x2->setEnabled(value);
 }
 
-void OcculationWidget::configure(void) {
+void OccultationWidget::configure(void) {
 	if (commonState.camera) {
 		binning2x2->setEnabled(commonState.camera->hasBinning(2) ? 1 : 0);
 	} else {
@@ -142,11 +142,11 @@ void OcculationWidget::configure(void) {
 	}
 }
 
-void OcculationWidget::setBinning(int value) {
+void OccultationWidget::setBinning(int value) {
 	binning2x2->setChecked(value);
 }
 
-void OcculationWidget::resetCaptureCounter(void) {
+void OccultationWidget::resetCaptureCounter(void) {
 	// FIX ME -- this might not be good in the middle of a capture run
 	commonState.captureIndex = 0;
 }

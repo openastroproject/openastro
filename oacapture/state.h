@@ -2,7 +2,7 @@
  *
  * state.h -- global application state datastructures
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -37,7 +37,7 @@
 #include "settingsWidget.h"
 #include "focusOverlay.h"
 #include "advancedSettings.h"
-#include "occulationWidget.h"
+#include "occultationWidget.h"
 
 
 typedef struct
@@ -49,7 +49,7 @@ typedef struct
   ImageWidget*		imageWidget;
   ZoomWidget*		zoomWidget;
   CameraWidget*		cameraWidget;
-  OcculationWidget* occulationWidget;
+  OccultationWidget* occultationWidget;
   int			histogramOn;
   int			histogramSignalConnected;
   HistogramWidget*	histogramWidget;

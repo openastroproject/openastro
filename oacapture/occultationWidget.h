@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * occulationWidget.h -- class for occulation tools
+ * occultationWidget.h -- class for occultation tools
  *
  * Copyright 2021
  *     Dave Tucker (dave@dtucker.co.uk)
@@ -35,12 +35,12 @@
 #include <QtCore>
 #include <QtGui>
 
-class OcculationWidget : public QWidget
+class OccultationWidget : public QWidget
 {
   Q_OBJECT
   public:
-    OcculationWidget ( const char*, QWidget* parent = 0 );
-    ~OcculationWidget();
+    OccultationWidget ( const char*, QWidget* parent = 0 );
+    ~OccultationWidget();
     void                enableBinningControl ( int );
     void configure(void);
   public slots:

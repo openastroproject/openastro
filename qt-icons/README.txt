@@ -14,8 +14,8 @@ The following files are copyright 2013 James Fidell
 The following files are copyright 2021 Dave Tucker
 (dave@dtucker.co.uk) and are part of the Open Astro Project:
 
-  occulations.png
-  occulations.svg
+  occultations.png
+  occultations.svg
   
 The Open Astro Project is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as published

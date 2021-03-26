@@ -2,7 +2,7 @@
  *
  * mainWindow.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -60,7 +60,7 @@ extern "C" {
 #include "cameraWidget.h"
 #include "previewWidget.h"
 #include "histogramWidget.h"
-#include "occulationWidget.h"
+#include "occultationWidget.h"
 
 class MainWindow : public QMainWindow
 {
@@ -161,7 +161,7 @@ class MainWindow : public QMainWindow
     QAction*		derotate;
     QAction*		flipX;
     QAction*		flipY;
-    QAction*    	occulations;
+    QAction*    	occultations;
     QAction*		demosaicOpt;
     QAction*		hideControls;
     QAction*		general;
@@ -192,7 +192,7 @@ class MainWindow : public QMainWindow
     QDockWidget*	imageZoomDock;
     QDockWidget*	controlDock;
     QDockWidget*	captureDock;
-    QDockWidget*  occulationDock;
+    QDockWidget*  occultationDock;
     QVBoxLayout*	imageZoomBox;
     CameraWidget*       cameraWidget;
     ImageWidget*        imageWidget;
@@ -275,6 +275,6 @@ class MainWindow : public QMainWindow
 		void		createFileFailed ( void );
 		void		enableTimerExternalLED ( int );
 		int			getTimerExternalLEDState ( void );
-    void    enableOcculations ( void );
-    void	occulationClosed (void);
+    void    enableOccultations ( void );
+    void	occultationClosed (void);
 };

@@ -416,17 +416,17 @@ CameraWidget::updateForceFrameFormat ( unsigned int oldFormat,
 void
 CameraWidget::connectExternalControls ( void )
 {
-	if (state.occulationWidget) {
+	if (state.occultationWidget) {
 		connect ( binning2x2, SIGNAL ( stateChanged ( int )),
-			state.occulationWidget, SLOT( setBinning ( int )));
+			state.occultationWidget, SLOT( setBinning ( int )));
 	}
 }
 
 void
 CameraWidget::disconnectExternalControls ( void )
 {
-	if (state.occulationWidget) {
+	if (state.occultationWidget) {
 		disconnect ( binning2x2, SIGNAL ( stateChanged ( int )),
-			state.occulationWidget, SLOT( setBinning ( int )));
+			state.occultationWidget, SLOT( setBinning ( int )));
 	}
 }

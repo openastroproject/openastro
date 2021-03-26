@@ -2,7 +2,7 @@
  *
  * configuration.h -- declaration of data structures for configuration data
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -58,7 +58,7 @@ typedef struct
   int			derotate;
   int			flipX;
   int			flipY;
-  int     occulations;
+  int     occultations;
 
   // camera config
   unsigned int		inputFrameFormat;
