@@ -58,6 +58,7 @@ typedef struct
   int			derotate;
   int			flipX;
   int			flipY;
+  int     occulations;
 
   // camera config
   unsigned int		inputFrameFormat;

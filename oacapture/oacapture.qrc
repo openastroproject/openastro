@@ -38,5 +38,6 @@
     <file>qt-icons/mask.png</file>
     <file>qt-icons/fits.png</file>
     <file>qt-icons/timer.png</file>
+    <file>qt-icons/occulation.png</file>
   </qresource>
 </RCC>

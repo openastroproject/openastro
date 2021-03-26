@@ -168,6 +168,9 @@ CameraWidget::setBinning ( int newState )
 {
   int oldVal = commonConfig.binning2x2;
 
+  // ensure that the checkbox is checked if this was called from another control
+  binning2x2->setChecked(newState);
+
   if ( commonState.camera->isInitialised()) {
     if ( newState == Qt::Unchecked ) {
       commonState.camera->setControl ( OA_CAM_CTRL_BINNING, OA_BIN_MODE_NONE );
@@ -407,5 +410,23 @@ CameraWidget::updateForceFrameFormat ( unsigned int oldFormat,
 	if ( reconnectSlot ) {
     connect ( inputFormatMenu, SIGNAL( currentIndexChanged ( int )), 
         this, SLOT( changeFrameFormat ( int )));
+	}
+}
+
+void
+CameraWidget::connectExternalControls ( void )
+{
+	if (state.occulationWidget) {
+		connect ( binning2x2, SIGNAL ( stateChanged ( int )),
+			state.occulationWidget, SLOT( setBinning ( int )));
+	}
+}
+
+void
+CameraWidget::disconnectExternalControls ( void )
+{
+	if (state.occulationWidget) {
+		disconnect ( binning2x2, SIGNAL ( stateChanged ( int )),
+			state.occulationWidget, SLOT( setBinning ( int )));
 	}
 }

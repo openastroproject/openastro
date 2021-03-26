@@ -52,6 +52,7 @@ extern "C" {
 #include "zoomWidget.h"
 #include "previewWidget.h"
 #include "settingsWidget.h"
+#include "occulationWidget.h"
 
 #include "state.h"
 
@@ -212,6 +213,7 @@ MainWindow::~MainWindow()
   delete demosaicOpt;
   delete flipY;
   delete flipX;
+  delete occulations;
   delete darkframe;
   delete focusaid;
   delete cutout;
@@ -345,6 +347,7 @@ MainWindow::readConfig ( QString configFile )
     config.darkFrame = 0;
     config.flipX = 0;
     config.flipY = 0;
+    config.occulations = 0;
     commonConfig.demosaic = 0;
 
     commonConfig.binning2x2 = 0;
@@ -470,6 +473,7 @@ MainWindow::readConfig ( QString configFile )
     config.darkFrame = settings->value ( "options/darkFrame", 0 ).toInt();
     config.flipX = settings->value ( "options/flipX", 0 ).toInt();
     config.flipY = settings->value ( "options/flipY", 0 ).toInt();
+    config.occulations = settings->value ( "options/occulations", 0).toInt();
     commonConfig.demosaic = settings->value ( "options/demosaic", 0 ).toInt();
 
     commonConfig.binning2x2 = settings->value (
@@ -1039,6 +1043,7 @@ MainWindow::writeConfig ( QString configFile )
   settings->setValue ( "options/darkFrame", config.darkFrame );
   settings->setValue ( "options/flipX", config.flipX );
   settings->setValue ( "options/flipY", config.flipY );
+  settings->setValue ( "options/occulations", config.occulations) ;
   settings->setValue ( "options/demosaic", commonConfig.demosaic );
 
   settings->setValue ( "camera/binning2x2", commonConfig.binning2x2 );
@@ -1427,6 +1432,12 @@ MainWindow::createMenus ( void )
   flipY->setChecked ( config.flipY );
   connect ( flipY, SIGNAL( changed()), this, SLOT( enableFlipY()));
 
+  occulations = new QAction ( QIcon ( ":/qt-icons/occulation.png" ),
+      tr ( "Occulations Mode" ), this );
+  occulations->setStatusTip ( tr ( "Enable Occulations Mode" ));
+  occulations->setCheckable ( true );
+  connect ( occulations, SIGNAL( changed()), this, SLOT( enableOcculations() ) );
+
   demosaicOpt = new QAction ( QIcon ( ":/qt-icons/mosaic.png" ),
       tr ( "Demosaic" ), this );
   demosaicOpt->setCheckable ( true );
@@ -1458,6 +1469,7 @@ MainWindow::createMenus ( void )
   optionsMenu->addAction ( nightMode );
   optionsMenu->addAction ( colourise );
   optionsMenu->addAction ( preview );
+  optionsMenu->addAction ( occulations );
 
   // settings menu
 
@@ -1636,6 +1648,10 @@ MainWindow::connectCamera ( int deviceIndex )
   // widget?
   state.cameraWidget->enableBinningControl (
 			commonState.camera->hasBinning ( 2 ));
+  if ( state.occulationWidget ) {
+	  state.occulationWidget->enableBinningControl (
+	  			commonState.camera->hasBinning ( 2 ));
+  }
   // styleStatusBarTemp ( v );
   v = commonState.camera->hasControl ( OA_CAM_CTRL_DROPPED );
   styleStatusBarDroppedFrames ( v );
@@ -2073,6 +2089,13 @@ void
 MainWindow::enableReticle ( void )
 {
   config.showReticle = reticle->isChecked() ? 1 : 0;
+}
+
+void
+MainWindow::enableReticle ( int value )
+{
+  reticle->setChecked(value);
+  config.showReticle = value;
 }
 
 
@@ -2759,6 +2782,9 @@ MainWindow::configure ( void )
   imageWidget->configure();
   controlWidget->configure();
   previewWidget->configure();
+  if (state.occulationWidget) {
+	  state.occulationWidget->configure();
+  }
 }
 
 
@@ -3083,4 +3109,44 @@ int
 MainWindow::getTimerExternalLEDState ( void )
 {
 	return commonState.timer->readControl ( OA_TIMER_CTRL_EXT_LED_ENABLE );
+}
+
+void
+MainWindow::enableOcculations ( void )
+{
+  if ( occulations->isChecked()) {
+    if ( !state.occulationWidget ) {
+      state.occulationWidget = new OcculationWidget ( APPLICATION_NAME );
+      // need to do this to be able to uncheck the menu item on closing
+      state.occulationWidget->setAttribute ( Qt::WA_DeleteOnClose );
+      connect ( state.occulationWidget, SIGNAL( destroyed ( QObject* )), this,
+          SLOT ( occulationClosed()));
+    }
+    state.occulationWidget->configure();
+    state.occulationWidget->show();
+    if (state.cameraWidget) {
+    	state.cameraWidget->connectExternalControls();
+    }
+    config.occulations = 1;
+  } else {
+    if ( state.occulationWidget ) {
+      state.occulationWidget->hide();
+    }
+    config.occulations = 0;
+  }
+}
+
+void
+MainWindow::occulationClosed ( void )
+{
+  state.cameraWidget->disconnectExternalControls();
+  state.occulationWidget = nullptr;
+  if ( !doingQuit ) {
+    occulations->setChecked ( 0 );
+  }
+  // We don't want to change this if the histogram window is closing because
+  // we exited
+  if ( !doingQuit ) {
+    config.showHistogram = 0;
+  }
 }

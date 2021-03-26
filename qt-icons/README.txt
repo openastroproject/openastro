@@ -11,6 +11,12 @@ The following files are copyright 2013 James Fidell
   reticle.png
   filter-wheel.png
 
+The following files are copyright 2021 Dave Tucker
+(dave@dtucker.co.uk) and are part of the Open Astro Project:
+
+  occulations.png
+  occulations.svg
+  
 The Open Astro Project is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as published
 by the Free Software Foundation, either version 3 of the License, or

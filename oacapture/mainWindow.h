@@ -60,6 +60,7 @@ extern "C" {
 #include "cameraWidget.h"
 #include "previewWidget.h"
 #include "histogramWidget.h"
+#include "occulationWidget.h"
 
 class MainWindow : public QMainWindow
 {
@@ -160,6 +161,7 @@ class MainWindow : public QMainWindow
     QAction*		derotate;
     QAction*		flipX;
     QAction*		flipY;
+    QAction*    	occulations;
     QAction*		demosaicOpt;
     QAction*		hideControls;
     QAction*		general;
@@ -190,6 +192,7 @@ class MainWindow : public QMainWindow
     QDockWidget*	imageZoomDock;
     QDockWidget*	controlDock;
     QDockWidget*	captureDock;
+    QDockWidget*  occulationDock;
     QVBoxLayout*	imageZoomBox;
     CameraWidget*       cameraWidget;
     ImageWidget*        imageWidget;
@@ -209,6 +212,7 @@ class MainWindow : public QMainWindow
     QList<QAction*>	advancedActions;
     QSplitter*		splitter;
     QColorDialog*	colourDialog;
+    
 
   public slots:
     void		connectCamera( int );
@@ -228,6 +232,7 @@ class MainWindow : public QMainWindow
     void		enableHistogram ( void );
     void		histogramClosed ( void );
     void		enableReticle ( void );
+    void		enableReticle ( int );
     void		enableFocusAid ( void );
     void		enableFlipX ( void );
     void		enableFlipY ( void );
@@ -270,4 +275,6 @@ class MainWindow : public QMainWindow
 		void		createFileFailed ( void );
 		void		enableTimerExternalLED ( int );
 		int			getTimerExternalLEDState ( void );
+    void    enableOcculations ( void );
+    void	occulationClosed (void);
 };

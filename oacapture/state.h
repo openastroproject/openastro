@@ -37,6 +37,7 @@
 #include "settingsWidget.h"
 #include "focusOverlay.h"
 #include "advancedSettings.h"
+#include "occulationWidget.h"
 
 
 typedef struct
@@ -48,6 +49,7 @@ typedef struct
   ImageWidget*		imageWidget;
   ZoomWidget*		zoomWidget;
   CameraWidget*		cameraWidget;
+  OcculationWidget* occulationWidget;
   int			histogramOn;
   int			histogramSignalConnected;
   HistogramWidget*	histogramWidget;
