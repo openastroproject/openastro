@@ -27,7 +27,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/include
 lib_LTLIBRARIES = liboautil.la
 
 liboautil_la_SOURCES = \
-  llist.c exp10.c
+  llist.c exp10.c logging.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
