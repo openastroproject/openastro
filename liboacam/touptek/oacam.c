@@ -28,6 +28,7 @@
 #include <oa_common.h>
 
 #include <openastro/camera.h>
+#include <openastro/util.h>
 
 #include "touptek-conf.h"
 #include "oacamprivate.h"
@@ -51,22 +52,32 @@ TT_FUNC( oa, GetCameras )( CAMERA_LIST* deviceList, unsigned long featureFlags,
   DEVICE_INFO*		_private;
   int                   ret;
 
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %ld, %d ): entered", __FUNCTION__,
+			deviceList, featureFlags, flags );
+
 	if (( ret = TT_FUNC( _, InitLibraryFunctionPointers )()) != OA_ERR_NONE ) {
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: _...InitLibraryFunctionPointers() failed, exiting", __FUNCTION__ );
 		return ret;
 	}
 
   numCameras = ( TT_LIB_PTR( EnumV2 ))( devList );
   if ( numCameras < 1 ) {
+		oaLogInfo ( OA_LOG_CAMERA, "%s: No cameras found", __FUNCTION__ );
     return 0;
   }
 
   for ( i = 0; i < numCameras; i++ ) {
 
     if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Failed to allocate memory for oaCameraDevice", __FUNCTION__ );
       return -OA_ERR_MEM_ALLOC;
     }
 
     if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Failed to allocate memory for DEVICE_INFO", __FUNCTION__ );
       ( void ) free (( void* ) dev );
       return -OA_ERR_MEM_ALLOC;
     }
@@ -80,12 +91,17 @@ TT_FUNC( oa, GetCameras )( CAMERA_LIST* deviceList, unsigned long featureFlags,
     dev->_private = _private;
     dev->initCamera = TT_FUNC( oa, InitCamera );
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: _oaCheckCameraArraySize() failed",
+					__FUNCTION__ );
       ( void ) free (( void* ) dev );
       ( void ) free (( void* ) _private );
       return ret;
     }
     deviceList->cameraList[ deviceList->numCameras++ ] = dev;
   }
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting.  Found %d cameras", __FUNCTION__,
+			numCameras );
 
   return numCameras;
 }

@@ -2,7 +2,7 @@
  *
  * callback.c -- Thread for handling callbacks to user code
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -75,8 +75,8 @@ TT_FUNC( oacam, callbackHandler ) ( void* param )
           pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
           break;
         default:
-          fprintf ( stderr, "unexpected callback type %d\n",
-              callback->callbackType );
+          oaLogError ( OA_LOG_CAMERA, "unexpected callback type %d in %sn",
+              callback->callbackType, __FUNCTION__ );
           break;
       }
     }

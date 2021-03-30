@@ -107,14 +107,19 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   char				toupcamId[ OA_MAX_DEVICEID_LEN+1 ]; // must be longer than 64
 	void*				tmpPtr;
 
+	oaLogInfo ( OA_LOG_CAMERA, "%s: entered", __FUNCTION__ );
+
   numCameras = ( TT_LIB_PTR( EnumV2 ))( devList );
   devInfo = device->_private;
   if ( numCameras < 1 || devInfo->devIndex > numCameras ) {
+		oaLogInfo ( OA_LOG_CAMERA, "%s: No cameras found", __FUNCTION__ );
     return 0;
   }
 
   if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
       sizeof ( TOUPTEK_STATE ), &commonInfo ) != OA_ERR_NONE ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Memory allocation for camera failed",
+				__FUNCTION__ );
     return 0;
   }
 
@@ -126,10 +131,14 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
 	cameraInfo->libMajorVersion = cameraInfo->libMinorVersion = 0;
 	sscanf ( TT_LIB_PTR( Version()), "%d.%d.%d", &cameraInfo->libMajorVersion,
 			&cameraInfo->libMinorVersion, &dummy );
+	oaLogDebug ( OA_LOG_CAMERA, "lib%s is version %d.%d.%d", TT_SOLIB,
+			cameraInfo->libMajorVersion, cameraInfo->libMinorVersion, dummy );
 
   camera->interface = device->interface;
   cameraInfo->colour = ( devList[ devInfo->devIndex ].model->flag &
       TT_FLAG( MONO )) ? 0 : 1;
+	oaLogInfo ( OA_LOG_CAMERA, "camera is %s", cameraInfo->colour ? "colour" :
+			"monochrome" );
 
   if ( cameraInfo->colour ) {
     // Add "@" to use "RGB gain mode".  Ick :(
@@ -139,7 +148,8 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   }
   ( void ) strncat ( toupcamId, devInfo->deviceId, OA_MAX_DEVICEID_LEN );
   if (!( handle = ( TT_LIB_PTR( Open ))( toupcamId ))) {
-    fprintf ( stderr, "Can't get " TT_DRIVER "handle\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get " TT_DRIVER "handle",
+				__FUNCTION__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -220,7 +230,8 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   cameraInfo->exposureMax = max;
 
   if (( TT_LIB_PTR( get_ExpoAGainRange ))( handle, &smin, &smax, &sdef ) < 0 ) {
-    fprintf ( stderr, TT_DRIVER "_get_ExpoAGainRange() failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: " TT_DRIVER "_get_ExpoAGainRange() failed",
+				__FUNCTION__ );
     ( TT_LIB_PTR( Close ))( handle );
     FREE_DATA_STRUCTS;
     return 0;
@@ -364,7 +375,8 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
 
     // force the camera out of raw mode
     if ((( TT_LIB_PTR( put_Option ))( handle, TT_OPTION( RAW ), 0 )) < 0 ) {
-      fprintf ( stderr, TT_DRIVER "_put_Option ( raw, 0 ) returns error\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: " TT_DRIVER
+					"_put_Option ( raw, 0 ) failed", __FUNCTION__ );
       ( TT_LIB_PTR( Close ))( handle );
       FREE_DATA_STRUCTS;
       return 0;
@@ -376,7 +388,8 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
     // seems wasteful, so try to turn it off.
 
     if ((( TT_LIB_PTR( put_Option ))( handle, TT_OPTION( RAW ), 1 )) < 0 ) {
-      fprintf ( stderr, TT_DRIVER "_put_Option ( raw, 1 ) returns error\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: " TT_DRIVER
+					"_put_Option ( raw, 1 ) failed", __FUNCTION__ );
       ( TT_LIB_PTR( Close ))( handle );
       FREE_DATA_STRUCTS;
       return 0;
@@ -423,45 +436,52 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   // FIX ME -- This looks to be broken for colour cameras.  In testing I
   // still only see a 24-bit colour frame.  For now I'm disabling it for
   // colour cameras.
-  if ( !cameraInfo->colour ) {
-  if ( cameraInfo->maxBitDepth > 8 ) {
-    if ( devList[ devInfo->devIndex ].model->flag & TT_FLAG( BITDEPTH10 )) {
-      if ( 10 == cameraInfo->maxBitDepth ) {
-        camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB30LE :
-            OA_PIX_FMT_GREY10_16LE ] = 1;
-      } else {
-        fprintf ( stderr, "Camera claims 10-bit is available, but only %d"
-            "-bit is available\n", cameraInfo->maxBitDepth );
-      }
-    }
-    if ( devList[ devInfo->devIndex ].model->flag & TT_FLAG( BITDEPTH12 )) {
-      if ( 12 == cameraInfo->maxBitDepth ) {
-        camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB36LE :
-            OA_PIX_FMT_GREY12_16LE ] = 1;
-      } else {
-        fprintf ( stderr, "Camera claims 12-bit is available, but only %d"
-            "-bit is available\n", cameraInfo->maxBitDepth );
-      }
-    }
-    if ( devList[ devInfo->devIndex ].model->flag & TT_FLAG( BITDEPTH14 )) {
-      if ( 14 == cameraInfo->maxBitDepth ) {
-        camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB42LE :
-            OA_PIX_FMT_GREY14_16LE ] = 1;
-      } else {
-        fprintf ( stderr, "Camera claims 14-bit is available, but only %d"
-            "-bit is available\n", cameraInfo->maxBitDepth );
-      }
-    }
-    if ( devList[ devInfo->devIndex ].model->flag & TT_FLAG( BITDEPTH16 )) {
-      if ( 16 == cameraInfo->maxBitDepth ) {
-        camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB48LE :
-            OA_PIX_FMT_GREY16LE ] = 1;
-      } else {
-        fprintf ( stderr, "Camera claims 16-bit is available, but only %d"
-            "-bit is available\n", cameraInfo->maxBitDepth );
-      }
-    }
-  }
+  if ( cameraInfo->colour ) {
+		oaLogWarning ( OA_LOG_CAMERA,
+				"%s: Ignoring bit depth check for colour camera", __FUNCTION__ );
+	} else {
+		if ( cameraInfo->maxBitDepth > 8 ) {
+			if ( devList[ devInfo->devIndex ].model->flag & TT_FLAG( BITDEPTH10 )) {
+				if ( 10 == cameraInfo->maxBitDepth ) {
+					camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB30LE :
+							OA_PIX_FMT_GREY10_16LE ] = 1;
+				} else {
+					oaLogWarning ( OA_LOG_CAMERA,
+							"Camera claims 10-bit is available, but only %d-bit is available",
+							cameraInfo->maxBitDepth );
+				}
+			}
+			if ( devList[ devInfo->devIndex ].model->flag & TT_FLAG( BITDEPTH12 )) {
+				if ( 12 == cameraInfo->maxBitDepth ) {
+					camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB36LE :
+							OA_PIX_FMT_GREY12_16LE ] = 1;
+				} else {
+					oaLogWarning ( OA_LOG_CAMERA,
+							"Camera claims 12-bit is available, but only %d-bit is available",
+							cameraInfo->maxBitDepth );
+				}
+			}
+			if ( devList[ devInfo->devIndex ].model->flag & TT_FLAG( BITDEPTH14 )) {
+				if ( 14 == cameraInfo->maxBitDepth ) {
+					camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB42LE :
+							OA_PIX_FMT_GREY14_16LE ] = 1;
+				} else {
+					oaLogWarning ( OA_LOG_CAMERA,
+							"Camera claims 14-bit is available, but only %d-bit is available",
+							cameraInfo->maxBitDepth );
+				}
+			}
+			if ( devList[ devInfo->devIndex ].model->flag & TT_FLAG( BITDEPTH16 )) {
+				if ( 16 == cameraInfo->maxBitDepth ) {
+					camera->frameFormats[ cameraInfo->colour ? OA_PIX_FMT_RGB48LE :
+							OA_PIX_FMT_GREY16LE ] = 1;
+				} else {
+					oaLogWarning ( OA_LOG_CAMERA,
+							"Camera claims 16-bit is available, but only %d-bit is available",
+							cameraInfo->maxBitDepth );
+				}
+			}
+		}
   }
 
   // force camera into 8-bit mode
@@ -469,8 +489,8 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   if ( cameraInfo->maxBitDepth > 8 ) {
     if ((( TT_LIB_PTR( put_Option ))( handle,
         TT_OPTION( BITDEPTH ), 0 )) < 0 ) {
-      fprintf ( stderr, TT_DRIVER
-          "_put_Option ( bitdepth, 0 ) returns error\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: " TT_DRIVER
+          "_put_Option ( bitdepth, 0 ) returns error", __FUNCTION__ );
       ( TT_LIB_PTR( Close ))( handle );
       FREE_DATA_STRUCTS;
       return 0;
@@ -482,7 +502,8 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
 
   if ( devList[ devInfo->devIndex ].model->flag &
       TT_FLAG( BINSKIP_SUPPORTED )) {
-    fprintf ( stderr, "bin/skip mode supported but not handled\n" );
+		oaLogWarning ( OA_LOG_CAMERA,
+				"%s: bin/skip mode supported but not handled", __FUNCTION__ );
   }
 
   cameraInfo->currentBytesPerPixel = cameraInfo->maxBytesPerPixel =
@@ -500,7 +521,8 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
     int found = 0;
 
     if ((( TT_LIB_PTR( get_RawFormat ))( handle, &fourcc, &depth )) < 0 ) {
-      fprintf ( stderr, "get_RawFormat returns error\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: " TT_DRIVER
+          "get_RawFormat returns error", __FUNCTION__ );
       ( TT_LIB_PTR( Close ))( handle );
       FREE_DATA_STRUCTS;
       return 0;
@@ -605,12 +627,14 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   if (( numStillResolutions = devList[ devInfo->devIndex ].model->still )) {
     for ( i = 0; i < numStillResolutions; i++ ) {
       if ((( TT_LIB_PTR( get_StillResolution ))( handle, i, &x, &y )) < 0 ) {
-        fprintf ( stderr, "failed to get still resolution %d\n", i );
+        oaLogError ( OA_LOG_CAMERA, "%s: failed to get still resolution %d",
+						__FUNCTION__, i );
         ( TT_LIB_PTR( Close ))( handle );
         FREE_DATA_STRUCTS;
         return 0;
       }
-      fprintf ( stderr, "still resolution %d (%dx%d) unhandled\n", i, x, y );
+      oaLogWarning ( OA_LOG_CAMERA, "%s: still resolution %d (%dx%d) unhandled",
+					__FUNCTION__, i, x, y );
     }
   }
 
@@ -623,13 +647,15 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
   cameraInfo->currentXResolution = cameraInfo->currentYResolution = 0;
 
   if ( numResolutions > OA_MAX_BINNING ) {
-    fprintf ( stderr, "Can't cope with %d resolutions\n", numResolutions );
+    oaLogWarning ( OA_LOG_CAMERA, "%s: Can't cope with %d resolutions",
+				__FUNCTION__, numResolutions );
     numResolutions = OA_MAX_BINNING;
   }
 
   for ( i = 0; i < numResolutions; i++ ) {
     if ((( TT_LIB_PTR( get_Resolution ))( handle, i, &x, &y )) < 0 ) {
-      fprintf ( stderr, "failed to get resolution %d\n", i );
+      oaLogError ( OA_LOG_CAMERA, "%s: failed to get resolution %d",
+					__FUNCTION__, i );
       ( TT_LIB_PTR( Close ))( handle );
 			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
@@ -654,7 +680,8 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
 
       if (!( tmpPtr = realloc ( cameraInfo->frameSizes[ binX ].sizes,
 						sizeof ( FRAMESIZE ) * 2 ))) {
-        fprintf ( stderr, "realloc for frame sizes failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "%s: realloc for frame sizes failed",
+						__FUNCTION__ );
         ( TT_LIB_PTR( Close ))( handle );
 				for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 					if ( cameraInfo->frameSizes[ j ].numSizes ) {
@@ -669,7 +696,8 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
       cameraInfo->frameSizes[ binX ].sizes[0].y = y;
 
     } else {
-      fprintf ( stderr, "Can't handle resolution %dx%d for camera\n", x, y );
+      oaLogWarning ( OA_LOG_CAMERA,
+					"%s: Can't handle resolution %dx%d for camera", __FUNCTION__, x, y );
     }
   }
   camera->features.flags |= OA_CAM_FEATURE_FIXED_FRAME_SIZES;
@@ -694,7 +722,8 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __FUNCTION__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: malloc of image buffer failed",
+					__FUNCTION__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
@@ -721,6 +750,8 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
 
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       TT_FUNC( oacam, controller ), ( void* ) camera )) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Failed to create controller thread",
+				__FUNCTION__ );
     for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
       free (( void* ) cameraInfo->buffers[j].start );
     }
@@ -739,6 +770,8 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
       TT_FUNC( oacam, callbackHandler ), ( void* ) camera )) {
 
     void* dummy;
+		oaLogError ( OA_LOG_CAMERA, "%s: Failed to create callback thread",
+				__FUNCTION__ );
     cameraInfo->stopControllerThread = 1;
     pthread_cond_broadcast ( &cameraInfo->commandQueued );
     pthread_join ( cameraInfo->controllerThread, &dummy );
@@ -759,6 +792,7 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
 
   cameraInfo->handle = handle;
   cameraInfo->initialised = 1;
+	oaLogInfo ( OA_LOG_CAMERA, "%s: complete", __FUNCTION__ );
   return camera;
 }
 
