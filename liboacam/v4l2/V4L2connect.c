@@ -82,8 +82,12 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   uint32_t                 	id;
 	void*							tmpPtr;
 
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p ): entered", __FUNCTION__, device );
+
   if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
       sizeof ( V4L2_STATE ), &commonInfo ) != OA_ERR_NONE ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: failed to initialise camera structs",
+				__FUNCTION__ );
     return 0;
   }
 
@@ -131,8 +135,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
       devInfo->devIndex );
   if (( cameraInfo->fd = v4l2_open ( cameraInfo->devicePath,
       O_RDWR | O_NONBLOCK, 0 )) < 0 ) {
-    fprintf ( stderr, "oaV4L2InitCamera: cannot open video device %s\n",
-        cameraInfo->devicePath );
+    oaLogError ( OA_LOG_CAMERA, "%s: cannot open video device %s",
+				__FUNCTION__, cameraInfo->devicePath );
     v4l2_close ( cameraInfo->fd );
     FREE_DATA_STRUCTS;
     return 0;
@@ -143,9 +147,10 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   OA_CLEAR ( cap );
   if ( -1 == v4l2ioctl ( cameraInfo->fd, VIDIOC_QUERYCAP, &cap )) {
     if ( EINVAL == errno ) {
-      fprintf ( stderr, "%s is not a V4L2 device\n", camera->deviceName );
+      oaLogError ( OA_LOG_CAMERA, "%s: %s is not a V4L2 device",
+					__FUNCTION__, camera->deviceName );
     } else {
-      perror ( "VIDIOC_QUERYCAP" );
+      oaLogError ( OA_LOG_CAMERA, "%s: VIDIOC_QUERYCAP failed", __FUNCTION__ );
     }
     v4l2_close ( cameraInfo->fd );
     FREE_DATA_STRUCTS;
@@ -153,16 +158,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   }
 
   if (!( cap.device_caps & V4L2_CAP_VIDEO_CAPTURE )) {
-    fprintf ( stderr, "%s does not support video capture",
-      camera->deviceName );
+		oaLogError ( OA_LOG_CAMERA, "%s: %s does not support video capture",
+      __FUNCTION__, camera->deviceName );
     v4l2_close ( cameraInfo->fd );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
   if (!( cap.device_caps & V4L2_CAP_STREAMING )) {
-		fprintf ( stderr, "%s does not support streaming",
-				camera->deviceName );
+		oaLogError ( OA_LOG_CAMERA, "%s: %s does not support streaming",
+				__FUNCTION__, camera->deviceName );
 	} else {
 		camera->features.flags |= OA_CAM_FEATURE_STREAMING;
 	}
@@ -205,7 +210,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     if ( -1 == v4l2ioctl ( cameraInfo->fd, VIDIOC_QUERYCTRL, &ctrl )) {
       // EINVAL means we don't have this one
       if ( EINVAL != errno ) {
-        fprintf ( stderr, "VIDIOC_QUERYCTRL( %x ) failed, errno %d\n", id,
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: VIDIOC_QUERYCTRL( %x ) failed, errno %d", __FUNCTION__, id,
             errno );
         continue;
       }
@@ -233,7 +239,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "brightness is not INTEGER (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA, "%s: brightness is not INTEGER (%d)",
+								__FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -247,7 +254,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_CONTRAST ) = ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "contrast is not INTEGER (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA, "%s: contrast is not INTEGER (%d)",
+								__FUNCTION__, ctrl.type );
           }
         } 
         break;
@@ -262,7 +270,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SATURATION ) = ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "saturation is not INTEGER (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA, "%s: saturation is not INTEGER (%d)",
+								__FUNCTION__, ctrl.type );
           }
         } 
         break;
@@ -276,7 +285,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HUE ) = ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "hue is not INTEGER (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA, "%s: hue is not INTEGER (%d)",
+								__FUNCTION__, ctrl.type );
           }
         } 
         break;
@@ -318,8 +328,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               foundManual = 1;
               manualValue = 3;
             } else {
-              fprintf ( stderr, "SPC900 AWB control type not handled (%d)\n",
-                  ctrl.type );
+							oaLogWarning ( OA_LOG_CAMERA,
+									"%s: SPC900 AWB control type not handled (%d)",
+									__FUNCTION__, ctrl.type );
             }
           } else {
             if ( V4L2_CTRL_TYPE_MENU == ctrl.type ) {
@@ -355,8 +366,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             cameraInfo->autoWhiteBalanceOff = manualValue;
             cameraInfo->haveWhiteBalanceManual = 1;
           } else {
-            fprintf ( stderr, "AWB control type not handled (%d)\n",
-                ctrl.type );
+						oaLogWarning ( OA_LOG_CAMERA,
+								"%s: AWB control type not handled (%d)",
+								__FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -393,7 +405,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "red balance is not INTEGER (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA, "%s: red balance is not INTEGER (%d)",
+								__FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -412,7 +425,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "blue balance is not INTEGER (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: blue balance is not INTEGER (%d)", __FUNCTION__,
+								ctrl.type );
           }
         }
         break;
@@ -428,7 +443,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) = ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "gamma is not INTEGER (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA, "%s: gamma is not INTEGER (%d)",
+								__FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -447,7 +463,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "exposure is not INTEGER (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA, "%s: exposure is not INTEGER (%d)",
+								__FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -463,7 +480,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "Auto Gain is not BOOLEAN (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA, "%s: auto gain is not BOOLEAN (%d)",
+								__FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -477,7 +495,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "exposure is not INTEGER (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA, "%s: exposure is not INTEGER (%d)",
+								__FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -491,7 +510,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HFLIP ) = ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "HFLIP is not BOOLEAN (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA, "%s: HFLIP is not BOOLEAN (%d)",
+								__FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -505,7 +525,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_VFLIP ) = ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "VFLIP is not BOOLEAN (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA, "%s: VFLIP is not BOOLEAN (%d)",
+								__FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -521,7 +542,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "POWER_LINE_FREQ is not MENU (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: POWER_LINE_FREQ is not MENU (%d)", __FUNCTION__,
+								ctrl.type );
           }
         }
         break;
@@ -537,7 +560,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "HUE_AUTO is not BOOLEAN (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA, "%s: HUE_AUTO is not BOOLEAN (%d)",
+								__FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -556,8 +580,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "white bal temp is not INTEGER (%d)\n",
-                ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: white bal temp is not INTEGER (%d)", __FUNCTION__,
+								ctrl.type );
           }
         }
         break;
@@ -573,7 +598,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "sharpness is not INTEGER (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA, "%s: sharpness is not INTEGER (%d)",
+								__FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -597,7 +623,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "HUE_AUTO is not BOOLEAN (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: AUTOBRIGHTNESS is not BOOLEAN (%d)", __FUNCTION__,
+								ctrl.type );
           }
         }
         break;
@@ -634,7 +662,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
     if ( -1 == v4l2ioctl ( cameraInfo->fd, VIDIOC_QUERYCTRL, &ctrl )) {
       if ( EINVAL != errno ) {
-        fprintf ( stderr, "VIDIOC_QUERYCTRL( %x ) failed, errno %d\n", id,
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: VIDIOC_QUERYCTRL( %x ) failed, errno %d", __FUNCTION__, id,
             errno );
         continue;
       }
@@ -677,9 +706,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               if ( errno == EINVAL ) {
                 autoExposureType = OA_CTRL_TYPE_DISC_MENU;
               } else {
-                perror ("VIDIOC_QUERYMENU");
-                fprintf ( stderr, "%s: auto-exposure, index %d, err = %d\n",
-                    __FUNCTION__, idx, errno );
+								oaLogWarning ( OA_LOG_CAMERA, "%s: VIDIOC_QUERYMENU failed\n"
+										"     auto-exposure, index %d, err = %d", __FUNCTION__,
+                    idx, errno );
               }
             } else {
               // FIX ME -- what happens if we fill this array?
@@ -690,14 +719,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
         } else {
           if ( V4L2_CTRL_TYPE_BOOLEAN == ctrl.type ) {
             if ( ctrl.minimum != 0 ) {
-              fprintf ( stderr, "AUTO_EXPOSURE control type is BOOLEAN, but "
-                  "minimum value is %d\n", ctrl.minimum );
+							oaLogWarning ( OA_LOG_CAMERA,
+									"%s: AUTO_EXPOSURE control type is BOOLEAN, but minimum "
+									"value is %d", __FUNCTION__, ctrl.minimum );
             } else {
               autoExposureType = OA_CTRL_TYPE_BOOLEAN;
             }
           } else {
-            fprintf ( stderr, "AUTO_EXPOSURE control type is not MENU (%d)\n",
-                ctrl.type );
+						oaLogWarning ( OA_LOG_CAMERA,
+								"%s: AUTO_EXPOSURE control type is not MENU (%d)",
+								__FUNCTION__, ctrl.type );
           }
         }
         if ( autoExposureType ) {
@@ -741,8 +772,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "absolute exposure is not INTEGER (%d)\n",
-                ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: absolute exposure is not INTEGER (%d)",
+                __FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -760,8 +792,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "pan relative is not INTEGER (%d)\n",
-                ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: pan relative is not INTEGER (%d)",
+                __FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -780,8 +813,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "tilt relative is not INTEGER (%d)\n",
-                ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: tilt relative is not INTEGER (%d)",
+                __FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -797,8 +831,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "pan reset is not BOOLEAN (%d)\n",
-                ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA, "%s: pan reset is not BOOLEAN (%d)",
+                __FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -814,8 +848,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "tilt reset is not BOOLEAN (%d)\n",
-                ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA, "%s: tilt reset is not BOOLEAN (%d)",
+                __FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -834,8 +868,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "pan absolute is not INTEGER (%d)\n",
-                ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: pan absolute is not INTEGER (%d)",
+                __FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -854,8 +889,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "tilt absolute is not INTEGER (%d)\n",
-                ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: tilt absolute is not INTEGER (%d)",
+                __FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -874,8 +910,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "focus absolute is not INTEGER (%d)\n",
-                ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: focus absolute is not INTEGER (%d)",
+                __FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -894,8 +931,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "focus relative is not INTEGER (%d)\n",
-                ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: focus relative is not INTEGER (%d)",
+                __FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -914,7 +952,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           autoFocusDef = ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "auto focus is not BOOLEAN (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: auto focus is not BOOLEAN (%d)",
+                __FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -933,8 +973,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "zoom absolute is not INTEGER (%d)\n",
-                ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: zoom absolute is not INTEGER (%d)",
+                __FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -954,8 +995,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "privacy enable is not BOOLEAN (%d)\n",
-                ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: privacy enable is not BOOLEAN (%d)",
+                __FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -974,8 +1016,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "iris absolute is not INTEGER (%d)\n",
-                ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: iris absolute is not INTEGER (%d)", __FUNCTION__,
+								ctrl.type );
           }
         }
         break;
@@ -994,8 +1037,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "focus relative is not INTEGER (%d)\n",
-                ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: iris relative is not INTEGER (%d)", __FUNCTION__,
+								ctrl.type );
           }
         }
         break;
@@ -1015,8 +1059,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "V4L2_CID_AUTO_N_PRESET_WHITE_BALANCE "
-                "is not MENU (%d)\n", ctrl.type );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: V4L2_CID_AUTO_N_PRESET_WHITE_BALANCE is not MENU (%d)",
+								__FUNCTION__, ctrl.type );
           }
         }
         break;
@@ -1070,11 +1115,13 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 #ifdef V4L2_CID_TILT_SPEED
       case V4L2_CID_TILT_SPEED:
 #endif
-        fprintf ( stderr, "currently unsupported V4L2 control 0x%x\n", id );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: currently unsupported V4L2 control 0x%x", __FUNCTION__, id );
         break;
 
       default:
-        fprintf ( stderr, "unknown V4L2 control 0x%x\n", id );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: unknown V4L2 control 0x%x", __FUNCTION__, id );
         break;
 
     }
@@ -1144,22 +1191,25 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
     if ( -1 == v4l2ioctl ( cameraInfo->fd, VIDIOC_QUERYCTRL, &ctrl )) {
       if ( EINVAL != errno ) {
-        fprintf ( stderr, "VIDIOC_QUERYCTRL( %x ) failed, errno %d\n", id,
-            errno );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: VIDIOC_QUERYCTRL( %x ) failed, errno %d", __FUNCTION__, id,
+						errno );
       }
       continue;
     }
 
     // returning 0 as the type here is not helpful
     if ( !ctrl.type ) {
-      fprintf ( stderr, "query private control 0x%x returns control type 0\n",
-          id );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: query private control 0x%x returns control type 0",
+						__FUNCTION__, id );
       continue;
     }
 
-    fprintf ( stderr, "This %s camera has a private control of type %d\n",
-        camera->deviceName, ctrl.type );
-    fprintf ( stderr, "The description is: '%s'\n", ctrl.name );
+    oaLogInfo ( OA_LOG_CAMERA,
+				"%s: This %s camera has a private control of type %d\n"
+				"     The description is: '%s'", __FUNCTION__, camera->deviceName,
+				ctrl.type, ctrl.name );
   }
 
   // And finally, these little bundles of joy are the private SPC900
@@ -1174,7 +1224,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
       if ( -1 == v4l2ioctl ( cameraInfo->fd, VIDIOC_QUERYCTRL, &ctrl )) {
         // EINVAL means we don't have this one
         if ( EINVAL != errno ) {
-          fprintf ( stderr, "PWC VIDIOC_QUERYCTRL( %x ) failed, errno %d\n",
+          oaLogWarning ( OA_LOG_CAMERA,
+							"%s: PWC VIDIOC_QUERYCTRL( %x ) failed, errno %d", __FUNCTION__,
               id, errno );
           continue;
         }
@@ -1668,19 +1719,20 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           break;
 
         default:
-          fprintf ( stderr, "Unhandled V4L2 format '%s': 0x%08x (%c%c%c%c)\n",
-            formatDesc.description, formatDesc.pixelformat,
-            formatDesc.pixelformat & 0xff,
-            ( formatDesc.pixelformat >> 8 ) & 0xff,
-            ( formatDesc.pixelformat >> 16 ) & 0xff,
-            ( formatDesc.pixelformat >> 24 ) & 0xff );
+          oaLogWarning ( OA_LOG_CAMERA,
+							"%s: Unhandled V4L2 format '%s': 0x%08x (%c%c%c%c)",
+							__FUNCTION__, formatDesc.description, formatDesc.pixelformat,
+							formatDesc.pixelformat & 0xff,
+							( formatDesc.pixelformat >> 8 ) & 0xff,
+							( formatDesc.pixelformat >> 16 ) & 0xff,
+							( formatDesc.pixelformat >> 24 ) & 0xff );
       }
     }
   }
 
   if ( !cameraInfo->currentV4L2Format ) {
-    fprintf ( stderr, "No suitable video format found on %s",
-        camera->deviceName );
+    oaLogError ( OA_LOG_CAMERA, "%s: No suitable video format found on %s",
+        __FUNCTION__, camera->deviceName );
     v4l2_close ( cameraInfo->fd );
     FREE_DATA_STRUCTS;
     return 0;
@@ -1812,6 +1864,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   }
 
   cameraInfo->initialised = 1;
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __FUNCTION__ );
 
   return camera;
 }
