@@ -2,7 +2,7 @@
  *
  * QHY5.c -- QHY5 camera interface
  *
- * Copyright 2013,2014,2015,2017,2018,2019,2020
+ * Copyright 2013,2014,2015,2017,2018,2019,2020,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -85,7 +85,7 @@ _QHY5InitCamera ( oaCamera* camera )
 
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
     return -OA_ERR_MEM_ALLOC;
   }
   cameraInfo->frameSizes[1].sizes[0].x = cameraInfo->maxResolutionX;
@@ -108,8 +108,7 @@ _QHY5InitCamera ( oaCamera* camera )
       ( QHY5_IMAGE_HEIGHT + QHY5_VBLANK );
 
   if (!( cameraInfo->xferBuffer = malloc ( cameraInfo->captureLength ))) {
-    fprintf ( stderr, "malloc of transfer buffer failed in %s\n",
-        __FUNCTION__ );
+    fprintf ( stderr, "malloc of transfer buffer failed in %s\n", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     return -OA_ERR_MEM_ALLOC;
   }
@@ -121,7 +120,7 @@ _QHY5InitCamera ( oaCamera* camera )
       cameraInfo->maxResolutionY;
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof (
       frameBuffer )))) {
-    fprintf ( stderr, "malloc of buffers failed in %s\n", __FUNCTION__ );
+    fprintf ( stderr, "malloc of buffers failed in %s\n", __func__ );
     free (( void* ) cameraInfo->xferBuffer );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     return -OA_ERR_MEM_ALLOC;
@@ -133,7 +132,7 @@ _QHY5InitCamera ( oaCamera* camera )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc for buffer failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s malloc for buffer failed\n", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
@@ -224,7 +223,7 @@ oaQHY5CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 
     default:
       fprintf ( stderr, "QHY5: %s not yet implemented for control %d\n",
-          __FUNCTION__, control );
+          __func__, control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }

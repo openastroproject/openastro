@@ -2,7 +2,7 @@
  *
  * EUVCcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2017,2018,2019
+ * Copyright 2015,2017,2018,2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -133,7 +133,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
   oaControlValue*	val = command->commandData;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "EUVC: control: %s ( %d, ? )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   switch ( control ) {
 
@@ -143,7 +143,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT64 ) {
         fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentExposure = val->int64;
@@ -166,7 +166,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_u16 = val->int32;
@@ -188,7 +188,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_u8 = val->int32;
@@ -210,7 +210,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_u8 = val->boolean ? 1 : 0;
@@ -232,7 +232,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_u8 = val->boolean ? 1 : 0;
@@ -252,7 +252,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
     {
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentGain = val->int32;
@@ -273,7 +273,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
     {
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentBrightness = val->int32;
@@ -296,7 +296,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentBlueBalance = val->int32 & 0xffff;
@@ -320,7 +320,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentRedBalance = val->int32 & 0xffff;
@@ -341,7 +341,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_BINNING:
       if ( val->valueType != OA_CTRL_TYPE_DISCRETE ) {
         fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __FUNCTION__, val->valueType );
+            "expected\n", __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->binMode = val->discrete;
@@ -383,7 +383,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_u8 = val->boolean ? 1 : 0;
@@ -405,7 +405,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_u16 = val->int32;
@@ -427,7 +427,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_u16 = val->int32;
@@ -449,7 +449,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_u16 = val->int32;
@@ -485,7 +485,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           USB_CTRL_TIMEOUT ) != 8 ) {
 
         fprintf ( stderr, "uvc_set_pantilt_abs ( %d, %d ) failed in %s",
-            cameraInfo->currentPan, cameraInfo->currentTilt, __FUNCTION__ );
+            cameraInfo->currentPan, cameraInfo->currentTilt, __func__ );
       }
       break;
     }
@@ -496,7 +496,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_u16 = val->int32;
@@ -518,7 +518,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_u8 = val->boolean ? 1 : 0;
@@ -540,7 +540,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_u8 = val->int32;
@@ -564,7 +564,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_u8 = val->boolean ? 1 : 0;
@@ -588,7 +588,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
     default:
       fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -604,7 +604,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
   oaControlValue*	val = command->resultData;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "EUVC: control: %s ( %d )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   switch ( control ) {
 
@@ -856,7 +856,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
     default:
       fprintf ( stderr,
-          "Unrecognised control %d in %s\n", control, __FUNCTION__ );
+          "Unrecognised control %d in %s\n", control, __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -1433,7 +1433,7 @@ getEUVCControl ( EUVC_STATE* cameraInfo, uint8_t ctrl, int len, int req )
       cameraInfo->processingUnitId << 8, data, len,
       USB_CTRL_TIMEOUT )) != len ) {
     fprintf ( stderr, "%s requested %d for control %d, got %d\n",
-        __FUNCTION__, len, ctrl, ret );
+        __func__, len, ctrl, ret );
     return ret;
   }
 
@@ -1458,7 +1458,7 @@ getEUVCTermControl ( EUVC_STATE* cameraInfo, uint8_t ctrl, void* data,
       USB_CTRL_TYPE_CLASS | USB_RECIP_INTERFACE, req, ctrl << 8,
       cameraInfo->terminalId << 8, data, len, USB_CTRL_TIMEOUT )) != len ) {
     fprintf ( stderr, "%s requested %d for control %d, got %d\n",
-        __FUNCTION__, len, ctrl, ret );
+        __func__, len, ctrl, ret );
     return ret;
   }
 
@@ -1476,7 +1476,7 @@ setEUVCTermControl ( EUVC_STATE* cameraInfo, uint8_t ctrl, void* data,
       USB_CTRL_TYPE_CLASS | USB_RECIP_INTERFACE, req, ctrl << 8,
       cameraInfo->terminalId << 8, data, len, USB_CTRL_TIMEOUT )) != len ) {
     fprintf ( stderr, "%s requested %d for control %d, got %d\n",
-        __FUNCTION__, len, ctrl, ret );
+        __func__, len, ctrl, ret );
     return ret;
   }
 
@@ -1529,7 +1529,7 @@ const char*
 oaEUVCCameraGetMenuString ( oaCamera* camera, int control, int index )
 {
   if ( control != OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY ) {
-    fprintf ( stderr, "%s: control not implemented\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: control not implemented\n", __func__ );
     return "";
   }
 

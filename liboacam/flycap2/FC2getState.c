@@ -2,7 +2,8 @@
  *
  * FC2getState.c -- state querying for Point Grey Gig-E cameras
  *
- * Copyright 2015,2016,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -81,7 +82,7 @@ oaFC2CameraGetFrameSizes ( oaCamera* camera )
 const FRAMERATES*
 oaFC2CameraGetFrameRates ( oaCamera* camera, int resX, int resY )
 {
-fprintf ( stderr, "implement %s\n", __FUNCTION__ );
+fprintf ( stderr, "implement %s\n", __func__ );
   FC2_STATE*		cameraInfo = camera->_private;
 /*
   dc1394framerates_t    framerates;
@@ -91,12 +92,12 @@ fprintf ( stderr, "implement %s\n", __FUNCTION__ );
   if ( dc1394_video_get_supported_framerates ( cameraInfo->iidcHandle,
       cameraInfo->videoCurrent, &framerates ) != DC1394_SUCCESS ) {
     fprintf ( stderr, "%s: dc1394_video_get_supported_framerates failed\n",
-         __FUNCTION__ );
+         __func__ );
     return 0;
   }
   if ( !framerates.num ) {
     fprintf ( stderr, "%s: dc1394_video_get_supported_framerates returns "
-        "no frame rates\n", __FUNCTION__ );
+        "no frame rates\n", __func__ );
     return 0;
   }
 
@@ -142,7 +143,7 @@ fprintf ( stderr, "implement %s\n", __FUNCTION__ );
         denominator = 240;
         break;
       default:
-        fprintf ( stderr, "%s: unknown frame rate %d\n", __FUNCTION__,
+        fprintf ( stderr, "%s: unknown frame rate %d\n", __func__,
             framerates.framerates[i] );
         matched = 0;
         break;
@@ -152,7 +153,7 @@ fprintf ( stderr, "implement %s\n", __FUNCTION__ );
       if (!( cameraInfo->frameRates.rates = realloc (
           cameraInfo->frameRates.rates, ( numRates + 1 ) *
           sizeof ( FRAMERATE )))) {
-        fprintf ( stderr, "%s: realloc failed\n", __FUNCTION__ );
+        fprintf ( stderr, "%s: realloc failed\n", __func__ );
         return 0;
       }
       cameraInfo->frameRates.rates[ numRates ].numerator = numerator;
@@ -162,7 +163,7 @@ fprintf ( stderr, "implement %s\n", __FUNCTION__ );
   }
 
   if ( !numRates ) {
-    fprintf ( stderr, "%s: no frame rates found\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: no frame rates found\n", __func__ );
     return 0;
   }
   cameraInfo->frameRates.numRates = numRates;

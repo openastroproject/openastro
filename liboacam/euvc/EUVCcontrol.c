@@ -2,7 +2,8 @@
  *
  * EUVCcontrol.c -- control functions for EUVC cameras
  *
- * Copyright 2015,2017,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -104,7 +105,7 @@ oaEUVCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
     default:
       // If we reach here it's because we don't recognise the control
       fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }

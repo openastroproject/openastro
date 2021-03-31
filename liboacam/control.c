@@ -338,7 +338,7 @@ oacamGetControlValue ( oaControlValue* v )
       ret = v->readonly;
       break;
     default:
-      fprintf ( stderr, "%s: Unexpected valueType %d\n", __FUNCTION__,
+      fprintf ( stderr, "%s: Unexpected valueType %d\n", __func__,
           v->valueType );
       break;
   }
@@ -387,7 +387,7 @@ oacamStartStreaming ( oaCamera* camera,
   SHARED_STATE*		cameraInfo = camera->_private;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "liboacam: control: %s ( %p )\n",
-      __FUNCTION__, callback );
+      __func__, callback );
 
   OA_CLEAR ( command );
   callbackData.callback = callback;
@@ -425,7 +425,7 @@ oacamStopStreaming ( oaCamera* camera )
   int							retval;
   SHARED_STATE*		cameraInfo = camera->_private;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "liboacam: control: %s()\n", __FUNCTION__ );
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "liboacam: control: %s()\n", __func__ );
 
   OA_CLEAR ( command );
   command.commandType = OA_CMD_STOP_STREAMING;
@@ -453,13 +453,13 @@ oacamSetControl ( oaCamera* camera, int control, oaControlValue* val,
   int		retval = OA_ERR_NONE;
 	int		modifier, baseVal;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "%s: ( %d, ? )\n", __FUNCTION__, control );
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "%s: ( %d, ? )\n", __func__, control );
 
 	modifier = OA_CAM_CTRL_MODIFIER( control );
 	baseVal = OA_CAM_CTRL_MODE_BASE ( control );
 	if ( val->valueType != camera->controlType[ modifier ][ baseVal ] ) {
 		fprintf ( stderr, "%s: invalid control type %d for control %d\n",
-            __FUNCTION__, val->valueType, control  );
+            __func__, val->valueType, control  );
 		return -OA_ERR_INVALID_CONTROL_TYPE;
 	}
  

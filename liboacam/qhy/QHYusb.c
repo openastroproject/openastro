@@ -2,7 +2,8 @@
  *
  * QHYusb.c -- USB interface for QHY cameras
  *
- * Copyright 2013,2014,2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2017,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -46,7 +47,7 @@ _usbControlMsg ( QHY_STATE* cameraInfo, uint8_t reqType, uint8_t req,
   pthread_mutex_lock ( &cameraInfo->usbMutex );
 
   oacamDebugMsg ( DEBUG_CAM_USB,
-      "QHY USB: %s ( %d, 0x%x, %d, %d, %0lx, %d, %d )\n", __FUNCTION__,
+      "QHY USB: %s ( %d, 0x%x, %d, %d, %0lx, %d, %d )\n", __func__,
       reqType, req, value, index, ( unsigned long ) data, length, timeout );
 
   ret = libusb_control_transfer ( cameraInfo->usbHandle, reqType, req, value,
@@ -70,7 +71,7 @@ _usbBulkTransfer ( QHY_STATE* cameraInfo, unsigned char endpoint,
   pthread_mutex_lock ( &cameraInfo->usbMutex );
 
   oacamDebugMsg ( DEBUG_CAM_USB,
-      "QHY USB: %s ( 0x%x, %0lx, %d, xferred, %d )\n", __FUNCTION__,
+      "QHY USB: %s ( 0x%x, %0lx, %d, xferred, %d )\n", __func__,
       endpoint, ( unsigned long ) data, length, timeout );
 
   ret = libusb_bulk_transfer ( cameraInfo->usbHandle, endpoint, data, length,
@@ -89,8 +90,7 @@ _i2cRead16 ( QHY_STATE* cameraInfo, unsigned short address )
 {
   unsigned char data[2];
 
-  oacamDebugMsg ( DEBUG_CAM_USB, "QHY: USB: %s ( %d )\n", __FUNCTION__,
-      address );
+  oacamDebugMsg ( DEBUG_CAM_USB, "QHY: USB: %s ( %d )\n", __func__, address );
 
   _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_IN, 0xb7, 0, address, data,
       2, 0 );
@@ -105,7 +105,7 @@ _i2cWrite16 ( QHY_STATE* cameraInfo, unsigned short address,
   unsigned char data[2];
 
   oacamDebugMsg ( DEBUG_CAM_USB, "QHY USB: %s ( %d, %d )\n",
-      __FUNCTION__, address, value );
+      __func__, address, value );
 
   data[0] = value >> 8;
   data[1] = value & 0xff;
@@ -122,7 +122,7 @@ _i2cWriteIMX035 ( QHY_STATE* cameraInfo, unsigned char address,
   unsigned char data[32];
 
   oacamDebugMsg ( DEBUG_CAM_USB, "QHY USB IMX035: %s ( %d, %d )\n",
-      __FUNCTION__, address, value );
+      __func__, address, value );
 
   memset ( data, 0, 32 );
   data[1] = address;

@@ -2,7 +2,8 @@
  *
  * EUVCusb.c -- USB interface for EUVC cameras
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -62,7 +63,7 @@ euvcUsbControlMsg ( EUVC_STATE* cameraInfo, uint8_t reqType, uint8_t req,
   pthread_mutex_lock ( &cameraInfo->usbMutex );
 
   oacamDebugMsg ( DEBUG_CAM_USB,
-      "EUVC USB: %s ( %d, 0x%x, %d, %d, %0lx, %d, %d )\n", __FUNCTION__,
+      "EUVC USB: %s ( %d, 0x%x, %d, %d, %0lx, %d, %d )\n", __func__,
       reqType, req, value, index, ( unsigned long ) data, length, timeout );
 
   ret = libusb_control_transfer ( cameraInfo->usbHandle, reqType, req, value,
@@ -86,7 +87,7 @@ euvcUsbBulkTransfer ( EUVC_STATE* cameraInfo, unsigned char endpoint,
   pthread_mutex_lock ( &cameraInfo->usbMutex );
 
   oacamDebugMsg ( DEBUG_CAM_USB,
-      "EUVC USB: %s ( 0x%x, %0lx, %d, xferred, %d )\n", __FUNCTION__,
+      "EUVC USB: %s ( 0x%x, %0lx, %d, xferred, %d )\n", __func__,
       endpoint, ( unsigned long ) data, length, timeout );
 
   ret = libusb_bulk_transfer ( cameraInfo->usbHandle, endpoint, data, length,

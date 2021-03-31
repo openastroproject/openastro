@@ -2,7 +2,8 @@
  *
  * SXcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2018,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -206,14 +207,14 @@ _processSetControl ( SX_STATE* cameraInfo, OA_COMMAND* command )
   oaControlValue*	val = command->commandData;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "SX: control: %s ( %d, ? )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   switch ( control ) {
 
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
       if ( val->valueType != OA_CTRL_TYPE_INT64 ) {
         fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentExposure = val->int64;
@@ -226,7 +227,7 @@ _processSetControl ( SX_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_BINNING:
       if ( val->valueType != OA_CTRL_TYPE_DISCRETE ) {
         fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __FUNCTION__, val->valueType );
+            "expected\n", __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
 			if ( val->discrete == OA_BIN_MODE_NONE ||
@@ -250,8 +251,7 @@ _processSetControl ( SX_STATE* cameraInfo, OA_COMMAND* command )
       break;
 
     default:
-      fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+      fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -267,7 +267,7 @@ _processGetControl ( SX_STATE* cameraInfo, OA_COMMAND* command )
   oaControlValue*	val = command->resultData;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "SX: control: %s ( %d )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   switch ( control ) {
 
@@ -294,7 +294,7 @@ _processGetControl ( SX_STATE* cameraInfo, OA_COMMAND* command )
 
     default:
       fprintf ( stderr,
-          "Unrecognised control %d in %s\n", control, __FUNCTION__ );
+          "Unrecognised control %d in %s\n", control, __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -552,7 +552,7 @@ _readFrame ( SX_STATE* cameraInfo, unsigned char* buffer, int length )
 		/*
 		if ( length != transferred ) {
 			fprintf ( stderr, "length %d != transferred %d in %s\n", length,
-					transferred, __FUNCTION__ );
+					transferred, __func__ );
 			return -OA_ERR_CAMERA_IO;
 		}
 		 */

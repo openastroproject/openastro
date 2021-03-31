@@ -2,7 +2,7 @@
  *
  * QHY5LII.c -- QHY5LII camera interface
  *
- * Copyright 2013,2014,2015,2017,2018,2019,2020
+ * Copyright 2013,2014,2015,2017,2018,2019,2020,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -61,7 +61,7 @@ _QHY5LIIInitCamera ( oaCamera* camera )
   COMMON_INFO*	commonInfo = camera->_common;
   void*		dummy;
 
-  oacamDebugMsg ( DEBUG_CAM_INIT, "QHY5L-II: init: %s ()\n", __FUNCTION__ );
+  oacamDebugMsg ( DEBUG_CAM_INIT, "QHY5L-II: init: %s ()\n", __func__ );
 
   _QHY5LIIInitFunctionPointers ( camera );
 
@@ -84,7 +84,7 @@ _QHY5LIIInitCamera ( oaCamera* camera )
 
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( 5 * sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
     return -OA_ERR_MEM_ALLOC;
   }
 
@@ -194,8 +194,7 @@ _QHY5LIIInitCamera ( oaCamera* camera )
 
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
       sizeof ( frameBuffer )))) {
-    fprintf ( stderr, "malloc of buffer array failed in %s\n",
-        __FUNCTION__ );
+    fprintf ( stderr, "malloc of buffer array failed in %s\n", __func__ );
     cameraInfo->stopCallbackThread = 1;
     pthread_join ( cameraInfo->eventHandler, &dummy );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
@@ -208,7 +207,7 @@ _QHY5LIIInitCamera ( oaCamera* camera )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s malloc failed\n", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
@@ -288,8 +287,7 @@ oaQHY5LIICloseCamera ( oaCamera* camera )
   QHY_STATE*	cameraInfo;
   void*		dummy;
 
-  oacamDebugMsg ( DEBUG_CAM_CMD, "QHY5L-II: command: %s()\n",
-      __FUNCTION__ );
+  oacamDebugMsg ( DEBUG_CAM_CMD, "QHY5L-II: command: %s()\n", __func__ );
 
   if ( camera ) {
 
@@ -383,7 +381,7 @@ oaQHY5LIICameraTestControl ( oaCamera* camera, int control,
   COMMON_INFO*	commonInfo = camera->_common;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5L-II: control: %s ( %d, ? )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;
@@ -425,7 +423,7 @@ oaQHY5LIICameraTestControl ( oaCamera* camera, int control,
 
     case OA_CAM_CTRL_HDR:
       fprintf ( stderr, "QHY5L-II: %s not yet implemented for control %d\n",
-          __FUNCTION__, control );
+          __func__, control );
       return -OA_ERR_INVALID_CONTROL;
       break;
 

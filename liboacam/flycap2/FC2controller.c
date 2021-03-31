@@ -198,7 +198,7 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
   if ( OA_CAM_CTRL_BINNING == control ) {
     if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-          __FUNCTION__, val->valueType );
+          __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     return _doBinning ( cameraInfo, val->int32 );
@@ -252,12 +252,12 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
     uint32_t val_u32;
     if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-          __FUNCTION__, val->valueType );
+          __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     val_u32 = val->boolean;
     if ( val_u32 > 1 ) {
-      fprintf ( stderr, "%s: control value out of range\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: control value out of range\n", __func__ );
       return -OA_ERR_OUT_OF_RANGE;
     }
 
@@ -316,8 +316,7 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
     // Probably shouldn't be non-positive, really.
     if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where int64 expected "
-          "for OA_CAM_CTRL_EXPOSURE_ABSOLUTE\n", __FUNCTION__,
-          val->valueType );
+          "for OA_CAM_CTRL_EXPOSURE_ABSOLUTE\n", __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     val_s64 = val->int64;
@@ -343,7 +342,7 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
     uint32_t val_u32;
     if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-          "for control %d\n", __FUNCTION__, val->valueType, control );
+          "for control %d\n", __func__, val->valueType, control );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     val_u32 = val->int32;
@@ -365,13 +364,13 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
   if ( OA_CAM_CTRL_FRAME_FORMAT == control ) {
     if ( OA_CTRL_TYPE_DISCRETE != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where discrete expected\n",
-          __FUNCTION__, val->valueType );
+          __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     return _doFrameFormat ( cameraInfo, val->discrete );
   }
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
+  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
 
   return -OA_ERR_INVALID_CONTROL;
 }
@@ -504,7 +503,7 @@ _processGetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 		return OA_ERR_NONE;
   }
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
+  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
 
   return -OA_ERR_INVALID_CONTROL;
 }
@@ -667,7 +666,7 @@ _processSetFrameInterval ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 {
   FRAMERATE*                    rate = command->commandData;
 
-fprintf ( stderr, "implement %s\n", __FUNCTION__ );
+fprintf ( stderr, "implement %s\n", __func__ );
   cameraInfo->frameRateNumerator = rate->numerator;
   cameraInfo->frameRateDenominator = rate->denominator;
   return _doCameraConfig ( cameraInfo );
@@ -711,7 +710,7 @@ _processStreamingStart ( FC2_STATE* cameraInfo, OA_COMMAND* command )
       break;
     default:
       fprintf ( stderr, "Can't handle pixel depth calculation in %s\n",
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_OUT_OF_RANGE;
       break;
   }
@@ -730,7 +729,7 @@ _doStart ( FC2_STATE* cameraInfo )
 
   if (( ret = ( *p_fc2StartCaptureCallback )( cameraInfo->pgeContext,
       _FC2FrameCallback, cameraInfo )) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "%s: fc2StartCaptureCallback failed: %d\n", __FUNCTION__,
+    fprintf ( stderr, "%s: fc2StartCaptureCallback failed: %d\n", __func__,
         ret );
     return -OA_ERR_CAMERA_IO;
   }
@@ -765,8 +764,7 @@ _doStop ( FC2_STATE* cameraInfo )
 
   if (( ret = ( *p_fc2StopCapture )( cameraInfo->pgeContext )) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "%s: fc2StopCapture failed: %d\n", __FUNCTION__,
-        ret );
+    fprintf ( stderr, "%s: fc2StopCapture failed: %d\n", __func__, ret );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -821,7 +819,7 @@ _processSetTriggerControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
     case OA_CAM_CTRL_TRIGGER_ENABLE:
       if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->triggerEnabled = val->boolean;
@@ -830,7 +828,7 @@ _processSetTriggerControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
     case OA_CAM_CTRL_TRIGGER_MODE:
       if ( OA_CTRL_TYPE_DISC_MENU != val->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "menu expected\n", __FUNCTION__, val->valueType );
+            "menu expected\n", __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->triggerCurrentMode = val->menu;
@@ -839,7 +837,7 @@ _processSetTriggerControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
     case OA_CAM_CTRL_TRIGGER_SOURCE:
       if ( OA_CTRL_TYPE_MENU != val->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where "
-            "menu expected\n", __FUNCTION__, val->valueType );
+            "menu expected\n", __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->triggerGPIO = val->menu;
@@ -848,7 +846,7 @@ _processSetTriggerControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
     case OA_CAM_CTRL_TRIGGER_POLARITY:
       if ( OA_CTRL_TYPE_MENU != val->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where "
-            "menu expected\n", __FUNCTION__, val->valueType );
+            "menu expected\n", __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->triggerCurrentPolarity = val->menu;
@@ -910,7 +908,7 @@ _processSetTriggerDelayControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
     case OA_CAM_CTRL_TRIGGER_DELAY_ENABLE:
       if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->triggerDelayEnabled = val->boolean;
@@ -919,7 +917,7 @@ _processSetTriggerDelayControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
     case OA_CAM_CTRL_TRIGGER_DELAY:
       if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "menu expected\n", __FUNCTION__, val->valueType );
+            "menu expected\n", __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->triggerCurrentDelay = val->int64;
@@ -991,7 +989,7 @@ _processSetStrobeControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
     case OA_CAM_CTRL_STROBE_ENABLE:
       if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->strobeEnabled = val->boolean;
@@ -1000,7 +998,7 @@ _processSetStrobeControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
     case OA_CAM_CTRL_STROBE_POLARITY:
       if ( OA_CTRL_TYPE_MENU != val->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where "
-            "menu expected\n", __FUNCTION__, val->valueType );
+            "menu expected\n", __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->strobeCurrentPolarity = val->menu;
@@ -1009,7 +1007,7 @@ _processSetStrobeControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
     case OA_CAM_CTRL_STROBE_DELAY:
       if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where int64 "
-            "expected\n", __FUNCTION__, val->valueType );
+            "expected\n", __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->strobeCurrentDelay = val->int64;
@@ -1018,7 +1016,7 @@ _processSetStrobeControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
     case OA_CAM_CTRL_STROBE_DURATION:
       if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where int64 "
-            "expected\n", __FUNCTION__, val->valueType );
+            "expected\n", __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->strobeCurrentDuration = val->int64;

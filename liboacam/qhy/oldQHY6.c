@@ -2,7 +2,8 @@
  *
  * oldQHY6.c -- Old QHY6 camera interface
  *
- * Copyright 2014,2015,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -124,12 +125,12 @@ _oldQHY6InitCamera ( oaCamera* camera )
   }
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
     return -OA_ERR_MEM_ALLOC;
   }
   if (!( cameraInfo->frameSizes[2].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     return -OA_ERR_MEM_ALLOC;
   }
@@ -155,7 +156,7 @@ _oldQHY6InitCamera ( oaCamera* camera )
   _recalculateSizes ( camera );
   if (!( cameraInfo->xferBuffer = malloc ( cameraInfo->captureLength ))) {
     fprintf ( stderr, "malloc of transfer buffer failed in %s\n",
-        __FUNCTION__ );
+        __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->frameSizes[2].sizes );
     return -OA_ERR_MEM_ALLOC;
@@ -191,7 +192,7 @@ _oldQHY6InitCamera ( oaCamera* camera )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s malloc failed\n", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
@@ -290,7 +291,7 @@ setControl ( oaCamera* camera, int control, oaControlValue* val )
     case OA_CAM_CTRL_GAIN:
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentGain = val->int64;
@@ -303,7 +304,7 @@ setControl ( oaCamera* camera, int control, oaControlValue* val )
 
       if ( val->valueType != OA_CTRL_TYPE_INT64 ) {
         fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s64 = val->int64;
@@ -334,7 +335,7 @@ setControl ( oaCamera* camera, int control, oaControlValue* val )
     case OA_CAM_CTRL_BINNING:
       if ( val->valueType != OA_CTRL_TYPE_DISCRETE ) {
         fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __FUNCTION__, val->valueType );
+            "expected\n", __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       switch ( val->discrete ) {
@@ -357,7 +358,7 @@ setControl ( oaCamera* camera, int control, oaControlValue* val )
     case OA_CAM_CTRL_HIGHSPEED:
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentHighSpeed = val->boolean;
@@ -371,7 +372,7 @@ setControl ( oaCamera* camera, int control, oaControlValue* val )
 
     default:
       fprintf ( stderr, "oldQHY6: %s not yet implemented for control %d\n",
-          __FUNCTION__, control );
+          __func__, control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -412,7 +413,7 @@ readControl ( oaCamera* camera, int control, oaControlValue* val )
 
     default:
       fprintf ( stderr,
-          "Unrecognised control %d in oldQHY6:%s\n", control, __FUNCTION__ );
+          "Unrecognised control %d in oldQHY6:%s\n", control, __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -464,7 +465,7 @@ testControl ( oaCamera* camera, int control, oaControlValue* val )
 
     default:
       fprintf ( stderr, "oldQHY6: %s not yet implemented for control %d\n",
-          __FUNCTION__, control );
+          __func__, control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }

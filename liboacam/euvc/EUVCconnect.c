@@ -2,7 +2,7 @@
  *
  * EUVCconnect.c -- Initialise EUVC cameras
  *
- * Copyright 2015,2017,2018,2019
+ * Copyright 2015,2017,2018,2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -1279,7 +1279,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
       sizeof ( frameBuffer )))) {
     void* dummy;
     fprintf ( stderr, "malloc of buffer array failed in %s\n",
-        __FUNCTION__ );
+        __func__ );
 		libusb_cancel_transfer ( cameraInfo->statusTransfer );
     cameraInfo->stopCallbackThread = 1;
     pthread_join ( cameraInfo->eventHandler, &dummy );
@@ -1312,7 +1312,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
       cameraInfo->configuredBuffers++;
     } else {
 			void* dummy;
-      fprintf ( stderr, "%s malloc failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s malloc failed\n", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
@@ -1633,7 +1633,7 @@ _getEUVCControlValues ( oaCamera* camera, int index )
 
       default:
         fprintf ( stderr, "unhandled control type %d in %s\n",
-            camera->OA_CAM_CTRL_TYPE( oaControl ), __FUNCTION__ );
+            camera->OA_CAM_CTRL_TYPE( oaControl ), __func__ );
         break;
     }
   }

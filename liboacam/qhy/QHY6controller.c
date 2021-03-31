@@ -2,7 +2,8 @@
  *
  * QHY6controller.c -- Main camera controller thread
  *
- * Copyright 2015,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2018,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -214,14 +215,14 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
   int			updateSettings = 0;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY6: control: %s ( %d, ? )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   switch ( control ) {
 
     case OA_CAM_CTRL_GAIN:
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentGain = val->int64;
@@ -234,7 +235,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT64 ) {
         fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s64 = val->int64;
@@ -255,7 +256,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_BINNING:
       if ( val->valueType != OA_CTRL_TYPE_DISCRETE ) {
         fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __FUNCTION__, val->valueType );
+            "expected\n", __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       switch ( val->discrete ) {
@@ -276,7 +277,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_HIGHSPEED:
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentHighSpeed = val->boolean;
@@ -294,7 +295,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 
     default:
       fprintf ( stderr, "QHY6: %s not yet implemented for control %d\n",
-          __FUNCTION__, control );
+          __func__, control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -394,7 +395,7 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
   oaControlValue*	val = command->resultData;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5L-II: control: %s ( %d )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   switch ( control ) {
 
@@ -415,7 +416,7 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 
     default:
       fprintf ( stderr,
-          "Unrecognised control %d in QHY6:%s\n", control, __FUNCTION__ );
+          "Unrecognised control %d in QHY6:%s\n", control, __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }

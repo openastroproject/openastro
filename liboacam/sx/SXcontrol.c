@@ -2,7 +2,7 @@
  *
  * SXcontrol.c -- control functions for SX cameras
  *
- * Copyright 2014,2015,2017,2018,2019
+ * Copyright 2014,2015,2017,2018,2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -100,8 +100,7 @@ oaSXCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 
     default:
       // If we reach here it's because we don't recognise the control
-      fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+      fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -118,7 +117,7 @@ oaSXCameraReset ( oaCamera* camera )
   unsigned char	buff[ SXUSB_REQUEST_BUFSIZE ];
   int		ret, transferred;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "SX: control: %s ()\n", __FUNCTION__ );
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "SX: control: %s ()\n", __func__ );
 
   OA_CLEAR( buff );
   buff[ SXUSB_REQ_CMD_TYPE ] = SXUSB_CMD_SEND;

@@ -2,7 +2,7 @@
  *
  * SXconnect.c -- Initialise Starlight Xpress cameras
  *
- * Copyright 2014,2015,2017,2018,2019
+ * Copyright 2014,2015,2017,2018,2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -294,13 +294,13 @@ oaSXInitCamera ( oaCameraDevice* device )
 
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
   if (!( cameraInfo->frameSizes[2].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     FREE_DATA_STRUCTS;
     return 0;
@@ -326,8 +326,7 @@ oaSXInitCamera ( oaCameraDevice* device )
 			cameraInfo->maxResolutionX * cameraInfo->maxResolutionY *
 			cameraInfo->bytesPerPixel;
   if (!( cameraInfo->xferBuffer = malloc ( cameraInfo->imageBufferLength ))) {
-    fprintf ( stderr, "malloc of transfer buffer failed in %s\n",
-        __FUNCTION__ );
+    fprintf ( stderr, "malloc of transfer buffer failed in %s\n", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->frameSizes[2].sizes );
     FREE_DATA_STRUCTS;
@@ -336,8 +335,7 @@ oaSXInitCamera ( oaCameraDevice* device )
 
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
       sizeof ( frameBuffer )))) {
-    fprintf ( stderr, "malloc of buffer array failed in %s\n",
-        __FUNCTION__ );
+    fprintf ( stderr, "malloc of buffer array failed in %s\n", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->frameSizes[2].sizes );
     free (( void* ) cameraInfo->xferBuffer );
@@ -351,7 +349,7 @@ oaSXInitCamera ( oaCameraDevice* device )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s malloc failed\n", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );

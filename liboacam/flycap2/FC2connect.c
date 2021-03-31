@@ -2,7 +2,7 @@
  *
  * FC2connect.c -- Initialise Point Grey Gig-E cameras
  *
- * Copyright 2015,2016,2017,2018,2019,2020
+ * Copyright 2015,2016,2017,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -310,7 +310,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
                 ( property.autoManualMode ) ? 1 : 0;
           } else {
             fprintf ( stderr, "%s: have auto for control %d, but "
-                "liboacam does not\n", __FUNCTION__, oaControl );
+                "liboacam does not\n", __func__, oaControl );
           }
         }
         if ( propertyInfo.onOffSupported ) {
@@ -404,7 +404,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
                 ( property.autoManualMode ) ? 1 : 0;
           } else {
             fprintf ( stderr, "%s: have auto for control %d, but "
-                "liboacam does not\n", __FUNCTION__, oaControl );
+                "liboacam does not\n", __func__, oaControl );
           }
         }
         if ( propertyInfo.onOffSupported ) {
@@ -433,7 +433,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         break;
 
       default:
-        fprintf ( stderr, "%s: unknown FC2 control %d\n", __FUNCTION__,
+        fprintf ( stderr, "%s: unknown FC2 control %d\n", __func__,
             i + FC2_BRIGHTNESS );
         break;
     }
@@ -1362,7 +1362,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s malloc failed\n", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );

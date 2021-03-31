@@ -35,7 +35,7 @@
 static oaCamera*
 _initCamera ( oaCameraDevice* device )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       device->deviceName );
   return 0;
 }
@@ -44,7 +44,7 @@ _initCamera ( oaCameraDevice* device )
 static int
 _closeCamera ( oaCamera* camera )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -54,7 +54,7 @@ _closeCamera ( oaCamera* camera )
 static int
 _resetCamera ( oaCamera* camera )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -64,7 +64,7 @@ _resetCamera ( oaCamera* camera )
 static const char*
 _getMenuString ( oaCamera* camera, int control, int index )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       camera->deviceName );
   return "";
 }
@@ -74,7 +74,7 @@ static int
 _getControlRange ( oaCamera* camera, int c, int64_t* p1, int64_t* p2,
     int64_t* p3, int64_t* p4 )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -83,7 +83,7 @@ _getControlRange ( oaCamera* camera, int c, int64_t* p1, int64_t* p2,
 static int
 _getControlDiscreteSet ( oaCamera* camera, int c, int32_t* p1, int64_t** p2 )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -92,7 +92,7 @@ _getControlDiscreteSet ( oaCamera* camera, int c, int32_t* p1, int64_t** p2 )
 static int
 _testControl ( oaCamera* camera, int c, oaControlValue* v )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -102,7 +102,7 @@ _testControl ( oaCamera* camera, int c, oaControlValue* v )
 static int
 _setControlMulti ( oaCamera* camera )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -112,7 +112,7 @@ _setControlMulti ( oaCamera* camera )
 static const FRAMESIZES*
 _enumerateFrameSizes ( oaCamera* camera )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       camera->deviceName );
   return 0;
 }
@@ -121,7 +121,7 @@ _enumerateFrameSizes ( oaCamera* camera )
 static const FRAMERATES*
 _enumerateFrameRates ( oaCamera* camera, int x, int y )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       camera->deviceName );
   return 0;
 }
@@ -130,7 +130,7 @@ _enumerateFrameRates ( oaCamera* camera, int x, int y )
 static int
 _getFramePixelFormat ( oaCamera* camera )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -140,7 +140,7 @@ static int
 _testROISize ( oaCamera* camera, unsigned int tx, unsigned int ty,
     unsigned int* sxp, unsigned int *syp )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -149,7 +149,7 @@ _testROISize ( oaCamera* camera, unsigned int tx, unsigned int ty,
 static int
 _isAuto ( oaCamera* camera, int c )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -158,7 +158,7 @@ _isAuto ( oaCamera* camera, int c )
 static int
 _getAutoWBManualSetting ( oaCamera* camera )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -167,7 +167,7 @@ _getAutoWBManualSetting ( oaCamera* camera )
 static int
 _cameraLoadFirmware ( oaCamera* camera )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       camera->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -177,7 +177,7 @@ _cameraLoadFirmware ( oaCamera* camera )
 static int
 _deviceLoadFirmware ( oaCameraDevice* device )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       device->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }

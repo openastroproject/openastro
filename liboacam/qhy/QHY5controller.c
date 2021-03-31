@@ -2,7 +2,8 @@
  *
  * QHY5controller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2018,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -193,7 +194,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_GAIN:
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentGain = val->int32;
@@ -209,7 +210,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s32 = val->int32;
@@ -233,7 +234,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 
     default:
       fprintf ( stderr, "QHY5: %s not yet implemented for control %d\n",
-          __FUNCTION__, control );
+          __func__, control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -267,7 +268,7 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 
     default:
       fprintf ( stderr,
-          "QHY5 %s: Unrecognised control %d\n", __FUNCTION__, control );
+          "QHY5 %s: Unrecognised control %d\n", __func__, control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -371,7 +372,7 @@ _doCameraConfig ( QHY_STATE* cameraInfo, OA_COMMAND* command )
   if ( cameraInfo->firstTimeSetup ) {
     if ( _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_OUT, &data, 1,
         &xferred, USB2_TIMEOUT )) {
-      fprintf ( stderr, "%s: usb bulk transfer failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: usb bulk transfer failed\n", __func__ );
       return -OA_ERR_CAMERA_IO;
     }
   }
@@ -379,17 +380,17 @@ _doCameraConfig ( QHY_STATE* cameraInfo, OA_COMMAND* command )
   if ( _usbControlMsg ( cameraInfo, QHY_CMD_ENDP_OUT, 0x13, frameSizeLSW,
       frameSizeMSW, regs, QHY5_BUFFER_SIZE, USB2_TIMEOUT ) !=
       QHY5_BUFFER_SIZE ) {
-    fprintf ( stderr, "%s: usb control message #1 failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: usb control message #1 failed\n", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
   if ( _usbControlMsg ( cameraInfo, QHY_CMD_ENDP_OUT, 0x14, 0x31a5, 0, 0, 0,
       USB2_TIMEOUT )) {
-    fprintf ( stderr, "%s: usb control message #2 failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: usb control message #2 failed\n", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
   if ( _usbControlMsg ( cameraInfo, QHY_CMD_ENDP_OUT, 0x16,
       cameraInfo->firstTimeSetup, 0, 0, 0, USB2_TIMEOUT )) {
-    fprintf ( stderr, "%s: usb control message #3 failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: usb control message #3 failed\n", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
   cameraInfo->firstTimeSetup = 0;

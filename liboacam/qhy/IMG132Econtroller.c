@@ -2,7 +2,8 @@
  *
  * IMG132Econtroller.c -- Main camera controller thread
  *
- * Copyright 2017,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2017,2018,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -136,14 +137,14 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
   int64_t val_s64;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "IMG132E: control: %s ( %d, ? )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   switch ( control ) {
 
     case OA_CAM_CTRL_GAIN:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, valp->valueType );
+            __func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       if ( valp->int32 < 0 ) {
@@ -157,7 +158,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_DIGITAL_GAIN:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, valp->valueType );
+            __func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       if ( valp->int32 < 0 || valp->int32 > 3 ) {
@@ -171,7 +172,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
       if ( valp->valueType != OA_CTRL_TYPE_INT64 ) {
         fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
-            __FUNCTION__, valp->valueType );
+            __func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s64 = valp->int64;
@@ -183,7 +184,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_BLUE_BALANCE:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, valp->valueType );
+            __func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s32 = valp->int32;
@@ -197,7 +198,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_RED_BALANCE:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, valp->valueType );
+            __func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s32 = valp->int32;
@@ -211,7 +212,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_GREEN_BALANCE:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, valp->valueType );
+            __func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s32 = valp->int32;
@@ -228,7 +229,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 
     default:
       fprintf ( stderr, "IMG132E: unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -249,11 +250,11 @@ _doSetGain ( QHY_STATE* cameraInfo, unsigned int gain, uint8_t digitalGain )
 
   gainVal = 0x1000 - gain;
   if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_AGAIN_LO, gainVal & 0xff )) {
-    fprintf ( stderr, "%s: write IMX035_REG_AGAIN_LO failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: write IMX035_REG_AGAIN_LO failed\n", __func__ );
   }
   if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_AGAIN_HI, ( gainVal >> 8 ) &
       0xff )) {
-    fprintf ( stderr, "%s: write IMX035_REG_AGAIN_HI failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: write IMX035_REG_AGAIN_HI failed\n", __func__ );
   }
   g = digitalGain | ( digitalGain << 2 ) | ( digitalGain << 4 );
   _i2cWriteIMX035 ( cameraInfo, IMX035_REG_DGAIN, g );
@@ -269,7 +270,7 @@ _doSetExposure ( QHY_STATE* cameraInfo, unsigned long value )
   unsigned int		vunits, hunits;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "IMG132E: control: %s ( %d )\n",
-      __FUNCTION__, value );
+      __func__, value );
 
   exposureMS = value / 1000;
   if ( cameraInfo->xSize > 640 || cameraInfo->ySize > 480 ) {
@@ -284,32 +285,28 @@ _doSetExposure ( QHY_STATE* cameraInfo, unsigned long value )
   fraction = hunits - remainder * hunits / vunits;
 
   if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_SVS_LO, units & 0xff )) {
-    fprintf ( stderr, "%s: write reg IMX035_REG_SVS_LO failed\n",
-        __FUNCTION__ );
+    fprintf ( stderr, "%s: write reg IMX035_REG_SVS_LO failed\n", __func__ );
   }
   if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_SVS_HI,
       ( units >> 8 ) & 0xff )) {
-    fprintf ( stderr, "%s: write reg IMX035_REG_SVS_HI failed\n",
-        __FUNCTION__ );
+    fprintf ( stderr, "%s: write reg IMX035_REG_SVS_HI failed\n", __func__ );
   }
   if ( exposureMS < vunits ) {
     if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_SSBRK, 1 )) {
       fprintf ( stderr, "%s: write reg IMX035_REG_SSBRK, 1 failed\n",
-          __FUNCTION__ );
+          __func__ );
     }
     if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_SSBRK, 0 )) {
       fprintf ( stderr, "%s: write reg IMX035_REG_SSBRK, 0 failed\n",
-          __FUNCTION__ );
+          __func__ );
     }
   }
   if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_SHS1_LO, fraction & 0xff )) {
-    fprintf ( stderr, "%s: write reg IMX035_REG_SHS1_LO failed\n",
-        __FUNCTION__ );
+    fprintf ( stderr, "%s: write reg IMX035_REG_SHS1_LO failed\n", __func__ );
   }
   if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_SHS1_HI,
       ( fraction >> 8 ) & 0xff )) {
-    fprintf ( stderr, "%s: write reg IMX035_REG_SHS1_HI failed\n",
-        __FUNCTION__ );
+    fprintf ( stderr, "%s: write reg IMX035_REG_SHS1_HI failed\n", __func__ );
   }
 
   return OA_ERR_NONE;
@@ -329,7 +326,7 @@ _doSetColourBalance ( QHY_STATE* cameraInfo )
 
   if ( _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_OUT, buffer, 5,
       &xferred, 3000 )) {
-    fprintf ( stderr, "%s: bulk xfer 5 failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: bulk xfer 5 failed\n", __func__ );
   }
 
   return OA_ERR_NONE;
@@ -393,7 +390,7 @@ _doSetResolution ( QHY_STATE* cameraInfo, int x, int y )
   uint32_t	xferred;
 
   oacamDebugMsg ( DEBUG_CAM_CMD, "IMG132E: command: %s ( %d, %d )\n",
-      __FUNCTION__, x, y );
+      __func__, x, y );
 
   // make sure these numbers are rounded to 4-pixel boundaries
   x = ( x + 3 ) & ~3;
@@ -405,37 +402,37 @@ _doSetResolution ( QHY_STATE* cameraInfo, int x, int y )
   if (( x + xoffset ) <= 640 && ( y + yoffset ) <= 480 ) {
     if ( _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_OUT, buffer, 1,
         &xferred, 3000 )) {
-      fprintf ( stderr, "%s: bulk xfer 1 failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: bulk xfer 1 failed\n", __func__ );
     }
     if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_TESTEN, 2 )) {
-      fprintf ( stderr, "%s: write IMX035_REG_TESTEN failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: write IMX035_REG_TESTEN failed\n", __func__ );
     }
     v1 = 0x17c; // 380
     v2 = 0x12c; // 300
     if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_WIN_1, v1 & 0xff )) {
-      fprintf ( stderr, "%s: write IMX035_REG_WIN_1 failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: write IMX035_REG_WIN_1 failed\n", __func__ );
     }
     if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_WIN_2, (( v1 >> 8 ) & 0x07 ) |
         (( v2 & 0x0f ) << 4 ))) {
-      fprintf ( stderr, "%s: write IMX035_REG_WIN_2 failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: write IMX035_REG_WIN_2 failed\n", __func__ );
     }
     if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_WIN_3, v2 >> 4 )) {
-      fprintf ( stderr, "%s: write IMX035_REG_WIN_3 failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: write IMX035_REG_WIN_3 failed\n", __func__ );
     }
     horizClocks = 0x3840; // 900 << 4 ?
     if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_HMAX_HI, horizClocks >> 8 )) {
-      fprintf ( stderr, "%s: write IMX035_REG_HMAX_HI failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: write IMX035_REG_HMAX_HI failed\n", __func__ );
     }
     if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_HMAX_LO,
         horizClocks & 0xff )) {
-      fprintf ( stderr, "%s: write IMX035_REG_HMAX_LO failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: write IMX035_REG_HMAX_LO failed\n", __func__ );
     }
     vertLines = 0x0200;
     if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_VMAX_HI, vertLines >> 8 )) {
-      fprintf ( stderr, "%s: write IMX035_REG_VMAX_HI failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: write IMX035_REG_VMAX_HI failed\n", __func__ );
     }
     if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_VMAX_LO, vertLines & 0xff )) {
-      fprintf ( stderr, "%s: write IMX035_REG_VMAX_LO failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: write IMX035_REG_VMAX_LO failed\n", __func__ );
     }
     buffer[0] = 0x00;
     buffer[1] = 0x00;
@@ -448,14 +445,14 @@ _doSetResolution ( QHY_STATE* cameraInfo, int x, int y )
     buffer[8] = 0xfa;
     if ( _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xb5, 0, 0, buffer,
         64, 3000 ) != 64 ) {
-      fprintf ( stderr, "%s: ctrl xfer 0xb5 failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: ctrl xfer 0xb5 failed\n", __func__ );
     }
     cameraInfo->smallFrame = 1;
     buffer[0] = 0x04;
     buffer[1] = 0x0a;
     if ( _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_OUT, buffer, 5,
         &xferred, 3000 )) {
-      fprintf ( stderr, "%s: bulk xfer 5 failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: bulk xfer 5 failed\n", __func__ );
     }
     buffer[0] = 0x03;
     buffer[1] = 0x40;
@@ -464,30 +461,30 @@ _doSetResolution ( QHY_STATE* cameraInfo, int x, int y )
     buffer[4] = 0x40;
     if ( _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_OUT, buffer, 5,
         &xferred, 3000 )) {
-      fprintf ( stderr, "%s: bulk xfer 5 #2 failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: bulk xfer 5 #2 failed\n", __func__ );
     }
   } else {
     if ( _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_OUT, buffer, 1,
         &xferred, 3000 )) {
-      fprintf ( stderr, "%s: bulk xfer 1 #2 failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: bulk xfer 1 #2 failed\n", __func__ );
     }
     if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_TESTEN, 0 )) {
-      fprintf ( stderr, "%s: write IMX035_REG_TESTEN failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: write IMX035_REG_TESTEN failed\n", __func__ );
     }
     horizClocks = 0x5dc0; // I suspect this may be 1500 << 4
     vertLines = 0x0428;
     if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_HMAX_HI, horizClocks >> 8 )) {
-      fprintf ( stderr, "%s: write IMX035_REG_HMAX_HI failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: write IMX035_REG_HMAX_HI failed\n", __func__ );
     }
     if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_HMAX_LO,
         horizClocks & 0xff )) {
-      fprintf ( stderr, "%s: write IMX035_REG_HMAX_LO failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: write IMX035_REG_HMAX_LO failed\n", __func__ );
     }
     if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_VMAX_HI, vertLines >> 8 )) {
-      fprintf ( stderr, "%s: write IMX035_REG_VMAX_HI failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: write IMX035_REG_VMAX_HI failed\n", __func__ );
     }
     if ( _i2cWriteIMX035 ( cameraInfo, IMX035_REG_VMAX_LO, vertLines & 0xff )) {
-      fprintf ( stderr, "%s: write IMX035_REG_VMAX_LO failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: write IMX035_REG_VMAX_LO failed\n", __func__ );
     }
     buffer[0] = 0x00;
     buffer[1] = 0x00;
@@ -500,14 +497,14 @@ _doSetResolution ( QHY_STATE* cameraInfo, int x, int y )
     buffer[8] = 0x1a;
     if ( _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xb5, 0, 0, buffer,
         64, 3000 ) != 64 ) {
-      fprintf ( stderr, "%s: ctrl xfer 0xb5 #2 failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: ctrl xfer 0xb5 #2 failed\n", __func__ );
     }
     cameraInfo->smallFrame = 0;
     buffer[0] = 0x04;
     buffer[1] = 0x0a;
     if ( _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_OUT, buffer, 5,
         &xferred, 3000 )) {
-      fprintf ( stderr, "%s: bulk xfer 5 #3 failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: bulk xfer 5 #3 failed\n", __func__ );
     }
     buffer[0] = 0x03;
     buffer[1] = 0x40;
@@ -516,7 +513,7 @@ _doSetResolution ( QHY_STATE* cameraInfo, int x, int y )
     buffer[4] = 0x40;
     if ( _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_OUT, buffer, 5,
         &xferred, 3000 )) {
-      fprintf ( stderr, "%s: bulk xfer 5 #4 failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: bulk xfer 5 #4 failed\n", __func__ );
     }
   }
 
@@ -534,7 +531,7 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
   oaControlValue*	valp = command->resultData;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "IMG132E: control: %s ( %d )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   switch ( control ) {
 
@@ -582,7 +579,7 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 
     default:
       fprintf ( stderr, "Unimplemented control %d in IMG132E:%s\n", control,
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -737,7 +734,7 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
 
   if ( _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, QHY_REQ_BEGIN_VIDEO,
       0, 0, buf, 1, 3000 ) != 1 ) {
-    fprintf ( stderr, "%s: ctrl xfer begin video failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: ctrl xfer begin video failed\n", __func__ );
   }
 
   pthread_mutex_lock ( &cameraInfo->commandQueueMutex );

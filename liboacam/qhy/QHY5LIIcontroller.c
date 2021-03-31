@@ -2,7 +2,7 @@
  *
  * QHY5LIIcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2017,2018,2019,2020
+ * Copyright 2015,2017,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -184,14 +184,14 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
   int64_t val_s64;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5L-II: control: %s ( %d, ? )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   switch ( control ) {
 
     case OA_CAM_CTRL_GAIN:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, valp->valueType );
+            __func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       if ( valp->int32 < 0 ) {
@@ -204,7 +204,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
       if ( valp->valueType != OA_CTRL_TYPE_INT64 ) {
         fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
-            __FUNCTION__, valp->valueType );
+            __func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s64 = valp->int64;
@@ -219,7 +219,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
       if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
         fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __FUNCTION__, valp->valueType );
+            "expected\n", __func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       format = valp->discrete;
@@ -242,7 +242,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_HIGHSPEED:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, valp->valueType );
+            __func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentHighSpeed = valp->int32;
@@ -252,7 +252,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_USBTRAFFIC:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, valp->valueType );
+            __func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s32 = valp->int32;
@@ -266,7 +266,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_BLUE_BALANCE:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, valp->valueType );
+            __func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s32 = valp->int32;
@@ -280,7 +280,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_RED_BALANCE:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, valp->valueType );
+            __func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s32 = valp->int32;
@@ -302,7 +302,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
     default:
       fprintf ( stderr, "QHY5L-II: unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -323,7 +323,7 @@ _doSetGain ( QHY_STATE* cameraInfo, unsigned int gain )
   int			i, minValueIndex = 0, limit;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5L-II: control: %s ( %d )\n",
-      __FUNCTION__, gain );
+      __func__, gain );
 
   if ( cameraInfo->isColour ) {
     // This re-bases the gain from 0 to [ COLOUR_GAIN_MIN/10,
@@ -392,7 +392,7 @@ _doSetHighSpeed ( QHY_STATE* cameraInfo, unsigned int value )
   unsigned char	buf;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5L-II: control: %s ( %d )\n",
-      __FUNCTION__, value );
+      __func__, value );
 
   if ( value ) {
     if ( 8 == cameraInfo->currentBitDepth ) {
@@ -422,7 +422,7 @@ _doSetBitDepth ( QHY_STATE* cameraInfo, unsigned int depth )
   unsigned char buf;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5L-II: control: %s ( %d )\n",
-      __FUNCTION__, depth );
+      __func__, depth );
 
   buf = ( depth <= 8 ) ? 0 : 1;
   _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xcd, 0, 0, &buf, 1, 0 );
@@ -439,7 +439,7 @@ _doSetUSBTraffic ( QHY_STATE* cameraInfo, unsigned int value )
   unsigned int	base;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5L-II: control: %s ( %d )\n",
-      __FUNCTION__, value );
+      __func__, value );
 
   base = ( QHY5LII_IMAGE_WIDTH == cameraInfo->xSize ) ? 1650 : 1388;
   _i2cWrite16 ( cameraInfo, MT9M034_LINE_LENGTH_PCK, base + value * 50 );
@@ -452,10 +452,10 @@ static int
 _doSetHDR ( QHY_STATE* cameraInfo, unsigned int state )
 {
   oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5L-II: control: %s ( %d, %d )\n",
-      __FUNCTION__, state );
+      __func__, state );
 
   if ( state ) {
-    fprintf ( stderr, "QHY5L-II: %s: function unimplemented\n", __FUNCTION__ );
+    fprintf ( stderr, "QHY5L-II: %s: function unimplemented\n", __func__ );
   }
 
   return OA_ERR_NONE;
@@ -471,7 +471,7 @@ _doSetExposure ( QHY_STATE* cameraInfo, unsigned int value, int doAbortFrame )
   unsigned char		buf[4];
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5L-II: control: %s ( %d )\n",
-      __FUNCTION__, value );
+      __func__, value );
 
   pixelTime = 1.0 / cameraInfo->CMOSClock / cameraInfo->PLLRatio;
 
@@ -481,7 +481,7 @@ _doSetExposure ( QHY_STATE* cameraInfo, unsigned int value, int doAbortFrame )
   newTimeMicrosec = value * 1000;
 
   if ( newTimeMicrosec > maxShortExposureTime ) {
-    fprintf ( stderr, "%s: long exposure mode may not work\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: long exposure mode may not work\n", __func__ );
     cameraInfo->longExposureMode = 1;
     shortExposureTime = 65000;
     _i2cWrite16 ( cameraInfo, MT9M034_COARSE_INTEGRATION_TIME,
@@ -519,7 +519,7 @@ _abortFrame ( QHY_STATE* cameraInfo )
   unsigned char buf[4] = { 0, 0, 0, 0 };
 
   oacamDebugMsg ( DEBUG_CAM_CMD, "QHY5L-II: command: %s()\n",
-      __FUNCTION__ );
+      __func__ );
 
   _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xc1, 0, 0, buf, 4, 0 );
   usleep ( 100 );
@@ -534,7 +534,7 @@ oaQHY5LIISetAllControls ( oaCamera* camera )
   int restart = 0;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5L-II: control: %s()\n",
-      __FUNCTION__ );
+      __func__ );
 
   if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
     restart = 1;
@@ -575,7 +575,7 @@ _doSetResolution ( QHY_STATE* cameraInfo, int x, int y )
   unsigned int	clock, xStart, yStart, xEnd, yEnd, frameLength, rowLength;
 
   oacamDebugMsg ( DEBUG_CAM_CMD, "QHY5L-II: command: %s ( %d, %d )\n",
-      __FUNCTION__, x, y );
+      __func__, x, y );
 
   frameLength = y + 26;
   rowLength = 1388;
@@ -707,7 +707,7 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
   oaControlValue*	valp = command->resultData;
 
   oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5L-II: control: %s ( %d )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   switch ( control ) {
 
@@ -775,7 +775,7 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 
     default:
       fprintf ( stderr, "Unimplemented control %d in QHY5L-II:%s\n", control,
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }

@@ -2,7 +2,7 @@
  *
  * FC2control.c -- control functions for Point Grey Gig-E cameras
  *
- * Copyright 2015,2016,2017,2018,2019
+ * Copyright 2015,2016,2017,2018,2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -112,8 +112,7 @@ oaFC2CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 
     default:
       // If we reach here it's because we don't recognise the control
-      fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+      fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -174,7 +173,7 @@ oaFC2CameraGetMenuString ( oaCamera* camera, int control, int index )
     return "Invalid index";
   }
 
-  fprintf ( stderr, "%s: control not implemented\n", __FUNCTION__ );
+  fprintf ( stderr, "%s: control not implemented\n", __func__ );
   return "";
 }
 

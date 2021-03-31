@@ -2,7 +2,7 @@
  *
  * QHY6.c -- QHY6 camera interface
  *
- * Copyright 2014,2015,2017,2018,2019
+ * Copyright 2014,2015,2017,2018,2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -98,12 +98,12 @@ _QHY6InitCamera ( oaCamera* camera )
 
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
     return -OA_ERR_MEM_ALLOC;
   }
   if (!( cameraInfo->frameSizes[2].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     return -OA_ERR_MEM_ALLOC;
   }
@@ -147,8 +147,7 @@ _QHY6InitCamera ( oaCamera* camera )
 
   oaQHY6RecalculateSizes ( cameraInfo );
   if (!( cameraInfo->xferBuffer = malloc ( cameraInfo->captureLength ))) {
-    fprintf ( stderr, "malloc of transfer buffer failed in %s\n",
-        __FUNCTION__ );
+    fprintf ( stderr, "malloc of transfer buffer failed in %s\n", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->frameSizes[2].sizes );
     return -OA_ERR_MEM_ALLOC;
@@ -158,8 +157,7 @@ _QHY6InitCamera ( oaCamera* camera )
       cameraInfo->maxResolutionY * 2;
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
       sizeof ( frameBuffer )))) {
-    fprintf ( stderr, "malloc of buffer array failed in %s\n",
-        __FUNCTION__ );
+    fprintf ( stderr, "malloc of buffer array failed in %s\n", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->frameSizes[2].sizes );
     free (( void* ) cameraInfo->xferBuffer );
@@ -172,7 +170,7 @@ _QHY6InitCamera ( oaCamera* camera )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s malloc failed\n", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
@@ -276,7 +274,7 @@ oaQHY6CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 
     default:
       fprintf ( stderr, "QHY6: %s not yet implemented for control %d\n",
-          __FUNCTION__, control );
+          __func__, control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
