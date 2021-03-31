@@ -62,7 +62,7 @@ cp oacapture/translations/*.qm $APPDIR/Contents/Resources/translations
 
 /opt/local/bin/macdeployqt $APPDIR
 
-for lib in toupcam mallincam altaircam altaircamlegacy qhyccd omegonprocam nncam starshootg
+for lib in ASICamera2 toupcam mallincam altaircam altaircamlegacy qhyccd omegonprocam nncam starshootg SVBCameraSDK
 do
   libfile=ext/lib$lib/mac64/lib$lib.dylib
   if [ -f $libfile ]

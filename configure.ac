@@ -1386,7 +1386,7 @@ extD=ext; extE=ext; extF=ext; extG=ext; extH=ext; extI=ext
 extJ=ext; extK=ext; extL=ext; extM=ext
 case $host in
   *-apple-*)
-    AC_CONFIG_LINKS([$ext1/libASICamera/libASICamera2.a:ext/libASICamera/mac/libASICamera2.a])
+    AC_CONFIG_LINKS([$ext1/libASICamera2/libASICamera2.dylib:ext/libASICamera2/mac/libASICamera2.dylib])
     AC_CONFIG_LINKS([$ext2/libtoupcam/libtoupcam.dylib:ext/libtoupcam/mac/libtoupcam.dylib])
     AC_CONFIG_LINKS([$ext3/libaltaircam/libaltaircam.dylib:ext/libaltaircam/mac64/libaltaircam.dylib])
     AC_CONFIG_LINKS([$ext4/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/mac/libEFWFilter.a])
@@ -1395,7 +1395,7 @@ case $host in
     AC_CONFIG_LINKS([$ext7/libstarshootg/libstarshootg.dylib:ext/libstarshootg/mac/libstarshootg.dylib])
     AC_CONFIG_LINKS([$ext8/libnncam/libnncam.dylib:ext/libnncam/mac/libnncam.dylib])
     AC_CONFIG_LINKS([$ext9/libomegonprocam/libomegonprocam.dylib:ext/libomegonprocam/mac64/libomegonprocam.dylib])
-    AC_CONFIG_LINKS([$extA/libSVBCameraSDK/libSVBCameraSDK.a:ext/libSVBCameraSDK/lib/mac64/libSVBCameraSDK.a])
+    AC_CONFIG_LINKS([$extA/libSVBCameraSDK/libSVBCameraSDK.dylib:ext/libSVBCameraSDK/mac64/libSVBCameraSDK.dylib])
     OSX_FRAMEWORKS="-framework Carbon -framework VideoDecodeAcceleration -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
     FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
 		SHLIBS_CFLAGS="-DSHLIB_PATH=\\\"/MacOS/\\\""
@@ -1410,30 +1410,30 @@ case $host in
     AC_DEFINE([USB_OVERFLOW_HANGS],[1],[USB overflow causes hang])
     ;;
   i?86-*-*)
-    AC_CONFIG_LINKS([$extA/libASICamera/libASICamera2.a:ext/libASICamera/x86/libASICamera2.a])
+    AC_CONFIG_LINKS([$extA/libASICamera2/libASICamera2.a:ext/libASICamera2/x86/libASICamera2.a])
     AC_CONFIG_LINKS([$extB/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/x86/libEFWFilter.a])
     ;;
   x86_64-*-*)
-    AC_CONFIG_LINKS([$extC/libASICamera/libASICamera2.a:ext/libASICamera/x64/libASICamera2.a])
+    AC_CONFIG_LINKS([$extC/libASICamera2/libASICamera2.a:ext/libASICamera2/x64/libASICamera2.a])
     AC_CONFIG_LINKS([$extD/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/x64/libEFWFilter.a])
     ;;
   armv8l-*-*|aarch64-*-*)
-    AC_CONFIG_LINKS([$extE/libASICamera/libASICamera2.a:ext/libASICamera/armv8/libASICamera2.a])
+    AC_CONFIG_LINKS([$extE/libASICamera2/libASICamera2.a:ext/libASICamera2/armv8/libASICamera2.a])
     AC_CONFIG_LINKS([$extF/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv8/libEFWFilter.a])
     ;;
   armv7l-*-*)
     AC_DEFINE([V4L2_MEMORY_RESTRICTED],[1],[Memory for V4L2 buffers may be tight])
-    AC_CONFIG_LINKS([$extG/libASICamera/libASICamera2.a:ext/libASICamera/armv7/libASICamera2.a])
+    AC_CONFIG_LINKS([$extG/libASICamera2/libASICamera2.a:ext/libASICamera2/armv7/libASICamera2.a])
     AC_CONFIG_LINKS([$extH/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv7/libEFWFilter.a])
     ;;
   armv6l-*-*)
     AC_DEFINE([V4L2_MEMORY_RESTRICTED],[1],[Memory for V4L2 buffers may be tight])
-    AC_CONFIG_LINKS([$extI/libASICamera/libASICamera2.a:ext/libASICamera/armv6/libASICamera2.a])
+    AC_CONFIG_LINKS([$extI/libASICamera2/libASICamera2.a:ext/libASICamera2/armv6/libASICamera2.a])
     AC_CONFIG_LINKS([$extJ/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv6/libEFWFilter.a])
     ;;
   armv5l-*-*)
     AC_DEFINE([V4L2_MEMORY_RESTRICTED],[1],[Memory for V4L2 buffers may be tight])
-    AC_CONFIG_LINKS([$extK/libASICamera/libASICamera2.a:ext/libASICamera/armv5/libASICamera2.a])
+    AC_CONFIG_LINKS([$extK/libASICamera2/libASICamera2.a:ext/libASICamera2/armv5/libASICamera2.a])
     AC_CONFIG_LINKS([$extL/libEFWFilter/libEFWFilter.a:ext/libEFWFilter/armv5/libEFWFilter.a])
     ;;
   *)
@@ -1454,9 +1454,10 @@ if test "x$zwoSupportedArch" == "xyes"
 then
   if test "x$use_system_libasicamera2" == "xno"; then
     AC_DEFINE([HAVE_LIBASI2],[1],[Have libASICamera2])
-		AC_DEFINE([HAVE_STATIC_LIBASICAMERA2],[1],[Using static libASICamera2])
-    LIBASI2_CFLAGS="-DHAVE_LIBASI2=1"
-    LIBASI2_LIBS="\$(top_builddir)/ext/libASICamera/libASICamera2.a"
+#AC_DEFINE([HAVE_STATIC_LIBASICAMERA2],[1],[Using static libASICamera2])
+    LIBASI2_CFLAGS="-DHAVE_LIBASI2=1 -I \$(top_srcdir)/ext/libASICamera2/include"
+#    LIBASI2_LIBS="\$(top_builddir)/ext/libASICamera2/libASICamera2.a"
+    LIBASI2_LIBS=""
   fi
   if test "x$use_system_libefwfilter" == "xno"; then
     AC_DEFINE([HAVE_LIBZWOFW],[1],[Have libEFWFilter])
@@ -1572,9 +1573,10 @@ then
 	if test "x$have_svbcamerasdk" != "xno"
 	then
 		LIBSVBCAMERASDK_CFLAGS="-I \$(top_srcdir)/ext/libSVBCameraSDK/include"
-		LIBSVBCAMERASDK_LIBS="\$(top_builddir)/ext/libSVBCameraSDK/libSVBCameraSDK.a"
+#LIBSVBCAMERASDK_LIBS="\$(top_builddir)/ext/libSVBCameraSDK/libSVBCameraSDK.a"
+		LIBSVBCAMERASDK_LIBS=""
 		AC_DEFINE([HAVE_LIBSVBCAMERASDK],[1],[Have SVBony library support])
-		AC_DEFINE([HAVE_STATIC_LIBSVBCAMERASDK],[1],[Using static SVBony library])
+#AC_DEFINE([HAVE_STATIC_LIBSVBCAMERASDK],[1],[Using static SVBony library])
 	fi
 fi
 
