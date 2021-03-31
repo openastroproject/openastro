@@ -2,7 +2,8 @@
  *
  * xagylIO-ftdi.c -- Xagyl filter wheel IO routines (libftdi)
  *
- * Copyright 2014,2015,2017,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2020,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -96,7 +97,7 @@ oaXagylGetWheelSpeed ( PRIVATE_INFO* wheelInfo, unsigned int* speed )
   int numRead;
 
   if ( _xagylWheelWrite ( wheelInfo->ftdiContext, "i4", 2 )) {
-    fprintf ( stderr, "%s: write error on command '%s'\n", __FUNCTION__,
+    fprintf ( stderr, "%s: write error on command '%s'\n", __func__,
         buffer );
     pthread_mutex_unlock ( &wheelInfo->ioMutex );
     return -1;
@@ -106,20 +107,20 @@ oaXagylGetWheelSpeed ( PRIVATE_INFO* wheelInfo, unsigned int* speed )
   if ( numRead > 0 ) {
     if ( strncmp ( buffer, "MaxSpeed ", 9 )) {
       fprintf ( stderr, "%s: '%s' failed to match expected string\n",
-          __FUNCTION__, buffer );
+          __func__, buffer );
       pthread_mutex_unlock ( &wheelInfo->ioMutex );
       return -1;
     }
     if ( sscanf ( buffer, "MaxSpeed %d%%\n", speed ) != 1 ) {
       buffer[ numRead ] = 0;
       fprintf ( stderr, "%s: wrong number of items(1) scanned from '%s'\n",
-          __FUNCTION__, buffer );
+          __func__, buffer );
       pthread_mutex_unlock ( &wheelInfo->ioMutex );
       return -1;
     }
   } else {
     fprintf ( stderr, "%s: no data read from wheel interface\n",
-        __FUNCTION__ );
+        __func__ );
     pthread_mutex_unlock ( &wheelInfo->ioMutex );
     return -1;
   }
@@ -145,7 +146,7 @@ oaXagylMoveTo ( PRIVATE_INFO* wheelInfo, int slot, int nodelay )
   pthread_mutex_lock ( &wheelInfo->ioMutex );
 
   if ( nodelay ) {
-    fprintf ( stderr, "%s: ignoring nodelay\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: ignoring nodelay\n", __func__ );
   }
 
   char buffer[50];
@@ -156,7 +157,7 @@ oaXagylMoveTo ( PRIVATE_INFO* wheelInfo, int slot, int nodelay )
   snprintf ( expected, 3, "P%d", slot );
 
   if ( _xagylWheelWrite ( wheelInfo->ftdiContext, buffer, 2 )) {
-    fprintf ( stderr, "%s: write error on command '%s'\n", __FUNCTION__,
+    fprintf ( stderr, "%s: write error on command '%s'\n", __func__,
         buffer );
     pthread_mutex_unlock ( &wheelInfo->ioMutex );
     return -1;
@@ -166,13 +167,13 @@ oaXagylMoveTo ( PRIVATE_INFO* wheelInfo, int slot, int nodelay )
   if ( numRead > 0 ) {
     if ( strncmp ( buffer, expected, 2 )) {
       fprintf ( stderr, "%s: '%s' failed to match expecting string '%s'\n",
-          __FUNCTION__, buffer, expected );
+          __func__, buffer, expected );
       pthread_mutex_unlock ( &wheelInfo->ioMutex );
       return -1;
     }
   } else {
     fprintf ( stderr, "%s: no data read from wheel interface\n",
-        __FUNCTION__ );
+        __func__ );
     pthread_mutex_unlock ( &wheelInfo->ioMutex );
     return -1;
   }
@@ -221,7 +222,7 @@ oaXagylWheelDoReset ( PRIVATE_INFO* wheelInfo, const char* cmd, int nodelay )
   pthread_mutex_lock ( &wheelInfo->ioMutex );
 
   if ( nodelay ) {
-    fprintf ( stderr, "%s: reset ignoring nodelay\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: reset ignoring nodelay\n", __func__ );
   }
 
   const char* expectedWords[] = { "Restart", "Xagyl", "FW", "Initializing",
@@ -231,7 +232,7 @@ oaXagylWheelDoReset ( PRIVATE_INFO* wheelInfo, const char* cmd, int nodelay )
   int done = 0, error = 0, ret = 0, numRead;
 
   if ( _xagylWheelWrite ( wheelInfo->ftdiContext, cmd, 2 )) {
-    fprintf ( stderr, "%s: write error on reset '%s' command\n", __FUNCTION__,
+    fprintf ( stderr, "%s: write error on reset '%s' command\n", __func__,
         cmd );
     pthread_mutex_unlock ( &wheelInfo->ioMutex );
     return -1;
@@ -241,7 +242,7 @@ oaXagylWheelDoReset ( PRIVATE_INFO* wheelInfo, const char* cmd, int nodelay )
     if (( numRead = _xagylWheelRead ( wheelInfo->ftdiContext, buffer,
         50 )) < 0 ) {
       fprintf ( stderr, "%s: no data read from wheel interface\n",
-          __FUNCTION__ );
+          __func__ );
       pthread_mutex_unlock ( &wheelInfo->ioMutex );
       return -1;
     }
@@ -263,7 +264,7 @@ oaXagylWheelDoReset ( PRIVATE_INFO* wheelInfo, const char* cmd, int nodelay )
         if ( !found ) {
           buffer [ numRead ] = 0;
           fprintf ( stderr, "%s: unexpected string '%s' (len %d) read\n",
-              __FUNCTION__, buffer, numRead );
+              __func__, buffer, numRead );
         }
       }
     }
@@ -271,7 +272,7 @@ oaXagylWheelDoReset ( PRIVATE_INFO* wheelInfo, const char* cmd, int nodelay )
 
   if ( error ) {
     buffer[ numRead ] = 0;
-    fprintf ( stderr, "%s: wheel returned error '%s'\n", __FUNCTION__,
+    fprintf ( stderr, "%s: wheel returned error '%s'\n", __func__,
         buffer );
     ret = -1;
   }

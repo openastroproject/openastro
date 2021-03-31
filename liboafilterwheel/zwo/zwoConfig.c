@@ -2,7 +2,7 @@
  *
  * zwoConfig.c -- Manage ZWO filter wheels user configuration
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -56,14 +56,14 @@ oaZWOAddIDFilter ( userDeviceConfig* config )
   if ( !zwoConfig ) {
     if (!( zwoConfig = ( userDeviceConfig* ) malloc ( sizeof (
         userDeviceConfig ) * 3 ))) {
-      fprintf ( stderr, "malloc failed in %s\n", __FUNCTION__ );
+      fprintf ( stderr, "malloc failed in %s\n", __func__ );
       return;
     }
   } else {
     if ( zwoConfigEntries % 3 == 0 ) {
       if (!( zwoConfig = ( userDeviceConfig* ) realloc ( zwoConfig,
           sizeof ( userDeviceConfig ) * ( zwoConfigEntries / 3 + 1 )))) {
-        fprintf ( stderr, "realloc failed in %s\n", __FUNCTION__ );
+        fprintf ( stderr, "realloc failed in %s\n", __func__ );
         return;
       }
     }

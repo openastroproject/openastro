@@ -2,7 +2,8 @@
  *
  * sxInit.c -- Initialise Starlight Xpress filter wheels
  *
- * Copyright 2014,2015,2018,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018,2020,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -139,7 +140,7 @@ oaSXInitFilterWheel ( oaFilterWheelDevice* device )
 
   if (( wheel->numSlots = _getNumSlots ( wheel )) < 1 ) {
     fprintf ( stderr, "%s: invalid number of slots in filter wheel\n",
-        __FUNCTION__ );
+        __func__ );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;
@@ -176,7 +177,7 @@ _getNumSlots ( oaFilterWheel* wheel )
   buffer[1] = 1;
   if ( _sxWheelWrite ( privateInfo, buffer )) {
     fprintf ( stderr, "%s: write error on get filters command\n",
-      __FUNCTION__ );
+      __func__ );
     pthread_mutex_unlock ( &privateInfo->ioMutex );
     return 0;
   }
@@ -192,7 +193,7 @@ _getNumSlots ( oaFilterWheel* wheel )
     buffer[1] = 0;
     if ( _sxWheelWrite ( privateInfo, buffer )) {
       fprintf ( stderr, "%s: write error on get filters command\n",
-        __FUNCTION__ );
+        __func__ );
       pthread_mutex_unlock ( &privateInfo->ioMutex );
       return 0;
     }

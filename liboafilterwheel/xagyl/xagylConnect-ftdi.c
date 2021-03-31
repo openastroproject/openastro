@@ -2,7 +2,8 @@
  *
  * xagylInit-ftdi.c -- Initialise Xagyl filter wheels (libftdi)
  *
- * Copyright 2014,2015,2018,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018,2020,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -213,7 +214,7 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
 
   if (( wheel->numSlots = _getNumSlots ( wheel )) < 1 ) {
     fprintf ( stderr, "%s: invalid number of slots in filter wheel %s\n",
-        __FUNCTION__, devInfo->sysPath );
+        __func__, devInfo->sysPath );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;
@@ -249,7 +250,7 @@ _getNumSlots ( oaFilterWheel* wheel )
   pthread_mutex_lock ( &privateInfo->ioMutex );
 
   if ( _xagylWheelWrite ( privateInfo->ftdiContext, "i8", 2 )) {
-    fprintf ( stderr, "%s: write error on i8 command\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: write error on i8 command\n", __func__ );
     return 0;
   }
 

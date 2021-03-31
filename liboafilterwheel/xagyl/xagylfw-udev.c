@@ -2,7 +2,7 @@
  *
  * xagylfw-udev.c -- Find Xagyl filter wheels using (Linux) udev
  *
- * Copyright 2014,2015,2017,2018,2020
+ * Copyright 2014,2015,2017,2018,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -148,7 +148,7 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
             errno = 0;
             while (( close ( fwDesc ) < 0 ) && EINTR == errno );
             fprintf ( stderr, "%s: can't get lock on %s, errno = %d\n",
-              __FUNCTION__, deviceNode, errnoCopy );
+              __func__, deviceNode, errnoCopy );
             continue;
           }
 
@@ -157,7 +157,7 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
             errno = 0;
             while (( close ( fwDesc ) < 0 ) && EINTR == errno );
             fprintf ( stderr, "%s: can't get termio on %s, errno = %d\n",
-              __FUNCTION__, deviceNode, errnoCopy );
+              __func__, deviceNode, errnoCopy );
             continue;
           }
 
@@ -171,7 +171,7 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
             errno = 0;
             while (( close ( fwDesc ) < 0 ) && EINTR == errno );
             fprintf ( stderr, "%s: can't set termio on %s, errno = %d\n",
-              __FUNCTION__, deviceNode, errnoCopy );
+              __func__, deviceNode, errnoCopy );
             continue;
           }
 #endif
@@ -194,7 +194,7 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
           wheel->_private = _private;
 #ifdef XAGYL_READ_FOUND_WHEEL
           if ( write ( fwDesc, "i0", 2 ) != 2 ) {
-            fprintf ( stderr, "%s: write error on %s\n", __FUNCTION__,
+            fprintf ( stderr, "%s: write error on %s\n", __func__,
                 deviceNode );
             close ( fwDesc );
             continue;
@@ -208,7 +208,7 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
             }
           } else {
             fprintf ( stderr, "%s: failed to read name from %s\n",
-                __FUNCTION__, deviceNode );
+                __func__, deviceNode );
             close ( fwDesc );
             continue;
           }
@@ -249,7 +249,7 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
             deviceList->wheelList[ deviceList->numFilterWheels++ ] = wheel;
           } else {
             fprintf ( stderr, "%s: Unrecognised filter wheel '%s'\n",
-                __FUNCTION__, buffer );
+                __func__, buffer );
           }
 #ifdef XAGYL_READ_FOUND_WHEEL
           close ( fwDesc );

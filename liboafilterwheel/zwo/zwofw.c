@@ -2,7 +2,8 @@
  *
  * zwofw.c -- Control ZWO filter wheels
  *
- * Copyright 2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -58,17 +59,17 @@ oaZWOGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
 
   for ( i = 0; i < numFound; i++ ) {
     if (( err = p_EFWGetID ( i, &wheelInfo.ID )) != EFW_SUCCESS ) {
-      fprintf ( stderr, "%s: EFWGetID returns error %d\n", __FUNCTION__, err );
+      fprintf ( stderr, "%s: EFWGetID returns error %d\n", __func__, err );
       return 0;
     }
     if (( err = p_EFWOpen ( wheelInfo.ID )) != EFW_SUCCESS ) {
-      fprintf ( stderr, "%s: EFWOpen returns error %d\n", __FUNCTION__, err );
+      fprintf ( stderr, "%s: EFWOpen returns error %d\n", __func__, err );
       return 0;
     }
     if (( err = p_EFWGetProperty ( wheelInfo.ID, &wheelInfo )) !=
 				EFW_SUCCESS ) {
       fprintf ( stderr, "%s: EFWGetProperty returns error %d\n",
-          __FUNCTION__, err );
+          __func__, err );
       return 0;
     }
     p_EFWClose ( wheelInfo.ID );

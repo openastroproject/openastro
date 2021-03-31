@@ -2,7 +2,8 @@
  *
  * brightstarConnect.c -- Initialise Brightstar filter wheel
  *
- * Copyright 2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -85,7 +86,7 @@ oaBrightstarInitFilterWheel ( oaFilterWheelDevice* device )
 
   if (( fwDesc = open ( devInfo->sysPath, O_RDWR | O_NOCTTY )) < 0 ) {
     fprintf ( stderr, "%s: Can't open %s read-write, errno = %d\n",
-        __FUNCTION__, devInfo->sysPath, errno );
+        __func__, devInfo->sysPath, errno );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;
@@ -95,7 +96,7 @@ oaBrightstarInitFilterWheel ( oaFilterWheelDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( fwDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't get lock on %s, errno = %d\n", __FUNCTION__,
+    fprintf ( stderr, "%s: can't get lock on %s, errno = %d\n", __func__,
         devInfo->sysPath, errnoCopy );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
@@ -106,7 +107,7 @@ oaBrightstarInitFilterWheel ( oaFilterWheelDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( fwDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't get termio on %s, errno = %d\n", __FUNCTION__,
+    fprintf ( stderr, "%s: can't get termio on %s, errno = %d\n", __func__,
         devInfo->sysPath, errnoCopy );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
@@ -122,7 +123,7 @@ oaBrightstarInitFilterWheel ( oaFilterWheelDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( fwDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't set termio on %s, errno = %d\n", __FUNCTION__,
+    fprintf ( stderr, "%s: can't set termio on %s, errno = %d\n", __func__,
         devInfo->sysPath, errnoCopy );
     free (( void* ) wheel );
     free (( void* ) privateInfo );

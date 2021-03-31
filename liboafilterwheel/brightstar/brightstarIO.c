@@ -2,7 +2,8 @@
  *
  * brightstarIO.c -- Brightstar filter wheel IO routines
  *
- * Copyright 2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -88,7 +89,7 @@ oaBrightstarMoveTo ( PRIVATE_INFO* wheelInfo, int slot, int nodelay )
   pthread_mutex_lock ( &wheelInfo->ioMutex );
 
   if ( nodelay ) {
-    fprintf ( stderr, "%s: ignoring nodelay\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: ignoring nodelay\n", __func__ );
   }
 
   char buffer[50];
@@ -101,7 +102,7 @@ oaBrightstarMoveTo ( PRIVATE_INFO* wheelInfo, int slot, int nodelay )
   tcflush ( wheelInfo->fd, TCIFLUSH );
 
   if ( _brightstarWheelWrite ( wheelInfo->fd, buffer, 5 )) {
-    fprintf ( stderr, "%s: write error on command '%s'\n", __FUNCTION__,
+    fprintf ( stderr, "%s: write error on command '%s'\n", __func__,
         buffer );
     pthread_mutex_unlock ( &wheelInfo->ioMutex );
     return -1;
@@ -118,7 +119,7 @@ oaBrightstarMoveTo ( PRIVATE_INFO* wheelInfo, int slot, int nodelay )
 			if ( strncmp ( buffer, expected, 2 )) {
 				if ( !strncmp ( buffer, "M-", 2 ) && !strncmp ( buffer, "M+", 2 )) {
 					fprintf ( stderr, "%s: '%s' failed to match expected string '%s'\n",
-							__FUNCTION__, buffer, expected );
+							__func__, buffer, expected );
 					pthread_mutex_unlock ( &wheelInfo->ioMutex );
 					return -1;
 				}
@@ -127,7 +128,7 @@ oaBrightstarMoveTo ( PRIVATE_INFO* wheelInfo, int slot, int nodelay )
 			}
 		} else {
 			fprintf ( stderr, "%s: no data read from wheel interface\n",
-					__FUNCTION__ );
+					__func__ );
 			pthread_mutex_unlock ( &wheelInfo->ioMutex );
 			return -1;
 		}

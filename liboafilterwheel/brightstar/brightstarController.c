@@ -2,7 +2,8 @@
  *
  * brightstarController.c -- Brightstar filter wheel control functions
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -110,7 +111,7 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
   oaControlValue*	val = command->commandData;
 
   oafwDebugMsg ( DEBUG_CAM_CTRL, "brightstar: control: %s ( %d, ? )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   switch ( control ) {
 
@@ -120,7 +121,7 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       slot = val->int32;
@@ -129,7 +130,7 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
     }
     default:
       fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -144,9 +145,9 @@ _processGetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
   int			control = command->controlId;
 
   oafwDebugMsg ( DEBUG_CAM_CTRL, "brightstar: control: %s ( %d )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   fprintf ( stderr,
-      "Unrecognised control %d in %s\n", control, __FUNCTION__ );
+      "Unrecognised control %d in %s\n", control, __func__ );
   return -OA_ERR_INVALID_CONTROL;
 }

@@ -2,7 +2,7 @@
  *
  * xagylInit-udev.c -- Initialise Xagyl filter wheels (udev)
  *
- * Copyright 2014,2015,2017,2018,2019,2020
+ * Copyright 2014,2015,2017,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -96,7 +96,7 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( fwDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't get lock on %s, errno = %d\n", __FUNCTION__,
+    fprintf ( stderr, "%s: can't get lock on %s, errno = %d\n", __func__,
         devInfo->sysPath, errnoCopy );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
@@ -107,7 +107,7 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( fwDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't get termio on %s, errno = %d\n", __FUNCTION__,
+    fprintf ( stderr, "%s: can't get termio on %s, errno = %d\n", __func__,
         devInfo->sysPath, errnoCopy );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
@@ -123,7 +123,7 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( fwDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't set termio on %s, errno = %d\n", __FUNCTION__,
+    fprintf ( stderr, "%s: can't set termio on %s, errno = %d\n", __func__,
         devInfo->sysPath, errnoCopy );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
@@ -173,7 +173,7 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
 
   if (( wheel->numSlots = _getNumSlots ( wheel )) < 1 ) {
     fprintf ( stderr, "%s: invalid number of slots in filter wheel %s\n",
-        __FUNCTION__, devInfo->sysPath );
+        __func__, devInfo->sysPath );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;
@@ -215,7 +215,7 @@ _getNumSlots ( oaFilterWheel* wheel )
   tcflush ( privateInfo->fd, TCIFLUSH );
 
   if ( _xagylWheelWrite ( privateInfo->fd, "i8", 2 )) {
-    fprintf ( stderr, "%s: write error on i8 command\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: write error on i8 command\n", __func__ );
     return 0;
   }
 
@@ -225,19 +225,19 @@ _getNumSlots ( oaFilterWheel* wheel )
   if ( numRead > 0 ) {
     if ( strncmp ( buffer, "FilterSlots ", 12 )) {
       fprintf ( stderr, "%s: failed to match expecting string 'FilterSlots '"
-           ", got '%40s'\n", __FUNCTION__, buffer );
+           ", got '%40s'\n", __func__, buffer );
       return 0;
     }
     if ( sscanf ( buffer, "FilterSlots %d", &numSlots ) != 1 ) {
       fprintf ( stderr, "%s: Failed to match number of slots in '%s'\n",
-          __FUNCTION__, buffer );
+          __func__, buffer );
       return 0;
     }
     return numSlots;
   }
 
   fprintf ( stderr, "%s: no data read from wheel interface\n",
-      __FUNCTION__ );
+      __func__ );
   return 0;
 }
 

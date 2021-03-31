@@ -2,7 +2,8 @@
  *
  * unimplemented.c -- catch-all for unimplemented filter wheel functions
  *
- * Copyright 2014,2015,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2020,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -36,7 +37,7 @@
 static oaFilterWheel*
 _initFilterWheel ( oaFilterWheelDevice* device )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       device->deviceName );
   return 0;
 }
@@ -45,7 +46,7 @@ _initFilterWheel ( oaFilterWheelDevice* device )
 static int
 _closeFilterWheel ( oaFilterWheel* wheel )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       wheel->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -54,7 +55,7 @@ _closeFilterWheel ( oaFilterWheel* wheel )
 static int
 _readControl ( oaFilterWheel* wheel, int c, oaControlValue* v )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       wheel->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -63,7 +64,7 @@ _readControl ( oaFilterWheel* wheel, int c, oaControlValue* v )
 static int
 _setControl ( oaFilterWheel* wheel, int c, oaControlValue* v )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       wheel->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -72,7 +73,7 @@ _setControl ( oaFilterWheel* wheel, int c, oaControlValue* v )
 static int
 _testControl ( oaFilterWheel* wheel, int c, oaControlValue* v )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __FUNCTION__,
+  fprintf ( stderr, "%s not implemented for %s\n", __func__,
       wheel->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }

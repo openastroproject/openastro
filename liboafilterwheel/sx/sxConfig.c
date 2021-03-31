@@ -2,7 +2,8 @@
  *
  * sxConfig.c -- Manage Starlight Xpress filter wheels user configuration
  *
- * Copyright 2014,2015,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2020,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -62,14 +63,14 @@ oaSXAddIDFilter ( userDeviceConfig* config )
   if ( !sxConfig ) {
     if (!( sxConfig = ( userDeviceConfig* ) malloc ( sizeof (
         userDeviceConfig ) * 3 ))) {
-      fprintf ( stderr, "malloc failed in %s\n", __FUNCTION__ );
+      fprintf ( stderr, "malloc failed in %s\n", __func__ );
       return;
     }
   } else {
     if ( sxConfigEntries % 3 == 0 ) {
       if (!( sxConfig = ( userDeviceConfig* ) realloc ( sxConfig,
           sizeof ( userDeviceConfig ) * ( sxConfigEntries / 3 + 1 )))) {
-        fprintf ( stderr, "realloc failed in %s\n", __FUNCTION__ );
+        fprintf ( stderr, "realloc failed in %s\n", __func__ );
         return;
       }
     }

@@ -2,7 +2,8 @@
  *
  * sxController.c -- Starlight Xpress filter wheel controller thread
  *
- * Copyright 2014,2015,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2020,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -112,7 +113,7 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
   oaControlValue*	val = command->commandData;
 
   oafwDebugMsg ( DEBUG_CAM_CTRL, "SX: control: %s ( %d, ? )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   switch ( control ) {
 
@@ -122,7 +123,7 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       slot = val->int32;
@@ -131,7 +132,7 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
     }
     default:
       fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -147,10 +148,10 @@ _processGetControl ( PRIVATE_INFO* cameraInfo, OA_COMMAND* command )
   // oaControlValue*	val = command->resultData;
 
   oafwDebugMsg ( DEBUG_CAM_CTRL, "SX: control: %s ( %d )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   fprintf ( stderr,
-      "Unrecognised control %d in %s\n", control, __FUNCTION__ );
+      "Unrecognised control %d in %s\n", control, __func__ );
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -167,7 +168,7 @@ _oaSXMoveTo ( PRIVATE_INFO* wheelInfo, int slot )
   buffer[1] = 0;
   if ( _sxWheelWrite ( wheelInfo, buffer )) {
     fprintf ( stderr, "%s: write error on move command\n",
-      __FUNCTION__ );
+      __func__ );
     pthread_mutex_unlock ( &wheelInfo->ioMutex );
     return -1;
   }
@@ -183,7 +184,7 @@ _oaSXMoveTo ( PRIVATE_INFO* wheelInfo, int slot )
     buffer[1] = 0;
     if ( _sxWheelWrite ( wheelInfo, buffer )) {
       fprintf ( stderr, "%s: write error on move command 2\n",
-        __FUNCTION__ );
+        __func__ );
       pthread_mutex_unlock ( &wheelInfo->ioMutex );
       return -1;
     }
@@ -198,7 +199,7 @@ _oaSXMoveTo ( PRIVATE_INFO* wheelInfo, int slot )
   actualSlot = buffer[0];
   if ( actualSlot != slot ) {
     fprintf ( stderr, "%s: requested slot %d, got slot %d\n",
-        __FUNCTION__, slot, actualSlot );
+        __func__, slot, actualSlot );
     return -1;
   }
   return 0;

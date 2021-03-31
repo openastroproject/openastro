@@ -2,7 +2,8 @@
  *
  * xagylfw-ftdi.c -- Find Xagyl filter wheels using libftdi
  *
- * Copyright 2014,2015,2018,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018,2020,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -210,7 +211,7 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
           }
         } else {
           fprintf ( stderr, "%s: failed to read name from device serial %s, "
-              "error %d\n", __FUNCTION__, serialBuffer, numRead );
+              "error %d\n", __func__, serialBuffer, numRead );
           continue;
         }
 */
@@ -248,7 +249,7 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
 
         if ( !_private->devType ) {
           fprintf ( stderr, "%s: Unrecognised filter wheel '%s'\n",
-              __FUNCTION__, buffer );
+              __func__, buffer );
         } else {
           _oaInitFilterWheelDeviceFunctionPointers ( wheel );
           wheel->interface = OA_FW_IF_XAGYL;

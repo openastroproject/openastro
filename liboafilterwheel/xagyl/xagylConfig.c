@@ -2,7 +2,8 @@
  *
  * xagylConfig.c -- Manage Xagyl filter wheel user config
  *
- * Copyright 2014,2015,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2020,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -56,14 +57,14 @@ oaXagylAddIDFilter ( userDeviceConfig* config )
   if ( !xagylConfig ) {
     if (!( xagylConfig = ( userDeviceConfig* ) malloc ( sizeof (
         userDeviceConfig ) * 3 ))) {
-      fprintf ( stderr, "malloc failed in %s\n", __FUNCTION__ );
+      fprintf ( stderr, "malloc failed in %s\n", __func__ );
       return;
     }
   } else {
     if ( xagylConfigEntries % 3 == 0 ) {
       if (!( xagylConfig = ( userDeviceConfig* ) realloc ( xagylConfig,
           sizeof ( userDeviceConfig ) * ( xagylConfigEntries / 3 + 1 )))) {
-        fprintf ( stderr, "realloc failed in %s\n", __FUNCTION__ );
+        fprintf ( stderr, "realloc failed in %s\n", __func__ );
         return;
       }
     }

@@ -2,7 +2,8 @@
  *
  * xagylController.c -- Xagyl filter wheel control functions
  *
- * Copyright 2015,2017,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2020,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -110,7 +111,7 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
   oaControlValue*	val = command->commandData;
 
   oafwDebugMsg ( DEBUG_CAM_CTRL, "xagyl: control: %s ( %d, ? )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   switch ( control ) {
 
@@ -120,7 +121,7 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       slot = val->int32;
@@ -133,7 +134,7 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       speed = val->int32;
@@ -144,7 +145,7 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
     {
       if ( val->valueType != OA_CTRL_TYPE_BUTTON ) {
         fprintf ( stderr, "%s: invalid control type %d where button expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       oaXagylWheelWarmReset ( wheelInfo, 0 );
@@ -154,7 +155,7 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
     {
       if ( val->valueType != OA_CTRL_TYPE_BUTTON ) {
         fprintf ( stderr, "%s: invalid control type %d where button expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       oaXagylWheelColdReset ( wheelInfo, 0 );
@@ -162,7 +163,7 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
     }
     default:
       fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -184,10 +185,10 @@ _processGetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
   }
 
   oafwDebugMsg ( DEBUG_CAM_CTRL, "xagyl: control: %s ( %d )\n",
-      __FUNCTION__, control );
+      __func__, control );
 
   fprintf ( stderr,
-      "Unrecognised control %d in %s\n", control, __FUNCTION__ );
+      "Unrecognised control %d in %s\n", control, __func__ );
   return -OA_ERR_INVALID_CONTROL;
 }
 
