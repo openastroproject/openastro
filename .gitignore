@@ -100,8 +100,12 @@ ui_*.h
 /ext/libusb/examples/testlibusb
 /ext/libusb/examples/xusb
 /ext/libusb/libusb/os/.dirstamp
-/ext/libASICamera/libASICamera.a
-/ext/libASICamera/libASICamera2.a
+/ext/libASICamera2/libASICamera.a
+/ext/libASICamera2/libASICamera.dylib
+/ext/libASICamera2/libASICamera2.a
+/ext/libASICamera2/libASICamera2.dylib
+/ext/libSVBCameraSDK/libSVBCameraSDK.a
+/ext/libSVBCameraSDK/libSVBCameraSDK.dylib
 /ext/libEFWFilter/libEFWFilter.a
 /ext/ffmpeg/.config
 /ext/ffmpeg/.version
