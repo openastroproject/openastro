@@ -2,7 +2,7 @@
  *
  * IIDCcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2017,2018,2019,2020
+ * Copyright 2015,2016,2017,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -213,19 +213,19 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
         OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) == control ) {
       if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_u32 = val->boolean;
       if ( val_u32 != 0 && val_u32 != 1 ) {
-        fprintf ( stderr, "%s: control value out of range\n", __FUNCTION__ );
+        fprintf ( stderr, "%s: control value out of range\n", __func__ );
         return -OA_ERR_OUT_OF_RANGE;
       }
     } else {
       // anything here should be a boolean value
       if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __FUNCTION__, val->valueType );
+            __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_u32 = val->boolean;
@@ -234,7 +234,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
         val_u32 ? DC1394_FEATURE_MODE_AUTO : DC1394_FEATURE_MODE_MANUAL ) !=
         DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_feature_set_mode failed for control %d\n",
-          __FUNCTION__, iidcControl );
+          __func__, iidcControl );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -245,14 +245,14 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     // anything here should be a boolean value
     if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-          __FUNCTION__, val->valueType );
+          __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     val_u32 = val->boolean;
     if ( p_dc1394_feature_set_power ( cameraInfo->iidcHandle, iidcControl,
         val_u32 ? DC1394_ON : DC1394_OFF ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_feature_set_power failed for control %d\n",
-          __FUNCTION__, iidcControl );
+          __func__, iidcControl );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -280,7 +280,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
         cameraInfo->currentBlueBalance, cameraInfo->currentRedBalance ) !=
         DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_feature_whitebalance_set_value failed\n",
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -294,20 +294,20 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     // an INT64 value here, or if it is negative
     if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where int64 expected "
-          "for OA_CAM_CTRL_EXPOSURE\n", __FUNCTION__, val->valueType );
+          "for OA_CAM_CTRL_EXPOSURE\n", __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     val_s64 = val->int64;
     if ( val < 0 ) {
       fprintf ( stderr, "%s: invalid control value %d for exposure\n",
-          __FUNCTION__, val->valueType );
+          __func__, val->valueType );
       return -OA_ERR_OUT_OF_RANGE;
     }
     val_u32 = val_s64 & 0xffffffff;
     if ( p_dc1394_feature_set_value ( cameraInfo->iidcHandle, iidcControl,
         val_u32 ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_feature_set_value failed for "
-          "control %d\n", __FUNCTION__, control );
+          "control %d\n", __func__, control );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -321,7 +321,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     // Probably shouldn't be non-positive, really.
     if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where int64 expected "
-          "for OA_CAM_CTRL_EXPOSURE_ABSOLUTE\n", __FUNCTION__,
+          "for OA_CAM_CTRL_EXPOSURE_ABSOLUTE\n", __func__,
           val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
@@ -330,7 +330,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     if ( p_dc1394_feature_set_absolute_value ( cameraInfo->iidcHandle,
         iidcControl, decval ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_feature_set_absolute_value %d failed\n",
-          __FUNCTION__, control );
+          __func__, control );
       return -OA_ERR_CAMERA_IO;
     }
     cameraInfo->currentAbsoluteExposure = val_s64;
@@ -345,7 +345,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
 
     if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where boolean expected "
-          "for OA_CAM_CTRL_COOLER\n", __FUNCTION__, val->valueType );
+          "for OA_CAM_CTRL_COOLER\n", __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
 
@@ -353,7 +353,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
       if ( p_dc1394_feature_set_power ( cameraInfo->iidcHandle,
           DC1394_FEATURE_TEMPERATURE, DC1394_ON ) != DC1394_SUCCESS ) {
         fprintf ( stderr, "%s: dc1394_feature_set_power %d failed\n",
-            __FUNCTION__, control );
+            __func__, control );
         return -OA_ERR_CAMERA_IO;
       }
       if ( cameraInfo->haveSetpointCooling ) {
@@ -361,7 +361,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
             DC1394_FEATURE_TEMPERATURE, DC1394_FEATURE_MODE_AUTO ) !=
             DC1394_SUCCESS ) {
           fprintf ( stderr, "%s: dc1394_feature_set_mode fail for control %d\n",
-              __FUNCTION__, iidcControl );
+              __func__, iidcControl );
           return -OA_ERR_CAMERA_IO;
         }
       }
@@ -369,7 +369,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
       if ( p_dc1394_feature_set_power ( cameraInfo->iidcHandle,
           DC1394_FEATURE_TEMPERATURE, DC1394_OFF ) != DC1394_SUCCESS ) {
         fprintf ( stderr, "%s: dc1394_feature_set_power %d failed\n",
-            __FUNCTION__, control );
+            __func__, control );
         return -OA_ERR_CAMERA_IO;
       }
     }
@@ -381,7 +381,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
 
     if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-          "for OA_CAM_CTRL_TEMP_SETPOINT\n", __FUNCTION__, val->valueType );
+          "for OA_CAM_CTRL_TEMP_SETPOINT\n", __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
 
@@ -391,7 +391,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     if ( p_dc1394_feature_temperature_set_value ( cameraInfo->iidcHandle,
         setpoint ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_feature_set_value failed for "
-          "control %d\n", __FUNCTION__, control );
+          "control %d\n", __func__, control );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -400,14 +400,14 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
   if ( OA_CAM_CTRL_TRIGGER_ENABLE == control ) {
     if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where boolean expected "
-          "for OA_CAM_CTRL_TRIGGER_ENABLE\n", __FUNCTION__, val->valueType );
+          "for OA_CAM_CTRL_TRIGGER_ENABLE\n", __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
 
     if ( p_dc1394_external_trigger_set_power ( cameraInfo->iidcHandle,
         val->boolean ? DC1394_ON : DC1394_OFF ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_external_trigger_set_power %d failed\n",
-          __FUNCTION__, control );
+          __func__, control );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -416,14 +416,14 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
   if ( OA_CAM_CTRL_TRIGGER_MODE == control ) {
     if ( OA_CTRL_TYPE_MENU != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where boolean expected "
-          "for OA_CAM_CTRL_TRIGGER_MENU\n", __FUNCTION__, val->valueType );
+          "for OA_CAM_CTRL_TRIGGER_MENU\n", __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     
     if ( p_dc1394_external_trigger_set_mode ( cameraInfo->iidcHandle,
         val->menu ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_external_trigger_set_power %d failed\n",
-          __FUNCTION__, control );
+          __func__, control );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -432,7 +432,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
   if ( OA_CAM_CTRL_TRIGGER_POLARITY == control ) {
     if ( OA_CTRL_TYPE_MENU != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where boolean expected "
-          "for OA_CAM_CTRL_TRIGGER_POLARITY\n", __FUNCTION__, val->valueType );
+          "for OA_CAM_CTRL_TRIGGER_POLARITY\n", __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
 
@@ -440,7 +440,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
         val->menu ? DC1394_TRIGGER_ACTIVE_LOW : DC1394_TRIGGER_ACTIVE_HIGH )
         != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_external_trigger_set_polarity %d failed\n",
-          __FUNCTION__, control );
+          __func__, control );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -449,7 +449,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
   if ( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE == control ) {
     if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where boolean expected "
-          "for OA_CAM_CTRL_TRIGGER_DELAY_ENABLE\n", __FUNCTION__,
+          "for OA_CAM_CTRL_TRIGGER_DELAY_ENABLE\n", __func__,
           val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
@@ -458,7 +458,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
         DC1394_FEATURE_TRIGGER_DELAY, val->boolean ? DC1394_ON :
         DC1394_OFF ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_feature_set_power %d failed\n",
-          __FUNCTION__, control );
+          __func__, control );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -468,14 +468,14 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     uint32_t val_u32;
     if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-          "for OA_CAM_CTRL_TRIGGER_DELAY\n", __FUNCTION__, val->valueType );
+          "for OA_CAM_CTRL_TRIGGER_DELAY\n", __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     val_u32 = val->int32;
     if ( p_dc1394_feature_set_value ( cameraInfo->iidcHandle, iidcControl,
         val_u32 ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_feature_set_value failed for "
-          "control %d\n", __FUNCTION__, control );
+          "control %d\n", __func__, control );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -485,7 +485,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     uint32_t format;
     if ( OA_CTRL_TYPE_DISCRETE != val->valueType ) {
       fprintf ( stderr, "%s: invalid control type %d where discrete expected "
-          "for OA_CAM_CTRL_FRAME_FORMAT\n", __FUNCTION__, val->valueType );
+          "for OA_CAM_CTRL_FRAME_FORMAT\n", __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     format = val->discrete;
@@ -528,7 +528,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
 		return ret;
   }
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
+  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -548,7 +548,7 @@ _processGetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
         &cameraInfo->currentBlueBalance, &cameraInfo->currentRedBalance ) !=
         DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_feature_whitebalance_get_value failed\n",
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_CAMERA_IO;
     }
     val->valueType = OA_CTRL_TYPE_INT32;
@@ -577,7 +577,7 @@ _processGetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
         if ( p_dc1394_feature_get_value ( cameraInfo->iidcHandle, iidcControl,
             &val_u32 ) != DC1394_SUCCESS ) {
           fprintf ( stderr, "%s: dc1394_feature_get_value failed for "
-              "control %d\n", __FUNCTION__, control );
+              "control %d\n", __func__, control );
           return -OA_ERR_CAMERA_IO;
         }
         val->int64 = val_u32;
@@ -587,7 +587,7 @@ _processGetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
         if ( p_dc1394_feature_get_mode ( cameraInfo->iidcHandle, iidcControl,
             &mode ) != DC1394_SUCCESS ) {
           fprintf ( stderr, "%s: dc1394_feature_get failed for feature %d\n",
-              __FUNCTION__, iidcControl );
+              __func__, iidcControl );
           return -OA_ERR_CAMERA_IO;
         } else {
           val->valueType = OA_CTRL_TYPE_BOOLEAN;
@@ -605,7 +605,7 @@ _processGetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     if ( p_dc1394_feature_get_absolute_value ( cameraInfo->iidcHandle,
         DC1394_FEATURE_SHUTTER, &decval ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_feature_get_absolute_value %d failed\n",
-          __FUNCTION__, iidcControl );
+          __func__, iidcControl );
       return -OA_ERR_CAMERA_IO;
     } else {
       val->int64 = decval * 1000000.0;
@@ -619,7 +619,7 @@ _processGetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     if ( p_dc1394_feature_temperature_get_value ( cameraInfo->iidcHandle,
         &setpoint, &current ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_feature_get_temperature failed\n",
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_CAMERA_IO;
     }
     // allegedly the temperature is in K, so we need to rebase to C
@@ -635,7 +635,7 @@ _processGetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
   }
 
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
+  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -696,7 +696,7 @@ _doCameraConfig ( IIDC_STATE* cameraInfo )
     if ( p_dc1394_format7_get_modeset ( cameraInfo->iidcHandle, &modeList ) !=
         DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_format7_get_modeset return error\n",
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_CAMERA_IO;
     }
 
@@ -717,13 +717,13 @@ _doCameraConfig ( IIDC_STATE* cameraInfo )
     }
 
     if ( !matched ) {
-      fprintf ( stderr, "%s: matching Format7 mode not found\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: matching Format7 mode not found\n", __func__ );
       return -OA_ERR_OUT_OF_RANGE;
     }
 
     if ( p_dc1394_video_set_mode ( cameraInfo->iidcHandle, thisOne ) !=
         DC1394_SUCCESS ) {
-      fprintf ( stderr, "%s: unable to set Format7 mode %d\n", __FUNCTION__,
+      fprintf ( stderr, "%s: unable to set Format7 mode %d\n", __func__,
           thisOne );
       return -OA_ERR_CAMERA_IO;
     }
@@ -732,7 +732,7 @@ _doCameraConfig ( IIDC_STATE* cameraInfo )
         cameraInfo->currentCodec, DC1394_USE_MAX_AVAIL, 0, 0,
         cameraInfo->xSize, cameraInfo->ySize ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: unable to set mode %d, codec %d, roi %dx%d\n",
-          __FUNCTION__, thisOne, cameraInfo->currentCodec, cameraInfo->xSize,
+          __func__, thisOne, cameraInfo->currentCodec, cameraInfo->xSize,
           cameraInfo->ySize );
       return -OA_ERR_CAMERA_IO;
     }
@@ -749,7 +749,7 @@ _doCameraConfig ( IIDC_STATE* cameraInfo )
 
     if ( !requiredFrameRate ) {
       fprintf ( stderr, "%s: no frame rate matching %d/%d found\n",
-          __FUNCTION__, cameraInfo->frameRateNumerator,
+          __func__, cameraInfo->frameRateNumerator,
           cameraInfo->frameRateDenominator );
       return -OA_ERR_CAMERA_IO;
     }
@@ -757,7 +757,7 @@ _doCameraConfig ( IIDC_STATE* cameraInfo )
     if ( p_dc1394_video_get_supported_modes ( cameraInfo->iidcHandle,
         &videoModes ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_video_get_supported_modes failed",
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_CAMERA_IO;
     }
 
@@ -773,21 +773,21 @@ _doCameraConfig ( IIDC_STATE* cameraInfo )
       if ( p_dc1394_get_image_size_from_video_mode ( cameraInfo->iidcHandle,
           videoModes.modes[i], &w, &h ) != DC1394_SUCCESS ) {
         fprintf ( stderr, "%s: dc1394_get_image_size_from_video_mode failed",
-          __FUNCTION__ );
+          __func__ );
       } else {
         if ( w == cameraInfo->xSize && h == cameraInfo->ySize ) {
           if ( p_dc1394_get_color_coding_from_video_mode (
 							cameraInfo->iidcHandle, videoModes.modes[i], &codec ) !=
 							DC1394_SUCCESS ) {
             fprintf ( stderr, "%s: dc1394_get_color_coding_from_video_mode "
-                "failed", __FUNCTION__ );
+                "failed", __func__ );
           } else {
             if ( codec == cameraInfo->currentCodec ) {
               if ( p_dc1394_video_get_supported_framerates (
                   cameraInfo->iidcHandle, videoModes.modes[i], &framerates )
                   != DC1394_SUCCESS ) {
                 fprintf ( stderr, "%s: dc1394_video_get_supported_framerates "
-                    "failed\n", __FUNCTION__ );
+                    "failed\n", __func__ );
               } else {
                 for ( j = 0; !matched && j < framerates.num; j++ ) {
                   if ( framerates.framerates[j] == requiredFrameRate ) {
@@ -803,21 +803,19 @@ _doCameraConfig ( IIDC_STATE* cameraInfo )
     }
 
     if ( !matched ) {
-      fprintf ( stderr, "%s: can't find compatible video mode\n",
-          __FUNCTION__ );
+      fprintf ( stderr, "%s: can't find compatible video mode\n", __func__ );
       return -OA_ERR_OUT_OF_RANGE;
     }
 
     if ( p_dc1394_video_set_mode ( cameraInfo->iidcHandle,
         videoModes.modes[ thisOne ]) != DC1394_SUCCESS ) {
-      fprintf ( stderr, "%s: dc1394_video_set_mode failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: dc1394_video_set_mode failed\n", __func__ );
       return -OA_ERR_CAMERA_IO;
     }
 
     if ( p_dc1394_video_set_framerate ( cameraInfo->iidcHandle,
         requiredFrameRate ) != DC1394_SUCCESS ) {
-      fprintf ( stderr, "%s: dc1394_video_set_framerate failed\n",
-          __FUNCTION__ );
+      fprintf ( stderr, "%s: dc1394_video_set_framerate failed\n", __func__ );
       return -OA_ERR_CAMERA_IO;
     }
 
@@ -827,7 +825,7 @@ _doCameraConfig ( IIDC_STATE* cameraInfo )
     if (( ret = p_dc1394_capture_setup ( cameraInfo->iidcHandle,
         OA_CAM_BUFFERS, DC1394_CAPTURE_FLAGS_DEFAULT )) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_capture_setup failed: %d\n",
-          __FUNCTION__, ret );
+          __func__, ret );
       return -OA_ERR_CAMERA_IO;
     }
 
@@ -835,7 +833,7 @@ _doCameraConfig ( IIDC_STATE* cameraInfo )
     if ( p_dc1394_video_set_transmission ( cameraInfo->iidcHandle,
         DC1394_ON ) != DC1394_SUCCESS ) {
       fprintf ( stderr, "%s: dc1394_video_set_transmission failed\n",
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_CAMERA_IO;
     }
   }
@@ -858,15 +856,14 @@ _processStreamingStart ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
 
   if (( ret = p_dc1394_capture_setup ( cameraInfo->iidcHandle,
       OA_CAM_BUFFERS, DC1394_CAPTURE_FLAGS_DEFAULT )) != DC1394_SUCCESS ) {
-    fprintf ( stderr, "%s: dc1394_capture_setup failed: %d\n", __FUNCTION__,
+    fprintf ( stderr, "%s: dc1394_capture_setup failed: %d\n", __func__,
         ret );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
   if ( p_dc1394_video_set_transmission ( cameraInfo->iidcHandle, DC1394_ON ) !=
       DC1394_SUCCESS ) {
-    fprintf ( stderr, "%s: dc1394_video_set_transmission failed\n",
-        __FUNCTION__ );
+    fprintf ( stderr, "%s: dc1394_video_set_transmission failed\n", __func__ );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
@@ -893,7 +890,7 @@ _processStreamingStop ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
   if ( p_dc1394_video_set_transmission ( cameraInfo->iidcHandle, DC1394_OFF )
       != DC1394_SUCCESS ) {
     fprintf ( stderr, "%s: dc1394_video_set_transmission failed\n",
-      __FUNCTION__ );
+      __func__ );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
@@ -912,7 +909,7 @@ _processStreamingStop ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
   } while ( !queueEmpty );
 
   if ( p_dc1394_capture_stop ( cameraInfo->iidcHandle ) != DC1394_SUCCESS ) {
-    fprintf ( stderr, "%s: dc1394_capture_stop failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: dc1394_capture_stop failed\n", __func__ );
     return -OA_ERR_SYSTEM_ERROR;
   }
 

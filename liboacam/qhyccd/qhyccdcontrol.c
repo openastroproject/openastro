@@ -2,7 +2,7 @@
  *
  * qhyccdcontrol.c -- control functions for libqhyccd cameras
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -95,6 +95,6 @@ oaQHYCCDCameraTestControl ( oaCamera* camera, int control,
 		return OA_ERR_NONE;
 	}
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
+  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
   return -OA_ERR_INVALID_CONTROL;
 }

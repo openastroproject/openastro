@@ -2,7 +2,7 @@
  *
  * atikSerialcontrol.c -- control functions for Atik serial cameras
  *
- * Copyright 2014,2015,2016,2017,2018,2019
+ * Copyright 2014,2015,2016,2017,2018,2019,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -99,8 +99,7 @@ oaAtikSerialCameraTestControl ( oaCamera* camera, int control,
 
     default:
       // If we reach here it's because we don't recognise the control
-      fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+      fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }

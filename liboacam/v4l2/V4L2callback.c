@@ -49,7 +49,7 @@ oacamV4L2callbackHandler ( void* param )
   void*			(*callbackFunc)( void*, void*, int, void* );
   struct v4l2_buffer*	frameData;
 
-	oaLogInfo ( OA_LOG_CAMERA, "%s: thread started", __FUNCTION__ );
+	oaLogInfo ( OA_LOG_CAMERA, "%s: thread started", __func__ );
 
   do {
     pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
@@ -83,8 +83,7 @@ oacamV4L2callbackHandler ( void* param )
           pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
           if ( streaming ) {
             if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_QBUF, frameData )) {
-							oaLogError ( OA_LOG_CAMERA, "%s: VIDIOC_DQBUF failed",
-									__FUNCTION__ );
+							oaLogError ( OA_LOG_CAMERA, "%s: VIDIOC_DQBUF failed", __func__ );
             }
           }
           pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
@@ -93,13 +92,13 @@ oacamV4L2callbackHandler ( void* param )
           break;
         default:
 					oaLogWarning ( OA_LOG_CAMERA, "%s: unexpected callback type %d",
-              __FUNCTION__, callback->callbackType );
+              __func__, callback->callbackType );
           break;
       }
     }
   } while ( 1 );
 
-	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting thread", __FUNCTION__ );
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting thread", __func__ );
 
   return 0;
 }

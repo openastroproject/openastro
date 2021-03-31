@@ -2,7 +2,7 @@
  *
  * control.c -- control functions for Basler (Pylon) cameras
  *
- * Copyright 2020
+ * Copyright 2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -90,8 +90,7 @@ oaPylonCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 
     default:
       // If we reach here it's because we don't recognise the control
-      fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+      fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }

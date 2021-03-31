@@ -2,7 +2,7 @@
  *
  * V4L2getState.c -- state querying for V4L2 cameras
  *
- * Copyright 2013,2014,2015,2017,2018
+ * Copyright 2013,2014,2015,2017,2018,2021
  *    James Fidell (james@openastroproject.org)
  *
  * License:
@@ -92,7 +92,7 @@ oaV4L2CameraGetFrameRates ( oaCamera* camera, int resX, int resY )
       if (!( cameraInfo->frameRates.rates = realloc (
           cameraInfo->frameRates.rates, ( numRates + 1 ) *
           sizeof ( FRAMERATE )))) {
-        fprintf ( stderr, "%s: realloc failed\n", __FUNCTION__ );
+        fprintf ( stderr, "%s: realloc failed\n", __func__ );
         return 0;
       }
       cameraInfo->frameRates.rates[numRates].numerator =

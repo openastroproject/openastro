@@ -2,7 +2,7 @@
  *
  * V4L2oacam.c -- main entrypoint for V4L2 Cameras
  *
- * Copyright 2013,2014,2015,2016,2019,2020
+ * Copyright 2013,2014,2015,2016,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -74,17 +74,17 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   DEVICE_INFO*							_private;
 	struct v4l2_capability		cap;
 
-	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %ld, %d ): entered", __FUNCTION__,
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %ld, %d ): entered", __func__,
 			deviceList, featureFlags, flags );
 
   if ( access ( SYS_V4L_PATH, X_OK )) {
-		oaLogError ( OA_LOG_CAMERA, "%s: Can't access %s", __FUNCTION__,
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't access %s", __func__,
 				SYS_V4L_PATH );
     return 0;
   }
 
   if ( 0 == ( dirp = opendir ( SYS_V4L_PATH ))) {
-		oaLogError ( OA_LOG_CAMERA, "%s: Can't open %s", __FUNCTION__,
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't open %s", __func__,
 				SYS_V4L_PATH );
     return -OA_ERR_SYSTEM_ERROR;
   }
@@ -95,7 +95,7 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       if ( !isdigit ( entry->d_name[5] )) {
         closedir ( dirp );
 				oaLogError ( OA_LOG_CAMERA, "%s: %s doesn't look like video{\\d+}",
-						__FUNCTION__, entry->d_name );
+						__func__, entry->d_name );
         return -OA_ERR_SYSTEM_ERROR;
       }
       index = atoi ( entry->d_name+5 );
@@ -106,14 +106,14 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       ( void ) strncat ( nameFile, "/name", PATH_MAX );
       if (!( fp = fopen ( nameFile, "r" ))) {
         closedir ( dirp );
-				oaLogError ( OA_LOG_CAMERA, "%s: failed to open %s", __FUNCTION__,
+				oaLogError ( OA_LOG_CAMERA, "%s: failed to open %s", __func__,
 						nameFile );
         return -OA_ERR_SYSTEM_ERROR;
       }
       if ( !fgets ( name, OA_MAX_NAME_LEN, fp )) {
         closedir ( dirp );
         fclose ( fp );
-				oaLogError ( OA_LOG_CAMERA, "%s: failed to read %s", __FUNCTION__,
+				oaLogError ( OA_LOG_CAMERA, "%s: failed to read %s", __func__,
 						nameFile );
         return -OA_ERR_SYSTEM_ERROR;
       }
@@ -124,7 +124,7 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 			// path name for device is /dev/video<index>
 			( void ) snprintf ( devicePath, PATH_MAX, "/dev/video%d", index );
 			if (( fd = v4l2_open ( devicePath, O_RDWR | O_NONBLOCK, 0 )) < 0 ) {
-				oaLogError ( OA_LOG_CAMERA, "%s: v4l2_open failed on %s", __FUNCTION__,
+				oaLogError ( OA_LOG_CAMERA, "%s: v4l2_open failed on %s", __func__,
 						devicePath );
 				// carry on through the list of device we've found
 				continue;
@@ -136,10 +136,10 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 			if ( -1 == v4l2_ioctl ( fd, VIDIOC_QUERYCAP, &cap )) {
 				if ( EINVAL == errno ) {
 					oaLogWarning ( OA_LOG_CAMERA, "%s: %s is not a V4L2 device",
-							__FUNCTION__, devicePath );
+							__func__, devicePath );
 				} else {
 					oaLogWarning ( OA_LOG_CAMERA, "%s: VIDIOC_QUERYCAP failed on %s",
-							__FUNCTION__, devicePath );
+							__func__, devicePath );
 				}
 				v4l2_close ( fd );
 				continue;
@@ -164,12 +164,12 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
         closedir ( dirp );
 				oaLogError ( OA_LOG_CAMERA,
-						"%s: Failed to allocate memory for oaCameraDevice", __FUNCTION__ );
+						"%s: Failed to allocate memory for oaCameraDevice", __func__ );
         return -OA_ERR_MEM_ALLOC;
       }
       if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
 				oaLogError ( OA_LOG_CAMERA,
-						"%s: Failed to allocate memory for DEVICE_INFO", __FUNCTION__ );
+						"%s: Failed to allocate memory for DEVICE_INFO", __func__ );
         ( void ) free (( void* ) dev );
         closedir ( dirp );
         return -OA_ERR_MEM_ALLOC;
@@ -183,7 +183,7 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       ( void ) strncpy ( _private->sysPath, sysPath, PATH_MAX );
       if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
 	      oaLogError ( OA_LOG_CAMERA, "%s: _oaCheckCameraArraySize() failed",
-						__FUNCTION__ );
+						__func__ );
         closedir ( dirp );
         ( void ) free (( void* ) dev );
         ( void ) free (( void* ) _private );
@@ -195,7 +195,7 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   }
   closedir ( dirp );
 
-	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting.  Found %d cameras", __FUNCTION__,
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting.  Found %d cameras", __func__,
 			numFound );
 
   return numFound;

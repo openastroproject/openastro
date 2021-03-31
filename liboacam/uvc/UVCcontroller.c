@@ -2,7 +2,7 @@
  *
  * UVCcontroller.c -- Main camera controller thread
  *
- * Copyright 2015,2016,2017,2018,2019
+ * Copyright 2015,2016,2017,2018,2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -213,7 +213,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
       default:
         fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-            __FUNCTION__ );
+            __func__ );
         return -OA_ERR_INVALID_CONTROL;
         break;
     }
@@ -230,7 +230,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_set_exposure_abs ( cameraInfo->uvcHandle, val_s32 ))
           != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_set_exposure_abs() failed in %s, err = %d\n",
-            __FUNCTION__, err );
+            __func__, err );
       }
       cameraInfo->currentAbsoluteExposure = val_s32;
       break;
@@ -239,7 +239,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 			if (( err = p_uvc_set_ae_mode ( cameraInfo->uvcHandle, valp->menu ))
 					!= UVC_SUCCESS ) {
 				fprintf ( stderr, "uvc_set_ae_mode( %d ) failed in %s, err %d\n",
-						valp->menu, __FUNCTION__, err );
+						valp->menu, __func__, err );
 			}
       break;
 
@@ -262,7 +262,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_FRAME_FORMAT:
       if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
         fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __FUNCTION__, valp->valueType );
+            "expected\n", __func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s32 = valp->discrete;
@@ -281,7 +281,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_set_scanning_mode ( cameraInfo->uvcHandle, data ))
           != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_set_scanning_mode ( %d ) failed in %s, err %d\n",
-            data, __FUNCTION__, err );
+            data, __func__, err );
       }
       break;
     }
@@ -292,7 +292,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_set_zoom_abs ( cameraInfo->uvcHandle, data ))
           != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_set_zoom_abs ( %d ) failed in %s, err %d\n",
-            data, __FUNCTION__, err );
+            data, __func__, err );
       }
       break;
     }
@@ -303,7 +303,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_set_focus_abs ( cameraInfo->uvcHandle, data ))
           != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_set_focus_abs ( %d ) failed in %s, err %d\n",
-            data, __FUNCTION__, err );
+            data, __func__, err );
       }
       break;
     }
@@ -314,7 +314,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_set_iris_abs ( cameraInfo->uvcHandle, data ))
           != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_set_iris_abs ( %d ) failed in %s, err %d\n",
-            data, __FUNCTION__, err );
+            data, __func__, err );
       }
       break;
     }
@@ -333,7 +333,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
           cameraInfo->currentPan, cameraInfo->currentTilt )) != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_set_pantilt_abs ( %d, %d ) failed in %s,"
             " err %d\n", cameraInfo->currentPan, cameraInfo->currentTilt,
-            __FUNCTION__, err );
+            __func__, err );
       }
       break;
     }
@@ -344,7 +344,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_set_roll_abs ( cameraInfo->uvcHandle, data ))
           != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_set_iris_abs ( %d ) failed in %s, err %d\n",
-            data, __FUNCTION__, err );
+            data, __func__, err );
       }
       break;
     }
@@ -356,7 +356,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_set_privacy ( cameraInfo->uvcHandle, data ))
           != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_set_privacy ( %d ) failed in %s, err %d\n",
-            data, __FUNCTION__, err );
+            data, __func__, err );
       }
       break;
     }
@@ -369,7 +369,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_set_focus_simple_range ( cameraInfo->uvcHandle, data ))
           != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_set_focus_simple_range( %d ) failed in %s,"
-            " err %d\n", data, __FUNCTION__, err );
+            " err %d\n", data, __func__, err );
       }
       break;
     }
@@ -382,14 +382,14 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_set_focus_auto ( cameraInfo->uvcHandle, data ))
           != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_set_focus_auto ( %d ) failed in %s, err %d\n",
-            data, __FUNCTION__, err );
+            data, __func__, err );
       }
       break;
     }
 
     default:
       fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+          __func__ );
       break;
   }
 
@@ -450,7 +450,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 
       default:
         fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-            __FUNCTION__ );
+            __func__ );
         return -OA_ERR_INVALID_CONTROL;
         break;
     }
@@ -469,7 +469,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       if ( p_uvc_get_exposure_abs ( cameraInfo->uvcHandle, &data32,
 					UVC_GET_CUR ) != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_get_exposure_abs() failed in %s\n",
-            __FUNCTION__ );
+            __func__ );
       }
       data64 = data32;
       data64 *= 1000; // convert msec to usec
@@ -483,8 +483,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 
       if ( p_uvc_get_ae_mode ( cameraInfo->uvcHandle, &data, UVC_GET_CUR )
           != UVC_SUCCESS ) {
-        fprintf ( stderr, "uvc_get_ae_mode() failed in %s\n",
-            __FUNCTION__ );
+        fprintf ( stderr, "uvc_get_ae_mode() failed in %s\n", __func__ );
       }
       valp->valueType = OA_CTRL_TYPE_MENU;
       valp->menu = data;
@@ -507,7 +506,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_get_scanning_mode ( cameraInfo->uvcHandle, &data,
           UVC_GET_CUR )) != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_get_scanning_mode() failed in %s, err %d\n",
-            __FUNCTION__, err );
+            __func__, err );
       }
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
       valp->boolean = data ? 1 : 0;
@@ -521,7 +520,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_get_zoom_abs ( cameraInfo->uvcHandle, &data,
           UVC_GET_CUR )) != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_get_zoom_abs() failed in %s, err %d\n",
-            __FUNCTION__, err );
+            __func__, err );
       }
       valp->valueType = OA_CTRL_TYPE_INT32;
       valp->int32 = data;
@@ -535,7 +534,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_get_focus_abs ( cameraInfo->uvcHandle, &data,
           UVC_GET_CUR )) != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_get_focus_abs() failed in %s, err %d\n",
-            __FUNCTION__, err );
+            __func__, err );
       }
       valp->valueType = OA_CTRL_TYPE_INT32;
       valp->int32 = data;
@@ -549,7 +548,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_get_iris_abs ( cameraInfo->uvcHandle, &data,
           UVC_GET_CUR )) != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_get_iris_abs() failed in %s, err %d\n",
-            __FUNCTION__, err );
+            __func__, err );
       }
       valp->valueType = OA_CTRL_TYPE_INT32;
       valp->int32 = data;
@@ -563,7 +562,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
           &cameraInfo->currentPan, &cameraInfo->currentTilt, UVC_GET_CUR )) !=
           UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_get_pantilt_abs() failed in %s, err %d\n",
-            __FUNCTION__, err );
+            __func__, err );
       }
       valp->valueType = OA_CTRL_TYPE_INT32;
       valp->int32 = OA_CAM_CTRL_PAN_ABSOLUTE == control ?
@@ -577,7 +576,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_get_roll_abs ( cameraInfo->uvcHandle, &data,
           UVC_GET_CUR )) != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_get_iris_abs() failed in %s, err %d\n",
-            __FUNCTION__, err );
+            __func__, err );
       }
       break;
       valp->valueType = OA_CTRL_TYPE_INT32;
@@ -592,7 +591,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_get_privacy ( cameraInfo->uvcHandle, &data,
           UVC_GET_CUR )) != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_get_privacy() failed in %s, err %d\n",
-            __FUNCTION__, err );
+            __func__, err );
       }
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
       valp->boolean = data ? 1 : 0;
@@ -606,7 +605,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_get_focus_simple_range ( cameraInfo->uvcHandle, &data,
           UVC_GET_CUR )) != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_get_focus_simple_range() failed in %s, err %d\n",
-            __FUNCTION__, err );
+            __func__, err );
       }
       valp->valueType = OA_CTRL_TYPE_MENU;
       valp->menu = data;
@@ -622,7 +621,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       if (( err = p_uvc_get_focus_auto ( cameraInfo->uvcHandle, &data,
           UVC_GET_CUR )) != UVC_SUCCESS ) {
         fprintf ( stderr, "uvc_get_focus_auto() failed in %s, err %d\n",
-            __FUNCTION__, err );
+            __func__, err );
       }
       valp->valueType = OA_CTRL_TYPE_BOOLEAN;
       valp->boolean = data ? 1 : 0;
@@ -630,8 +629,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
     }
 
     default:
-      fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+      fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -651,7 +649,7 @@ getUVCControl ( uvc_device_handle_t* uvcHandle, uint8_t unitId, uint8_t ctrl,
   if (( ret = p_uvc_get_ctrl ( uvcHandle, unitId, ctrl, data, len, req )) !=
       len ) {
     fprintf ( stderr, "%s requested %d for control %d, got %d\n",
-        __FUNCTION__, len, ctrl, ret );
+        __func__, len, ctrl, ret );
     return ret;
   }
 
@@ -705,7 +703,7 @@ _doSetUVCControl ( uvc_device_handle_t* uvcHandle, uint8_t unitId,
   if (( ret = p_uvc_set_ctrl ( uvcHandle, unitId, ctrl, data, len )) !=
       len ) {
     fprintf ( stderr, "%s requested %d for control %d, got %d\n",
-        __FUNCTION__, len, ctrl, ret );
+        __func__, len, ctrl, ret );
     return ret;
   }
   return ret;

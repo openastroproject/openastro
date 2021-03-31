@@ -2,7 +2,7 @@
  *
  * connect.c -- Initialise Basler Pylon cameras
  *
- * Copyright 2020
+ * Copyright 2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -927,8 +927,9 @@ oaPylonInitCamera ( oaCameraDevice* device )
 	for ( i = 1; i <= binMax; i++ ) {
 		if (!( cameraInfo->frameSizes[i].sizes = ( FRAMESIZE* ) malloc (
 					sizeof ( FRAMESIZE )))) {
-			fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+			fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
 			if ( i ) {
+				// FIX ME -- missing code here?
 			}
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;

@@ -2,7 +2,7 @@
  *
  * GP2control.c -- control functions for libgphoto2 cameras
  *
- * Copyright 2019
+ * Copyright 2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -73,8 +73,7 @@ oaGP2CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 
     default:
       // If we reach here it's because we don't recognise the control
-      fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+      fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }

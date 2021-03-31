@@ -2,7 +2,7 @@
  *
  * UVCconnect.c -- Initialise UVC cameras
  *
- * Copyright 2014,2015,2016,2017,2018,2019,2020
+ * Copyright 2014,2015,2016,2017,2018,2019,2020,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -1070,7 +1070,7 @@ oaUVCInitCamera ( oaCameraDevice* device )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s malloc failed\n", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
@@ -1252,7 +1252,7 @@ _getUVCControlValues ( oaCamera* camera, uvc_device_handle_t* uvcHandle,
 
       default:
         fprintf ( stderr, "unhandled control type %d in %s\n",
-            camera->OA_CAM_CTRL_TYPE( oaControl ), __FUNCTION__ );
+            camera->OA_CAM_CTRL_TYPE( oaControl ), __func__ );
         break;
     }
   }

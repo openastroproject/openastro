@@ -2,7 +2,7 @@
  *
  * GP2controller.c -- Main camera controller thread
  *
- * Copyright 2019
+ * Copyright 2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -155,7 +155,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 		if ( p_gp_widget_get_value ( cameraInfo->batteryLevel, &currOption ) !=
 				GP_OK ) {
 			fprintf ( stderr, "Failed to read value of control %d in %s\n",
-					control, __FUNCTION__ );
+					control, __func__ );
 			return -OA_ERR_CAMERA_IO;
 		}
 		if ( sscanf ( currOption, "%d%%", &val ) != 1 ) {
@@ -195,7 +195,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 
 		default:
 			fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+          __func__ );
 			return -OA_ERR_INVALID_CONTROL;
 			break;
 	}
@@ -207,7 +207,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 
 	if ( p_gp_widget_get_value ( widget, &currOption ) != GP_OK ) {
 		fprintf ( stderr, "Failed to read value of control %d in %s\n",
-				control, __FUNCTION__ );
+				control, __func__ );
 		return -OA_ERR_CAMERA_IO;
 	}
 
@@ -221,7 +221,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 	}
 	if ( !found ) {
 		fprintf ( stderr, "Failed to match value of control %d in %s [%s]\n",
-				control, __FUNCTION__, currOption );
+				control, __func__, currOption );
 		return -OA_ERR_CAMERA_IO;
 	}
 
@@ -293,7 +293,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
 			default:
 				fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+          __func__ );
 				return -OA_ERR_INVALID_CONTROL;
 				break;
 		}
@@ -348,14 +348,14 @@ _setWidgetValue ( GP2_STATE* cameraInfo, CameraWidget* widget,
 	int			ret;
 
 	if ( p_gp_widget_set_value ( widget, value ) != GP_OK ) {
-		fprintf ( stderr, "Failed to set value of control in %s\n", __FUNCTION__ );
+		fprintf ( stderr, "Failed to set value of control in %s\n", __func__ );
 		return -OA_ERR_CAMERA_IO;
 	}
 
 	if (( ret = p_gp_camera_set_config ( cameraInfo->handle,
 			cameraInfo->rootWidget, cameraInfo->ctx )) != GP_OK ) {
 		fprintf ( stderr, "Failed to write config to camera in %s, error %d\n",
-				__FUNCTION__, ret );
+				__func__, ret );
 		return -OA_ERR_CAMERA_IO;
 	}
 
@@ -460,7 +460,7 @@ _handleCompletedExposure ( GP2_STATE* cameraInfo )
 				break;
 			default:
 				fprintf ( stderr, "%s: unexpected event type %d returned\n",
-						__FUNCTION__, eventType );
+						__func__, eventType );
 				break;
 		}
 		return OA_ERR_NONE;

@@ -425,7 +425,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s malloc failed\n", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );

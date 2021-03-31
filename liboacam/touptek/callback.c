@@ -76,7 +76,7 @@ TT_FUNC( oacam, callbackHandler ) ( void* param )
           break;
         default:
           oaLogError ( OA_LOG_CAMERA, "unexpected callback type %d in %sn",
-              callback->callbackType, __FUNCTION__ );
+              callback->callbackType, __func__ );
           break;
       }
     }

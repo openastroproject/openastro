@@ -2,7 +2,8 @@
  *
  * control.c -- control functions for Touptek-based cameras
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -152,7 +153,7 @@ TT_FUNC( oa, CameraTestControl )( oaCamera* camera, int control,
       break;
   }
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
+  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -192,6 +193,6 @@ TT_FUNC( oa, CameraGetMenuString )( oaCamera* camera, int control, int index )
 			break;
 	}
 
-  fprintf ( stderr, "%s: control not implemented\n", __FUNCTION__ );
+  fprintf ( stderr, "%s: control not implemented\n", __func__ );
   return "";
 }

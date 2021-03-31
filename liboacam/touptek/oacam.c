@@ -52,18 +52,18 @@ TT_FUNC( oa, GetCameras )( CAMERA_LIST* deviceList, unsigned long featureFlags,
   DEVICE_INFO*		_private;
   int                   ret;
 
-	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %ld, %d ): entered", __FUNCTION__,
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %ld, %d ): entered", __func__,
 			deviceList, featureFlags, flags );
 
 	if (( ret = TT_FUNC( _, InitLibraryFunctionPointers )()) != OA_ERR_NONE ) {
 		oaLogError ( OA_LOG_CAMERA,
-				"%s: _...InitLibraryFunctionPointers() failed, exiting", __FUNCTION__ );
+				"%s: _...InitLibraryFunctionPointers() failed, exiting", __func__ );
 		return ret;
 	}
 
   numCameras = ( TT_LIB_PTR( EnumV2 ))( devList );
   if ( numCameras < 1 ) {
-		oaLogInfo ( OA_LOG_CAMERA, "%s: No cameras found", __FUNCTION__ );
+		oaLogInfo ( OA_LOG_CAMERA, "%s: No cameras found", __func__ );
     return 0;
   }
 
@@ -71,13 +71,13 @@ TT_FUNC( oa, GetCameras )( CAMERA_LIST* deviceList, unsigned long featureFlags,
 
     if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
 			oaLogError ( OA_LOG_CAMERA,
-					"%s: Failed to allocate memory for oaCameraDevice", __FUNCTION__ );
+					"%s: Failed to allocate memory for oaCameraDevice", __func__ );
       return -OA_ERR_MEM_ALLOC;
     }
 
     if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
 			oaLogError ( OA_LOG_CAMERA,
-					"%s: Failed to allocate memory for DEVICE_INFO", __FUNCTION__ );
+					"%s: Failed to allocate memory for DEVICE_INFO", __func__ );
       ( void ) free (( void* ) dev );
       return -OA_ERR_MEM_ALLOC;
     }
@@ -92,7 +92,7 @@ TT_FUNC( oa, GetCameras )( CAMERA_LIST* deviceList, unsigned long featureFlags,
     dev->initCamera = TT_FUNC( oa, InitCamera );
     if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
 			oaLogError ( OA_LOG_CAMERA, "%s: _oaCheckCameraArraySize() failed",
-					__FUNCTION__ );
+					__func__ );
       ( void ) free (( void* ) dev );
       ( void ) free (( void* ) _private );
       return ret;
@@ -100,7 +100,7 @@ TT_FUNC( oa, GetCameras )( CAMERA_LIST* deviceList, unsigned long featureFlags,
     deviceList->cameraList[ deviceList->numCameras++ ] = dev;
   }
 
-	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting.  Found %d cameras", __FUNCTION__,
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting.  Found %d cameras", __func__,
 			numCameras );
 
   return numCameras;

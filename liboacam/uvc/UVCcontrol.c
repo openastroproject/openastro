@@ -2,7 +2,7 @@
  *
  * UVCcontrol.c -- control functions for UVC cameras
  *
- * Copyright 2014,2015,2017,2018,2019
+ * Copyright 2014,2015,2017,2018,2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -104,8 +104,7 @@ oaUVCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 
     default:
       // If we reach here it's because we don't recognise the control
-      fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __FUNCTION__ );
+      fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -120,7 +119,7 @@ oaUVCCameraGetMenuString ( oaCamera* camera, int control, int index )
 {
   if ( control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) &&
       control != OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY) {
-    fprintf ( stderr, "%s: control not implemented\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: control not implemented\n", __func__ );
     return "";
   }
 

@@ -2,7 +2,8 @@
  *
  * dummyControl.c -- control functions for dummy cameras
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -42,7 +43,7 @@ oaDummyCameraTestControl ( oaCamera* camera, int control,
   DUMMY_STATE*	cameraInfo = camera->_private;
   COMMON_INFO*	commonInfo = camera->_common;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "%s: ( %d, ? )\n", __FUNCTION__, control );
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "%s: ( %d, ? )\n", __func__, control );
 
   if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;

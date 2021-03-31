@@ -594,7 +594,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
     default:
       fprintf ( stderr, "Unrecognised control %d in %s\n", command->controlId,
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -848,7 +848,7 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 
     default:
       fprintf ( stderr, "Unrecognised control %d in %s\n", command->controlId,
-          __FUNCTION__ );
+          __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -1084,7 +1084,7 @@ _setExtendedControl ( int fd, int id, oaControlValue* valp )
       extControl[0].string = ( char* ) valp->string;
       break;
     default:
-      fprintf ( stderr, "%s: unhandled value type %d\n", __FUNCTION__,
+      fprintf ( stderr, "%s: unhandled value type %d\n", __func__,
           valp->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
   }
@@ -1139,7 +1139,7 @@ _getExtendedControl ( int fd, int id, oaControlValue* valp )
       valp->string = extControl[0].string;
       break;
     default:
-      fprintf ( stderr, "%s: unhandled value type %d\n", __FUNCTION__,
+      fprintf ( stderr, "%s: unhandled value type %d\n", __func__,
           valp->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
   }
@@ -1242,7 +1242,7 @@ _doStart ( V4L2_STATE* cameraInfo )
   cameraInfo->configuredBuffers = 0;
   cameraInfo->buffersFree = 0;
   if (!( cameraInfo->buffers = calloc( req.count, sizeof ( frameBuffer )))) {
-    fprintf ( stderr, "%s: calloc of transfer buffers failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: calloc of transfer buffers failed\n", __func__ );
     return -OA_ERR_MEM_ALLOC;
   }
   for ( n = 0; n < req.count; n++ ) {
@@ -1378,7 +1378,7 @@ _processGetMenuItem ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
       control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) &&
       control != OA_CAM_CTRL_POWER_LINE_FREQ &&
       control != OA_CAM_CTRL_WHITE_BALANCE_PRESET ) {
-    fprintf ( stderr, "%s: control not implemented\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: control not implemented\n", __func__ );
     *buff = 0;
   } else {
     if ( OA_CAM_CTRL_WHITE_BALANCE_PRESET == control ) {
@@ -1404,7 +1404,7 @@ _processGetMenuItem ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
       menuItem.index = index;
       if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_QUERYMENU, &menuItem )) {
         perror ("VIDIOC_QUERYMENU");
-        fprintf ( stderr, "%s: control: %d, index %d\n", __FUNCTION__,
+        fprintf ( stderr, "%s: control: %d, index %d\n", __func__,
             menuItem.id, index );
         retStr = "";
       } else {

@@ -2,7 +2,7 @@
  *
  * qhyccdcontroller.c -- Main camera controller thread
  *
- * Copyright 2019,2020  James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020,2021  James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -207,7 +207,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 	if ( OA_CAM_CTRL_FRAME_FORMAT == control ) {
 		if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
 			fprintf ( stderr, "%s: invalid control type %d where discrete "
-					"expected\n", __FUNCTION__, valp->valueType );
+					"expected\n", __func__, valp->valueType );
 			return -OA_ERR_INVALID_CONTROL_TYPE;
 		}
 		val = valp->discrete;
@@ -220,7 +220,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 	if ( OA_CAM_CTRL_BINNING == control ) {
 		if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
 			fprintf ( stderr, "%s: invalid control type %d where discrete "
-					"expected\n", __FUNCTION__, valp->valueType );
+					"expected\n", __func__, valp->valueType );
 			return -OA_ERR_INVALID_CONTROL_TYPE;
 		}
 		val = valp->discrete;
@@ -233,7 +233,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 			found = 1;
 			if ( valp->valueType != QHYControlData[i].oaControlType ) {
 				fprintf ( stderr, "%s: invalid control type %d where %d expected "
-						"for control %d\n", __FUNCTION__, valp->valueType,
+						"for control %d\n", __func__, valp->valueType,
 						QHYControlData[i].oaControlType, control );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
@@ -268,7 +268,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 		}
 	}
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
+  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -301,7 +301,7 @@ _processGetControl ( QHYCCD_STATE* cameraInfo, OA_COMMAND* command )
 		}
 	}
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
+  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -434,7 +434,7 @@ _doStart ( QHYCCD_STATE* cameraInfo )
   int			ret;
 
   if (( ret = p_BeginQHYCCDLive ( cameraInfo->handle )) != QHYCCD_SUCCESS ) {
-    fprintf ( stderr, "%s: BeginQHYCCDLive failed: %d\n", __FUNCTION__, ret );
+    fprintf ( stderr, "%s: BeginQHYCCDLive failed: %d\n", __func__, ret );
     return -OA_ERR_CAMERA_IO;
 	}
 
@@ -466,7 +466,7 @@ _doStop ( QHYCCD_STATE* cameraInfo )
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   if (( ret = p_StopQHYCCDLive ( cameraInfo->handle )) != QHYCCD_SUCCESS ) {
-    fprintf ( stderr, "%s: StopQHYCCDLive failed: %d\n", __FUNCTION__, ret );
+    fprintf ( stderr, "%s: StopQHYCCDLive failed: %d\n", __func__, ret );
     return -OA_ERR_CAMERA_IO;
   }
   return OA_ERR_NONE;
@@ -605,8 +605,7 @@ _processAbortExposure ( QHYCCD_STATE* cameraInfo )
 	oacamAbortTimer ( cameraInfo );
 
   if (( ret = p_CancelQHYCCDExposing ( cameraInfo->handle )) < 0 ) {
-    fprintf ( stderr, "%s: CancelQHYCCDExposing failed: %d\n", __FUNCTION__,
-				ret );
+    fprintf ( stderr, "%s: CancelQHYCCDExposing failed: %d\n", __func__, ret );
     return -OA_ERR_CAMERA_IO;
   }
 

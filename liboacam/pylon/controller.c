@@ -2,7 +2,7 @@
  *
  * controller.c -- Main camera controller thread
  *
- * Copyright 2020
+ * Copyright 2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -206,7 +206,7 @@ _processSetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 		case OA_CAM_CTRL_BINNING:
 			if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
 				fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-						__FUNCTION__, val->valueType );
+						__func__, val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			return _doBinning ( cameraInfo, val->int32 );
@@ -215,7 +215,7 @@ _processSetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 		case OA_CAM_CTRL_HFLIP:
 			if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
 				fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-						__FUNCTION__, val->valueType );
+						__func__, val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			if ( p_PylonDeviceSetBooleanFeature ( cameraInfo->deviceHandle,
@@ -227,7 +227,7 @@ _processSetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 		case OA_CAM_CTRL_VFLIP:
 			if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
 				fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-						__FUNCTION__, val->valueType );
+						__func__, val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			if ( p_PylonDeviceSetBooleanFeature ( cameraInfo->deviceHandle,
@@ -243,7 +243,7 @@ _processSetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 				if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
 					fprintf ( stderr,
 						"%s: invalid control (%d) type %d where int32 expected\n",
-						__FUNCTION__, control, val->valueType );
+						__func__, control, val->valueType );
 					return -OA_ERR_INVALID_CONTROL_TYPE;
 				}
 				if ( p_PylonDeviceSetIntegerFeature ( cameraInfo->deviceHandle,
@@ -256,7 +256,7 @@ _processSetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
 			if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
 				fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-						__FUNCTION__, val->valueType );
+						__func__, val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			if ( p_PylonDeviceFeatureFromString ( cameraInfo->deviceHandle,
@@ -268,7 +268,7 @@ _processSetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 		case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
 			if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
 				fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
-						__FUNCTION__, val->valueType );
+						__func__, val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			if ( p_PylonDeviceSetFloatFeature ( cameraInfo->deviceHandle,
@@ -283,7 +283,7 @@ _processSetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 		case OA_CAM_CTRL_EXPOSURE_UNSCALED:
 			if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
 				fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
-						__FUNCTION__, val->valueType );
+						__func__, val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			if ( p_PylonDeviceSetIntegerFeature ( cameraInfo->deviceHandle,
@@ -296,7 +296,7 @@ _processSetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ):
 			if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
 				fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-						__FUNCTION__, val->valueType );
+						__func__, val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			if ( p_PylonDeviceFeatureFromString ( cameraInfo->deviceHandle,
@@ -310,15 +310,14 @@ _processSetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 			if ( OA_CTRL_TYPE_DISCRETE != val->valueType ) {
 				fprintf ( stderr,
 						"%s: invalid control type %d where discrete expected\n",
-          __FUNCTION__, val->valueType );
+          __func__, val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			return _doFrameFormat ( cameraInfo, val->discrete );
 			break;
 
 		default:
-			fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-					__FUNCTION__ );
+			fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
 			return -OA_ERR_INVALID_CONTROL;
 			break;
   }
@@ -384,7 +383,7 @@ _processGetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 				if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
 					fprintf ( stderr,
 						"%s: invalid control type %d where int32 expected\n",
-						__FUNCTION__, val->valueType );
+						__func__, val->valueType );
 					return -OA_ERR_INVALID_CONTROL_TYPE;
 				}
 				if ( p_PylonDeviceGetIntegerFeature ( cameraInfo->deviceHandle,
@@ -447,8 +446,7 @@ _processGetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 			break;
 		}
 		default:
-			fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-					__FUNCTION__ );
+			fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
 			return -OA_ERR_INVALID_CONTROL;
 			break;
   }

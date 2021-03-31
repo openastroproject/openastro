@@ -884,7 +884,7 @@ _processAbortExposure ( ZWASI_STATE* cameraInfo )
 	oacamAbortTimer ( cameraInfo );
 
   if (( ret = p_ASIStopExposure ( cameraInfo->cameraId )) < 0 ) {
-    fprintf ( stderr, "%s: ASIStopExposure failed: %d\n", __FUNCTION__, ret );
+    fprintf ( stderr, "%s: ASIStopExposure failed: %d\n", __func__, ret );
     return -OA_ERR_CAMERA_IO;
   }
 

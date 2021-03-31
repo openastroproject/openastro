@@ -2,7 +2,7 @@
  *
  * SVBcontroller.c -- Main camera controller thread
  *
- * Copyright 2020
+ * Copyright 2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -895,7 +895,7 @@ _processAbortExposure ( SVB_STATE* cameraInfo )
 	oacamAbortTimer ( cameraInfo );
 
   if (( ret = p_SVBStopExposure ( cameraInfo->cameraId )) < 0 ) {
-    fprintf ( stderr, "%s: SVBStopExposure failed: %d\n", __FUNCTION__, ret );
+    fprintf ( stderr, "%s: SVBStopExposure failed: %d\n", __func__, ret );
     return -OA_ERR_CAMERA_IO;
   }
 

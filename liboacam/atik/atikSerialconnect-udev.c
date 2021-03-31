@@ -2,7 +2,7 @@
  *
  * atikSerialconnect-udev.c -- Initialise Atik serial cameras via udev
  *
- * Copyright 2014,2015,2016,2018,2019,2020
+ * Copyright 2014,2015,2016,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -96,7 +96,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( camDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't get lock on %s, errno = %d\n", __FUNCTION__,
+    fprintf ( stderr, "%s: can't get lock on %s, errno = %d\n", __func__,
         devInfo->sysPath, errnoCopy );
     FREE_DATA_STRUCTS;
     return 0;
@@ -106,7 +106,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( camDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't get termio on %s, errno = %d\n", __FUNCTION__,
+    fprintf ( stderr, "%s: can't get termio on %s, errno = %d\n", __func__,
         devInfo->sysPath, errnoCopy );
     FREE_DATA_STRUCTS;
     return 0;
@@ -127,7 +127,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( camDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't set termio on %s, errno = %d\n", __FUNCTION__,
+    fprintf ( stderr, "%s: can't set termio on %s, errno = %d\n", __func__,
         devInfo->sysPath, errnoCopy );
     FREE_DATA_STRUCTS;
     return 0;
@@ -140,60 +140,60 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
 
   // Send a PING command to the PIC.  No idea if this is really required.
   if ( cameraInfo->write ( cameraInfo, pingCmd, 4 )) {
-    fprintf ( stderr, "%s: write error on ping\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: write error on ping\n", __func__ );
     close ( camDesc );
     FREE_DATA_STRUCTS;
     return 0;
   }
   usleep ( 100000 );
   if (( numRead = cameraInfo->read ( cameraInfo, buffer, 1 ) != 1 )) {
-    fprintf ( stderr, "%s: read error on ping\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: read error on ping\n", __func__ );
     close ( camDesc );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
   if ( cameraInfo->write ( cameraInfo, capsCmd, 4 )) {
-    fprintf ( stderr, "%s: write error on query caps\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: write error on query caps\n", __func__ );
     close ( camDesc );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
   if (( numRead = cameraInfo->read ( cameraInfo, buffer, 2 )) != 2 ) {
-    fprintf ( stderr, "%s: read error 1 on query caps\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: read error 1 on query caps\n", __func__ );
     close ( camDesc );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
   /*
-  fprintf ( stderr, "%s: camera protocol version %hhu.%hhu\n", __FUNCTION__,
+  fprintf ( stderr, "%s: camera protocol version %hhu.%hhu\n", __func__,
       buffer[1], buffer[0] );
    */
 
   if (( numRead = cameraInfo->readToZero ( cameraInfo, buffer,
       BUFFER_LEN )) < 1 ) {
-    fprintf ( stderr, "%s: read error 2 on query caps\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: read error 2 on query caps\n", __func__ );
     close ( camDesc );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
-  // fprintf ( stderr, "%s: camera id '%s'\n", __FUNCTION__, buffer );
+  // fprintf ( stderr, "%s: camera id '%s'\n", __func__, buffer );
 
   if (( numRead = cameraInfo->readToZero ( cameraInfo, buffer,
       BUFFER_LEN )) < 1 ) {
-    fprintf ( stderr, "%s: read error 3 on query caps\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: read error 3 on query caps\n", __func__ );
     close ( camDesc );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
-  // fprintf ( stderr, "%s: manufacturer '%s'\n", __FUNCTION__, buffer );
+  // fprintf ( stderr, "%s: manufacturer '%s'\n", __func__, buffer );
 
   if (( numRead = cameraInfo->read ( cameraInfo, buffer, 16 ) != 16 )) {
-    fprintf ( stderr, "%s: read error 4 on query caps\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: read error 4 on query caps\n", __func__ );
     close ( camDesc );
     FREE_DATA_STRUCTS;
     return 0;
@@ -231,13 +231,13 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
   */
 
   if ( cameraInfo->write ( cameraInfo, serialCmd, 4 )) {
-    fprintf ( stderr, "%s: write error on query serial no\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: write error on query serial no\n", __func__ );
     close ( camDesc );
     FREE_DATA_STRUCTS;
     return 0;
   }
   if (( numRead = cameraInfo->read ( cameraInfo, buffer, 7 ) != 7 )) {
-    fprintf ( stderr, "%s: read error on query serial no\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: read error on query serial no\n", __func__ );
     close ( camDesc );
     FREE_DATA_STRUCTS;
     return 0;
@@ -249,13 +249,13 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
   cameraInfo->hardwareType = buffer[6];
 
   if ( cameraInfo->write ( cameraInfo, fifoCmd, 4 )) {
-    fprintf ( stderr, "%s: write error on query fifo\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: write error on query fifo\n", __func__ );
     close ( camDesc );
     FREE_DATA_STRUCTS;
     return 0;
   }
   if (( numRead = cameraInfo->read ( cameraInfo, buffer, 1 ) != 1 )) {
-    fprintf ( stderr, "%s: read error on query fifo\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: read error on query fifo\n", __func__ );
     close ( camDesc );
     FREE_DATA_STRUCTS;
     return 0;
@@ -266,14 +266,14 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
   // Send some external port data.  Not sure what this does, but my
   // camera won't work without it.
   if ( cameraInfo->write ( cameraInfo, extCmd, 8 )) {
-    fprintf ( stderr, "%s: write error on ext port\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: write error on ext port\n", __func__ );
     close ( camDesc );
     FREE_DATA_STRUCTS;
     return 0;
   }
   usleep ( 100000 );
   if (( numRead = cameraInfo->read ( cameraInfo, buffer, 1 ) != 1 )) {
-    fprintf ( stderr, "%s: read error on ext port\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: read error on ext port\n", __func__ );
     close ( camDesc );
     FREE_DATA_STRUCTS;
     return 0;
@@ -295,7 +295,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
 
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -311,8 +311,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY * 2;
   if (!( cameraInfo->xferBuffer = malloc ( cameraInfo->imageBufferLength ))) {
-    fprintf ( stderr, "malloc of transfer buffer failed in %s\n",
-        __FUNCTION__ );
+    fprintf ( stderr, "malloc of transfer buffer failed in %s\n", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     FREE_DATA_STRUCTS;
     return 0;
@@ -320,8 +319,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
 
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
       sizeof ( frameBuffer )))) {
-    fprintf ( stderr, "malloc of buffer array failed in %s\n",
-        __FUNCTION__ );
+    fprintf ( stderr, "malloc of buffer array failed in %s\n", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->xferBuffer );
     FREE_DATA_STRUCTS;
@@ -334,7 +332,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s malloc failed\n", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );

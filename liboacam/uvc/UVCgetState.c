@@ -2,7 +2,8 @@
  *
  * UVCgetState.c -- state querying for UVC cameras
  *
- * Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2017,2018,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -81,7 +82,7 @@ oaUVCCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
   } while ( frame );
 
   if ( !frame ) {
-    fprintf ( stderr, "%s: no frame rates size matches found\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: no frame rates size matches found\n", __func__ );
     return 0;
   }
 
@@ -95,7 +96,7 @@ oaUVCCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
   while ( interval && *interval ) {
     if (!( cameraInfo->frameRates.rates = realloc (
       cameraInfo->frameRates.rates, ( i + 1 ) * sizeof ( FRAMERATE )))) {
-      fprintf ( stderr, "%s: realloc failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: realloc failed\n", __func__ );
       return 0;
     }
     // interval units are 100ns
@@ -107,7 +108,7 @@ oaUVCCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
   }
 
   if ( !i ) {
-    fprintf ( stderr, "%s: no frame rates found\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: no frame rates found\n", __func__ );
     return 0;
   }
 

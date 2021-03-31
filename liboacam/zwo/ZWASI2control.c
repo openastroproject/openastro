@@ -2,7 +2,8 @@
  *
  * ZWASI2control.c -- control functions for ZW ASI cameras, APIv2
  *
- * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -45,7 +46,7 @@ oaZWASI2CameraTestControl ( oaCamera* camera, int control,
   ZWASI_STATE*	cameraInfo = camera->_private;
   COMMON_INFO*	commonInfo = camera->_common;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "%s: ( %d, ? )\n", __FUNCTION__, control );
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "%s: ( %d, ? )\n", __func__, control );
 
   if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;

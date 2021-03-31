@@ -2,7 +2,7 @@
  *
  * SVBconnect.c -- Initialise SVBony cameras
  *
- * Copyright 2020
+ * Copyright 2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -61,7 +61,7 @@ oaSVBInitCamera ( oaCameraDevice* device )
   long			currentValue;
   SVB_BOOL		autoSetting;
 
-  oacamDebugMsg ( DEBUG_CAM_INIT, "SVB: init: %s ()\n", __FUNCTION__ );
+  oacamDebugMsg ( DEBUG_CAM_INIT, "SVB: init: %s ()\n", __func__ );
 
 	if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
 			sizeof ( SVB_STATE ), &commonInfo ) != OA_ERR_NONE ) {
@@ -103,7 +103,7 @@ oaSVBInitCamera ( oaCameraDevice* device )
 
   if ( p_SVBGetNumOfControls ( cameraInfo->cameraId, &numControls )) {
     fprintf ( stderr, "%s: SVBGetNumOfControls returns error\n",
-      __FUNCTION__ );
+      __func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -513,7 +513,7 @@ oaSVBInitCamera ( oaCameraDevice* device )
 #if 0
         case SVB_HARDWARE_BIN:
 #endif
-          fprintf ( stderr, "%s: control %s is not supported\n", __FUNCTION__,
+          fprintf ( stderr, "%s: control %s is not supported\n", __func__,
               controlCaps.Name );
           break;
 
@@ -523,7 +523,7 @@ oaSVBInitCamera ( oaCameraDevice* device )
 #endif
 
         default:
-          fprintf ( stderr, "%s: Unrecognised control '%s'\n", __FUNCTION__,
+          fprintf ( stderr, "%s: Unrecognised control '%s'\n", __func__,
               controlCaps.Name );
           break;
       }
@@ -641,7 +641,7 @@ oaSVBInitCamera ( oaCameraDevice* device )
 
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     FREE_DATA_STRUCTS;
     return 0;
@@ -653,7 +653,7 @@ oaSVBInitCamera ( oaCameraDevice* device )
   if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING )) {
     if (!( cameraInfo->frameSizes[2].sizes =
         ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-      fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
       free (( void* ) cameraInfo->frameSizes[1].sizes );
       FREE_DATA_STRUCTS;
       return 0;
@@ -685,7 +685,7 @@ oaSVBInitCamera ( oaCameraDevice* device )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __FUNCTION__ );
+      fprintf ( stderr, "%s malloc failed\n", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );

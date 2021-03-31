@@ -2,7 +2,7 @@
  *
  * SVBcontrol.c -- control functions for SVBony cameras
  *
- * Copyright 2020 James Fidell (james@openastroproject.org)
+ * Copyright 2020,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -43,7 +43,7 @@ oaSVBCameraTestControl ( oaCamera* camera, int control,
   SVB_STATE*	cameraInfo = camera->_private;
   COMMON_INFO*	commonInfo = camera->_common;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "%s: ( %d, ? )\n", __FUNCTION__, control );
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "%s: ( %d, ? )\n", __func__, control );
 
   if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;

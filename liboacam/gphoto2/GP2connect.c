@@ -2,7 +2,7 @@
  *
  * GP2connect.c -- Initialise libgphoto2 cameras
  *
- * Copyright 2019,2020
+ * Copyright 2019,2020,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -776,7 +776,7 @@ fprintf ( stderr, "have some bulb mode\n" );
 		if (( ret = p_gp_camera_set_config ( cameraInfo->handle,
 			cameraInfo->rootWidget, cameraInfo->ctx )) != GP_OK ) {
 			fprintf ( stderr, "Failed to write config to camera in %s, error %d\n",
-					__FUNCTION__, ret );
+					__func__, ret );
 			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );

@@ -2,7 +2,7 @@
  *
  * controller.c -- Main camera controller thread
  *
- * Copyright 2019,2020
+ * Copyright 2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -242,7 +242,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_BRIGHTNESS:
       if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->int32;
@@ -261,7 +261,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_CONTRAST:
       if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->int32;
@@ -280,7 +280,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_GAMMA:
       if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->int32;
@@ -299,7 +299,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_HFLIP:
       if ( OA_CTRL_TYPE_BOOLEAN != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where boolean expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 1 : 0;
@@ -313,7 +313,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_VFLIP:
       if ( OA_CTRL_TYPE_BOOLEAN != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where boolean expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 1 : 0;
@@ -336,7 +336,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
       if ( OA_CTRL_TYPE_BOOLEAN != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where boolean expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       if ((( TT_LIB_PTR( put_AutoExpoEnable ))( cameraInfo->handle,
@@ -351,7 +351,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
       if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->int32;
@@ -370,7 +370,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_GAIN:
       if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->int32;
@@ -388,7 +388,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_SPEED:
       if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->int32;
@@ -406,7 +406,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_HUE:
       if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->int32;
@@ -424,7 +424,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_SATURATION:
       if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->int32;
@@ -445,7 +445,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_GREEN_BALANCE:
       if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->int32;
@@ -483,7 +483,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 		case OA_CAM_CTRL_TEMP_SETPOINT:
       if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->int32;
@@ -519,7 +519,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
       if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->int32;
@@ -548,7 +548,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 		case OA_CAM_CTRL_CONVERSION_GAIN:
       if ( OA_CTRL_TYPE_INT32 != valp->int32 ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->int32;
@@ -569,7 +569,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_BINNING:
       if ( OA_CTRL_TYPE_DISCRETE != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->discrete;
@@ -579,7 +579,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_COOLER:
       if ( OA_CTRL_TYPE_BOOLEAN != valp->valueType ) {
         fprintf ( stderr, "%s: invalid control type %d where boolean expected "
-            "for control %d\n", __FUNCTION__, valp->valueType, control );
+            "for control %d\n", __func__, valp->valueType, control );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->boolean ? 0 : 1;
@@ -597,7 +597,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 			} else {
 				if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
 					fprintf ( stderr, "%s: invalid control type %d where boolean or "
-							"int32 expected for control %d\n", __FUNCTION__,
+							"int32 expected for control %d\n", __func__,
 							valp->valueType, control );
 					return -OA_ERR_INVALID_CONTROL_TYPE;
 				}
@@ -614,7 +614,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
     case OA_CAM_CTRL_FRAME_FORMAT:
       if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
         fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __FUNCTION__, valp->valueType );
+            "expected\n", __func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val = valp->discrete;
@@ -629,14 +629,14 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       if ( control == OA_CAM_CTRL_LED_STATE ) {
         if ( OA_CTRL_TYPE_DISC_MENU != valp->valueType ) {
           fprintf ( stderr, "%s: invalid control type %d where menu expected "
-              "for control %d\n", __FUNCTION__, valp->valueType, control );
+              "for control %d\n", __func__, valp->valueType, control );
           return -OA_ERR_INVALID_CONTROL_TYPE;
         }
         cameraInfo->ledState = valp->menu;
       } else {
         if ( OA_CTRL_TYPE_INT32 != valp->valueType ) {
           fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-              "for control %d\n", __FUNCTION__, valp->valueType, control );
+              "for control %d\n", __func__, valp->valueType, control );
           return -OA_ERR_INVALID_CONTROL_TYPE;
         }
         cameraInfo->ledPeriod = valp->int32;
@@ -651,7 +651,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       break;
   }
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
+  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -831,13 +831,13 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_BINNING:
       // FIX ME
       fprintf ( stderr, "%s: Need to code binning control for " TT_DRIVER
-					"\n", __FUNCTION__ );
+					"\n", __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
 
     case OA_CAM_CTRL_COOLER:
     case OA_CAM_CTRL_FAN:
-      fprintf ( stderr, "%s: unimplemented control\n", __FUNCTION__ );
+      fprintf ( stderr, "%s: unimplemented control\n", __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
 
@@ -883,7 +883,7 @@ _processGetControl ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 		}
   }
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __FUNCTION__ );
+  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -1009,14 +1009,14 @@ _doStart ( TOUPTEK_STATE* cameraInfo )
 		if (( ret = ( TT_LIB_PTR( StartPushModeV2 ))( cameraInfo->handle,
 				TT_FUNC( _, FrameCallbackV2 ), cameraInfo )) < 0 ) {
 			fprintf ( stderr, "%s: " TT_DRIVER "_StartPushModeV2 failed: 0x%x\n",
-					__FUNCTION__, ret );
+					__func__, ret );
 			return -OA_ERR_CAMERA_IO;
 		}
   } else {
 		if (( ret = ( TT_LIB_PTR( StartPushMode ))( cameraInfo->handle,
 				TT_FUNC( _, FrameCallbackV1 ), cameraInfo )) < 0 ) {
 			fprintf ( stderr, "%s: " TT_DRIVER "_StartPushMode failed: 0x%x\n",
-					__FUNCTION__, ret );
+					__func__, ret );
 			return -OA_ERR_CAMERA_IO;
 		}
 	}
@@ -1049,7 +1049,7 @@ _doStop ( TOUPTEK_STATE* cameraInfo )
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   if (( ret = ( TT_LIB_PTR( Stop ))( cameraInfo->handle )) < 0 ) {
-    fprintf ( stderr, "%s: " TT_DRIVER "_Stop failed: %d\n", __FUNCTION__,
+    fprintf ( stderr, "%s: " TT_DRIVER "_Stop failed: %d\n", __func__,
 				ret );
     return -OA_ERR_CAMERA_IO;
   }
@@ -1188,7 +1188,7 @@ _processExposureStart ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 					cameraInfo->handle, TT_FUNC( _, PullCallbackV2 ),
 					cameraInfo )) < 0 ) {
 				fprintf ( stderr, "%s: " TT_DRIVER
-						"_StartPullModeWithCallback failed: 0x%x\n", __FUNCTION__, ret );
+						"_StartPullModeWithCallback failed: 0x%x\n", __func__, ret );
 				return -OA_ERR_CAMERA_IO;
 			}
 		} else {
@@ -1196,7 +1196,7 @@ _processExposureStart ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 					cameraInfo->handle, TT_FUNC( _, PullCallbackV1 ),
 					cameraInfo )) < 0 ) {
 				fprintf ( stderr, "%s: " TT_DRIVER
-						"_StartPullModeWithCallback failed: 0x%x\n", __FUNCTION__, ret );
+						"_StartPullModeWithCallback failed: 0x%x\n", __func__, ret );
 				return -OA_ERR_CAMERA_IO;
 			}
 		}
@@ -1297,7 +1297,7 @@ TT_FUNC( _, PullCallbackV1 )( unsigned int event, void* ptr )
 				cameraInfo->buffers[ nextBuffer ].start, bytesPerPixel * 8, &height,
 				&width )) < 0 ) {
 			fprintf ( stderr, "%s: " TT_DRIVER "_PullImage failed: 0x%x\n",
-					__FUNCTION__, ret );
+					__func__, ret );
 			return;
 		}
 
@@ -1332,7 +1332,7 @@ TT_FUNC( _, PullCallbackV2 )( unsigned int event, void* ptr )
 				cameraInfo->buffers[ nextBuffer ].start, bytesPerPixel * 8,
 				&frameInfo )) < 0 ) {
 			fprintf ( stderr, "%s: " TT_DRIVER "_PullImageV2 failed: 0x%x\n",
-					__FUNCTION__, ret );
+					__func__, ret );
 			return;
 		}
 
@@ -1356,7 +1356,7 @@ _processAbortExposure ( TOUPTEK_STATE* cameraInfo )
 	oacamAbortTimer ( cameraInfo );
 
   if (( ret = ( TT_LIB_PTR( Stop ))( cameraInfo->handle )) < 0 ) {
-    fprintf ( stderr, "%s: " TT_DRIVER "_Stop failed: %d\n", __FUNCTION__, ret );
+    fprintf ( stderr, "%s: " TT_DRIVER "_Stop failed: %d\n", __func__, ret );
     return -OA_ERR_CAMERA_IO;
   }
 

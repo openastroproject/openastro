@@ -2,7 +2,7 @@
  *
  * V4L2control.c -- control functions for V4L2 cameras
  *
- * Copyright 2013,2014,2015,2017,2019
+ * Copyright 2013,2014,2015,2017,2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -122,7 +122,7 @@ oaV4L2CameraTestControl ( oaCamera* camera, int control, oaControlValue* valp )
       break;
 
     default:
-      fprintf ( stderr, "%s: unhandled value type %d\n", __FUNCTION__,
+      fprintf ( stderr, "%s: unhandled value type %d\n", __func__,
           valp->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
       break;
@@ -161,7 +161,7 @@ oaV4L2CameraGetMenuString ( oaCamera* camera, int control, int index )
   int           retval;
   V4L2_STATE*   cameraInfo = camera->_private;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "V4L2: control: %s()\n", __FUNCTION__ );
+  oacamDebugMsg ( DEBUG_CAM_CTRL, "V4L2: control: %s()\n", __func__ );
 
   OA_CLEAR ( command );
   command.commandType = OA_CMD_MENU_ITEM_GET;
@@ -196,7 +196,7 @@ oaV4L2CameraGetAutoWBManualSetting ( oaCamera* camera )
 
   if ( !cameraInfo->haveWhiteBalanceManual ) {
     fprintf ( stderr, "%s: have no manual value for white balance menu\n",
-        __FUNCTION__ );
+        __func__ );
   }
   return cameraInfo->autoWhiteBalanceOff;
 }
