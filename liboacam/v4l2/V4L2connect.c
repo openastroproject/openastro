@@ -387,7 +387,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_WHITE_BALANCE ) = 1;
         } else {
           if ( ctrl.type ) {
-            fprintf ( stderr, "white balance is not button (%d)\n",
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: white balance is not button (%d)", __FUNCTION__,
                 ctrl.type );
           }
         }
@@ -1251,7 +1252,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
                 ctrl.default_value;
           } else {
             if ( ctrl.type ) {
-              fprintf ( stderr, "autocontour is not boolean (%d)\n",
+              oaLogWarning ( OA_LOG_CAMERA,
+									"%s: autocontour is not boolean (%d)", __FUNCTION__,
                   ctrl.type );
             }
           }
@@ -1271,7 +1273,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
           } else {
             if ( ctrl.type ) {
-              fprintf ( stderr, "contour is not INTEGER (%d)\n", ctrl.type );
+              oaLogWarning ( OA_LOG_CAMERA, "%s: contour is not INTEGER (%d)",
+									__FUNCTION__, ctrl.type );
             }
           }
           break;
@@ -1290,8 +1293,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               ctrl.default_value;
           } else {
             if ( ctrl.type ) {
-              fprintf ( stderr, "noise reduction is not INTEGER (%d)\n",
-                  ctrl.type );
+              oaLogWarning ( OA_LOG_CAMERA,
+									"%s: noise reduction is not INTEGER (%d)", __FUNCTION__,
+									ctrl.type );
             }
           }
           break;
@@ -1310,7 +1314,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
                 = ctrl.default_value;
           } else {
             if ( ctrl.type ) {
-              fprintf ( stderr, "awb speed is not INTEGER (%d)\n", ctrl.type );
+              oaLogWarning ( OA_LOG_CAMERA,
+									"%s: awb speed is not INTEGER (%d)", __FUNCTION__,
+									ctrl.type );
             }
           }
           break;
@@ -1329,7 +1335,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
                 = ctrl.default_value;
           } else {
             if ( ctrl.type ) {
-              fprintf ( stderr, "awb delay is not INTEGER (%d)\n", ctrl.type );
+              oaLogWarning ( OA_LOG_CAMERA,
+									"%s: awb delay is not INTEGER (%d)", __FUNCTION__,
+									ctrl.type );
             }
           }
           break;
@@ -1344,8 +1352,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SAVE_USER ) = 1;
           } else {
             if ( ctrl.type ) {
-              fprintf ( stderr, "save user is not button (%d)\n",
-                  ctrl.type );
+              oaLogWarning ( OA_LOG_CAMERA, "%s: save user is not button (%d)",
+									__FUNCTION__, ctrl.type );
             }
           }
           break;
@@ -1360,8 +1368,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RESTORE_USER ) = 1;
           } else {
             if ( ctrl.type ) {
-              fprintf ( stderr, "restore user is not button (%d)\n",
-                  ctrl.type );
+              oaLogWarning ( OA_LOG_CAMERA,
+									"%s: restore user is not button (%d)", __FUNCTION__,
+									ctrl.type );
             }
           }
           break;
@@ -1376,8 +1385,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
             commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_RESTORE_FACTORY ) = 1;
           } else {
             if ( ctrl.type ) {
-              fprintf ( stderr, "restore factory is not button (%d)\n",
-                  ctrl.type );
+              oaLogWarning ( OA_LOG_CAMERA,
+									"%s: restore factory is not button (%d)", __FUNCTION__,
+									ctrl.type );
             }
           }
           break;
@@ -1403,7 +1413,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     formatDesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if ( -1 == v4l2ioctl ( cameraInfo->fd, VIDIOC_ENUM_FMT, &formatDesc )) {
       if ( EINVAL != errno) {
-        perror("VIDIOC_ENUM_FORMAT");
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: VIDIOC_ENUM_FORMAT failed", __FUNCTION__ );
         continue;
       }
       break;
@@ -1750,14 +1761,15 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   format.fmt.pix.pixelformat = cameraInfo->currentV4L2Format;
   format.fmt.pix.field = V4L2_FIELD_NONE;
   if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_S_FMT, &format )) {
-    perror ( "VIDIOC_S_FMT xioctl failed" );
+    oaLogError ( OA_LOG_CAMERA, "%s: VIDIOC_S_FMT xioctl failed",
+				__FUNCTION__ );
     v4l2_close ( cameraInfo->fd );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
   if ( format.fmt.pix.pixelformat != cameraInfo->currentV4L2Format ) {
-    fprintf ( stderr, "Can't set required video format in %s.\n",
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set required video format",
         __FUNCTION__);
     v4l2_close ( cameraInfo->fd );
     FREE_DATA_STRUCTS;
@@ -1782,13 +1794,15 @@ oaV4L2InitCamera ( oaCameraDevice* device )
       if ( EINVAL == errno) {
         break;
       } else {
-        perror("VIDIOC_ENUM_FRAMESIZES failed");
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: VIDIOC_ENUM_FRAMESIZES failed", __FUNCTION__ );
       }
     }
     // FIX ME -- we can't handle mixed frame types here
 		if ( cameraInfo->framesizeType && cameraInfo->framesizeType !=
 				fsize.type ) {
-			fprintf ( stderr, "Got framesize %d when already seen %d\n",
+			oaLogWarning ( OA_LOG_CAMERA,
+					"%s: Got framesize %d when already seen %d", __FUNCTION__, 
 				fsize.type, cameraInfo->framesizeType );
 		}
 		cameraInfo->framesizeType = fsize.type;
@@ -1796,6 +1810,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 			case V4L2_FRMSIZE_TYPE_DISCRETE:
      		if (!( tmpPtr = realloc ( cameraInfo->frameSizes[1].sizes,
 						( j+1 ) * sizeof ( FRAMESIZE )))) {
+					oaLogError ( OA_LOG_CAMERA, "%s: realloc of frame size array failed",
+							__FUNCTION__ );
        		v4l2_close ( cameraInfo->fd );
 					if ( cameraInfo->frameSizes[1].numSizes ) {
 						free (( void* ) cameraInfo->frameSizes[1].sizes );
@@ -1807,12 +1823,16 @@ oaV4L2InitCamera ( oaCameraDevice* device )
      		cameraInfo->frameSizes[1].sizes[j].x = fsize.discrete.width;
      		cameraInfo->frameSizes[1].sizes[j].y = fsize.discrete.height;
 				camera->features.flags |= OA_CAM_FEATURE_FIXED_FRAME_SIZES;
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Discrete frame size %dx%d found",
+						__FUNCTION__, fsize.discrete.width, fsize.discrete.height );
 				break;
 
 			case V4L2_FRMSIZE_TYPE_STEPWISE:
 			case V4L2_FRMSIZE_TYPE_CONTINUOUS:
      		if (!( tmpPtr = realloc ( cameraInfo->frameSizes[1].sizes,
 						( j+1 ) * sizeof ( FRAMESIZE )))) {
+					oaLogError ( OA_LOG_CAMERA, "%s: realloc of frame size array failed",
+							__FUNCTION__ );
        		v4l2_close ( cameraInfo->fd );
 					if ( cameraInfo->frameSizes[1].numSizes ) {
 						free (( void* ) cameraInfo->frameSizes[1].sizes );
@@ -1829,6 +1849,11 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 				cameraInfo->minHeight = fsize.stepwise.min_height;
 				cameraInfo->maxHeight = fsize.stepwise.max_height;
 				cameraInfo->stepHeight = fsize.stepwise.step_height;
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Stepwise frame size %dx%d found\n"
+						"     min width %d, width step %d, min height %d, height step %d",
+						__FUNCTION__, fsize.stepwise.max_width, fsize.stepwise.max_height,
+						fsize.stepwise.min_width, fsize.stepwise.step_width,
+						fsize.stepwise.min_height, fsize.stepwise.step_height );
 				break;
 		}
     j++;
