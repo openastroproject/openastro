@@ -2,7 +2,8 @@
  *
  * ptrConfig.c -- Manage PTR device user config
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -56,14 +57,14 @@ oaPTRAddIDFilter ( userDeviceConfig* config )
   if ( !ptrConfig ) {
     if (!( ptrConfig = ( userDeviceConfig* ) malloc ( sizeof (
         userDeviceConfig ) * 3 ))) {
-      fprintf ( stderr, "malloc failed in %s\n", __FUNCTION__ );
+      fprintf ( stderr, "malloc failed in %s\n", __func__ );
       return;
     }
   } else {
     if ( ptrConfigEntries % 3 == 0 ) {
       if (!( ptrConfig = ( userDeviceConfig* ) realloc ( ptrConfig,
           sizeof ( userDeviceConfig ) * ( ptrConfigEntries / 3 + 1 )))) {
-        fprintf ( stderr, "realloc failed in %s\n", __FUNCTION__ );
+        fprintf ( stderr, "realloc failed in %s\n", __func__ );
         return;
       }
     }

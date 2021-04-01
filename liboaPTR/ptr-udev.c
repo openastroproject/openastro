@@ -2,7 +2,7 @@
  *
  * ptr-udev.c -- Find PTR devices using (Linux) udev
  *
- * Copyright 2015,2017,2018,2019,2020
+ * Copyright 2015,2017,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -146,14 +146,14 @@ oaPTREnumerate ( PTR_LIST* deviceList )
 
         if (( ptrDesc = open ( deviceNode, O_RDWR | O_NOCTTY )) < 0 ) {
           fprintf ( stderr, "%s: Can't open %s read-write, errno = %d (%s)\n",
-              __FUNCTION__, deviceNode, errno, strerror ( errno ));
+              __func__, deviceNode, errno, strerror ( errno ));
         } else {
           if ( ioctl ( ptrDesc, TIOCEXCL )) {
             int errnoCopy = errno;
             errno = 0;
             while (( close ( ptrDesc ) < 0 ) && EINTR == errno );
             fprintf ( stderr, "%s: can't get lock on %s, errno = %d\n",
-              __FUNCTION__, deviceNode, errnoCopy );
+              __func__, deviceNode, errnoCopy );
             continue;
           }
 
@@ -162,7 +162,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
             errno = 0;
             while (( close ( ptrDesc ) < 0 ) && EINTR == errno );
             fprintf ( stderr, "%s: can't get termio on %s, errno = %d\n",
-              __FUNCTION__, deviceNode, errnoCopy );
+              __func__, deviceNode, errnoCopy );
             continue;
           }
 
@@ -186,7 +186,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
             errno = 0;
             while (( close ( ptrDesc ) < 0 ) && EINTR == errno );
             fprintf ( stderr, "%s: can't set termio on %s, errno = %d\n",
-              __FUNCTION__, deviceNode, errnoCopy );
+              __func__, deviceNode, errnoCopy );
             continue;
           }
 
@@ -196,7 +196,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
             // ctrl-C
             if ( _ptrWrite ( ptrDesc, "\003", 1 )) {
               fprintf ( stderr, "%s: failed to write ctrl-C to %s\n",
-                  __FUNCTION__, deviceNode );
+                  __func__, deviceNode );
               close ( ptrDesc );
               continue;
               // we need to wait at least 5ms here for the PTR to respond
@@ -208,11 +208,11 @@ oaPTREnumerate ( PTR_LIST* deviceList )
             timeout.tv_sec = 2;
             timeout.tv_usec = 0;
             if ( select ( ptrDesc + 1, &readable, 0, 0, &timeout ) == 0 ) {
-              fprintf ( stderr, "%s: PTR select #1 timed out\n", __FUNCTION__ );
+              fprintf ( stderr, "%s: PTR select #1 timed out\n", __func__ );
             } else {
               numRead = _ptrRead ( ptrDesc, buffer, sizeof ( buffer ) - 1 );
               if ( numRead <= 0 ) {
-                fprintf ( stderr, "%s: PTR ctrl-C not found\n", __FUNCTION__ );
+                fprintf ( stderr, "%s: PTR ctrl-C not found\n", __func__ );
               }
             }
           }
@@ -221,7 +221,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
 
           if ( _ptrWrite ( ptrDesc, "sysreset\r", 9 )) {
             fprintf ( stderr, "%s: failed to write sysreset to %s\n",
-                __FUNCTION__, deviceNode );
+                __func__, deviceNode );
             close ( ptrDesc );
             continue;
           }
@@ -268,7 +268,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
             timeout.tv_sec = 5;
             timeout.tv_usec = 0;
             if ( select ( ptrDesc + 1, &readable, 0, 0, &timeout ) == 0 ) {
-              fprintf ( stderr, "%s: PTR select #3 timed out\n", __FUNCTION__ );
+              fprintf ( stderr, "%s: PTR select #3 timed out\n", __func__ );
             }
             numRead = _ptrRead ( ptrDesc, buffer, sizeof ( buffer ) - 1 );
             if ( numRead < 0 ) {
@@ -277,7 +277,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
             } else {
               if ( !numRead ) {
                 fprintf ( stderr, "%s: no characters read from PTR\n",
-                    __FUNCTION__ );
+                    __func__ );
               } else {
 								// i non-zero because the first time we'll read the prompt and
 								// sysreset command being echoed back, but we want to read
@@ -306,14 +306,14 @@ oaPTREnumerate ( PTR_LIST* deviceList )
             timeout.tv_sec = 2;
             timeout.tv_usec = 0;
             if ( select ( ptrDesc + 1, &readable, 0, 0, &timeout ) == 0 ) {
-              fprintf ( stderr, "%s: PTR select #3 timed out\n", __FUNCTION__ );
+              fprintf ( stderr, "%s: PTR select #3 timed out\n", __func__ );
               result = -1;
             } else {
               do {
                 numRead = _ptrRead ( ptrDesc, buffer, sizeof ( buffer ) - 1 );
                 if ( numRead <= 0 ) {
                   fprintf ( stderr, "%s: PTR status message not found\n",
-                      __FUNCTION__ );
+                      __func__ );
                   result = -1;
                 }
               } while ( !strstr ( buffer, "lock" ));
@@ -327,7 +327,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
 
           if ( result < 0 ) {
             fprintf ( stderr, "%s: Can't find PTR name from %s, buff = '%s'\n",
-                __FUNCTION__, deviceNode, buffer );
+                __func__, deviceNode, buffer );
             continue;
           }
 
