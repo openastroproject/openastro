@@ -458,7 +458,7 @@ oacamSetControl ( oaCamera* camera, int control, oaControlValue* val,
 	int		modifier, baseVal;
 
   oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %d, %p, %d ): entered", __func__,
-			camera, val, dontWait );
+			camera, control, val, dontWait );
 
 	modifier = OA_CAM_CTRL_MODIFIER( control );
 	baseVal = OA_CAM_CTRL_MODE_BASE ( control );
