@@ -60,11 +60,12 @@ euvcUsbControlMsg ( EUVC_STATE* cameraInfo, uint8_t reqType, uint8_t req,
 {
   int		ret;
 
-  pthread_mutex_lock ( &cameraInfo->usbMutex );
+	oaLogDebug ( OA_LOG_CAMERA,
+			"%s ( %p, %d, 0x%x, %d, %d, %0lx, %d, %d ): entered", __func__,
+			cameraInfo, reqType, req, value, index, ( unsigned long ) data, length,
+			timeout );
 
-  oacamDebugMsg ( DEBUG_CAM_USB,
-      "EUVC USB: %s ( %d, 0x%x, %d, %d, %0lx, %d, %d )\n", __func__,
-      reqType, req, value, index, ( unsigned long ) data, length, timeout );
+  pthread_mutex_lock ( &cameraInfo->usbMutex );
 
   ret = libusb_control_transfer ( cameraInfo->usbHandle, reqType, req, value,
       index, data, length, timeout );
@@ -73,6 +74,9 @@ euvcUsbControlMsg ( EUVC_STATE* cameraInfo, uint8_t reqType, uint8_t req,
     fprintf ( stderr, "libusb control error: %d\n", ret );
     fprintf ( stderr, "%s\n", libusb_error_name ( ret ));
   }
+
+	oaLogDebug ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return ret;
 }
 
@@ -86,9 +90,9 @@ euvcUsbBulkTransfer ( EUVC_STATE* cameraInfo, unsigned char endpoint,
 
   pthread_mutex_lock ( &cameraInfo->usbMutex );
 
-  oacamDebugMsg ( DEBUG_CAM_USB,
-      "EUVC USB: %s ( 0x%x, %0lx, %d, xferred, %d )\n", __func__,
-      endpoint, ( unsigned long ) data, length, timeout );
+	oaLogDebug ( OA_LOG_CAMERA,
+			"%s ( %p, 0x%x, %p, %d, %p, %d ): entered", __func__,
+			cameraInfo, endpoint, data, length, transferred, timeout );
 
   ret = libusb_bulk_transfer ( cameraInfo->usbHandle, endpoint, data, length,
       ( int* ) transferred, timeout );
@@ -97,6 +101,9 @@ euvcUsbBulkTransfer ( EUVC_STATE* cameraInfo, unsigned char endpoint,
   //   fprintf ( stderr, "libusb bulk error: %d\n", ret );
   //   fprintf ( stderr, "%s\n", libusb_error_name ( ret ));
   // }
+
+	oaLogDebug ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return ret;
 }
 

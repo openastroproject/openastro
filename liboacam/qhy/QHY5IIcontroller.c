@@ -136,8 +136,9 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
   int32_t val_s32;
   int64_t val_s64;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s ( %d, ? )\n",
-      __func__, control );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %p ): entered", __func__, cameraInfo,
+			command );
+	oaLogDebug ( OA_LOG_CAMERA, "%s: control = %d", __func__, control );
 
   switch ( control ) {
 
@@ -207,8 +208,10 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
-  return OA_ERR_NONE;
 
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
+  return OA_ERR_NONE;
 }
 
 
@@ -235,11 +238,14 @@ _doSetGain ( QHY_STATE* cameraInfo, unsigned int gain )
   };
 
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s ( %d )\n",
-      __func__, gain );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %d ): entered", __func__, cameraInfo,
+			gain );
 
   _i2cWrite16 ( cameraInfo, MT9M001_GLOBAL_GAIN,
       gainLookup[ gain - QHY5II_MONO_GAIN_MIN ]);
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return OA_ERR_NONE;
 }
 
@@ -249,8 +255,8 @@ _doSetHighSpeed ( QHY_STATE* cameraInfo, unsigned int value )
 {
   unsigned char	buf;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s ( %d )\n",
-      __func__, value );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %d ): entered", __func__, cameraInfo,
+			value );
 
   if ( value ) {
     cameraInfo->CMOSClock = 48;
@@ -261,6 +267,9 @@ _doSetHighSpeed ( QHY_STATE* cameraInfo, unsigned int value )
   }
 
   _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xc8, 0, 0, &buf, 1, 0 );
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return OA_ERR_NONE;
 }
 
@@ -268,10 +277,12 @@ _doSetHighSpeed ( QHY_STATE* cameraInfo, unsigned int value )
 static int
 _doSetUSBTraffic ( QHY_STATE* cameraInfo, unsigned int value )
 {
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s ( %d )\n",
-      __func__, value );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %d ): entered", __func__, cameraInfo,
+			value );
 
   _i2cWrite16 ( cameraInfo, MT9M001_HORIZ_BLANKING, 9 + value * 50 );
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
 
   return OA_ERR_NONE;
 }
@@ -287,8 +298,8 @@ _doSetExposure ( QHY_STATE* cameraInfo, unsigned int value )
   unsigned long		newTimeMillisec, newTimeMicrosec;
   unsigned char		buf[4];
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s ( %d )\n",
-      __func__, value );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %d ): entered", __func__, cameraInfo,
+			value );
 
   /*
    * The intent of this appears to be to set the exposure time to zero,
@@ -340,6 +351,8 @@ _doSetExposure ( QHY_STATE* cameraInfo, unsigned int value )
     _i2cWrite16 ( cameraInfo, MT9M001_SHUTTER_WIDTH, shutterWidth );
   }
 
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return OA_ERR_NONE;
 }
 
@@ -347,8 +360,7 @@ _doSetExposure ( QHY_STATE* cameraInfo, unsigned int value )
 void
 oaQHY5IISetAllControls ( QHY_STATE* cameraInfo )
 {
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s()\n",
-      __func__ );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p ): entered", __func__, cameraInfo );
 
   _doSetUSBTraffic ( cameraInfo, cameraInfo->currentUSBTraffic );
   _doSetHighSpeed ( cameraInfo, cameraInfo->currentHighSpeed );
@@ -357,6 +369,8 @@ oaQHY5IISetAllControls ( QHY_STATE* cameraInfo )
   _doSetGain ( cameraInfo, cameraInfo->currentGain );
   _doSetUSBTraffic ( cameraInfo, cameraInfo->currentUSBTraffic );
   _doSetExposure ( cameraInfo, cameraInfo->currentExposure );
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
 }
 
 
@@ -380,8 +394,8 @@ _doSetResolution ( QHY_STATE* cameraInfo, int x, int y )
 {
   unsigned int	xStart, yStart;
 
-  oacamDebugMsg ( DEBUG_CAM_CMD, "QHY5-II: command: %s ( %d, %d )\n",
-      __func__, x, y );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %d, %d ): entered", __func__, cameraInfo,
+			x, y );
 
   xStart = 12 + ( QHY5II_IMAGE_WIDTH - x ) / 2;
   yStart = 20 + ( QHY5II_IMAGE_HEIGHT - y ) / 2;
@@ -397,6 +411,8 @@ _doSetResolution ( QHY_STATE* cameraInfo, int x, int y )
   cameraInfo->frameSize = x * y;
   cameraInfo->captureLength = cameraInfo->frameSize + QHY5II_EOF_LEN;
 
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return OA_ERR_NONE;
 }
 
@@ -407,8 +423,9 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
   int			control = command->controlId;
   oaControlValue*	valp = command->resultData;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s ( %d )\n",
-      __func__, control );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %p ): entered", __func__, cameraInfo,
+			command );
+	oaLogDebug ( OA_LOG_CAMERA, "%s: control = %d", __func__, control );
 
   switch ( control ) {
 
@@ -443,6 +460,9 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return OA_ERR_NONE;
 }
 

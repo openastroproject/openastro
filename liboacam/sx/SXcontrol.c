@@ -117,8 +117,6 @@ oaSXCameraReset ( oaCamera* camera )
   unsigned char	buff[ SXUSB_REQUEST_BUFSIZE ];
   int		ret, transferred;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "SX: control: %s ()\n", __func__ );
-
   OA_CLEAR( buff );
   buff[ SXUSB_REQ_CMD_TYPE ] = SXUSB_CMD_SEND;
   buff[ SXUSB_REQ_CMD ] = SXUSB_RESET;

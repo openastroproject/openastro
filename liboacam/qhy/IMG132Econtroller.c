@@ -136,8 +136,9 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
   int32_t val_s32;
   int64_t val_s64;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "IMG132E: control: %s ( %d, ? )\n",
-      __func__, control );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %p ): entered", __func__, cameraInfo,
+			command );
+	oaLogDebug ( OA_LOG_CAMERA, "%s: control = %d", __func__, control );
 
   switch ( control ) {
 
@@ -233,6 +234,9 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s): exiting", __func__ );
+
   return OA_ERR_NONE;
 
 }
@@ -269,8 +273,8 @@ _doSetExposure ( QHY_STATE* cameraInfo, unsigned long value )
   unsigned int		exposureMS, units, remainder, fraction;
   unsigned int		vunits, hunits;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "IMG132E: control: %s ( %d )\n",
-      __func__, value );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %ld ): entered", __func__, cameraInfo,
+			value );
 
   exposureMS = value / 1000;
   if ( cameraInfo->xSize > 640 || cameraInfo->ySize > 480 ) {
@@ -308,6 +312,8 @@ _doSetExposure ( QHY_STATE* cameraInfo, unsigned long value )
       ( fraction >> 8 ) & 0xff )) {
     fprintf ( stderr, "%s: write reg IMX035_REG_SHS1_HI failed\n", __func__ );
   }
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
 
   return OA_ERR_NONE;
 }
@@ -389,8 +395,8 @@ _doSetResolution ( QHY_STATE* cameraInfo, int x, int y )
   uint16_t	horizClocks, vertLines;
   uint32_t	xferred;
 
-  oacamDebugMsg ( DEBUG_CAM_CMD, "IMG132E: command: %s ( %d, %d )\n",
-      __func__, x, y );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %d, %d ): entered", __func__,
+			cameraInfo, x, y );
 
   // make sure these numbers are rounded to 4-pixel boundaries
   x = ( x + 3 ) & ~3;
@@ -520,6 +526,8 @@ _doSetResolution ( QHY_STATE* cameraInfo, int x, int y )
   cameraInfo->frameSize = x * y;
   cameraInfo->captureLength = cameraInfo->frameSize;
 
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return OA_ERR_NONE;
 }
 
@@ -530,8 +538,9 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
   int			control = command->controlId;
   oaControlValue*	valp = command->resultData;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "IMG132E: control: %s ( %d )\n",
-      __func__, control );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %p ): entered", __func__, cameraInfo,
+			command );
+	oaLogDebug ( OA_LOG_CAMERA, "%s: control = %d", __func__, control );
 
   switch ( control ) {
 
@@ -583,6 +592,9 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return OA_ERR_NONE;
 }
 

@@ -43,7 +43,8 @@ oaSVBCameraTestControl ( oaCamera* camera, int control,
   SVB_STATE*	cameraInfo = camera->_private;
   COMMON_INFO*	commonInfo = camera->_common;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "%s: ( %d, ? )\n", __func__, control );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %d, %p ): entered", __func__, camera,
+			control, val );
 
   if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;
@@ -107,7 +108,11 @@ oaSVBCameraTestControl ( oaCamera* camera, int control,
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
+
   // And if we reach here it's because the value wasn't valid
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return -OA_ERR_OUT_OF_RANGE;
 }
 

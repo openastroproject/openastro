@@ -206,8 +206,9 @@ _processSetControl ( SX_STATE* cameraInfo, OA_COMMAND* command )
   int			control = command->controlId;
   oaControlValue*	val = command->commandData;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "SX: control: %s ( %d, ? )\n",
-      __func__, control );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %p ): entered", __func__, cameraInfo,
+			command );
+	oaLogDebug ( OA_LOG_CAMERA, "%s: control = %d", __func__, control );
 
   switch ( control ) {
 
@@ -256,6 +257,8 @@ _processSetControl ( SX_STATE* cameraInfo, OA_COMMAND* command )
       break;
   }
 
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return OA_ERR_NONE;
 }
 
@@ -266,8 +269,9 @@ _processGetControl ( SX_STATE* cameraInfo, OA_COMMAND* command )
   int			control = command->controlId;
   oaControlValue*	val = command->resultData;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "SX: control: %s ( %d )\n",
-      __func__, control );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %p ): entered", __func__, cameraInfo,
+			command );
+	oaLogDebug ( OA_LOG_CAMERA, "%s: control = %d", __func__, control );
 
   switch ( control ) {
 
@@ -298,6 +302,8 @@ _processGetControl ( SX_STATE* cameraInfo, OA_COMMAND* command )
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
 
   return OA_ERR_NONE;
 }

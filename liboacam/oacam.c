@@ -2,7 +2,7 @@
  *
  * oacam.c -- main camera library entrypoint
  *
- * Copyright 2013,2014,2015,2016,2018,2019,2020
+ * Copyright 2013,2014,2015,2016,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -438,11 +438,4 @@ oaGetCameraAPIVersionStr ( void )
   snprintf ( vs, 40, "%d.%d.%d", OACAM_MAJOR_VERSION, OACAM_MINOR_VERSION,
       OACAM_REVISION );
   return vs;
-}
-
-
-void
-oaSetCameraDebugLevel ( int v )
-{
-  oacamSetDebugLevel ( v );
 }

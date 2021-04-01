@@ -61,7 +61,7 @@ oaSVBInitCamera ( oaCameraDevice* device )
   long			currentValue;
   SVB_BOOL		autoSetting;
 
-  oacamDebugMsg ( DEBUG_CAM_INIT, "SVB: init: %s ()\n", __func__ );
+  oaLogInfo ( OA_LOG_CAMERA, "%s ( %p ): entered", __func__ );
 
 	if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
 			sizeof ( SVB_STATE ), &commonInfo ) != OA_ERR_NONE ) {
@@ -745,6 +745,8 @@ oaSVBInitCamera ( oaCameraDevice* device )
     FREE_DATA_STRUCTS;
     return 0;
   }
+
+  oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
 
   return camera;
 }

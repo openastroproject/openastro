@@ -48,10 +48,6 @@ typedef struct {
 
 extern int				oacamHasAuto ( oaCamera*, int );
 
-extern void				oacamSetDebugLevel ( int );
-extern void				oacamClearDebugLevel ( int );
-extern void				oacamAddDebugLevel ( int );
-extern void				oacamDebugMsg ( int, const char*, ... );
 extern int				oacamReadControl ( oaCamera*, int, oaControlValue* );
 extern int64_t		oacamGetControlValue ( oaControlValue* );
 extern int				oacamSetControl ( oaCamera*, int, oaControlValue*, int );

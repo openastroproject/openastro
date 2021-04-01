@@ -195,8 +195,8 @@ _processSetControl ( AtikSerial_STATE* cameraInfo, OA_COMMAND* command )
   int			control = command->controlId;
   oaControlValue*	val = command->commandData;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "atikSerial: control: %s ( %d, ? )\n",
-      __func__, control );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %p ): entered", __func__, command );
+	oaLogDebug ( OA_LOG_CAMERA, "%s: control = %d", control );
 
   switch ( control ) {
 
@@ -227,6 +227,8 @@ _processSetControl ( AtikSerial_STATE* cameraInfo, OA_COMMAND* command )
       break;
   }
 
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return OA_ERR_NONE;
 }
 
@@ -237,8 +239,8 @@ _processGetControl ( AtikSerial_STATE* cameraInfo, OA_COMMAND* command )
   int			control = command->controlId;
   oaControlValue*	val = command->resultData;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "atikSerial: control: %s ( %d )\n",
-      __func__, control );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %p ): entered", __func__, command );
+	oaLogDebug ( OA_LOG_CAMERA, "%s: control = %d", control );
 
   switch ( control ) {
 
@@ -263,6 +265,8 @@ _processGetControl ( AtikSerial_STATE* cameraInfo, OA_COMMAND* command )
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
 
   return OA_ERR_NONE;
 }

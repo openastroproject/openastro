@@ -56,7 +56,7 @@ oaDummyInitCamera ( oaCameraDevice* device )
   COMMON_INFO*		commonInfo;
   int          		i, j, multiplier, ret;
 
-  oacamDebugMsg ( DEBUG_CAM_INIT, "dummy: init: %s ()\n", __func__ );
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p ): entered", __func__, device );
 
   if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
       sizeof ( DUMMY_STATE ), &commonInfo ) != OA_ERR_NONE ) {
@@ -161,6 +161,8 @@ oaDummyInitCamera ( oaCameraDevice* device )
     FREE_DATA_STRUCTS;
     return 0;
   }
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
 
   return camera;
 }

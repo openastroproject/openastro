@@ -161,7 +161,8 @@ oaV4L2CameraGetMenuString ( oaCamera* camera, int control, int index )
   int           retval;
   V4L2_STATE*   cameraInfo = camera->_private;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "V4L2: control: %s()\n", __func__ );
+  oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %d, %d ): entered", __func__,
+			camera, control, index );
 
   OA_CLEAR ( command );
   command.commandType = OA_CMD_MENU_ITEM_GET;
@@ -181,6 +182,8 @@ oaV4L2CameraGetMenuString ( oaCamera* camera, int control, int index )
   if ( retval ) {
     return "";
   }
+
+  oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
 
   return ( const char* ) command.resultData;
 }

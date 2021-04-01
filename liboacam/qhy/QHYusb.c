@@ -44,11 +44,12 @@ _usbControlMsg ( QHY_STATE* cameraInfo, uint8_t reqType, uint8_t req,
 {
   int		ret;
 
-  pthread_mutex_lock ( &cameraInfo->usbMutex );
+  oaLogDebug ( OA_LOG_CAMERA,
+			"%s ( %p, %d, 0x%x, %d, %d, %0lx, %d, %d ): entered", __func__,
+			cameraInfo, reqType, req, value, index, ( unsigned long ) data, length,
+			timeout );
 
-  oacamDebugMsg ( DEBUG_CAM_USB,
-      "QHY USB: %s ( %d, 0x%x, %d, %d, %0lx, %d, %d )\n", __func__,
-      reqType, req, value, index, ( unsigned long ) data, length, timeout );
+  pthread_mutex_lock ( &cameraInfo->usbMutex );
 
   ret = libusb_control_transfer ( cameraInfo->usbHandle, reqType, req, value,
       index, data, length, timeout );
@@ -57,6 +58,9 @@ _usbControlMsg ( QHY_STATE* cameraInfo, uint8_t reqType, uint8_t req,
     fprintf ( stderr, "libusb control error: %d\n", ret );
     fprintf ( stderr, "%s\n", libusb_error_name ( ret ));
   }
+
+  oaLogDebug ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return ret;
 }
 
@@ -70,9 +74,9 @@ _usbBulkTransfer ( QHY_STATE* cameraInfo, unsigned char endpoint,
 
   pthread_mutex_lock ( &cameraInfo->usbMutex );
 
-  oacamDebugMsg ( DEBUG_CAM_USB,
-      "QHY USB: %s ( 0x%x, %0lx, %d, xferred, %d )\n", __func__,
-      endpoint, ( unsigned long ) data, length, timeout );
+	oaLogDebug ( OA_LOG_CAMERA,
+			"%s ( %p, 0x%x, %p, %d, %p, %d ): entered", __func__,
+			cameraInfo, endpoint, data, length, transferred, timeout );
 
   ret = libusb_bulk_transfer ( cameraInfo->usbHandle, endpoint, data, length,
       ( int* ) transferred, timeout );
@@ -81,6 +85,9 @@ _usbBulkTransfer ( QHY_STATE* cameraInfo, unsigned char endpoint,
   //   fprintf ( stderr, "libusb bulk error: %d\n", ret );
   //   fprintf ( stderr, "%s\n", libusb_error_name ( ret ));
   // }
+
+  oaLogDebug ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return ret;
 }
 
@@ -90,10 +97,14 @@ _i2cRead16 ( QHY_STATE* cameraInfo, unsigned short address )
 {
   unsigned char data[2];
 
-  oacamDebugMsg ( DEBUG_CAM_USB, "QHY: USB: %s ( %d )\n", __func__, address );
+	oaLogDebug ( OA_LOG_CAMERA, "%s ( %p, %d ): entered", __func__, cameraInfo,
+			address );
 
   _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_IN, 0xb7, 0, address, data,
       2, 0 );
+
+  oaLogDebug ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return data[0] * 256 + data[1];
 }
 
@@ -104,11 +115,13 @@ _i2cWrite16 ( QHY_STATE* cameraInfo, unsigned short address,
 {
   unsigned char data[2];
 
-  oacamDebugMsg ( DEBUG_CAM_USB, "QHY USB: %s ( %d, %d )\n",
-      __func__, address, value );
+	oaLogDebug ( OA_LOG_CAMERA, "%s ( %p, %d, %d ): entered", __func__,
+			cameraInfo, address, data );
 
   data[0] = value >> 8;
   data[1] = value & 0xff;
+
+  oaLogDebug ( OA_LOG_CAMERA, "%s: exiting", __func__ );
 
   return ( _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xbb, 0, address,
       data, 2, 0 ) == 2 ? 0 : -1 );
@@ -121,12 +134,14 @@ _i2cWriteIMX035 ( QHY_STATE* cameraInfo, unsigned char address,
 {
   unsigned char data[32];
 
-  oacamDebugMsg ( DEBUG_CAM_USB, "QHY USB IMX035: %s ( %d, %d )\n",
-      __func__, address, value );
+	oaLogDebug ( OA_LOG_CAMERA, "%s ( %p, %d, %d ): entered", __func__,
+			cameraInfo, address, data );
 
   memset ( data, 0, 32 );
   data[1] = address;
   data[2] = value;
+
+  oaLogDebug ( OA_LOG_CAMERA, "%s: exiting", __func__ );
 
   return ( _usbControlMsg ( cameraInfo, QHY_CMD_DEFAULT_OUT, 0xb8, 0, 0,
       data, 0x13, 3000 ) == 0x13 ? 0 : -1 );

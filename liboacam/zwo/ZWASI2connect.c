@@ -62,7 +62,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   long			currentValue;
   ASI_BOOL		autoSetting;
 
-  oacamDebugMsg ( DEBUG_CAM_INIT, "ZWASI: init: %s ()\n", __func__ );
+  oaLogInfo ( OA_LOG_CAMERA, "%s ( %p ): entered", __func__, device );
 
 	if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
 			sizeof ( ZWASI_STATE ), &commonInfo ) != OA_ERR_NONE ) {
@@ -1348,6 +1348,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     FREE_DATA_STRUCTS;
     return 0;
   }
+
+  oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
 
   return camera;
 }

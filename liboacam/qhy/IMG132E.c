@@ -60,7 +60,7 @@ _IMG132EInitCamera ( oaCamera* camera )
   COMMON_INFO*	commonInfo = camera->_common;
   void*		dummy;
 
-  oacamDebugMsg ( DEBUG_CAM_INIT, "IMG132E: init: %s ()\n", __func__ );
+  oaLogInfo ( OA_LOG_CAMERA, "%s ( %p ): entered", __func__, camera );
 
   _IMG132EInitFunctionPointers ( camera );
 
@@ -230,6 +230,8 @@ _IMG132EInitCamera ( oaCamera* camera )
   camera->features.pixelSizeX = 3360;
   camera->features.pixelSizeY = 3360;
 
+  oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return OA_ERR_NONE;
 }
 
@@ -250,7 +252,7 @@ oaIMG132ECloseCamera ( oaCamera* camera )
   QHY_STATE*	cameraInfo;
   void*		dummy;
 
-  oacamDebugMsg ( DEBUG_CAM_CMD, "IMG132E: command: %s()\n", __func__ );
+  oaLogInfo ( OA_LOG_CAMERA, "%s ( %p ): entered", __func__, camera );
 
   if ( camera ) {
 
@@ -301,6 +303,8 @@ oaIMG132ECloseCamera ( oaCamera* camera )
    return -OA_ERR_INVALID_CAMERA;
   }
 
+  oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return 0;
 }
 
@@ -339,8 +343,8 @@ oaIMG132ECameraTestControl ( oaCamera* camera, int control,
   int64_t	val_s64;
   COMMON_INFO*	commonInfo = camera->_common;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "IMG132E: control: %s ( %d, ? )\n",
-      __func__, control );
+  oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %d, %p ): entered", __func__, camera,
+			control, valp );
 
   if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;
@@ -376,6 +380,9 @@ oaIMG132ECameraTestControl ( oaCamera* camera, int control,
       }
       break;
   }
+
+  oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return -OA_ERR_OUT_OF_RANGE;
 }
 

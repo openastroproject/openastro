@@ -386,8 +386,8 @@ oacamStartStreaming ( oaCamera* camera,
   int							retval;
   SHARED_STATE*		cameraInfo = camera->_private;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "liboacam: control: %s ( %p )\n",
-      __func__, callback );
+  oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %p, %p ): entered", __func__, camera,
+			callback, callbackArg );
 
   OA_CLEAR ( command );
   callbackData.callback = callback;
@@ -404,6 +404,8 @@ oacamStartStreaming ( oaCamera* camera,
   }
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
   retval = command.resultCode;
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
 
   return retval;
 }
@@ -425,7 +427,7 @@ oacamStopStreaming ( oaCamera* camera )
   int							retval;
   SHARED_STATE*		cameraInfo = camera->_private;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "liboacam: control: %s()\n", __func__ );
+  oaLogInfo ( OA_LOG_CAMERA, "%s ( %p ): entered", __func__, camera );
 
   OA_CLEAR ( command );
   command.commandType = OA_CMD_STOP_STREAMING;
@@ -440,6 +442,8 @@ oacamStopStreaming ( oaCamera* camera )
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
   retval = command.resultCode;
 
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return retval;
 }
 
@@ -453,7 +457,8 @@ oacamSetControl ( oaCamera* camera, int control, oaControlValue* val,
   int		retval = OA_ERR_NONE;
 	int		modifier, baseVal;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "%s: ( %d, ? )\n", __func__, control );
+  oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %d, %p, %d ): entered", __func__,
+			camera, val, dontWait );
 
 	modifier = OA_CAM_CTRL_MODIFIER( control );
 	baseVal = OA_CAM_CTRL_MODE_BASE ( control );
@@ -483,6 +488,8 @@ oacamSetControl ( oaCamera* camera, int control, oaControlValue* val,
     retval = command.resultCode;
   }
 
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return retval;
 }
 
@@ -496,7 +503,8 @@ oacamStartExposure ( oaCamera* camera,
   int							retval;
   SHARED_STATE*		cameraInfo = camera->_private;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "liboacam: startExposure\n", callback );
+  oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %p, %p ): entered", __func__, camera,
+			callback, callbackArg );
 
   OA_CLEAR ( command );
   callbackData.callback = callback;
@@ -514,6 +522,8 @@ oacamStartExposure ( oaCamera* camera,
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
   retval = command.resultCode;
 
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return retval;
 }
 
@@ -525,7 +535,7 @@ oacamAbortExposure ( oaCamera* camera )
   int							retval;
   SHARED_STATE*		cameraInfo = camera->_private;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "liboacam: abortExposure\n" );
+  oaLogInfo ( OA_LOG_CAMERA, "%s ( %p ): entered", __func__, camera );
 
   OA_CLEAR ( command );
   command.commandType = OA_CMD_ABORT_EXPOSURE;
@@ -539,6 +549,8 @@ oacamAbortExposure ( oaCamera* camera )
   }
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
   retval = command.resultCode;
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
 
   return retval;
 }

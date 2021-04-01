@@ -60,7 +60,7 @@ _QHY5IIInitCamera ( oaCamera* camera )
   COMMON_INFO*	commonInfo = camera->_common;
   void		*dummy;
 
-  oacamDebugMsg ( DEBUG_CAM_INIT, "QHY5-II: init: %s ()\n", __func__ );
+  oaLogInfo ( OA_LOG_CAMERA, "%s ( %p ): entered", __func__, camera );
 
   _QHY5IIInitFunctionPointers ( camera );
 
@@ -243,6 +243,8 @@ _QHY5IIInitCamera ( oaCamera* camera )
 
   oaQHY5IISetAllControls ( cameraInfo );
 
+  oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return OA_ERR_NONE;
 }
 
@@ -263,8 +265,7 @@ oaQHY5IICloseCamera ( oaCamera* camera )
   QHY_STATE*	cameraInfo;
   void*		dummy;
 
-  oacamDebugMsg ( DEBUG_CAM_CMD, "QHY5-II: command: %s()\n",
-      __func__ );
+  oaLogInfo ( OA_LOG_CAMERA, "%s ( %p ): entered", __func__, camera );
 
   if ( camera ) {
 
@@ -317,6 +318,8 @@ oaQHY5IICloseCamera ( oaCamera* camera )
    return -OA_ERR_INVALID_CAMERA;
   }
 
+  oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return 0;
 }
 
@@ -357,8 +360,8 @@ oaQHY5IICameraTestControl ( oaCamera* camera, int control,
   int64_t	val_s64;
   COMMON_INFO*	commonInfo = camera->_common;
 
-  oacamDebugMsg ( DEBUG_CAM_CTRL, "QHY5-II: control: %s ( %d, ? )\n",
-      __func__, control );
+  oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %d, %p ): entered", __func__, camera,
+			control, valp );
 
   if ( !camera->OA_CAM_CTRL_TYPE( control )) {
     return -OA_ERR_INVALID_CONTROL;
@@ -399,6 +402,9 @@ oaQHY5IICameraTestControl ( oaCamera* camera, int control,
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
+
+  oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
   return -OA_ERR_OUT_OF_RANGE;
 }
 
