@@ -2,7 +2,7 @@
  *
  * smoothHue.c -- smooth hue demosaic method
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -663,7 +663,7 @@ oadSmoothHue ( void* source, void* target, int xSize, int ySize,
   // FIX ME
   if ( bitDepth != 8 ) {
     fprintf ( stderr, "demosaic: %s can only handle 8-bit data\n",
-        __FUNCTION__ );
+        __func__ );
     return;
   }
 

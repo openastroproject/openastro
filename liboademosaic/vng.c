@@ -2,7 +2,8 @@
  *
  * vng.c -- variable number of gradients demosaic method
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -344,7 +345,7 @@ oadVNG ( void* source, void* target, int xSize, int ySize,
   // FIX ME
   if ( bitDepth != 8 ) {
     fprintf ( stderr, "demosaic: %s can only handle 8-bit data\n",
-        __FUNCTION__ );
+        __func__ );
     return;
   }
 

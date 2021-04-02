@@ -2,7 +2,8 @@
  *
  * bilinear.c -- bilinear demosaic method
  *
- * Copyright 2013,2014,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -530,7 +531,7 @@ oadBilinear ( void* source, void* target, int xSize, int ySize,
 
 	if ( !done ) {
     fprintf ( stderr, "demosaic: %s cannot handle %d-bit data for format %d\n",
-        __FUNCTION__, bitDepth, format );
+        __func__, bitDepth, format );
 	}
 
 	return;
