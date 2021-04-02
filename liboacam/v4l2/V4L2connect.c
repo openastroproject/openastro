@@ -145,6 +145,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
   // Now we can get the capabilites and make sure this is a capture device
 
   OA_CLEAR ( cap );
+  OA_CLEAR ( camera->controlType );
+  OA_CLEAR ( camera->features );
+
   if ( -1 == v4l2ioctl ( cameraInfo->fd, VIDIOC_QUERYCAP, &cap )) {
     if ( EINVAL == errno ) {
       oaLogError ( OA_LOG_CAMERA, "%s: %s is not a V4L2 device",
@@ -165,6 +168,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     return 0;
   }
 
+  _V4L2InitFunctionPointers ( camera );
+
   if (!( cap.device_caps & V4L2_CAP_STREAMING )) {
 		oaLogError ( OA_LOG_CAMERA, "%s: %s does not support streaming",
 				__func__, camera->deviceName );
@@ -179,10 +184,6 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 
   // FIX ME -- use tables for these to avoid having so many cases in the
   // switch
-
-  OA_CLEAR ( camera->controlType );
-  OA_CLEAR ( camera->features );
-  _V4L2InitFunctionPointers ( camera );
 
   cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
@@ -1112,7 +1113,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
       case V4L2_CID_TILT_SPEED:
 #endif
         oaLogWarning ( OA_LOG_CAMERA,
-						"%s: currently unsupported V4L2 control 0x%x", __func__, id );
+						"%s: currently unsupported V4L2 control 0x%x (%s)", __func__, id,
+						V4L2ControlNames[ id - V4L2_CID_CAMERA_CLASS_BASE ]);
         break;
 
       default:
@@ -1834,6 +1836,7 @@ oaV4L2InitCamera ( oaCameraDevice* device )
        		FREE_DATA_STRUCTS;
        		return 0;
      		}
+				camera->features.flags |= OA_CAM_FEATURE_ROI;
 				cameraInfo->frameSizes[1].sizes = tmpPtr;
      		cameraInfo->frameSizes[1].sizes[j].x = fsize.stepwise.max_width;
      		cameraInfo->frameSizes[1].sizes[j].y = fsize.stepwise.max_height;
@@ -1908,6 +1911,8 @@ _V4L2InitFunctionPointers ( oaCamera* camera )
   camera->funcs.enumerateFrameSizes = oaV4L2CameraGetFrameSizes;
   camera->funcs.getFramePixelFormat = oaV4L2CameraGetFramePixelFormat;
   camera->funcs.enumerateFrameRates = oaV4L2CameraGetFrameRates;
+
+	camera->funcs.testROISize = oaV4L2CameraTestROISize;
 
   camera->funcs.getAutoWBManualSetting = oaV4L2CameraGetAutoWBManualSetting;
 

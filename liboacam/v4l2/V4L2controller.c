@@ -55,6 +55,7 @@ static int	_processSetFrameInterval ( V4L2_STATE*, OA_COMMAND* );
 static int	_processSetFrameFormat ( V4L2_STATE*, unsigned int,
 		    OA_COMMAND* );
 static int	_processGetMenuItem ( V4L2_STATE*, OA_COMMAND* );
+static int	_processSetROI ( V4L2_STATE*, OA_COMMAND* );
 static int	_setUserControl ( int, int, int );
 static int	_getUserControl ( int, int );
 static int	_setExtendedControl ( int, int, oaControlValue* );
@@ -117,6 +118,7 @@ oacamV4L2controller ( void* param )
       if ( command ) {
         // This is a bit cack.  Need a neater way to handle this
         if ( streaming || ( OA_CMD_RESOLUTION_SET == command->commandType ||
+            OA_CMD_ROI_SET == command->commandType ||
             OA_CMD_FRAME_INTERVAL_SET == command->commandType ||
             OA_CMD_START_STREAMING == command->commandType ||
             OA_CMD_MENU_ITEM_GET == command->commandType )) {
@@ -129,6 +131,9 @@ oacamV4L2controller ( void* param )
               break;
             case OA_CMD_RESOLUTION_SET:
               resultCode = _processSetResolution ( cameraInfo, command );
+              break;
+            case OA_CMD_ROI_SET:
+              resultCode = _processSetROI ( cameraInfo, command );
               break;
             case OA_CMD_START_STREAMING:
               resultCode = _processStreamingStart ( cameraInfo, command );
@@ -858,6 +863,25 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 
 static int
 _processSetResolution ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
+{
+  FRAMESIZE	*size = command->commandData;
+  int		streaming;
+
+  cameraInfo->xSize = size->x;
+  cameraInfo->ySize = size->y;
+
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+	streaming = ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) ? 1 : 0;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+  if ( streaming ) {
+    return _doCameraConfig ( cameraInfo, command );
+  }
+  return OA_ERR_NONE;
+}
+
+
+static int
+_processSetROI ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
 {
   FRAMESIZE	*size = command->commandData;
   int		streaming;

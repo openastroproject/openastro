@@ -1,7 +1,7 @@
 #
 # Makefile.am -- liboacam V4L2 Makefile template
 #
-# Copyright 2018 James Fidell (james@openastroproject.org)
+# Copyright 2018,2021 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -30,7 +30,8 @@ AM_CPPFLAGS = \
 noinst_LTLIBRARIES = libvideo4linux.la
 
 libvideo4linux_la_SOURCES = V4L2oacam.c V4L2connect.c V4L2ioctl.c \
-  V4L2cameras.c V4L2getState.c V4L2controller.c V4L2callback.c V4L2control.c
+  V4L2cameras.c V4L2getState.c V4L2controller.c V4L2callback.c V4L2control.c \
+	V4L2roi.c
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

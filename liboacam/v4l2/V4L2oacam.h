@@ -2,7 +2,7 @@
  *
  * V4L2oacam.h -- header for V4L2 camera API
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -34,6 +34,8 @@
 
 #define	SYS_V4L_PATH		"/sys/class/video4linux"
 
+extern const char*	V4L2ControlNames[];
+
 extern int		oaV4L2GetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaV4L2InitCamera ( oaCameraDevice* );
 extern int              oaV4L2CloseCamera ( oaCamera* );
@@ -56,6 +58,9 @@ extern int              oaV4L2CameraGetAutoWBManualSetting ( oaCamera* );
 
 extern int		oaV4L2CameraHasFixedFrameRates ( oaCamera*, int, int );
 extern const char*	oaV4L2CameraGetMenuString ( oaCamera*, int, int );
+
+extern int	oaV4L2CameraTestROISize ( oaCamera*, unsigned int, unsigned int,
+								unsigned int*, unsigned int* );
 
 #endif	/* OA_V4L2_OACAM_H */
 
