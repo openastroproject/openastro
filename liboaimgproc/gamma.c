@@ -2,7 +2,8 @@
  *
  * gamma.c -- Apply a gamma transformation to an image
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -85,7 +86,7 @@ oaGammaTransform ( void* source, void* target, int xSize, int ySize,
 	}
 
 	fprintf ( stderr, "Unrecognised frame format '%s' in %s\n",
-			oaFrameFormats[ frameFormat ].name, __FUNCTION__ );
+			oaFrameFormats[ frameFormat ].name, __func__ );
 
   // FIX ME -- return more meaningful error
   return -OA_ERR_UNSUPPORTED_FORMAT;

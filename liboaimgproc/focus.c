@@ -2,7 +2,8 @@
  *
  * focus.c -- focus scoring algorithms
  *
- * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -78,7 +79,7 @@ oaFocusScore ( void* source, void* target, int xSize, int ySize,
         new8BitFormat = OA_PIX_FMT_GBRG8;
         break;
       default:
-        fprintf ( stderr, "%s can't handle format %d\n", __FUNCTION__,
+        fprintf ( stderr, "%s can't handle format %d\n", __func__,
             frameFormat );
         // FIX ME --return meaningful error code
         return -1;
