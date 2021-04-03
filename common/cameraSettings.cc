@@ -705,7 +705,7 @@ CameraSettings::buttonPushed ( int control )
 
             default:
               fprintf ( stderr, "control type %d not handled in %s\n",
-                  controlType[mod][baseVal], __FUNCTION__ );
+                  controlType[mod][baseVal], __func__ );
               break;
           }
         }
@@ -759,7 +759,7 @@ CameraSettings::buttonPushed ( int control )
 
 						default:
 							fprintf ( stderr, "control type %d not handled in %s\n",
-									controlType[mod][baseVal], __FUNCTION__ );
+									controlType[mod][baseVal], __func__ );
 							break;
 					}
 				}

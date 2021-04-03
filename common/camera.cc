@@ -2,7 +2,7 @@
  *
  * camera.cc -- camera interface class
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -79,7 +79,7 @@ Camera::populateControlValue ( oaControlValue* cp, uint32_t c, int64_t v )
       cp->discrete = v & 0xffffffff;
       break;
     default:
-      qWarning() << __FUNCTION__ << " called with invalid control type " <<
+      qWarning() << __func__ << " called with invalid control type " <<
         cameraControls( c ) << " for control " << c;
   }
 }
@@ -114,7 +114,7 @@ Camera::unpackControlValue ( oaControlValue *cp )
       res = cp->discrete;
       break;
     default:
-      qWarning() << "Camera" << __FUNCTION__ <<
+      qWarning() << "Camera" << __func__ <<
         " called with invalid control type " <<
         cameraControls( cp->valueType );
       res = -1;
@@ -128,7 +128,7 @@ int
 Camera::hasFrameFormat ( int format )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
 
@@ -142,7 +142,7 @@ Camera::hasBinning ( int64_t factor )
   oaControlValue v;
 
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
   if ( !cameraControls( OA_CAM_CTRL_BINNING )) {
@@ -159,7 +159,7 @@ Camera::testROISize ( unsigned int xRes, unsigned int yRes,
     unsigned int* suggX, unsigned int* suggY )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
 
@@ -171,7 +171,7 @@ int
 Camera::hasROI ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
   return cameraFeatures.flags & OA_CAM_FEATURE_ROI;
@@ -181,7 +181,7 @@ Camera::hasROI ( void )
 int Camera::hasFixedFrameSizes ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
   return cameraFeatures.flags & OA_CAM_FEATURE_FIXED_FRAME_SIZES;
@@ -191,7 +191,7 @@ int Camera::hasFixedFrameSizes ( void )
 int Camera::hasUnknownFrameSize ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
   return cameraFeatures.flags & OA_CAM_FEATURE_FRAME_SIZE_UNKNOWN;
@@ -202,7 +202,7 @@ int
 Camera::hasFrameRateSupport ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
   return cameraFeatures.flags & OA_CAM_FEATURE_FRAME_RATES;
@@ -214,7 +214,7 @@ Camera::hasFixedFrameRates ( int xRes __attribute__((unused)),
 		int yRes __attribute__((unused)))
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
 
@@ -226,7 +226,7 @@ int
 Camera::hasReadableControls ( void )
 {
 	if ( !initialised ) {
-		qWarning() << __FUNCTION__ << " called with camera uninitialised";
+		qWarning() << __func__ << " called with camera uninitialised";
 		return 0;
 	}
 	return cameraFeatures.flags & OA_CAM_FEATURE_READABLE_CONTROLS;
@@ -237,7 +237,7 @@ int
 Camera::hasControl ( int control )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
 
@@ -249,7 +249,7 @@ int
 Camera::hasAuto ( int control )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
 
@@ -261,7 +261,7 @@ int
 Camera::isAuto ( int control )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   } 
 
@@ -273,7 +273,7 @@ int
 Camera::isColour ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
   return ( cameraFeatures.flags & ( OA_CAM_FEATURE_RAW_MODE |
@@ -287,7 +287,7 @@ Camera::getTemperature ( void )
   oaControlValue v;
 
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
   if ( !cameraControls( OA_CAM_CTRL_TEMPERATURE )) {
@@ -304,7 +304,7 @@ const char*
 Camera::name()
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return "";
   }
   return cameraContext->deviceName;
@@ -316,7 +316,7 @@ Camera::controlRange ( int control, int64_t* min, int64_t* max,
     int64_t* step, int64_t* def )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
   } else {
     cameraFuncs.getControlRange ( cameraContext, control, min, max, step, def );
   }
@@ -334,7 +334,7 @@ void
 Camera::controlDiscreteSet ( int control, int32_t *count, int64_t** values )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
   } else {
     cameraFuncs.getControlDiscreteSet ( cameraContext, control, count, values );
   }
@@ -346,7 +346,7 @@ const FRAMESIZES*
 Camera::frameSizes ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
   return cameraFuncs.enumerateFrameSizes ( cameraContext );
@@ -358,7 +358,7 @@ const FRAMERATES*
 Camera::frameRates ( int xRes, int yRes)
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
   return cameraFuncs.enumerateFrameRates ( cameraContext, xRes, yRes );
@@ -477,7 +477,7 @@ Camera::setControl ( int control, int64_t value )
   oaControlValue v;
 
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return -1;
   }
 
@@ -492,7 +492,7 @@ Camera::readControl ( int control )
   oaControlValue v;
 
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
 
@@ -509,7 +509,7 @@ int
 Camera::setResolution ( int x, int y )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return -1;
   }
 
@@ -521,7 +521,7 @@ int
 Camera::setROI ( int x, int y )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return -1;
   }
 
@@ -533,7 +533,7 @@ int
 Camera::setFrameInterval ( int numerator, int denominator )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return -1;
   }
 
@@ -547,7 +547,7 @@ Camera::startStreaming ( void* ( *callback )( void*, void*, int, void* ),
 		void* state )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return -1;
   }
 
@@ -679,7 +679,7 @@ Camera::setFrameFormat ( int format )
   oaControlValue v;
 
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return -1;
   }
 
@@ -701,7 +701,7 @@ int
 Camera::hasRawMode ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
   }
   return initialised ? ( cameraFeatures.flags & OA_CAM_FEATURE_RAW_MODE ) : 0;
 }
@@ -711,7 +711,7 @@ int
 Camera::hasDemosaicMode ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
   }
   return initialised ? ( cameraFeatures.flags &
 			OA_CAM_FEATURE_DEMOSAIC_MODE ) : 0;
@@ -722,7 +722,7 @@ const char*
 Camera::getMenuString ( int control, int index )
 {
  if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return "";
   }
   return cameraFuncs.getMenuString ( cameraContext, control, index );
@@ -733,7 +733,7 @@ int
 Camera::getAWBManualSetting ( void )
 {
  if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
   return cameraFuncs.getAutoWBManualSetting ( cameraContext );
@@ -744,7 +744,7 @@ int
 Camera::pixelSizeX ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
   return cameraFeatures.pixelSizeX;
@@ -755,7 +755,7 @@ int
 Camera::pixelSizeY ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
   return cameraFeatures.pixelSizeY;
@@ -766,7 +766,7 @@ int
 Camera::frameSizeUnknown ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
   return cameraFeatures.flags & OA_CAM_FEATURE_FRAME_SIZE_UNKNOWN;
@@ -778,7 +778,7 @@ Camera::startExposure ( void* ( *callback )( void*, void*, int, void* ),
 		void* state )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return -1;
   }
 
@@ -790,7 +790,7 @@ uint64_t
 Camera::exposureTimeLeft ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return -1;
   }
 
@@ -802,7 +802,7 @@ int
 Camera::hasSingleShot ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with camera uninitialised";
+    qWarning() << __func__ << " called with camera uninitialised";
     return 0;
   }
   return cameraFeatures.flags & OA_CAM_FEATURE_SINGLE_SHOT;

@@ -2,7 +2,7 @@
  *
  * settingsWidget.cc -- the main settings widget wrapper class
  *
- * Copyright 2013,2014,2015,2017,2018,2020
+ * Copyright 2013,2014,2015,2017,2018,2020,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -267,7 +267,7 @@ QString
 SettingsWidget::getSlotFilterName ( int slotIndex )
 {
   if ( !filters ) {
-    qWarning() << __FUNCTION__ << ": filters not set";
+    qWarning() << __func__ << ": filters not set";
     return "";
   }
   return filters->getSlotFilterName ( slotIndex );

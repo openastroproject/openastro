@@ -321,7 +321,7 @@ OutputFFMPEG::addFrame ( void* frame,
             l += 2;
           }
         } else {
-          qWarning() << __FUNCTION__ << "unsupported pixel format" <<
+          qWarning() << __func__ << "unsupported pixel format" <<
               actualPixelFormat << "to" << storedPixelFormat;
         }
       }
@@ -331,7 +331,7 @@ OutputFFMPEG::addFrame ( void* frame,
   }
 
   if ( av_frame_make_writable ( picture ) < 0 ) {
-    qWarning() << __FUNCTION__ << "Can't make frame writable";
+    qWarning() << __func__ << "Can't make frame writable";
     return -1;
   }
 
@@ -378,12 +378,12 @@ OutputFFMPEG::addFrame ( void* frame,
 #else
   AVPacket* packet;
   if (!( packet = av_packet_alloc())) {
-    qWarning() << __FUNCTION__ << "Can't allocate packet";
+    qWarning() << __func__ << "Can't allocate packet";
     return -1;
   }
 
   if (( ret = avcodec_send_frame ( codecContext, picture )) < 0 ) {
-    qWarning() << __FUNCTION__ << "send frame failed";
+    qWarning() << __func__ << "send frame failed";
     return -1;
   }
 
@@ -400,7 +400,7 @@ OutputFFMPEG::addFrame ( void* frame,
     }
   }
   if ( ret != AVERROR(EAGAIN)  && ret != AVERROR_EOF ) {
-    qWarning() << __FUNCTION__ << "error writing packet";
+    qWarning() << __func__ << "error writing packet";
   }
 
   av_packet_free ( &packet );

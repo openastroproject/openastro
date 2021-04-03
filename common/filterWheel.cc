@@ -2,7 +2,8 @@
  *
  * filterwheel.cc -- filter wheel interface class
  *
- * Copyright 2014,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2018,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -69,7 +70,7 @@ FilterWheel::populateControlValue ( oaControlValue* cp, uint32_t c, int64_t v )
       cp->discrete = v & 0xffffffff;
       break;
     default:
-      qWarning() << __FUNCTION__ << " called with invalid control type " <<
+      qWarning() << __func__ << " called with invalid control type " <<
         wheelContext->controls[ c ] << " for control " << c;
   }
 }
@@ -103,7 +104,7 @@ FilterWheel::unpackControlValue ( oaControlValue *cp )
       res = cp->discrete;
       break;
     default:
-      qWarning() << "FilterWheel" << __FUNCTION__ <<
+      qWarning() << "FilterWheel" << __func__ <<
         "called with invalid control type " <<
         wheelContext->controls[ cp->valueType ];
       res = -1;
@@ -166,7 +167,7 @@ const char*
 FilterWheel::name ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with filter wheel uninitialised";
+    qWarning() << __func__ << " called with filter wheel uninitialised";
     return "";
   }
   return wheelContext->deviceName;
@@ -186,7 +187,7 @@ FilterWheel::warmReset ( void )
   oaControlValue v;
 
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with filter wheel uninitialised";
+    qWarning() << __func__ << " called with filter wheel uninitialised";
     return;
   }
   if ( !wheelContext->controls [ OA_FW_CTRL_WARM_RESET ]) {
@@ -204,7 +205,7 @@ FilterWheel::coldReset ( void )
   oaControlValue v;
 
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with filter wheel uninitialised";
+    qWarning() << __func__ << " called with filter wheel uninitialised";
     return;
   }
   if ( !wheelContext->controls [ OA_FW_CTRL_COLD_RESET ]) {
@@ -220,7 +221,7 @@ int
 FilterWheel::numSlots ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with filter wheel uninitialised";
+    qWarning() << __func__ << " called with filter wheel uninitialised";
     return -1;
   }
   return wheelContext->numSlots;
@@ -234,7 +235,7 @@ FilterWheel::selectFilter ( int slotNum )
   oaControlValue	v;
 
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with filter wheel uninitialised";
+    qWarning() << __func__ << " called with filter wheel uninitialised";
     return -1;
   }
   if ( wheelContext->controls [ OA_FW_CTRL_MOVE_ABSOLUTE_SYNC ]) {
@@ -257,7 +258,7 @@ int
 FilterWheel::hasWarmReset ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with filter wheel uninitialised";
+    qWarning() << __func__ << " called with filter wheel uninitialised";
     return -1;
   }
   return wheelContext->controls [ OA_FW_CTRL_WARM_RESET ] ? 1 : 0;
@@ -268,7 +269,7 @@ int
 FilterWheel::hasColdReset ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with filter wheel uninitialised";
+    qWarning() << __func__ << " called with filter wheel uninitialised";
     return -1;
   }
   return wheelContext->controls [ OA_FW_CTRL_COLD_RESET ] ? 1 : 0;
@@ -279,7 +280,7 @@ int
 FilterWheel::hasSpeedControl ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with filter wheel uninitialised";
+    qWarning() << __func__ << " called with filter wheel uninitialised";
     return -1;
   }
   return wheelContext->controls [ OA_FW_CTRL_SPEED ] ? 1 : 0;
@@ -292,7 +293,7 @@ FilterWheel::getSpeed ( unsigned int* speed )
   oaControlValue	v;
 
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with filter wheel uninitialised";
+    qWarning() << __func__ << " called with filter wheel uninitialised";
     return -1;
   }
 
@@ -311,7 +312,7 @@ FilterWheel::setSpeed ( unsigned int speed, int nodelay __attribute((unused)))
   oaControlValue	v;
 
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with filter wheel uninitialised";
+    qWarning() << __func__ << " called with filter wheel uninitialised";
     return -1;
   }
   if ( !wheelContext->controls [ OA_FW_CTRL_SPEED ]) {

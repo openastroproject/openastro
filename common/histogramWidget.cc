@@ -2,7 +2,7 @@
  *
  * histogramWidget.cc -- class for the histogram display
  *
- * Copyright 2013,2014,2017,2018,2019,2020
+ * Copyright 2013,2014,2017,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -462,7 +462,7 @@ HistogramWidget::_processMosaicHistogram ( void* imageData,
       if ( oaFrameFormats[ format ].bitsPerPixel == 8 ) {
         intensity = *( static_cast<uint8_t*>( imageData ) + i );
       } else {
-        qWarning() << __FUNCTION__ << "can't handle bit depth" <<
+        qWarning() << __func__ << "can't handle bit depth" <<
             oaFrameFormats[ format ].bitsPerPixel;
       }
     }

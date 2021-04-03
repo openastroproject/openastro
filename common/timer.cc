@@ -2,7 +2,7 @@
  *
  * timer.cc -- timer device interface class
  *
- * Copyright 2015,2016,2017,2018,2019
+ * Copyright 2015,2016,2017,2018,2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -74,7 +74,7 @@ Timer::populateControlValue ( oaControlValue* cp, uint32_t c, int64_t v )
       cp->discrete = v & 0xffffffff;
       break;
     default:
-      qWarning() << __FUNCTION__ << " called with invalid control type " <<
+      qWarning() << __func__ << " called with invalid control type " <<
         timerContext->controls[ c ] << " for control " << c;
   }
 }
@@ -108,7 +108,7 @@ Timer::unpackControlValue ( oaControlValue *cp )
       res = cp->discrete;
       break;
     default:
-      qWarning() << "Timer" << __FUNCTION__ <<
+      qWarning() << "Timer" << __func__ <<
         "called with invalid control type " <<
         timerContext->controls[ cp->valueType ];
       res = -1;
@@ -165,7 +165,7 @@ const char*
 Timer::name ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with timer uninitialised";
+    qWarning() << __func__ << " called with timer uninitialised";
     return "";
   }
   return timerContext->deviceName;
@@ -193,11 +193,11 @@ void
 Timer::reset ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with timer uninitialised";
+    qWarning() << __func__ << " called with timer uninitialised";
     return;
   }
   if ( !timerFuncs.reset ) {
-    qWarning() << __FUNCTION__ << " called with reset uninitialised";
+    qWarning() << __func__ << " called with reset uninitialised";
     return;
   }
   timerFuncs.reset ( timerContext );
@@ -209,7 +209,7 @@ int
 Timer::hasReset ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with timer uninitialised";
+    qWarning() << __func__ << " called with timer uninitialised";
     return -1;
   }
   return ( timerFuncs.reset ? 1 : 0 );
@@ -220,7 +220,7 @@ int
 Timer::hasSync ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with timer uninitialised";
+    qWarning() << __func__ << " called with timer uninitialised";
     return -1;
   }
   return timerContext->controls [ OA_TIMER_CTRL_SYNC ] ? 1 : 0;
@@ -256,14 +256,14 @@ int
 Timer::hasControl ( int control )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with timer uninitialised";
+    qWarning() << __func__ << " called with timer uninitialised";
     return 0;
   }
 
   if ( control > 0 && control < OA_TIMER_CTRL_LAST_P1 ) {
     return timerControls[ control ];
   }
-  qWarning() << __FUNCTION__ << " unrecognised control" << control;
+  qWarning() << __func__ << " unrecognised control" << control;
   return 0;
 }
 
@@ -274,7 +274,7 @@ Timer::setControl ( int control, int64_t value )
   oaControlValue v;
 
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with timer uninitialised";
+    qWarning() << __func__ << " called with timer uninitialised";
     return -1;
   }
 
@@ -289,7 +289,7 @@ Timer::readControl ( int control )
   oaControlValue v;
 
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with timer uninitialised";
+    qWarning() << __func__ << " called with timer uninitialised";
     return 0;
   }
 
@@ -305,7 +305,7 @@ int
 Timer::start ( void )
 {
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with timer uninitialised";
+    qWarning() << __func__ << " called with timer uninitialised";
     return -1;
   }
 
@@ -320,7 +320,7 @@ Timer::readTimestamp ( void )
   static oaTimerStamp ts;
 
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with timer uninitialised";
+    qWarning() << __func__ << " called with timer uninitialised";
     return 0;
   }
 
@@ -341,7 +341,7 @@ Timer::readGPS ( double* lat, double* lng, double* alt, int useCache )
   int		ret;
 
   if ( !initialised ) {
-    qWarning() << __FUNCTION__ << " called with timer uninitialised";
+    qWarning() << __func__ << " called with timer uninitialised";
     return 0;
   }
 
