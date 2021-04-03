@@ -370,7 +370,7 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
     case OA_PIX_FMT_GBRG14:
     default:
       fprintf ( stderr, "unhandled format %d in %s\n", sourceFormat,
-          __FUNCTION__ );
+          __func__ );
   }
 
   return result;
