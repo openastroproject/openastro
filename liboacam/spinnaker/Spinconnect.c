@@ -596,7 +596,8 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 
     oaLogInfo ( OA_LOG_CAMERA,
 				"%s: analogue feature %d '%s', type %d [%s] found", __func__, i,
-        featureName, nodeType, readable ? ( writeable ? "RW" : "RO" ) :
+				featureName, ( nodeType >= 0 ) ? nodeTypes [ nodeType ] : "unknown",
+				readable ? ( writeable ? "RW" : "RO" ) :
         ( writeable ? "WO" : "??" ));
 
     switch ( nodeType ) {

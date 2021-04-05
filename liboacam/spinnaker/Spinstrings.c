@@ -2,7 +2,8 @@
  *
  * Spinstrings.c -- definitions of string values
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -129,4 +130,20 @@ const char*	formatFeatures[] = {
   "Pixel Dynamic Range Max",
   "Test Image Selector",
   "Test Pattern"
+};
+
+const char* nodeTypes[] =
+{
+	"Value",
+	"Base",
+	"Integer",
+	"Boolean",
+	"Float",
+	"Command",
+	"String",
+	"Register",
+	"Enumeration",
+	"Enumeration Entry",
+	"Category",
+	"Port"
 };

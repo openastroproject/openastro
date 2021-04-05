@@ -2,7 +2,8 @@
  *
  * Spinstrings.h -- definitions of string values
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -28,6 +29,7 @@ extern const char*	analogueFeatures[];
 extern const char*	deviceFeatures[];
 extern const char*	acquisitionFeatures[];
 extern const char*	formatFeatures[];
+extern const char*	nodeTypes[];
 
 #define	ANALOGUE_GAIN_SELECTOR		0
 #define	ANALOGUE_GAIN_AUTO		1
