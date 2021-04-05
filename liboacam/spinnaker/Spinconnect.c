@@ -638,27 +638,72 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
     if ( featureId >= 0 ) {
       switch ( featureId ) {
         case ANALOGUE_GAIN_SELECTOR: // enumeration
-          // Ignore this for the time being.  I have no useful test cases
-          // to try it with
+          // FIX ME -- Ignore this for the time being.  I have no useful test
+					// cases to try it with
+					oaLogWarning ( OA_LOG_CAMERA,
+							"%s: Ignoring ANALOGUE_GAIN_SELECTOR feature", __func__ );
           break;
 
         case ANALOGUE_GAIN_AUTO: // boolean
         {
-          bool8_t	curr;
+          bool8_t	curr, valid;
 
-          camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_GAIN ) =
-              OA_CTRL_TYPE_BOOLEAN;
-          commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_GAIN ) = 0;
-          commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_GAIN ) = 1;
-          commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_GAIN ) = 1;
-          if (( *p_spinBooleanGetValue )( featureHandle, &curr ) !=
-              SPINNAKER_ERR_SUCCESS ) {
-            oaLogError ( OA_LOG_CAMERA,
-								"%s: Can't get bool current value for ANALOGUE_GAIN_AUTO",
-								__func__ );
-            return -OA_ERR_SYSTEM_ERROR;
-          }
-          commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_GAIN ) = curr ? 1 : 0;
+					valid = 0;
+					if ( nodeType == BooleanNode ) {
+						if (( *p_spinBooleanGetValue )( featureHandle, &curr ) !=
+								SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA,
+									"%s: Can't get bool current value for ANALOGUE_GAIN_AUTO",
+									__func__ );
+							return -OA_ERR_SYSTEM_ERROR;
+						}
+						valid = 1;
+					} else {
+						if ( nodeType == EnumerationNode ) {
+							spinNodeHandle	valueHandle;
+							char						value[ SPINNAKER_MAX_BUFF_LEN ];
+							size_t					valueLen;
+
+							if (( *p_spinEnumerationGetCurrentEntry )( featureHandle,
+									&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
+								oaLogError ( OA_LOG_CAMERA, "%s: Can't get enum current value",
+										__func__ );
+								return -OA_ERR_SYSTEM_ERROR;
+							}
+							valueLen = SPINNAKER_MAX_BUFF_LEN;
+							if (( *p_spinNodeToString )( valueHandle, value, &valueLen ) !=
+									SPINNAKER_ERR_SUCCESS ) {
+								oaLogError ( OA_LOG_CAMERA,
+										"%s: Can't get enum value as string", __func__ );
+								return -OA_ERR_SYSTEM_ERROR;
+							}
+							if ( !strcasecmp ( "off", value )) {
+								curr = 0;
+							} else {
+								if ( !strcasecmp ( "continuous", value )) {
+									curr = 1;
+								} else {
+									oaLogWarning ( OA_LOG_CAMERA,
+											"%s: Unhandled value '%s' for ANALOGUE_GAIN_AUTO",
+											__func__, value );
+									curr = 0;
+								}
+							}
+							valid = 1;
+						} else {
+							oaLogWarning ( OA_LOG_CAMERA,
+									"%s: Unrecognised node type '%s' for ANALOGUE_GAIN_AUTO",
+									__func__, nodeTypes[ nodeType ] );
+						}
+					}
+					if ( valid ) {
+						camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_GAIN ) =
+								OA_CTRL_TYPE_BOOLEAN;
+						commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_GAIN ) = 0;
+						commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_GAIN ) = 1;
+						commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_GAIN ) = 1;
+						commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_GAIN ) = curr ? 1 : 0;
+					}
           break;
         }
 
