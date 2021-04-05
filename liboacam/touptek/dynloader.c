@@ -35,6 +35,7 @@
 #endif
 #endif
 #include <openastro/errno.h>
+#include <openastro/util.h>
 
 #include "touptek-conf.h"
 #include "oacamprivate.h"
@@ -248,8 +249,9 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 #endif
 		( void ) strncat ( libPath, libName, PATH_MAX );
 
-    if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
-      // fprintf ( stderr, "can't load %s:\n%s\n", libPath, dlerror());
+    if (!( libHandle = dlopen ( libPath, RTLD_NOW | RTLD_DEEPBIND ))) {
+      oaLogInfo ( OA_LOG_CAMERA, "%s: can't load %s: error '%s'", __func__,
+					libPath, dlerror());
       return OA_ERR_LIBRARY_NOT_FOUND;
     }
 
@@ -1115,7 +1117,8 @@ _getDLSym ( void* libHandle, const char* symbol )
 
   addr = dlsym ( libHandle, symbol );
   if (( error = dlerror())) {
-    fprintf ( stderr, "lib" TT_SOLIB " DL error: %s\n", error );
+    oaLogWarning ( OA_LOG_CAMERA, "%s: lib" TT_SOLIB " DL error: %s", __func__,
+				error );
     addr = 0;
   }
 
@@ -1156,9 +1159,11 @@ _patchLibrary ( void* p )
 
     pidTableStart = rip + offset;
   } else {
-    fprintf ( stderr, "lea instruction not found at address %p\n", lea );
+    oaLogWarning ( OA_LOG_CAMERA, "%s: lea instruction not found at address %p",
+				__func__, lea );
     for ( offset = 0; offset < 16; offset++ ) {
-      fprintf ( stderr, "lea + %02x: %02x\n", offset, *( lea + offset ));
+      oaLogWarning ( OA_LOG_CAMERA, "%s: lea + %02x: %02x", __func__, offset,
+					*( lea + offset ));
     }
     return;
   }
@@ -1183,7 +1188,7 @@ _patchLibrary ( void* p )
     nextPid = pidPos;
     pid = *nextPid;
     pid |= *( nextPid + 1 ) << 8;
-    // fprintf ( stderr, "pid found: 0x%04x\n", pid );
+    oaLogDebug ( OA_LOG_CAMERA, "%s: pid found: 0x%04x", __func__, pid );
     if ( pid == 0xb135 ) {
       nextPid += 2;
       pid = *nextPid;
@@ -1193,20 +1198,23 @@ _patchLibrary ( void* p )
         pid = *nextPid;
         pid |= *( nextPid + 1 ) << 8;
         if ( pid ) {
-          fprintf ( stderr, "no spare spaces in PID table after 0xb135\n" );
+          oaLogWarning ( OA_LOG_CAMERA,
+							"%s: no spare spaces in PID table after 0xb135" );
           return;
         }
       }
       *nextPid = 0x2a;
       *( nextPid + 1 ) = 0x0b;
       found = 1;
-      // fprintf ( stderr, "0x0b2a PID added at address %p\n", nextPid );
+      oaLogDebug ( OA_LOG_CAMERA, "%s: 0x0b2a PID added at address %p",
+					__func__, nextPid );
     }
     pidPos += 0x20;
   }
 
   if ( !found ) {
-    fprintf ( stderr, "PID 0xb135 not found in PID table\n" );
+    oaLogWarning ( OA_LOG_CAMERA, "%s: PID 0xb135 not found in PID table",
+				__func__ );
   }
 }
 
@@ -1249,13 +1257,15 @@ _patchLibrary ( void* p )
     offset |= ( *lea++ ) << 16;
     offset |= ( *lea++ ) << 24;
 
-    // fprintf ( stderr, "offset = %04x\n", offset );
+    oaLogDebug (  OA_LOG_CAMERA, "%s: offset = %04x", __func__, offset );
 
     pidTableStart = rip + offset;
   } else {
-		fprintf ( stderr, "lea instruction #1 not found at address %p\n", lea );
+		oaLogWarning ( OA_LOG_CAMERA,
+				"%s: lea instruction #1 not found at address %p", __func__, lea );
 		for ( offset = 0; offset < 16; offset++ ) {
-			fprintf ( stderr, "lea + %02x: %02x\n", offset, *( lea + offset ));
+			oaLogDebug ( OA_LOG_CAMERA, "lea + %02x: %02x", __func__, offset,
+					*( lea + offset ));
 		}
 		return;
 	}
@@ -1270,25 +1280,28 @@ _patchLibrary ( void* p )
     offset |= ( *lea++ ) << 16;
     offset |= ( *lea++ ) << 24;
 
-    // fprintf ( stderr, "offset = %04x\n", offset );
+    oaLogDebug ( OA_LOG_CAMERA, "%s: offset = %04x", __func__, offset );
 
     pidTableEnd = rip + offset;
   } else {
-		fprintf ( stderr, "lea instruction #2 not found at address %p\n", lea );
+		oaLogWarning ( OA_LOG_CAMERA,
+				"%s: lea instruction #2 not found at address %p", __func__, lea );
 		for ( offset = 0; offset < 16; offset++ ) {
-			fprintf ( stderr, "lea + %02x: %02x\n", offset, *( lea + offset ));
+			oaLogDebug ( OA_LOG_CAMERA, "%s: lea + %02x: %02x", __func__, offset,
+					*( lea + offset ));
 		}
 		return;
   }
 
-  // fprintf ( stderr, "pid = %p to %p\n", pidTableStart, pidTableEnd );
+  oaLogDebug ( OA_LOG_CAMERA, "%s: pid = %p to %p", __func__, pidTableStart,
+			pidTableEnd );
 
   pidPos = pidTableStart;
   while (( pidPos < pidTableEnd ) && !found ) {
 		nextPid = pidPos;
     pid = *nextPid;
     pid |= *( nextPid + 1 ) << 8;
-		// fprintf ( stderr, "pid found: 0x%04x\n", pid );
+		oaLogDebug ( OA_LOG_CAMERA, "%s: pid found: 0x%04x", __func__, pid );
 		if ( pid == 0xb135 ) {
 			nextPid += 2;
 			pid = *nextPid;
@@ -1298,20 +1311,23 @@ _patchLibrary ( void* p )
 				pid = *nextPid;
 				pid |= *( nextPid + 1 ) << 8;
 				if ( pid ) {
-					fprintf ( stderr, "no spare spaces in PID table after 0xb135\n" );
+					oaLogWarning ( OA_LOG_CAMERA,
+							"%s: no spare spaces in PID table after 0xb135", __func__ );
 					return;
 				}
 			}
 			*nextPid = 0x2a;
 			*( nextPid + 1 ) = 0x0b;
 			found = 1;
-			// fprintf ( stderr, "0x0b2a PID added at address %p\n", nextPid );
+			oaLogDebug ( OA_LOG_CAMERA, "%s: 0x0b2a PID added at address %p",
+					__func__, nextPid );
     }
     pidPos += 0x20;
   }
 
 	if ( !found ) {
-		fprintf ( stderr, "PID 0xb135 not found in PID table\n" );
+		oaLogWarning ( OA_LOG_CAMERA, "%s: PID 0xb135 not found in PID table",
+				__func__ );
 	}
 
 	/*

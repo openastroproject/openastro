@@ -603,7 +603,8 @@ TT_FUNC( oa, InitCamera ) ( oaCameraDevice* device )
       found = 1;
     }
     if ( !found ) {
-      fprintf ( stderr, "raw format '%08x' not supported\n", fourcc );
+      oaLogWarning ( OA_LOG_CAMERA, "%s: raw format '%08x' not supported",
+					__func__, fourcc );
 			camera->features.flags &= ~OA_CAM_FEATURE_RAW_MODE;
     }
   } else {

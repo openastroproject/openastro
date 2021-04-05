@@ -153,7 +153,8 @@ TT_FUNC( oa, CameraTestControl )( oaCamera* camera, int control,
       break;
   }
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
+  oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+			control );
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -193,6 +194,7 @@ TT_FUNC( oa, CameraGetMenuString )( oaCamera* camera, int control, int index )
 			break;
 	}
 
-  fprintf ( stderr, "%s: control not implemented\n", __func__ );
+  oaLogWarning ( OA_LOG_CAMERA, "%s: control %d not implemented", __func__,
+			control );
   return "";
 }
