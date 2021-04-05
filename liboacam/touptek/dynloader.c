@@ -249,7 +249,7 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 #endif
 		( void ) strncat ( libPath, libName, PATH_MAX );
 
-    if (!( libHandle = dlopen ( libPath, RTLD_NOW | RTLD_DEEPBIND ))) {
+    if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
       oaLogInfo ( OA_LOG_CAMERA, "%s: can't load %s: error '%s'", __func__,
 					libPath, dlerror());
       return OA_ERR_LIBRARY_NOT_FOUND;
