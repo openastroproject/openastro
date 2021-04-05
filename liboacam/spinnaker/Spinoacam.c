@@ -2,7 +2,8 @@
  *
  * SPinoacam.c -- main entrypoint for Point Grey Spinnaker interface
  *
- * Copyright 2018,2019,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019,2020,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -981,12 +982,14 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
           devices[ numFound ].interface = OA_CAM_IF_SPINNAKER;
           if ( deviceType == DeviceType_GEV ) {
             ( void ) snprintf ( devices[ numFound ].deviceName,
-                OA_MAX_NAME_LEN+1, "%s (%ld.%ld.%ld.%ld)", modelName,
-                ipAddr >> 24, ( ipAddr >> 16 ) & 0xff, ( ipAddr >> 8 ) & 0xff,
-                ipAddr & 0xff );
+                OA_MAX_NAME_LEN+1, "%.*s (%d.%d.%d.%d)", OA_MAX_NAME_LEN - 20,
+								modelName, ( uint8_t )( ipAddr >> 24 ),
+								( uint8_t )(( ipAddr >> 16 ) & 0xff ),
+								( uint8_t )(( ipAddr >> 8 ) & 0xff ),
+                ( uint8_t )( ipAddr & 0xff ));
           } else {
             ( void ) snprintf ( devices[ numFound ].deviceName,
-                OA_MAX_NAME_LEN+1, "%s", modelName );
+                OA_MAX_NAME_LEN+1, "%.*s", OA_MAX_NAME_LEN, modelName );
           }
 
           ( void ) strncpy ( _private[ numFound ].deviceId, deviceId,
