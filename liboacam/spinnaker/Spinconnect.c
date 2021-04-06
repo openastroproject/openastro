@@ -767,7 +767,7 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 						// Potentially temporarily, convert this to a range from 0 to 100
 						intCurr = ( curr - min ) * 100.0 / ( max - min );
 						camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLACKLEVEL ) =
-								OA_CTRL_TYPE_BOOLEAN;
+								OA_CTRL_TYPE_INT32;
 						commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLACKLEVEL ) = 0;
 						commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLACKLEVEL ) = 100;
 						commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLACKLEVEL ) = 1;
@@ -843,7 +843,7 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 						// Potentially temporarily, convert this to a range from 0 to 100
 						intCurr = ( curr - min ) * 100.0 / ( max - min );
 						camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAMMA ) =
-								OA_CTRL_TYPE_BOOLEAN;
+								OA_CTRL_TYPE_INT32;
 						commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA ) = 0;
 						commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA ) = 100;
 						commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAMMA ) = 1;
@@ -880,9 +880,154 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
           break;
 				}
 
-				case ANALOGUE_SHARPNESS:
+				case ANALOGUE_SHARPNESS: // int on Blackfly.  Could be float?
+        {
+          bool8_t	valid;
+					int64_t	min, max, curr, step;
+
+					valid = 0;
+					if ( nodeType == IntegerNode ) {
+						if (( *p_spinIntegerGetValue )( featureHandle, &curr ) !=
+								SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA, "%s: Can't get current int value",
+									__func__ );
+							return -OA_ERR_SYSTEM_ERROR;
+						}
+						if (( *p_spinIntegerGetMin )( featureHandle, &min ) !=
+								SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA, "%s: Can't get min int value",
+									__func__ );
+							return -OA_ERR_SYSTEM_ERROR;
+						}
+						if (( *p_spinIntegerGetMax )( featureHandle, &max ) !=
+								SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA, "%s: Can't get max int value",
+									__func__ );
+							return -OA_ERR_SYSTEM_ERROR;
+						}
+						if (( *p_spinIntegerGetInc )( featureHandle, &step ) !=
+								SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA, "%s: Can't get max int value",
+									__func__ );
+							return -OA_ERR_SYSTEM_ERROR;
+						}
+						valid = 1;
+					} else {
+						oaLogWarning ( OA_LOG_CAMERA,
+								"%s: Unrecognised node type '%s' for ANALOGUE_SHARPNESS",
+								__func__, nodeTypes[ nodeType ] );
+					}
+					if ( valid ) {
+						camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SHARPNESS ) =
+								OA_CTRL_TYPE_INT32;
+						commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SHARPNESS ) = min;
+						commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SHARPNESS ) = max;
+						commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SHARPNESS ) = step;
+						commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SHARPNESS ) = curr;
+					}
+          break;
+				}
+
 				case ANALOGUE_SHARPNESS_ENABLED: // boolean
-				case ANALOGUE_SHARPNESS_AUTO:	// boolean or enum
+        {
+          bool8_t	curr, valid;
+
+					if ( nodeType == BooleanNode ) {
+						if (( *p_spinBooleanGetValue )( featureHandle, &curr ) !=
+								SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA, "%s: Can't get bool current value "
+									"for ANALOGUE_SHARPNESS_ENABLED", __func__ );
+							return -OA_ERR_SYSTEM_ERROR;
+						}
+						valid = 1;
+					} else {
+						oaLogWarning ( OA_LOG_CAMERA, "%s: Unrecognised node type '%s' "
+								"for ANALOGUE_SHARPNESS_ENABLED", __func__,
+								nodeTypes[ nodeType ] );
+					}
+					if ( valid ) {
+						int ctrl = OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_SHARPNESS );
+						camera->OA_CAM_CTRL_TYPE( ctrl ) = OA_CTRL_TYPE_BOOLEAN;
+						commonInfo->OA_CAM_CTRL_MIN( ctrl ) = 0;
+						commonInfo->OA_CAM_CTRL_MAX( ctrl ) = 1;
+						commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
+						commonInfo->OA_CAM_CTRL_DEF( ctrl ) = curr ? 1 : 0;
+					}
+          break;
+				}
+
+        case ANALOGUE_SHARPNESS_AUTO: // boolean or enumerated value?
+        {
+          bool8_t	curr, valid;
+
+					valid = 0;
+					if ( nodeType == BooleanNode ) {
+						if (( *p_spinBooleanGetValue )( featureHandle, &curr ) !=
+								SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA, "%s: Can't get bool current value "
+									"for ANALOGUE_SHARPNESS_AUTO", __func__ );
+							return -OA_ERR_SYSTEM_ERROR;
+						}
+						valid = 1;
+					} else {
+						if ( nodeType == EnumerationNode ) {
+							spinNodeHandle	valueHandle;
+							int64_t					intValue;
+							spinError				r;
+
+							if (( *p_spinEnumerationGetCurrentEntry )( featureHandle,
+									&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
+								oaLogError ( OA_LOG_CAMERA, "%s: Can't get enum current value",
+										__func__ );
+								return -OA_ERR_SYSTEM_ERROR;
+							}
+							/*
+							 * On the Blackfly at least, getting the enum value doesn't work,
+							 * though I have no idea why not.  Use the int value instead
+							 *
+							if (( r = ( *p_spinEnumerationEntryGetEnumValue )( valueHandle,
+									&enumValue )) != SPINNAKER_ERR_SUCCESS ) {
+								oaLogError ( OA_LOG_CAMERA,
+										"%s: Can't get enum value, error %d", __func__, r );
+							}
+							 */
+							if (( r = ( *p_spinEnumerationEntryGetIntValue )( valueHandle,
+									&intValue )) != SPINNAKER_ERR_SUCCESS ) {
+								oaLogError ( OA_LOG_CAMERA,
+										"%s: Can't get int value, error %d", __func__, r );
+							}
+							switch ( intValue ) {
+								case AUTO_SHARPNESS_OFF:
+									curr = 0;
+									valid = 1;
+									break;
+								case AUTO_SHARPNESS_CONTINUOUS:
+									curr = 1;
+									valid = 1;
+									break;
+								default:
+									oaLogWarning ( OA_LOG_CAMERA,
+											"%s: Unhandled value '%d' for ANALOGUE_SHARPNESS_AUTO",
+											__func__, intValue );
+									curr = 0;
+							}
+						} else {
+							oaLogWarning ( OA_LOG_CAMERA,
+									"%s: Unrecognised node type '%s' for ANALOGUE_SHARPNESS_AUTO",
+									__func__, nodeTypes[ nodeType ] );
+						}
+					}
+					if ( valid ) {
+						camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_SHARPNESS ) =
+								OA_CTRL_TYPE_BOOLEAN;
+						commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_SHARPNESS ) = 0;
+						commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_SHARPNESS ) = 1;
+						commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_SHARPNESS ) = 1;
+						commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_SHARPNESS ) =
+							curr ? 1 : 0;
+					}
+          break;
+        }
 
         default:
           oaLogError ( OA_LOG_CAMERA, "%s: Unhandled analogue feature '%s'",
