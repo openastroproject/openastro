@@ -2,7 +2,8 @@
  *
  * Spinstate.h -- Point Grey Gig-E Spinnaker camera state header
  *
- * Copyright 2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -39,6 +40,9 @@ typedef struct SPINNAKER_STATE {
 
   uint64_t		deviceId;
   uint64_t		ipAddress;
+
+	double			minFloatBlacklevel;
+	double			maxFloatBlacklevel;
 
   // pointers to shared library functions so we can use them if they are
   // present

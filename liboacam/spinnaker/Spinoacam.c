@@ -69,9 +69,9 @@ SPINNAKERC_API	( *p_spinStringGetValue )( spinNodeHandle, char*, size_t* );
 SPINNAKERC_API	( *p_spinEnumerationEntryGetEnumValue )( spinNodeHandle,
 			size_t* );
 SPINNAKERC_API	( *p_spinEnumerationEntryGetIntValue )( spinNodeHandle,
-			uint64_t* );
-SPINNAKERC_API	( *p_spinEnumerationGetCurrentEntry )( spinNodeHandle,
-			spinNodeHandle* );
+			int64_t* );
+SPINNAKERC_API	( *p_spinEnumerationEntryGetSymbolic )( spinNodeHandle,
+			char*, size_t* );
 SPINNAKERC_API	( *p_spinInterfaceGetCameras )( spinInterface, spinCameraList );
 SPINNAKERC_API	( *p_spinCameraListGet )( spinCameraList, size_t, spinCamera* );
 SPINNAKERC_API	( *p_spinCameraGetTLDeviceNodeMap )( spinCamera,
@@ -258,8 +258,8 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       libHandle, "spinEnumerationEntryGetIntValue" ))) {
     return 0;
   }
-  if (!( *( void** )( &p_spinEnumerationGetCurrentEntry ) = _getDLSym (
-      libHandle, "spinEnumerationGetCurrentEntry" ))) {
+  if (!( *( void** )( &p_spinEnumerationEntryGetSymbolic ) = _getDLSym (
+      libHandle, "spinEnumerationEntryGetSymbolic" ))) {
     return 0;
   }
   if (!( *( void** )( &p_spinInterfaceGetCameras ) = _getDLSym ( libHandle,
@@ -388,7 +388,8 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   p_spinStringGetValue = spinStringGetValue;
   p_spinEnumerationEntryGetEnumValue = spinEnumerationEntryGetEnumValue;
   p_spinEnumerationEntryGetIntValue = spinEnumerationEntryGetIntValue;
-  p_spinEnumerationGetCurrentEntry = spinEnumerationGetCurrentEntry;
+  p_spinEnumerationEntryGetSymbolic = spinEnumerationEntryGetSymbolic;
+  //p_spinEnumerationGetCurrentEntry = spinEnumerationGetCurrentEntry;
   p_spinInterfaceGetCameras = spinInterfaceGetCameras;
   p_spinCameraListGet = spinCameraListGet;
   p_spinCameraGetTLDeviceNodeMap = spinCameraGetTLDeviceNodeMap;

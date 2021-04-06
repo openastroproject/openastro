@@ -25,6 +25,9 @@
  *
  *****************************************************************************/
 
+#ifndef OA_SPINNAKER_SPINSTRINGS_H
+#define OA_SPINNAKER_SPINSTRINGS_H
+
 extern const char*	analogueFeatures[];
 extern const char*	deviceFeatures[];
 extern const char*	acquisitionFeatures[];
@@ -34,8 +37,8 @@ extern const char*	nodeTypes[];
 #define	ANALOGUE_GAIN_SELECTOR		0
 #define	ANALOGUE_GAIN_AUTO		1
 #define	ANALOGUE_GAIN			2
-#define	ANALOGUE_AUTO_GAIN_UPPER_LIMIT	3
-#define	ANALOGUE_AUTO_GAIN_LOWER_LIMIT	4
+#define	ANALOGUE_AUTO_GAIN_LOWER_LIMIT	3
+#define	ANALOGUE_AUTO_GAIN_UPPER_LIMIT	4
 #define	ANALOGUE_BLACK_LEVEL		5
 #define	ANALOGUE_BLACK_LEVEL_ENABLED	6
 #define	ANALOGUE_UNKNOWN_7		7
@@ -125,3 +128,5 @@ extern const char*	nodeTypes[];
 #define	FORMAT_PIXEL_DYNAMIC_RANGE_MAX	21
 #define	FORMAT_TEST_IMAGE_SELECTOR	22
 #define	FORMAT_TEST_PATTERN		23
+
+#endif /* OA_SPINNAKER_SPINSTRINGS_H */

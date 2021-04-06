@@ -2,7 +2,8 @@
  *
  * Spinoacam.h -- header for Point Grey Spinnaker camera API
  *
- * Copyright 2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2019,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -24,8 +25,8 @@
  *
  *****************************************************************************/
 
-#ifndef OA_SPIN_OACAM_H
-#define OA_SPIN_OACAM_H
+#ifndef OA_SPINNAKER_OACAM_H
+#define OA_SPINNAKER_OACAM_H
 
 #include <spinnaker/spinc/SpinnakerC.h>
 
@@ -84,8 +85,10 @@ extern SPINNAKERC_API	( *p_spinStringGetValue )( spinNodeHandle, char*,
 				size_t* );
 extern SPINNAKERC_API	( *p_spinEnumerationEntryGetEnumValue )(
 				spinNodeHandle, size_t* );
-extern SPINNAKERC_API	( *p_spinEnumerationGetCurrentEntry )(
-				spinNodeHandle, spinNodeHandle* );
+extern SPINNAKERC_API	( *p_spinEnumerationEntryGetIntValue )(
+				spinNodeHandle, int64_t* );
+extern SPINNAKERC_API	( *p_spinEnumerationEntryGetSymbolic )(
+				spinNodeHandle, char*, size_t* );
 extern SPINNAKERC_API	( *p_spinInterfaceGetCameras )( spinInterface,
 				spinCameraList );
 extern SPINNAKERC_API	( *p_spinCameraListGet )( spinCameraList, size_t,
@@ -125,4 +128,4 @@ extern SPINNAKERC_API	( *p_spinFloatGetValue )( spinNodeHandle, double* );
 
 #define SPINNAKER_MAX_BUFF_LEN	256
 
-#endif	/* OA_SPIN_OACAM_H */
+#endif	/* OA_SPINNAKER_OACAM_H */
