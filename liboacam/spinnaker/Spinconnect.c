@@ -765,7 +765,7 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 						cameraInfo->minFloatBlacklevel = min;
 						cameraInfo->maxFloatBlacklevel = max;
 						// Potentially temporarily, convert this to a range from 0 to 100
-						intCurr = ( curr - min ) / ( max - min ) * 100.0;
+						intCurr = ( curr - min ) * 100.0 / ( max - min );
 						camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLACKLEVEL ) =
 								OA_CTRL_TYPE_BOOLEAN;
 						commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLACKLEVEL ) = 0;
@@ -804,8 +804,82 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
           break;
 				}
 
-				case ANALOGUE_GAMMA:
+				case ANALOGUE_GAMMA: // float on Blackfly.  Could be int?
+        {
+          bool8_t	valid;
+					double	min, max, curr;
+
+					valid = 0;
+					if ( nodeType == FloatNode ) {
+						if (( *p_spinFloatGetValue )( featureHandle, &curr ) !=
+								SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA, "%s: Can't get current float value",
+									__func__ );
+							return -OA_ERR_SYSTEM_ERROR;
+						}
+						if (( *p_spinFloatGetMin )( featureHandle, &min ) !=
+								SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA, "%s: Can't get min float value",
+									__func__ );
+							return -OA_ERR_SYSTEM_ERROR;
+						}
+						if (( *p_spinFloatGetMax )( featureHandle, &max ) !=
+								SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA, "%s: Can't get max float value",
+									__func__ );
+							return -OA_ERR_SYSTEM_ERROR;
+						}
+						valid = 1;
+					} else {
+						oaLogWarning ( OA_LOG_CAMERA,
+								"%s: Unrecognised node type '%s' for ANALOGUE_GAMMA",
+								__func__, nodeTypes[ nodeType ] );
+					}
+					if ( valid ) {
+						int	intCurr;
+
+						cameraInfo->minFloatGamma = min;
+						cameraInfo->maxFloatGamma = max;
+						// Potentially temporarily, convert this to a range from 0 to 100
+						intCurr = ( curr - min ) * 100.0 / ( max - min );
+						camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAMMA ) =
+								OA_CTRL_TYPE_BOOLEAN;
+						commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA ) = 0;
+						commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA ) = 100;
+						commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAMMA ) = 1;
+						commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) = intCurr;
+					}
+          break;
+				}
+
 				case ANALOGUE_GAMMA_ENABLED: // boolean
+        {
+          bool8_t	curr, valid;
+
+					if ( nodeType == BooleanNode ) {
+						if (( *p_spinBooleanGetValue )( featureHandle, &curr ) !=
+								SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA, "%s: Can't get bool current value "
+									"for ANALOGUE_GAMMA_ENABLED", __func__ );
+							return -OA_ERR_SYSTEM_ERROR;
+						}
+						valid = 1;
+					} else {
+						oaLogWarning ( OA_LOG_CAMERA, "%s: Unrecognised node type '%s' "
+								"for ANALOGUE_GAMMA_ENABLED", __func__,
+								nodeTypes[ nodeType ] );
+					}
+					if ( valid ) {
+						int ctrl = OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_GAMMA );
+						camera->OA_CAM_CTRL_TYPE( ctrl ) = OA_CTRL_TYPE_BOOLEAN;
+						commonInfo->OA_CAM_CTRL_MIN( ctrl ) = 0;
+						commonInfo->OA_CAM_CTRL_MAX( ctrl ) = 1;
+						commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
+						commonInfo->OA_CAM_CTRL_DEF( ctrl ) = curr ? 1 : 0;
+					}
+          break;
+				}
+
 				case ANALOGUE_SHARPNESS:
 				case ANALOGUE_SHARPNESS_ENABLED: // boolean
 				case ANALOGUE_SHARPNESS_AUTO:	// boolean or enum

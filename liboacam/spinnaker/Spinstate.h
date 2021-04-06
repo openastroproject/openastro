@@ -43,6 +43,8 @@ typedef struct SPINNAKER_STATE {
 
 	double			minFloatBlacklevel;
 	double			maxFloatBlacklevel;
+	double			minFloatGamma;
+	double			maxFloatGamma;
 
   // pointers to shared library functions so we can use them if they are
   // present
