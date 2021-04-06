@@ -735,10 +735,6 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 
 					valid = 0;
 					if ( nodeType == FloatNode ) {
-
-						oaLogWarning ( OA_LOG_CAMERA,
-								"%s: Need to handle black level if enabled is off", __func__ );
-
 						if (( *p_spinFloatGetValue )( featureHandle, &curr ) !=
 								SPINNAKER_ERR_SUCCESS ) {
 							oaLogError ( OA_LOG_CAMERA, "%s: Can't get current float value",
@@ -1187,26 +1183,21 @@ _showIntegerNode ( spinNodeHandle intNode, bool8_t writeable )
     oaLogError ( OA_LOG_CAMERA, "%s: Can't get int current value", __func__ );
     return;
   }
-  if ( writeable ) {
-    if (( *p_spinIntegerGetMin )( intNode, &min ) != SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get int min value", __func__ );
-      return;
-    }
-    if (( *p_spinIntegerGetMax )( intNode, &max ) != SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get int max value", __func__ );
-      return;
-    }
-    if (( *p_spinIntegerGetInc )( intNode, &step ) != SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get int inc value", __func__ );
-      return;
-    }
-
-    oaLogInfo ( OA_LOG_CAMERA, "%s:   [%ld:%ld]/[%ld] := %ld", __func__,
-				min, max, step, curr );
-
-  } else {
-    oaLogInfo ( OA_LOG_CAMERA, "%s:   [readonly] := %ld", __func__, curr );
+  if (( *p_spinIntegerGetMin )( intNode, &min ) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get int min value", __func__ );
+    return;
   }
+  if (( *p_spinIntegerGetMax )( intNode, &max ) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get int max value", __func__ );
+    return;
+  }
+  if (( *p_spinIntegerGetInc )( intNode, &step ) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get int inc value", __func__ );
+    return;
+  }
+
+  oaLogInfo ( OA_LOG_CAMERA, "%s:   [%ld:%ld]/[%ld] := %ld", __func__,
+		min, max, step, curr );
 
   return;
 }
@@ -1239,22 +1230,17 @@ _showFloatNode ( spinNodeHandle floatNode, bool8_t writeable )
     return;
   }
 
-  if ( writeable ) {
-    if (( *p_spinFloatGetMin )( floatNode, &min ) != SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get float min value", __func__ );
-      return;
-    }
-    if (( *p_spinFloatGetMax )( floatNode, &max ) != SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get float max value", __func__ );
-      return;
-    }
-
-    oaLogInfo ( OA_LOG_CAMERA, "%s:   [%f:%f] := %f", __func__,
-				min, max, curr );
-
-  } else {
-    oaLogInfo ( OA_LOG_CAMERA, "%s:   [readonly] := %f", __func__, curr );
+  if (( *p_spinFloatGetMin )( floatNode, &min ) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get float min value", __func__ );
+    return;
   }
+  if (( *p_spinFloatGetMax )( floatNode, &max ) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get float max value", __func__ );
+    return;
+  }
+
+  oaLogInfo ( OA_LOG_CAMERA, "%s:   [%f:%f] := %f", __func__,
+		min, max, curr );
   
   return;
 }
