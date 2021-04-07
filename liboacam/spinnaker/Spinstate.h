@@ -28,7 +28,7 @@
 #ifndef OA_SPINNAKER_STATE_H
 #define OA_SPINNAKER_STATE_H
 
-#include <spinnaker/spinc/SpinnakerC.h>
+#include <spinc/SpinnakerC.h>
 #include <openastro/util.h>
 
 #include "sharedState.h"

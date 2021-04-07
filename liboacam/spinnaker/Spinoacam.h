@@ -28,7 +28,7 @@
 #ifndef OA_SPINNAKER_OACAM_H
 #define OA_SPINNAKER_OACAM_H
 
-#include <spinnaker/spinc/SpinnakerC.h>
+#include <spinc/SpinnakerC.h>
 
 extern int		oaSpinGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaSpinInitCamera ( oaCameraDevice* );

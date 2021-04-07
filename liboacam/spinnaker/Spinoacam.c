@@ -35,7 +35,7 @@
 #include <openastro/camera.h>
 #include <openastro/demosaic.h>
 #include <openastro/util.h>
-#include <spinnaker/spinc/SpinnakerC.h>
+#include <spinc/SpinnakerC.h>
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
@@ -157,13 +157,21 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   oaCameraDevice*       devices;
   DEVICE_INFO*		_private;
   int			ret;
+	spinError		err;
 
 
 #if HAVE_LIBDL
   static void*		libHandle = 0;
 
   if ( !libHandle ) {
+#if HAVE_LIBSPINNAKER_V1
     if (!( libHandle = dlopen( "libSpinnaker_C.so.1", RTLD_LAZY ))) {
+#else
+    if (!( libHandle = dlopen( "/opt/spinnaker/lib/libSpinnaker_C.so.2",
+				RTLD_LAZY ))) {
+#endif
+			oaLogWarning ( OA_LOG_CAMERA, "%s: libSpinnaker_c.so not found",
+					__func__ );
       return 0;
     }
   }
@@ -417,16 +425,17 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 
 #endif /* HAVE_LIBDL */
 
-  if (( *p_spinSystemGetInstance )( &systemHandle ) !=
+  if (( err = ( *p_spinSystemGetInstance )( &systemHandle )) !=
       SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get system instance", __func__ );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get system instance, error %d", __func__, err );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
-  if (( *p_spinInterfaceListCreateEmpty )( &ifaceListHandle ) !=
+  if (( err = ( *p_spinInterfaceListCreateEmpty )( &ifaceListHandle )) !=
       SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't create empty interface list",
-				__func__ );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't create empty interface list, error %d", __func__, err );
     ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
     return -OA_ERR_SYSTEM_ERROR;
   }
@@ -938,7 +947,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
           }
         }
 
-        if ( deviceType == DeviceType_GEV ) {
+        if ( deviceType == DeviceType_GigEVision ) {
           if (( *p_spinNodeMapGetNode )( cameraNodeMapHandle,
              "GevDeviceIPAddress", &ipAddrHandle ) != SPINNAKER_ERR_SUCCESS ) {
             oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera address node",
@@ -1006,7 +1015,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         if ( *deviceId ) {
           _oaInitCameraDeviceFunctionPointers ( &devices[ numFound ]);
           devices[ numFound ].interface = OA_CAM_IF_SPINNAKER;
-          if ( deviceType == DeviceType_GEV ) {
+          if ( deviceType == DeviceType_GigEVision ) {
             ( void ) snprintf ( devices[ numFound ].deviceName,
                 OA_MAX_NAME_LEN+1, "%.*s (%d.%d.%d.%d)", OA_MAX_NAME_LEN - 20,
 								modelName, ( uint8_t )( ipAddr >> 24 ),

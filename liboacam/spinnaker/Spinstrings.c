@@ -80,10 +80,10 @@ const char* deviceFeatures[] = {
 const char*	aquisitionFeatures[] = {
   "Trigger Selector",
   "Trigger Mode",
-  "Unknown aquisition feature 2",
+  "Trigger Software(?)",
   "Trigger Source",
   "Trigger Activation",
-  "Unknown aquisition feature 5",
+  "Trigger Overlap(?)",
   "Trigger Delay",
   "Trigger Delay Enabled",
   "Exposure Mode",

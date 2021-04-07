@@ -27,7 +27,7 @@
 
 #include <oa_common.h>
 
-#include <spinnaker/spinc/SpinnakerC.h>
+#include <spinc/SpinnakerC.h>
 #include <pthread.h>
 #include <openastro/camera.h>
 #include <openastro/util.h>

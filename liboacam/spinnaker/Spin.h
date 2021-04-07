@@ -36,4 +36,9 @@
 #define	AUTO_SHARPNESS_ONCE					1
 #define	AUTO_SHARPNESS_CONTINUOUS		2
 
+#if HAVE_LIBSPINNAKER_V1
+// This appears to have changed between V1 and V2
+#define DeviceType_GigEVision DeviceType_GEV
+#endif
+
 #endif /* OA_SPINNAKER_SPIN_H */
