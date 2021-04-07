@@ -28,10 +28,6 @@
 #ifndef	OA_SPINNAKER_SPIN_H
 #define	OA_SPINNAKER_SPIN_H
 
-#define	AUTO_GAIN_OFF								0
-#define	AUTO_GAIN_ONCE							1
-#define	AUTO_GAIN_CONTINUOUS				2
-
 #define	AUTO_SHARPNESS_OFF					0
 #define	AUTO_SHARPNESS_ONCE					1
 #define	AUTO_SHARPNESS_CONTINUOUS		2

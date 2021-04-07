@@ -466,17 +466,21 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
     }
 
     if ( nodeType == CategoryNode ) {
+			int		handled = 0;
+
       if ( !strcmp ( "Analog Control", categoryName )) {
         if (( ret = _processAnalogueControls ( categoryHandle, camera )) < 0 ) {
           ( void ) ( *p_spinCameraDeInit )( cameraHandle );
           return ret;
         }
+				handled = 1;
       }
       if ( !strcmp ( "Device Control", categoryName )) {
         if (( ret = _processDeviceControls ( categoryHandle, camera )) < 0 ) {
           ( void ) ( *p_spinCameraDeInit )( cameraHandle );
           return ret;
         }
+				handled = 1;
       }
       if ( !strcmp ( "Acquisition Control", categoryName )) {
         if (( ret = _processAquisitionControls ( categoryHandle, camera ))
@@ -484,12 +488,14 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
           ( void ) ( *p_spinCameraDeInit )( cameraHandle );
           return ret;
         }
+				handled = 1;
       }
       if ( !strcmp ( "Image Format Control", categoryName )) {
         if (( ret = _processFormatControls ( categoryHandle, camera )) < 0 ) {
           ( void ) ( *p_spinCameraDeInit )( cameraHandle );
           return ret;
         }
+				handled = 1;
       }
       if ( !strcmp ( "User Set Control", categoryName ) ||
           !strcmp ( "Digital I/O Control", categoryName ) ||
@@ -500,6 +506,10 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
         // For the time being we ignore these
         continue;
       }
+			if ( !handled ) {
+				oaLogWarning ( OA_LOG_CAMERA, "%s: Unhandled category '%s'", __func__,
+						categoryName );
+			}
     } else {
       oaLogWarning ( OA_LOG_CAMERA,
 					"%s: Unhandled camera node '%s', type %d", __func__, categoryName,
@@ -678,11 +688,11 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 										"%s: Can't get enum value, error %d", __func__, r );
 							}
 							switch ( enumValue ) {
-								case AUTO_GAIN_OFF:
+								case GainAuto_Off:
 									curr = 0;
 									valid = 1;
 									break;
-								case AUTO_GAIN_CONTINUOUS:
+								case GainAuto_Continuous:
 									curr = 1;
 									valid = 1;
 									break;
@@ -804,7 +814,9 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
           break;
 				}
 
-				case ANALOGUE_GAMMA: // float on Blackfly.  Could be int?
+				case ANALOGUE_GAMMA:
+				// This is a float on Blackfly.  It doesn't appear to be part of
+				// the Genicam standard, so perhaps that's all it will ever be.
         {
           bool8_t	valid;
 					double	min, max, curr;
@@ -880,7 +892,9 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
           break;
 				}
 
-				case ANALOGUE_SHARPNESS: // int on Blackfly.  Could be float?
+				case ANALOGUE_SHARPNESS:
+				// int on Blackfly, and again not apparently a part of the Genicam
+				// standard
         {
           bool8_t	valid;
 					int64_t	min, max, curr, step;
@@ -956,66 +970,60 @@ _processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
           break;
 				}
 
-        case ANALOGUE_SHARPNESS_AUTO: // boolean or enumerated value?
+        case ANALOGUE_SHARPNESS_AUTO:
+				// Seems to be enumerated value on the Blackfly.  Not apparently part
+				// of the Genicam standard, so hopefully it will be the same for
+				// all Point Grey/FLIR cameras
         {
           bool8_t	curr, valid;
 
 					valid = 0;
-					if ( nodeType == BooleanNode ) {
-						if (( *p_spinBooleanGetValue )( featureHandle, &curr ) !=
-								SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get bool current value "
-									"for ANALOGUE_SHARPNESS_AUTO", __func__ );
+					if ( nodeType == EnumerationNode ) {
+						spinNodeHandle	valueHandle;
+						int64_t					intValue;
+						spinError				r;
+
+						if (( *p_spinEnumerationGetCurrentEntry )( featureHandle,
+								&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA, "%s: Can't get enum current value",
+									__func__ );
 							return -OA_ERR_SYSTEM_ERROR;
 						}
-						valid = 1;
-					} else {
-						if ( nodeType == EnumerationNode ) {
-							spinNodeHandle	valueHandle;
-							int64_t					intValue;
-							spinError				r;
-
-							if (( *p_spinEnumerationGetCurrentEntry )( featureHandle,
-									&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
-								oaLogError ( OA_LOG_CAMERA, "%s: Can't get enum current value",
-										__func__ );
-								return -OA_ERR_SYSTEM_ERROR;
-							}
-							/*
-							 * On the Blackfly at least, getting the enum value doesn't work,
-							 * though I have no idea why not.  Use the int value instead
-							 *
-							if (( r = ( *p_spinEnumerationEntryGetEnumValue )( valueHandle,
-									&enumValue )) != SPINNAKER_ERR_SUCCESS ) {
-								oaLogError ( OA_LOG_CAMERA,
-										"%s: Can't get enum value, error %d", __func__, r );
-							}
-							 */
-							if (( r = ( *p_spinEnumerationEntryGetIntValue )( valueHandle,
-									&intValue )) != SPINNAKER_ERR_SUCCESS ) {
-								oaLogError ( OA_LOG_CAMERA,
-										"%s: Can't get int value, error %d", __func__, r );
-							}
-							switch ( intValue ) {
-								case AUTO_SHARPNESS_OFF:
-									curr = 0;
-									valid = 1;
-									break;
-								case AUTO_SHARPNESS_CONTINUOUS:
-									curr = 1;
-									valid = 1;
-									break;
-								default:
-									oaLogWarning ( OA_LOG_CAMERA,
-											"%s: Unhandled value '%d' for ANALOGUE_SHARPNESS_AUTO",
-											__func__, intValue );
-									curr = 0;
-							}
-						} else {
-							oaLogWarning ( OA_LOG_CAMERA,
-									"%s: Unrecognised node type '%s' for ANALOGUE_SHARPNESS_AUTO",
-									__func__, nodeTypes[ nodeType ] );
+						/*
+						 * Getting the enum value doesn't work, presumably because
+						 * "sharpness" is not a standard Genicam control.  Have to
+						 * use the integer value instead
+						 *
+						if (( r = ( *p_spinEnumerationEntryGetEnumValue )( valueHandle,
+								&enumValue )) != SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA,
+									"%s: Can't get enum value, error %d", __func__, r );
 						}
+						 */
+						if (( r = ( *p_spinEnumerationEntryGetIntValue )( valueHandle,
+								&intValue )) != SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA,
+									"%s: Can't get int value, error %d", __func__, r );
+						}
+						switch ( intValue ) {
+							case AUTO_SHARPNESS_OFF:
+								curr = 0;
+								valid = 1;
+								break;
+							case AUTO_SHARPNESS_CONTINUOUS:
+								curr = 1;
+								valid = 1;
+								break;
+							default:
+								oaLogWarning ( OA_LOG_CAMERA,
+										"%s: Unhandled value '%d' for ANALOGUE_SHARPNESS_AUTO",
+										__func__, intValue );
+								curr = 0;
+						}
+					} else {
+						oaLogWarning ( OA_LOG_CAMERA,
+								"%s: Unrecognised node type '%s' for ANALOGUE_SHARPNESS_AUTO",
+								__func__, nodeTypes[ nodeType ] );
 					}
 					if ( valid ) {
 						camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_SHARPNESS ) =

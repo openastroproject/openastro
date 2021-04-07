@@ -40,6 +40,7 @@
 #include "oacamprivate.h"
 #include "unimplemented.h"
 #include "Spinoacam.h"
+#include "Spin.h"
 
 // Pointers to Spinnaker functions so we can use them via libdl.
 
