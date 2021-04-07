@@ -1021,7 +1021,7 @@ then
   AC_MSG_NOTICE([Using Spinnaker v2 library])
   CPPFLAGS="-I/opt/spinnaker/include $CPPFLAGS"
   LDFLAGS="-L/opt/spinnaker/lib $LDFLAGS"
-  LIBS="$spinnakerlib $LIBS"
+  LIBS="-rpath=/opt/spinnaker/lib $spinnakerlib $LIBS"
   AC_DEFINE([HAVE_LIBSPINNAKER],[1],[Have Spinnaker_C library])
   AC_DEFINE([HAVE_LIBSPINNAKER_V2],[1],[Spinnaker is v2])
   have_spinnaker=yes
