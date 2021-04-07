@@ -30,7 +30,7 @@
 
 extern const char*	analogueFeatures[];
 extern const char*	deviceFeatures[];
-extern const char*	acquisitionFeatures[];
+extern const char*	aquisitionFeatures[];
 extern const char*	formatFeatures[];
 extern const char*	nodeTypes[];
 
@@ -104,6 +104,7 @@ extern const char*	nodeTypes[];
 #define	AQUISITION_FRAME_RATE_AUTO	21
 #define	AQUISITION_FR_CONTROL_ENABLED	22
 #define	AQUISITION_FRAME_RATE		23
+#define	AQUISITION_MAX_FEATURES		( AQUISITION_FRAME_RATE + 1 )
 
 #define	FORMAT_PIXEL_FORMAT		0
 #define	FORMAT_UNKNOWN_1		1

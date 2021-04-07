@@ -498,7 +498,6 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 				handled = 1;
       }
       if ( !strcmp ( "User Set Control", categoryName ) ||
-          !strcmp ( "Digital I/O Control", categoryName ) ||
           !strcmp ( "LUT Control", categoryName ) ||
           !strcmp ( "Transport Layer Control", categoryName ) ||
           !strcmp ( "Chunk Data Control", categoryName ) ||
@@ -1138,10 +1137,6 @@ _processDeviceControls ( spinNodeHandle categoryHandle, oaCamera* camera )
 				readable ? ( writeable ? "RW" : "RO" ) :
         ( writeable ? "WO" : "??" ));
 
-    // It's not clear if features are always numbered in the same order for
-    // all cameras, but the fact that feature numbers are skipped suggests
-    // that might be so
-
     switch ( nodeType ) {
       case IntegerNode:
         _showIntegerNode ( featureHandle, writeable );
@@ -1303,8 +1298,10 @@ _processAquisitionControls ( spinNodeHandle categoryHandle, oaCamera* camera )
   char			featureName[ SPINNAKER_MAX_BUFF_LEN ];
   size_t		featureNameLen;
   size_t		numFeatures;
-  unsigned int		i;
+  unsigned int		i, j;
+  int			featureId;
   bool8_t		available, readable, writeable;
+  COMMON_INFO*			commonInfo = camera->_common;
 
   if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
       SPINNAKER_ERR_SUCCESS ) {
@@ -1375,13 +1372,10 @@ _processAquisitionControls ( spinNodeHandle categoryHandle, oaCamera* camera )
     }
 
     oaLogInfo ( OA_LOG_CAMERA,
-				"%s: acquisition feature %d '%s', type %d [%s] found", __func__, i,
-        featureName, nodeType, readable ? ( writeable ? "RW" : "RO" ) :
+				"%s: device feature %d '%s', type %s [%s] found", __func__, i,
+				featureName, ( nodeType >= 0 ) ? nodeTypes [ nodeType ] : "unknown",
+				readable ? ( writeable ? "RW" : "RO" ) :
         ( writeable ? "WO" : "??" ));
-
-    // It's not clear if features are always numbered in the same order for
-    // all cameras, but the fact that feature numbers are skipped suggests
-    // that might be so
 
     switch ( nodeType ) {
       case IntegerNode:
@@ -1405,6 +1399,89 @@ _processAquisitionControls ( spinNodeHandle categoryHandle, oaCamera* camera )
       default:
         oaLogError ( OA_LOG_CAMERA, "%s:   unhandled node type", __func__ );
         break;
+    }
+
+    // It's not clear if features are always numbered in the same order for
+    // all cameras, but the fact that feature numbers are skipped suggests
+    // that might be so.  In case it isn't, do things the hard way :(
+
+    for ( j = 0, featureId = -1; j < AQUISITION_MAX_FEATURES && featureId < 0;
+        j++ ) {
+      if ( !strcmp ( featureName, aquisitionFeatures[ j ] )) {
+        featureId = j;
+      }
+    }
+
+    if ( featureId >= 0 ) {
+      switch ( featureId ) {
+				case AQUISITION_TRIGGER_SELECTOR:
+				{
+					// An enumerated value according to the spec, which is good as we
+					// can make this a menu.
+					// FIX ME -- what happens if the values present are not sequential
+					// though?
+					size_t numEntries;
+
+					if (( *p_spinEnumerationGetNumEntries )( featureHandle,
+							&numEntries ) != SPINNAKER_ERR_SUCCESS ) {
+						oaLogError ( OA_LOG_CAMERA,
+								"%s: Can't get number of enum entries for TRIGGER_SELECTOR",
+								__func__ );
+					} else {
+						camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_MODE ) =
+							OA_CTRL_TYPE_MENU;
+						commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_MODE ) = 0;
+						commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_MODE ) =
+								numEntries - 1;
+						commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_MODE ) = 1;
+						// A guess, unless we start by resetting the camera
+						commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_MODE ) = 0;
+					}
+					break;
+				}
+
+				case AQUISITION_TRIGGER_MODE:
+					// If this exists then it's just an on/off switch
+					camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_ENABLE ) =
+							OA_CTRL_TYPE_BOOLEAN;
+					commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_ENABLE ) = 0;
+					commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_ENABLE ) = 1;
+					commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_ENABLE ) = 1;
+					commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_ENABLE ) = 0;
+					break;
+
+				case AQUISITION_TRIGGER_SOFTWARE:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring TRIGGER_SOFTWARE feature", __func__ );
+          break;
+
+				case AQUISITION_TRIGGER_SOURCE:
+				case AQUISITION_TRIGGER_ACTIVATION:
+				case AQUISITION_OVERLAP:
+				case AQUISITION_TRIGGER_DELAY:
+				case AQUISITION_TRIGGER_DELAY_ENABLED:
+				case AQUISITION_EXPOSURE_MODE:
+				case AQUISITION_EXPOSURE_AUTO:
+				case AQUISITION_EXPOSURE_TIME:
+				case AQUISITION_EXPOSURE_TIME_ABS:
+				case AQUISITION_AUTO_EXP_LOWER_LIMIT:
+				case AQUISITION_AUTO_EXP_UPPER_LIMIT:
+				case AQUISITION_EXPOSURE_COMPENSATION_AUTO:
+				case AQUISITION_EXPOSURE_COMPENSATION:
+				case AQUISITION_AUTO_EC_LOWER_LIMIT:
+				case AQUISITION_AUTO_EC_UPPER_LIMIT:
+				case AQUISITION_MODE:
+				case AQUISITION_START:
+				case AQUISITION_STOP:
+				case AQUISITION_FRAME_RATE_AUTO:
+				case AQUISITION_FR_CONTROL_ENABLED:
+				case AQUISITION_FRAME_RATE:
+        default:
+          oaLogError ( OA_LOG_CAMERA, "%s: Unhandled aquisition feature '%s'",
+							__func__, featureName );
+          break;
+			}
     }
   }
 
