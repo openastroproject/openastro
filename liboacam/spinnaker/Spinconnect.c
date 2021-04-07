@@ -1052,7 +1052,8 @@ _processDeviceControls ( spinNodeHandle categoryHandle, oaCamera* camera )
   char			featureName[ SPINNAKER_MAX_BUFF_LEN ];
   size_t		featureNameLen;
   size_t		numFeatures;
-  unsigned int		i;
+  unsigned int		i, j;
+  int			featureId;
   bool8_t		available, readable, writeable;
 
   if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
@@ -1123,9 +1124,11 @@ _processDeviceControls ( spinNodeHandle categoryHandle, oaCamera* camera )
       ( void ) strcpy ( featureName, "unknown" );
     }
 
-    oaLogInfo ( OA_LOG_CAMERA, "%s: device feature %d '%s', type %d [%s] found",
-				__func__, i, featureName, nodeType,
-				readable ? ( writeable ? "RW" : "RO" ) : ( writeable ? "WO" : "??" ));
+    oaLogInfo ( OA_LOG_CAMERA,
+				"%s: device feature %d '%s', type %s [%s] found", __func__, i,
+				featureName, ( nodeType >= 0 ) ? nodeTypes [ nodeType ] : "unknown",
+				readable ? ( writeable ? "RW" : "RO" ) :
+        ( writeable ? "WO" : "??" ));
 
     // It's not clear if features are always numbered in the same order for
     // all cameras, but the fact that feature numbers are skipped suggests
@@ -1154,6 +1157,130 @@ _processDeviceControls ( spinNodeHandle categoryHandle, oaCamera* camera )
         oaLogError ( OA_LOG_CAMERA, "%s:   unhandled node type", __func__ );
         break;
     }
+
+    // It's not clear if features are always numbered in the same order for
+    // all cameras, but the fact that feature numbers are skipped suggests
+    // that might be so.  In case it isn't, do things the hard way :(
+
+    for ( j = 0, featureId = -1; j < DEVICE_MAX_FEATURES && featureId < 0;
+        j++ ) {
+      if ( !strcmp ( featureName, deviceFeatures[ j ] )) {
+        featureId = j;
+      }
+    }
+
+    if ( featureId >= 0 ) {
+      switch ( featureId ) {
+				case DEVICE_INDICATOR_MODE:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_INDICATOR_MODE feature", __func__ );
+          break;
+				case DEVICE_VENDOR_NAME:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_VENDOR_NAME feature", __func__ );
+          break;
+				case DEVICE_SENSOR_DESC:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_SENSOR_DESC feature", __func__ );
+          break;
+				case DEVICE_MODEL_NAME:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_MODEL_NAME feature", __func__ );
+          break;
+				case DEVICE_VERSION:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_VERSION feature", __func__ );
+          break;
+				case DEVICE_SVN_VERSION:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_SVN_VERSION feature", __func__ );
+          break;
+				case DEVICE_FW_VERSION:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_FW_VERSION feature", __func__ );
+          break;
+				case DEVICE_ID:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_ID feature", __func__ );
+          break;
+				case DEVICE_SERIAL_NO:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_SERIAL_NO feature", __func__ );
+          break;
+				case DEVICE_USER_ID:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_USER_ID feature", __func__ );
+          break;
+				case DEVICE_SCAN_TYPE:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_SCAN_TYPE feature", __func__ );
+          break;
+
+				case DEVICE_TEMPERATURE:
+				  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) =
+							OA_CTRL_TYPE_READONLY;
+					break;
+
+				case DEVICE_RESET:
+					camera->features.flags |= OA_CAM_FEATURE_RESET;
+					break;
+
+				case DEVICE_UPTIME:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_UPTIME feature", __func__ );
+          break;
+				case DEVICE_AUTO_FUNC_AOIS_CONTROL:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_AOIS_CONTROL feature", __func__ );
+          break;
+				case DEVICE_POWER_SUPPLY_SELECTOR:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_SUPPLY_SELECTOR feature", __func__ );
+          break;
+				case DEVICE_POWER_SUPPLY_VOLTAGE:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_SUPPLY_VOLTAGE feature", __func__ );
+          break;
+				case DEVICE_POWER_SUPPLY_CURRENT:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_SUPPLY_CURRENT feature", __func__ );
+          break;
+				case DEVICE_MAX_THROUGHPUT:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_MAX_THROUGHPUT feature", __func__ );
+          break;
+				case DEVICE_LINK_THROUGHPUT_LIMIT:
+          // Ignore this for the time being.
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Ignoring DEVICE_LINK_THROUGHPUT_LIMIT feature", __func__ );
+          break;
+
+        default:
+          oaLogError ( OA_LOG_CAMERA, "%s: Unhandled device feature '%s'",
+							__func__, featureName );
+          break;
+      }
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised device feature %d, '%s'",
+					__func__, i, featureName );
+		}
   }
 
   return -OA_ERR_NONE;
