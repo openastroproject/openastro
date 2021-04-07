@@ -1005,11 +1005,29 @@ fi
 
 spinnakerlib="-lSpinnaker_C "
 AC_CHECK_LIB([Spinnaker_C],[spinSystemGetInstance],[
+  AC_MSG_NOTICE([Using Spinnaker v1 library])
+  CPPFLAGS="-I/usr/include/spinnaker $CPPFLAGS"
   LIBS="$spinnakerlib$LIBS"
   AC_DEFINE([HAVE_LIBSPINNAKER],[1],[Have Spinnaker_C library])
+  AC_DEFINE([HAVE_LIBSPINNAKER_V1],[1],[Spinnaker is v1])
   have_spinnaker=yes
 ],[
-  AC_MSG_WARN([No Spinnaker library found.  Point Grey cameras will not be supported via this library])])
+  AC_MSG_WARN([No Spinnaker v1 library found.  Point Grey cameras will not be supported via this library.  Looking for v2])])
+
+# Nasty, but what can you do?
+if test "x$have_spinnaker" != "xyes"
+then
+	AC_CHECK_FILE([/opt/spinnaker/include/spinc/SpinnakerC.h],[
+  AC_MSG_NOTICE([Using Spinnaker v2 library])
+  CPPFLAGS="-I/opt/spinnaker/include $CPPFLAGS"
+  LDFLAGS="-L/opt/spinnaker/lib $LDFLAGS"
+  LIBS="$spinnakerlib $LIBS"
+  AC_DEFINE([HAVE_LIBSPINNAKER],[1],[Have Spinnaker_C library])
+  AC_DEFINE([HAVE_LIBSPINNAKER_V2],[1],[Spinnaker is v2])
+  have_spinnaker=yes
+],[
+  AC_MSG_WARN([No Spinnaker v2 library found.  Point Grey cameras will not be supported via this library])])
+fi
 
 if test "x$have_dl" == "xyes" -a "x$have_flycapture2" == "xno" -a "x$have_spinnaker" == "xyes"
 then
