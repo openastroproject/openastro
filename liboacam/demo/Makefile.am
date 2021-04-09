@@ -1,7 +1,7 @@
 #
-# Makefile.am -- Top level Makefile template
+# Makefile.am -- liboacam demo programs Makefile template
 #
-# Copyright 2013,2014,2015,2017,2018,2019,2021
+# Copyright 2021
 #   James Fidell (james@openastroproject.org)
 #
 # License:
@@ -22,17 +22,33 @@
 # along with the Open Astro Project.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-#SUBDIRS = bin docs include liboafilterwheel udev
 
-ACLOCAL_AMFLAGS=-I m4
+#AM_CPPFLAGS = -I$(top_srcdir)/include $(FFMPEG_CFLAGS) $(APP_PATH_CFLAGS) \
+#  $(DEFAULT_PATH_CFLAGS) $(LIBWINDIB_CFLAGS) -D__STDC_CONSTANT_MACROS \
+#  $(LIBUVC_CFLAGS) $(LIBHIDAPI_CFLAGS) $(LIBUSB_CFLAGS) $(LIBDC1394_CFLAGS) \
+#  $(LIBFTDI_CFLAGS)
 
-WARN_SUBDIRS = liboautil liboavideo liboacam liboademosaic liboaSER \
-							 liboafilterwheel liboaPTR liboaimgproc liboaephem common osx \
-							 oacapture oalive
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/common
 
-NOWARN_SUBDIRS = ext udev bin packagers
+noinst_PROGRAMS = showControls
 
-SUBDIRS = $(NOWARN_SUBDIRS) $(WARN_SUBDIRS)
+showControls_SOURCES = showControls.c
+
+showControls_LDADD = \
+  ../liboacam.la \
+  ../../liboautil/liboautil.la \
+  ../../liboavideo/liboavideo.la \
+  $(LIBUVC_LIBS) \
+  $(LIBDC1394_LIBS) \
+  $(LIBFTDI_LIBS) \
+  $(LIBUSB_LIBS) \
+  $(LIBASI2_LIBS) \
+  $(LIBZWOFW_LIBS) \
+  $(LIBGPHOTO2_LIBS) \
+  $(LIBSVBCAMERASDK_LIBS) \
+  $(PYLON_LDFLAGS) $(PYLON_LIBS) \
+  $(OSX_FRAMEWORKS) \
+  -lpthread
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
@@ -43,10 +59,3 @@ warnings:
 verbose-warnings:
 	$(MAKE) V=1 CFLAGS='$(WARNINGS)' CXXFLAGS='$(WARNINGS)'
 	$(MAKE) V=1 CFLAGS='$(WARNINGS)' CXXFLAGS='$(WARNINGS)' $(check_PROGRAMS)
-
-dmg:
-	bin/build-oacapture-dmg.sh
-	bin/build-oalive-dmg.sh
-
-osx-pkg:
-	bin/build-osx-pkg.sh
