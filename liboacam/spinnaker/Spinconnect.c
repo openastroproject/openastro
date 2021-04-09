@@ -427,7 +427,6 @@ _readGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
   COMMON_INFO*			commonInfo = camera->_common;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
 	int								ctrl;
-	spinError					err;
 
   if (( *p_spinNodeMapGetNode )( nodeMap, "Gamma", &gamma ) !=
       SPINNAKER_ERR_SUCCESS ) {
