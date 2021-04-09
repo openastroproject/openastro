@@ -43,15 +43,14 @@
 
 static void	_spinInitFunctionPointers ( oaCamera* );
 static int	_processCameraEntry ( spinCamera, oaCamera* );
-static int	_processAnalogueControls ( spinNodeHandle, oaCamera* );
-static int	_processDeviceControls ( spinNodeHandle, oaCamera* );
-static int	_processAquisitionControls ( spinNodeHandle, oaCamera* );
-static int	_processFormatControls ( spinNodeHandle, oaCamera* );
-static void	_showIntegerNode ( spinNodeHandle, bool8_t );
-static void	_showBooleanNode ( spinNodeHandle );
+//static void	_showIntegerNode ( spinNodeHandle, bool8_t );
+//static void	_showBooleanNode ( spinNodeHandle );
 static void	_showFloatNode ( spinNodeHandle, bool8_t );
-static void	_showStringNode ( spinNodeHandle );
-static void	_showEnumerationNode ( spinNodeHandle );
+//static void	_showStringNode ( spinNodeHandle );
+//static void	_showEnumerationNode ( spinNodeHandle );
+static int	_readGainControls ( spinNodeMapHandle, oaCamera* );
+static int	_readGammaControls ( spinNodeMapHandle, oaCamera* );
+
 
 oaCamera*
 oaSpinInitCamera ( oaCameraDevice* device )
@@ -375,16 +374,7 @@ static int
 _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 {
   spinNodeMapHandle	cameraNodeMapHandle = 0;
-  spinNodeHandle	rootHandle = 0;
-  spinNodeHandle	categoryHandle = 0;
-  spinNodeType		nodeType;
-  char			categoryName[ SPINNAKER_MAX_BUFF_LEN ];
-  size_t		categoryNameLen;
-  size_t		numCategories;
-  int			ret;
-  bool8_t		available, readable;
   int			err;
-  unsigned int		i;
 
   if (( *p_spinCameraInit )( cameraHandle ) != SPINNAKER_ERR_SUCCESS ) {
     oaLogError ( OA_LOG_CAMERA, "%s: Can't initialise camera", __func__ );
@@ -399,122 +389,18 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
     return -OA_ERR_SYSTEM_ERROR;
   }
 
-  if (( *p_spinNodeMapGetNode )( cameraNodeMapHandle, "Root", &rootHandle ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera root nodemap",
-				__func__ );
+	if ( _readGainControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
+		return -OA_ERR_SYSTEM_ERROR;
+	}
 
-  if (( *p_spinCategoryGetNumFeatures )( rootHandle, &numCategories ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get number of root categories",
-				__func__ );
+	if ( _readGammaControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
+		return -OA_ERR_SYSTEM_ERROR;
+	}
 
-  for ( i = 0; i < numCategories; i++ ) {
-    if (( *p_spinCategoryGetFeatureByIndex )( rootHandle, i, &categoryHandle )
-        != SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get category handle", __func__ );
-    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
-    available = readable = False;
-    if (( *p_spinNodeIsAvailable )( categoryHandle, &available ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get category available",
-					__func__ );
-      ( void ) ( *p_spinCameraDeInit )( cameraHandle );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if ( available ) {
-      if (( *p_spinNodeIsReadable )( categoryHandle, &readable ) !=
-          SPINNAKER_ERR_SUCCESS ) {
-        oaLogError ( OA_LOG_CAMERA, "%s: Can't get category readable",
-						__func__ );
-        ( void ) ( *p_spinCameraDeInit )( cameraHandle );
-        return -OA_ERR_SYSTEM_ERROR;
-      }
-    } else {
-      oaLogError ( OA_LOG_CAMERA,
-					"%s: unavailable category", __func__ );
-      continue;
-    }
-    if ( !readable ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: unreadable category", __func__ );
-      continue;
-    }
-
-    if (( *p_spinNodeGetType )( categoryHandle, &nodeType ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get category node type",
-					__func__ );
-      ( void ) ( *p_spinCameraDeInit )( cameraHandle );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
-    categoryNameLen = SPINNAKER_MAX_BUFF_LEN;
-    if (( *p_spinNodeGetDisplayName )( categoryHandle, categoryName,
-        &categoryNameLen ) != SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get category name", __func__ );
-      ( void ) ( *p_spinCameraDeInit )( cameraHandle );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
-    if ( nodeType == CategoryNode ) {
-			int		handled = 0;
-
-      if ( !strcmp ( "Analog Control", categoryName )) {
-        if (( ret = _processAnalogueControls ( categoryHandle, camera )) < 0 ) {
-          ( void ) ( *p_spinCameraDeInit )( cameraHandle );
-          return ret;
-        }
-				handled = 1;
-      }
-      if ( !strcmp ( "Device Control", categoryName )) {
-        if (( ret = _processDeviceControls ( categoryHandle, camera )) < 0 ) {
-          ( void ) ( *p_spinCameraDeInit )( cameraHandle );
-          return ret;
-        }
-				handled = 1;
-      }
-      if ( !strcmp ( "Acquisition Control", categoryName )) {
-        if (( ret = _processAquisitionControls ( categoryHandle, camera ))
-            < 0 ) {
-          ( void ) ( *p_spinCameraDeInit )( cameraHandle );
-          return ret;
-        }
-				handled = 1;
-      }
-      if ( !strcmp ( "Image Format Control", categoryName )) {
-        if (( ret = _processFormatControls ( categoryHandle, camera )) < 0 ) {
-          ( void ) ( *p_spinCameraDeInit )( cameraHandle );
-          return ret;
-        }
-				handled = 1;
-      }
-      if ( !strcmp ( "User Set Control", categoryName ) ||
-          !strcmp ( "LUT Control", categoryName ) ||
-          !strcmp ( "Transport Layer Control", categoryName ) ||
-          !strcmp ( "Chunk Data Control", categoryName ) ||
-          !strcmp ( "Event Control", categoryName )) {
-        // For the time being we ignore these
-        continue;
-      }
-			if ( !handled ) {
-				oaLogWarning ( OA_LOG_CAMERA, "%s: Unhandled category '%s'", __func__,
-						categoryName );
-			}
-    } else {
-      oaLogWarning ( OA_LOG_CAMERA,
-					"%s: Unhandled camera node '%s', type %d", __func__, categoryName,
-					nodeType );
-    }
-  }
+	oaLogWarning ( OA_LOG_CAMERA,
+			"%s: Should we check for unrecognised features?", __func__ );
 
   // Won't eventually want to do this here
   ( void ) ( *p_spinCameraDeInit )( cameraHandle );
@@ -523,1088 +409,108 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 }
 
 
-static int
-_processAnalogueControls ( spinNodeHandle categoryHandle, oaCamera* camera )
+int
+_readGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
-  spinNodeHandle	featureHandle = 0;
-  spinNodeType		nodeType;
-  char			featureName[ SPINNAKER_MAX_BUFF_LEN ];
-  size_t		featureNameLen;
-  size_t		numFeatures;
-  bool8_t		available, readable, writeable;
-  unsigned int		i, j;
-  int			featureId;
+	return OA_ERR_NONE;
+}
+
+
+int
+_readGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle		gamma;
+  bool8_t						available, readable, writeable;
+	double						min, max, curr;
+	int								intCurr;
+  spinNodeType			nodeType;
   COMMON_INFO*			commonInfo = camera->_common;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
 
-  if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
+  if (( *p_spinNodeMapGetNode )( nodeMap, "Gamma", &gamma ) !=
       SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get number of analogue features",
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get gamma node",
 				__func__ );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
-  if ( numFeatures < 1 ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: number of analogue features: %ld",
-				__func__, numFeatures );
-    return OA_ERR_NONE;
-  }
-
-  for ( i = 0; i < numFeatures; i++ ) {
-    if (( *p_spinCategoryGetFeatureByIndex )( categoryHandle, i,
-        &featureHandle ) != SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get analogue feature handle",
-					__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
-    available = readable = writeable = False;
-    if (( *p_spinNodeIsAvailable )( featureHandle, &available ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get analogue feature available",
-					__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if ( available ) {
-      if (( *p_spinNodeIsReadable )( featureHandle, &readable ) !=
-          SPINNAKER_ERR_SUCCESS ) {
-        oaLogError ( OA_LOG_CAMERA, "%s: Can't get analogue feature readable",
-						__func__ );
-        return -OA_ERR_SYSTEM_ERROR;
-      }
-      if (( *p_spinNodeIsWritable )( featureHandle, &writeable ) !=
-          SPINNAKER_ERR_SUCCESS ) {
-        oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get analogue feature writeable", __func__ );
-        return -OA_ERR_SYSTEM_ERROR;
-      }
-    } else {
-      // No real benefit in showing this.  It seems to be normal behaviour
-      // to have unavailable feature nodes
-      // oaLogError ( OA_LOG_CAMERA, "%s: unavailable analogue feature %d\n", i );
-      continue;
-    }
-    if ( !readable && !writeable ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: inaccessible analogue feature %d",
-					__func__, i );
-      continue;
-    }
-
-    if (( *p_spinNodeGetType )( featureHandle, &nodeType ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get analogue feature node type",
-					__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
-    featureNameLen = SPINNAKER_MAX_BUFF_LEN;
-    if (( *p_spinNodeGetDisplayName )( featureHandle, featureName,
-        &featureNameLen ) != SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get analogue feature %d name",
-					__func__, i );
-      ( void ) strcpy ( featureName, "unknown" );
-    }
-
-    oaLogInfo ( OA_LOG_CAMERA,
-				"%s: analogue feature %d '%s', type %s [%s] found", __func__, i,
-				featureName, ( nodeType >= 0 ) ? nodeTypes [ nodeType ] : "unknown",
-				readable ? ( writeable ? "RW" : "RO" ) :
-        ( writeable ? "WO" : "??" ));
-
-    switch ( nodeType ) {
-      case IntegerNode:
-        _showIntegerNode ( featureHandle, writeable );
-        break;
-      case BooleanNode:
-        _showBooleanNode ( featureHandle );
-        break;
-      case FloatNode:
-        _showFloatNode ( featureHandle, writeable );
-        break;
-      case CommandNode:
-        oaLogError ( OA_LOG_CAMERA, "%s:   [command]", __func__ );
-        break;
-      case StringNode:
-        _showStringNode ( featureHandle );
-        break;
-      case EnumerationNode:
-        _showEnumerationNode ( featureHandle );
-        break;
-      default:
-        oaLogError ( OA_LOG_CAMERA, "%s:   unhandled node type", __func__ );
-        break;
-    }
-
-    // It's not clear if features are always numbered in the same order for
-    // all cameras, but the fact that feature numbers are skipped suggests
-    // that might be so.  In case it isn't, do things the hard way :(
-
-    for ( j = 0, featureId = -1; j < ANALOGUE_MAX_FEATURES && featureId < 0;
-        j++ ) {
-      if ( !strcmp ( featureName, analogueFeatures[ j ] )) {
-        featureId = j;
-      }
-    }
-
-    if ( featureId >= 0 ) {
-      switch ( featureId ) {
-        case ANALOGUE_GAIN_SELECTOR: // enumeration
-          // FIX ME -- Ignore this for the time being.  I have no useful test
-					// cases to try it with
-					oaLogWarning ( OA_LOG_CAMERA,
-							"%s: Ignoring ANALOGUE_GAIN_SELECTOR feature", __func__ );
-          break;
-
-        case ANALOGUE_GAIN_AUTO: // boolean or enumerated value?
-        {
-          bool8_t	curr, valid;
-
-					valid = 0;
-					if ( nodeType == BooleanNode ) {
-						if (( *p_spinBooleanGetValue )( featureHandle, &curr ) !=
-								SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA,
-									"%s: Can't get bool current value for ANALOGUE_GAIN_AUTO",
-									__func__ );
-							return -OA_ERR_SYSTEM_ERROR;
-						}
-						valid = 1;
-					} else {
-						if ( nodeType == EnumerationNode ) {
-							spinNodeHandle	valueHandle;
-							size_t					enumValue;
-							spinError				r;
-
-							if (( *p_spinEnumerationGetCurrentEntry )( featureHandle,
-									&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
-								oaLogError ( OA_LOG_CAMERA, "%s: Can't get enum current value",
-										__func__ );
-								return -OA_ERR_SYSTEM_ERROR;
-							}
-							if (( r = ( *p_spinEnumerationEntryGetEnumValue )( valueHandle,
-									&enumValue )) != SPINNAKER_ERR_SUCCESS ) {
-								oaLogError ( OA_LOG_CAMERA,
-										"%s: Can't get enum value, error %d", __func__, r );
-							}
-							switch ( enumValue ) {
-								case GainAuto_Off:
-									curr = 0;
-									valid = 1;
-									break;
-								case GainAuto_Continuous:
-									curr = 1;
-									valid = 1;
-									break;
-								default:
-									oaLogWarning ( OA_LOG_CAMERA,
-											"%s: Unhandled value '%d' for ANALOGUE_GAIN_AUTO",
-											__func__, enumValue );
-									curr = 0;
-							}
-						} else {
-							oaLogWarning ( OA_LOG_CAMERA,
-									"%s: Unrecognised node type '%s' for ANALOGUE_GAIN_AUTO",
-									__func__, nodeTypes[ nodeType ] );
-						}
-					}
-					if ( valid ) {
-						camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_GAIN ) =
-								OA_CTRL_TYPE_BOOLEAN;
-						commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_GAIN ) = 0;
-						commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_GAIN ) = 1;
-						commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_GAIN ) = 1;
-						commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_GAIN ) = curr ? 1 : 0;
-					}
-          break;
-        }
-
-        case ANALOGUE_GAIN: // float
-        {
-          // Can't get the actual min/max values available if we have auto
-          // gain unless auto gain is turned off.  Assume we'll already have
-          // seen auto gain before this if it exists
-
-          break;
-        }
-
-				case ANALOGUE_AUTO_GAIN_UPPER_LIMIT:
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: ignoring ANALOGUE_AUTO_GAIN_UPPER_LIMIT control", __func__ );
-					break;
-
-				case ANALOGUE_AUTO_GAIN_LOWER_LIMIT:
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: ignoring ANALOGUE_AUTO_GAIN_LOWER_LIMIT control", __func__ );
-					break;
-
-				case ANALOGUE_BLACK_LEVEL: // float on Blackfly.  Could be int?
-        {
-          bool8_t	valid;
-					double	min, max, curr;
-
-					valid = 0;
-					if ( nodeType == FloatNode ) {
-						if (( *p_spinFloatGetValue )( featureHandle, &curr ) !=
-								SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get current float value",
-									__func__ );
-							return -OA_ERR_SYSTEM_ERROR;
-						}
-						if (( *p_spinFloatGetMin )( featureHandle, &min ) !=
-								SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get min float value",
-									__func__ );
-							return -OA_ERR_SYSTEM_ERROR;
-						}
-						if (( *p_spinFloatGetMax )( featureHandle, &max ) !=
-								SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get max float value",
-									__func__ );
-							return -OA_ERR_SYSTEM_ERROR;
-						}
-						valid = 1;
-					} else {
-						oaLogWarning ( OA_LOG_CAMERA,
-								"%s: Unrecognised node type '%s' for ANALOGUE_BLACK_LEVEL",
-								__func__, nodeTypes[ nodeType ] );
-					}
-					if ( valid ) {
-						int	intCurr;
-
-						cameraInfo->minFloatBlacklevel = min;
-						cameraInfo->maxFloatBlacklevel = max;
-						// Potentially temporarily, convert this to a range from 0 to 100
-						intCurr = ( curr - min ) * 100.0 / ( max - min );
-						camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLACKLEVEL ) =
-								OA_CTRL_TYPE_INT32;
-						commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLACKLEVEL ) = 0;
-						commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLACKLEVEL ) = 100;
-						commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLACKLEVEL ) = 1;
-						commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLACKLEVEL ) = intCurr;
-					}
-          break;
-				}
-
-				case ANALOGUE_BLACK_LEVEL_ENABLED: // boolean
-        {
-          bool8_t	curr, valid;
-
-					if ( nodeType == BooleanNode ) {
-						if (( *p_spinBooleanGetValue )( featureHandle, &curr ) !=
-								SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get bool current value "
-									"for ANALOGUE_BLACK_LEVEL_ENABLED", __func__ );
-							return -OA_ERR_SYSTEM_ERROR;
-						}
-						valid = 1;
-					} else {
-						oaLogWarning ( OA_LOG_CAMERA, "%s: Unrecognised node type '%s' "
-								"for ANALOGUE_BLACK_LEVEL_ENABLED", __func__,
-								nodeTypes[ nodeType ] );
-					}
-					if ( valid ) {
-						int ctrl = OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_BLACKLEVEL );
-						camera->OA_CAM_CTRL_TYPE( ctrl ) = OA_CTRL_TYPE_BOOLEAN;
-						commonInfo->OA_CAM_CTRL_MIN( ctrl ) = 0;
-						commonInfo->OA_CAM_CTRL_MAX( ctrl ) = 1;
-						commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
-						commonInfo->OA_CAM_CTRL_DEF( ctrl ) = curr ? 1 : 0;
-					}
-          break;
-				}
-
-				case ANALOGUE_GAMMA:
-				// This is a float on Blackfly.  It doesn't appear to be part of
-				// the Genicam standard, so perhaps that's all it will ever be.
-        {
-          bool8_t	valid;
-					double	min, max, curr;
-
-					valid = 0;
-					if ( nodeType == FloatNode ) {
-						if (( *p_spinFloatGetValue )( featureHandle, &curr ) !=
-								SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get current float value",
-									__func__ );
-							return -OA_ERR_SYSTEM_ERROR;
-						}
-						if (( *p_spinFloatGetMin )( featureHandle, &min ) !=
-								SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get min float value",
-									__func__ );
-							return -OA_ERR_SYSTEM_ERROR;
-						}
-						if (( *p_spinFloatGetMax )( featureHandle, &max ) !=
-								SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get max float value",
-									__func__ );
-							return -OA_ERR_SYSTEM_ERROR;
-						}
-						valid = 1;
-					} else {
-						oaLogWarning ( OA_LOG_CAMERA,
-								"%s: Unrecognised node type '%s' for ANALOGUE_GAMMA",
-								__func__, nodeTypes[ nodeType ] );
-					}
-					if ( valid ) {
-						int	intCurr;
-
-						cameraInfo->minFloatGamma = min;
-						cameraInfo->maxFloatGamma = max;
-						// Potentially temporarily, convert this to a range from 0 to 100
-						intCurr = ( curr - min ) * 100.0 / ( max - min );
-						camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAMMA ) =
-								OA_CTRL_TYPE_INT32;
-						commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA ) = 0;
-						commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA ) = 100;
-						commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAMMA ) = 1;
-						commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) = intCurr;
-					}
-          break;
-				}
-
-				case ANALOGUE_GAMMA_ENABLED: // boolean
-        {
-          bool8_t	curr, valid;
-
-					if ( nodeType == BooleanNode ) {
-						if (( *p_spinBooleanGetValue )( featureHandle, &curr ) !=
-								SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get bool current value "
-									"for ANALOGUE_GAMMA_ENABLED", __func__ );
-							return -OA_ERR_SYSTEM_ERROR;
-						}
-						valid = 1;
-					} else {
-						oaLogWarning ( OA_LOG_CAMERA, "%s: Unrecognised node type '%s' "
-								"for ANALOGUE_GAMMA_ENABLED", __func__,
-								nodeTypes[ nodeType ] );
-					}
-					if ( valid ) {
-						int ctrl = OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_GAMMA );
-						camera->OA_CAM_CTRL_TYPE( ctrl ) = OA_CTRL_TYPE_BOOLEAN;
-						commonInfo->OA_CAM_CTRL_MIN( ctrl ) = 0;
-						commonInfo->OA_CAM_CTRL_MAX( ctrl ) = 1;
-						commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
-						commonInfo->OA_CAM_CTRL_DEF( ctrl ) = curr ? 1 : 0;
-					}
-          break;
-				}
-
-				case ANALOGUE_SHARPNESS:
-				// int on Blackfly, and again not apparently a part of the Genicam
-				// standard
-        {
-          bool8_t	valid;
-					int64_t	min, max, curr, step;
-
-					valid = 0;
-					if ( nodeType == IntegerNode ) {
-						if (( *p_spinIntegerGetValue )( featureHandle, &curr ) !=
-								SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get current int value",
-									__func__ );
-							return -OA_ERR_SYSTEM_ERROR;
-						}
-						if (( *p_spinIntegerGetMin )( featureHandle, &min ) !=
-								SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get min int value",
-									__func__ );
-							return -OA_ERR_SYSTEM_ERROR;
-						}
-						if (( *p_spinIntegerGetMax )( featureHandle, &max ) !=
-								SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get max int value",
-									__func__ );
-							return -OA_ERR_SYSTEM_ERROR;
-						}
-						if (( *p_spinIntegerGetInc )( featureHandle, &step ) !=
-								SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get max int value",
-									__func__ );
-							return -OA_ERR_SYSTEM_ERROR;
-						}
-						valid = 1;
-					} else {
-						oaLogWarning ( OA_LOG_CAMERA,
-								"%s: Unrecognised node type '%s' for ANALOGUE_SHARPNESS",
-								__func__, nodeTypes[ nodeType ] );
-					}
-					if ( valid ) {
-						camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SHARPNESS ) =
-								OA_CTRL_TYPE_INT32;
-						commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SHARPNESS ) = min;
-						commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SHARPNESS ) = max;
-						commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SHARPNESS ) = step;
-						commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SHARPNESS ) = curr;
-					}
-          break;
-				}
-
-				case ANALOGUE_SHARPNESS_ENABLED: // boolean
-        {
-          bool8_t	curr, valid;
-
-					if ( nodeType == BooleanNode ) {
-						if (( *p_spinBooleanGetValue )( featureHandle, &curr ) !=
-								SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get bool current value "
-									"for ANALOGUE_SHARPNESS_ENABLED", __func__ );
-							return -OA_ERR_SYSTEM_ERROR;
-						}
-						valid = 1;
-					} else {
-						oaLogWarning ( OA_LOG_CAMERA, "%s: Unrecognised node type '%s' "
-								"for ANALOGUE_SHARPNESS_ENABLED", __func__,
-								nodeTypes[ nodeType ] );
-					}
-					if ( valid ) {
-						int ctrl = OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_SHARPNESS );
-						camera->OA_CAM_CTRL_TYPE( ctrl ) = OA_CTRL_TYPE_BOOLEAN;
-						commonInfo->OA_CAM_CTRL_MIN( ctrl ) = 0;
-						commonInfo->OA_CAM_CTRL_MAX( ctrl ) = 1;
-						commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
-						commonInfo->OA_CAM_CTRL_DEF( ctrl ) = curr ? 1 : 0;
-					}
-          break;
-				}
-
-        case ANALOGUE_SHARPNESS_AUTO:
-				// Seems to be enumerated value on the Blackfly.  Not apparently part
-				// of the Genicam standard, so hopefully it will be the same for
-				// all Point Grey/FLIR cameras
-        {
-          bool8_t	curr, valid;
-
-					valid = 0;
-					if ( nodeType == EnumerationNode ) {
-						spinNodeHandle	valueHandle;
-						int64_t					intValue;
-						spinError				r;
-
-						if (( *p_spinEnumerationGetCurrentEntry )( featureHandle,
-								&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get enum current value",
-									__func__ );
-							return -OA_ERR_SYSTEM_ERROR;
-						}
-						/*
-						 * Getting the enum value doesn't work, presumably because
-						 * "sharpness" is not a standard Genicam control.  Have to
-						 * use the integer value instead
-						 *
-						if (( r = ( *p_spinEnumerationEntryGetEnumValue )( valueHandle,
-								&enumValue )) != SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA,
-									"%s: Can't get enum value, error %d", __func__, r );
-						}
-						 */
-						if (( r = ( *p_spinEnumerationEntryGetIntValue )( valueHandle,
-								&intValue )) != SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA,
-									"%s: Can't get int value, error %d", __func__, r );
-						}
-						switch ( intValue ) {
-							case AUTO_SHARPNESS_OFF:
-								curr = 0;
-								valid = 1;
-								break;
-							case AUTO_SHARPNESS_CONTINUOUS:
-								curr = 1;
-								valid = 1;
-								break;
-							default:
-								oaLogWarning ( OA_LOG_CAMERA,
-										"%s: Unhandled value '%d' for ANALOGUE_SHARPNESS_AUTO",
-										__func__, intValue );
-								curr = 0;
-						}
-					} else {
-						oaLogWarning ( OA_LOG_CAMERA,
-								"%s: Unrecognised node type '%s' for ANALOGUE_SHARPNESS_AUTO",
-								__func__, nodeTypes[ nodeType ] );
-					}
-					if ( valid ) {
-						camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_SHARPNESS ) =
-								OA_CTRL_TYPE_BOOLEAN;
-						commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_SHARPNESS ) = 0;
-						commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_SHARPNESS ) = 1;
-						commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_SHARPNESS ) = 1;
-						commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_SHARPNESS ) =
-							curr ? 1 : 0;
-					}
-          break;
-        }
-
-        default:
-          oaLogError ( OA_LOG_CAMERA, "%s: Unhandled analogue feature '%s'",
-							__func__, featureName );
-          break;
-      }
-    } else {
-      oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised analogue feature %d, '%s'",
-					__func__, i, featureName );
-    }
-  }
-
-  return -OA_ERR_NONE;
-}
-
-
-static int
-_processDeviceControls ( spinNodeHandle categoryHandle, oaCamera* camera )
-{
-  spinNodeHandle	featureHandle = 0;
-  spinNodeType		nodeType;
-  char			featureName[ SPINNAKER_MAX_BUFF_LEN ];
-  size_t		featureNameLen;
-  size_t		numFeatures;
-  unsigned int		i, j;
-  int			featureId;
-  bool8_t		available, readable, writeable;
-
-  if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( gamma, &available ) !=
       SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get number of device features",
-				__func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsAvailable failed for gamma",
+			__func__ );
     return -OA_ERR_SYSTEM_ERROR;
   }
-
-  if ( numFeatures < 1 ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: number of device features: %ld", __func__,
-				numFeatures );
-    return OA_ERR_NONE;
-  }
-
-  for ( i = 0; i < numFeatures; i++ ) {
-    if (( *p_spinCategoryGetFeatureByIndex )( categoryHandle, i,
-        &featureHandle ) != SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get device feature handle",
-					__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
-    available = readable = writeable = False;
-    if (( *p_spinNodeIsAvailable )( featureHandle, &available ) !=
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( gamma, &readable ) !=
         SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get device feature available",
-					__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if ( available ) {
-      if (( *p_spinNodeIsReadable )( featureHandle, &readable ) !=
-          SPINNAKER_ERR_SUCCESS ) {
-        oaLogError ( OA_LOG_CAMERA, "%s: Can't get device feature readable",
-						__func__ );
-        return -OA_ERR_SYSTEM_ERROR;
-      }
-      if (( *p_spinNodeIsWritable )( featureHandle, &writeable ) !=
-          SPINNAKER_ERR_SUCCESS ) {
-        oaLogError ( OA_LOG_CAMERA, "%s: Can't get device feature writeable",
-						__func__ );
-        return -OA_ERR_SYSTEM_ERROR;
-      }
-    } else {
-      // No real benefit in showing this.  It seems to be normal behaviour
-      // to have unavailable device feature nodes
-      // oaLogError ( OA_LOG_CAMERA, "%s: unavailable Spinnaker device feature %d\n", i );
-      continue;
-    }
-    if ( !readable && !writeable ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: inaccessible device feature %d",
-					__func__, i );
-      continue;
-    }
-
-    if (( *p_spinNodeGetType )( featureHandle, &nodeType ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get device feature node type",
-					__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
-    featureNameLen = SPINNAKER_MAX_BUFF_LEN;
-    if (( *p_spinNodeGetDisplayName )( featureHandle, featureName,
-        &featureNameLen ) != SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get device feature %d name",
-					__func__, i );
-      ( void ) strcpy ( featureName, "unknown" );
-    }
-
-    oaLogInfo ( OA_LOG_CAMERA,
-				"%s: device feature %d '%s', type %s [%s] found", __func__, i,
-				featureName, ( nodeType >= 0 ) ? nodeTypes [ nodeType ] : "unknown",
-				readable ? ( writeable ? "RW" : "RO" ) :
-        ( writeable ? "WO" : "??" ));
-
-    switch ( nodeType ) {
-      case IntegerNode:
-        _showIntegerNode ( featureHandle, writeable );
-        break;
-      case BooleanNode:
-        _showBooleanNode ( featureHandle );
-        break;
-      case FloatNode:
-        _showFloatNode ( featureHandle, writeable );
-        break;
-      case CommandNode:
-        oaLogError ( OA_LOG_CAMERA, "%s:   [command]", __func__ );
-        break;
-      case StringNode:
-        _showStringNode ( featureHandle );
-        break;
-      case EnumerationNode:
-        _showEnumerationNode ( featureHandle );
-        break;
-      default:
-        oaLogError ( OA_LOG_CAMERA, "%s:   unhandled node type", __func__ );
-        break;
-    }
-
-    // It's not clear if features are always numbered in the same order for
-    // all cameras, but the fact that feature numbers are skipped suggests
-    // that might be so.  In case it isn't, do things the hard way :(
-
-    for ( j = 0, featureId = -1; j < DEVICE_MAX_FEATURES && featureId < 0;
-        j++ ) {
-      if ( !strcmp ( featureName, deviceFeatures[ j ] )) {
-        featureId = j;
-      }
-    }
-
-    if ( featureId >= 0 ) {
-      switch ( featureId ) {
-				case DEVICE_INDICATOR_MODE:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_INDICATOR_MODE feature", __func__ );
-          break;
-				case DEVICE_VENDOR_NAME:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_VENDOR_NAME feature", __func__ );
-          break;
-				case DEVICE_SENSOR_DESC:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_SENSOR_DESC feature", __func__ );
-          break;
-				case DEVICE_MODEL_NAME:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_MODEL_NAME feature", __func__ );
-          break;
-				case DEVICE_VERSION:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_VERSION feature", __func__ );
-          break;
-				case DEVICE_SVN_VERSION:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_SVN_VERSION feature", __func__ );
-          break;
-				case DEVICE_FW_VERSION:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_FW_VERSION feature", __func__ );
-          break;
-				case DEVICE_ID:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_ID feature", __func__ );
-          break;
-				case DEVICE_SERIAL_NO:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_SERIAL_NO feature", __func__ );
-          break;
-				case DEVICE_USER_ID:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_USER_ID feature", __func__ );
-          break;
-				case DEVICE_SCAN_TYPE:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_SCAN_TYPE feature", __func__ );
-          break;
-
-				case DEVICE_TEMPERATURE:
-				  camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) =
-							OA_CTRL_TYPE_READONLY;
-					break;
-
-				case DEVICE_RESET:
-					camera->features.flags |= OA_CAM_FEATURE_RESET;
-					break;
-
-				case DEVICE_UPTIME:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_UPTIME feature", __func__ );
-          break;
-				case DEVICE_AUTO_FUNC_AOIS_CONTROL:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_AOIS_CONTROL feature", __func__ );
-          break;
-				case DEVICE_POWER_SUPPLY_SELECTOR:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_SUPPLY_SELECTOR feature", __func__ );
-          break;
-				case DEVICE_POWER_SUPPLY_VOLTAGE:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_SUPPLY_VOLTAGE feature", __func__ );
-          break;
-				case DEVICE_POWER_SUPPLY_CURRENT:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_SUPPLY_CURRENT feature", __func__ );
-          break;
-				case DEVICE_MAX_THROUGHPUT:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_MAX_THROUGHPUT feature", __func__ );
-          break;
-				case DEVICE_LINK_THROUGHPUT_LIMIT:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring DEVICE_LINK_THROUGHPUT_LIMIT feature", __func__ );
-          break;
-
-        default:
-          oaLogError ( OA_LOG_CAMERA, "%s: Unhandled device feature '%s'",
-							__func__, featureName );
-          break;
-      }
-    } else {
-      oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised device feature %d, '%s'",
-					__func__, i, featureName );
-		}
-  }
-
-  return -OA_ERR_NONE;
-}
-
-
-static int
-_processAquisitionControls ( spinNodeHandle categoryHandle, oaCamera* camera )
-{
-  spinNodeHandle	featureHandle = 0;
-  spinNodeType		nodeType;
-  char			featureName[ SPINNAKER_MAX_BUFF_LEN ];
-  size_t		featureNameLen;
-  size_t		numFeatures;
-  unsigned int		i, j;
-  int			featureId;
-  bool8_t		available, readable, writeable;
-  COMMON_INFO*			commonInfo = camera->_common;
-
-  if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get number of aquisition features",
+			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsReadable failed for gamma",
 				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  if ( numFeatures < 1 ) {
-    oaLogWarning ( OA_LOG_CAMERA, "%s: number of aquisition features: %ld",
-				__func__, numFeatures );
-    return OA_ERR_NONE;
-  }
-
-  for ( i = 0; i < numFeatures; i++ ) {
-    if (( *p_spinCategoryGetFeatureByIndex )( categoryHandle, i,
-        &featureHandle ) != SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get aquisition feature handle",
-					__func__ );
       return -OA_ERR_SYSTEM_ERROR;
     }
-
-    available = readable = writeable = False;
-    if (( *p_spinNodeIsAvailable )( featureHandle, &available ) !=
+    if (( *p_spinNodeIsWritable )( gamma, &writeable ) !=
         SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get aquisition feature available",
-					__func__ );
+			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsWritable failed for gamma",
+				__func__ );
       return -OA_ERR_SYSTEM_ERROR;
     }
-    if ( available ) {
-      if (( *p_spinNodeIsReadable )( featureHandle, &readable ) !=
-          SPINNAKER_ERR_SUCCESS ) {
-        oaLogError ( OA_LOG_CAMERA, "%s: Can't get aquisition feature readable",
+
+    if ( readable || writeable ) {
+			if (( *p_spinNodeGetType )( gamma, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get node type for gamma",
 						__func__ );
-        return -OA_ERR_SYSTEM_ERROR;
-      }
-      if (( *p_spinNodeIsWritable )( featureHandle, &writeable ) !=
-          SPINNAKER_ERR_SUCCESS ) {
-        oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get aquisition feature writeable", __func__ );
-        return -OA_ERR_SYSTEM_ERROR;
-      }
-    } else {
-      // No real benefit in showing this.  It seems to be normal behaviour
-      // to have unavailable feature nodes
-      // oaLogError ( OA_LOG_CAMERA, "%s: unavailable Spinnaker aquisition feature %d\n", i );
-      continue;
-    }
-    if ( !readable && !writeable ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: inaccessible aquisition feature %d",
-					__func__, i );
-      continue;
-    }
-
-    if (( *p_spinNodeGetType )( featureHandle, &nodeType ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get aquisition feature node type",
-					__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
-    featureNameLen = SPINNAKER_MAX_BUFF_LEN;
-    if (( *p_spinNodeGetDisplayName )( featureHandle, featureName,
-        &featureNameLen ) != SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get aquisition feature %d name",
-					__func__, i );
-      ( void ) strcpy ( featureName, "unknown" );
-    }
-
-    oaLogInfo ( OA_LOG_CAMERA,
-				"%s: device feature %d '%s', type %s [%s] found", __func__, i,
-				featureName, ( nodeType >= 0 ) ? nodeTypes [ nodeType ] : "unknown",
-				readable ? ( writeable ? "RW" : "RO" ) :
-        ( writeable ? "WO" : "??" ));
-
-    switch ( nodeType ) {
-      case IntegerNode:
-        _showIntegerNode ( featureHandle, writeable );
-        break;
-      case BooleanNode:
-        _showBooleanNode ( featureHandle );
-        break;
-      case FloatNode:
-        _showFloatNode ( featureHandle, writeable );
-        break;
-      case CommandNode:
-        oaLogError ( OA_LOG_CAMERA, "%s:   [command]", __func__ );
-        break;
-      case StringNode:
-        _showStringNode ( featureHandle );
-        break;
-      case EnumerationNode:
-        _showEnumerationNode ( featureHandle );
-        break;
-      default:
-        oaLogError ( OA_LOG_CAMERA, "%s:   unhandled node type", __func__ );
-        break;
-    }
-
-    // It's not clear if features are always numbered in the same order for
-    // all cameras, but the fact that feature numbers are skipped suggests
-    // that might be so.  In case it isn't, do things the hard way :(
-
-    for ( j = 0, featureId = -1; j < AQUISITION_MAX_FEATURES && featureId < 0;
-        j++ ) {
-      if ( !strcmp ( featureName, aquisitionFeatures[ j ] )) {
-        featureId = j;
-      }
-    }
-
-    if ( featureId >= 0 ) {
-      switch ( featureId ) {
-				case AQUISITION_TRIGGER_SELECTOR:
-				{
-					// An enumerated value according to the spec, which is good as we
-					// can make this a menu.
-					// FIX ME -- what happens if the values present are not sequential
-					// though?
-					size_t numEntries;
-
-					if (( *p_spinEnumerationGetNumEntries )( featureHandle,
-							&numEntries ) != SPINNAKER_ERR_SUCCESS ) {
-						oaLogError ( OA_LOG_CAMERA,
-								"%s: Can't get number of enum entries for TRIGGER_SELECTOR",
-								__func__ );
-					} else {
-						camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_MODE ) =
-							OA_CTRL_TYPE_MENU;
-						commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_MODE ) = 0;
-						commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_MODE ) =
-								numEntries - 1;
-						commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_MODE ) = 1;
-						// A guess, unless we start by resetting the camera
-						commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_MODE ) = 0;
-					}
-					break;
-				}
-
-				case AQUISITION_TRIGGER_MODE:
-					// If this exists then it's just an on/off switch
-					camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_ENABLE ) =
-							OA_CTRL_TYPE_BOOLEAN;
-					commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_ENABLE ) = 0;
-					commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_ENABLE ) = 1;
-					commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_ENABLE ) = 1;
-					commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_ENABLE ) = 0;
-					break;
-
-				case AQUISITION_TRIGGER_SOFTWARE:
-          // Ignore this for the time being.
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: Ignoring TRIGGER_SOFTWARE feature", __func__ );
-          break;
-
-				case AQUISITION_TRIGGER_SOURCE:
-				case AQUISITION_TRIGGER_ACTIVATION:
-				case AQUISITION_OVERLAP:
-				case AQUISITION_TRIGGER_DELAY:
-				case AQUISITION_TRIGGER_DELAY_ENABLED:
-				case AQUISITION_EXPOSURE_MODE:
-				case AQUISITION_EXPOSURE_AUTO:
-				case AQUISITION_EXPOSURE_TIME:
-				case AQUISITION_EXPOSURE_TIME_ABS:
-				case AQUISITION_AUTO_EXP_LOWER_LIMIT:
-				case AQUISITION_AUTO_EXP_UPPER_LIMIT:
-				case AQUISITION_EXPOSURE_COMPENSATION_AUTO:
-				case AQUISITION_EXPOSURE_COMPENSATION:
-				case AQUISITION_AUTO_EC_LOWER_LIMIT:
-				case AQUISITION_AUTO_EC_UPPER_LIMIT:
-				case AQUISITION_MODE:
-				case AQUISITION_START:
-				case AQUISITION_STOP:
-				case AQUISITION_FRAME_RATE_AUTO:
-				case AQUISITION_FR_CONTROL_ENABLED:
-				case AQUISITION_FRAME_RATE:
-        default:
-          oaLogError ( OA_LOG_CAMERA, "%s: Unhandled aquisition feature '%s'",
-							__func__, featureName );
-          break;
+				return -OA_ERR_SYSTEM_ERROR;
 			}
-    }
-  }
 
-  return -OA_ERR_NONE;
-}
+			if ( nodeType == FloatNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found gamma control", __func__ );
+        _showFloatNode ( gamma, writeable );
+				if (( *p_spinFloatGetValue )( gamma, &curr ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get current gamma value",
+									__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinFloatGetMin )( gamma, &min ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get min gamma value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinFloatGetMax )( gamma, &max ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get max gamma value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
 
-
-static int
-_processFormatControls ( spinNodeHandle categoryHandle, oaCamera* camera )
-{
-  spinNodeHandle	featureHandle = 0;
-  spinNodeType		nodeType;
-  char			featureName[ SPINNAKER_MAX_BUFF_LEN ];
-  size_t		featureNameLen;
-  size_t		numFeatures;
-  unsigned int		i;
-  bool8_t		available, readable, writeable;
-
-  if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get number of format features",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  if ( numFeatures < 1 ) {
-    oaLogWarning ( OA_LOG_CAMERA, "%s: number of format features: %ld",
-				__func__, numFeatures );
-    return OA_ERR_NONE;
-  }
-
-  for ( i = 0; i < numFeatures; i++ ) {
-    if (( *p_spinCategoryGetFeatureByIndex )( categoryHandle, i,
-        &featureHandle ) != SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get format feature handle",
-					__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
-    available = readable = False;
-    if (( *p_spinNodeIsAvailable )( featureHandle, &available ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get format feature available",
-					__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if ( available ) {
-      if (( *p_spinNodeIsReadable )( featureHandle, &readable ) !=
-          SPINNAKER_ERR_SUCCESS ) {
-        oaLogError ( OA_LOG_CAMERA, "%s: Can't get format feature readable",
-						__func__ );
-        return -OA_ERR_SYSTEM_ERROR;
-      }
-      if (( *p_spinNodeIsWritable )( featureHandle, &writeable ) !=
-          SPINNAKER_ERR_SUCCESS ) {
-        oaLogError ( OA_LOG_CAMERA, "%s: Can't get format feature writeable",
-						__func__ );
-        return -OA_ERR_SYSTEM_ERROR;
-      }
+				cameraInfo->minFloatGamma = min;
+				cameraInfo->maxFloatGamma = max;
+				// Potentially temporarily, convert this to a range from 0 to 100
+				intCurr = ( curr - min ) * 100.0 / ( max - min );
+				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAMMA ) =
+						OA_CTRL_TYPE_INT32;
+				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA ) = 0;
+				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA ) = 100;
+				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAMMA ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) = intCurr;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for gamma", __func__,
+						nodeTypes[ nodeType ] );
+			}
     } else {
-      // No real benefit in showing this.  It seems to be normal behaviour
-      // to have unavailable feature nodes
-      // oaLogError ( OA_LOG_CAMERA, "%s: unavailable Spinnaker format feature %d\n", i );
-      continue;
-    }
-    if ( !readable && !writeable ) {
-      oaLogWarning ( OA_LOG_CAMERA, "%s: inaccessible format feature %d",
-					__func__, i );
-      continue;
-    }
-
-    if (( *p_spinNodeGetType )( featureHandle, &nodeType ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get format feature node type",
-					__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
-    featureNameLen = SPINNAKER_MAX_BUFF_LEN;
-    if (( *p_spinNodeGetDisplayName )( featureHandle, featureName,
-        &featureNameLen ) != SPINNAKER_ERR_SUCCESS ) {
-      oaLogError ( OA_LOG_CAMERA, "%s: Can't get format feature %d name",
-					__func__, i );
-      ( void ) strcpy ( featureName, "unknown" );
-    }
-
-    oaLogInfo ( OA_LOG_CAMERA, "%s: format feature %d '%s', type %d [%s] found",
-				__func__, i, featureName, nodeType,
-				readable ? ( writeable ? "RW" : "RO" ) : ( writeable ? "WO" : "??" ));
-
-    // It's not clear if features are always numbered in the same order for
-    // all cameras, but the fact that feature numbers are skipped suggests
-    // that might be so
-
-    switch ( nodeType ) {
-      case IntegerNode:
-        _showIntegerNode ( featureHandle, writeable );
-        break;
-      case BooleanNode:
-        _showBooleanNode ( featureHandle );
-        break;
-      case FloatNode:
-        _showFloatNode ( featureHandle, writeable );
-        break;
-      case CommandNode:
-        oaLogWarning ( OA_LOG_CAMERA, "%s:   [command]", __func__ );
-        break;
-      case StringNode:
-        _showStringNode ( featureHandle );
-        break;
-      case EnumerationNode:
-        _showEnumerationNode ( featureHandle );
-        break;
-      default:
-        oaLogWarning ( OA_LOG_CAMERA, "%s:   unhandled node type", __func__ );
-        break;
-    }
+      oaLogError ( OA_LOG_CAMERA, "%s: gamma is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: gamma unavailable", __func__ );
   }
 
-  return -OA_ERR_NONE;
+	return OA_ERR_NONE;
 }
 
-
+/*
 static void
 _showIntegerNode ( spinNodeHandle intNode, bool8_t writeable )
 {
@@ -1649,7 +555,7 @@ _showBooleanNode ( spinNodeHandle boolNode )
 			curr ? "true" : "false" );
   return;
 }
-
+*/
 
 static void
 _showFloatNode ( spinNodeHandle floatNode, bool8_t writeable )
@@ -1676,7 +582,7 @@ _showFloatNode ( spinNodeHandle floatNode, bool8_t writeable )
   return;
 }
 
-
+/*
 static void
 _showStringNode ( spinNodeHandle stringNode )
 {
@@ -1746,7 +652,7 @@ _showEnumerationNode ( spinNodeHandle enumNode )
   oaLogInfo ( OA_LOG_CAMERA, "%s: := %s", __func__, value );
   return;
 }
-
+*/
 
 static void
 _spinInitFunctionPointers ( oaCamera* camera )
