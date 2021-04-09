@@ -28,8 +28,6 @@
 #ifndef OA_SPINNAKER_OACAM_H
 #define OA_SPINNAKER_OACAM_H
 
-#include <spinc/SpinnakerC.h>
-
 extern int		oaSpinGetCameras ( CAMERA_LIST*, unsigned long, int );
 extern oaCamera*	oaSpinInitCamera ( oaCameraDevice* );
 extern int		oaSpinCloseCamera ( oaCamera* );
@@ -54,78 +52,5 @@ extern int		oaSpinCameraSetFrameInterval ( oaCamera*, int, int );
 extern int		oaSpinCameraGetFramePixelFormat ( oaCamera* );
 
 extern const char*	oaSpinCameraGetMenuString ( oaCamera*, int, int );
-
-extern SPINNAKERC_API	( *p_spinSystemGetInstance )( spinSystem* );
-extern SPINNAKERC_API	( *p_spinCameraListClear )( spinCameraList );
-extern SPINNAKERC_API	( *p_spinCameraListCreateEmpty )( spinCameraList* );
-extern SPINNAKERC_API	( *p_spinCameraListDestroy )( spinCameraList );
-extern SPINNAKERC_API	( *p_spinCameraListGetSize )( spinCameraList, size_t* );
-extern SPINNAKERC_API	( *p_spinInterfaceListClear )( spinInterfaceList );
-extern SPINNAKERC_API	( *p_spinInterfaceListCreateEmpty )
-				( spinInterfaceList* );
-extern SPINNAKERC_API	( *p_spinInterfaceListDestroy )( spinInterfaceList );
-extern SPINNAKERC_API	( *p_spinInterfaceListGetSize )( spinInterfaceList,
-				size_t* );
-extern SPINNAKERC_API	( *p_spinSystemGetCameras )( spinSystem,
-				spinCameraList );
-extern SPINNAKERC_API	( *p_spinSystemGetInterfaces )( spinSystem,
-				spinInterfaceList );
-extern SPINNAKERC_API	( *p_spinSystemReleaseInstance )( spinSystem );
-extern SPINNAKERC_API	( *p_spinInterfaceListGet )( spinInterfaceList, size_t,
-				spinInterface );
-extern SPINNAKERC_API	( *p_spinInterfaceRelease )( spinInterface );
-extern SPINNAKERC_API	( *p_spinInterfaceGetTLNodeMap )( spinInterface,
-				spinNodeMapHandle* );
-extern SPINNAKERC_API	( *p_spinNodeMapGetNode )( spinNodeMapHandle,
-				const char*, spinNodeHandle* );
-extern SPINNAKERC_API	( *p_spinNodeIsAvailable )( spinNodeHandle, bool8_t* );
-extern SPINNAKERC_API	( *p_spinNodeIsReadable )( spinNodeHandle, bool8_t* );
-extern SPINNAKERC_API	( *p_spinNodeIsWritable )( spinNodeHandle, bool8_t* );
-extern SPINNAKERC_API	( *p_spinStringGetValue )( spinNodeHandle, char*,
-				size_t* );
-extern SPINNAKERC_API	( *p_spinEnumerationEntryGetEnumValue )(
-				spinNodeHandle, size_t* );
-extern SPINNAKERC_API	( *p_spinEnumerationEntryGetIntValue )(
-				spinNodeHandle, int64_t* );
-extern SPINNAKERC_API	( *p_spinEnumerationEntryGetSymbolic )(
-				spinNodeHandle, char*, size_t* );
-extern SPINNAKERC_API	( *p_spinInterfaceGetCameras )( spinInterface,
-				spinCameraList );
-extern SPINNAKERC_API	( *p_spinCameraListGet )( spinCameraList, size_t,
-				spinCamera* );
-extern SPINNAKERC_API	( *p_spinCameraGetTLDeviceNodeMap )( spinCamera,
-				spinNodeMapHandle* );
-extern SPINNAKERC_API	( *p_spinCameraRelease )( spinCamera );
-extern SPINNAKERC_API	( *p_spinCameraGetNodeMap )( spinCamera,
-				spinNodeMapHandle* );
-extern SPINNAKERC_API	( *p_spinCategoryGetNumFeatures )( spinNodeMapHandle,
-				size_t* );
-extern SPINNAKERC_API	( *p_spinCategoryGetFeatureByIndex )( spinNodeMapHandle,
-				size_t, spinNodeMapHandle* );
-extern SPINNAKERC_API	( *p_spinNodeGetType )( spinNodeHandle, spinNodeType* );
-extern SPINNAKERC_API	( *p_spinNodeGetDisplayName )( spinNodeHandle, char*,
-				size_t* );
-extern SPINNAKERC_API	( *p_spinCameraInit )( spinCamera );
-extern SPINNAKERC_API	( *p_spinCameraDeInit )( spinCamera );
-extern SPINNAKERC_API	( *p_spinCameraGetGuiXml )( spinCamera, char*,
-				size_t* );
-extern SPINNAKERC_API	( *p_spinEnumerationGetNumEntries )( spinNodeHandle,
-				size_t* );
-extern SPINNAKERC_API	( *p_spinEnumerationGetEntryByIndex )( spinNodeHandle,
-				size_t, spinNodeHandle* );
-extern SPINNAKERC_API	( *p_spinEnumerationGetCurrentEntry )( spinNodeHandle,
-				spinNodeHandle* );
-extern SPINNAKERC_API	( *p_spinNodeToString )( spinNodeHandle, char*,
-				size_t* );
-extern SPINNAKERC_API	( *p_spinIntegerGetMin )( spinNodeHandle, int64_t* );
-extern SPINNAKERC_API	( *p_spinIntegerGetMax )( spinNodeHandle, int64_t* );
-extern SPINNAKERC_API	( *p_spinIntegerGetInc )( spinNodeHandle, int64_t* );
-extern SPINNAKERC_API	( *p_spinIntegerGetValue )( spinNodeHandle, int64_t* );
-extern SPINNAKERC_API	( *p_spinBooleanGetValue )( spinNodeHandle, bool8_t* );
-extern SPINNAKERC_API	( *p_spinFloatGetMin )( spinNodeHandle, double* );
-extern SPINNAKERC_API	( *p_spinFloatGetMax )( spinNodeHandle, double* );
-extern SPINNAKERC_API	( *p_spinFloatGetValue )( spinNodeHandle, double* );
-
-#define SPINNAKER_MAX_BUFF_LEN	256
 
 #endif	/* OA_SPINNAKER_OACAM_H */
