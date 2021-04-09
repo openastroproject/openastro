@@ -44,7 +44,7 @@
 static void	_spinInitFunctionPointers ( oaCamera* );
 static int	_processCameraEntry ( spinCamera, oaCamera* );
 //static void	_showIntegerNode ( spinNodeHandle, bool8_t );
-//static void	_showBooleanNode ( spinNodeHandle );
+static void	_showBooleanNode ( spinNodeHandle );
 static void	_showFloatNode ( spinNodeHandle, bool8_t );
 //static void	_showStringNode ( spinNodeHandle );
 //static void	_showEnumerationNode ( spinNodeHandle );
@@ -419,13 +419,15 @@ _readGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 int
 _readGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
-	spinNodeHandle		gamma;
-  bool8_t						available, readable, writeable;
+	spinNodeHandle		gamma, gammaEnabled;
+  bool8_t						available, readable, writeable, currBool;
 	double						min, max, curr;
-	int								intCurr;
+	int								currInt;
   spinNodeType			nodeType;
   COMMON_INFO*			commonInfo = camera->_common;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
+	int								ctrl;
+	spinError					err;
 
   if (( *p_spinNodeMapGetNode )( nodeMap, "Gamma", &gamma ) !=
       SPINNAKER_ERR_SUCCESS ) {
@@ -488,13 +490,13 @@ _readGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				cameraInfo->minFloatGamma = min;
 				cameraInfo->maxFloatGamma = max;
 				// Potentially temporarily, convert this to a range from 0 to 100
-				intCurr = ( curr - min ) * 100.0 / ( max - min );
+				currInt = ( curr - min ) * 100.0 / ( max - min );
 				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAMMA ) =
 						OA_CTRL_TYPE_INT32;
 				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAMMA ) = 0;
 				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA ) = 100;
 				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAMMA ) = 1;
-				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) = intCurr;
+				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) = currInt;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for gamma", __func__,
@@ -505,6 +507,70 @@ _readGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 		}
   } else {
     oaLogInfo ( OA_LOG_CAMERA, "%s: gamma unavailable", __func__ );
+  }
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "GammaEnabled", &gammaEnabled ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get gamma enabled node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( gammaEnabled, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for gamma enabled", __func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( gammaEnabled, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for gamma enabled", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( gammaEnabled, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for gamma enabled", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    if ( readable || writeable ) {
+			if (( *p_spinNodeGetType )( gammaEnabled, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for gamma enabled", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == BooleanNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found gamma enabled control",
+						__func__ );
+				_showBooleanNode ( gammaEnabled );
+				if (( *p_spinBooleanGetValue )( gammaEnabled, &currBool ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get current gamma enabled value", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				ctrl = OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_GAMMA );
+				camera->OA_CAM_CTRL_TYPE( ctrl ) = OA_CTRL_TYPE_BOOLEAN;
+				commonInfo->OA_CAM_CTRL_MIN( ctrl ) = 0;
+				commonInfo->OA_CAM_CTRL_MAX( ctrl ) = 1;
+				commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( ctrl ) = currBool ? 1 : 0;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for gamma enabled", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: gamma enabled is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: gamma enabled unavailable", __func__ );
   }
 
 	return OA_ERR_NONE;
@@ -538,7 +604,7 @@ _showIntegerNode ( spinNodeHandle intNode, bool8_t writeable )
 
   return;
 }
-
+*/
 
 static void
 _showBooleanNode ( spinNodeHandle boolNode )
@@ -555,7 +621,7 @@ _showBooleanNode ( spinNodeHandle boolNode )
 			curr ? "true" : "false" );
   return;
 }
-*/
+
 
 static void
 _showFloatNode ( spinNodeHandle floatNode, bool8_t writeable )
