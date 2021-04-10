@@ -1,6 +1,8 @@
 /*****************************************************************************
  *
- * SPinoacam.c -- main entrypoint for Point Grey Spinnaker interface
+ * showControls.c
+ *
+ * example program to list the available controls for connected cameras
  *
  * Copyright 2021
  *   James Fidell (james@openastroproject.org)
@@ -43,7 +45,7 @@ main()
 	oaCameraDevice**		cameraDevs;
 	int									numCameras, controlType;
 	int									c, i;
-	oaCamera*						cameraCtx;
+	oaCamera*						cameraCtx = NULL;
 	const char*					typeString;
 
 	// Get list of connected cameras.  Don't filter on any specific feature
