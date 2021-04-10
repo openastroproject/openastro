@@ -66,6 +66,7 @@ SPINNAKERC_API	( *p_spinNodeMapGetNode )( spinNodeMapHandle, const char*,
 SPINNAKERC_API	( *p_spinNodeIsAvailable )( spinNodeHandle, bool8_t* );
 SPINNAKERC_API	( *p_spinNodeIsReadable )( spinNodeHandle, bool8_t* );
 SPINNAKERC_API	( *p_spinNodeIsWritable )( spinNodeHandle, bool8_t* );
+SPINNAKERC_API	( *p_spinNodeIsImplemented )( spinNodeHandle, bool8_t* );
 SPINNAKERC_API	( *p_spinStringGetValue )( spinNodeHandle, char*, size_t* );
 SPINNAKERC_API	( *p_spinEnumerationEntryGetEnumValue )( spinNodeHandle,
 			size_t* );
@@ -247,6 +248,10 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       "spinNodeIsAvailable" ))) {
     return 0;
   }
+  if (!( *( void** )( &p_spinNodeIsImplemented ) = _getDLSym ( libHandle,
+      "spinNodeIsImplemented" ))) {
+    return 0;
+  }
   if (!( *( void** )( &p_spinNodeIsReadable ) = _getDLSym ( libHandle,
       "spinNodeIsReadable" ))) {
     return 0;
@@ -392,6 +397,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   p_spinInterfaceGetTLNodeMap = spinInterfaceGetTLNodeMap;
   p_spinNodeMapGetNode = spinNodeMapGetNode;
   p_spinNodeIsAvailable = spinNodeIsAvailable;
+  p_spinNodeIsImplemented = spinNodeIsImplemented;
   p_spinNodeIsReadable = spinNodeIsReadable;
   p_spinNodeIsWritable = spinNodeIsWritable;
   p_spinStringGetValue = spinStringGetValue;

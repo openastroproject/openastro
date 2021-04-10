@@ -63,6 +63,7 @@ extern SPINNAKERC_API	( *p_spinInterfaceGetTLNodeMap )( spinInterface,
 extern SPINNAKERC_API	( *p_spinNodeMapGetNode )( spinNodeMapHandle,
 				const char*, spinNodeHandle* );
 extern SPINNAKERC_API	( *p_spinNodeIsAvailable )( spinNodeHandle, bool8_t* );
+extern SPINNAKERC_API	( *p_spinNodeIsImplemented )( spinNodeHandle, bool8_t* );
 extern SPINNAKERC_API	( *p_spinNodeIsReadable )( spinNodeHandle, bool8_t* );
 extern SPINNAKERC_API	( *p_spinNodeIsWritable )( spinNodeHandle, bool8_t* );
 extern SPINNAKERC_API	( *p_spinStringGetValue )( spinNodeHandle, char*,
