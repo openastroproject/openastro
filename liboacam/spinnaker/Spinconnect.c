@@ -47,9 +47,11 @@ static int	_processCameraEntry ( spinCamera, oaCamera* );
 static void	_showBooleanNode ( spinNodeHandle );
 static void	_showFloatNode ( spinNodeHandle, bool8_t );
 //static void	_showStringNode ( spinNodeHandle );
-//static void	_showEnumerationNode ( spinNodeHandle );
+static void	_showEnumerationNode ( spinNodeHandle );
 static int	_readGainControls ( spinNodeMapHandle, oaCamera* );
 static int	_readGammaControls ( spinNodeMapHandle, oaCamera* );
+static int	_readHueControls ( spinNodeMapHandle, oaCamera* );
+static int	_readTriggerControls ( spinNodeMapHandle, oaCamera* );
 
 
 oaCamera*
@@ -400,6 +402,20 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 	}
 
 	oaLogWarning ( OA_LOG_CAMERA,
+			"%s: Should only be testing for hue controls on colour camera?",
+			__func__ );
+
+	if ( _readHueControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if ( _readTriggerControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	oaLogWarning ( OA_LOG_CAMERA,
 			"%s: Should we check for unrecognised features?", __func__ );
 
   // Won't eventually want to do this here
@@ -412,6 +428,186 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 int
 _readGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
+	spinNodeHandle		gain, autoGain;
+  bool8_t						available, readable, writeable;
+	double						min, max, curr;
+	int								currInt;
+  spinNodeType			nodeType;
+  COMMON_INFO*			commonInfo = camera->_common;
+	spinNodeHandle		valueHandle;
+	size_t						enumValue;
+	spinError					r;
+	int								autoGainValid = 0;
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "GainAuto", &autoGain ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto gain node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( autoGain, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for auto gain", __func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( autoGain, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for auto gain", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( autoGain, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for auto gain", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+		// Doesn't make much sense that this node not be readable and
+		// writeable?
+    if ( readable && writeable ) {
+			if (( *p_spinNodeGetType )( autoGain, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for auto gain", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto gain control",
+						__func__ );
+				_showEnumerationNode ( autoGain );
+				if (( *p_spinEnumerationGetCurrentEntry )( autoGain,
+						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto gain current entry",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( r = ( *p_spinEnumerationEntryGetEnumValue )( valueHandle,
+						&enumValue )) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get auto gain current value, error %d", __func__, r );
+				}
+				switch ( enumValue ) {
+					case GainAuto_Off:
+						curr = 0;
+						autoGainValid = 1;
+						break;
+					case GainAuto_Continuous:
+						curr = 1;
+						autoGainValid = 1;
+						break;
+					default:
+						oaLogWarning ( OA_LOG_CAMERA,
+								"%s: Unhandled value '%d' for auto gain", __func__, enumValue );
+				}
+				if ( autoGainValid ) {
+					camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_GAIN ) =
+							OA_CTRL_TYPE_BOOLEAN;
+					commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_GAIN ) = 0;
+					commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_GAIN ) = 1;
+					commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_GAIN ) = 1;
+					commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_GAIN ) = curr ? 1 : 0;
+				}
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for auto gain", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: auto gain is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: auto gain unavailable", __func__ );
+  }
+
+	if ( autoGainValid && commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_GAIN )) {
+		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check auto gain is disabled "
+				"before checking gain range", __func__ );
+	}
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "Gain", &gain ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get gain node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( gain, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsAvailable failed for gain",
+			__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( gain, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsReadable failed for gain",
+				__func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( gain, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsWritable failed for gain",
+				__func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    if ( readable || writeable ) {
+			if (( *p_spinNodeGetType )( gain, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get node type for gain",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+
+			if ( nodeType == FloatNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found gain control", __func__ );
+        _showFloatNode ( gain, writeable );
+				if (( *p_spinFloatGetValue )( gain, &curr ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get current gain value",
+									__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinFloatGetMin )( gain, &min ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get min gain value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinFloatGetMax )( gain, &max ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get max gain value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+
+				// Potentially temporarily, convert this to a range from 0 to 400
+				currInt = ( curr - min ) * 400.0 / ( max - min );
+				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) =
+						OA_CTRL_TYPE_INT32;
+				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = 0;
+				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = 400;
+				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = currInt;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for gain", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: gain is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: gain unavailable", __func__ );
+  }
+
 	return OA_ERR_NONE;
 }
 
@@ -575,6 +771,333 @@ _readGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	return OA_ERR_NONE;
 }
 
+
+int
+_readHueControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle		hue, hueEnabled, autoHue;
+	spinNodeHandle		valueHandle;
+  bool8_t						available, readable, writeable, implemented, currBool;
+	double						min, max, curr;
+	int								currInt;
+  spinNodeType			nodeType;
+  COMMON_INFO*			commonInfo = camera->_common;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
+	int								ctrl;
+	int								hueEnabledValid = 0, autoHueValid = 0;
+	int64_t						intValue;
+	spinError					r;
+
+  if (( r = ( *p_spinNodeMapGetNode )( nodeMap, "HueEnabled", &hueEnabled )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get hue enabled node, error %d",
+				__func__, r );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if (( r = ( *p_spinNodeIsImplemented )( hueEnabled, &implemented )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsImplemented failed for hue enabled, error %d",
+				__func__, r );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( r = ( *p_spinNodeIsAvailable )( hueEnabled, &available )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for hue enabled, error %d",
+				__func__, r );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( hueEnabled, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for hue enabled", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( hueEnabled, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for hue enabled", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    if ( readable || writeable ) {
+			if (( *p_spinNodeGetType )( hueEnabled, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for hue enabled", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == BooleanNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found hue enabled control",
+						__func__ );
+				_showBooleanNode ( hueEnabled );
+				if (( *p_spinBooleanGetValue )( hueEnabled, &currBool ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get current hue enabled value", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				ctrl = OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_HUE );
+				camera->OA_CAM_CTRL_TYPE( ctrl ) = OA_CTRL_TYPE_BOOLEAN;
+				commonInfo->OA_CAM_CTRL_MIN( ctrl ) = 0;
+				commonInfo->OA_CAM_CTRL_MAX( ctrl ) = 1;
+				commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( ctrl ) = currBool ? 1 : 0;
+				hueEnabledValid = 1;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for hue enabled", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: hue enabled is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: hue enabled unavailable", __func__ );
+  }
+
+	if ( hueEnabledValid ) {
+		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check hue enabled is set "
+				"before checking other hue controls", __func__ );
+	}
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "Hue", &hue ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get hue node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "HueAuto", &autoHue ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto hue node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( autoHue, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for auto hue", __func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( autoHue, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for auto hue", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( autoHue, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for auto hue", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+		// Doesn't make much sense that this node not be readable and
+		// writeable?
+    if ( readable && writeable ) {
+			if (( *p_spinNodeGetType )( autoHue, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for auto hue", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto hue control",
+						__func__ );
+				_showEnumerationNode ( autoHue );
+				if (( *p_spinEnumerationGetCurrentEntry )( autoHue,
+						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto hue current entry",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				// Have to use IntValue() here rather than EnumValue() because
+				// hue doesn't appear to be part of the SFNC
+				if (( r = ( *p_spinEnumerationEntryGetIntValue )( valueHandle,
+						&intValue )) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get auto hue current value, error %d", __func__, r );
+				}
+				switch ( intValue ) {
+					case 0:
+						curr = 0;
+						autoHueValid = 1;
+						break;
+					case 2:
+						curr = 1;
+						autoHueValid = 1;
+						break;
+					default:
+						oaLogWarning ( OA_LOG_CAMERA,
+								"%s: Unhandled value '%d' for auto hue", __func__, intValue );
+				}
+				if ( autoHueValid ) {
+					camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_HUE ) =
+							OA_CTRL_TYPE_BOOLEAN;
+					commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_HUE ) = 0;
+					commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_HUE ) = 1;
+					commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_HUE ) = 1;
+					commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_HUE ) = curr ? 1 : 0;
+				}
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for auto hue", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: auto hue is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: auto hue unavailable", __func__ );
+  }
+
+	if ( autoHueValid && commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_HUE )) {
+		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check auto hue is disabled "
+				"before checking hue range", __func__ );
+	}
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( hue, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsAvailable failed for hue",
+			__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( hue, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsReadable failed for hue",
+				__func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( hue, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsWritable failed for hue",
+				__func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    if ( readable || writeable ) {
+			if (( *p_spinNodeGetType )( hue, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get node type for hue",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+
+			if ( nodeType == FloatNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found hue control", __func__ );
+        _showFloatNode ( hue, writeable );
+				if (( *p_spinFloatGetValue )( hue, &curr ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get current hue value",
+									__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinFloatGetMin )( hue, &min ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get min hue value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinFloatGetMax )( hue, &max ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get max hue value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+
+				cameraInfo->minFloatHue = min;
+				cameraInfo->maxFloatHue = max;
+				// Potentially temporarily, convert this to a range from 0 to 100
+				currInt = ( curr - min ) * 100.0 / ( max - min );
+				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HUE ) =
+						OA_CTRL_TYPE_INT32;
+				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HUE ) = 0;
+				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HUE ) = 100;
+				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HUE ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HUE ) = currInt;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for hue", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: hue is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: hue unavailable", __func__ );
+  }
+
+
+	return OA_ERR_NONE;
+}
+
+
+int
+_readTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle		triggerOverlap;
+  bool8_t						available, readable, writeable, implemented;
+	spinError					r;
+
+  if (( r = ( *p_spinNodeMapGetNode )( nodeMap, "TriggerOverlap",
+			&triggerOverlap )) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get trigger overlap node, error %d",
+				__func__, r );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if (( r = ( *p_spinNodeIsImplemented )( triggerOverlap, &implemented )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsImplemented failed for trigger overlap, error %d",
+				__func__, r );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( r = ( *p_spinNodeIsAvailable )( triggerOverlap, &available )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for trigger overlap, error %d",
+				__func__, r );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( triggerOverlap, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for trigger overlap", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( triggerOverlap, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for trigger overlap", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+		oaLogInfo ( OA_LOG_CAMERA, "%s: trigger overlap readable/writeable: %d/%d",
+				__func__, readable, writeable );
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: trigger overlap unavailable", __func__ );
+  }
+
+	return OA_ERR_NONE;
+}
+
+
 /*
 static void
 _showIntegerNode ( spinNodeHandle intNode, bool8_t writeable )
@@ -663,7 +1186,7 @@ _showStringNode ( spinNodeHandle stringNode )
   oaLogInfo ( OA_LOG_CAMERA, "%s:   [%s]", __func__, string );
   return;
 }
-
+*/
 
 static void
 _showEnumerationNode ( spinNodeHandle enumNode )
@@ -717,7 +1240,7 @@ _showEnumerationNode ( spinNodeHandle enumNode )
   oaLogInfo ( OA_LOG_CAMERA, "%s: := %s", __func__, value );
   return;
 }
-*/
+
 
 static void
 _spinInitFunctionPointers ( oaCamera* camera )
