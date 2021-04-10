@@ -30,11 +30,15 @@
 
 AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/common
 
-noinst_PROGRAMS = showControls
+noinst_PROGRAMS = showControls showFeatures logging
 
 showControls_SOURCES = showControls.c
 
-showControls_LDADD = \
+showFeatures_SOURCES = showFeatures.c
+
+logging_SOURCES = logging.c
+
+LDADD = \
   ../liboacam.la \
   ../../liboautil/liboautil.la \
   ../../liboavideo/liboavideo.la \
