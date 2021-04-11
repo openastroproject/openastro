@@ -173,3 +173,7 @@ ui_*.h
 /osx/oalive.iconset/icon_512x512@2x.png
 /osx/oacapture.plist
 /osx/oalive.plist
+/liboacam/demo/logging
+/liboacam/demo/showControls
+/liboacam/demo/showFeatures
+/liboacam/demo/startStreaming
