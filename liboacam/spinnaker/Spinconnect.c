@@ -48,12 +48,16 @@ static void	_showBooleanNode ( spinNodeHandle );
 static void	_showFloatNode ( spinNodeHandle, bool8_t );
 //static void	_showStringNode ( spinNodeHandle );
 static void	_showEnumerationNode ( spinNodeHandle );
-static int	_readGainControls ( spinNodeMapHandle, oaCamera* );
-static int	_readGammaControls ( spinNodeMapHandle, oaCamera* );
-static int	_readHueControls ( spinNodeMapHandle, oaCamera* );
-static int	_readSaturationControls ( spinNodeMapHandle, oaCamera* );
-static int	_readSharpnessControls ( spinNodeMapHandle, oaCamera* );
-static int	_readTriggerControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkGainControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkGammaControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkHueControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkSaturationControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkSharpnessControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkBlackLevelControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkWhiteBalanceControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkResetControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkTemperatureControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkTriggerControls ( spinNodeMapHandle, oaCamera* );
 
 
 oaCamera*
@@ -393,17 +397,37 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
     return -OA_ERR_SYSTEM_ERROR;
   }
 
-	if ( _readGainControls ( cameraNodeMapHandle, camera ) < 0 ) {
+	if ( _checkGainControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
-	if ( _readGammaControls ( cameraNodeMapHandle, camera ) < 0 ) {
+	if ( _checkGammaControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
-	if ( _readSharpnessControls ( cameraNodeMapHandle, camera ) < 0 ) {
+	if ( _checkSharpnessControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if ( _checkBlackLevelControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if ( _checkWhiteBalanceControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if ( _checkResetControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if ( _checkTemperatureControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
@@ -412,17 +436,17 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 			"%s: Should only be testing for colour controls on colour camera?",
 			__func__ );
 
-	if ( _readHueControls ( cameraNodeMapHandle, camera ) < 0 ) {
+	if ( _checkHueControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
-	if ( _readSaturationControls ( cameraNodeMapHandle, camera ) < 0 ) {
+	if ( _checkSaturationControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
-	if ( _readTriggerControls ( cameraNodeMapHandle, camera ) < 0 ) {
+	if ( _checkTriggerControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
@@ -438,7 +462,7 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 
 
 int
-_readGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+_checkGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		gain, autoGain;
   bool8_t						available, readable, writeable;
@@ -625,7 +649,7 @@ _readGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 
 
 int
-_readGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+_checkGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		gamma, gammaEnabled;
   bool8_t						available, readable, writeable, currBool;
@@ -785,7 +809,7 @@ _readGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 
 
 int
-_readHueControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+_checkHueControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		hue, hueEnabled, autoHue;
 	spinNodeHandle		valueHandle;
@@ -1058,7 +1082,7 @@ _readHueControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 
 
 int
-_readSaturationControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+_checkSaturationControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		saturation, saturationEnabled, autoSaturation;
 	spinNodeHandle		valueHandle;
@@ -1334,12 +1358,12 @@ _readSaturationControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 
 
 int
-_readSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+_checkSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		sharpness, sharpnessEnabled, autoSharpness;
 	spinNodeHandle		valueHandle;
   bool8_t						available, readable, writeable, implemented, currBool;
-	int64_t						min, max, curr;
+	int64_t						min, max, curr, step;
   spinNodeType			nodeType;
   COMMON_INFO*			commonInfo = camera->_common;
 	int								ctrl;
@@ -1580,13 +1604,19 @@ _readSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 							__func__ );
 					return -OA_ERR_SYSTEM_ERROR;
 				}
+				if (( *p_spinIntegerGetInc )( sharpness, &step ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get sharpness step value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
 
 				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SHARPNESS ) =
 						OA_CTRL_TYPE_INT32;
 				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SHARPNESS ) = min;
 				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SHARPNESS ) = max;
 				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SHARPNESS ) = 1;
-				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SHARPNESS ) = curr;
+				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SHARPNESS ) = step;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for sharpness", __func__,
@@ -1604,7 +1634,514 @@ _readSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 
 
 int
-_readTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+_checkBlackLevelControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle		blackLevel, blackLevelEnabled, autoBlackLevel;
+	spinNodeHandle		valueHandle;
+  bool8_t						available, readable, writeable, implemented, currBool;
+	double						min, max, curr;
+  spinNodeType			nodeType;
+  COMMON_INFO*			commonInfo = camera->_common;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
+	int								ctrl;
+	int								currInt;
+	int								blackLevelEnabledValid = 0, autoBlackLevelValid = 0;
+	size_t						enumValue;
+	spinError					r;
+
+  if (( r = ( *p_spinNodeMapGetNode )( nodeMap, "BlackLevelEnabled",
+			&blackLevelEnabled )) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get blackLevel enabled node, error %d", __func__, r );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if (( r = ( *p_spinNodeIsImplemented )( blackLevelEnabled, &implemented )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsImplemented failed for blackLevel enabled, error %d",
+				__func__, r );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( r = ( *p_spinNodeIsAvailable )( blackLevelEnabled, &available )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for blackLevel enabled, error %d",
+				__func__, r );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( blackLevelEnabled, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for blackLevel enabled", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( blackLevelEnabled, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for blackLevel enabled", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    if ( readable || writeable ) {
+			if (( *p_spinNodeGetType )( blackLevelEnabled, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for blackLevel enabled", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == BooleanNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found blackLevel enabled control",
+						__func__ );
+				_showBooleanNode ( blackLevelEnabled );
+				if (( *p_spinBooleanGetValue )( blackLevelEnabled, &currBool ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get current blackLevel enabled value", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				ctrl = OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_BLACKLEVEL );
+				camera->OA_CAM_CTRL_TYPE( ctrl ) = OA_CTRL_TYPE_BOOLEAN;
+				commonInfo->OA_CAM_CTRL_MIN( ctrl ) = 0;
+				commonInfo->OA_CAM_CTRL_MAX( ctrl ) = 1;
+				commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( ctrl ) = currBool ? 1 : 0;
+				blackLevelEnabledValid = 1;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for blackLevel enabled", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: blackLevel enabled is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: blackLevel enabled unavailable", __func__ );
+  }
+
+	if ( blackLevelEnabledValid ) {
+		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check blackLevel enabled is "
+				"set before checking other blackLevel controls", __func__ );
+	}
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "BlackLevel", &blackLevel ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get blackLevel node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "BlackLevelAuto",
+				&autoBlackLevel ) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto blackLevel node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( autoBlackLevel, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for auto blackLevel", __func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( autoBlackLevel, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for auto blackLevel", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( autoBlackLevel, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for auto blackLevel", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+		// Doesn't make much sense that this node not be readable and
+		// writeable?
+    if ( readable && writeable ) {
+			if (( *p_spinNodeGetType )( autoBlackLevel, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for auto blackLevel", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto blackLevel control",
+						__func__ );
+				_showEnumerationNode ( autoBlackLevel );
+				if (( *p_spinEnumerationGetCurrentEntry )( autoBlackLevel,
+						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get auto blackLevel current entry", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( r = ( *p_spinEnumerationEntryGetEnumValue )( valueHandle,
+						&enumValue )) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get auto blacklevel current value, error %d",
+							__func__, r );
+				}
+				switch ( enumValue ) {
+					case BlackLevelAuto_Off:
+						curr = 0;
+						autoBlackLevelValid = 1;
+						break;
+					case BlackLevelAuto_Continuous:
+						curr = 1;
+						autoBlackLevelValid = 1;
+						break;
+					default:
+						oaLogWarning ( OA_LOG_CAMERA,
+								"%s: Unhandled value '%d' for auto blacklevel",
+								__func__, enumValue );
+				}
+				if ( autoBlackLevelValid ) {
+					camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_BLACKLEVEL ) =
+							OA_CTRL_TYPE_BOOLEAN;
+					commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_BLACKLEVEL ) = 0;
+					commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_BLACKLEVEL ) = 1;
+					commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_BLACKLEVEL ) = 1;
+					commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_BLACKLEVEL ) =
+							curr ? 1 : 0;
+				}
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for auto blacklevel", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: auto blacklevel is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: auto blacklevel unavailable", __func__ );
+  }
+
+	if ( autoBlackLevelValid &&
+			commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_BLACKLEVEL )) {
+		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check auto blacklevel is "
+				"disabled before checking blacklevel range", __func__ );
+	}
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( blackLevel, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for blacklevel", __func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( blackLevel, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for blacklevel", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( blackLevel, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for blacklevel", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    if ( readable || writeable ) {
+			if (( *p_spinNodeGetType )( blackLevel, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get node type for blacklevel",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+
+			if ( nodeType == FloatNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found blacklevel control", __func__ );
+        _showFloatNode ( blackLevel, writeable );
+				if (( *p_spinFloatGetValue )( blackLevel, &curr ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get current blacklevel value",
+									__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinFloatGetMin )( blackLevel, &min ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get min blacklevel value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinFloatGetMax )( blackLevel, &max ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get max blacklevel value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+
+				cameraInfo->minFloatBlacklevel = min;
+				cameraInfo->maxFloatBlacklevel = max;
+				// Potentially temporarily, convert this to a range from 0 to 100
+				currInt = ( curr - min ) * 100.0 / ( max - min );
+				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BLACKLEVEL ) =
+						OA_CTRL_TYPE_INT32;
+				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BLACKLEVEL ) = 0;
+				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLACKLEVEL ) = 100;
+				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLACKLEVEL ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLACKLEVEL ) = currInt;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for blacklevel", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: blacklevel is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: blacklevel unavailable", __func__ );
+  }
+
+	return OA_ERR_NONE;
+}
+
+
+int
+_checkWhiteBalanceControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle		autoWhiteBalance;
+	spinNodeHandle		valueHandle;
+  bool8_t						available, readable, writeable;
+  spinNodeType			nodeType;
+  COMMON_INFO*			commonInfo = camera->_common;
+	int								autoWhiteBalanceValid = 0;
+	size_t						enumValue;
+	spinError					r;
+	int								curr;
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "BalanceWhiteAuto",
+				&autoWhiteBalance ) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto white balance node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( autoWhiteBalance, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for auto white balance", __func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( autoWhiteBalance, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for auto white balance", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( autoWhiteBalance, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for auto white balance", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+		// Doesn't make much sense that this node not be readable and
+		// writeable?
+    if ( readable && writeable ) {
+			if (( *p_spinNodeGetType )( autoWhiteBalance, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for auto white balance", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto white balance control",
+						__func__ );
+				_showEnumerationNode ( autoWhiteBalance );
+				if (( *p_spinEnumerationGetCurrentEntry )( autoWhiteBalance,
+						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get auto white balance current entry", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( r = ( *p_spinEnumerationEntryGetEnumValue )( valueHandle,
+						&enumValue )) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get auto white balance current value, error %d",
+							__func__, r );
+				}
+				switch ( enumValue ) {
+					case BalanceWhiteAuto_Off:
+						curr = 0;
+						autoWhiteBalanceValid = 1;
+						break;
+					case BalanceWhiteAuto_Continuous:
+						curr = 1;
+						autoWhiteBalanceValid = 1;
+						break;
+					default:
+						oaLogWarning ( OA_LOG_CAMERA,
+								"%s: Unhandled value '%d' for auto white balance",
+								__func__, enumValue );
+				}
+				if ( autoWhiteBalanceValid ) {
+					camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_WHITE_BALANCE ) =
+							OA_CTRL_TYPE_BOOLEAN;
+					commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_WHITE_BALANCE ) = 0;
+					commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_WHITE_BALANCE ) = 1;
+					commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_WHITE_BALANCE ) = 1;
+					commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_WHITE_BALANCE ) =
+							curr ? 1 : 0;
+				}
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for auto white balance", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: auto white balance is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: auto white balance unavailable", __func__ );
+  }
+
+	if ( autoWhiteBalanceValid &&
+			commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_WHITE_BALANCE )) {
+		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check auto white balance is "
+				"disabled before checking white balance range", __func__ );
+	}
+
+	return OA_ERR_NONE;
+}
+
+
+int
+_checkResetControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle		reset;
+  bool8_t						available, readable, writeable;
+  spinNodeType			nodeType;
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "DeviceReset",
+				&reset ) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get reset node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( reset, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for reset", __func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( reset, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for reset", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( reset, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for reset", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    if ( writeable ) {
+			if (( *p_spinNodeGetType )( reset, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for reset", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == CommandNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found reset control",
+						__func__ );
+				camera->features.flags |= OA_CAM_FEATURE_RESET;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for reset", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: reset is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: reset unavailable", __func__ );
+  }
+
+	return OA_ERR_NONE;
+}
+
+
+int
+_checkTemperatureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle		temperature;
+  bool8_t						available, readable;
+  spinNodeType			nodeType;
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "DeviceTemperature",
+				&temperature ) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get temperature node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = False;
+  if (( *p_spinNodeIsAvailable )( temperature, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for temperature", __func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( temperature, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for temperature", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if ( readable ) {
+			if (( *p_spinNodeGetType )( temperature, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for temperature", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == FloatNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found temperature control",
+						__func__ );
+        _showFloatNode ( temperature, 0 );
+				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) =
+						OA_CTRL_TYPE_READONLY;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for temperature", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: temperature is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: temperature unavailable", __func__ );
+  }
+
+	return OA_ERR_NONE;
+}
+
+
+int
+_checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		triggerOverlap;
   bool8_t						available, readable, writeable, implemented;
