@@ -51,6 +51,7 @@ static void	_showEnumerationNode ( spinNodeHandle );
 static int	_readGainControls ( spinNodeMapHandle, oaCamera* );
 static int	_readGammaControls ( spinNodeMapHandle, oaCamera* );
 static int	_readHueControls ( spinNodeMapHandle, oaCamera* );
+static int	_readSaturationControls ( spinNodeMapHandle, oaCamera* );
 static int	_readTriggerControls ( spinNodeMapHandle, oaCamera* );
 
 
@@ -402,10 +403,15 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 	}
 
 	oaLogWarning ( OA_LOG_CAMERA,
-			"%s: Should only be testing for hue controls on colour camera?",
+			"%s: Should only be testing for colour controls on colour camera?",
 			__func__ );
 
 	if ( _readHueControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if ( _readSaturationControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
@@ -1040,6 +1046,282 @@ _readHueControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: hue unavailable", __func__ );
   }
 
+
+	return OA_ERR_NONE;
+}
+
+
+int
+_readSaturationControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle		saturation, saturationEnabled, autoSaturation;
+	spinNodeHandle		valueHandle;
+  bool8_t						available, readable, writeable, implemented, currBool;
+	double						min, max, curr;
+	int								currInt;
+  spinNodeType			nodeType;
+  COMMON_INFO*			commonInfo = camera->_common;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
+	int								ctrl;
+	int								saturationEnabledValid = 0, autoSaturationValid = 0;
+	int64_t						intValue;
+	spinError					r;
+
+  if (( r = ( *p_spinNodeMapGetNode )( nodeMap, "SaturationEnabled",
+			&saturationEnabled )) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get saturation enabled node, error %d", __func__, r );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if (( r = ( *p_spinNodeIsImplemented )( saturationEnabled, &implemented )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsImplemented failed for saturation enabled, error %d",
+				__func__, r );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( r = ( *p_spinNodeIsAvailable )( saturationEnabled, &available )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for saturation enabled, error %d",
+				__func__, r );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( saturationEnabled, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for saturation enabled", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( saturationEnabled, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for saturation enabled", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    if ( readable || writeable ) {
+			if (( *p_spinNodeGetType )( saturationEnabled, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for saturation enabled", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == BooleanNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found saturation enabled control",
+						__func__ );
+				_showBooleanNode ( saturationEnabled );
+				if (( *p_spinBooleanGetValue )( saturationEnabled, &currBool ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get current saturation enabled value", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				ctrl = OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_SATURATION );
+				camera->OA_CAM_CTRL_TYPE( ctrl ) = OA_CTRL_TYPE_BOOLEAN;
+				commonInfo->OA_CAM_CTRL_MIN( ctrl ) = 0;
+				commonInfo->OA_CAM_CTRL_MAX( ctrl ) = 1;
+				commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( ctrl ) = currBool ? 1 : 0;
+				saturationEnabledValid = 1;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for saturation enabled", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: saturation enabled is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: saturation enabled unavailable", __func__ );
+  }
+
+	if ( saturationEnabledValid ) {
+		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check saturation enabled is "
+				"set before checking other saturation controls", __func__ );
+	}
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "Saturation", &saturation ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get saturation node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "SaturationAuto",
+				&autoSaturation ) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto saturation node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( autoSaturation, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for auto saturation", __func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( autoSaturation, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for auto saturation", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( autoSaturation, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for auto saturation", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+		// Doesn't make much sense that this node not be readable and
+		// writeable?
+    if ( readable && writeable ) {
+			if (( *p_spinNodeGetType )( autoSaturation, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for auto saturation", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto saturation control",
+						__func__ );
+				_showEnumerationNode ( autoSaturation );
+				if (( *p_spinEnumerationGetCurrentEntry )( autoSaturation,
+						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get auto saturation current entry", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				// Have to use IntValue() here rather than EnumValue() because
+				// saturation doesn't appear to be part of the SFNC
+				if (( r = ( *p_spinEnumerationEntryGetIntValue )( valueHandle,
+						&intValue )) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get auto saturation current value, error %d",
+							__func__, r );
+				}
+				switch ( intValue ) {
+					case 0:
+						curr = 0;
+						autoSaturationValid = 1;
+						break;
+					case 2:
+						curr = 1;
+						autoSaturationValid = 1;
+						break;
+					default:
+						oaLogWarning ( OA_LOG_CAMERA,
+								"%s: Unhandled value '%d' for auto saturation",
+								__func__, intValue );
+				}
+				if ( autoSaturationValid ) {
+					camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_SATURATION ) =
+							OA_CTRL_TYPE_BOOLEAN;
+					commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_SATURATION ) = 0;
+					commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_SATURATION ) = 1;
+					commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_SATURATION ) = 1;
+					commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_SATURATION ) =
+							curr ? 1 : 0;
+				}
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for auto saturation", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: auto saturation is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: auto saturation unavailable", __func__ );
+  }
+
+	if ( autoSaturationValid &&
+			commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_SATURATION )) {
+		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check auto saturation is "
+				"disabled before checking saturation range", __func__ );
+	}
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( saturation, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for saturation", __func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( saturation, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for saturation", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( saturation, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for saturation", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    if ( readable || writeable ) {
+			if (( *p_spinNodeGetType )( saturation, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get node type for saturation",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+
+			if ( nodeType == FloatNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found saturation control", __func__ );
+        _showFloatNode ( saturation, writeable );
+				if (( *p_spinFloatGetValue )( saturation, &curr ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get current saturation value",
+									__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinFloatGetMin )( saturation, &min ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get min saturation value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinFloatGetMax )( saturation, &max ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get max saturation value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+
+				cameraInfo->minFloatSaturation = min;
+				cameraInfo->maxFloatSaturation = max;
+				// Potentially temporarily, convert this to a range from 0 to 100
+				currInt = ( curr - min ) * 100.0 / ( max - min );
+				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SATURATION ) =
+						OA_CTRL_TYPE_INT32;
+				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SATURATION ) = 0;
+				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SATURATION ) = 100;
+				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SATURATION ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SATURATION ) = currInt;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for saturation", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: saturation is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: saturation unavailable", __func__ );
+  }
 
 	return OA_ERR_NONE;
 }

@@ -47,6 +47,8 @@ typedef struct SPINNAKER_STATE {
 	double			maxFloatGamma;
 	double			minFloatHue;
 	double			maxFloatHue;
+	double			minFloatSaturation;
+	double			maxFloatSaturation;
 } SPINNAKER_STATE;
 
 #endif	/* OA_SPINNAKER_STATE_H */
