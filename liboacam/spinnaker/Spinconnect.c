@@ -43,7 +43,7 @@
 
 static void	_spinInitFunctionPointers ( oaCamera* );
 static int	_processCameraEntry ( spinCamera, oaCamera* );
-//static void	_showIntegerNode ( spinNodeHandle, bool8_t );
+static void	_showIntegerNode ( spinNodeHandle, bool8_t );
 static void	_showBooleanNode ( spinNodeHandle );
 static void	_showFloatNode ( spinNodeHandle, bool8_t );
 //static void	_showStringNode ( spinNodeHandle );
@@ -52,6 +52,7 @@ static int	_readGainControls ( spinNodeMapHandle, oaCamera* );
 static int	_readGammaControls ( spinNodeMapHandle, oaCamera* );
 static int	_readHueControls ( spinNodeMapHandle, oaCamera* );
 static int	_readSaturationControls ( spinNodeMapHandle, oaCamera* );
+static int	_readSharpnessControls ( spinNodeMapHandle, oaCamera* );
 static int	_readTriggerControls ( spinNodeMapHandle, oaCamera* );
 
 
@@ -398,6 +399,11 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 	}
 
 	if ( _readGammaControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if ( _readSharpnessControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
@@ -1328,6 +1334,276 @@ _readSaturationControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 
 
 int
+_readSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle		sharpness, sharpnessEnabled, autoSharpness;
+	spinNodeHandle		valueHandle;
+  bool8_t						available, readable, writeable, implemented, currBool;
+	int64_t						min, max, curr;
+  spinNodeType			nodeType;
+  COMMON_INFO*			commonInfo = camera->_common;
+	int								ctrl;
+	int								sharpnessEnabledValid = 0, autoSharpnessValid = 0;
+	int64_t						intValue;
+	spinError					r;
+
+  if (( r = ( *p_spinNodeMapGetNode )( nodeMap, "SharpnessEnabled",
+			&sharpnessEnabled )) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get sharpness enabled node, error %d", __func__, r );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if (( r = ( *p_spinNodeIsImplemented )( sharpnessEnabled, &implemented )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsImplemented failed for sharpness enabled, error %d",
+				__func__, r );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( r = ( *p_spinNodeIsAvailable )( sharpnessEnabled, &available )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for sharpness enabled, error %d",
+				__func__, r );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( sharpnessEnabled, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for sharpness enabled", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( sharpnessEnabled, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for sharpness enabled", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    if ( readable || writeable ) {
+			if (( *p_spinNodeGetType )( sharpnessEnabled, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for sharpness enabled", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == BooleanNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found sharpness enabled control",
+						__func__ );
+				_showBooleanNode ( sharpnessEnabled );
+				if (( *p_spinBooleanGetValue )( sharpnessEnabled, &currBool ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get current sharpness enabled value", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				ctrl = OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_SHARPNESS );
+				camera->OA_CAM_CTRL_TYPE( ctrl ) = OA_CTRL_TYPE_BOOLEAN;
+				commonInfo->OA_CAM_CTRL_MIN( ctrl ) = 0;
+				commonInfo->OA_CAM_CTRL_MAX( ctrl ) = 1;
+				commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( ctrl ) = currBool ? 1 : 0;
+				sharpnessEnabledValid = 1;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for sharpness enabled", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: sharpness enabled is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: sharpness enabled unavailable", __func__ );
+  }
+
+	if ( sharpnessEnabledValid ) {
+		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check sharpness enabled is "
+				"set before checking other sharpness controls", __func__ );
+	}
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "Sharpness", &sharpness ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get sharpness node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "SharpnessAuto",
+				&autoSharpness ) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto sharpness node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( autoSharpness, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for auto sharpness", __func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( autoSharpness, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for auto sharpness", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( autoSharpness, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for auto sharpness", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+		// Doesn't make much sense that this node not be readable and
+		// writeable?
+    if ( readable && writeable ) {
+			if (( *p_spinNodeGetType )( autoSharpness, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for auto sharpness", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto sharpness control",
+						__func__ );
+				_showEnumerationNode ( autoSharpness );
+				if (( *p_spinEnumerationGetCurrentEntry )( autoSharpness,
+						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get auto sharpness current entry", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				// Have to use IntValue() here rather than EnumValue() because
+				// sharpness doesn't appear to be part of the SFNC
+				if (( r = ( *p_spinEnumerationEntryGetIntValue )( valueHandle,
+						&intValue )) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get auto sharpness current value, error %d",
+							__func__, r );
+				}
+				switch ( intValue ) {
+					case 0:
+						curr = 0;
+						autoSharpnessValid = 1;
+						break;
+					case 2:
+						curr = 1;
+						autoSharpnessValid = 1;
+						break;
+					default:
+						oaLogWarning ( OA_LOG_CAMERA,
+								"%s: Unhandled value '%d' for auto sharpness",
+								__func__, intValue );
+				}
+				if ( autoSharpnessValid ) {
+					camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_SHARPNESS ) =
+							OA_CTRL_TYPE_BOOLEAN;
+					commonInfo->OA_CAM_CTRL_AUTO_MIN( OA_CAM_CTRL_SHARPNESS ) = 0;
+					commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_SHARPNESS ) = 1;
+					commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_SHARPNESS ) = 1;
+					commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_SHARPNESS ) =
+							curr ? 1 : 0;
+				}
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for auto sharpness", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: auto sharpness is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: auto sharpness unavailable", __func__ );
+  }
+
+	if ( autoSharpnessValid &&
+			commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_SHARPNESS )) {
+		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check auto sharpness is "
+				"disabled before checking sharpness range", __func__ );
+	}
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( sharpness, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for sharpness", __func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( sharpness, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for sharpness", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( sharpness, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for sharpness", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    if ( readable || writeable ) {
+			if (( *p_spinNodeGetType )( sharpness, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get node type for sharpness",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+
+			if ( nodeType == IntegerNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found sharpness control", __func__ );
+        _showIntegerNode ( sharpness, writeable );
+				if (( *p_spinIntegerGetValue )( sharpness, &curr ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get current sharpness value",
+									__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinIntegerGetMin )( sharpness, &min ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get min sharpness value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinIntegerGetMax )( sharpness, &max ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get max sharpness value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+
+				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_SHARPNESS ) =
+						OA_CTRL_TYPE_INT32;
+				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_SHARPNESS ) = min;
+				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SHARPNESS ) = max;
+				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SHARPNESS ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SHARPNESS ) = curr;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for sharpness", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: sharpness is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: sharpness unavailable", __func__ );
+  }
+
+	return OA_ERR_NONE;
+}
+
+
+int
 _readTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		triggerOverlap;
@@ -1380,7 +1656,6 @@ _readTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 }
 
 
-/*
 static void
 _showIntegerNode ( spinNodeHandle intNode, bool8_t writeable )
 {
@@ -1408,7 +1683,7 @@ _showIntegerNode ( spinNodeHandle intNode, bool8_t writeable )
 
   return;
 }
-*/
+
 
 static void
 _showBooleanNode ( spinNodeHandle boolNode )
