@@ -57,6 +57,7 @@ static int	_checkBlackLevelControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkWhiteBalanceControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkResetControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkTemperatureControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkExposureControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkTriggerControls ( spinNodeMapHandle, oaCamera* );
 
 
@@ -428,6 +429,11 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 	}
 
 	if ( _checkTemperatureControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if ( _checkExposureControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
@@ -2134,6 +2140,198 @@ _checkTemperatureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 		}
   } else {
     oaLogInfo ( OA_LOG_CAMERA, "%s: temperature unavailable", __func__ );
+  }
+
+	return OA_ERR_NONE;
+}
+
+
+int
+_checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle		exposure, autoExposure;
+  bool8_t						available, readable, writeable;
+	double						min, max, curr;
+  spinNodeType			nodeType;
+  COMMON_INFO*			commonInfo = camera->_common;
+	spinNodeHandle		valueHandle;
+	size_t						enumValue;
+	spinError					r;
+	int								autoExposureValid = 0;
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "ExposureAuto", &autoExposure ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto exposure node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( autoExposure, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for auto exposure", __func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( autoExposure, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for auto exposure", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( autoExposure, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for auto exposure", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+		// Doesn't make much sense that this node not be readable and
+		// writeable?
+    if ( readable && writeable ) {
+			if (( *p_spinNodeGetType )( autoExposure, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for auto exposure", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto exposure control",
+						__func__ );
+				_showEnumerationNode ( autoExposure );
+				if (( *p_spinEnumerationGetCurrentEntry )( autoExposure,
+						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get auto exposure current entry", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( r = ( *p_spinEnumerationEntryGetEnumValue )( valueHandle,
+						&enumValue )) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get auto exposure current value, error %d",
+							__func__, r );
+				}
+				switch ( enumValue ) {
+					case ExposureAuto_Off:
+						curr = 0;
+						autoExposureValid = 1;
+						break;
+					case ExposureAuto_Continuous:
+						curr = 1;
+						autoExposureValid = 1;
+						break;
+					default:
+						oaLogWarning ( OA_LOG_CAMERA,
+								"%s: Unhandled value '%d' for auto exposure", __func__,
+								enumValue );
+				}
+				if ( autoExposureValid ) {
+					camera->OA_CAM_CTRL_AUTO_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+							OA_CTRL_TYPE_BOOLEAN;
+					commonInfo->OA_CAM_CTRL_AUTO_MIN(
+							OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 0;
+					commonInfo->OA_CAM_CTRL_AUTO_MAX(
+							OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+					commonInfo->OA_CAM_CTRL_AUTO_STEP(
+							OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+					commonInfo->OA_CAM_CTRL_AUTO_DEF(
+							OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = curr ? 1 : 0;
+				}
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for auto exposure", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: auto exposure is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: auto exposure unavailable", __func__ );
+  }
+
+	if ( autoExposureValid &&
+			commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
+		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check auto exposure is disabled "
+				"before checking exposure range", __func__ );
+	}
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "ExposureTimeAbs", &exposure ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get exposure node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( exposure, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsAvailable failed for exposure",
+			__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( exposure, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsReadable failed for exposure",
+				__func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( exposure, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsWritable failed for exposure",
+				__func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    if ( readable || writeable ) {
+			if (( *p_spinNodeGetType )( exposure, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get node type for exposure",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+
+			if ( nodeType == FloatNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found exposure control", __func__ );
+        _showFloatNode ( exposure, writeable );
+				if (( *p_spinFloatGetValue )( exposure, &curr ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get current exposure value",
+									__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinFloatGetMin )( exposure, &min ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get min exposure value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinFloatGetMax )( exposure, &max ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get max exposure value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+
+				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
+						OA_CTRL_TYPE_INT64;
+				// FIX ME -- need to round min up to nearest microsecond?
+				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = min;
+				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = max;
+				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = curr;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for exposure", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: exposure is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: exposure unavailable", __func__ );
   }
 
 	return OA_ERR_NONE;
