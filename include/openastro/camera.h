@@ -58,8 +58,9 @@ enum oaCameraInterfaceType {
   OA_CAM_IF_OMEGONPROCAM			= 21,
   OA_CAM_IF_PYLON			= 22,
   OA_CAM_IF_SVB			= 23,
-  OA_CAM_IF_DUMMY			= 24,
-  OA_CAM_IF_COUNT			= 25
+  OA_CAM_IF_ARAVIS		= 24,
+  OA_CAM_IF_DUMMY			= 25,
+  OA_CAM_IF_COUNT			= 26
 };
 
 extern oaInterface	oaCameraInterfaces[ OA_CAM_IF_COUNT + 1 ];
@@ -164,7 +165,20 @@ typedef struct oaCameraDevice {
   void*				_private;
 } oaCameraDevice;
 
+/**
+ * @brief Fetch a list of connected cameras
+ *
+ * Create a list of connected camera devices, optionally with specific
+ * features
+ *
+ * @param deviceList [out] pointer to an array of oaCameraDevice pointers to be
+ * populated with details of the cameras found
+ *
+ * @param featureFlags [in] camera features to match against (from
+ * include/openastro/camera/features.h)
+ */
 extern int		oaGetCameras ( oaCameraDevice***, unsigned long );
+
 extern void		oaReleaseCameras ( oaCameraDevice** );
 extern unsigned		oaGetCameraAPIVersion ( void );
 extern const char*	oaGetCameraAPIVersionStr ( void );

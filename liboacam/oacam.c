@@ -89,6 +89,9 @@
 #if HAVE_LIBSPINNAKER
 #include "spinnaker/Spinoacam.h"
 #endif
+#if HAVE_LIBARAVIS
+#include "aravis/aravisoacam.h"
+#endif
 #if HAVE_LIBQHYCCD
 #include "qhyccd/qhyccdoacam.h"
 #endif
@@ -308,6 +311,18 @@ oaInterface	oaCameraInterfaces[] = {
     "Spinnaker",
     "SPIN",
     oaSpinGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if HAVE_LIBARAVIS
+  {
+    OA_CAM_IF_ARAVIS,
+    "Aravis",
+    "ARV",
+    oaAravisGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },
