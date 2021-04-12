@@ -2155,7 +2155,7 @@ _checkTemperatureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 int
 _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
-	spinNodeHandle		exposure, autoExposure;
+	spinNodeHandle		exposure, autoExposure, exposureMode;
   bool8_t						available, readable, writeable;
 	double						min, max, curr;
   spinNodeType			nodeType;
@@ -2338,6 +2338,60 @@ _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 		}
   } else {
     oaLogInfo ( OA_LOG_CAMERA, "%s: exposure unavailable", __func__ );
+  }
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "ExposureMode",
+			&exposureMode ) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get exposure mode node",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( exposureMode, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for exposure mode", __func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( exposureMode, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for exposure mode", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( exposureMode, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for exposure mode", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+		// Doesn't make much sense that this node not be readable and
+		// writeable?
+    if ( readable && writeable ) {
+			if (( *p_spinNodeGetType )( exposureMode, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for exposure mode", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found exposure mode control",
+						__func__ );
+				_showEnumerationNode ( exposureMode );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for exposure mode", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: exposure mode is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: exposure mode unavailable", __func__ );
   }
 
 	return OA_ERR_NONE;
