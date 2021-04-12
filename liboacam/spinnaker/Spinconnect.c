@@ -2402,7 +2402,7 @@ int
 _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		frameRateEnabled, acquisitionMode, acquisitionStart;
-	spinNodeHandle		acquisitionStop;
+	spinNodeHandle		acquisitionStop, singleFrameMode;
   bool8_t						available, readable, writeable;
   spinNodeType			nodeType;
 
@@ -2618,6 +2618,66 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 		}
   } else {
     oaLogInfo ( OA_LOG_CAMERA, "%s: acquisition stop unavailable", __func__ );
+  }
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "SingleFrameAcquisitionMode",
+			&singleFrameMode ) != SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get single frame acquisition mode node", __func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  available = readable = writeable = False;
+  if (( *p_spinNodeIsAvailable )( singleFrameMode, &available ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for single frame acquisition mode",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if (( *p_spinNodeIsReadable )( singleFrameMode, &readable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsReadable failed for single frame acquisition mode",
+					__func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if (( *p_spinNodeIsWritable )( singleFrameMode, &writeable ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsWritable failed for single frame acquisition mode",
+					__func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+		// Doesn't make much sense that this node not be readable and
+		// writeable?
+    if ( readable && writeable ) {
+			if (( *p_spinNodeGetType )( singleFrameMode, &nodeType ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get node type for single frame acquisition mode",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA,
+						"%s: Found single frame acquisition mode control", __func__ );
+				_showEnumerationNode ( singleFrameMode );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for single frame acquisition mode",
+						__func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: single frame acquisition mode is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: single frame acquisition mode unavailable",
+				__func__ );
   }
 
 	return OA_ERR_NONE;
