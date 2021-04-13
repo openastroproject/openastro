@@ -60,6 +60,8 @@ static int	_checkTemperatureControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkExposureControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkAcquisitionControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkTriggerControls ( spinNodeMapHandle, oaCamera* );
+static int	_getNodeData ( spinNodeMapHandle, const char*, spinNodeHandle*,
+								bool8_t*, bool8_t*, bool8_t*, bool8_t*, spinNodeType* );
 
 
 oaCamera*
@@ -477,7 +479,7 @@ int
 _checkGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		gain, autoGain;
-  bool8_t						available, readable, writeable;
+  bool8_t						implemented, available, readable, writeable;
 	double						min, max, curr;
 	int								currInt;
   spinNodeType			nodeType;
@@ -487,46 +489,17 @@ _checkGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	spinError					r;
 	int								autoGainValid = 0;
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "GainAuto", &autoGain ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto gain node",
-				__func__ );
+  if ( _getNodeData ( nodeMap, "GainAuto", &autoGain, &implemented, &available,
+			&readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
 
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( autoGain, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for auto gain", __func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-  if ( available ) {
-    if (( *p_spinNodeIsReadable )( autoGain, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for auto gain", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( autoGain, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for auto gain", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
+	if ( implemented && available ) {
 		// Doesn't make much sense that this node not be readable and
 		// writeable?
-    if ( readable && writeable ) {
-			if (( *p_spinNodeGetType )( autoGain, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for auto gain", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
+		if ( readable && writeable ) {
 			if ( nodeType == EnumerationNode ) {
-				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto gain control",
-						__func__ );
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto gain control", __func__ );
 				_showEnumerationNode ( autoGain );
 				if (( *p_spinEnumerationGetCurrentEntry )( autoGain,
 						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
@@ -565,9 +538,8 @@ _checkGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 						"%s: Unrecognised node type '%s' for auto gain", __func__,
 						nodeTypes[ nodeType ] );
 			}
-    } else {
-      oaLogError ( OA_LOG_CAMERA, "%s: auto gain is inaccessible",
-					__func__ );
+		} else {
+			oaLogError ( OA_LOG_CAMERA, "%s: auto gain is inaccessible", __func__ );
 		}
   } else {
     oaLogInfo ( OA_LOG_CAMERA, "%s: auto gain unavailable", __func__ );
@@ -578,42 +550,13 @@ _checkGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				"before checking gain range", __func__ );
 	}
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "Gain", &gain ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get gain node",
-				__func__ );
+  if ( _getNodeData ( nodeMap, "Gain", &gain, &implemented, &available,
+			&readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
 
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( gain, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsAvailable failed for gain",
-			__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-  if ( available ) {
-    if (( *p_spinNodeIsReadable )( gain, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsReadable failed for gain",
-				__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( gain, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsWritable failed for gain",
-				__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
+  if ( implemented && available ) {
     if ( readable || writeable ) {
-			if (( *p_spinNodeGetType )( gain, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA, "%s: Can't get node type for gain",
-						__func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
-
 			if ( nodeType == FloatNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found gain control", __func__ );
         _showFloatNode ( gain, writeable );
@@ -664,7 +607,7 @@ int
 _checkGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		gamma, gammaEnabled;
-  bool8_t						available, readable, writeable, currBool;
+  bool8_t						implemented, available, readable, writeable, currBool;
 	double						min, max, curr;
 	int								currInt;
   spinNodeType			nodeType;
@@ -672,42 +615,12 @@ _checkGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
   SPINNAKER_STATE*	cameraInfo = camera->_private;
 	int								ctrl;
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "Gamma", &gamma ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get gamma node",
-				__func__ );
+  if ( _getNodeData ( nodeMap, "Gamma", &gamma, &implemented, &available,
+			&readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( gamma, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsAvailable failed for gamma",
-			__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-  if ( available ) {
-    if (( *p_spinNodeIsReadable )( gamma, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsReadable failed for gamma",
-				__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( gamma, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsWritable failed for gamma",
-				__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
+  if ( implemented && available ) {
     if ( readable || writeable ) {
-			if (( *p_spinNodeGetType )( gamma, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA, "%s: Can't get node type for gamma",
-						__func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
-
 			if ( nodeType == FloatNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found gamma control", __func__ );
         _showFloatNode ( gamma, writeable );
@@ -752,41 +665,12 @@ _checkGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: gamma unavailable", __func__ );
   }
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "GammaEnabled", &gammaEnabled ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get gamma enabled node",
-				__func__ );
+  if ( _getNodeData ( nodeMap, "GammaEnabled", &gammaEnabled, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( gammaEnabled, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for gamma enabled", __func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-  if ( available ) {
-    if (( *p_spinNodeIsReadable )( gammaEnabled, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for gamma enabled", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( gammaEnabled, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for gamma enabled", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
+  if ( implemented && available ) {
     if ( readable || writeable ) {
-			if (( *p_spinNodeGetType )( gammaEnabled, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for gamma enabled", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == BooleanNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found gamma enabled control",
 						__func__ );
@@ -836,50 +720,12 @@ _checkHueControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	int64_t						intValue;
 	spinError					r;
 
-  if (( r = ( *p_spinNodeMapGetNode )( nodeMap, "HueEnabled", &hueEnabled )) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get hue enabled node, error %d",
-				__func__, r );
+  if ( _getNodeData ( nodeMap, "HueEnabled", &hueEnabled, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
-
-  if (( r = ( *p_spinNodeIsImplemented )( hueEnabled, &implemented )) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsImplemented failed for hue enabled, error %d",
-				__func__, r );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( r = ( *p_spinNodeIsAvailable )( hueEnabled, &available )) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for hue enabled, error %d",
-				__func__, r );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-  if ( available ) {
-    if (( *p_spinNodeIsReadable )( hueEnabled, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for hue enabled", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( hueEnabled, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for hue enabled", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
+  if ( implemented && available ) {
     if ( readable || writeable ) {
-			if (( *p_spinNodeGetType )( hueEnabled, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for hue enabled", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == BooleanNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found hue enabled control",
 						__func__ );
@@ -915,50 +761,14 @@ _checkHueControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				"before checking other hue controls", __func__ );
 	}
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "Hue", &hue ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get hue node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  if (( *p_spinNodeMapGetNode )( nodeMap, "HueAuto", &autoHue ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto hue node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( autoHue, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for auto hue", __func__ );
+  if ( _getNodeData ( nodeMap, "HueAuto", &autoHue, &implemented, &available,
+			&readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( autoHue, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for auto hue", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( autoHue, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for auto hue", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
 		// Doesn't make much sense that this node not be readable and
 		// writeable?
     if ( readable && writeable ) {
-			if (( *p_spinNodeGetType )( autoHue, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for auto hue", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto hue control",
 						__func__ );
@@ -1015,35 +825,12 @@ _checkHueControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				"before checking hue range", __func__ );
 	}
 
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( hue, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsAvailable failed for hue",
-			__func__ );
+  if ( _getNodeData ( nodeMap, "Hue", &hue, &implemented, &available,
+			&readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( hue, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsReadable failed for hue",
-				__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( hue, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsWritable failed for hue",
-				__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
     if ( readable || writeable ) {
-			if (( *p_spinNodeGetType )( hue, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA, "%s: Can't get node type for hue",
-						__func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
-
 			if ( nodeType == FloatNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found hue control", __func__ );
         _showFloatNode ( hue, writeable );
@@ -1109,50 +896,12 @@ _checkSaturationControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	int64_t						intValue;
 	spinError					r;
 
-  if (( r = ( *p_spinNodeMapGetNode )( nodeMap, "SaturationEnabled",
-			&saturationEnabled )) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: Can't get saturation enabled node, error %d", __func__, r );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  if (( r = ( *p_spinNodeIsImplemented )( saturationEnabled, &implemented )) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsImplemented failed for saturation enabled, error %d",
-				__func__, r );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( r = ( *p_spinNodeIsAvailable )( saturationEnabled, &available )) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for saturation enabled, error %d",
-				__func__, r );
+  if ( _getNodeData ( nodeMap, "SaturationEnabled", &saturationEnabled,
+			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( saturationEnabled, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for saturation enabled", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( saturationEnabled, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for saturation enabled", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
     if ( readable || writeable ) {
-			if (( *p_spinNodeGetType )( saturationEnabled, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for saturation enabled", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == BooleanNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found saturation enabled control",
 						__func__ );
@@ -1188,50 +937,14 @@ _checkSaturationControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				"set before checking other saturation controls", __func__ );
 	}
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "Saturation", &saturation ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get saturation node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  if (( *p_spinNodeMapGetNode )( nodeMap, "SaturationAuto",
-				&autoSaturation ) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto saturation node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( autoSaturation, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for auto saturation", __func__ );
+  if ( _getNodeData ( nodeMap, "SaturationAuto", &autoSaturation, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( autoSaturation, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for auto saturation", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( autoSaturation, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for auto saturation", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
 		// Doesn't make much sense that this node not be readable and
 		// writeable?
     if ( readable && writeable ) {
-			if (( *p_spinNodeGetType )( autoSaturation, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for auto saturation", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto saturation control",
 						__func__ );
@@ -1292,35 +1005,12 @@ _checkSaturationControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				"disabled before checking saturation range", __func__ );
 	}
 
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( saturation, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for saturation", __func__ );
+  if ( _getNodeData ( nodeMap, "Saturation", &saturation, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( saturation, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for saturation", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( saturation, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for saturation", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
     if ( readable || writeable ) {
-			if (( *p_spinNodeGetType )( saturation, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA, "%s: Can't get node type for saturation",
-						__func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
-
 			if ( nodeType == FloatNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found saturation control", __func__ );
         _showFloatNode ( saturation, writeable );
@@ -1383,50 +1073,12 @@ _checkSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	int64_t						intValue;
 	spinError					r;
 
-  if (( r = ( *p_spinNodeMapGetNode )( nodeMap, "SharpnessEnabled",
-			&sharpnessEnabled )) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: Can't get sharpness enabled node, error %d", __func__, r );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  if (( r = ( *p_spinNodeIsImplemented )( sharpnessEnabled, &implemented )) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsImplemented failed for sharpness enabled, error %d",
-				__func__, r );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( r = ( *p_spinNodeIsAvailable )( sharpnessEnabled, &available )) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for sharpness enabled, error %d",
-				__func__, r );
+  if ( _getNodeData ( nodeMap, "SharpnessEnabled", &sharpnessEnabled,
+			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( sharpnessEnabled, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for sharpness enabled", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( sharpnessEnabled, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for sharpness enabled", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
     if ( readable || writeable ) {
-			if (( *p_spinNodeGetType )( sharpnessEnabled, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for sharpness enabled", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == BooleanNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found sharpness enabled control",
 						__func__ );
@@ -1462,50 +1114,14 @@ _checkSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				"set before checking other sharpness controls", __func__ );
 	}
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "Sharpness", &sharpness ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get sharpness node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  if (( *p_spinNodeMapGetNode )( nodeMap, "SharpnessAuto",
-				&autoSharpness ) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto sharpness node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( autoSharpness, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for auto sharpness", __func__ );
+  if ( _getNodeData ( nodeMap, "SharpnessAuto", &autoSharpness, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( autoSharpness, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for auto sharpness", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( autoSharpness, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for auto sharpness", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
 		// Doesn't make much sense that this node not be readable and
 		// writeable?
     if ( readable && writeable ) {
-			if (( *p_spinNodeGetType )( autoSharpness, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for auto sharpness", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto sharpness control",
 						__func__ );
@@ -1566,35 +1182,12 @@ _checkSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				"disabled before checking sharpness range", __func__ );
 	}
 
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( sharpness, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for sharpness", __func__ );
+  if ( _getNodeData ( nodeMap, "Sharpness", &sharpness, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( sharpness, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for sharpness", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( sharpness, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for sharpness", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
     if ( readable || writeable ) {
-			if (( *p_spinNodeGetType )( sharpness, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA, "%s: Can't get node type for sharpness",
-						__func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
-
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found sharpness control", __func__ );
         _showIntegerNode ( sharpness, writeable );
@@ -1661,50 +1254,12 @@ _checkBlackLevelControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	size_t						enumValue;
 	spinError					r;
 
-  if (( r = ( *p_spinNodeMapGetNode )( nodeMap, "BlackLevelEnabled",
-			&blackLevelEnabled )) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: Can't get blackLevel enabled node, error %d", __func__, r );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  if (( r = ( *p_spinNodeIsImplemented )( blackLevelEnabled, &implemented )) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsImplemented failed for blackLevel enabled, error %d",
-				__func__, r );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( r = ( *p_spinNodeIsAvailable )( blackLevelEnabled, &available )) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for blackLevel enabled, error %d",
-				__func__, r );
+  if ( _getNodeData ( nodeMap, "BlackLevelEnabled", &blackLevelEnabled,
+			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( blackLevelEnabled, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for blackLevel enabled", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( blackLevelEnabled, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for blackLevel enabled", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
     if ( readable || writeable ) {
-			if (( *p_spinNodeGetType )( blackLevelEnabled, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for blackLevel enabled", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == BooleanNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found blackLevel enabled control",
 						__func__ );
@@ -1740,50 +1295,14 @@ _checkBlackLevelControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				"set before checking other blackLevel controls", __func__ );
 	}
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "BlackLevel", &blackLevel ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get blackLevel node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  if (( *p_spinNodeMapGetNode )( nodeMap, "BlackLevelAuto",
-				&autoBlackLevel ) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto blackLevel node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( autoBlackLevel, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for auto blackLevel", __func__ );
+  if ( _getNodeData ( nodeMap, "BlackLevelAuto", &autoBlackLevel, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( autoBlackLevel, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for auto blackLevel", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( autoBlackLevel, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for auto blackLevel", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
 		// Doesn't make much sense that this node not be readable and
 		// writeable?
     if ( readable && writeable ) {
-			if (( *p_spinNodeGetType )( autoBlackLevel, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for auto blackLevel", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto blackLevel control",
 						__func__ );
@@ -1842,35 +1361,12 @@ _checkBlackLevelControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				"disabled before checking blacklevel range", __func__ );
 	}
 
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( blackLevel, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for blacklevel", __func__ );
+  if ( _getNodeData ( nodeMap, "BlackLevel", &blackLevel, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( blackLevel, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for blacklevel", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( blackLevel, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for blacklevel", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
     if ( readable || writeable ) {
-			if (( *p_spinNodeGetType )( blackLevel, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA, "%s: Can't get node type for blacklevel",
-						__func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
-
 			if ( nodeType == FloatNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found blacklevel control", __func__ );
         _showFloatNode ( blackLevel, writeable );
@@ -1924,7 +1420,7 @@ _checkWhiteBalanceControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		autoWhiteBalance;
 	spinNodeHandle		valueHandle;
-  bool8_t						available, readable, writeable;
+  bool8_t						implemented, available, readable, writeable;
   spinNodeType			nodeType;
   COMMON_INFO*			commonInfo = camera->_common;
 	int								autoWhiteBalanceValid = 0;
@@ -1932,43 +1428,14 @@ _checkWhiteBalanceControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	spinError					r;
 	int								curr;
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "BalanceWhiteAuto",
-				&autoWhiteBalance ) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto white balance node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( autoWhiteBalance, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for auto white balance", __func__ );
+  if ( _getNodeData ( nodeMap, "BalanceWhiteAuto", &autoWhiteBalance,
+			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( autoWhiteBalance, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for auto white balance", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( autoWhiteBalance, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for auto white balance", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
 		// Doesn't make much sense that this node not be readable and
 		// writeable?
     if ( readable && writeable ) {
-			if (( *p_spinNodeGetType )( autoWhiteBalance, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for auto white balance", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto white balance control",
 						__func__ );
@@ -2035,44 +1502,15 @@ int
 _checkResetControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		reset;
-  bool8_t						available, readable, writeable;
+  bool8_t						implemented, available, readable, writeable;
   spinNodeType			nodeType;
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "DeviceReset",
-				&reset ) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get reset node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( reset, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for reset", __func__ );
+  if ( _getNodeData ( nodeMap, "DeviceReset", &reset, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( reset, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for reset", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( reset, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for reset", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
     if ( writeable ) {
-			if (( *p_spinNodeGetType )( reset, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for reset", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == CommandNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found reset control",
 						__func__ );
@@ -2098,37 +1536,15 @@ int
 _checkTemperatureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		temperature;
-  bool8_t						available, readable;
+  bool8_t						implemented, available, readable, writeable;
   spinNodeType			nodeType;
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "DeviceTemperature",
-				&temperature ) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get temperature node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = False;
-  if (( *p_spinNodeIsAvailable )( temperature, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for temperature", __func__ );
+  if ( _getNodeData ( nodeMap, "DeviceTemperature", &temperature, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( temperature, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for temperature", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
     if ( readable ) {
-			if (( *p_spinNodeGetType )( temperature, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for temperature", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == FloatNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found temperature control",
 						__func__ );
@@ -2156,7 +1572,7 @@ int
 _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		exposure, autoExposure, exposureMode;
-  bool8_t						available, readable, writeable;
+  bool8_t						implemented, available, readable, writeable;
 	double						min, max, curr;
   spinNodeType			nodeType;
   COMMON_INFO*			commonInfo = camera->_common;
@@ -2165,43 +1581,14 @@ _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	spinError					r;
 	int								autoExposureValid = 0;
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "ExposureAuto", &autoExposure ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto exposure node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( autoExposure, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for auto exposure", __func__ );
+  if ( _getNodeData ( nodeMap, "ExposureAuto", &autoExposure, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( autoExposure, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for auto exposure", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( autoExposure, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for auto exposure", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
 		// Doesn't make much sense that this node not be readable and
 		// writeable?
     if ( readable && writeable ) {
-			if (( *p_spinNodeGetType )( autoExposure, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for auto exposure", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto exposure control",
 						__func__ );
@@ -2263,42 +1650,12 @@ _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				"before checking exposure range", __func__ );
 	}
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "ExposureTimeAbs", &exposure ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get exposure node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( exposure, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsAvailable failed for exposure",
-			__func__ );
+  if ( _getNodeData ( nodeMap, "ExposureTimeAbs", &exposure, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( exposure, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsReadable failed for exposure",
-				__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( exposure, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsWritable failed for exposure",
-				__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
     if ( readable || writeable ) {
-			if (( *p_spinNodeGetType )( exposure, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA, "%s: Can't get node type for exposure",
-						__func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
-
 			if ( nodeType == FloatNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found exposure control", __func__ );
         _showFloatNode ( exposure, writeable );
@@ -2340,43 +1697,14 @@ _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: exposure unavailable", __func__ );
   }
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "ExposureMode",
-			&exposureMode ) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get exposure mode node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( exposureMode, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for exposure mode", __func__ );
+  if ( _getNodeData ( nodeMap, "ExposureMode", &exposureMode, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( exposureMode, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for exposure mode", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( exposureMode, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for exposure mode", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
 		// Doesn't make much sense that this node not be readable and
 		// writeable?
     if ( readable && writeable ) {
-			if (( *p_spinNodeGetType )( exposureMode, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for exposure mode", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found exposure mode control",
 						__func__ );
@@ -2403,46 +1731,18 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		frameRateEnabled, acquisitionMode, acquisitionStart;
 	spinNodeHandle		acquisitionStop, singleFrameMode;
-  bool8_t						available, readable, writeable;
+  bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "AcquisitionFrameRateEnabled",
-			&frameRateEnabled ) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get frame rate enabled node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( frameRateEnabled, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for frame rate enabled", __func__ );
+  if ( _getNodeData ( nodeMap, "AcquisitionFrameRateEnabled",
+			&frameRateEnabled, &implemented, &available, &readable, &writeable,
+			&nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( frameRateEnabled, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for frame rate enabled", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( frameRateEnabled, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for frame rate enabled", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
 		// Doesn't make much sense that this node not be readable and
 		// writeable?
     if ( readable && writeable ) {
-			if (( *p_spinNodeGetType )( frameRateEnabled, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for frame rate enabled", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == BooleanNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found frame rate enabled control",
 						__func__ );
@@ -2460,43 +1760,14 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: frame rate enabled unavailable", __func__ );
   }
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "AcquisitionMode",
-			&acquisitionMode ) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get acquisition mode node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( acquisitionMode, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for acquisition mode", __func__ );
+  if ( _getNodeData ( nodeMap, "AcquisitionMode", &acquisitionMode,
+			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( acquisitionMode, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for acquisition mode", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( acquisitionMode, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for acquisition mode", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
 		// Doesn't make much sense that this node not be readable and
 		// writeable?
     if ( readable && writeable ) {
-			if (( *p_spinNodeGetType )( acquisitionMode, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for acquisition mode", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found acquisition mode control",
 						__func__ );
@@ -2514,43 +1785,14 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: acquisition mode unavailable", __func__ );
   }
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "AcquisitionStart",
-			&acquisitionStart ) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get acquisition start node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( acquisitionStart, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for acquisition start", __func__ );
+  if ( _getNodeData ( nodeMap, "AcquisitionStart", &acquisitionStart,
+			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( acquisitionStart, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for acquisition start", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( acquisitionStart, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for acquisition start", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
 		// Doesn't make much sense that this node not be readable and
 		// writeable?
     if ( readable && writeable ) {
-			if (( *p_spinNodeGetType )( acquisitionStart, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for acquisition start", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == CommandNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found acquisition start control",
 						__func__ );
@@ -2567,43 +1809,14 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: acquisition start unavailable", __func__ );
   }
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "AcquisitionStop",
-			&acquisitionStop ) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get acquisition start node",
-				__func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( acquisitionStop, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for acquisition stop", __func__ );
+  if ( _getNodeData ( nodeMap, "AcquisitionStop", &acquisitionStop,
+			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( acquisitionStop, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for acquisition stop", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( acquisitionStop, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for acquisition stop", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
 		// Doesn't make much sense that this node not be readable and
 		// writeable?
     if ( readable && writeable ) {
-			if (( *p_spinNodeGetType )( acquisitionStop, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for acquisition stop", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == CommandNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found acquisition stop control",
 						__func__ );
@@ -2620,47 +1833,14 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: acquisition stop unavailable", __func__ );
   }
 
-  if (( *p_spinNodeMapGetNode )( nodeMap, "SingleFrameAcquisitionMode",
-			&singleFrameMode ) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: Can't get single frame acquisition mode node", __func__ );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( *p_spinNodeIsAvailable )( singleFrameMode, &available ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for single frame acquisition mode",
-				__func__ );
+  if ( _getNodeData ( nodeMap, "SingleFrameAcquisitionMode", &singleFrameMode,
+			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( singleFrameMode, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for single frame acquisition mode",
-					__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( singleFrameMode, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for single frame acquisition mode",
-					__func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-
 		// Doesn't make much sense that this node not be readable and
 		// writeable?
     if ( readable && writeable ) {
-			if (( *p_spinNodeGetType )( singleFrameMode, &nodeType ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get node type for single frame acquisition mode",
-						__func__ );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found single frame acquisition mode control", __func__ );
@@ -2687,51 +1867,246 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 int
 _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
-	spinNodeHandle		triggerOverlap;
+	spinNodeHandle		triggerActivation, triggerDelayEnabled, triggerDelay;
+	spinNodeHandle		triggerMode, triggerOverlap, triggerSelector;
+	spinNodeHandle		triggerSource;
   bool8_t						available, readable, writeable, implemented;
-	spinError					r;
+  spinNodeType			nodeType;
 
-  if (( r = ( *p_spinNodeMapGetNode )( nodeMap, "TriggerOverlap",
-			&triggerOverlap )) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get trigger overlap node, error %d",
-				__func__, r );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  if (( r = ( *p_spinNodeIsImplemented )( triggerOverlap, &implemented )) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsImplemented failed for trigger overlap, error %d",
-				__func__, r );
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-
-  available = readable = writeable = False;
-  if (( r = ( *p_spinNodeIsAvailable )( triggerOverlap, &available )) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA,
-				"%s: spinNodeIsAvailable failed for trigger overlap, error %d",
-				__func__, r );
+  if ( _getNodeData ( nodeMap, "TriggerActivation", &triggerActivation,
+			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if (( *p_spinNodeIsReadable )( triggerOverlap, &readable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsReadable failed for trigger overlap", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-    if (( *p_spinNodeIsWritable )( triggerOverlap, &writeable ) !=
-        SPINNAKER_ERR_SUCCESS ) {
-			oaLogError ( OA_LOG_CAMERA,
-					"%s: spinNodeIsWritable failed for trigger overlap", __func__ );
-      return -OA_ERR_SYSTEM_ERROR;
-    }
-		oaLogInfo ( OA_LOG_CAMERA, "%s: trigger overlap readable/writeable: %d/%d",
-				__func__, readable, writeable );
+    if ( readable && writeable ) {
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA,
+						"%s: Found trigger activation control", __func__ );
+				_showEnumerationNode ( triggerActivation );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for trigger activation",
+						__func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: trigger activation is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: trigger activation unavailable", __func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "TriggerDelayEnabled", &triggerDelayEnabled,
+			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == BooleanNode ) {
+				oaLogInfo ( OA_LOG_CAMERA,
+						"%s: Found trigger delay enabled control", __func__ );
+				_showBooleanNode ( triggerDelayEnabled );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for trigger delay enabled",
+						__func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: trigger delay enabled is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: trigger delay enabled unavailable",
+				__func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "TriggerDelay", &triggerDelay, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == FloatNode ) {
+				oaLogInfo ( OA_LOG_CAMERA,
+						"%s: Found trigger delay control", __func__ );
+				_showFloatNode ( triggerDelay, writeable );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for trigger delay", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: trigger delay is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: trigger delay unavailable", __func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "TriggerMode", &triggerMode, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA,
+						"%s: Found trigger mode control", __func__ );
+				_showEnumerationNode ( triggerMode );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for trigger mode",
+						__func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: trigger mode is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: trigger mode unavailable", __func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "TriggerOverlap", &triggerOverlap, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA,
+						"%s: Found trigger overlap control", __func__ );
+				_showEnumerationNode ( triggerOverlap );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for trigger overlap",
+						__func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: trigger overlap is inaccessible", __func__ );
+		}
   } else {
     oaLogInfo ( OA_LOG_CAMERA, "%s: trigger overlap unavailable", __func__ );
   }
+
+  if ( _getNodeData ( nodeMap, "TriggerSelector", &triggerSelector,
+			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA,
+						"%s: Found trigger selector control", __func__ );
+				_showEnumerationNode ( triggerSelector );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for trigger selector",
+						__func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: trigger selector is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: trigger selector unavailable", __func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "TriggerSource", &triggerSource, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA,
+						"%s: Found trigger source control", __func__ );
+				_showEnumerationNode ( triggerSource );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for trigger source",
+						__func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: trigger source is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: trigger source unavailable", __func__ );
+  }
+
+	return OA_ERR_NONE;
+}
+
+
+static int
+_getNodeData ( spinNodeMapHandle nodeMap, const char* nodeName,
+		spinNodeHandle* handle, bool8_t* implemented, bool8_t* available,
+		bool8_t* readable, bool8_t* writeable, spinNodeType* nodeType )
+{
+	spinError					err;
+
+  if (( err = ( *p_spinNodeMapGetNode )( nodeMap, nodeName, handle )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+		// Spinnaker appears to allow getting a node that doesn't even exist,
+		// so this probably shouldn't ever fail unless the world has blown up
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get node for %s, error %d",
+				__func__, nodeName, err );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if (( err = ( *p_spinNodeIsImplemented )( *handle, implemented )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+		// An invalid handle error means a node of this name, even if it is
+		// a valid name, is not present for the camera
+		if ( err == SPINNAKER_ERR_INVALID_HANDLE ) {
+			*implemented = False;
+			return OA_ERR_NONE;
+		}
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsImplemented failed for %s, error %d", __func__,
+				nodeName, err );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+	// "available" appears to mean that the node may exist, but for some reason
+	// it can't be used at the moment
+  *available = *readable = *writeable = False;
+  if (( err = ( *p_spinNodeIsAvailable )( *handle, available )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: spinNodeIsAvailable failed for %s, error %d", __func__, nodeName,
+				err );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if (( err = ( *p_spinNodeIsReadable )( *handle, readable )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA,
+			"%s: spinNodeIsReadable failed for %s, error %d", __func__,
+			nodeName, err );
+      return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if (( err = ( *p_spinNodeIsWritable )( *handle, writeable )) !=
+      SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA,
+			"%s: spinNodeIsWritable failed for %s, error %d", __func__,
+			nodeName, err );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+	if (( err = ( *p_spinNodeGetType )( *handle, nodeType )) !=
+			SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get node type for %s, error %d", __func__, nodeName, err );
+				return -OA_ERR_SYSTEM_ERROR;
+	}
 
 	return OA_ERR_NONE;
 }
