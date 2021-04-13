@@ -61,6 +61,7 @@ static int	_checkExposureControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkAcquisitionControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkTriggerControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkBinningControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkFrameSizeControls ( spinNodeMapHandle, oaCamera* );
 static int	_getNodeData ( spinNodeMapHandle, const char*, spinNodeHandle*,
 								bool8_t*, bool8_t*, bool8_t*, bool8_t*, spinNodeType* );
 
@@ -453,6 +454,11 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 	}
 
 	if ( _checkBinningControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if ( _checkFrameSizeControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
@@ -2128,6 +2134,190 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
   } else {
     oaLogInfo ( OA_LOG_CAMERA, "%s: vertical binning unavailable",
 				__func__ );
+  }
+
+	return OA_ERR_NONE;
+}
+
+
+int
+_checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle		height, width, maxHeight, maxWidth, xOffset, yOffset;
+	spinNodeHandle		sensorHeight, sensorWidth;
+  bool8_t						available, readable, writeable, implemented;
+  spinNodeType			nodeType;
+
+  if ( _getNodeData ( nodeMap, "Height", &height, &implemented, &available,
+			&readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == IntegerNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found height control", __func__ );
+				_showIntegerNode ( height, writeable );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for height", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: height is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: height unavailable", __func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "Width", &width, &implemented, &available,
+			&readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == IntegerNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found width control", __func__ );
+				_showIntegerNode ( width, writeable );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for width", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: width is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: width unavailable", __func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "HeightMax", &maxHeight, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == IntegerNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found max height control", __func__ );
+				_showIntegerNode ( maxHeight, writeable );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for max height", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: max height is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: max height unavailable", __func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "WidthMax", &maxWidth, &implemented, &available,
+			&readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == IntegerNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found max width control", __func__ );
+				_showIntegerNode ( maxWidth, writeable );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for max width", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: max width is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: max width unavailable", __func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "OffsetX", &xOffset, &implemented, &available,
+			&readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == IntegerNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found X offset control", __func__ );
+				_showIntegerNode ( xOffset, writeable );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for x offset", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: x offset is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: x offset unavailable", __func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "OffsetY", &yOffset, &implemented, &available,
+			&readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == IntegerNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found Y offset control", __func__ );
+				_showIntegerNode ( yOffset, writeable );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for Y offset", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: Y offset is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: Y offset unavailable", __func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "SensorHeight", &sensorHeight, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == IntegerNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found sensor height control",
+						__func__ );
+				_showIntegerNode ( sensorHeight, writeable );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for sensor height", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: sensor height is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: sensor height unavailable", __func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "SensorWidth", &sensorWidth, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == IntegerNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found sensor width control",
+						__func__ );
+				_showIntegerNode ( sensorWidth, writeable );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for sensor width", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: sensor width is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: sensor width unavailable", __func__ );
   }
 
 	return OA_ERR_NONE;
