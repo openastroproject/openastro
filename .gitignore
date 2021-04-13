@@ -177,3 +177,4 @@ ui_*.h
 /liboacam/demo/showControls
 /liboacam/demo/showFeatures
 /liboacam/demo/startStreaming
+/liboacam/demo/updateIntControl

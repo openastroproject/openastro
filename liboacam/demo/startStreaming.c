@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * starStreaming.c
+ * startStreaming.c
  *
  * example program to stream images from a camera
  *
