@@ -60,6 +60,7 @@ static int	_checkTemperatureControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkExposureControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkAcquisitionControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkTriggerControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkBinningControls ( spinNodeMapHandle, oaCamera* );
 static int	_getNodeData ( spinNodeMapHandle, const char*, spinNodeHandle*,
 								bool8_t*, bool8_t*, bool8_t*, bool8_t*, spinNodeType* );
 
@@ -446,6 +447,16 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
+	if ( _checkTriggerControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if ( _checkBinningControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
 	oaLogWarning ( OA_LOG_CAMERA,
 			"%s: Should only be testing for colour controls on colour camera?",
 			__func__ );
@@ -456,11 +467,6 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 	}
 
 	if ( _checkSaturationControls ( cameraNodeMapHandle, camera ) < 0 ) {
-    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
-		return -OA_ERR_SYSTEM_ERROR;
-	}
-
-	if ( _checkTriggerControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
@@ -2039,6 +2045,89 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 		}
   } else {
     oaLogInfo ( OA_LOG_CAMERA, "%s: trigger source unavailable", __func__ );
+  }
+
+	return OA_ERR_NONE;
+}
+
+
+int
+_checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle		binningType, horizontalBin, verticalBin;
+  bool8_t						available, readable, writeable, implemented;
+  spinNodeType			nodeType;
+
+  if ( _getNodeData ( nodeMap, "BinningControl", &binningType,
+			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( implemented && available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found binning control", __func__ );
+				_showEnumerationNode ( binningType );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for binning control", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: binning control is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: binning control unavailable", __func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "BinningHorizontal", &horizontalBin,
+			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == IntegerNode ) {
+				oaLogInfo ( OA_LOG_CAMERA,
+						"%s: Found horizontal bin control", __func__ );
+				_showIntegerNode ( horizontalBin, writeable );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for horizontal binning",
+						__func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: horizontal binning is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: horizontal binning unavailable",
+				__func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "BinningVertical", &verticalBin,
+			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == IntegerNode ) {
+				oaLogInfo ( OA_LOG_CAMERA,
+						"%s: Found vertical bin control", __func__ );
+				_showIntegerNode ( verticalBin, writeable );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for vertical binning",
+						__func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: vertical binning is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: vertical binning unavailable",
+				__func__ );
   }
 
 	return OA_ERR_NONE;
