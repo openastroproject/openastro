@@ -62,6 +62,7 @@ static int	_checkAcquisitionControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkTriggerControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkBinningControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkFrameSizeControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkFrameFormatControls ( spinNodeMapHandle, oaCamera* );
 static int	_getNodeData ( spinNodeMapHandle, const char*, spinNodeHandle*,
 								bool8_t*, bool8_t*, bool8_t*, bool8_t*, spinNodeType* );
 
@@ -459,6 +460,11 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 	}
 
 	if ( _checkFrameSizeControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if ( _checkFrameFormatControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
@@ -1849,7 +1855,7 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
-  if ( available ) {
+  if ( implemented && available ) {
 		// Doesn't make much sense that this node not be readable and
 		// writeable?
     if ( readable && writeable ) {
@@ -2195,7 +2201,7 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if ( readable && writeable ) {
+    if ( readable ) {
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found max height control", __func__ );
 				_showIntegerNode ( maxHeight, writeable );
@@ -2216,7 +2222,7 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if ( readable && writeable ) {
+    if ( readable ) {
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found max width control", __func__ );
 				_showIntegerNode ( maxWidth, writeable );
@@ -2279,7 +2285,7 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if ( readable && writeable ) {
+    if ( readable ) {
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found sensor height control",
 						__func__ );
@@ -2302,7 +2308,7 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if ( readable && writeable ) {
+    if ( readable ) {
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found sensor width control",
 						__func__ );
@@ -2318,6 +2324,129 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 		}
   } else {
     oaLogInfo ( OA_LOG_CAMERA, "%s: sensor width unavailable", __func__ );
+  }
+
+	return OA_ERR_NONE;
+}
+
+
+int
+_checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle		pixelFormat, pixelSize, colourFilter, pixelCoding;
+	spinNodeHandle		bigEndian;
+  bool8_t						available, readable, writeable, implemented;
+  spinNodeType			nodeType;
+
+  if ( _getNodeData ( nodeMap, "PixelFormat", &pixelFormat, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( implemented && available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel format", __func__ );
+				_showEnumerationNode ( pixelFormat );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for pixel format", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: pixel format is inaccessible",
+				__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: pixel format unavailable", __func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "PixelColorFilter", &colourFilter, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( implemented && available ) {
+    if ( readable ) {
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel CFA", __func__ );
+				_showEnumerationNode ( colourFilter );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for CFA", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: pixel CFA is inaccessible",
+				__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: pixel CFA unavailable", __func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "PixelSize", &pixelSize, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( implemented && available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel size", __func__ );
+				_showEnumerationNode ( pixelSize );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for pixel size", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: pixel size is inaccessible",
+				__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: pixel size unavailable", __func__ );
+  }
+
+	// This one is actually deprecated
+  if ( _getNodeData ( nodeMap, "PixelCoding", &pixelCoding, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( implemented && available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel coding", __func__ );
+				_showEnumerationNode ( pixelCoding );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for pixel coding", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: pixel coding is inaccessible",
+				__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: pixel coding unavailable", __func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "pgrPixelBigEndian", &bigEndian, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( implemented && available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == BooleanNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found bigEndian", __func__ );
+				_showBooleanNode ( bigEndian );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for bigEndian", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: bigEndian is inaccessible",
+				__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: bigEndian unavailable", __func__ );
   }
 
 	return OA_ERR_NONE;
