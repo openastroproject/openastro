@@ -63,6 +63,7 @@ static int	_checkTriggerControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkBinningControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkFrameSizeControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkFrameFormatControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkFlipControls ( spinNodeMapHandle, oaCamera* );
 static int	_getNodeData ( spinNodeMapHandle, const char*, spinNodeHandle*,
 								bool8_t*, bool8_t*, bool8_t*, bool8_t*, spinNodeType* );
 
@@ -467,6 +468,11 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 	}
 
 	if ( _checkFrameFormatControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if ( _checkFlipControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
@@ -2449,6 +2455,39 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 		}
   } else {
     oaLogInfo ( OA_LOG_CAMERA, "%s: bigEndian unavailable", __func__ );
+  }
+
+	return OA_ERR_NONE;
+}
+
+
+int
+_checkFlipControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle		flipX;
+  bool8_t						available, readable, writeable, implemented;
+  spinNodeType			nodeType;
+
+  if ( _getNodeData ( nodeMap, "ReverseX", &flipX, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( implemented && available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == BooleanNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found reverse X", __func__ );
+				_showBooleanNode ( flipX );
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for reverse X", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: reverse X is inaccessible",
+				__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: reverse X unavailable", __func__ );
   }
 
 	return OA_ERR_NONE;
