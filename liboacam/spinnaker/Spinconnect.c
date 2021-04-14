@@ -391,8 +391,10 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
   spinNodeMapHandle	cameraNodeMapHandle = 0;
   int			err;
 
-  if (( *p_spinCameraInit )( cameraHandle ) != SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't initialise camera", __func__ );
+  if (( err = ( *p_spinCameraInit )( cameraHandle )) !=
+			SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't initialise camera, error %d",
+			__func__, err );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
