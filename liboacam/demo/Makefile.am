@@ -31,7 +31,7 @@
 AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/common
 
 noinst_PROGRAMS = showControls showFeatures logging startStreaming \
-									updateIntControl
+									updateIntControl updateMenuControl
 
 showControls_SOURCES = showControls.c
 
@@ -42,6 +42,8 @@ logging_SOURCES = logging.c
 startStreaming_SOURCES = startStreaming.c
 
 updateIntControl_SOURCES = updateIntControl.c
+
+updateMenuControl_SOURCES = updateMenuControl.c
 
 LDADD = \
   ../liboacam.la \
