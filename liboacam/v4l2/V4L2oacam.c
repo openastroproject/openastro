@@ -78,7 +78,9 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 			deviceList, featureFlags, flags );
 
   if ( access ( SYS_V4L_PATH, X_OK )) {
-		oaLogError ( OA_LOG_CAMERA, "%s: Can't access %s", __func__,
+		// If the directory isn't present then we don't have any V4L2 cameras
+		// connected, but that's not a big deal
+		oaLogInfo ( OA_LOG_CAMERA, "%s: Can't access %s", __func__,
 				SYS_V4L_PATH );
     return 0;
   }
