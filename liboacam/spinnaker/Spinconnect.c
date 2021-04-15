@@ -513,6 +513,7 @@ _checkGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	int								currInt;
   spinNodeType			nodeType;
   COMMON_INFO*			commonInfo = camera->_common;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
 	spinNodeHandle		valueHandle;
 	size_t						enumValue;
 	spinError					r;
@@ -561,6 +562,7 @@ _checkGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 					commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_GAIN ) = 1;
 					commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_GAIN ) = 1;
 					commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_GAIN ) = curr ? 1 : 0;
+					cameraInfo->autoGain = autoGain;
 				}
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
@@ -616,6 +618,7 @@ _checkGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = 400;
 				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
 				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = currInt;
+				cameraInfo->gain = gain;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for gain", __func__,
@@ -682,6 +685,7 @@ _checkGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAMMA ) = 100;
 				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAMMA ) = 1;
 				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAMMA ) = currInt;
+				cameraInfo->gamma = gamma;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for gamma", __func__,
@@ -716,6 +720,7 @@ _checkGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				commonInfo->OA_CAM_CTRL_MAX( ctrl ) = 1;
 				commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
 				commonInfo->OA_CAM_CTRL_DEF( ctrl ) = currBool ? 1 : 0;
+				cameraInfo->gammaEnabled = gammaEnabled;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for gamma enabled", __func__,
@@ -772,6 +777,7 @@ _checkHueControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
 				commonInfo->OA_CAM_CTRL_DEF( ctrl ) = currBool ? 1 : 0;
 				hueEnabledValid = 1;
+				cameraInfo->hueEnabled = hueEnabled;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for hue enabled", __func__,
@@ -835,6 +841,7 @@ _checkHueControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 					commonInfo->OA_CAM_CTRL_AUTO_MAX( OA_CAM_CTRL_HUE ) = 1;
 					commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_HUE ) = 1;
 					commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_HUE ) = curr ? 1 : 0;
+					cameraInfo->autoHue = autoHue;
 				}
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
@@ -892,6 +899,7 @@ _checkHueControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HUE ) = 100;
 				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HUE ) = 1;
 				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HUE ) = currInt;
+				cameraInfo->hue = hue;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for hue", __func__,
@@ -948,6 +956,7 @@ _checkSaturationControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
 				commonInfo->OA_CAM_CTRL_DEF( ctrl ) = currBool ? 1 : 0;
 				saturationEnabledValid = 1;
+				cameraInfo->saturationEnabled = saturationEnabled;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for saturation enabled", __func__,
@@ -1014,6 +1023,7 @@ _checkSaturationControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 					commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_SATURATION ) = 1;
 					commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_SATURATION ) =
 							curr ? 1 : 0;
+					cameraInfo->autoSaturation = autoSaturation;
 				}
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
@@ -1072,6 +1082,7 @@ _checkSaturationControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SATURATION ) = 100;
 				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SATURATION ) = 1;
 				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SATURATION ) = currInt;
+				cameraInfo->saturation = saturation;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for saturation", __func__,
@@ -1097,6 +1108,7 @@ _checkSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	int64_t						min, max, curr, step;
   spinNodeType			nodeType;
   COMMON_INFO*			commonInfo = camera->_common;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
 	int								ctrl;
 	int								sharpnessEnabledValid = 0, autoSharpnessValid = 0;
 	int64_t						intValue;
@@ -1125,6 +1137,7 @@ _checkSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
 				commonInfo->OA_CAM_CTRL_DEF( ctrl ) = currBool ? 1 : 0;
 				sharpnessEnabledValid = 1;
+				cameraInfo->sharpnessEnabled = sharpnessEnabled;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for sharpness enabled", __func__,
@@ -1191,6 +1204,7 @@ _checkSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 					commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_SHARPNESS ) = 1;
 					commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_SHARPNESS ) =
 							curr ? 1 : 0;
+					cameraInfo->autoSharpness = autoSharpness;
 				}
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
@@ -1251,6 +1265,7 @@ _checkSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_SHARPNESS ) = max;
 				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_SHARPNESS ) = 1;
 				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_SHARPNESS ) = step;
+					cameraInfo->sharpness = sharpness;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for sharpness", __func__,

@@ -38,17 +38,36 @@ typedef struct SPINNAKER_STATE {
 
 #include "sharedDecs.h"
 
-  uint64_t		deviceId;
-  uint64_t		ipAddress;
+  uint64_t				deviceId;
+  uint64_t				ipAddress;
 
-	double			minFloatBlacklevel;
-	double			maxFloatBlacklevel;
-	double			minFloatGamma;
-	double			maxFloatGamma;
-	double			minFloatHue;
-	double			maxFloatHue;
-	double			minFloatSaturation;
-	double			maxFloatSaturation;
+	double					minFloatBlacklevel;
+	double					maxFloatBlacklevel;
+	double					minFloatGamma;
+	double					maxFloatGamma;
+	double					minFloatHue;
+	double					maxFloatHue;
+	double					minFloatSaturation;
+	double					maxFloatSaturation;
+
+	spinNodeHandle	gain;
+	spinNodeHandle	autoGain;
+
+	spinNodeHandle	gamma;
+	spinNodeHandle	gammaEnabled;
+
+	spinNodeHandle	hue;
+	spinNodeHandle	autoHue;
+	spinNodeHandle	hueEnabled;
+
+	spinNodeHandle	saturation;
+	spinNodeHandle	autoSaturation;
+	spinNodeHandle	saturationEnabled;
+
+	spinNodeHandle	sharpness;
+	spinNodeHandle	autoSharpness;
+	spinNodeHandle	sharpnessEnabled;
+
 } SPINNAKER_STATE;
 
 #endif	/* OA_SPINNAKER_STATE_H */
