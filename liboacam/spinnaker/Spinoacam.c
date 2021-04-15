@@ -84,6 +84,7 @@ SPINNAKERC_API	( *p_spinCategoryGetNumFeatures )( spinNodeMapHandle, size_t* );
 SPINNAKERC_API	( *p_spinCategoryGetFeatureByIndex )( spinNodeMapHandle,
 			size_t, spinNodeMapHandle* );
 SPINNAKERC_API	( *p_spinNodeGetType )( spinNodeHandle, spinNodeType* );
+SPINNAKERC_API	( *p_spinNodeGetName )( spinNodeHandle, char*, size_t* );
 SPINNAKERC_API	( *p_spinNodeGetDisplayName )( spinNodeHandle, char*, size_t* );
 SPINNAKERC_API	( *p_spinCameraInit )( spinCamera );
 SPINNAKERC_API	( *p_spinCameraDeInit )( spinCamera );
@@ -312,6 +313,10 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       "spinNodeGetType" ))) {
     return 0;
   }
+  if (!( *( void** )( &p_spinNodeGetName ) = _getDLSym ( libHandle,
+      "spinNodeGetName" ))) {
+    return 0;
+  }
   if (!( *( void** )( &p_spinNodeGetDisplayName ) = _getDLSym ( libHandle,
       "spinNodeGetDisplayName" ))) {
     return 0;
@@ -413,6 +418,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   p_spinCategoryGetNumFeatures = spinCategoryGetNumFeatures;
   p_spinCategoryGetFeatureByIndex = spinCategoryGetFeatureByIndex;
   p_spinNodeGetType = spinNodeGetType;
+  p_spinNodeGetName = spinNodeGetName;
   p_spinNodeGetDisplayName = spinNodeGetDisplayName;
   p_spinCameraInit = spinCameraInit;
   p_spinCameraDeInit = spinCameraDeInit;

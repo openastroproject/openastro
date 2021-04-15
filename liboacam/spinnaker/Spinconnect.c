@@ -64,6 +64,7 @@ static int	_checkBinningControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkFrameSizeControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkFrameFormatControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkFlipControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkUnknownControls ( spinNodeMapHandle, oaCamera* );
 static int	_getNodeData ( spinNodeMapHandle, const char*, spinNodeHandle*,
 								bool8_t*, bool8_t*, bool8_t*, bool8_t*, spinNodeType* );
 
@@ -491,8 +492,10 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
-	oaLogWarning ( OA_LOG_CAMERA,
-			"%s: Should we check for unrecognised features?", __func__ );
+	if ( _checkUnknownControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
 
   // Won't eventually want to do this here
   ( void ) ( *p_spinCameraDeInit )( cameraHandle );
@@ -2490,6 +2493,106 @@ _checkFlipControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: reverse X unavailable", __func__ );
   }
 
+	return OA_ERR_NONE;
+}
+
+
+int
+_checkUnknownControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle			rootHandle, categoryHandle, featureHandle;
+	spinNodeType				nodeType;
+	bool8_t							available, readable;
+	size_t							numCategories, numFeatures, featureNameLen;
+	unsigned int				i, j, k, found;
+	char								featureName[ SPINNAKER_MAX_BUFF_LEN ];
+
+  if (( *p_spinNodeMapGetNode )( nodeMap, "Root", &rootHandle ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera root nodemap",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  if (( *p_spinCategoryGetNumFeatures )( rootHandle, &numCategories ) !=
+      SPINNAKER_ERR_SUCCESS ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get number of root categories",
+				__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+
+  for ( i = 0; i < numCategories; i++ ) {
+    if (( *p_spinCategoryGetFeatureByIndex )( rootHandle, i, &categoryHandle )
+        != SPINNAKER_ERR_SUCCESS ) {
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't get category handle", __func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    available = readable = False;
+    if (( *p_spinNodeIsAvailable )( categoryHandle, &available ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't get category available",
+					__func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+    if ( available ) {
+      if (( *p_spinNodeIsReadable )( categoryHandle, &readable ) !=
+          SPINNAKER_ERR_SUCCESS ) {
+        oaLogError ( OA_LOG_CAMERA, "%s: Can't get category readable",
+						__func__ );
+        return -OA_ERR_SYSTEM_ERROR;
+      }
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: unavailable category", __func__ );
+      continue;
+    }
+    if ( !readable ) {
+      oaLogError ( OA_LOG_CAMERA, "%s: unreadable category", __func__ );
+      continue;
+    }
+
+    if (( *p_spinNodeGetType )( categoryHandle, &nodeType ) !=
+        SPINNAKER_ERR_SUCCESS ) {
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't get category node type",
+					__func__ );
+      return -OA_ERR_SYSTEM_ERROR;
+    }
+
+    if ( nodeType == CategoryNode ) {
+			if (( *p_spinCategoryGetNumFeatures )( categoryHandle, &numFeatures ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get number of analogue features",
+				__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+
+			if ( numFeatures > 0 ) {
+				for ( j = 0; j < numFeatures; j++ ) {
+					if (( *p_spinCategoryGetFeatureByIndex )( categoryHandle, j,
+							&featureHandle ) != SPINNAKER_ERR_SUCCESS ) {
+						oaLogError ( OA_LOG_CAMERA, "%s: Can't get analogue feature handle",
+								__func__ );
+						return -OA_ERR_SYSTEM_ERROR;
+					}
+
+					featureNameLen = SPINNAKER_MAX_BUFF_LEN;
+					if (( *p_spinNodeGetName )( featureHandle, featureName,
+							&featureNameLen ) == SPINNAKER_ERR_SUCCESS ) {
+						found = 0;
+						for ( k = 0; !found && k < sizeof ( spinFeatureStrings ); k++ ) {
+							if ( !strcmp ( featureName, spinFeatureStrings[k] )) {
+								found = 1;
+							}
+						}
+						if ( !found ) {
+							oaLogWarning ( OA_LOG_CAMERA,
+									"%s: unknown feature '%s' found", __func__, featureName );
+						}
+					}
+				}
+			}
+		}
+	}
 	return OA_ERR_NONE;
 }
 

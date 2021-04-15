@@ -88,6 +88,7 @@ extern SPINNAKERC_API	( *p_spinCategoryGetNumFeatures )( spinNodeMapHandle,
 extern SPINNAKERC_API	( *p_spinCategoryGetFeatureByIndex )( spinNodeMapHandle,
 				size_t, spinNodeMapHandle* );
 extern SPINNAKERC_API	( *p_spinNodeGetType )( spinNodeHandle, spinNodeType* );
+extern SPINNAKERC_API	( *p_spinNodeGetName )( spinNodeHandle, char*, size_t* );
 extern SPINNAKERC_API	( *p_spinNodeGetDisplayName )( spinNodeHandle, char*,
 				size_t* );
 extern SPINNAKERC_API	( *p_spinCameraInit )( spinCamera );

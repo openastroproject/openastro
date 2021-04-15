@@ -29,5 +29,6 @@
 #define OA_SPINNAKER_SPINSTRINGS_H
 
 extern const char*	nodeTypes[];
+extern const char*	spinFeatureStrings[250];
 
 #endif /* OA_SPINNAKER_SPINSTRINGS_H */
