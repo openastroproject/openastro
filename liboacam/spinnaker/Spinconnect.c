@@ -72,24 +72,24 @@ static int	_getNodeData ( spinNodeMapHandle, const char*, spinNodeHandle*,
 oaCamera*
 oaSpinInitCamera ( oaCameraDevice* device )
 {
-  oaCamera*		camera;
+  oaCamera*					camera;
   SPINNAKER_STATE*	cameraInfo;
-  COMMON_INFO*		commonInfo;
-  DEVICE_INFO*		devInfo;
-  spinSystem		systemHandle;
+  COMMON_INFO*			commonInfo;
+  DEVICE_INFO*			devInfo;
+  spinSystem				systemHandle;
   spinInterfaceList	ifaceListHandle = 0;
-  size_t		numInterfaces = 0;
-  spinCameraList	cameraListHandle = 0;
-  size_t		numCameras = 0;
-  spinInterface		ifaceHandle = 0;
-  spinCamera		cameraHandle;
+  size_t						numInterfaces = 0;
+  spinCameraList		cameraListHandle = 0;
+  size_t						numCameras = 0;
+  spinInterface			ifaceHandle = 0;
+  spinCamera				cameraHandle;
   spinNodeMapHandle	cameraNodeMapHandle = 0;
-  spinNodeHandle	deviceIdHandle = 0;
-  bool8_t		deviceIdAvailable = False;
-  bool8_t		deviceIdReadable = False;
-  char			deviceId[ SPINNAKER_MAX_BUFF_LEN ];
-  size_t		deviceIdLen = SPINNAKER_MAX_BUFF_LEN;
-  unsigned int		i, j, found;
+  spinNodeHandle		deviceIdHandle = 0;
+  bool8_t						deviceIdAvailable = False;
+  bool8_t						deviceIdReadable = False;
+  char							deviceId[ SPINNAKER_MAX_BUFF_LEN ];
+  size_t						deviceIdLen = SPINNAKER_MAX_BUFF_LEN;
+  unsigned int			i, j, found;
 
   if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
       sizeof ( SPINNAKER_STATE ), &commonInfo ) != OA_ERR_NONE ) {
@@ -101,6 +101,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
   ( void ) strcpy ( camera->deviceName, device->deviceName );
   cameraInfo->initialised = 0;
   devInfo = device->_private;
+	camera->interface = device->interface;
 
   camera->features.flags |= OA_CAM_FEATURE_READABLE_CONTROLS;
   camera->features.flags |= OA_CAM_FEATURE_STREAMING;
@@ -108,6 +109,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
   if (( *p_spinSystemGetInstance )( &systemHandle ) !=
       SPINNAKER_ERR_SUCCESS ) {
     oaLogError ( OA_LOG_CAMERA, "%s: Can't get system instance", __func__ );
+		FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -116,6 +118,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
     oaLogError ( OA_LOG_CAMERA,
 				"%s: Can't create empty interface list", __func__ );
     ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+		FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -124,6 +127,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
     oaLogError ( OA_LOG_CAMERA, "%s: Can't get interfaces", __func__ );
     ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
     ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+		FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -134,6 +138,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
     ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
     ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
     ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+		FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -142,6 +147,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
     ( void ) ( *p_spinInterfaceListClear  )( ifaceListHandle );
     ( void ) ( *p_spinInterfaceListDestroy  )( ifaceListHandle );
     ( void ) ( *p_spinSystemReleaseInstance  )( systemHandle );
+		FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -152,6 +158,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
     ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
     ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
     ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+		FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -161,6 +168,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
     ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
     ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
     ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+		FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -172,6 +180,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
     ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
     ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
     ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+		FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -182,6 +191,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
     ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
     ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
     ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+		FREE_DATA_STRUCTS;
     return 0;
   }
 
@@ -194,6 +204,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
       ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
       ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
       ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+			FREE_DATA_STRUCTS;
       return 0;
     }
 
@@ -204,6 +215,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
       ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
       ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
       ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+			FREE_DATA_STRUCTS;
       return 0;
     }
 
@@ -214,6 +226,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
       ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
       ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
       ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+			FREE_DATA_STRUCTS;
       return 0;
     }
 
@@ -224,6 +237,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
       ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
       ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
       ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+			FREE_DATA_STRUCTS;
       return 0;
     }
 
@@ -238,6 +252,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
           ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
           ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
           ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+					FREE_DATA_STRUCTS;
           return 0;
         }
 
@@ -251,6 +266,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
           ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
           ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
           ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+					FREE_DATA_STRUCTS;
           return 0;
         }
 
@@ -264,6 +280,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
           ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
           ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
           ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+					FREE_DATA_STRUCTS;
           return 0;
         }
 
@@ -278,6 +295,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
           ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
           ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
           ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+					FREE_DATA_STRUCTS;
           return 0;
         }
 
@@ -292,6 +310,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
             ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
             ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
             ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+						FREE_DATA_STRUCTS;
             return 0;
           }
           if ( deviceIdReadable ) {
@@ -305,22 +324,12 @@ oaSpinInitCamera ( oaCameraDevice* device )
               ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
               ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
               ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+							FREE_DATA_STRUCTS;
               return 0;
             }
 
             if ( !strcmp ( deviceId, devInfo->deviceId )) {
               found = 1;
-              if ( _processCameraEntry ( cameraHandle, camera ) < 0 ) {
-                oaLogError ( OA_LOG_CAMERA,
-										"%s: Failed to process camera nodemap", __func__ );
-                ( void ) ( *p_spinCameraRelease )( cameraHandle );
-                ( void ) ( *p_spinCameraListClear )( cameraListHandle );
-                ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
-                ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
-                ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
-                ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
-                return 0;
-              }
             }
           }
         }
@@ -334,6 +343,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
             ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
             ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
             ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+						FREE_DATA_STRUCTS;
             return 0;
           }
         }
@@ -344,6 +354,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
         ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
         ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
         ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+				FREE_DATA_STRUCTS;
         return 0;
       }
 
@@ -353,6 +364,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
         ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
         ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
         ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+				FREE_DATA_STRUCTS;
         return 0;
       }
     } else {
@@ -367,6 +379,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
       ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
       ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
       ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+			FREE_DATA_STRUCTS;
       return 0;
     }
   }
@@ -377,13 +390,110 @@ oaSpinInitCamera ( oaCameraDevice* device )
   if ( !found ) {
     oaLogError ( OA_LOG_CAMERA, "%s: Can't find camera", __func__ );
     ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+		FREE_DATA_STRUCTS;
     return 0;
   }
 
-  // Don't want to do this here, eventually
-  ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+	if ( _processCameraEntry ( cameraHandle, camera ) < 0 ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Failed to process camera nodemap",
+				__func__ );
+		( void ) ( *p_spinCameraRelease )( cameraHandle );
+		( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+		FREE_DATA_STRUCTS;
+    return 0;
+  }
 
-  return 0;
+	cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
+
+	// force camera into 8-bit mode if it has it
+
+/*
+  // The largest buffer size we should need
+
+  cameraInfo->buffers = 0;
+  cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
+      cameraInfo->maxResolutionY * maxBytesPerPixel;
+  cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( frameBuffer ));
+  for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
+    void* m = malloc ( cameraInfo->imageBufferLength );
+    if ( m ) {
+      cameraInfo->buffers[i].start = m;
+      cameraInfo->configuredBuffers++;
+    } else {
+      fprintf ( stderr, "%s malloc failed\n", __func__ );
+      if ( i ) {
+        for ( j = 0; j < i; j++ ) {
+          free (( void* ) cameraInfo->buffers[j].start );
+          cameraInfo->buffers[j].start = 0;
+        }
+      }
+			( void ) ( *p_spinCameraRelease )( cameraHandle );
+			( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
+				if ( cameraInfo->frameSizes[ j ].numSizes ) {
+					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				}
+			}
+			FREE_DATA_STRUCTS;
+      return 0;
+    }
+  }
+
+  cameraInfo->stopControllerThread = cameraInfo->stopCallbackThread = 0;
+  cameraInfo->commandQueue = oaDLListCreate();
+  cameraInfo->callbackQueue = oaDLListCreate();
+  cameraInfo->nextBuffer = 0;
+  cameraInfo->configuredBuffers = OA_CAM_BUFFERS;
+  cameraInfo->buffersFree = OA_CAM_BUFFERS;
+
+  if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
+      oacamSpinController, ( void* ) camera )) {
+    for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+      free (( void* ) cameraInfo->buffers[j].start );
+      cameraInfo->buffers[j].start = 0;
+    }
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+			}
+		}
+    oaDLListDelete ( cameraInfo->commandQueue, 0 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+		( void ) ( *p_spinCameraRelease )( cameraHandle );
+		( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+    FREE_DATA_STRUCTS;
+    return 0;
+  }
+  if ( pthread_create ( &( cameraInfo->callbackThread ), 0,
+      oacamSpinCallbackHandler, ( void* ) camera )) {
+
+    void* dummy;
+    cameraInfo->stopControllerThread = 1;
+    pthread_cond_broadcast ( &cameraInfo->commandQueued );
+    pthread_join ( cameraInfo->controllerThread, &dummy );
+    for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+      free (( void* ) cameraInfo->buffers[j].start );
+      cameraInfo->buffers[j].start = 0;
+    }
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+			}
+		}
+    oaDLListDelete ( cameraInfo->commandQueue, 0 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+		( void ) ( *p_spinCameraRelease )( cameraHandle );
+		( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+    FREE_DATA_STRUCTS;
+    return 0;
+  }
+
+  cameraInfo->systemHandle = systemHandle;
+  cameraInfo->cameraHandle = cameraHandle;
+  cameraInfo->initialised = 1;
+*/
+
+  return camera;
 }
 
 
@@ -1321,6 +1431,7 @@ _checkBlackLevelControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
 				commonInfo->OA_CAM_CTRL_DEF( ctrl ) = currBool ? 1 : 0;
 				blackLevelEnabledValid = 1;
+				cameraInfo->blackLevelEnabled = blackLevelEnabled;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for blackLevel enabled", __func__,
@@ -1385,6 +1496,7 @@ _checkBlackLevelControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 					commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_BLACKLEVEL ) = 1;
 					commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_BLACKLEVEL ) =
 							curr ? 1 : 0;
+					cameraInfo->autoBlackLevel = autoBlackLevel;
 				}
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
@@ -1443,6 +1555,7 @@ _checkBlackLevelControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BLACKLEVEL ) = 100;
 				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BLACKLEVEL ) = 1;
 				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BLACKLEVEL ) = currInt;
+				cameraInfo->blackLevel = blackLevel;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for blacklevel", __func__,
@@ -1467,6 +1580,7 @@ _checkWhiteBalanceControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
   bool8_t						implemented, available, readable, writeable;
   spinNodeType			nodeType;
   COMMON_INFO*			commonInfo = camera->_common;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
 	int								autoWhiteBalanceValid = 0;
 	size_t						enumValue;
 	spinError					r;
@@ -1518,6 +1632,7 @@ _checkWhiteBalanceControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 					commonInfo->OA_CAM_CTRL_AUTO_STEP( OA_CAM_CTRL_WHITE_BALANCE ) = 1;
 					commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_WHITE_BALANCE ) =
 							curr ? 1 : 0;
+					cameraInfo->autoWhiteBalance = autoWhiteBalance;
 				}
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
@@ -1548,6 +1663,7 @@ _checkResetControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	spinNodeHandle		reset;
   bool8_t						implemented, available, readable, writeable;
   spinNodeType			nodeType;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
 
   if ( _getNodeData ( nodeMap, "DeviceReset", &reset, &implemented,
 			&available, &readable, &writeable, &nodeType ) < 0 ) {
@@ -1559,6 +1675,7 @@ _checkResetControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found reset control",
 						__func__ );
 				camera->features.flags |= OA_CAM_FEATURE_RESET;
+				cameraInfo->reset = reset;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for reset", __func__,
@@ -1582,6 +1699,7 @@ _checkTemperatureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	spinNodeHandle		temperature;
   bool8_t						implemented, available, readable, writeable;
   spinNodeType			nodeType;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
 
   if ( _getNodeData ( nodeMap, "DeviceTemperature", &temperature, &implemented,
 			&available, &readable, &writeable, &nodeType ) < 0 ) {
@@ -1595,6 +1713,7 @@ _checkTemperatureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
         _showFloatNode ( temperature, 0 );
 				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TEMPERATURE ) =
 						OA_CTRL_TYPE_READONLY;
+				cameraInfo->temperature = temperature;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for temperature", __func__,
@@ -1620,6 +1739,7 @@ _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	double						min, max, curr;
   spinNodeType			nodeType;
   COMMON_INFO*			commonInfo = camera->_common;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
 	spinNodeHandle		valueHandle;
 	size_t						enumValue;
 	spinError					r;
@@ -1674,6 +1794,7 @@ _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 							OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
 					commonInfo->OA_CAM_CTRL_AUTO_DEF(
 							OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = curr ? 1 : 0;
+					cameraInfo->autoExposure = autoExposure;
 				}
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
@@ -1729,6 +1850,7 @@ _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = max;
 				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = 1;
 				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = curr;
+				cameraInfo->exposure = exposure;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for exposure", __func__,
@@ -1753,6 +1875,7 @@ _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found exposure mode control",
 						__func__ );
 				_showEnumerationNode ( exposureMode );
+				cameraInfo->exposureMode = exposureMode;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for exposure mode", __func__,
@@ -1777,6 +1900,7 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	spinNodeHandle		acquisitionStop, singleFrameMode;
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
 
   if ( _getNodeData ( nodeMap, "AcquisitionFrameRateEnabled",
 			&frameRateEnabled, &implemented, &available, &readable, &writeable,
@@ -1791,6 +1915,7 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found frame rate enabled control",
 						__func__ );
 				_showBooleanNode ( frameRateEnabled );
+				cameraInfo->frameRateEnabled = frameRateEnabled;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for frame rate enabled", __func__,
@@ -1816,6 +1941,7 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found acquisition mode control",
 						__func__ );
 				_showEnumerationNode ( acquisitionMode );
+				cameraInfo->acquisitionMode = acquisitionMode;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for acquisition mode", __func__,
@@ -1840,6 +1966,7 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == CommandNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found acquisition start control",
 						__func__ );
+				cameraInfo->acquisitionStart = acquisitionStart;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for acquisition start", __func__,
@@ -1864,6 +1991,7 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == CommandNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found acquisition stop control",
 						__func__ );
+				cameraInfo->acquisitionStop = acquisitionStop;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for acquisition stop", __func__,
@@ -1889,6 +2017,7 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found single frame acquisition mode control", __func__ );
 				_showEnumerationNode ( singleFrameMode );
+				cameraInfo->singleFrameMode = singleFrameMode;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for single frame acquisition mode",
@@ -1916,6 +2045,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	spinNodeHandle		triggerSource;
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
 
   if ( _getNodeData ( nodeMap, "TriggerActivation", &triggerActivation,
 			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
@@ -1927,6 +2057,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found trigger activation control", __func__ );
 				_showEnumerationNode ( triggerActivation );
+				cameraInfo->triggerActivation = triggerActivation;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for trigger activation",
@@ -1951,6 +2082,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found trigger delay enabled control", __func__ );
 				_showBooleanNode ( triggerDelayEnabled );
+				cameraInfo->triggerDelayEnabled = triggerDelayEnabled;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for trigger delay enabled",
@@ -1976,6 +2108,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found trigger delay control", __func__ );
 				_showFloatNode ( triggerDelay, writeable );
+				cameraInfo->triggerDelay = triggerDelay;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for trigger delay", __func__,
@@ -1999,6 +2132,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found trigger mode control", __func__ );
 				_showEnumerationNode ( triggerMode );
+				cameraInfo->triggerMode = triggerMode;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for trigger mode",
@@ -2023,6 +2157,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found trigger overlap control", __func__ );
 				_showEnumerationNode ( triggerOverlap );
+				cameraInfo->triggerOverlap = triggerOverlap;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for trigger overlap",
@@ -2047,6 +2182,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found trigger selector control", __func__ );
 				_showEnumerationNode ( triggerSelector );
+				cameraInfo->triggerSelector = triggerSelector;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for trigger selector",
@@ -2071,6 +2207,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found trigger source control", __func__ );
 				_showEnumerationNode ( triggerSource );
+				cameraInfo->triggerSource = triggerSource;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for trigger source",
@@ -2095,6 +2232,7 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	spinNodeHandle		binningType, horizontalBin, verticalBin;
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
 
   if ( _getNodeData ( nodeMap, "BinningControl", &binningType,
 			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
@@ -2105,6 +2243,7 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found binning control", __func__ );
 				_showEnumerationNode ( binningType );
+				cameraInfo->binningType = binningType;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for binning control", __func__,
@@ -2128,6 +2267,7 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found horizontal bin control", __func__ );
 				_showIntegerNode ( horizontalBin, writeable );
+				cameraInfo->horizontalBin = horizontalBin;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for horizontal binning",
@@ -2153,6 +2293,7 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found vertical bin control", __func__ );
 				_showIntegerNode ( verticalBin, writeable );
+				cameraInfo->verticalBin = verticalBin;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for vertical binning",
@@ -2179,6 +2320,7 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	spinNodeHandle		sensorHeight, sensorWidth;
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
 
   if ( _getNodeData ( nodeMap, "Height", &height, &implemented, &available,
 			&readable, &writeable, &nodeType ) < 0 ) {
@@ -2189,6 +2331,7 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found height control", __func__ );
 				_showIntegerNode ( height, writeable );
+				cameraInfo->height = height;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for height", __func__,
@@ -2210,6 +2353,7 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found width control", __func__ );
 				_showIntegerNode ( width, writeable );
+				cameraInfo->width = width;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for width", __func__,
@@ -2231,6 +2375,7 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found max height control", __func__ );
 				_showIntegerNode ( maxHeight, writeable );
+				cameraInfo->maxHeight = maxHeight;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for max height", __func__,
@@ -2252,6 +2397,7 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found max width control", __func__ );
 				_showIntegerNode ( maxWidth, writeable );
+				cameraInfo->maxWidth = maxWidth;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for max width", __func__,
@@ -2273,6 +2419,7 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found X offset control", __func__ );
 				_showIntegerNode ( xOffset, writeable );
+				cameraInfo->xOffset = xOffset;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for x offset", __func__,
@@ -2294,6 +2441,7 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found Y offset control", __func__ );
 				_showIntegerNode ( yOffset, writeable );
+				cameraInfo->yOffset = yOffset;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for Y offset", __func__,
@@ -2363,6 +2511,7 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	spinNodeHandle		bigEndian;
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
 
   if ( _getNodeData ( nodeMap, "PixelFormat", &pixelFormat, &implemented,
 			&available, &readable, &writeable, &nodeType ) < 0 ) {
@@ -2373,6 +2522,7 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel format", __func__ );
 				_showEnumerationNode ( pixelFormat );
+				cameraInfo->pixelFormat = pixelFormat;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for pixel format", __func__,
@@ -2395,6 +2545,7 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel CFA", __func__ );
 				_showEnumerationNode ( colourFilter );
+				cameraInfo->colourFilter = colourFilter;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for CFA", __func__,
@@ -2417,6 +2568,7 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel size", __func__ );
 				_showEnumerationNode ( pixelSize );
+				cameraInfo->pixelSize = pixelSize;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for pixel size", __func__,
@@ -2440,6 +2592,7 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel coding", __func__ );
 				_showEnumerationNode ( pixelCoding );
+				cameraInfo->pixelCoding = pixelCoding;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for pixel coding", __func__,
@@ -2462,6 +2615,7 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == BooleanNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found bigEndian", __func__ );
 				_showBooleanNode ( bigEndian );
+				cameraInfo->bigEndian = bigEndian;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for bigEndian", __func__,
@@ -2485,6 +2639,7 @@ _checkFlipControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	spinNodeHandle		flipX;
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
 
   if ( _getNodeData ( nodeMap, "ReverseX", &flipX, &implemented,
 			&available, &readable, &writeable, &nodeType ) < 0 ) {
@@ -2495,6 +2650,7 @@ _checkFlipControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == BooleanNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found reverse X", __func__ );
 				_showBooleanNode ( flipX );
+				cameraInfo->flipX = flipX;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for reverse X", __func__,

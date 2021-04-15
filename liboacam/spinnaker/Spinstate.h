@@ -50,6 +50,9 @@ typedef struct SPINNAKER_STATE {
 	double					minFloatSaturation;
 	double					maxFloatSaturation;
 
+	spinSystem			systemHandle;
+	spinNodeHandle	cameraHandle;
+
 	spinNodeHandle	gain;
 	spinNodeHandle	autoGain;
 
@@ -67,6 +70,54 @@ typedef struct SPINNAKER_STATE {
 	spinNodeHandle	sharpness;
 	spinNodeHandle	autoSharpness;
 	spinNodeHandle	sharpnessEnabled;
+
+	spinNodeHandle	blackLevel;
+	spinNodeHandle	autoBlackLevel;
+	spinNodeHandle	blackLevelEnabled;
+
+	spinNodeHandle	autoWhiteBalance;
+
+	spinNodeHandle	reset;
+
+	spinNodeHandle	temperature;
+
+	spinNodeHandle	exposure;
+	spinNodeHandle	autoExposure;
+	spinNodeHandle	exposureMode;
+
+	spinNodeHandle	frameRateEnabled;
+
+	spinNodeHandle	acquisitionMode;
+	spinNodeHandle	acquisitionStop;
+	spinNodeHandle	acquisitionStart;
+	spinNodeHandle	singleFrameMode;
+
+	spinNodeHandle	triggerActivation;
+	spinNodeHandle	triggerDelay;
+	spinNodeHandle	triggerDelayEnabled;
+	spinNodeHandle	triggerMode;
+	spinNodeHandle	triggerOverlap;
+	spinNodeHandle	triggerSelector;
+	spinNodeHandle	triggerSource;
+
+	spinNodeHandle	binningType;
+	spinNodeHandle	horizontalBin;
+	spinNodeHandle	verticalBin;
+
+	spinNodeHandle	height;
+	spinNodeHandle	width;
+	spinNodeHandle	maxHeight;
+	spinNodeHandle	maxWidth;
+	spinNodeHandle	xOffset;
+	spinNodeHandle	yOffset;
+
+	spinNodeHandle	pixelFormat;
+	spinNodeHandle	pixelSize;
+	spinNodeHandle	pixelCoding;
+	spinNodeHandle	colourFilter;
+	spinNodeHandle	bigEndian;
+
+	spinNodeHandle	flipX;
 
 } SPINNAKER_STATE;
 
