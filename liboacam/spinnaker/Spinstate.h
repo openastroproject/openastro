@@ -114,10 +114,12 @@ typedef struct SPINNAKER_STATE {
 	spinNodeHandle	pixelFormat;
 	spinNodeHandle	pixelSize;
 	spinNodeHandle	pixelCoding;
-	spinNodeHandle	colourFilter;
 	spinNodeHandle	bigEndian;
 
 	spinNodeHandle	flipX;
+
+	int							colour;
+	int							cfa;
 
 } SPINNAKER_STATE;
 

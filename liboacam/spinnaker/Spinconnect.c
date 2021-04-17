@@ -2321,6 +2321,8 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
+	int								maxHeightValid, maxWidthValid;
+	int64_t						curr;
 
   if ( _getNodeData ( nodeMap, "Height", &height, &implemented, &available,
 			&readable, &writeable, &nodeType ) < 0 ) {
@@ -2366,6 +2368,7 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: width unavailable", __func__ );
   }
 
+	maxHeightValid = 0;
   if ( _getNodeData ( nodeMap, "HeightMax", &maxHeight, &implemented,
 			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
@@ -2376,6 +2379,7 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found max height control", __func__ );
 				_showIntegerNode ( maxHeight, writeable );
 				cameraInfo->maxHeight = maxHeight;
+				maxHeightValid = 1;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for max height", __func__,
@@ -2388,6 +2392,7 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: max height unavailable", __func__ );
   }
 
+	maxWidthValid = 0;
   if ( _getNodeData ( nodeMap, "WidthMax", &maxWidth, &implemented, &available,
 			&readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
@@ -2398,6 +2403,7 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found max width control", __func__ );
 				_showIntegerNode ( maxWidth, writeable );
 				cameraInfo->maxWidth = maxWidth;
+				maxWidthValid = 1;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for max width", __func__,
@@ -2500,6 +2506,25 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: sensor width unavailable", __func__ );
   }
 
+	if ( maxHeightValid && maxWidthValid ) {
+		if (( *p_spinIntegerGetValue )( maxHeight, &curr ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't get max height value", __func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
+		cameraInfo->maxResolutionY = curr;
+		if (( *p_spinIntegerGetValue )( maxWidth, &curr ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't get max width value", __func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
+		cameraInfo->maxResolutionX = curr;
+	} else {
+		oaLogError ( OA_LOG_CAMERA, "%s: Unable to determine sensor size",
+					__func__ );
+    return -OA_ERR_SYSTEM_ERROR;
+	}
+
 	return OA_ERR_NONE;
 }
 
@@ -2508,10 +2533,11 @@ int
 _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		pixelFormat, pixelSize, colourFilter, pixelCoding;
-	spinNodeHandle		bigEndian;
+	spinNodeHandle		bigEndian, tempHandle;
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
+	int64_t						curr;
 
   if ( _getNodeData ( nodeMap, "PixelFormat", &pixelFormat, &implemented,
 			&available, &readable, &writeable, &nodeType ) < 0 ) {
@@ -2545,7 +2571,44 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel CFA", __func__ );
 				_showEnumerationNode ( colourFilter );
-				cameraInfo->colourFilter = colourFilter;
+				if (( *p_spinEnumerationGetCurrentEntry )( colourFilter,
+						&tempHandle ) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get colour filter value node",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinEnumerationEntryGetIntValue )( tempHandle, &curr ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get colour filter current value", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				// This is nasty, but the values don't appear to be defined anywhere
+				switch ( curr ) {
+					case 0:	// BayerRG
+						cameraInfo->colour = 1;
+						cameraInfo->cfa = OA_DEMOSAIC_RGGB;
+						break;
+					case 1:	// BayerGB
+						cameraInfo->colour = 1;
+						cameraInfo->cfa = OA_DEMOSAIC_GBRG;
+						break;
+					case 2:	// BayerGR
+						cameraInfo->colour = 1;
+						cameraInfo->cfa = OA_DEMOSAIC_GRBG;
+						break;
+					case 3:	// BayerBG
+						cameraInfo->colour = 1;
+						cameraInfo->cfa = OA_DEMOSAIC_BGGR;
+						break;
+					case 255:	// None, so presumably mono
+						cameraInfo->colour = 0;
+						break;
+					default:
+						oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised value %ld for "
+								"colour filter current value", __func__, curr );
+						return -OA_ERR_SYSTEM_ERROR;
+				}
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for CFA", __func__,
