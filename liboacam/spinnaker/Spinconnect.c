@@ -372,7 +372,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
     } else {
       ( void ) ( *p_spinCameraListClear )( cameraListHandle );
       ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
-      oaLogError ( OA_LOG_CAMERA, "%s: Interface %d has no cameras", __func__,
+      oaLogInfo ( OA_LOG_CAMERA, "%s: Interface %d has no cameras", __func__,
 					i );
     }
 
@@ -3202,7 +3202,9 @@ _spinInitFunctionPointers ( oaCamera* camera )
   camera->funcs.closeCamera = oaSpinCloseCamera;
 
   camera->funcs.testControl = oaSpinCameraTestControl;
+*/
   camera->funcs.getControlRange = oaSpinCameraGetControlRange;
+/*
   camera->funcs.getControlDiscreteSet = oaSpinCameraGetControlDiscreteSet;
 
   camera->funcs.testROISize = oaSpinCameraTestROISize;
