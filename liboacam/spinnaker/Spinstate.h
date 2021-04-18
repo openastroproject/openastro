@@ -50,6 +50,8 @@ typedef struct SPINNAKER_STATE {
 	double					minFloatSaturation;
 	double					maxFloatSaturation;
 
+	int							maxBytesPerPixel;
+
 	spinSystem			systemHandle;
 	spinNodeHandle	cameraHandle;
 
@@ -112,7 +114,6 @@ typedef struct SPINNAKER_STATE {
 	spinNodeHandle	yOffset;
 
 	spinNodeHandle	pixelFormat;
-	spinNodeHandle	pixelSize;
 	spinNodeHandle	pixelCoding;
 	spinNodeHandle	bigEndian;
 

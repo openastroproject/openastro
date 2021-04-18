@@ -39,6 +39,8 @@
 #define DeviceType_GigEVision DeviceType_GEV
 #endif
 
+extern int						_spinFormatMap[];
+
 extern int						_spinInitLibraryFunctionPointers ( void );
 
 extern SPINNAKERC_API	( *p_spinSystemGetInstance )( spinSystem* );

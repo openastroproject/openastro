@@ -32,6 +32,7 @@
 #include <openastro/camera.h>
 #include <openastro/util.h>
 #include <openastro/demosaic.h>
+#include <openastro/video.h>
 
 #include "unimplemented.h"
 #include "oacamprivate.h"
@@ -405,14 +406,15 @@ oaSpinInitCamera ( oaCameraDevice* device )
 
 	cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
+/*
 	// force camera into 8-bit mode if it has it
 
-/*
+	// FIX ME -- it's possible we won't need these buffers
   // The largest buffer size we should need
 
   cameraInfo->buffers = 0;
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
-      cameraInfo->maxResolutionY * maxBytesPerPixel;
+      cameraInfo->maxResolutionY * cameraInfo->maxBytesPerPixel;
   cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( frameBuffer ));
   for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
     void* m = malloc ( cameraInfo->imageBufferLength );
@@ -2537,7 +2539,10 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
-	int64_t						curr;
+	int								pixelFormatValid = 0;
+	size_t						enumVal, numEntries;
+	int								i;
+	int								maxBytesPP, oaFormat;
 
   if ( _getNodeData ( nodeMap, "PixelFormat", &pixelFormat, &implemented,
 			&available, &readable, &writeable, &nodeType ) < 0 ) {
@@ -2549,6 +2554,7 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel format", __func__ );
 				_showEnumerationNode ( pixelFormat );
 				cameraInfo->pixelFormat = pixelFormat;
+				pixelFormatValid = 1;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for pixel format", __func__,
@@ -2577,37 +2583,37 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 							__func__ );
 					return -OA_ERR_SYSTEM_ERROR;
 				}
-				if (( *p_spinEnumerationEntryGetIntValue )( tempHandle, &curr ) !=
+				if (( *p_spinEnumerationEntryGetEnumValue )( tempHandle, &enumVal ) !=
 						SPINNAKER_ERR_SUCCESS ) {
 					oaLogError ( OA_LOG_CAMERA,
 							"%s: Can't get colour filter current value", __func__ );
 					return -OA_ERR_SYSTEM_ERROR;
 				}
-				// This is nasty, but the values don't appear to be defined anywhere
-				switch ( curr ) {
-					case 0:	// BayerRG
+				switch ( enumVal ) {
+					case PixelColorFilter_None:
+						cameraInfo->colour = 0;
+						break;
+					case PixelColorFilter_BayerRG:
 						cameraInfo->colour = 1;
 						cameraInfo->cfa = OA_DEMOSAIC_RGGB;
 						break;
-					case 1:	// BayerGB
+					case PixelColorFilter_BayerGB:
 						cameraInfo->colour = 1;
 						cameraInfo->cfa = OA_DEMOSAIC_GBRG;
 						break;
-					case 2:	// BayerGR
+					case PixelColorFilter_BayerGR:
 						cameraInfo->colour = 1;
 						cameraInfo->cfa = OA_DEMOSAIC_GRBG;
 						break;
-					case 3:	// BayerBG
+					case PixelColorFilter_BayerBG:
 						cameraInfo->colour = 1;
 						cameraInfo->cfa = OA_DEMOSAIC_BGGR;
 						break;
-					case 255:	// None, so presumably mono
-						cameraInfo->colour = 0;
-						break;
 					default:
 						oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised value %ld for "
-								"colour filter current value", __func__, curr );
+								"colour filter current value", __func__, enumVal );
 						return -OA_ERR_SYSTEM_ERROR;
+						break;
 				}
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
@@ -2622,16 +2628,18 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: pixel CFA unavailable", __func__ );
   }
 
+	// FIX ME -- not actually sure we need this one at all
   if ( _getNodeData ( nodeMap, "PixelSize", &pixelSize, &implemented,
 			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( implemented && available ) {
-    if ( readable && writeable ) {
+    if ( readable ) {
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel size", __func__ );
 				_showEnumerationNode ( pixelSize );
-				cameraInfo->pixelSize = pixelSize;
+				oaLogInfo ( OA_LOG_CAMERA,
+						"%s: PixelSize is available for this camera", __func__ );
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for pixel size", __func__,
@@ -2651,18 +2659,18 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( implemented && available ) {
-    if ( readable && writeable ) {
+    if ( readable ) {
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel coding", __func__ );
 				_showEnumerationNode ( pixelCoding );
 				cameraInfo->pixelCoding = pixelCoding;
 			} else {
-				oaLogWarning ( OA_LOG_CAMERA,
+				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for pixel coding", __func__,
 						nodeTypes[ nodeType ] );
 			}
     } else {
-      oaLogError ( OA_LOG_CAMERA, "%s: pixel coding is inaccessible",
+      oaLogInfo ( OA_LOG_CAMERA, "%s: pixel coding is inaccessible",
 				__func__ );
 		}
   } else {
@@ -2691,6 +2699,55 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
   } else {
     oaLogInfo ( OA_LOG_CAMERA, "%s: bigEndian unavailable", __func__ );
   }
+
+	if ( pixelFormatValid ) {
+		if (( *p_spinEnumerationGetNumEntries )( pixelFormat, &numEntries ) !=
+			 SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't get number of enum entries for PixelFormat", __func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
+		maxBytesPP = 0;
+		for ( i = 0; i < numEntries; i++ ) {
+			if (( *p_spinEnumerationGetEntryByIndex )( pixelFormat, i,
+					&tempHandle ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get enum handle %d for PixelFormat", __func__, i );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if (( *p_spinEnumerationEntryGetEnumValue )( tempHandle, &enumVal ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get value for PixelFormat enum node %d", __func__, i );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			// There are (as of Spinnaker 2.3) apparently 252 possible values for
+			// enumVal, most of which we just don't care about.  Unfortunately
+			// some of the formats reported as available make little sense
+			// (eg. mono sensors that apparently support "BayerGR8"?)
+			if (( oaFormat = _spinFormatMap [ enumVal ] ) > 0 ) {
+				if (( oaFrameFormats[ oaFormat ].monochrome && !cameraInfo->colour )
+						|| ( !oaFrameFormats[ oaFormat ].monochrome &&
+						cameraInfo->colour )) {
+					if ( oaFrameFormats[ oaFormat ].bytesPerPixel > maxBytesPP ) {
+						maxBytesPP = oaFrameFormats[ oaFormat ].bytesPerPixel;
+					}
+				} else {
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: ignoring pixel format %ld for mismatch with camera type",
+							__func__, enumVal );
+				}
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA, "%s: Unhandled pixel format %ld",
+						__func__, enumVal );
+			}
+		}
+		cameraInfo->maxBytesPerPixel = maxBytesPP;
+	} else {
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: No way to discover available frame formats", __func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
 
 	return OA_ERR_NONE;
 }
@@ -2990,13 +3047,14 @@ _showStringNode ( spinNodeHandle stringNode )
 static void
 _showEnumerationNode ( spinNodeHandle enumNode )
 {
-  size_t		numEntries;
+  size_t					numEntries;
   unsigned int		i;
   spinNodeHandle	entryHandle, currentHandle;
-  char			entryName[ SPINNAKER_MAX_BUFF_LEN ];
-  size_t		entryNameLen;
-  char			value[ SPINNAKER_MAX_BUFF_LEN ];
-  size_t		valueLen;
+  char						entryName[ SPINNAKER_MAX_BUFF_LEN ];
+  size_t					entryNameLen;
+  size_t					enumValue;
+  int64_t					intValue;
+	spinError				err;
 
   oaLogInfo ( OA_LOG_CAMERA, "%s:   ", __func__ );
   if (( *p_spinEnumerationGetNumEntries )( enumNode, &numEntries ) !=
@@ -3029,14 +3087,20 @@ _showEnumerationNode ( spinNodeHandle enumNode )
     oaLogError ( OA_LOG_CAMERA, "%s: Can't get enum current value", __func__ );
     return;
   }
-  valueLen = SPINNAKER_MAX_BUFF_LEN;
-  if (( *p_spinNodeToString )( currentHandle, value, &valueLen ) !=
-      SPINNAKER_ERR_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: Can't get enum value as string",
-				__func__ );
-    return;
-  }
-  oaLogInfo ( OA_LOG_CAMERA, "%s: := %s", __func__, value );
+
+	if (( err = ( *p_spinEnumerationEntryGetEnumValue )( currentHandle,
+			&enumValue )) != SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get value of enum, error %d", __func__, err );
+		enumValue = -1;
+	}
+	if (( err = ( *p_spinEnumerationEntryGetIntValue )( currentHandle,
+			&intValue )) != SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get int value of enum, error %d", __func__, err );
+	}
+  oaLogInfo ( OA_LOG_CAMERA, "%s: := %ld(enum), %ld(int)", __func__,
+			enumValue, intValue );
   return;
 }
 
