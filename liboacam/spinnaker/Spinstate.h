@@ -51,6 +51,7 @@ typedef struct SPINNAKER_STATE {
 	double					maxFloatSaturation;
 
 	int							maxBytesPerPixel;
+	unsigned int		binMode;
 
 	spinSystem			systemHandle;
 	spinNodeHandle	cameraHandle;

@@ -91,6 +91,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
   char							deviceId[ SPINNAKER_MAX_BUFF_LEN ];
   size_t						deviceIdLen = SPINNAKER_MAX_BUFF_LEN;
   unsigned int			i, j, found;
+	void*							tmpPtr;
 
   if ( _oaInitCameraStructs ( &camera, ( void* ) &cameraInfo,
       sizeof ( SPINNAKER_STATE ), &commonInfo ) != OA_ERR_NONE ) {
@@ -406,6 +407,27 @@ oaSpinInitCamera ( oaCameraDevice* device )
 
 	cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
+	if ( camera->features.flags & OA_CAM_FEATURE_BINNING ) {
+		oaLogWarning ( OA_LOG_CAMERA,
+				"%s: Need to handle binning when setting up frame sizes", __func__ );
+	}
+  cameraInfo->binMode = 1;
+	cameraInfo->frameSizes[1].numSizes = 1;
+	if (!( tmpPtr = realloc ( cameraInfo->frameSizes[1].sizes,
+			sizeof ( FRAMESIZE ) * 2 ))) {
+		oaLogError ( OA_LOG_CAMERA, "%s: realloc for frame sizes failed",
+				__func__ );
+		// No need to free any frame size stuff here as we've not allocated
+		// anything yet
+		( void ) ( *p_spinCameraRelease )( cameraHandle );
+		( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+		FREE_DATA_STRUCTS;
+    return 0;
+	}
+	cameraInfo->frameSizes[1].sizes = tmpPtr;
+	cameraInfo->frameSizes[1].sizes[0].x = cameraInfo->maxResolutionX;
+	cameraInfo->frameSizes[1].sizes[0].y = cameraInfo->maxResolutionY;
+
 /*
 	// force camera into 8-bit mode if it has it
 
@@ -503,7 +525,8 @@ static int
 _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 {
   spinNodeMapHandle	cameraNodeMapHandle = 0;
-  int			err;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
+  int								err;
 
   if (( err = ( *p_spinCameraInit )( cameraHandle )) !=
 			SPINNAKER_ERR_SUCCESS ) {
@@ -590,18 +613,16 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
-	oaLogWarning ( OA_LOG_CAMERA,
-			"%s: Should only be testing for colour controls on colour camera?",
-			__func__ );
+	if ( cameraInfo->colour ) {
+		if ( _checkHueControls ( cameraNodeMapHandle, camera ) < 0 ) {
+			( void ) ( *p_spinCameraDeInit )( cameraHandle );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
 
-	if ( _checkHueControls ( cameraNodeMapHandle, camera ) < 0 ) {
-    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
-		return -OA_ERR_SYSTEM_ERROR;
-	}
-
-	if ( _checkSaturationControls ( cameraNodeMapHandle, camera ) < 0 ) {
-    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
-		return -OA_ERR_SYSTEM_ERROR;
+		if ( _checkSaturationControls ( cameraNodeMapHandle, camera ) < 0 ) {
+			( void ) ( *p_spinCameraDeInit )( cameraHandle );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
 	}
 
 	if ( _checkUnknownControls ( cameraNodeMapHandle, camera ) < 0 ) {
@@ -609,10 +630,7 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
-  // Won't eventually want to do this here
-  ( void ) ( *p_spinCameraDeInit )( cameraHandle );
-
-  return -OA_ERR_SYSTEM_ERROR;
+  return OA_ERR_NONE;
 }
 
 
@@ -1456,7 +1474,7 @@ _checkBlackLevelControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
-  if ( available ) {
+  if ( implemented && available ) {
 		// Doesn't make much sense that this node not be readable and
 		// writeable?
     if ( readable && writeable ) {
@@ -1523,8 +1541,8 @@ _checkBlackLevelControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
-  if ( available ) {
-    if ( readable || writeable ) {
+  if ( implemented && available ) {
+    if ( readable && writeable ) {
 			if ( nodeType == FloatNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found blacklevel control", __func__ );
         _showFloatNode ( blackLevel, writeable );
@@ -2235,6 +2253,7 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
+	int								hbinValid = 0, vbinValid = 0;
 
   if ( _getNodeData ( nodeMap, "BinningControl", &binningType,
 			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
@@ -2263,13 +2282,14 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
-  if ( available ) {
+  if ( implemented && available ) {
     if ( readable && writeable ) {
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found horizontal bin control", __func__ );
 				_showIntegerNode ( horizontalBin, writeable );
 				cameraInfo->horizontalBin = horizontalBin;
+				hbinValid = 1;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for horizontal binning",
@@ -2296,6 +2316,7 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 						"%s: Found vertical bin control", __func__ );
 				_showIntegerNode ( verticalBin, writeable );
 				cameraInfo->verticalBin = verticalBin;
+				vbinValid = 1;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for vertical binning",
@@ -2311,6 +2332,12 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				__func__ );
   }
 
+	if ( hbinValid && vbinValid ) {
+		oaLogWarning ( OA_LOG_CAMERA,
+				"%s: horizontal and vertical binning available & unhandled", __func__ );
+		// camera->features.flags |= OA_CAM_FEATURE_BINNING;
+	}
+
 	return OA_ERR_NONE;
 }
 
@@ -2323,19 +2350,24 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
-	int								maxHeightValid, maxWidthValid;
+	int								maxHeightValid, maxWidthValid, heightValid, widthValid;
 	int64_t						curr;
 
+	heightValid = 0;
   if ( _getNodeData ( nodeMap, "Height", &height, &implemented, &available,
 			&readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if ( readable && writeable ) {
+    if ( readable ) {
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found height control", __func__ );
 				_showIntegerNode ( height, writeable );
 				cameraInfo->height = height;
+				heightValid = 1;
+				if ( writeable ) {
+					camera->features.flags |= OA_CAM_FEATURE_ROI;
+				}
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for height", __func__,
@@ -2348,16 +2380,21 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: height unavailable", __func__ );
   }
 
+	widthValid = 0;
   if ( _getNodeData ( nodeMap, "Width", &width, &implemented, &available,
 			&readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( available ) {
-    if ( readable && writeable ) {
+    if ( readable ) {
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found width control", __func__ );
 				_showIntegerNode ( width, writeable );
 				cameraInfo->width = width;
+				widthValid = 1;
+				if ( writeable ) {
+					camera->features.flags |= OA_CAM_FEATURE_ROI;
+				}
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for width", __func__,
@@ -2521,6 +2558,23 @@ _checkFrameSizeControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			return -OA_ERR_SYSTEM_ERROR;
 		}
 		cameraInfo->maxResolutionX = curr;
+		if ( heightValid && widthValid ) {
+			if (( *p_spinIntegerGetValue )( height, &curr ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get height value", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			cameraInfo->ySize = curr;
+			if (( *p_spinIntegerGetValue )( width, &curr ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get width value", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			cameraInfo->xSize = curr;
+		} else {
+			cameraInfo->xSize = cameraInfo->maxResolutionX;
+			cameraInfo->ySize = cameraInfo->maxResolutionY;
+		}
 	} else {
 		oaLogError ( OA_LOG_CAMERA, "%s: Unable to determine sensor size",
 					__func__ );
@@ -2731,6 +2785,12 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 						cameraInfo->colour )) {
 					if ( oaFrameFormats[ oaFormat ].bytesPerPixel > maxBytesPP ) {
 						maxBytesPP = oaFrameFormats[ oaFormat ].bytesPerPixel;
+					}
+					if ( oaFrameFormats[ oaFormat ].rawColour ) {
+						camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
+					}
+					if ( oaFrameFormats[ oaFormat ].fullColour ) {
+						camera->features.flags |= OA_CAM_FEATURE_DEMOSAIC_MODE;
 					}
 				} else {
 					oaLogInfo ( OA_LOG_CAMERA,
@@ -3108,8 +3168,9 @@ _showEnumerationNode ( spinNodeHandle enumNode )
 static void
 _spinInitFunctionPointers ( oaCamera* camera )
 {
-/*
+
   camera->funcs.initCamera = oaSpinInitCamera;
+/*
   camera->funcs.closeCamera = oaSpinCloseCamera;
 
   camera->funcs.testControl = oaSpinCameraTestControl;
@@ -3120,8 +3181,9 @@ _spinInitFunctionPointers ( oaCamera* camera )
 
   camera->funcs.hasAuto = oacamHasAuto;
   // camera->funcs.isAuto = _isAuto;
-
+*/
   camera->funcs.enumerateFrameSizes = oaSpinCameraGetFrameSizes;
+/*
   camera->funcs.getFramePixelFormat = oaSpinCameraGetFramePixelFormat;
 
   camera->funcs.enumerateFrameRates = oaSpinCameraGetFrameRates;
