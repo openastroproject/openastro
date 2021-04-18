@@ -1414,8 +1414,8 @@ _checkBlackLevelControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
-  if ( available ) {
-    if ( readable || writeable ) {
+  if ( implemented && available ) {
+    if ( readable && writeable ) {
 			if ( nodeType == BooleanNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found blackLevel enabled control",
 						__func__ );
@@ -2289,7 +2289,7 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
-  if ( available ) {
+  if ( implemented && available ) {
     if ( readable && writeable ) {
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA,
