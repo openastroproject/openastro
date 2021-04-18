@@ -462,20 +462,24 @@ oaSpinInitCamera ( oaCameraDevice* device )
       return 0;
     }
   }
-
+*/
   cameraInfo->stopControllerThread = cameraInfo->stopCallbackThread = 0;
   cameraInfo->commandQueue = oaDLListCreate();
   cameraInfo->callbackQueue = oaDLListCreate();
+/*
   cameraInfo->nextBuffer = 0;
   cameraInfo->configuredBuffers = OA_CAM_BUFFERS;
   cameraInfo->buffersFree = OA_CAM_BUFFERS;
+*/
 
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       oacamSpinController, ( void* ) camera )) {
+/*
     for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
       free (( void* ) cameraInfo->buffers[j].start );
       cameraInfo->buffers[j].start = 0;
     }
+*/
 		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
@@ -488,6 +492,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
     FREE_DATA_STRUCTS;
     return 0;
   }
+/*
   if ( pthread_create ( &( cameraInfo->callbackThread ), 0,
       oacamSpinCallbackHandler, ( void* ) camera )) {
 
@@ -511,11 +516,11 @@ oaSpinInitCamera ( oaCameraDevice* device )
     FREE_DATA_STRUCTS;
     return 0;
   }
+*/
 
   cameraInfo->systemHandle = systemHandle;
   cameraInfo->cameraHandle = cameraHandle;
   cameraInfo->initialised = 1;
-*/
 
   return camera;
 }
@@ -2593,8 +2598,8 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
-	int								pixelFormatValid = 0;
-	size_t						enumVal, numEntries;
+	int								pixelFormatValid = 0, matched;
+	size_t						enumVal, currentVal, numEntries;
 	int								i;
 	int								maxBytesPP, oaFormat;
 
@@ -2755,6 +2760,18 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
   }
 
 	if ( pixelFormatValid ) {
+		if (( *p_spinEnumerationGetCurrentEntry )( pixelFormat, &tempHandle ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't get pixel format current node",
+					__func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
+		if (( *p_spinEnumerationEntryGetEnumValue )( tempHandle, &currentVal ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't get value of pixel format enum",
+					__func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
 		if (( *p_spinEnumerationGetNumEntries )( pixelFormat, &numEntries ) !=
 			 SPINNAKER_ERR_SUCCESS ) {
 			oaLogError ( OA_LOG_CAMERA,
@@ -2762,6 +2779,7 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			return -OA_ERR_SYSTEM_ERROR;
 		}
 		maxBytesPP = 0;
+		matched = 0;
 		for ( i = 0; i < numEntries; i++ ) {
 			if (( *p_spinEnumerationGetEntryByIndex )( pixelFormat, i,
 					&tempHandle ) != SPINNAKER_ERR_SUCCESS ) {
@@ -2792,6 +2810,12 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 					if ( oaFrameFormats[ oaFormat ].fullColour ) {
 						camera->features.flags |= OA_CAM_FEATURE_DEMOSAIC_MODE;
 					}
+					if ( currentVal == enumVal ) {
+						cameraInfo->currentBytesPerPixel =
+								oaFrameFormats[ oaFormat ].bytesPerPixel;
+						cameraInfo->currentFrameFormat = oaFormat;
+						matched = 1;
+					}
 				} else {
 					oaLogInfo ( OA_LOG_CAMERA,
 							"%s: ignoring pixel format %ld for mismatch with camera type",
@@ -2801,6 +2825,11 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogWarning ( OA_LOG_CAMERA, "%s: Unhandled pixel format %ld",
 						__func__, enumVal );
 			}
+		}
+		if ( !matched ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: unable to match current frame format",
+					__func__ );
+			return -OA_ERR_SYSTEM_ERROR;
 		}
 		cameraInfo->maxBytesPerPixel = maxBytesPP;
 	} else {
@@ -3147,7 +3176,6 @@ _showEnumerationNode ( spinNodeHandle enumNode )
     oaLogError ( OA_LOG_CAMERA, "%s: Can't get enum current value", __func__ );
     return;
   }
-
 	if (( err = ( *p_spinEnumerationEntryGetEnumValue )( currentHandle,
 			&enumValue )) != SPINNAKER_ERR_SUCCESS ) {
 		oaLogError ( OA_LOG_CAMERA,

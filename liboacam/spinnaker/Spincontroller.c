@@ -122,6 +122,7 @@ oacamSpinController ( void* param )
 static int
 _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 {
+	oaLogError ( OA_LOG_CAMERA, "%s: not yet implemented", __func__ );
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -129,13 +130,66 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 static int
 _processGetControl ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 {
+	oaLogError ( OA_LOG_CAMERA, "%s: not yet implemented", __func__ );
   return -OA_ERR_INVALID_CONTROL;
 }
+
 
 
 static int
 _processSetResolution ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 {
+  FRAMESIZE*			size = command->commandData;
+  unsigned int		binMode, s, restart = 0;
+  int							found;
+
+  if ( size->x == cameraInfo->xSize && size->y == cameraInfo->ySize ) {
+    return OA_ERR_NONE;
+  }
+
+  found = -1;
+  binMode = cameraInfo->binMode;
+  for ( s = 0; s < cameraInfo->frameSizes[ binMode ].numSizes && found < 0;
+			s++ ) {
+    if ( cameraInfo->frameSizes[ binMode ].sizes[ s ].x >= size->x &&
+        cameraInfo->frameSizes[ binMode ].sizes[ s ].y >= size->y ) {
+      found = s;
+      break;
+    }
+  }
+
+  if ( found < 0 ) {
+    oaLogError ( OA_LOG_CAMERA, "%s: resolution %dx%d not found", __func__,
+				size->x, size->y );
+    return -OA_ERR_OUT_OF_RANGE;
+  }
+
+/*
+  settings.width = size->x;
+  settings.height = size->y;
+  settings.offsetX = ( imageInfo.maxWidth - size->x ) / 2;
+  settings.offsetY = ( imageInfo.maxHeight - size->y ) / 2;
+*/
+
+	oaLogError ( OA_LOG_CAMERA, "%s: implementation incomplete", __func__ );
+
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
+    restart = 1;
+/*
+    _doStop ( cameraInfo );
+*/
+  }
+
+  cameraInfo->xSize = size->x;
+  cameraInfo->ySize = size->y;
+  cameraInfo->imageBufferLength = size->x * size->y *
+      cameraInfo->currentBytesPerPixel;
+
+  if ( restart ) {
+/*
+    _doStart ( cameraInfo );
+*/
+  }
   return OA_ERR_NONE;
 }
 
@@ -143,6 +197,18 @@ _processSetResolution ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 static int
 _processSetROI ( oaCamera* camera, OA_COMMAND* command )
 {
+/*
+  SPINNAKER_STATE*			cameraInfo = camera->_private;
+  FRAMESIZE*			size = command->commandData;
+  unsigned int			x, y;
+  int				ret, restart = 0;
+*/
+  if (!( camera->features.flags & OA_CAM_FEATURE_ROI )) {
+    return -OA_ERR_INVALID_CONTROL;
+  }
+
+	oaLogError ( OA_LOG_CAMERA, "%s: implementation incomplete", __func__ );
+
   return OA_ERR_NONE;
 }
 
@@ -150,6 +216,7 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
 static int
 _processStreamingStart ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 {
+	oaLogError ( OA_LOG_CAMERA, "%s: not yet implemented", __func__ );
   return OA_ERR_NONE;
 }
 
@@ -157,6 +224,7 @@ _processStreamingStart ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 static int
 _processStreamingStop ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 {
+	oaLogError ( OA_LOG_CAMERA, "%s: not yet implemented", __func__ );
   return OA_ERR_NONE;
 }
 
@@ -164,6 +232,7 @@ _processStreamingStop ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 static int
 _setBinning ( SPINNAKER_STATE* cameraInfo, int binMode )
 {
+	oaLogError ( OA_LOG_CAMERA, "%s: not yet implemented", __func__ );
   return OA_ERR_NONE;
 }
 
@@ -171,6 +240,7 @@ _setBinning ( SPINNAKER_STATE* cameraInfo, int binMode )
 static int
 _setFrameFormat ( SPINNAKER_STATE* cameraInfo, int format )
 {
+	oaLogError ( OA_LOG_CAMERA, "%s: not yet implemented", __func__ );
   return OA_ERR_NONE;
 }
 */

@@ -1,7 +1,7 @@
 #
 # Makefile.am -- liboacam Point Grey Spinnaker Makefile template
 #
-# Copyright 2018 James Fidell (james@openastroproject.org)
+# Copyright 2018,2021 James Fidell (james@openastroproject.org)
 #
 # License:
 #
