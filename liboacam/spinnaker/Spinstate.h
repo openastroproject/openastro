@@ -57,6 +57,8 @@ typedef struct SPINNAKER_STATE {
 	int							currentFrameFormat;
 	float						currentBytesPerPixel;
 
+	frameBuffer*		buffers;
+
 	spinSystem			systemHandle;
 	spinNodeHandle	cameraHandle;
 

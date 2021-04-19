@@ -44,7 +44,7 @@ extern int		oaSpinCameraTestROISize ( oaCamera*, unsigned int,
 			    unsigned int, unsigned int*, unsigned int* );
 
 extern void*		oacamSpinController ( void* );
-extern void*		oacamSpincallbackHandler ( void* );
+extern void*		oacamSpinCallbackHandler ( void* );
 
 extern const FRAMESIZES* oaSpinCameraGetFrameSizes ( oaCamera* );
 extern const FRAMERATES* oaSpinCameraGetFrameRates ( oaCamera*, int, int );

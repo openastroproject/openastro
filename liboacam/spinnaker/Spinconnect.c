@@ -428,10 +428,8 @@ oaSpinInitCamera ( oaCameraDevice* device )
 	cameraInfo->frameSizes[1].sizes[0].x = cameraInfo->maxResolutionX;
 	cameraInfo->frameSizes[1].sizes[0].y = cameraInfo->maxResolutionY;
 
-/*
-	// force camera into 8-bit mode if it has it
+	// FIX ME -- force camera into 8-bit mode if it has it?
 
-	// FIX ME -- it's possible we won't need these buffers
   // The largest buffer size we should need
 
   cameraInfo->buffers = 0;
@@ -462,24 +460,20 @@ oaSpinInitCamera ( oaCameraDevice* device )
       return 0;
     }
   }
-*/
+
   cameraInfo->stopControllerThread = cameraInfo->stopCallbackThread = 0;
   cameraInfo->commandQueue = oaDLListCreate();
   cameraInfo->callbackQueue = oaDLListCreate();
-/*
   cameraInfo->nextBuffer = 0;
   cameraInfo->configuredBuffers = OA_CAM_BUFFERS;
   cameraInfo->buffersFree = OA_CAM_BUFFERS;
-*/
 
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       oacamSpinController, ( void* ) camera )) {
-/*
     for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
       free (( void* ) cameraInfo->buffers[j].start );
       cameraInfo->buffers[j].start = 0;
     }
-*/
 		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
 				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
@@ -492,7 +486,6 @@ oaSpinInitCamera ( oaCameraDevice* device )
     FREE_DATA_STRUCTS;
     return 0;
   }
-/*
   if ( pthread_create ( &( cameraInfo->callbackThread ), 0,
       oacamSpinCallbackHandler, ( void* ) camera )) {
 
@@ -516,7 +509,6 @@ oaSpinInitCamera ( oaCameraDevice* device )
     FREE_DATA_STRUCTS;
     return 0;
   }
-*/
 
   cameraInfo->systemHandle = systemHandle;
   cameraInfo->cameraHandle = cameraHandle;
