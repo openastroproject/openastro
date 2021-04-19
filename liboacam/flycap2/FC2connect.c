@@ -521,6 +521,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       }
 
       if ( numberOfSources > 1 ) {
+				// FIX ME -- not sure 0 is the correct minimum value here, or if so,
+				// numberOfSources - 1 should perhaps be the correct maximum
         camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_SOURCE ) = OA_CTRL_TYPE_MENU;
         commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_SOURCE ) = 0;
         commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_SOURCE ) = numberOfSources;
