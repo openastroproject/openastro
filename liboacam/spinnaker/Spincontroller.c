@@ -46,7 +46,7 @@ static int	_processStreamingStop ( SPINNAKER_STATE*, OA_COMMAND* );
 //static int	_setBinning ( SPINNAKER_STATE*, int );
 //static int	_setFrameFormat ( SPINNAKER_STATE*, int );
 static int	_getEnumValue ( spinNodeHandle, size_t* );
-static int	_getVendorEnumValue ( spinNodeHandle, int64_t* );
+static int	_getCustomEnumValue ( spinNodeHandle, int64_t* );
 
 
 void*
@@ -125,7 +125,238 @@ oacamSpinController ( void* param )
 static int
 _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 {
-	oaLogError ( OA_LOG_CAMERA, "%s: not yet implemented", __func__ );
+	int								control = command->controlId;
+	oaControlValue*		val = command->commandData;
+	size_t						enumValue;
+	bool8_t						newBool;
+	double						newFloat;
+	int64_t						newInt;
+	SPINNAKER_STATE*	cameraInfo = camera->_private;
+
+	switch ( control ) {
+		case OA_CAM_CTRL_GAIN:
+			newFloat = val->int32 * ( cameraInfo->maxFloatGain -
+					cameraInfo->minFloatGain ) / 400.0 + cameraInfo->minFloatGain;
+			if (( *p_spinFloatSetValue )( cameraInfo->gain, newFloat ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set current gain value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_GAMMA:
+			newFloat = val->int32 * ( cameraInfo->maxFloatGamma -
+					cameraInfo->minFloatGamma ) / 100.0 + cameraInfo->minFloatGamma;
+			if (( *p_spinFloatSetValue )( cameraInfo->gamma, newFloat ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set current gamma value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_HUE:
+			newFloat = val->int32 * ( cameraInfo->maxFloatHue -
+					cameraInfo->minFloatHue ) / 100.0 + cameraInfo->minFloatHue;
+			if (( *p_spinFloatSetValue )( cameraInfo->hue, newFloat ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set current hue value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_SATURATION:
+			newFloat = val->int32 * ( cameraInfo->maxFloatSaturation -
+					cameraInfo->minFloatSaturation ) / 100.0 +
+					cameraInfo->minFloatSaturation;
+			if (( *p_spinFloatSetValue )( cameraInfo->saturation, newFloat ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set current saturation value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_SHARPNESS:
+			if (( *p_spinIntegerSetValue )( cameraInfo->sharpness, val->int32 ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set current sharpness value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_BLACKLEVEL:
+			newFloat = val->int32 * ( cameraInfo->maxFloatBlacklevel -
+					cameraInfo->minFloatBlacklevel ) / 100.0 +
+					cameraInfo->minFloatBlacklevel;
+			if (( *p_spinFloatSetValue )( cameraInfo->blackLevel, newFloat ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set current blacklevel value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
+			newFloat = val->int64;
+			if (( *p_spinFloatSetValue )( cameraInfo->exposure, newFloat ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set current exposure value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
+			enumValue = val->boolean ? GainAuto_Continuous : GainAuto_Off;
+			if (( *p_spinEnumerationSetEnumValue )( cameraInfo->autoGain,
+					enumValue ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set auto gain value", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_GAMMA ):
+			newBool = val->boolean ? True : False;
+			if (( *p_spinBooleanSetValue )( cameraInfo->gammaEnabled, newBool ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set gamma enabled", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ):
+			newInt = val->boolean ? 2 : 0;
+			if (( *p_spinEnumerationSetIntValue )( cameraInfo->autoHue, newInt ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set auto hue value", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_HUE ):
+			newBool = val->boolean ? True : False;
+			if (( *p_spinBooleanSetValue )( cameraInfo->hueEnabled, newBool ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set hue enabled", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_SATURATION ):
+			newInt = val->boolean ? 2 : 0;
+			if (( *p_spinEnumerationSetIntValue )( cameraInfo->autoSaturation,
+					newInt ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set auto saturation value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_SATURATION ):
+			newBool = val->boolean ? True : False;
+			if (( *p_spinBooleanSetValue )( cameraInfo->saturationEnabled,
+					newBool ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set saturation enabled",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_SHARPNESS ):
+			newInt = val->boolean ? 2 : 0;
+			if (( *p_spinEnumerationSetIntValue )( cameraInfo->autoSharpness,
+					newInt ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set auto sharpness value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_SHARPNESS ):
+			newBool = val->boolean ? True : False;
+			if (( *p_spinBooleanSetValue )( cameraInfo->sharpnessEnabled,
+					newBool ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set sharpness enabled",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLACKLEVEL ):
+			enumValue = val->boolean ? BlackLevelAuto_Continuous : BlackLevelAuto_Off;
+			if (( *p_spinEnumerationSetEnumValue )( cameraInfo->autoBlackLevel,
+					enumValue ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set auto black level value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_BLACKLEVEL ):
+			newBool = val->boolean ? True : False;
+			if (( *p_spinBooleanSetValue )( cameraInfo->blackLevelEnabled,
+					newBool ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set black level enabled",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ):
+			enumValue = val->boolean ? BalanceWhiteAuto_Continuous :
+					BalanceWhiteAuto_Off;
+			if (( *p_spinEnumerationSetEnumValue )( cameraInfo->autoWhiteBalance,
+					enumValue ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set auto white balance value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
+			enumValue = val->boolean ? ExposureAuto_Continuous : ExposureAuto_Off;
+			if (( *p_spinEnumerationSetEnumValue )( cameraInfo->autoExposure,
+					enumValue ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set auto exposure value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_BINNING:
+			oaLogError ( OA_LOG_CAMERA, "%s: Unhandled control %d", __func__,
+					control );
+			break;
+
+		default:
+			oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+					control );
+			break;
+	}
+
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -287,14 +518,27 @@ _processGetControl ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 			break;
 
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ):
-			if (( *p_spinBooleanGetValue )( cameraInfo->autoHue, &currBool ) !=
-					SPINNAKER_ERR_SUCCESS ) {
+			if (( err = _getCustomEnumValue ( cameraInfo->autoHue, &currInt )) !=
+					OA_ERR_NONE ) {
 				oaLogError ( OA_LOG_CAMERA,
 						"%s: Can't get current auto hue value", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
+				return err;
 			}
 			val->valueType = OA_CTRL_TYPE_BOOLEAN;
-			val->boolean = currBool ? 1 : 0;
+			switch ( currInt ) {
+				case 0:
+					val->boolean = 0;
+					break;
+				case 2:
+					val->boolean = 1;
+					break;
+				default:
+					oaLogWarning ( OA_LOG_CAMERA,
+							"%s: Unhandled value '%d' for auto hue", __func__,
+							currInt );
+					break;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
 			return OA_ERR_NONE;
 			break;
 
@@ -311,14 +555,27 @@ _processGetControl ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 			break;
 
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_SATURATION ):
-			if (( *p_spinBooleanGetValue )( cameraInfo->autoSaturation,
-					&currBool ) != SPINNAKER_ERR_SUCCESS ) {
+			if (( err = _getCustomEnumValue ( cameraInfo->autoSaturation,
+					&currInt )) != OA_ERR_NONE ) {
 				oaLogError ( OA_LOG_CAMERA,
 						"%s: Can't get current auto saturation value", __func__ );
-				return -OA_ERR_SYSTEM_ERROR;
+				return err;
 			}
 			val->valueType = OA_CTRL_TYPE_BOOLEAN;
-			val->boolean = currBool ? 1 : 0;
+			switch ( currInt ) {
+				case 0:
+					val->boolean = 0;
+					break;
+				case 2:
+					val->boolean = 1;
+					break;
+				default:
+					oaLogWarning ( OA_LOG_CAMERA,
+							"%s: Unhandled value '%d' for auto saturation", __func__,
+							currInt );
+					break;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
 			return OA_ERR_NONE;
 			break;
 
@@ -335,7 +592,7 @@ _processGetControl ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 			break;
 
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_SHARPNESS ):
-			if (( err = _getVendorEnumValue ( cameraInfo->autoSharpness,
+			if (( err = _getCustomEnumValue ( cameraInfo->autoSharpness,
 					&currInt )) != OA_ERR_NONE ) {
 				oaLogError ( OA_LOG_CAMERA,
 						"%s: Can't get current auto sharpness value", __func__ );
@@ -485,7 +742,7 @@ _getEnumValue ( spinNodeHandle node, size_t* value )
 
 
 static int
-_getVendorEnumValue ( spinNodeHandle node, int64_t* value )
+_getCustomEnumValue ( spinNodeHandle node, int64_t* value )
 {
 	spinNodeHandle		enumHandle;
 	spinError					err;

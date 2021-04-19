@@ -72,6 +72,8 @@ SPINNAKERC_API	( *p_spinEnumerationEntryGetEnumValue )( spinNodeHandle,
 			size_t* );
 SPINNAKERC_API	( *p_spinEnumerationEntryGetIntValue )( spinNodeHandle,
 			int64_t* );
+SPINNAKERC_API	( *p_spinEnumerationSetEnumValue )( spinNodeHandle, size_t );
+SPINNAKERC_API	( *p_spinEnumerationSetIntValue )( spinNodeHandle, int64_t );
 SPINNAKERC_API	( *p_spinEnumerationEntryGetSymbolic )( spinNodeHandle,
 			char*, size_t* );
 SPINNAKERC_API	( *p_spinInterfaceGetCameras )( spinInterface, spinCameraList );
@@ -99,10 +101,13 @@ SPINNAKERC_API	( *p_spinIntegerGetMin )( spinNodeHandle, int64_t* );
 SPINNAKERC_API	( *p_spinIntegerGetMax )( spinNodeHandle, int64_t* );
 SPINNAKERC_API	( *p_spinIntegerGetInc )( spinNodeHandle, int64_t* );
 SPINNAKERC_API	( *p_spinIntegerGetValue )( spinNodeHandle, int64_t* );
+SPINNAKERC_API	( *p_spinIntegerSetValue )( spinNodeHandle, int64_t );
 SPINNAKERC_API	( *p_spinBooleanGetValue )( spinNodeHandle, bool8_t* );
+SPINNAKERC_API	( *p_spinBooleanSetValue )( spinNodeHandle, bool8_t );
 SPINNAKERC_API	( *p_spinFloatGetMin )( spinNodeHandle, double* );
 SPINNAKERC_API	( *p_spinFloatGetMax )( spinNodeHandle, double* );
 SPINNAKERC_API	( *p_spinFloatGetValue )( spinNodeHandle, double* );
+SPINNAKERC_API	( *p_spinFloatSetValue )( spinNodeHandle, double );
 
 
 #if HAVE_LIBDL
@@ -221,8 +226,16 @@ _spinInitLibraryFunctionPointers ( void )
       libHandle, "spinEnumerationEntryGetEnumValue" ))) {
     return 0;
   }
+  if (!( *( void** )( &p_spinEnumerationSetEnumValue ) = _getDLSym (
+      libHandle, "spinEnumerationSetEnumValue" ))) {
+    return 0;
+  }
   if (!( *( void** )( &p_spinEnumerationEntryGetIntValue ) = _getDLSym (
       libHandle, "spinEnumerationEntryGetIntValue" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinEnumerationSetIntValue ) = _getDLSym (
+      libHandle, "spinEnumerationSetIntValue" ))) {
     return 0;
   }
   if (!( *( void** )( &p_spinEnumerationEntryGetSymbolic ) = _getDLSym (
@@ -317,8 +330,16 @@ _spinInitLibraryFunctionPointers ( void )
       "spinIntegerGetValue" ))) {
     return 0;
   }
+  if (!( *( void** )( &p_spinIntegerSetValue ) = _getDLSym ( libHandle,
+      "spinIntegerSetValue" ))) {
+    return 0;
+  }
   if (!( *( void** )( &p_spinBooleanGetValue ) = _getDLSym ( libHandle,
       "spinBooleanGetValue" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinBooleanSetValue ) = _getDLSym ( libHandle,
+      "spinBooleanSetValue" ))) {
     return 0;
   }
   if (!( *( void** )( &p_spinFloatGetMin ) = _getDLSym ( libHandle,
@@ -331,6 +352,10 @@ _spinInitLibraryFunctionPointers ( void )
   }
   if (!( *( void** )( &p_spinFloatGetValue ) = _getDLSym ( libHandle,
       "spinFloatGetValue" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinFloatSetValue ) = _getDLSym ( libHandle,
+      "spinFloatSetValue" ))) {
     return 0;
   }
 
@@ -359,9 +384,10 @@ _spinInitLibraryFunctionPointers ( void )
   p_spinNodeIsWritable = spinNodeIsWritable;
   p_spinStringGetValue = spinStringGetValue;
   p_spinEnumerationEntryGetEnumValue = spinEnumerationEntryGetEnumValue;
+  p_spinEnumerationSetEnumValue = spinEnumerationSetEnumValue;
   p_spinEnumerationEntryGetIntValue = spinEnumerationEntryGetIntValue;
+  p_spinEnumerationSetIntValue = spinEnumerationSetIntValue;
   p_spinEnumerationEntryGetSymbolic = spinEnumerationEntryGetSymbolic;
-  //p_spinEnumerationGetCurrentEntry = spinEnumerationGetCurrentEntry;
   p_spinInterfaceGetCameras = spinInterfaceGetCameras;
   p_spinCameraListGet = spinCameraListGet;
   p_spinCameraGetTLDeviceNodeMap = spinCameraGetTLDeviceNodeMap;
@@ -383,10 +409,13 @@ _spinInitLibraryFunctionPointers ( void )
   p_spinIntegerGetMax = spinIntegerGetMax;
   p_spinIntegerGetInc = spinIntegerGetInc;
   p_spinIntegerGetValue = spinIntegerGetValue;
+  p_spinIntegerSetValue = spinIntegerSetValue;
   p_spinBooleanGetValue = spinBooleanGetValue;
+  p_spinBooleanSetValue = spinBooleanSetValue;
   p_spinFloatGetMin = spinFloatGetMin;
   p_spinFloatGetMax = spinFloatGetMax;
   p_spinFloatGetValue = spinFloatGetValue;
+  p_spinFloatSetValue = spinFloatSetValue;
 
 #endif /* HAVE_LIBDL */
 

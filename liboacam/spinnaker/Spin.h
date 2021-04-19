@@ -76,6 +76,10 @@ extern SPINNAKERC_API	( *p_spinEnumerationEntryGetEnumValue )(
 				spinNodeHandle, size_t* );
 extern SPINNAKERC_API	( *p_spinEnumerationEntryGetIntValue )(
 				spinNodeHandle, int64_t* );
+extern SPINNAKERC_API	( *p_spinEnumerationSetEnumValue )( spinNodeHandle,
+				size_t );
+extern SPINNAKERC_API	( *p_spinEnumerationSetIntValue )( spinNodeHandle,
+				int64_t );
 extern SPINNAKERC_API	( *p_spinEnumerationEntryGetSymbolic )(
 				spinNodeHandle, char*, size_t* );
 extern SPINNAKERC_API	( *p_spinInterfaceGetCameras )( spinInterface,
@@ -111,10 +115,13 @@ extern SPINNAKERC_API	( *p_spinIntegerGetMin )( spinNodeHandle, int64_t* );
 extern SPINNAKERC_API	( *p_spinIntegerGetMax )( spinNodeHandle, int64_t* );
 extern SPINNAKERC_API	( *p_spinIntegerGetInc )( spinNodeHandle, int64_t* );
 extern SPINNAKERC_API	( *p_spinIntegerGetValue )( spinNodeHandle, int64_t* );
+extern SPINNAKERC_API	( *p_spinIntegerSetValue )( spinNodeHandle, int64_t );
 extern SPINNAKERC_API	( *p_spinBooleanGetValue )( spinNodeHandle, bool8_t* );
+extern SPINNAKERC_API	( *p_spinBooleanSetValue )( spinNodeHandle, bool8_t );
 extern SPINNAKERC_API	( *p_spinFloatGetMin )( spinNodeHandle, double* );
 extern SPINNAKERC_API	( *p_spinFloatGetMax )( spinNodeHandle, double* );
 extern SPINNAKERC_API	( *p_spinFloatGetValue )( spinNodeHandle, double* );
+extern SPINNAKERC_API	( *p_spinFloatSetValue )( spinNodeHandle, double );
 
 #define SPINNAKER_MAX_BUFF_LEN	256
 
