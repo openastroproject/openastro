@@ -26,6 +26,7 @@
 
 #include <oa_common.h>
 
+#include <spinc/SpinnakerC.h>
 #include <pthread.h>
 #include <sys/time.h>
 
@@ -44,6 +45,8 @@ static int	_processStreamingStart ( SPINNAKER_STATE*, OA_COMMAND* );
 static int	_processStreamingStop ( SPINNAKER_STATE*, OA_COMMAND* );
 //static int	_setBinning ( SPINNAKER_STATE*, int );
 //static int	_setFrameFormat ( SPINNAKER_STATE*, int );
+static int	_getEnumValue ( spinNodeHandle, size_t* );
+static int	_getVendorEnumValue ( spinNodeHandle, int64_t* );
 
 
 void*
@@ -134,6 +137,9 @@ _processGetControl ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 	int64_t						currInt;
 	double						currFloat;
 	oaControlValue*		val = command->resultData;
+	size_t						enumValue;
+	int								err;
+	bool8_t						currBool;
 
 	switch ( control ) {
 		case OA_CAM_CTRL_GAIN:
@@ -247,20 +253,202 @@ _processGetControl ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 			return OA_ERR_NONE;
 			break;
 
-		case OA_CAM_CTRL_BINNING:
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
-		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_GAIN ):
+			if (( err = _getEnumValue ( cameraInfo->autoGain, &enumValue )) !=
+					OA_ERR_NONE ) {
+				return err;
+			}
+			switch ( enumValue ) {
+				case GainAuto_Off:
+					val->boolean = 0;
+					break;
+				case GainAuto_Continuous:
+					val->boolean = 1;
+					break;
+				default:
+					oaLogWarning ( OA_LOG_CAMERA,
+							"%s: Unhandled value '%d' for auto gain", __func__, enumValue );
+					break;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			return OA_ERR_NONE;
+			break;
+
 		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_GAMMA ):
+			if (( *p_spinBooleanGetValue )( cameraInfo->gammaEnabled, &currBool ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get current gamma enabled value", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = currBool ? 1 : 0;
+			return OA_ERR_NONE;
+			break;
+
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ):
+			if (( *p_spinBooleanGetValue )( cameraInfo->autoHue, &currBool ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get current auto hue value", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = currBool ? 1 : 0;
+			return OA_ERR_NONE;
+			break;
+
 		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_HUE ):
+			if (( *p_spinBooleanGetValue )( cameraInfo->hueEnabled, &currBool ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get current hue enabled value", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = currBool ? 1 : 0;
+			return OA_ERR_NONE;
+			break;
+
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_SATURATION ):
+			if (( *p_spinBooleanGetValue )( cameraInfo->autoSaturation,
+					&currBool ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get current auto saturation value", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = currBool ? 1 : 0;
+			return OA_ERR_NONE;
+			break;
+
 		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_SATURATION ):
+			if (( *p_spinBooleanGetValue )( cameraInfo->saturationEnabled,
+					&currBool ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get current saturation enabled value", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = currBool ? 1 : 0;
+			return OA_ERR_NONE;
+			break;
+
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_SHARPNESS ):
+			if (( err = _getVendorEnumValue ( cameraInfo->autoSharpness,
+					&currInt )) != OA_ERR_NONE ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get current auto sharpness value", __func__ );
+				return err;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			switch ( currInt ) {
+				case 0:
+					val->boolean = 0;
+					break;
+				case 2:
+					val->boolean = 1;
+					break;
+				default:
+					oaLogWarning ( OA_LOG_CAMERA,
+							"%s: Unhandled value '%d' for auto sharpness", __func__,
+							currInt );
+					break;
+			}
+			return OA_ERR_NONE;
+			break;
+
 		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_SHARPNESS ):
+			if (( *p_spinBooleanGetValue )( cameraInfo->sharpnessEnabled,
+					&currBool ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get current sharpness enabled value", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = currBool ? 1 : 0;
+			return OA_ERR_NONE;
+			break;
+
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLACKLEVEL ):
+			if (( err = _getEnumValue ( cameraInfo->autoBlackLevel, &enumValue )) !=
+					OA_ERR_NONE ) {
+				return err;
+			}
+			switch ( enumValue ) {
+				case BlackLevelAuto_Off:
+					val->boolean = 0;
+					break;
+				case BlackLevelAuto_Continuous:
+					val->boolean = 1;
+					break;
+				default:
+					oaLogWarning ( OA_LOG_CAMERA,
+							"%s: Unhandled value '%d' for auto black level", __func__,
+							enumValue );
+					break;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			return OA_ERR_NONE;
+			break;
+
 		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_BLACKLEVEL ):
+			if (( *p_spinBooleanGetValue )( cameraInfo->blackLevelEnabled,
+					&currBool ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get current black level enabled value", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = currBool ? 1 : 0;
+			return OA_ERR_NONE;
+			break;
+
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ):
+			if (( err = _getEnumValue ( cameraInfo->autoWhiteBalance,
+					&enumValue )) != OA_ERR_NONE ) {
+				return err;
+			}
+			switch ( enumValue ) {
+				case BalanceWhiteAuto_Off:
+					val->boolean = 0;
+					break;
+				case BalanceWhiteAuto_Continuous:
+					val->boolean = 1;
+					break;
+				default:
+					oaLogWarning ( OA_LOG_CAMERA,
+							"%s: Unhandled value '%d' for auto black level", __func__,
+							enumValue );
+					break;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			return OA_ERR_NONE;
+			break;
+
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
+			if (( err = _getEnumValue ( cameraInfo->autoExposure,
+					&enumValue )) != OA_ERR_NONE ) {
+				return err;
+			}
+			switch ( enumValue ) {
+				case ExposureAuto_Off:
+					val->boolean = 0;
+					break;
+				case ExposureAuto_Continuous:
+					val->boolean = 1;
+					break;
+				default:
+					oaLogWarning ( OA_LOG_CAMERA,
+							"%s: Unhandled value '%d' for auto black level", __func__,
+							enumValue );
+					break;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_BINNING:
 			oaLogError ( OA_LOG_CAMERA, "%s: Unhandled control %d", __func__,
 					control );
 			break;
@@ -274,6 +462,47 @@ _processGetControl ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
   return -OA_ERR_INVALID_CONTROL;
 }
 
+
+static int
+_getEnumValue ( spinNodeHandle node, size_t* value )
+{
+	spinNodeHandle		enumHandle;
+	spinError					err;
+
+	if (( *p_spinEnumerationGetCurrentEntry )( node, &enumHandle ) !=
+			SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't get enum current entry", __func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+	if (( err = ( *p_spinEnumerationEntryGetEnumValue )( enumHandle, value )) !=
+			SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't get enum current value, error %d",
+				__func__, err );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+	return OA_ERR_NONE;
+}
+
+
+static int
+_getVendorEnumValue ( spinNodeHandle node, int64_t* value )
+{
+	spinNodeHandle		enumHandle;
+	spinError					err;
+
+	if (( *p_spinEnumerationGetCurrentEntry )( node, &enumHandle ) !=
+			SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't get enum current entry", __func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+	if (( err = ( *p_spinEnumerationEntryGetIntValue )( enumHandle,
+			value )) != SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't get enum integer value, error %d",
+				__func__, err );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+	return OA_ERR_NONE;
+}
 
 
 static int

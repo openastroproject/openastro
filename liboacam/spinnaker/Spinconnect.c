@@ -1680,6 +1680,8 @@ _checkWhiteBalanceControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				"disabled before checking white balance range", __func__ );
 	}
 
+	oaLogError ( OA_LOG_CAMERA, "%s: configure white balance control", __func__ );
+
 	return OA_ERR_NONE;
 }
 
@@ -2304,7 +2306,7 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 						nodeTypes[ nodeType ] );
 			}
     } else {
-      oaLogError ( OA_LOG_CAMERA,
+      oaLogWarning ( OA_LOG_CAMERA,
 					"%s: horizontal binning is inaccessible", __func__ );
 		}
   } else {
