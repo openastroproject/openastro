@@ -745,6 +745,8 @@ _checkGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 					return -OA_ERR_SYSTEM_ERROR;
 				}
 
+				cameraInfo->minFloatGain = min;
+				cameraInfo->maxFloatGain = max;
 				// Potentially temporarily, convert this to a range from 0 to 400
 				currInt = ( curr - min ) * 400.0 / ( max - min );
 				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) =
@@ -2860,6 +2862,8 @@ _checkFlipControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found reverse X", __func__ );
 				_showBooleanNode ( flipX );
 				cameraInfo->flipX = flipX;
+				oaLogWarning ( OA_LOG_CAMERA, "%s: Need to set up command for flipX",
+						__func__ );
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for reverse X", __func__,

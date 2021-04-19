@@ -130,7 +130,147 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 static int
 _processGetControl ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 {
-	oaLogError ( OA_LOG_CAMERA, "%s: not yet implemented", __func__ );
+	int								control = command->controlId;
+	int64_t						currInt;
+	double						currFloat;
+	oaControlValue*		val = command->resultData;
+
+	switch ( control ) {
+		case OA_CAM_CTRL_GAIN:
+			if (( *p_spinFloatGetValue )( cameraInfo->gain, &currFloat ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get current gain value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			// Potentially temporarily, convert this to a range from 0 to 400
+			currInt = ( currFloat - cameraInfo->minFloatGain ) * 400.0 /
+				( cameraInfo->maxFloatGain - cameraInfo->minFloatGain );
+			val->valueType = OA_CTRL_TYPE_INT32;
+			val->int32 = currInt;
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_GAMMA:
+			if (( *p_spinFloatGetValue )( cameraInfo->gamma, &currFloat ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get current gamma value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			// Potentially temporarily, convert this to a range from 0 to 100
+			currInt = ( currFloat - cameraInfo->minFloatGamma ) * 100.0 /
+				( cameraInfo->maxFloatGamma - cameraInfo->minFloatGamma );
+			val->valueType = OA_CTRL_TYPE_INT32;
+			val->int32 = currInt;
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_HUE:
+			if (( *p_spinFloatGetValue )( cameraInfo->hue, &currFloat ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get current hue value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			// Potentially temporarily, convert this to a range from 0 to 100
+			currInt = ( currFloat - cameraInfo->minFloatHue ) * 100.0 /
+				( cameraInfo->maxFloatHue - cameraInfo->minFloatHue );
+			val->valueType = OA_CTRL_TYPE_INT32;
+			val->int32 = currInt;
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_SATURATION:
+			if (( *p_spinFloatGetValue )( cameraInfo->saturation, &currFloat ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get current saturation value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			// Potentially temporarily, convert this to a range from 0 to 100
+			currInt = ( currFloat - cameraInfo->minFloatSaturation ) * 100.0 /
+				( cameraInfo->maxFloatSaturation - cameraInfo->minFloatSaturation );
+			val->valueType = OA_CTRL_TYPE_INT32;
+			val->int32 = currInt;
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_SHARPNESS:
+			if (( *p_spinIntegerGetValue )( cameraInfo->sharpness, &currInt ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get current sharpness value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			val->valueType = OA_CTRL_TYPE_INT32;
+			val->int32 = currInt;
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_BLACKLEVEL:
+			if (( *p_spinFloatGetValue )( cameraInfo->blackLevel, &currFloat ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get current blacklevel value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			// Potentially temporarily, convert this to a range from 0 to 100
+			currInt = ( currFloat - cameraInfo->minFloatBlacklevel ) * 100.0 /
+				( cameraInfo->maxFloatBlacklevel - cameraInfo->minFloatBlacklevel );
+			val->valueType = OA_CTRL_TYPE_INT32;
+			val->int32 = currInt;
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
+			if (( *p_spinFloatGetValue )( cameraInfo->exposure, &currFloat ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get current exposure value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			val->valueType = OA_CTRL_TYPE_INT64;
+			val->int64 = currFloat;
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_TEMPERATURE:
+			if (( *p_spinFloatGetValue )( cameraInfo->temperature, &currFloat ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get current exposure value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			val->valueType = OA_CTRL_TYPE_READONLY;
+			val->int32 = currFloat * 10;
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_BINNING:
+		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
+		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_GAIN ):
+		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_GAMMA ):
+		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_HUE ):
+		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_HUE ):
+		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_SATURATION ):
+		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_SATURATION ):
+		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_SHARPNESS ):
+		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_SHARPNESS ):
+		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_BLACKLEVEL ):
+		case OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_BLACKLEVEL ):
+		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_WHITE_BALANCE ):
+		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
+			oaLogError ( OA_LOG_CAMERA, "%s: Unhandled control %d", __func__,
+					control );
+			break;
+
+		default:
+			oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+					control );
+			break;
+	}
+
   return -OA_ERR_INVALID_CONTROL;
 }
 

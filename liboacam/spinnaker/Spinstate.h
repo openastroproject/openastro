@@ -43,6 +43,8 @@ typedef struct SPINNAKER_STATE {
 
 	double					minFloatBlacklevel;
 	double					maxFloatBlacklevel;
+	double					minFloatGain;
+	double					maxFloatGain;
 	double					minFloatGamma;
 	double					maxFloatGamma;
 	double					minFloatHue;
