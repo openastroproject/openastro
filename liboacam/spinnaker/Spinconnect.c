@@ -3219,9 +3219,9 @@ _spinInitFunctionPointers ( oaCamera* camera )
   // camera->funcs.isAuto = _isAuto;
 */
   camera->funcs.enumerateFrameSizes = oaSpinCameraGetFrameSizes;
-/*
   camera->funcs.getFramePixelFormat = oaSpinCameraGetFramePixelFormat;
 
+/*
   camera->funcs.enumerateFrameRates = oaSpinCameraGetFrameRates;
   camera->funcs.setFrameInterval = oaSpinCameraSetFrameInterval;
 

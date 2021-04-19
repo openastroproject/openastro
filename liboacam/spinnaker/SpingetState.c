@@ -86,3 +86,12 @@ oaSpinCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
   return &cameraInfo->frameRates;
 }
 */
+
+
+int
+oaSpinCameraGetFramePixelFormat ( oaCamera* camera )
+{
+  SPINNAKER_STATE*		cameraInfo = camera->_private;
+
+	return cameraInfo->currentFrameFormat;
+}
