@@ -704,9 +704,17 @@ _checkGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: auto gain unavailable", __func__ );
   }
 
-	if ( autoGainValid && commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_GAIN )) {
-		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check auto gain is disabled "
-				"before checking gain range", __func__ );
+	// If auto gain is enabled then because there are controls to limit the
+	// range of gain values in auto mode (the features AutoGainLowerLimit and
+	// AutoGainUpperLimit, which are currently ignored), the range of available
+	// gain values may not be correct, so auto gain must be disabled.
+
+	if ( autoGainValid ) {
+		if (( *p_spinEnumerationSetEnumValue )( autoGain, GainAuto_Off ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn off auto gain", __func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
 	}
 
   if ( _getNodeData ( nodeMap, "Gain", &gain, &implemented, &available,
