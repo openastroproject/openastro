@@ -39,7 +39,8 @@
 #define DeviceType_GigEVision DeviceType_GEV
 #endif
 
-extern int						_spinFormatMap[];
+#define NUM_SPIN_FORMATS		251
+extern int						_spinFormatMap[ NUM_SPIN_FORMATS ];
 
 extern int						_spinInitLibraryFunctionPointers ( void );
 

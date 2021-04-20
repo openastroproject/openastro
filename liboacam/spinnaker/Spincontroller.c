@@ -44,11 +44,11 @@ static int	_processSetROI ( oaCamera*, OA_COMMAND* );
 static int	_processStreamingStart ( SPINNAKER_STATE*, OA_COMMAND* );
 static int	_processStreamingStop ( SPINNAKER_STATE*, OA_COMMAND* );
 //static int	_setBinning ( SPINNAKER_STATE*, int );
-//static int	_setFrameFormat ( SPINNAKER_STATE*, int );
 static int	_getEnumValue ( spinNodeHandle, size_t* );
 static int	_getCustomEnumValue ( spinNodeHandle, int64_t* );
 static int	_doStart ( SPINNAKER_STATE* );
 static int	_doStop ( SPINNAKER_STATE* );
+static int	_doFrameFormat ( oaCamera*, int );
 static int	_configureEvents ( SPINNAKER_STATE* );
 static int	_unconfigureEvents ( SPINNAKER_STATE* );
 
@@ -413,6 +413,16 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 				return -OA_ERR_SYSTEM_ERROR;
 			}
 			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_FRAME_FORMAT:
+			if ( OA_CTRL_TYPE_DISCRETE != val->valueType ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where discrete expected", __func__,
+						val->valueType );
+				return -OA_ERR_INVALID_CONTROL_TYPE;
+			}
+			return _doFrameFormat ( camera, val->discrete );
 			break;
 
 		case OA_CAM_CTRL_BINNING:
@@ -1033,12 +1043,53 @@ _setBinning ( SPINNAKER_STATE* cameraInfo, int binMode )
 	oaLogError ( OA_LOG_CAMERA, "%s: not yet implemented", __func__ );
   return OA_ERR_NONE;
 }
+*/
 
 
 static int
-_setFrameFormat ( SPINNAKER_STATE* cameraInfo, int format )
+_doFrameFormat ( oaCamera* camera, int format )
 {
-	oaLogError ( OA_LOG_CAMERA, "%s: not yet implemented", __func__ );
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
+	int								i = 0, found = 0, restart = 0;
+	size_t						newFormat;
+
+	if ( !camera->frameFormats[ format ] ) {
+		return OA_ERR_UNSUPPORTED_FORMAT;
+	}
+
+	for ( i = 0; !found && i <= NUM_SPIN_FORMATS; i++ ) {
+		if ( _spinFormatMap[i] == format ) {
+			found = 1;
+			newFormat = i;
+		}
+	}
+
+	if ( !found ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Format %d not found in map", __func__,
+				format );
+		return OA_ERR_UNSUPPORTED_FORMAT;
+	}
+
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
+    restart = 1;
+    _doStop ( cameraInfo );
+  }
+
+	if (( *p_spinEnumerationSetEnumValue )( cameraInfo->pixelFormat,
+			newFormat ) != SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't set format %d", __func__,
+				newFormat );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+  cameraInfo->currentFrameFormat = format;
+  cameraInfo->currentBytesPerPixel = oaFrameFormats[ format ].bytesPerPixel;
+  cameraInfo->imageBufferLength = cameraInfo->xSize * cameraInfo->ySize *
+    cameraInfo->currentBytesPerPixel;
+
+  if ( restart ) {
+    _doStart ( cameraInfo );
+  }
+
   return OA_ERR_NONE;
 }
-*/

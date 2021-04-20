@@ -33,7 +33,7 @@
 
 #include "Spin.h"
 
-int	_spinFormatMap[] =
+int	_spinFormatMap[ NUM_SPIN_FORMATS ] =
 {
     OA_PIX_FMT_GREY8,					// PixelFormat_Mono8
     OA_PIX_FMT_GREY16LE,			// PixelFormat_Mono16
