@@ -942,9 +942,16 @@ _checkHueControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: hue enabled unavailable", __func__ );
   }
 
+	// If hueEnabled is off then reading the hue values many not work
+	// (the node might not be available, for a start), so enable it before
+	// checking.
+
 	if ( hueEnabledValid ) {
-		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check hue enabled is set "
-				"before checking other hue controls", __func__ );
+		if (( *p_spinBooleanSetValue )( hueEnabled, True ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn on hue", __func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
 	}
 
   if ( _getNodeData ( nodeMap, "HueAuto", &autoHue, &implemented, &available,
@@ -1007,9 +1014,15 @@ _checkHueControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: auto hue unavailable", __func__ );
   }
 
-	if ( autoHueValid && commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_HUE )) {
-		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check auto hue is disabled "
-				"before checking hue range", __func__ );
+	// If auto hue is enabled disable it before we read the hue values in
+	// case auto mode modifies the way hue works
+
+	if ( autoHueValid ) {
+		if (( *p_spinEnumerationSetIntValue )( autoHue, 0 ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn off auto hue", __func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
 	}
 
   if ( _getNodeData ( nodeMap, "Hue", &hue, &implemented, &available,
