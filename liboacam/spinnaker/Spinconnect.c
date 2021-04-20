@@ -1328,9 +1328,16 @@ _checkSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: sharpness enabled unavailable", __func__ );
   }
 
+	// If sharpnessEnabled is off then reading the sharpness values many not
+	// work (the node might not be available, for a start), so enable it before
+	// checking.
+
 	if ( sharpnessEnabledValid ) {
-		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check sharpness enabled is "
-				"set before checking other sharpness controls", __func__ );
+		if (( *p_spinBooleanSetValue )( sharpnessEnabled, True ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn on sharpness", __func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
 	}
 
   if ( _getNodeData ( nodeMap, "SharpnessAuto", &autoSharpness, &implemented,
@@ -1396,10 +1403,16 @@ _checkSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: auto sharpness unavailable", __func__ );
   }
 
-	if ( autoSharpnessValid &&
-			commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_SHARPNESS )) {
-		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check auto sharpness is "
-				"disabled before checking sharpness range", __func__ );
+	// If auto saturation is enabled disable it before we read the saturation
+	// values in case auto mode modifies the way saturation works
+
+	if ( autoSharpnessValid ) {
+		if (( *p_spinEnumerationSetIntValue )( autoSharpness, 0 ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn off auto sharpness",
+					__func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
 	}
 
   if ( _getNodeData ( nodeMap, "Sharpness", &sharpness, &implemented,
@@ -1454,6 +1467,17 @@ _checkSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
   } else {
     oaLogInfo ( OA_LOG_CAMERA, "%s: sharpness unavailable", __func__ );
   }
+
+	// Perhaps this isn't the right thing to do, but I'm going to force
+	// the sharpness control off if it exists
+
+	if ( sharpnessEnabledValid ) {
+		if (( *p_spinBooleanSetValue )( sharpnessEnabled, False ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn off sharpness", __func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
+	}
 
 	return OA_ERR_NONE;
 }
