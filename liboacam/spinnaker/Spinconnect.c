@@ -3200,9 +3200,9 @@ _spinInitFunctionPointers ( oaCamera* camera )
 {
 
   camera->funcs.initCamera = oaSpinInitCamera;
-/*
   camera->funcs.closeCamera = oaSpinCloseCamera;
 
+/*
   camera->funcs.testControl = oaSpinCameraTestControl;
 */
   camera->funcs.getControlRange = oaSpinCameraGetControlRange;
@@ -3223,4 +3223,63 @@ _spinInitFunctionPointers ( oaCamera* camera )
 
   camera->funcs.getMenuString = oaSpinCameraGetMenuString;
 */
+}
+
+
+int
+oaSpinCloseCamera ( oaCamera* camera )
+{
+  void*							dummy;
+  SPINNAKER_STATE*	cameraInfo;
+	int								j;
+
+  if ( camera ) {
+
+    cameraInfo = camera->_private;
+
+    cameraInfo->stopControllerThread = 1;
+    pthread_cond_broadcast ( &cameraInfo->commandQueued );
+    pthread_join ( cameraInfo->controllerThread, &dummy );
+  
+    cameraInfo->stopCallbackThread = 1;
+    pthread_cond_broadcast ( &cameraInfo->callbackQueued );
+    pthread_join ( cameraInfo->callbackThread, &dummy );
+
+    ( void ) ( *p_spinCameraDeInit )( cameraInfo->cameraHandle );
+		( void ) ( *p_spinCameraRelease )( cameraInfo->cameraHandle );
+		( void ) ( *p_spinSystemReleaseInstance )( cameraInfo->systemHandle );
+
+    for ( j = 0; j < OA_CAM_BUFFERS; j++ ) {
+      free (( void* ) cameraInfo->buffers[j].start );
+    }
+
+		//if ( cameraInfo->frameRates.numRates ) {
+		//	free (( void* ) cameraInfo->frameRates.rates );
+		//}
+
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
+			if ( cameraInfo->frameSizes[ j ].numSizes ) {
+				free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				//if ( cameraInfo->frameModes[ j ] ) {
+				//	free (( void* ) cameraInfo->frameModes[ j ]);
+				//}
+			}
+		}
+
+    oaDLListDelete ( cameraInfo->commandQueue, 1 );
+    oaDLListDelete ( cameraInfo->callbackQueue, 0 );
+
+    // free (( void* ) cameraInfo->metadataBuffers );
+		free (( void* ) cameraInfo->buffers );
+		//if ( cameraInfo->triggerModes ) {
+		//	free (( void* ) cameraInfo->triggerModes );
+		//}
+    free (( void* ) camera->_common );
+    free (( void* ) cameraInfo );
+    free (( void* ) camera );
+
+  } else {
+    return -OA_ERR_INVALID_CAMERA;
+  }
+  return OA_ERR_NONE;
 }
