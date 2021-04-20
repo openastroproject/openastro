@@ -47,6 +47,10 @@ static int	_processStreamingStop ( SPINNAKER_STATE*, OA_COMMAND* );
 //static int	_setFrameFormat ( SPINNAKER_STATE*, int );
 static int	_getEnumValue ( spinNodeHandle, size_t* );
 static int	_getCustomEnumValue ( spinNodeHandle, int64_t* );
+static int	_doStart ( SPINNAKER_STATE* );
+static int	_doStop ( SPINNAKER_STATE* );
+static int	_configureEvents ( SPINNAKER_STATE* );
+static int	_unconfigureEvents ( SPINNAKER_STATE* );
 
 
 void*
@@ -98,7 +102,8 @@ oacamSpinController ( void* param )
             resultCode = _processStreamingStop ( cameraInfo, command );
             break;
           default:
-            fprintf ( stderr, "Invalid command type %d in controller\n",
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: Invalid command type %d in controller", __func__,
                 command->commandType );
             resultCode = -OA_ERR_INVALID_CONTROL;
             break;
@@ -119,6 +124,70 @@ oacamSpinController ( void* param )
   } while ( !exitThread );
 
   return 0;
+}
+
+
+void
+_SpinFrameCallback ( spinImage imageData, void *ptr )
+{
+	spinImageStatus		status;
+	bool8_t						imageComplete;
+	void*							frame;
+  SPINNAKER_STATE*	cameraInfo = ptr;
+  int								buffersFree, nextBuffer;
+  size_t						dataLength;
+
+	if (( *p_spinImageIsIncomplete )( imageData, &imageComplete ) !=
+			SPINNAKER_ERR_SUCCESS ) {
+		if (( *p_spinImageGetStatus )( imageData, &status ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			status = IMAGE_UNKNOWN_ERROR;
+		}
+		oaLogError ( OA_LOG_CAMERA, "%s: incomplete image; status %d, ignoring",
+				__func__, status );
+		// FIX ME -- add dropped count?
+		return;
+	}
+
+	if (( *p_spinImageGetData )( imageData, &frame ) != SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: failed to get data for image", __func__ );
+		return;
+	}
+
+	if (( *p_spinImageGetValidPayloadSize )( imageData, &dataLength ) !=
+			SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: failed to get data length for image",
+				__func__ );
+		return;
+	}
+
+  pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+  buffersFree = cameraInfo->buffersFree;
+  pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+
+  if ( buffersFree ) {
+    nextBuffer = cameraInfo->nextBuffer;
+    ( void ) memcpy ( cameraInfo->buffers[ nextBuffer ].start, frame,
+        dataLength );
+    cameraInfo->frameCallbacks[ nextBuffer ].callbackType =
+        OA_CALLBACK_NEW_FRAME;
+    cameraInfo->frameCallbacks[ nextBuffer ].callback =
+        cameraInfo->streamingCallback.callback;
+    cameraInfo->frameCallbacks[ nextBuffer ].callbackArg =
+        cameraInfo->streamingCallback.callbackArg;
+    cameraInfo->frameCallbacks[ nextBuffer ].buffer =
+        cameraInfo->buffers[ nextBuffer ].start;
+    cameraInfo->frameCallbacks[ nextBuffer ].metadata = 0;
+        // &( cameraInfo->metadataBuffers[ nextBuffer ]);
+    cameraInfo->frameCallbacks[ nextBuffer ].bufferLen = dataLength;
+    pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
+    oaDLListAddToTail ( cameraInfo->callbackQueue,
+        &cameraInfo->frameCallbacks[ nextBuffer ]);
+    cameraInfo->buffersFree--;
+    cameraInfo->nextBuffer = ( nextBuffer + 1 ) % cameraInfo->configuredBuffers;
+    pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
+    pthread_cond_broadcast ( &cameraInfo->callbackQueued );
+  }
 }
 
 
@@ -842,17 +911,120 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
 static int
 _processStreamingStart ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 {
-	oaLogError ( OA_LOG_CAMERA, "%s: not yet implemented", __func__ );
+  CALLBACK*		cb = command->commandData;
+
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STOPPED ) {
+    return -OA_ERR_INVALID_COMMAND;
+  }
+
+  cameraInfo->streamingCallback.callback = cb->callback;
+  cameraInfo->streamingCallback.callbackArg = cb->callbackArg;
+
+  cameraInfo->imageBufferLength = cameraInfo->xSize * cameraInfo->ySize *
+      cameraInfo->currentBytesPerPixel;
+
+	_configureEvents ( cameraInfo );
+
+	if (( *p_spinEnumerationSetEnumValue )( cameraInfo->acquisitionMode,
+			AcquisitionMode_Continuous ) != SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't set continuous acquisition mode",
+				__func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+  return _doStart ( cameraInfo );
+}
+
+
+static int
+_doStart ( SPINNAKER_STATE* cameraInfo )
+{
+	if (( *p_spinCameraBeginAcquisition )( cameraInfo->cameraHandle ) !=
+			SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: begin acquisition failed", __func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  cameraInfo->runMode = CAM_RUN_MODE_STREAMING;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+
   return OA_ERR_NONE;
+}
+
+
+static int
+_configureEvents ( SPINNAKER_STATE* cameraInfo )
+{
+	cameraInfo->eventHandler = 0;
+
+	if (( *p_spinImageEventHandlerCreate )( &( cameraInfo->eventHandler ),
+			_SpinFrameCallback, cameraInfo ) != SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Unable to create image event handler",
+				__func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if (( *p_spinCameraRegisterImageEventHandler )( cameraInfo->cameraHandle,
+			cameraInfo->eventHandler ) != SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Unable to register event handler",
+				__func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	return OA_ERR_NONE;
 }
 
 
 static int
 _processStreamingStop ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 {
-	oaLogError ( OA_LOG_CAMERA, "%s: not yet implemented", __func__ );
+  if ( cameraInfo->runMode != CAM_RUN_MODE_STREAMING ) {
+    return -OA_ERR_INVALID_COMMAND;
+  }
+
+  _doStop ( cameraInfo );
+	return _unconfigureEvents ( cameraInfo );
+}
+
+
+static int
+_doStop ( SPINNAKER_STATE* cameraInfo )
+{
+  pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
+  cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
+  pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
+
+	if (( *p_spinCameraEndAcquisition )( cameraInfo->cameraHandle ) !=
+			SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: end acquisition failed", __func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
   return OA_ERR_NONE;
 }
+
+
+static int
+_unconfigureEvents ( SPINNAKER_STATE* cameraInfo )
+{
+	if (( *p_spinCameraUnregisterImageEventHandler )( cameraInfo->cameraHandle,
+			cameraInfo->eventHandler ) != SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Unable to unregister image event handler",
+				__func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if (( *p_spinImageEventHandlerDestroy )( cameraInfo->eventHandler ) !=
+			SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Unable to destroy event handler",
+				__func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	return OA_ERR_NONE;
+}
+
 
 /*
 static int

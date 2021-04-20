@@ -29,6 +29,7 @@
 #include <pthread.h>
 
 #include <openastro/camera.h>
+#include <openastro/util.h>
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
@@ -75,8 +76,8 @@ oacamSpinCallbackHandler ( void* param )
           pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
           break;
         default:
-          fprintf ( stderr, "unexpected callback type %d\n",
-              callback->callbackType );
+          oaLogError ( OA_LOG_CAMERA, "%s: unexpected callback type %d",
+              __func__, callback->callbackType );
           break;
       }
     }

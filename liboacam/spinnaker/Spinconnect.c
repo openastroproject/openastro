@@ -442,7 +442,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: calloc for buffers failed", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
@@ -510,6 +510,7 @@ oaSpinInitCamera ( oaCameraDevice* device )
     return 0;
   }
 
+	cameraInfo->nodeMapHandle = cameraNodeMapHandle;
   cameraInfo->systemHandle = systemHandle;
   cameraInfo->cameraHandle = cameraHandle;
   cameraInfo->initialised = 1;
@@ -2806,6 +2807,7 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 					if ( oaFrameFormats[ oaFormat ].fullColour ) {
 						camera->features.flags |= OA_CAM_FEATURE_DEMOSAIC_MODE;
 					}
+					camera->frameFormats[ oaFormat ] = 1;
 					if ( currentVal == enumVal ) {
 						cameraInfo->currentBytesPerPixel =
 								oaFrameFormats[ oaFormat ].bytesPerPixel;
@@ -2833,6 +2835,8 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				"%s: No way to discover available frame formats", __func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
+
+	camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) = OA_CTRL_TYPE_DISCRETE;
 
 	return OA_ERR_NONE;
 }
@@ -3206,10 +3210,10 @@ _spinInitFunctionPointers ( oaCamera* camera )
   camera->funcs.getControlDiscreteSet = oaSpinCameraGetControlDiscreteSet;
 
   camera->funcs.testROISize = oaSpinCameraTestROISize;
-
+*/
   camera->funcs.hasAuto = oacamHasAuto;
   // camera->funcs.isAuto = _isAuto;
-*/
+
   camera->funcs.enumerateFrameSizes = oaSpinCameraGetFrameSizes;
   camera->funcs.getFramePixelFormat = oaSpinCameraGetFramePixelFormat;
 

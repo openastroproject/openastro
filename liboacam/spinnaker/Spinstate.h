@@ -38,96 +38,99 @@ typedef struct SPINNAKER_STATE {
 
 #include "sharedDecs.h"
 
-  uint64_t				deviceId;
-  uint64_t				ipAddress;
+  uint64_t							deviceId;
+  uint64_t							ipAddress;
 
-	double					minFloatBlacklevel;
-	double					maxFloatBlacklevel;
-	double					minFloatGain;
-	double					maxFloatGain;
-	double					minFloatGamma;
-	double					maxFloatGamma;
-	double					minFloatHue;
-	double					maxFloatHue;
-	double					minFloatSaturation;
-	double					maxFloatSaturation;
+	double								minFloatBlacklevel;
+	double								maxFloatBlacklevel;
+	double								minFloatGain;
+	double								maxFloatGain;
+	double								minFloatGamma;
+	double								maxFloatGamma;
+	double								minFloatHue;
+	double								maxFloatHue;
+	double								minFloatSaturation;
+	double								maxFloatSaturation;
 
-	int							maxBytesPerPixel;
-	unsigned int		binMode;
-	int							currentFrameFormat;
-	float						currentBytesPerPixel;
+	int										maxBytesPerPixel;
+	unsigned int					binMode;
+	int										currentFrameFormat;
+	float									currentBytesPerPixel;
 
-	frameBuffer*		buffers;
+	frameBuffer*					buffers;
 
-	spinSystem			systemHandle;
-	spinNodeHandle	cameraHandle;
+	spinSystem						systemHandle;
+	spinNodeMapHandle			nodeMapHandle;
+	spinNodeHandle				cameraHandle;
 
-	spinNodeHandle	gain;
-	spinNodeHandle	autoGain;
+	spinImageEventHandler	eventHandler;
 
-	spinNodeHandle	gamma;
-	spinNodeHandle	gammaEnabled;
+	spinNodeHandle				gain;
+	spinNodeHandle				autoGain;
 
-	spinNodeHandle	hue;
-	spinNodeHandle	autoHue;
-	spinNodeHandle	hueEnabled;
+	spinNodeHandle				gamma;
+	spinNodeHandle				gammaEnabled;
 
-	spinNodeHandle	saturation;
-	spinNodeHandle	autoSaturation;
-	spinNodeHandle	saturationEnabled;
+	spinNodeHandle				hue;
+	spinNodeHandle				autoHue;
+	spinNodeHandle				hueEnabled;
 
-	spinNodeHandle	sharpness;
-	spinNodeHandle	autoSharpness;
-	spinNodeHandle	sharpnessEnabled;
+	spinNodeHandle				saturation;
+	spinNodeHandle				autoSaturation;
+	spinNodeHandle				saturationEnabled;
 
-	spinNodeHandle	blackLevel;
-	spinNodeHandle	autoBlackLevel;
-	spinNodeHandle	blackLevelEnabled;
+	spinNodeHandle				sharpness;
+	spinNodeHandle				autoSharpness;
+	spinNodeHandle				sharpnessEnabled;
 
-	spinNodeHandle	autoWhiteBalance;
+	spinNodeHandle				blackLevel;
+	spinNodeHandle				autoBlackLevel;
+	spinNodeHandle				blackLevelEnabled;
 
-	spinNodeHandle	reset;
+	spinNodeHandle				autoWhiteBalance;
 
-	spinNodeHandle	temperature;
+	spinNodeHandle				reset;
 
-	spinNodeHandle	exposure;
-	spinNodeHandle	autoExposure;
-	spinNodeHandle	exposureMode;
+	spinNodeHandle				temperature;
 
-	spinNodeHandle	frameRateEnabled;
+	spinNodeHandle				exposure;
+	spinNodeHandle				autoExposure;
+	spinNodeHandle				exposureMode;
 
-	spinNodeHandle	acquisitionMode;
-	spinNodeHandle	acquisitionStop;
-	spinNodeHandle	acquisitionStart;
-	spinNodeHandle	singleFrameMode;
+	spinNodeHandle				frameRateEnabled;
 
-	spinNodeHandle	triggerActivation;
-	spinNodeHandle	triggerDelay;
-	spinNodeHandle	triggerDelayEnabled;
-	spinNodeHandle	triggerMode;
-	spinNodeHandle	triggerOverlap;
-	spinNodeHandle	triggerSelector;
-	spinNodeHandle	triggerSource;
+	spinNodeHandle				acquisitionMode;
+	spinNodeHandle				acquisitionStop;
+	spinNodeHandle				acquisitionStart;
+	spinNodeHandle				singleFrameMode;
 
-	spinNodeHandle	binningType;
-	spinNodeHandle	horizontalBin;
-	spinNodeHandle	verticalBin;
+	spinNodeHandle				triggerActivation;
+	spinNodeHandle				triggerDelay;
+	spinNodeHandle				triggerDelayEnabled;
+	spinNodeHandle				triggerMode;
+	spinNodeHandle				triggerOverlap;
+	spinNodeHandle				triggerSelector;
+	spinNodeHandle				triggerSource;
 
-	spinNodeHandle	height;
-	spinNodeHandle	width;
-	spinNodeHandle	maxHeight;
-	spinNodeHandle	maxWidth;
-	spinNodeHandle	xOffset;
-	spinNodeHandle	yOffset;
+	spinNodeHandle				binningType;
+	spinNodeHandle				horizontalBin;
+	spinNodeHandle				verticalBin;
 
-	spinNodeHandle	pixelFormat;
-	spinNodeHandle	pixelCoding;
-	spinNodeHandle	bigEndian;
+	spinNodeHandle				height;
+	spinNodeHandle				width;
+	spinNodeHandle				maxHeight;
+	spinNodeHandle				maxWidth;
+	spinNodeHandle				xOffset;
+	spinNodeHandle				yOffset;
 
-	spinNodeHandle	flipX;
+	spinNodeHandle				pixelFormat;
+	spinNodeHandle				pixelCoding;
+	spinNodeHandle				bigEndian;
 
-	int							colour;
-	int							cfa;
+	spinNodeHandle				flipX;
+
+	int										colour;
+	int										cfa;
 
 } SPINNAKER_STATE;
 

@@ -108,7 +108,19 @@ SPINNAKERC_API	( *p_spinFloatGetMin )( spinNodeHandle, double* );
 SPINNAKERC_API	( *p_spinFloatGetMax )( spinNodeHandle, double* );
 SPINNAKERC_API	( *p_spinFloatGetValue )( spinNodeHandle, double* );
 SPINNAKERC_API	( *p_spinFloatSetValue )( spinNodeHandle, double );
-
+SPINNAKERC_API	( *p_spinCameraBeginAcquisition )( spinCamera );
+SPINNAKERC_API	( *p_spinCameraEndAcquisition )( spinCamera );
+SPINNAKERC_API	( *p_spinImageEventHandlerCreate )( spinImageEventHandler*,
+				spinImageEventFunction, void* );
+SPINNAKERC_API	( *p_spinCameraRegisterImageEventHandler )( spinCamera,
+				spinImageEventHandler );
+SPINNAKERC_API	( *p_spinCameraUnregisterImageEventHandler )( spinCamera,
+				spinImageEventHandler );
+SPINNAKERC_API	( *p_spinImageEventHandlerDestroy )( spinImageEventHandler );
+SPINNAKERC_API	( *p_spinImageIsIncomplete )( spinImage, bool8_t* );
+SPINNAKERC_API	( *p_spinImageGetStatus )( spinImage, spinImageStatus* );
+SPINNAKERC_API	( *p_spinImageGetData )( spinImage, void** );
+SPINNAKERC_API	( *p_spinImageGetValidPayloadSize )( spinImage, size_t* );
 
 #if HAVE_LIBDL
 static void*		_getDLSym ( void*, const char* );
@@ -358,7 +370,46 @@ _spinInitLibraryFunctionPointers ( void )
       "spinFloatSetValue" ))) {
     return 0;
   }
-
+  if (!( *( void** )( &p_spinCameraBeginAcquisition ) = _getDLSym ( libHandle,
+      "spinCameraBeginAcquisition" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinCameraEndAcquisition ) = _getDLSym ( libHandle,
+      "spinCameraEndAcquisition" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinImageEventHandlerCreate ) = _getDLSym ( libHandle,
+      "spinImageEventHandlerCreate" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinCameraRegisterImageEventHandler ) =
+			_getDLSym ( libHandle, "spinCameraRegisterImageEventHandler" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinCameraUnregisterImageEventHandler ) =
+			_getDLSym ( libHandle, "spinCameraUnregisterImageEventHandler" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinImageEventHandlerDestroy ) =
+			_getDLSym ( libHandle, "spinImageEventHandlerDestroy" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinImageIsIncomplete ) = _getDLSym ( libHandle,
+      "spinImageIsIncomplete" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinImageGetStatus ) =
+			_getDLSym ( libHandle, "spinImageGetStatus" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinImageGetData ) = _getDLSym ( libHandle,
+			"spinImageGetData" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinImageGetValidPayloadSize ) = _getDLSym (
+			libHandle, "spinImageGetValidPayloadSize" ))) {
+    return 0;
+  }
 
 #else /* HAVE_LIBDL */
 
@@ -416,6 +467,17 @@ _spinInitLibraryFunctionPointers ( void )
   p_spinFloatGetMax = spinFloatGetMax;
   p_spinFloatGetValue = spinFloatGetValue;
   p_spinFloatSetValue = spinFloatSetValue;
+  p_spinCameraBeginAcquisition = spinCameraBeginAcquisition;
+  p_spinCameraEndAcquisition = spinCameraEndAcquisition;
+	p_spinImageEventHandlerCreate = spinImageEventHandlerCreate;
+	p_spinCameraRegisterImageEventHandler = spinCameraRegisterImageEventHandler;
+	p_spinCameraUnregisterImageEventHandler =
+			spinCameraUnregisterImageEventHandler;
+	p_spinImageEventHandlerDestroy = spinImageEventHandlerDestroy;
+	p_spinImageIsIncomplete = spinImageIsIncomplete;
+	p_spinImageGetStatus = spinImageGetStatus;
+	p_spinImageGetData = spinImageGetData;
+	p_spinImageGetValidPayloadSize = spinImageGetValidPayloadSize;
 
 #endif /* HAVE_LIBDL */
 
