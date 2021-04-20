@@ -1134,9 +1134,16 @@ _checkSaturationControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: saturation enabled unavailable", __func__ );
   }
 
+	// If saturationEnabled is off then reading the saturation values many not
+	// work (the node might not be available, for a start), so enable it before
+	// checking.
+
 	if ( saturationEnabledValid ) {
-		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check saturation enabled is "
-				"set before checking other saturation controls", __func__ );
+		if (( *p_spinBooleanSetValue )( saturationEnabled, True ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn on saturation", __func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
 	}
 
   if ( _getNodeData ( nodeMap, "SaturationAuto", &autoSaturation, &implemented,
@@ -1202,10 +1209,16 @@ _checkSaturationControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: auto saturation unavailable", __func__ );
   }
 
-	if ( autoSaturationValid &&
-			commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_SATURATION )) {
-		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check auto saturation is "
-				"disabled before checking saturation range", __func__ );
+	// If auto saturation is enabled disable it before we read the saturation
+	// values in case auto mode modifies the way saturation works
+
+	if ( autoSaturationValid ) {
+		if (( *p_spinEnumerationSetIntValue )( autoSaturation, 0 ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn off auto saturation",
+					__func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
 	}
 
   if ( _getNodeData ( nodeMap, "Saturation", &saturation, &implemented,
