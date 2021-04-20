@@ -783,7 +783,56 @@ _checkGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
   spinNodeType			nodeType;
   COMMON_INFO*			commonInfo = camera->_common;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
-	int								ctrl;
+	int								ctrl, gammaEnabledValid = 0;
+
+  if ( _getNodeData ( nodeMap, "GammaEnabled", &gammaEnabled, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( implemented && available ) {
+    if ( readable || writeable ) {
+			if ( nodeType == BooleanNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found gamma enabled control",
+						__func__ );
+				_showBooleanNode ( gammaEnabled );
+				if (( *p_spinBooleanGetValue )( gammaEnabled, &currBool ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get current gamma enabled value", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				ctrl = OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_GAMMA );
+				camera->OA_CAM_CTRL_TYPE( ctrl ) = OA_CTRL_TYPE_BOOLEAN;
+				commonInfo->OA_CAM_CTRL_MIN( ctrl ) = 0;
+				commonInfo->OA_CAM_CTRL_MAX( ctrl ) = 1;
+				commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( ctrl ) = currBool ? 1 : 0;
+				cameraInfo->gammaEnabled = gammaEnabled;
+				gammaEnabledValid = 1;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for gamma enabled", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: gamma enabled is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: gamma enabled unavailable", __func__ );
+  }
+
+	// If gammaEnabled is off then reading the gamma values many not work
+	// (the node might not be available, for a start), so enable it before
+	// checking.
+
+	if ( gammaEnabledValid ) {
+		if (( *p_spinBooleanSetValue )( gammaEnabled, True ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn on gamma", __func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
+	}
 
   if ( _getNodeData ( nodeMap, "Gamma", &gamma, &implemented, &available,
 			&readable, &writeable, &nodeType ) < 0 ) {
@@ -834,42 +883,6 @@ _checkGammaControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 		}
   } else {
     oaLogInfo ( OA_LOG_CAMERA, "%s: gamma unavailable", __func__ );
-  }
-
-  if ( _getNodeData ( nodeMap, "GammaEnabled", &gammaEnabled, &implemented,
-			&available, &readable, &writeable, &nodeType ) < 0 ) {
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-  if ( implemented && available ) {
-    if ( readable || writeable ) {
-			if ( nodeType == BooleanNode ) {
-				oaLogInfo ( OA_LOG_CAMERA, "%s: Found gamma enabled control",
-						__func__ );
-				_showBooleanNode ( gammaEnabled );
-				if (( *p_spinBooleanGetValue )( gammaEnabled, &currBool ) !=
-						SPINNAKER_ERR_SUCCESS ) {
-					oaLogError ( OA_LOG_CAMERA,
-							"%s: Can't get current gamma enabled value", __func__ );
-					return -OA_ERR_SYSTEM_ERROR;
-				}
-				ctrl = OA_CAM_CTRL_MODE_ON_OFF( OA_CAM_CTRL_GAMMA );
-				camera->OA_CAM_CTRL_TYPE( ctrl ) = OA_CTRL_TYPE_BOOLEAN;
-				commonInfo->OA_CAM_CTRL_MIN( ctrl ) = 0;
-				commonInfo->OA_CAM_CTRL_MAX( ctrl ) = 1;
-				commonInfo->OA_CAM_CTRL_STEP( ctrl ) = 1;
-				commonInfo->OA_CAM_CTRL_DEF( ctrl ) = currBool ? 1 : 0;
-				cameraInfo->gammaEnabled = gammaEnabled;
-			} else {
-				oaLogWarning ( OA_LOG_CAMERA,
-						"%s: Unrecognised node type '%s' for gamma enabled", __func__,
-						nodeTypes[ nodeType ] );
-			}
-    } else {
-      oaLogError ( OA_LOG_CAMERA, "%s: gamma enabled is inaccessible",
-					__func__ );
-		}
-  } else {
-    oaLogInfo ( OA_LOG_CAMERA, "%s: gamma enabled unavailable", __func__ );
   }
 
 	return OA_ERR_NONE;
