@@ -260,19 +260,19 @@ _getNumSlots ( oaFilterWheel* wheel )
   if ( numRead > 0 ) {
     if ( strncmp ( buffer, "FilterSlots ", 12 )) {
       fprintf ( stderr, "%s: failed to match expecting string 'FilterSlots '"
-           ", got '%40s'\n", __FUNCTION__, buffer );
+           ", got '%40s'\n", __func__, buffer );
       return 0;
     }
     if ( sscanf ( buffer, "FilterSlots %d", &numSlots ) != 1 ) {
       fprintf ( stderr, "%s: Failed to match number of slots in '%s'\n",
-          __FUNCTION__, buffer );
+          __func__, buffer );
       return 0;
     }
     return numSlots;
   }
 
   fprintf ( stderr, "%s: no data read from wheel interface\n",
-      __FUNCTION__ );
+      __func__ );
   return 0;
 }
 
