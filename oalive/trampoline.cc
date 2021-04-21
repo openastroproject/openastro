@@ -75,7 +75,7 @@ t_getCurrentProfileName ( void )
 void
 t_setFilterSlotCount ( int num __attribute((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
   return;
 }
 
@@ -83,7 +83,7 @@ t_setFilterSlotCount ( int num __attribute((unused)))
 void
 t_reloadFilters ( void )
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
   return;
 }
 
@@ -91,7 +91,7 @@ t_reloadFilters ( void )
 void
 t_updateHistogramLayout ( void )
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
   return;
 }
 
@@ -99,7 +99,7 @@ t_updateHistogramLayout ( void )
 void
 t_resetAutorun ( void )
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
   return;
 }
 
@@ -108,7 +108,7 @@ void
 t_updateCameraControlCheckbox ( int c __attribute__((unused)),
 		int v __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 	return;
 }
 
@@ -116,7 +116,7 @@ t_updateCameraControlCheckbox ( int c __attribute__((unused)),
 int
 t_getCameraSpinboxMinimum ( int control __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
   return 0;
 }
 
@@ -124,7 +124,7 @@ t_getCameraSpinboxMinimum ( int control __attribute__((unused)))
 int
 t_getCameraSpinboxMaximum ( int control __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
   return 0;
 }
 
@@ -132,7 +132,7 @@ t_getCameraSpinboxMaximum ( int control __attribute__((unused)))
 int
 t_getCameraSpinboxStep ( int control __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
   return 0;
 }
 
@@ -140,7 +140,7 @@ t_getCameraSpinboxStep ( int control __attribute__((unused)))
 int
 t_getCameraSpinboxValue ( int control __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
   return 0;
 }
 
@@ -149,14 +149,14 @@ void
 t_updateCameraSpinbox ( int control __attribute__((unused)),
 		int value __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 }
 
 
 QStringList
 t_getCameraFrameRates ( void )
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 	QStringList l;
   return l;
 }
@@ -165,7 +165,7 @@ t_getCameraFrameRates ( void )
 int
 t_getCameraFrameRateIndex ( void )
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 	return 0;
 }
 
@@ -173,21 +173,21 @@ t_getCameraFrameRateIndex ( void )
 void
 t_updateCameraFrameRate ( int rate __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 }
 
 
 void
 t_setCameraFlipX ( int val __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 }
 
 
 void
 t_setCameraFlipY ( int val __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 }
 
 
@@ -195,14 +195,14 @@ void
 t_updateForceFrameFormat ( unsigned int oldState __attribute__((unused)),
 		unsigned int format __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 }
 
 
 void
 t_reloadProfiles ( void )
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
   return;
 }
 
@@ -224,35 +224,35 @@ t_setDisplayFPS ( int num )
 void
 t_enableTIFFCapture ( int val __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 }
 
 
 void
 t_enableMOVCapture ( int val __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 }
 
 
 void
 t_enablePNGCapture ( int val __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 }
 
 
 void
 t_enableNamedPipeCapture ( int val __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 }
 
 
 void
 t_setVideoFramePixelFormat ( int format __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 }
 
 
@@ -266,14 +266,14 @@ t_destroyLayout ( QLayout* layout )
 void
 t_setTimerMode ( int mode __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 }
 
 
 void
 t_checkTimerWarnings ( void )
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 }
 
 
@@ -308,14 +308,14 @@ t_slotFilterName ( int slot )
 void
 t_enableTimerExternalLED ( int state __attribute__((unused)))
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 }
 
 
 int
 t_getTimerExternalLED ( void )
 {
-	qWarning() << __FUNCTION__ << "doing nothing";
+	qWarning() << __func__ << "doing nothing";
 	return 0;
 }
 
