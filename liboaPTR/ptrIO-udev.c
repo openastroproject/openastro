@@ -42,6 +42,8 @@
 int
 _ptrWrite ( int fd, const char* buffer, int len )
 {
+  oaLogDebug ( OA_LOG_TIMER, "%s: writing command '%s'", __func__, buffer );
+
 	// Done this way as opposed to the more efficient single write
 	// to allow the PTR time to read the characters out of the receive
 	// buffer;
@@ -68,6 +70,7 @@ _ptrRead ( int fd, char* buffer, int maxlen )
 
   do {
     if (( err = read ( fd, p, 1 )) != 1 ) {
+			oaLogError ( OA_LOG_TIMER, "%s: read() returns error %d", __func__, err );
       return err;
     }
     if ( *p++ == 0x0a ) {
@@ -77,5 +80,6 @@ _ptrRead ( int fd, char* buffer, int maxlen )
   } while ( !done && len < maxlen );
 
   *p = 0;
+  oaLogDebug ( OA_LOG_TIMER, "%s: read string '%s'", __func__, buffer );
   return len;
 }

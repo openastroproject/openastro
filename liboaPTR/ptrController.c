@@ -108,7 +108,9 @@ oaPTRcontroller ( void* param )
       FD_SET ( deviceInfo->fd, &readable );
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 10000;
+			oaLogDebug ( OA_LOG_TIMER, "%s: select on PTR device", __func__ );
       if ( select ( deviceInfo->fd + 1, &readable, 0, 0, &timeout ) == 1 ) {
+				oaLogDebug ( OA_LOG_TIMER, "%s: have data to read", __func__ );
         numRead = _readTimestamp ( deviceInfo->version, deviceInfo->fd,
             readBuffer );
         if ( numRead != timestampLength ) {
@@ -125,6 +127,8 @@ oaPTRcontroller ( void* param )
           }
           fprintf ( stderr, ")\n" );
         } else {
+					oaLogDebug ( OA_LOG_TIMER, "%s: read timestamp '%s'", __func__,
+							readBuffer );
           if (( readBuffer[0] != 'T' && readBuffer[0] != 'S' ) ||
               readBuffer[1] != ':' || readBuffer[8] != ':' ||
 							readBuffer[11] != ':' ) {
@@ -187,7 +191,9 @@ oaPTRcontroller ( void* param )
             }
           }
         }
-      }
+      } else {
+				oaLogDebug ( OA_LOG_TIMER, "%s: no data to read", __func__ );
+			}
     }
 
     // do {
@@ -664,6 +670,9 @@ _processTimestampFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   deviceInfo->timestampsAvailable--;
   pthread_mutex_unlock ( &deviceInfo->callbackQueueMutex );
 
+	oaLogDebug ( OA_LOG_TIMER,
+			"%s: returning timestamp '%s', status '%s', result code '%s'",
+			__func__, tsp->timestamp, tsp->status, tsp->resultCode );
   return OA_ERR_NONE;
 }
 

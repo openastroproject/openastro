@@ -36,6 +36,7 @@
 int
 _ptrWrite ( int fd, const char* buffer, int len )
 {
+  oaLogError ( OA_LOG_TIMER, "%s: Not yet implemented", __func__ );
   return 0;
 }
 
