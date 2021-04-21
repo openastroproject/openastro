@@ -37,7 +37,7 @@
 static oaPTR*
 _initPTR ( oaPTRDevice* device )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __func__,
+  oaLogError ( OA_LOG_TIMER, "%s: not yet implemented for %s", __func__,
       device->deviceName );
   return 0;
 }
@@ -46,7 +46,7 @@ _initPTR ( oaPTRDevice* device )
 static int
 _closePTR ( oaPTR* device )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __func__,
+  oaLogError ( OA_LOG_TIMER, "%s: not yet implemented for %s", __func__,
       device->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -55,7 +55,7 @@ _closePTR ( oaPTR* device )
 static int
 _readControl ( oaPTR* device, int c, oaControlValue* v )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __func__,
+  oaLogError ( OA_LOG_TIMER, "%s: not yet implemented for %s", __func__,
       device->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -64,7 +64,7 @@ _readControl ( oaPTR* device, int c, oaControlValue* v )
 static int
 _setControl ( oaPTR* device, int c, oaControlValue* v )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __func__,
+  oaLogError ( OA_LOG_TIMER, "%s: not yet implemented for %s", __func__,
       device->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -73,7 +73,7 @@ _setControl ( oaPTR* device, int c, oaControlValue* v )
 static int
 _testControl ( oaPTR* device, int c, oaControlValue* v )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __func__,
+  oaLogError ( OA_LOG_TIMER, "%s: not yet implemented for %s", __func__,
       device->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -82,7 +82,7 @@ _testControl ( oaPTR* device, int c, oaControlValue* v )
 static int
 _readGPS ( oaPTR* device, double* buffer )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __func__,
+  oaLogError ( OA_LOG_TIMER, "%s: not yet implemented for %s", __func__,
       device->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
@@ -91,7 +91,7 @@ _readGPS ( oaPTR* device, double* buffer )
 static int
 _readCachedGPS ( oaPTR* device, double* buffer )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __func__,
+  oaLogError ( OA_LOG_TIMER, "%s: not yet implemented for %s", __func__,
       device->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }

@@ -96,7 +96,8 @@ oaPTRInit ( oaPTRDevice* device )
   privateInfo->index = -1;
 
   if (( ptrDesc = open ( devInfo->sysPath, O_RDWR | O_NOCTTY )) < 0 ) {
-    fprintf ( stderr, "%s: Can't open %s read-write, errno = %d (%s)\n",
+    oaLogError ( OA_LOG_TIMER,
+				"%s: Can't open %s read-write, errno = %d (%s)",
         __func__, devInfo->sysPath, errno, strerror ( errno ));
     free (( void* ) ptr );
     free (( void* ) privateInfo );
@@ -108,7 +109,7 @@ oaPTRInit ( oaPTRDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( ptrDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't get lock on %s, errno = %d (%s)\n",
+    oaLogError ( OA_LOG_TIMER, "%s: can't get lock on %s, errno = %d (%s)",
 				__func__, devInfo->sysPath, errnoCopy, strerror ( errno ));
     free (( void* ) ptr );
     free (( void* ) privateInfo );
@@ -120,8 +121,8 @@ oaPTRInit ( oaPTRDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( ptrDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't get termio on %s, errno = %d\n", __func__,
-        devInfo->sysPath, errnoCopy );
+    oaLogError ( OA_LOG_TIMER, "%s: can't get termio on %s, errno = %d",
+				__func__, devInfo->sysPath, errnoCopy );
     free (( void* ) ptr );
     free (( void* ) privateInfo );
     free (( void* ) commonInfo );
@@ -148,8 +149,8 @@ oaPTRInit ( oaPTRDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( ptrDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't set termio on %s, errno = %d\n", __func__,
-        devInfo->sysPath, errnoCopy );
+    oaLogError ( OA_LOG_TIMER, "%s: can't set termio on %s, errno = %d",
+				__func__, devInfo->sysPath, errnoCopy );
     free (( void* ) ptr );
     free (( void* ) privateInfo );
     free (( void* ) commonInfo );
@@ -301,7 +302,8 @@ _getSysInfo ( PRIVATE_INFO* privateInfo )
 	struct timeval	timeout;
 
 	if ( _ptrWrite ( fd, "sysconfig\r", 10 )) {
-		fprintf ( stderr, "%s: failed to write sysinfo to PTR\n", __func__ );
+		oaLogError ( OA_LOG_TIMER, "%s: failed to write sysinfo to PTR",
+				__func__ );
 		return;
 	}
 
@@ -311,7 +313,7 @@ _getSysInfo ( PRIVATE_INFO* privateInfo )
 		timeout.tv_sec = 2;
 		timeout.tv_usec = 0;
 		if ( select ( fd + 1, &readable, 0, 0, &timeout ) == 0 ) {
-			fprintf ( stderr, "%s: PTR select #1 timed out\n", __func__ );
+			oaLogError ( OA_LOG_TIMER, "%s: PTR select #1 timed out", __func__ );
 			numRead = -1;
 		} else {
 			numRead = _ptrRead ( fd, buffer, sizeof ( buffer ) - 1 );
@@ -324,7 +326,8 @@ _getSysInfo ( PRIVATE_INFO* privateInfo )
 						if ( !strncmp ( state, "Disabled", 8 )) {
 							privateInfo->externalLEDState = 0;
 						} else {
-							fprintf ( stderr, "Unrecognised LED '%s' state in:\n  %s\n",
+							oaLogError ( OA_LOG_TIMER,
+									"%s: Unrecognised LED '%s' state in '%s'", __func__,
 									state, buffer );
 						}
 					}

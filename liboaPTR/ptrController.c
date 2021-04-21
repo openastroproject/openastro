@@ -112,8 +112,8 @@ oaPTRcontroller ( void* param )
         numRead = _readTimestamp ( deviceInfo->version, deviceInfo->fd,
             readBuffer );
         if ( numRead != timestampLength ) {
-          fprintf ( stderr, "%s: read incorrect timestamp length %d (",
-              __func__, numRead );
+          oaLogError ( OA_LOG_TIMER, "%s: read incorrect timestamp length %d",
+							__func__, numRead );
           if ( numRead > 0 ) {
             for ( i = 0; i < numRead; i++ ) {
               if ( readBuffer[i] < 32 ) {
@@ -129,16 +129,17 @@ oaPTRcontroller ( void* param )
               readBuffer[1] != ':' || readBuffer[8] != ':' ||
 							readBuffer[11] != ':' ) {
             if ( strncmp ( readBuffer, "Acquisition sequence complete", 29 )) {
-              fprintf ( stderr, "%s: read invalid timestamp format '%s'\n",
-                  __func__, readBuffer );
+              oaLogError ( OA_LOG_TIMER,
+									"%s: read invalid timestamp format '%s'", __func__,
+									readBuffer );
             }
           } else {
             strncpy ( numberBuffer, readBuffer + 2, 6 );
             frameNumber = atoi ( numberBuffer );
             if ( frameNumber != deviceInfo->timestampExpected ) {
-              fprintf ( stderr, "%s: read timestamp %d, expected %d ('%s')\n",
-                  __func__, frameNumber, deviceInfo->timestampExpected,
-									readBuffer );
+              oaLogError ( OA_LOG_TIMER,
+									"%s: read timestamp %d, expected %d ('%s')", __func__,
+									frameNumber, deviceInfo->timestampExpected, readBuffer );
             } else {
 							timestampOffset = 12;
 							/*
@@ -179,7 +180,8 @@ oaPTRcontroller ( void* param )
                   deviceInfo->isRunning = 0;
                 }
               } else {
-                fprintf ( stderr, "%s: timestamp buffer overflow\n", __func__ );
+                oaLogError ( OA_LOG_TIMER, "%s: timestamp buffer overflow",
+										__func__ );
               }
               deviceInfo->timestampExpected++;
             }
@@ -219,13 +221,14 @@ oaPTRcontroller ( void* param )
             resultCode = _processGPSFetch ( deviceInfo, command );
             break;
           default:
-            fprintf ( stderr, "Invalid command type %d in controller\n",
-                command->commandType );
+            oaLogError ( OA_LOG_TIMER,
+								"%s: Invalid command type %d in controller", __func__,
+								command->commandType );
             resultCode = -OA_ERR_INVALID_CONTROL;
             break;
         }
         if ( command->callback ) {
-//fprintf ( stderr, "CONT: command has callback\n" );
+					oaLogWarning ( OA_LOG_TIMER, "%s: command has callback", __func__ );
         } else {
           pthread_mutex_lock ( &deviceInfo->commandQueueMutex );
           command->completed = 1;
@@ -269,8 +272,9 @@ _processSetControl ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 
     case OA_TIMER_CTRL_COUNT:
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_TIMER,
+						"%s: invalid control type %d where int32 expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       deviceInfo->requestedCount = val->int32;
@@ -278,8 +282,9 @@ _processSetControl ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 
     case OA_TIMER_CTRL_INTERVAL:
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_TIMER,
+						"%s: invalid control type %d where int32 expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       deviceInfo->requestedInterval = val->int32;
@@ -287,8 +292,9 @@ _processSetControl ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 
     case OA_TIMER_CTRL_MODE:
       if ( val->valueType != OA_CTRL_TYPE_MENU ) {
-        fprintf ( stderr, "%s: invalid control type %d where menu expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_TIMER,
+						"%s: invalid control type %d where menu expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       deviceInfo->requestedMode = val->menu;
@@ -296,14 +302,15 @@ _processSetControl ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 
 		case OA_TIMER_CTRL_EXT_LED_ENABLE:
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
-        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_TIMER,
+						"%s: invalid control type %d where bool expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
 			deviceInfo->externalLEDState = val->boolean;
 			if ( _ptrWrite ( deviceInfo->fd, deviceInfo->externalLEDState ?
 						"\022" : "\024", 1 )) {
-				fprintf ( stderr, "%s: failed to write ctrl-C to %s\n",
+				oaLogError ( OA_LOG_TIMER, "%s: failed to write ctrl-C to %s",
 				__func__, deviceInfo->devicePath );
 				return -OA_ERR_SYSTEM_ERROR;
 			}
@@ -370,8 +377,8 @@ _processReset ( PRIVATE_INFO* deviceInfo )
 
   // send ctrl-C
   if ( _ptrWrite ( ptrDesc, "\003", 1 )) {
-    fprintf ( stderr, "%s: failed to write ctrl-C to %s\n",
-        __func__, deviceInfo->devicePath );
+    oaLogError ( OA_LOG_TIMER, "%s: failed to write ctrl-C to %s", __func__,
+				deviceInfo->devicePath );
     return -OA_ERR_SYSTEM_ERROR;
   }
   usleep ( 100000 );
@@ -379,15 +386,15 @@ _processReset ( PRIVATE_INFO* deviceInfo )
 #if 0
   numRead = read ( ptrDesc, buffer, sizeof ( buffer ) - 1 );
   if ( numRead <= 0 ) {
-    fprintf ( stderr, "%s: failed to read name from %s\n",
+    oaLogError ( OA_LOG_TIMER, "%s: failed to read name from %s",
         __func__, deviceInfo->devicePath );
     return -OA_ERR_SYSTEM_ERROR;
   }
 #endif
 
   if ( _ptrWrite ( ptrDesc, "sysreset\r", 9 )) {
-    fprintf ( stderr, "%s: failed to write sysreset to %s\n",
-        __func__, deviceInfo->devicePath );
+    oaLogError ( OA_LOG_TIMER, "%s: failed to write sysreset to %s", __func__,
+				deviceInfo->devicePath );
     return -OA_ERR_SYSTEM_ERROR;
   }
   usleep ( 2500000 );
@@ -400,8 +407,8 @@ _processReset ( PRIVATE_INFO* deviceInfo )
       buffer[numRead--] = 0;
     }
   } else {
-    fprintf ( stderr, "%s: failed to read name from %s\n",
-        __func__, deviceInfo->devicePath );
+    oaLogError ( OA_LOG_TIMER, "%s: failed to read name from %s", __func__,
+				deviceInfo->devicePath );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
@@ -415,8 +422,8 @@ _processReset ( PRIVATE_INFO* deviceInfo )
     while ( *endPtr++ != ' ' );
     sprintf ( endPtr, "(%s)", deviceInfo->devicePath );
   } else {
-    fprintf ( stderr, "%s: Can't find PTR name from %s\n",
-        __func__, deviceInfo->devicePath );
+    oaLogError ( OA_LOG_TIMER, "%s: Can't find PTR name from %s", __func__,
+				deviceInfo->devicePath );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
@@ -481,20 +488,19 @@ _processPTRStart ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 
   commandLen = strlen ( commandStr );
   if ( _ptrWrite ( deviceInfo->fd, commandStr, commandLen )) {
-    fprintf ( stderr, "%s: failed to write command:\n%s\n  to %s\n",
+    oaLogError ( OA_LOG_TIMER, "%s: failed to write command: '%s' to '%s'",
         __func__, commandStr, deviceInfo->devicePath );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
   if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, 127 )) !=
       commandLen + 1 ) {
-    fprintf ( stderr, "%s: failed to read back command:\n%s\n"
-        "  from %s, commandLen = %d, read len = %d\n",
-        __func__, commandStr, deviceInfo->devicePath, commandLen,
-        readBytes );
+    oaLogError ( OA_LOG_TIMER, "%s: failed to read back command: '%s'"
+        "  from %s, commandLen = %d, read len = %d", __func__, commandStr,
+				deviceInfo->devicePath, commandLen, readBytes );
     if ( readBytes > 0 ) {
       buffer[ readBytes ] = 0;
-      fprintf ( stderr, "  string read = '%s'\n", buffer );
+      oaLogError ( OA_LOG_TIMER, "%s:  string read = '%s'", __func__, buffer );
     }
     return -OA_ERR_SYSTEM_ERROR;
   }
@@ -527,8 +533,8 @@ _processPTRStop ( PRIVATE_INFO* deviceInfo )
     usleep ( 100000 );
     // send ctrl-C
     if ( _ptrWrite ( ptrDesc, "\003", 1 )) {
-      fprintf ( stderr, "%s: failed to write ctrl-C to %s\n",
-          __func__, deviceInfo->devicePath );
+      oaLogError ( OA_LOG_TIMER, "%s: failed to write ctrl-C to %s", __func__,
+					deviceInfo->devicePath );
       return -OA_ERR_SYSTEM_ERROR;
     }
   }
@@ -568,7 +574,7 @@ _doSync ( PRIVATE_INFO* deviceInfo )
   usleep ( 100000 );
 
   if ( _ptrWrite ( deviceInfo->fd, "sync\r", 5 )) {
-    fprintf ( stderr, "%s: failed to write sync command to %s\n",
+    oaLogError ( OA_LOG_TIMER, "%s: failed to write sync command to %s",
         __func__, deviceInfo->devicePath );
     return -OA_ERR_SYSTEM_ERROR;
   }
@@ -582,13 +588,13 @@ _doSync ( PRIVATE_INFO* deviceInfo )
       buffer[numRead--] = 0;
     }
   } else {
-    fprintf ( stderr, "%s: failed to read sync response from %s\n",
+    oaLogError ( OA_LOG_TIMER, "%s: failed to read sync response from %s",
       __func__, deviceInfo->devicePath );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
   if ( strncmp ( buffer, "Internal clock synchronized: ", 29 )) {
-    fprintf ( stderr, "%s: unexpected sync response from %s\n%s\n",
+    oaLogError ( OA_LOG_TIMER, "%s: unexpected sync response from '%s', '%s'",
         __func__, deviceInfo->devicePath, buffer );
     return -OA_ERR_SYSTEM_ERROR;
   }
@@ -616,7 +622,7 @@ _processTimestampFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   if ( !available ) {
     *tsp->timestamp = 0;
     tsp->index = 0;
-    fprintf ( stderr, "%s: no timestamp buffered yet\n", __func__ );
+    oaLogWarning ( OA_LOG_TIMER, "%s: no timestamp buffered yet", __func__ );
     return OA_ERR_NONE;
   }
 
@@ -716,7 +722,7 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   ( void ) strcpy ( commandStr, "geo -afe\r" );
   commandLen = strlen ( commandStr );
   if ( _ptrWrite ( deviceInfo->fd, commandStr, commandLen )) {
-    fprintf ( stderr, "%s: failed to write command:\n%s\n  to %s\n",
+    oaLogError ( OA_LOG_TIMER, "%s: failed to write command: '%s'  to '%s'",
         __func__, commandStr, deviceInfo->devicePath );
     return -OA_ERR_SYSTEM_ERROR;
   }
@@ -725,13 +731,14 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   // Only < 1 here because the preceding tcflush may actually have eaten some
   // of the data
   if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, 127 )) < 1 ) {
-    fprintf ( stderr, "%s: failed to read back command:\n%s\n"
-        "  from %s, commandLen = %d, read len = %d\n",
-        __func__, commandStr, deviceInfo->devicePath, commandLen,
+    oaLogError ( OA_LOG_TIMER, "%s: failed to read back command: '%s'"
+        "  from %s, commandLen = %d, read len = %d\n", __func__, commandStr,
+				deviceInfo->devicePath, commandLen,
         readBytes );
     if ( readBytes > 0 ) {
       buffer[ readBytes ] = 0;
-      fprintf ( stderr, "  string read = '%s'\n", buffer );
+      oaLogError ( OA_LOG_TIMER, "%s:  string read = '%s'\n", __func__,
+					buffer );
     }
     return -OA_ERR_SYSTEM_ERROR;
   }
@@ -739,9 +746,10 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 	memset ( buffer, 0, 128 );
   readBytes = _ptrRead ( deviceInfo->fd, buffer, STRLEN_GEO );
   if (readBytes != STRLEN_GEO) {
-    fprintf(stderr, "%s, failed to read response to 'geo' command\n",
-           __func__);
-    fprintf(stderr, "readBytes = %d, buffer = \"%s\"\n", readBytes, buffer);
+    oaLogError ( OA_LOG_TIMER, "%s: failed to read response to 'geo' command",
+				__func__);
+    oaLogError ( OA_LOG_TIMER, "%s: readBytes = %d, buffer = \"%s\"", __func__,
+				readBytes, buffer );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
@@ -751,15 +759,16 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   // where aaa does not have a fixed length.
 
   if ( *buffer != 'G' || *( buffer + 1 ) != ':' ) {
-    fprintf ( stderr, "%s, geo string '%s' has invalid format\n",
+    oaLogError ( OA_LOG_TIMER, "%s: geo string '%s' has invalid format",
         __func__, buffer );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
   if ( sscanf ( buffer + 2, "%3lf%lf,%4lf%lf,%lf", &latDeg, &latMin, &longDeg,
       &longMin, &alt ) < 5 ) {
-    fprintf ( stderr, "%s, geo string '%s' fails to match expected format\n",
-        __func__, buffer + 2 );
+    oaLogError ( OA_LOG_TIMER,
+				"%s: geo string '%s' fails to match expected format", __func__,
+				buffer + 2 );
   }
 
   if ( latDeg < 0 ) { latMin = -latMin; }
@@ -773,8 +782,9 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 
   if ( sscanf ( buffer, "%lf, %lf, %lf", &deviceInfo->latitude,
 			&deviceInfo->longitude, &deviceInfo->altitude ) != 3 ) {
-    fprintf ( stderr, "%s, geo string '%s' doesn't match expected format #1\n",
-        __func__, buffer );
+    oaLogError ( OA_LOG_TIMER,
+				"%s: geo string '%s' doesn't match expected format #1", __func__,
+				buffer );
   }
 #endif
 
@@ -820,7 +830,7 @@ _readResultCode ( PRIVATE_INFO* deviceInfo, int idx )
 
 	numRead = _readTimestamp ( deviceInfo->version, deviceInfo->fd, readBuffer );
   if ( numRead != 5 ) { // 5 == result code length
-    fprintf ( stderr, "%s: read incorrect result code length %d (",
+    oaLogError ( OA_LOG_TIMER, "%s: read incorrect result code length %d",
 				__func__, numRead );
 		if ( numRead > 0 ) {
 			for ( i = 0; i < numRead; i++ ) {
@@ -838,7 +848,7 @@ _readResultCode ( PRIVATE_INFO* deviceInfo, int idx )
 	if (( readBuffer[0] != 'T' && readBuffer[0] != 'C' ) ||
 			!isdigit ( readBuffer[1]) || !isdigit ( readBuffer[2]) ||
 			!isdigit ( readBuffer[3]) || !isdigit ( readBuffer[4])) {
-		fprintf ( stderr, "%s: read invalid result code format '%s'\n",
+		oaLogError ( OA_LOG_TIMER, "%s: read invalid result code format '%s'",
 				__func__, readBuffer );
 		return;
 	}

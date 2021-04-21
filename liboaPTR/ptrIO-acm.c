@@ -2,7 +2,7 @@
  *
  * ptrIO-acm.c -- PTR IO routines (acm)
  *
- * Copyright 2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -43,6 +43,6 @@ _ptrWrite ( int fd, const char* buffer, int len )
 int
 _ptrRead ( int fd, char* buffer, int maxlen )
 {
-fprintf ( stderr, "Need to implement _ptrRead\n" );
+  oaLogError ( OA_LOG_TIMER, "%s: Not yet implemented", __func__ );
   return 0;
 }
