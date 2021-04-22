@@ -1613,8 +1613,8 @@ _checkBlackLevelControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	// values in case auto mode modifies the way black level works
 
 	if ( autoBlackLevelValid ) {
-		if (( *p_spinEnumerationSetIntValue )( autoBlackLevel, 0 ) !=
-				SPINNAKER_ERR_SUCCESS ) {
+		if (( *p_spinEnumerationSetEnumValue )( autoBlackLevel,
+				BlackLevelAuto_Off ) != SPINNAKER_ERR_SUCCESS ) {
 			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn off auto black level",
 					__func__ );
 			return -OA_ERR_SYSTEM_ERROR;
@@ -1915,10 +1915,19 @@ _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: auto exposure unavailable", __func__ );
   }
 
-	if ( autoExposureValid &&
-			commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE )) {
-		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check auto exposure is disabled "
-				"before checking exposure range", __func__ );
+	// If auto exposure is enabled then because there are controls to limit the
+	// range of exposure values in auto mode (the features
+	// AutoExposureTimeLowerLimit and AutoExposureTimeUpperLimit ), which are
+	// currently ignored), the range of available exposure values may not be
+	// correct, so auto exposure must be disabled.
+
+	if ( autoExposureValid ) {
+		if (( *p_spinEnumerationSetEnumValue )( autoExposure, ExposureAuto_Off ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn off auto exposure",
+					__func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
 	}
 
   if ( _getNodeData ( nodeMap, "ExposureTimeAbs", &exposure, &implemented,
@@ -2768,54 +2777,55 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: pixel CFA unavailable", __func__ );
   }
 
-	// FIX ME -- not actually sure we need this one at all
-  if ( _getNodeData ( nodeMap, "PixelSize", &pixelSize, &implemented,
-			&available, &readable, &writeable, &nodeType ) < 0 ) {
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-  if ( implemented && available ) {
-    if ( readable ) {
-			if ( nodeType == EnumerationNode ) {
-				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel size", __func__ );
-				_showEnumerationNode ( pixelSize );
-				oaLogInfo ( OA_LOG_CAMERA,
-						"%s: PixelSize is available for this camera", __func__ );
-			} else {
-				oaLogWarning ( OA_LOG_CAMERA,
-						"%s: Unrecognised node type '%s' for pixel size", __func__,
-						nodeTypes[ nodeType ] );
-			}
-    } else {
-      oaLogError ( OA_LOG_CAMERA, "%s: pixel size is inaccessible",
-				__func__ );
+	if ( !pixelFormatValid ) {
+		if ( _getNodeData ( nodeMap, "PixelSize", &pixelSize, &implemented,
+				&available, &readable, &writeable, &nodeType ) < 0 ) {
+			return -OA_ERR_SYSTEM_ERROR;
 		}
-  } else {
-    oaLogInfo ( OA_LOG_CAMERA, "%s: pixel size unavailable", __func__ );
-  }
+		if ( implemented && available ) {
+			if ( readable ) {
+				if ( nodeType == EnumerationNode ) {
+					oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel size", __func__ );
+					_showEnumerationNode ( pixelSize );
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: PixelSize is available for this camera", __func__ );
+				} else {
+					oaLogWarning ( OA_LOG_CAMERA,
+							"%s: Unrecognised node type '%s' for pixel size", __func__,
+							nodeTypes[ nodeType ] );
+				}
+			} else {
+				oaLogError ( OA_LOG_CAMERA, "%s: pixel size is inaccessible",
+					__func__ );
+			}
+		} else {
+			oaLogInfo ( OA_LOG_CAMERA, "%s: pixel size unavailable", __func__ );
+		}
 
-	// This one is actually deprecated
-  if ( _getNodeData ( nodeMap, "PixelCoding", &pixelCoding, &implemented,
-			&available, &readable, &writeable, &nodeType ) < 0 ) {
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-  if ( implemented && available ) {
-    if ( readable ) {
-			if ( nodeType == EnumerationNode ) {
-				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel coding", __func__ );
-				_showEnumerationNode ( pixelCoding );
-				cameraInfo->pixelCoding = pixelCoding;
-			} else {
-				oaLogInfo ( OA_LOG_CAMERA,
-						"%s: Unrecognised node type '%s' for pixel coding", __func__,
-						nodeTypes[ nodeType ] );
-			}
-    } else {
-      oaLogInfo ( OA_LOG_CAMERA, "%s: pixel coding is inaccessible",
-				__func__ );
+		// This one is actually deprecated
+		if ( _getNodeData ( nodeMap, "PixelCoding", &pixelCoding, &implemented,
+				&available, &readable, &writeable, &nodeType ) < 0 ) {
+			return -OA_ERR_SYSTEM_ERROR;
 		}
-  } else {
-    oaLogInfo ( OA_LOG_CAMERA, "%s: pixel coding unavailable", __func__ );
-  }
+		if ( implemented && available ) {
+			if ( readable ) {
+				if ( nodeType == EnumerationNode ) {
+					oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel coding", __func__ );
+					_showEnumerationNode ( pixelCoding );
+					cameraInfo->pixelCoding = pixelCoding;
+				} else {
+					oaLogInfo ( OA_LOG_CAMERA,
+							"%s: Unrecognised node type '%s' for pixel coding", __func__,
+							nodeTypes[ nodeType ] );
+				}
+			} else {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: pixel coding is inaccessible",
+					__func__ );
+			}
+		} else {
+			oaLogInfo ( OA_LOG_CAMERA, "%s: pixel coding unavailable", __func__ );
+		}
+	}
 
   if ( _getNodeData ( nodeMap, "pgrPixelBigEndian", &bigEndian, &implemented,
 			&available, &readable, &writeable, &nodeType ) < 0 ) {
