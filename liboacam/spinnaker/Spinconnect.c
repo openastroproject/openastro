@@ -1403,8 +1403,8 @@ _checkSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: auto sharpness unavailable", __func__ );
   }
 
-	// If auto saturation is enabled disable it before we read the saturation
-	// values in case auto mode modifies the way saturation works
+	// If auto sharpness is enabled disable it before we read the sharpness
+	// values in case auto mode modifies the way sharpness works
 
 	if ( autoSharpnessValid ) {
 		if (( *p_spinEnumerationSetIntValue )( autoSharpness, 0 ) !=
@@ -1536,9 +1536,16 @@ _checkBlackLevelControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: blackLevel enabled unavailable", __func__ );
   }
 
+	// If blackLevelEnabled is off then reading the sharpness values many not
+	// work (the node might not be available, for a start), so enable it before
+	// checking.
+
 	if ( blackLevelEnabledValid ) {
-		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check blackLevel enabled is "
-				"set before checking other blackLevel controls", __func__ );
+		if (( *p_spinBooleanSetValue )( blackLevelEnabled, True ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn on black level", __func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
 	}
 
   if ( _getNodeData ( nodeMap, "BlackLevelAuto", &autoBlackLevel, &implemented,
@@ -1602,10 +1609,16 @@ _checkBlackLevelControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: auto blacklevel unavailable", __func__ );
   }
 
-	if ( autoBlackLevelValid &&
-			commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_BLACKLEVEL )) {
-		oaLogWarning ( OA_LOG_CAMERA, "%s: need to check auto blacklevel is "
-				"disabled before checking blacklevel range", __func__ );
+	// If auto black level is enabled disable it before we read the black level
+	// values in case auto mode modifies the way black level works
+
+	if ( autoBlackLevelValid ) {
+		if (( *p_spinEnumerationSetIntValue )( autoBlackLevel, 0 ) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn off auto black level",
+					__func__ );
+			return -OA_ERR_SYSTEM_ERROR;
+		}
 	}
 
   if ( _getNodeData ( nodeMap, "BlackLevel", &blackLevel, &implemented,
