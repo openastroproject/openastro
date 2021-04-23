@@ -3556,9 +3556,8 @@ _spinInitFunctionPointers ( oaCamera* camera )
 /*
   camera->funcs.enumerateFrameRates = oaSpinCameraGetFrameRates;
   camera->funcs.setFrameInterval = oaSpinCameraSetFrameInterval;
-
-  camera->funcs.getMenuString = oaSpinCameraGetMenuString;
 */
+  camera->funcs.getMenuString = oaSpinCameraGetMenuString;
 }
 
 

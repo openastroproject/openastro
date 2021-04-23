@@ -59,3 +59,39 @@ oaSpinCameraTestControl ( oaCamera* camera, int control,
 
   return OA_ERR_NONE;
 }
+
+
+const char*
+oaSpinCameraGetMenuString ( oaCamera* camera, int control, int index )
+{
+  if ( OA_CAM_CTRL_TRIGGER_POLARITY == control ||
+      OA_CAM_CTRL_STROBE_POLARITY == control ) {
+
+    switch ( index ) {
+      case 0:
+        return "Falling edge";
+        break;
+      case 1:
+        return "Rising edge";
+        break;
+    }
+    return "Invalid index";
+  }
+
+  if ( OA_CAM_CTRL_TRIGGER_MODE == control ) {
+    switch ( index ) {
+      case 0:
+        return "External Trigger";
+        break;
+      case 1:
+        return "Overlapped Exposure Readout Trigger";
+        break;
+    }
+    return "Invalid index";
+  }
+
+  oaLogError ( OA_LOG_CAMERA, "%s: control %d not implemented", __func__,
+			control );
+  return "";
+}
+
