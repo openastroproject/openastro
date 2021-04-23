@@ -2372,6 +2372,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 					commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_MODE ) = 1;
 					commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_MODE ) = 0;
 					oaLogInfo ( OA_LOG_CAMERA, "%s: Trigger overlap enabled", __func__ );
+					cameraInfo->currentOverlapMode = TriggerOverlap_Off;
 				}
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
@@ -2533,6 +2534,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 		oaLogError ( OA_LOG_CAMERA, "%s: Can't turn off trigger mode", __func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
+	cameraInfo->triggerEnabled = 0;
 
 	return OA_ERR_NONE;
 }

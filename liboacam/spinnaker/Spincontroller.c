@@ -457,6 +457,34 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 			return OA_ERR_NONE;
 			break;
 
+		case OA_CAM_CTRL_TRIGGER_MODE:
+			// For Spinnaker this either turns off overlap, or enables it on
+			// readout.  We can only set this if the trigger is enabled though.
+			// If it isn't we'll have to do it when the trigger is actually
+			// enabled.
+
+			newInt = val->menu;
+			switch ( newInt ) {
+				case 0: // off
+					cameraInfo->currentOverlapMode = TriggerOverlap_Off;
+					break;
+				case 1: // readout
+					cameraInfo->currentOverlapMode = TriggerOverlap_ReadOut;
+					break;
+				default:
+					return -OA_ERR_INVALID_CONTROL;
+					break;
+			}
+			if ( cameraInfo->triggerEnabled ) {
+				if (( *p_spinEnumerationSetEnumValue )( cameraInfo->triggerOverlap,
+						cameraInfo->currentOverlapMode ) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't set overlap value", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+			}
+			return OA_ERR_NONE;
+			break;
+
 		case OA_CAM_CTRL_BINNING:
 			oaLogError ( OA_LOG_CAMERA, "%s: Unhandled control %d", __func__,
 					control );
@@ -837,6 +865,12 @@ _processGetControl ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 			}
 			val->valueType = OA_CTRL_TYPE_BOOLEAN;
 			val->boolean = currBool ? 1 : 0;
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_TRIGGER_MODE:
+			val->valueType = OA_CTRL_TYPE_MENU;
+			val->menu = cameraInfo->currentOverlapMode;
 			return OA_ERR_NONE;
 			break;
 
