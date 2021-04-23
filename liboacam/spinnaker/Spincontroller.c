@@ -1100,6 +1100,23 @@ _doStart ( SPINNAKER_STATE* cameraInfo )
 static int
 _configureEvents ( SPINNAKER_STATE* cameraInfo )
 {
+#if HAVE_LIBSPINNAKER_V1
+	cameraInfo->imageEvent = 0;
+
+	if (( *p_spinImageEventCreate )( &( cameraInfo->imageEvent ),
+			_SpinFrameCallback, cameraInfo ) != SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Unable to create image event",
+				__func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if (( *p_spinCameraRegisterImageEvent )( cameraInfo->cameraHandle,
+			cameraInfo->imageEvent ) != SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Unable to register image event",
+				__func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+#else
 	cameraInfo->eventHandler = 0;
 
 	if (( *p_spinImageEventHandlerCreate )( &( cameraInfo->eventHandler ),
@@ -1115,6 +1132,7 @@ _configureEvents ( SPINNAKER_STATE* cameraInfo )
 				__func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
+#endif
 
 	return OA_ERR_NONE;
 }
@@ -1152,6 +1170,21 @@ _doStop ( SPINNAKER_STATE* cameraInfo )
 static int
 _unconfigureEvents ( SPINNAKER_STATE* cameraInfo )
 {
+#if HAVE_LIBSPINNAKER_V1
+	if (( *p_spinCameraUnregisterImageEvent )( cameraInfo->cameraHandle,
+			cameraInfo->imageEvent ) != SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Unable to unregister image event",
+				__func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if (( *p_spinImageEventDestroy )( cameraInfo->imageEvent ) !=
+			SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Unable to destroy image event",
+				__func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+#else
 	if (( *p_spinCameraUnregisterImageEventHandler )( cameraInfo->cameraHandle,
 			cameraInfo->eventHandler ) != SPINNAKER_ERR_SUCCESS ) {
 		oaLogError ( OA_LOG_CAMERA, "%s: Unable to unregister image event handler",
@@ -1165,7 +1198,7 @@ _unconfigureEvents ( SPINNAKER_STATE* cameraInfo )
 				__func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
-
+#endif
 	return OA_ERR_NONE;
 }
 

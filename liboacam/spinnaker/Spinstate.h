@@ -66,7 +66,11 @@ typedef struct SPINNAKER_STATE {
 	spinNodeMapHandle				nodeMapHandle;
 	spinNodeHandle					cameraHandle;
 
+#if HAVE_LIBSPINNAKER_V1
+	spinImageEvent					imageEvent;
+#else
 	spinImageEventHandler		eventHandler;
+#endif
 
 	spinNodeHandle					gain;
 	spinNodeHandle					autoGain;

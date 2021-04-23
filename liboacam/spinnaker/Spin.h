@@ -127,6 +127,15 @@ extern SPINNAKERC_API	( *p_spinFloatGetValue )( spinNodeHandle, double* );
 extern SPINNAKERC_API	( *p_spinFloatSetValue )( spinNodeHandle, double );
 extern SPINNAKERC_API	( *p_spinCameraBeginAcquisition )( spinCamera );
 extern SPINNAKERC_API	( *p_spinCameraEndAcquisition )( spinCamera );
+#if HAVE_LIBSPINNAKER_V1
+extern SPINNAKERC_API	( *p_spinImageEventCreate )( spinImageEvent*,
+				spinImageEventFunction, void* );
+extern SPINNAKERC_API	( *p_spinCameraRegisterImageEvent )( spinCamera,
+				spinImageEvent );
+extern SPINNAKERC_API ( *p_spinCameraUnregisterImageEvent )( spinCamera,
+				spinImageEvent );
+extern SPINNAKERC_API ( *p_spinImageEventDestroy )( spinImageEvent );
+#else
 extern SPINNAKERC_API	( *p_spinImageEventHandlerCreate )(
 				spinImageEventHandler*, spinImageEventFunction, void* );
 extern SPINNAKERC_API	( *p_spinCameraRegisterImageEventHandler )(
@@ -135,6 +144,7 @@ extern SPINNAKERC_API ( *p_spinCameraUnregisterImageEventHandler )( spinCamera,
 				spinImageEventHandler );
 extern SPINNAKERC_API ( *p_spinImageEventHandlerDestroy )(
 				spinImageEventHandler );
+#endif
 extern SPINNAKERC_API ( *p_spinImageIsIncomplete )( spinImage, bool8_t* );
 extern SPINNAKERC_API ( *p_spinImageGetStatus )( spinImage, spinImageStatus* );
 extern SPINNAKERC_API	( *p_spinImageGetData )( spinImage, void** );
