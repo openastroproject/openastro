@@ -451,10 +451,10 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
           }
 
           if ( modelNameReadable ) {
-            if (( *p_spinStringGetValue )( modelNameHandle, modelName,
-                &modelNameLen ) != SPINNAKER_ERR_SUCCESS ) {
-							oaLogError ( OA_LOG_CAMERA, "%s: Can't get model name string",
-									__func__ );
+            if (( err = ( *p_spinStringGetValue )( modelNameHandle, modelName,
+                &modelNameLen )) != SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA,
+									"%s: Can't get model name string, error %d", __func__, err );
               ( void ) free (( void* ) devices );
               ( void ) free (( void* ) _private );
               ( void ) ( *p_spinCameraRelease )( cameraHandle );
