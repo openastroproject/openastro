@@ -108,6 +108,8 @@ extern SPINNAKERC_API	( *p_spinEnumerationGetNumEntries )( spinNodeHandle,
 				size_t* );
 extern SPINNAKERC_API	( *p_spinEnumerationGetEntryByIndex )( spinNodeHandle,
 				size_t, spinNodeHandle* );
+extern SPINNAKERC_API	( *p_spinEnumerationGetEntryByName )( spinNodeHandle,
+				const char*, spinNodeHandle* );
 extern SPINNAKERC_API	( *p_spinEnumerationGetCurrentEntry )( spinNodeHandle,
 				spinNodeHandle* );
 extern SPINNAKERC_API	( *p_spinNodeToString )( spinNodeHandle, char*,

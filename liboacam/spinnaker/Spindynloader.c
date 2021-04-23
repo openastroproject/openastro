@@ -94,6 +94,8 @@ SPINNAKERC_API	( *p_spinCameraGetGuiXml )( spinCamera, char*, size_t* );
 SPINNAKERC_API	( *p_spinEnumerationGetNumEntries )( spinNodeHandle, size_t* );
 SPINNAKERC_API	( *p_spinEnumerationGetEntryByIndex )( spinNodeHandle, size_t,
 			spinNodeHandle* );
+SPINNAKERC_API	( *p_spinEnumerationGetEntryByName )( spinNodeHandle,
+			const char*, spinNodeHandle* );
 SPINNAKERC_API	( *p_spinEnumerationGetCurrentEntry )( spinNodeHandle,
 			spinNodeHandle* );
 SPINNAKERC_API	( *p_spinNodeToString )( spinNodeHandle, char*, size_t* );
@@ -318,6 +320,10 @@ _spinInitLibraryFunctionPointers ( void )
       libHandle, "spinEnumerationGetEntryByIndex" ))) {
     return 0;
   }
+  if (!( *( void** )( &p_spinEnumerationGetEntryByName ) = _getDLSym (
+      libHandle, "spinEnumerationGetEntryByName" ))) {
+    return 0;
+  }
   if (!( *( void** )( &p_spinEnumerationGetCurrentEntry ) = _getDLSym (
       libHandle, "spinEnumerationGetCurrentEntry" ))) {
     return 0;
@@ -454,6 +460,7 @@ _spinInitLibraryFunctionPointers ( void )
   p_spinCameraGetGuiXml = spinCameraGetGuiXml;
   p_spinEnumerationGetNumEntries = spinEnumerationGetNumEntries;
   p_spinEnumerationGetEntryByIndex = spinEnumerationGetEntryByIndex;
+  p_spinEnumerationGetEntryByName = spinEnumerationGetEntryByName;
   p_spinEnumerationGetCurrentEntry = spinEnumerationGetCurrentEntry;
   p_spinNodeToString = spinNodeToString;
   p_spinIntegerGetMin = spinIntegerGetMin;

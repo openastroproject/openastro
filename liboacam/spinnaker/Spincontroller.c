@@ -446,6 +446,17 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 			return OA_ERR_NONE;
 			break;
 
+		case OA_CAM_CTRL_TRIGGER_DELAY_ENABLE:
+			newBool = val->boolean ? True : False;
+			if (( *p_spinBooleanSetValue )( cameraInfo->triggerDelayEnabled,
+					newBool ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set trigger delay enable",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
 		case OA_CAM_CTRL_BINNING:
 			oaLogError ( OA_LOG_CAMERA, "%s: Unhandled control %d", __func__,
 					control );
@@ -810,6 +821,18 @@ _processGetControl ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 					SPINNAKER_ERR_SUCCESS ) {
 				oaLogError ( OA_LOG_CAMERA, "%s: Can't get current reverse X value",
 						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = currBool ? 1 : 0;
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_TRIGGER_DELAY_ENABLE:
+			if (( *p_spinBooleanGetValue )( cameraInfo->triggerDelayEnabled,
+					&currBool ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get current trigger delay enabled value", __func__ );
 				return -OA_ERR_SYSTEM_ERROR;
 			}
 			val->valueType = OA_CTRL_TYPE_BOOLEAN;

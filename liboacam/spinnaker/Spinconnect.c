@@ -2157,22 +2157,73 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		triggerActivation, triggerDelayEnabled, triggerDelay;
 	spinNodeHandle		triggerMode, triggerOverlap, triggerSelector;
-	spinNodeHandle		triggerSource;
+	spinNodeHandle		triggerSource, tempHandle;
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
+  COMMON_INFO*			commonInfo = camera->_common;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
+	int								triggerModeValid = 0, overlapValid;
+	double						min, max, curr;
+	int								i, numberOfSources;
+	size_t						numEntries, enumVal;
+	spinError					err;
+
+  if ( _getNodeData ( nodeMap, "TriggerMode", &triggerMode, &implemented,
+			&available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( implemented && available ) {
+    if ( readable && writeable ) {
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA,
+						"%s: Found trigger mode control", __func__ );
+				_showEnumerationNode ( triggerMode );
+				cameraInfo->triggerMode = triggerMode;
+				triggerModeValid = 1;
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for trigger mode",
+						__func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: trigger mode is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: trigger mode unavailable", __func__ );
+  }
+	if ( !triggerModeValid ) {
+		// Anything else is pointless if we can't turn trigger mode on
+		return OA_ERR_NONE;
+	}
+
+	// Other trigger features might only be available if trigger mode is on,
+	// so make sure it's turned on now and turn it off afterwards.
+
+	if (( *p_spinEnumerationSetEnumValue )( triggerMode, TriggerMode_On ) !=
+			SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't turn on trigger mode", __func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
 
   if ( _getNodeData ( nodeMap, "TriggerActivation", &triggerActivation,
 			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
-  if ( available ) {
+  if ( implemented && available ) {
     if ( readable && writeable ) {
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found trigger activation control", __func__ );
 				_showEnumerationNode ( triggerActivation );
 				cameraInfo->triggerActivation = triggerActivation;
+				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_POLARITY ) =
+						OA_CTRL_TYPE_MENU;
+				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_POLARITY ) = 0;
+				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_POLARITY ) = 1;
+				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_POLARITY ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_POLARITY ) = 0;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for trigger activation",
@@ -2198,6 +2249,12 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 						"%s: Found trigger delay enabled control", __func__ );
 				_showBooleanNode ( triggerDelayEnabled );
 				cameraInfo->triggerDelayEnabled = triggerDelayEnabled;
+				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) =
+						OA_CTRL_TYPE_BOOLEAN;
+				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) = 0;
+				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) = 1;
+				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) = 0;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for trigger delay enabled",
@@ -2224,6 +2281,32 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 						"%s: Found trigger delay control", __func__ );
 				_showFloatNode ( triggerDelay, writeable );
 				cameraInfo->triggerDelay = triggerDelay;
+				if (( *p_spinFloatGetValue )( triggerDelay, &curr ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get current trigger delay value", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinFloatGetMin )( triggerDelay, &min ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get min trigger delay value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinFloatGetMax )( triggerDelay, &max ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get max trigger delay value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+
+				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) =
+						OA_CTRL_TYPE_INT64;
+				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = min;
+				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = max;
+				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = curr;
+				cameraInfo->triggerDelay = triggerDelay;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for trigger delay", __func__,
@@ -2237,31 +2320,6 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: trigger delay unavailable", __func__ );
   }
 
-  if ( _getNodeData ( nodeMap, "TriggerMode", &triggerMode, &implemented,
-			&available, &readable, &writeable, &nodeType ) < 0 ) {
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-  if ( available ) {
-    if ( readable && writeable ) {
-			if ( nodeType == EnumerationNode ) {
-				oaLogInfo ( OA_LOG_CAMERA,
-						"%s: Found trigger mode control", __func__ );
-				_showEnumerationNode ( triggerMode );
-				cameraInfo->triggerMode = triggerMode;
-			} else {
-				oaLogWarning ( OA_LOG_CAMERA,
-						"%s: Unrecognised node type '%s' for trigger mode",
-						__func__,
-						nodeTypes[ nodeType ] );
-			}
-    } else {
-      oaLogError ( OA_LOG_CAMERA,
-					"%s: trigger mode is inaccessible", __func__ );
-		}
-  } else {
-    oaLogInfo ( OA_LOG_CAMERA, "%s: trigger mode unavailable", __func__ );
-  }
-
   if ( _getNodeData ( nodeMap, "TriggerOverlap", &triggerOverlap, &implemented,
 			&available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
@@ -2272,7 +2330,49 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found trigger overlap control", __func__ );
 				_showEnumerationNode ( triggerOverlap );
-				cameraInfo->triggerOverlap = triggerOverlap;
+				// All we really care about here is whether the overlap function
+				// supports "off" and "readout" modes (there is also "previous
+				// frame", but I'm not sure that's useful to us for the moment
+				// anyhow.  flycapture offers other options, but it looks like
+				// they may not be part of Genicam
+				if (( *p_spinEnumerationGetNumEntries )( triggerOverlap, &numEntries )
+						!= SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get number of enum entries for TriggerOverlap",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				overlapValid = 0;
+				if ( numEntries > 1 ) {
+					for ( i = 0; i < numEntries; i++ ) {
+						if (( *p_spinEnumerationGetEntryByIndex )( triggerOverlap, i,
+									&tempHandle ) != SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA, "%s: get overlap node %d failed",
+									__func__, i );
+						} else {
+							available = False;
+							if (( err = ( *p_spinNodeIsAvailable )( tempHandle, &available ))
+									!= SPINNAKER_ERR_SUCCESS ) {
+								oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsAvailable failed "
+										"for overlap node %d, error %d", __func__, i, err );
+							} else {
+								if ( available ) {
+									overlapValid++;
+								}
+							}
+						}
+					}
+				}
+				if ( 2 == overlapValid ) {
+					cameraInfo->triggerOverlap = triggerOverlap;
+					camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_MODE ) =
+							OA_CTRL_TYPE_MENU;
+					commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_MODE ) = 0;
+					commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_MODE ) = 1;
+					commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_MODE ) = 1;
+					commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_MODE ) = 0;
+					oaLogInfo ( OA_LOG_CAMERA, "%s: Trigger overlap enabled", __func__ );
+				}
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for trigger overlap",
@@ -2298,6 +2398,8 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 						"%s: Found trigger selector control", __func__ );
 				_showEnumerationNode ( triggerSelector );
 				cameraInfo->triggerSelector = triggerSelector;
+				// FIX ME -- this needs to be set to TriggerSelector_AcquisitionStart
+				// for our purposes
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for trigger selector",
@@ -2322,7 +2424,96 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found trigger source control", __func__ );
 				_showEnumerationNode ( triggerSource );
-				cameraInfo->triggerSource = triggerSource;
+				// Now we need to walk through the options to see what's genuinely
+				// available
+				if (( *p_spinEnumerationGetNumEntries )( triggerSource, &numEntries )
+						!= SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get number of enum entries for TriggerSource",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if ( numEntries ) {
+					numberOfSources = 0;
+					for ( i = 0; i < numEntries; i++ ) {
+						if (( *p_spinEnumerationGetEntryByIndex )( triggerSource, i,
+									&tempHandle ) != SPINNAKER_ERR_SUCCESS ) {
+							oaLogError ( OA_LOG_CAMERA,
+									"%s: get trigger source node %d failed", __func__, i );
+						} else {
+							available = False;
+							if (( err = ( *p_spinNodeIsAvailable )( tempHandle, &available ))
+									!= SPINNAKER_ERR_SUCCESS ) {
+								oaLogError ( OA_LOG_CAMERA, "%s: spinNodeIsAvailable failed "
+										"for trigger source node %d, error %d", __func__, i, err );
+							} else {
+								if ( available ) {
+									if (( *p_spinEnumerationEntryGetEnumValue )( tempHandle,
+											&enumVal ) != SPINNAKER_ERR_SUCCESS ) {
+										oaLogError ( OA_LOG_CAMERA,
+												"%s: Can't get colour filter enum value", __func__ );
+										return -OA_ERR_SYSTEM_ERROR;
+									}
+									// We can't handle non-contiguous sets of trigger sources
+									// yet, hence the "if"s
+									switch ( enumVal ) {
+										case TriggerSource_Line0:
+											numberOfSources = 1;
+											break;
+										case TriggerSource_Line1:
+											if ( 1 == numberOfSources ) {
+												numberOfSources++;
+											} else {
+												oaLogWarning ( OA_LOG_CAMERA, "%s: Non-contiguous "
+														"trigger sources", __func__ );
+												numberOfSources = 0;
+											}
+											break;
+										case TriggerSource_Line2:
+											if ( 2 == numberOfSources ) {
+												numberOfSources++;
+											} else {
+												oaLogWarning ( OA_LOG_CAMERA, "%s: Non-contiguous "
+														"trigger sources", __func__ );
+												numberOfSources = 0;
+											}
+											break;
+										case TriggerSource_Line3:
+											if ( 3 == numberOfSources ) {
+												numberOfSources++;
+											} else {
+												oaLogWarning ( OA_LOG_CAMERA, "%s: Non-contiguous "
+														"trigger sources", __func__ );
+												numberOfSources = 0;
+											}
+											break;
+										default:
+											// We don't actually care about these ones for now
+											break;
+									}
+									if ( numberOfSources ) {
+										cameraInfo->triggerSource = triggerSource;
+										if ( numberOfSources > 1 ) {
+											camera->OA_CAM_CTRL_TYPE(
+													OA_CAM_CTRL_TRIGGER_SOURCE ) = OA_CTRL_TYPE_MENU;
+											commonInfo->OA_CAM_CTRL_MIN(
+													OA_CAM_CTRL_TRIGGER_SOURCE ) = 0;
+											commonInfo->OA_CAM_CTRL_MAX(
+													OA_CAM_CTRL_TRIGGER_SOURCE ) = numberOfSources - 1;
+											commonInfo->OA_CAM_CTRL_STEP(
+													OA_CAM_CTRL_TRIGGER_SOURCE ) = 1;
+											oaLogWarning ( OA_LOG_CAMERA,
+													"%s: Need to set default trigger source value",
+													__func__ );
+											commonInfo->OA_CAM_CTRL_DEF(
+													OA_CAM_CTRL_TRIGGER_SOURCE ) = 0;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for trigger source",
@@ -2336,6 +2527,12 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
   } else {
     oaLogInfo ( OA_LOG_CAMERA, "%s: trigger source unavailable", __func__ );
   }
+
+	if (( *p_spinEnumerationSetEnumValue )( triggerMode, TriggerMode_Off ) !=
+			SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't turn off trigger mode", __func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
 
 	return OA_ERR_NONE;
 }
@@ -2393,7 +2590,8 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			}
     } else {
       oaLogWarning ( OA_LOG_CAMERA,
-					"%s: horizontal binning is inaccessible", __func__ );
+					"%s: horizontal binning is inaccessible (read = %d, write = %d)",
+					__func__, readable ? 1 : 0, writeable ? 1 : 0 );
 		}
   } else {
     oaLogInfo ( OA_LOG_CAMERA, "%s: horizontal binning unavailable",
@@ -2692,6 +2890,7 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	size_t						enumVal, currentVal, numEntries;
 	int								i;
 	int								maxBytesPP, oaFormat;
+	spinError					err;
 
   if ( _getNodeData ( nodeMap, "PixelFormat", &pixelFormat, &implemented,
 			&available, &readable, &writeable, &nodeType ) < 0 ) {
@@ -2878,44 +3077,56 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 						"%s: Can't get enum handle %d for PixelFormat", __func__, i );
 				return -OA_ERR_SYSTEM_ERROR;
 			}
-			if (( *p_spinEnumerationEntryGetEnumValue )( tempHandle, &enumVal ) !=
-					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA,
-						"%s: Can't get value for PixelFormat enum node %d", __func__, i );
-				return -OA_ERR_SYSTEM_ERROR;
-			}
 			// There are (as of Spinnaker 2.3) apparently 252 possible values for
 			// enumVal, most of which we just don't care about.  Unfortunately
-			// some of the formats reported as available make little sense
-			// (eg. mono sensors that apparently support "BayerGR8"?)
-			if (( oaFormat = _spinFormatMap [ enumVal ] ) > 0 ) {
-				if (( oaFrameFormats[ oaFormat ].monochrome && !cameraInfo->colour )
-						|| ( !oaFrameFormats[ oaFormat ].monochrome &&
-						cameraInfo->colour )) {
-					if ( oaFrameFormats[ oaFormat ].bytesPerPixel > maxBytesPP ) {
-						maxBytesPP = oaFrameFormats[ oaFormat ].bytesPerPixel;
-					}
-					if ( oaFrameFormats[ oaFormat ].rawColour ) {
-						camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
-					}
-					if ( oaFrameFormats[ oaFormat ].fullColour ) {
-						camera->features.flags |= OA_CAM_FEATURE_DEMOSAIC_MODE;
-					}
-					camera->frameFormats[ oaFormat ] = 1;
-					if ( currentVal == enumVal ) {
-						cameraInfo->currentBytesPerPixel =
-								oaFrameFormats[ oaFormat ].bytesPerPixel;
-						cameraInfo->currentFrameFormat = oaFormat;
-						matched = 1;
+			// some of the formats reported as present make little sense.
+			// Fortunately these are "unavailable", so we need to check that too.
+			available = False;
+			if (( err = ( *p_spinNodeIsAvailable )( tempHandle, &available )) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: spinNodeIsAvailable failed for enum %d, error %d", __func__,
+						i, err );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( available ) {
+				if (( *p_spinEnumerationEntryGetEnumValue )( tempHandle, &enumVal ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get value for PixelFormat enum node %d", __func__, i );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( oaFormat = _spinFormatMap [ enumVal ] ) > 0 ) {
+					// Let's not assume that just because an option is actually
+					// available that it makes sense
+					if (( oaFrameFormats[ oaFormat ].monochrome && !cameraInfo->colour )
+							|| ( !oaFrameFormats[ oaFormat ].monochrome &&
+							cameraInfo->colour )) {
+						if ( oaFrameFormats[ oaFormat ].bytesPerPixel > maxBytesPP ) {
+							maxBytesPP = oaFrameFormats[ oaFormat ].bytesPerPixel;
+						}
+						if ( oaFrameFormats[ oaFormat ].rawColour ) {
+							camera->features.flags |= OA_CAM_FEATURE_RAW_MODE;
+						}
+						if ( oaFrameFormats[ oaFormat ].fullColour ) {
+							camera->features.flags |= OA_CAM_FEATURE_DEMOSAIC_MODE;
+						}
+						camera->frameFormats[ oaFormat ] = 1;
+						if ( currentVal == enumVal ) {
+							cameraInfo->currentBytesPerPixel =
+									oaFrameFormats[ oaFormat ].bytesPerPixel;
+							cameraInfo->currentFrameFormat = oaFormat;
+							matched = 1;
+						}
+					} else {
+						oaLogInfo ( OA_LOG_CAMERA,
+								"%s: ignoring pixel format %ld for mismatch with camera type",
+								__func__, enumVal );
 					}
 				} else {
-					oaLogInfo ( OA_LOG_CAMERA,
-							"%s: ignoring pixel format %ld for mismatch with camera type",
+					oaLogWarning ( OA_LOG_CAMERA, "%s: Unhandled pixel format %ld",
 							__func__, enumVal );
 				}
-			} else {
-				oaLogWarning ( OA_LOG_CAMERA, "%s: Unhandled pixel format %ld",
-						__func__, enumVal );
 			}
 		}
 		if ( !matched ) {
@@ -3254,6 +3465,7 @@ _showEnumerationNode ( spinNodeHandle enumNode )
 {
   size_t					numEntries;
   unsigned int		i;
+	bool8_t					available;
   spinNodeHandle	entryHandle, currentHandle;
   char						entryName[ SPINNAKER_MAX_BUFF_LEN ];
   size_t					entryNameLen;
@@ -3283,8 +3495,16 @@ _showEnumerationNode ( spinNodeHandle enumNode )
 					"%s: Can't get enum name", __func__ );
       return;
     }
-
-    oaLogInfo ( OA_LOG_CAMERA, "%s: [%s] ", __func__, entryName );
+		available = False;
+		if (( err = ( *p_spinNodeIsAvailable )( entryHandle, &available )) !=
+				SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: spinNodeIsAvailable failed for %s, error %d", __func__,
+					entryName, err );
+			return;
+		}
+    oaLogInfo ( OA_LOG_CAMERA, "%s: [%s] (%savailable)", __func__, entryName,
+				available ? "" : "un" );
   }
 
   if (( *p_spinEnumerationGetCurrentEntry )( enumNode, &currentHandle ) !=
