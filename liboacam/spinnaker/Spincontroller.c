@@ -201,6 +201,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 	double						newFloat;
 	int64_t						newInt;
 	SPINNAKER_STATE*	cameraInfo = camera->_private;
+	spinError					err;
+	int								restart;
 
 	switch ( control ) {
 		case OA_CAM_CTRL_GAIN:
@@ -423,6 +425,25 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			return _doFrameFormat ( camera, val->discrete );
+			break;
+
+		case OA_CAM_CTRL_HFLIP:
+			restart = 0;
+			if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
+				restart = 1;
+				_doStop ( cameraInfo );
+			}
+			newBool = val->boolean ? True : False;
+			if (( err = ( *p_spinBooleanSetValue )( cameraInfo->flipX, newBool )) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set reverse x, error %d",
+						__func__, err );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if ( restart ) {
+				_doStart ( cameraInfo );
+			}
+			return OA_ERR_NONE;
 			break;
 
 		case OA_CAM_CTRL_BINNING:
@@ -781,6 +802,18 @@ _processGetControl ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 					break;
 			}
 			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_HFLIP:
+			if (( *p_spinBooleanGetValue )( cameraInfo->flipX, &currBool ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get current reverse X value",
+						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = currBool ? 1 : 0;
 			return OA_ERR_NONE;
 			break;
 

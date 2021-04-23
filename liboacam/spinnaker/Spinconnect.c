@@ -2942,7 +2942,9 @@ _checkFlipControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	spinNodeHandle		flipX;
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
+  COMMON_INFO*			commonInfo = camera->_common;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
+	spinError					err;
 
   if ( _getNodeData ( nodeMap, "ReverseX", &flipX, &implemented,
 			&available, &readable, &writeable, &nodeType ) < 0 ) {
@@ -2953,9 +2955,27 @@ _checkFlipControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == BooleanNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found reverse X", __func__ );
 				_showBooleanNode ( flipX );
-				cameraInfo->flipX = flipX;
-				oaLogWarning ( OA_LOG_CAMERA, "%s: Need to set up command for flipX",
-						__func__ );
+				// It seems that sometimes, even though this node appears to be
+				// available, trying to set it returns a GENICAM_ERR_ACCESS error.
+				// Try that now and dump the control if it does.
+				err = ( *p_spinBooleanSetValue )( flipX, False );
+				if ( err == SPINNAKER_ERR_SUCCESS ) {
+					cameraInfo->flipX = flipX;
+					camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_HFLIP ) = OA_CTRL_TYPE_BOOLEAN;
+					commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_HFLIP ) = 0;
+					commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_HFLIP ) = 1;
+					commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HFLIP ) = 1;
+					commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HFLIP ) = 0;
+				} else {
+					if ( err == GENICAM_ERR_ACCESS ) {
+						oaLogWarning ( OA_LOG_CAMERA,
+								"%s: ReverseX returns Genicam access error", __func__ );
+					} else {
+						oaLogError ( OA_LOG_CAMERA, "%s: Can't set reverse x, error %d",
+								__func__, err );
+						return -OA_ERR_SYSTEM_ERROR;
+					}
+				}
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for reverse X", __func__,
