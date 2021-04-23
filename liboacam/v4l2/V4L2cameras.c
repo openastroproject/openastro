@@ -2,7 +2,7 @@
  *
  * V4L2cameras.c -- camera checking functions
  *
- * Copyright 2013,2014,2015 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -29,6 +29,7 @@
 #if HAVE_LIBV4L2
 
 #include <openastro/camera.h>
+#include <openastro/util.h>
 
 #if HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
@@ -62,52 +63,53 @@ v4l2isSPC900 ( oaCameraDevice* device )
   ( void ) snprintf ( idFile, PATH_MAX, "%s/../../../idVendor",
       realSysPath );
   if ( !access ( idFile, R_OK )) {
-    fprintf ( stderr, "Can't read file %s\n", idFile );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't read file %s", __func__, idFile );
     return 0;
   }
 
   if (!( fp = fopen ( idFile, "r" ))) {
-    fprintf ( stderr, "fopen of %s failed\n", idFile );
+    oaLogError ( OA_LOG_CAMERA, "%s: fopen of %s failed", __func__, idFile );
     return 0;
   }
 
   if ( !fgets ( vid, 16, fp )) {
     fclose ( fp );
-    fprintf ( stderr, "fgets from %s failed\n", idFile );
+    oaLogError ( OA_LOG_CAMERA, "%s: fgets from %s failed", __func__,
+				idFile );
     return 0;
   }
   fclose ( fp );
 
   if ( strcmp ( vid, "0471" )) {
-fprintf ( stderr, "SPC900 vid test fails\n" );
+		oaLogWarning ( OA_LOG_CAMERA, "%s: SPC900 vid test fails", __func__ );
     return 0;
   }
 
   ( void ) snprintf ( idFile, PATH_MAX, "%s/../../../idProduct",
       realSysPath );
   if ( !access ( idFile, R_OK )) {
-    fprintf ( stderr, "Can't read file %s\n", idFile );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't read file %s", __func__, idFile );
     return 0;
   }
 
   if (!( fp = fopen ( idFile, "r" ))) {
-    fprintf ( stderr, "fopen of %s failed\n", idFile );
+    oaLogError ( OA_LOG_CAMERA, "%s: fopen of %s failed", __func__, idFile );
     return 0;
   }
 
   if ( !fgets ( pid, 16, fp )) {
     fclose ( fp );
-    fprintf ( stderr, "fgets from %s failed\n", idFile );
+    oaLogError ( OA_LOG_CAMERA, "%s: fgets from %s failed", __func__, idFile );
     return 0;
   }
   fclose ( fp );
 
   if ( strcmp ( vid, "0329" )) {
-fprintf ( stderr, "SPC900 pid test fails\n" );
+		oaLogWarning ( OA_LOG_CAMAERA, "%s: SPC900 pid test fails", __func__ );
     return 0;
   }
 
-fprintf ( stderr, "SPC900 connected\n" );
+	oaLogInfo ( OA_LOG_CAMERA, "%s: SPC900 connected", __func__ );
   return -1;
 */
 }

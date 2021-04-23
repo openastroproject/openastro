@@ -122,7 +122,7 @@ oaV4L2CameraTestControl ( oaCamera* camera, int control, oaControlValue* valp )
       break;
 
     default:
-      fprintf ( stderr, "%s: unhandled value type %d\n", __func__,
+      oaLogError ( OA_LOG_CAMERA, "%s: unhandled value type %d", __func__,
           valp->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
       break;
@@ -143,7 +143,7 @@ oaV4L2CameraReset ( oaCamera* camera )
   cameraState.lastUsedBuffer = -1;
   if (( cameraState.fd = v4l2_open ( cameraState.devicePath,
       O_RDWR | O_NONBLOCK, 0 )) < 0 ) {
-    fprintf ( stderr, "cannot open video device %s\n",
+    oaLogError ( OA_LOG_CAMERA, "%s: cannot open video device %s", __func__,
         cameraState.devicePath );
     // errno should be set?
     free (( void * ) camera );
@@ -198,8 +198,8 @@ oaV4L2CameraGetAutoWBManualSetting ( oaCamera* camera )
   V4L2_STATE*	cameraInfo = camera->_private;
 
   if ( !cameraInfo->haveWhiteBalanceManual ) {
-    fprintf ( stderr, "%s: have no manual value for white balance menu\n",
-        __func__ );
+    oaLogWarning ( OA_LOG_CAMERA,
+				"%s: have no manual value for white balance menu", __func__ );
   }
   return cameraInfo->autoWhiteBalanceOff;
 }

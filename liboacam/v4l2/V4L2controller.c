@@ -148,7 +148,8 @@ oacamV4L2controller ( void* param )
               resultCode = _processGetMenuItem ( cameraInfo, command );
               break;
             default:
-              fprintf ( stderr, "Invalid command type %d in controller\n",
+              oaLogError ( OA_LOG_CAMERA,
+									"%s: Invalid command type %d in controller", __func__,
                   command->commandType );
               resultCode = -OA_ERR_INVALID_CONTROL;
               break;
@@ -157,7 +158,7 @@ oacamV4L2controller ( void* param )
           resultCode = -OA_ERR_IGNORED;
         }
         if ( command->callback ) {
-//fprintf ( stderr, "CONT: command has callback\n" );
+					oaLogWarning ( OA_LOG_CAMERA, "%s: command has callback", __func__ );
         } else {
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
           command->completed = 1;
@@ -598,8 +599,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       break;
 
     default:
-      fprintf ( stderr, "Unrecognised control %d in %s\n", command->controlId,
-          __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s:Unrecognised control %d", __func__,
+					command->controlId );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -852,8 +853,8 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
       break;
 
     default:
-      fprintf ( stderr, "Unrecognised control %d in %s\n", command->controlId,
-          __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+					command->controlId );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -1006,8 +1007,8 @@ _processSetFrameFormat ( V4L2_STATE* cameraInfo, unsigned int format,
       v4l2Format = V4L2_PIX_FMT_SGRBG12;
       break;
     default:
-      fprintf ( stderr, "unhandled frame format '%s'\n",
-          oaFrameFormats[ format ].name );
+      oaLogError ( OA_LOG_CAMERA, "%s: unhandled frame format '%s'",
+          __func__, oaFrameFormats[ format ].name );
       break;
   }
 
@@ -1108,7 +1109,7 @@ _setExtendedControl ( int fd, int id, oaControlValue* valp )
       extControl[0].string = ( char* ) valp->string;
       break;
     default:
-      fprintf ( stderr, "%s: unhandled value type %d\n", __func__,
+      oaLogError ( OA_LOG_CAMERA, "%s: unhandled value type %d", __func__,
           valp->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
   }
@@ -1163,7 +1164,7 @@ _getExtendedControl ( int fd, int id, oaControlValue* valp )
       valp->string = extControl[0].string;
       break;
     default:
-      fprintf ( stderr, "%s: unhandled value type %d\n", __func__,
+      oaLogError ( OA_LOG_CAMERA, "%s: unhandled value type %d", __func__,
           valp->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
   }
@@ -1182,8 +1183,8 @@ _doCameraConfig ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
   v4l2_close ( cameraInfo->fd );
   if (( cameraInfo->fd = v4l2_open ( cameraInfo->devicePath,
       O_RDWR | O_NONBLOCK, 0 )) < 0 ) {
-    fprintf ( stderr, "cannot reopen video device '%s'\n",
-        cameraInfo->devicePath );
+    oaLogError ( OA_LOG_CAMERA, "%s: cannot reopen video device '%s'",
+        __func__, cameraInfo->devicePath );
     return -OA_ERR_SYSTEM_ERROR;
   }
   return _doStart ( cameraInfo );
@@ -1227,7 +1228,8 @@ _doStart ( V4L2_STATE* cameraInfo )
   }
 
   if ( fmt.fmt.pix.pixelformat != cameraInfo->currentV4L2Format ) {
-    fprintf ( stderr, "Can't get expected video format: %c%c%c%c\n",
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get expected video format: %c%c%c%c\n", __func__,
         cameraInfo->currentV4L2Format & 0xff,
         cameraInfo->currentV4L2Format >> 8 & 0xff,
         cameraInfo->currentV4L2Format >> 16 & 0xff,
@@ -1237,7 +1239,8 @@ _doStart ( V4L2_STATE* cameraInfo )
 
   if (( fmt.fmt.pix.width != cameraInfo->xSize ) || ( fmt.fmt.pix.height !=
       cameraInfo->ySize )) {
-    fprintf ( stderr, "Requested image size %dx%d, offered as %dx%d\n",
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: Requested image size %dx%d, offered as %dx%d", __func__,
         cameraInfo->xSize, cameraInfo->ySize, fmt.fmt.pix.width,
         fmt.fmt.pix.height );
     return -OA_ERR_OUT_OF_RANGE;
@@ -1266,7 +1269,8 @@ _doStart ( V4L2_STATE* cameraInfo )
   cameraInfo->configuredBuffers = 0;
   cameraInfo->buffersFree = 0;
   if (!( cameraInfo->buffers = calloc( req.count, sizeof ( frameBuffer )))) {
-    fprintf ( stderr, "%s: calloc of transfer buffers failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: calloc of transfer buffers failed",
+				__func__ );
     return -OA_ERR_MEM_ALLOC;
   }
   for ( n = 0; n < req.count; n++ ) {
@@ -1316,7 +1320,8 @@ _doStart ( V4L2_STATE* cameraInfo )
   type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_STREAMON, &type ) < 0 )  {
     if ( -ENOSPC == errno ) {
-      fprintf ( stderr, "Insufficient bandwidth for camera on the USB bus\n" );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: Insufficient bandwidth for camera on the USB bus", __func__ );
     }
     perror ( "VIDIOC_STREAMON" );
     for ( m = 0; m < cameraInfo->configuredBuffers; m++ ) {
@@ -1402,7 +1407,7 @@ _processGetMenuItem ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
       control != OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) &&
       control != OA_CAM_CTRL_POWER_LINE_FREQ &&
       control != OA_CAM_CTRL_WHITE_BALANCE_PRESET ) {
-    fprintf ( stderr, "%s: control not implemented\n", __func__ );
+    oaLogWarning ( OA_LOG_CAMERA, "%s: control not implemented", __func__ );
     *buff = 0;
   } else {
     if ( OA_CAM_CTRL_WHITE_BALANCE_PRESET == control ) {
@@ -1428,7 +1433,7 @@ _processGetMenuItem ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
       menuItem.index = index;
       if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_QUERYMENU, &menuItem )) {
         perror ("VIDIOC_QUERYMENU");
-        fprintf ( stderr, "%s: control: %d, index %d\n", __func__,
+        oaLogError ( OA_LOG_CAMERA, "%s: control: %d, index %d\n", __func__,
             menuItem.id, index );
         retStr = "";
       } else {

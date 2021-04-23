@@ -130,7 +130,7 @@ oaV4L2CameraGetFrameRates ( oaCamera* camera, int resX, int resY )
       if (!( cameraInfo->frameRates.rates = realloc (
           cameraInfo->frameRates.rates, ( numRates + 1 ) *
           sizeof ( FRAMERATE )))) {
-        fprintf ( stderr, "%s: realloc failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: realloc failed", __func__ );
         return 0;
       }
       cameraInfo->frameRates.rates[numRates].numerator =
