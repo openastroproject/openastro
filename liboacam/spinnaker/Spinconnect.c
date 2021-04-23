@@ -2300,12 +2300,12 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 					return -OA_ERR_SYSTEM_ERROR;
 				}
 
-				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_GAIN ) =
+				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_DELAY ) =
 						OA_CTRL_TYPE_INT64;
-				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_GAIN ) = min;
-				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_GAIN ) = max;
-				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_GAIN ) = 1;
-				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_GAIN ) = curr;
+				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_DELAY ) = min;
+				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_DELAY ) = max;
+				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_DELAY ) = 1;
+				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_DELAY ) = curr;
 				cameraInfo->triggerDelay = triggerDelay;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
