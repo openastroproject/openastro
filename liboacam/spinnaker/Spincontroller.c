@@ -485,6 +485,29 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 			return OA_ERR_NONE;
 			break;
 
+		case OA_CAM_CTRL_TRIGGER_POLARITY:
+			// Everything except falling edge and rising edge are ignored here.
+			newInt = val->menu;
+			switch ( newInt ) {
+				case 0: // falling edge
+					enumValue = TriggerActivation_FallingEdge;
+					break;
+				case 1: // rising edge
+					enumValue = TriggerActivation_RisingEdge;
+					break;
+				default:
+					return -OA_ERR_INVALID_CONTROL;
+					break;
+			}
+			if (( *p_spinEnumerationSetEnumValue )( cameraInfo->triggerActivation,
+					enumValue ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't set trigger activation value", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
 		case OA_CAM_CTRL_BINNING:
 			oaLogError ( OA_LOG_CAMERA, "%s: Unhandled control %d", __func__,
 					control );
@@ -871,6 +894,27 @@ _processGetControl ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 		case OA_CAM_CTRL_TRIGGER_MODE:
 			val->valueType = OA_CTRL_TYPE_MENU;
 			val->menu = cameraInfo->currentOverlapMode;
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_TRIGGER_POLARITY:
+			if (( err = _getEnumValue ( cameraInfo->triggerActivation,
+					&enumValue )) != OA_ERR_NONE ) {
+				return err;
+			}
+			// Everything except falling edge and rising edge are ignored here.
+			switch ( enumValue ) {
+				case TriggerActivation_FallingEdge:
+					val->menu = 0;
+					break;
+				case TriggerActivation_RisingEdge:
+					val->menu = 1;
+					break;
+				default:
+					return -OA_ERR_INVALID_CONTROL;
+					break;
+			}
+			val->valueType = OA_CTRL_TYPE_MENU;
 			return OA_ERR_NONE;
 			break;
 
