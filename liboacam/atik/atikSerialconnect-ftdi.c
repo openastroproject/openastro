@@ -94,11 +94,12 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     libusb_free_device_list ( devlist, 1 );
     libusb_exit ( cameraInfo->usbContext );
     if ( numUSBDevices ) {
-      fprintf ( stderr, "Can't see any USB devices now (list returns -1)\n" );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't see any USB devices now (list returns -1)", __func__ );
       FREE_DATA_STRUCTS;
       return 0;
     }
-    fprintf ( stderr, "Can't see any USB devices now\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't see any USB devices now", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -116,7 +117,8 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
     if ( LIBUSB_SUCCESS != libusb_get_device_descriptor ( usbDevice, &desc )) {
       libusb_free_device_list ( devlist, 1 );
       libusb_exit ( cameraInfo->usbContext );
-      fprintf ( stderr, "get device descriptor failed\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: get device descriptor failed",
+					__func__ );
       FREE_DATA_STRUCTS;
       return 0;
     }
@@ -132,16 +134,18 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
 
   if ( matched ) {
     if (!( cameraInfo->ftdiContext = ftdi_new())) {
-      fprintf ( stderr, "ftdi_new() failed\n" );
+      oaLogError ( OA_LOG_CAMERA, "ftdi_new() failed", __func__ );
       matched = 0;
     } else {
       if (( ret = ftdi_init ( cameraInfo->ftdiContext ))) {
-        fprintf ( stderr, "can't initialise ftdi context, err = %d\n", ret );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: can't initialise ftdi context, err = %d", __func__, ret );
         matched = 0;
       } else {
         ftdi_set_interface ( cameraInfo->ftdiContext, INTERFACE_ANY );
         if ( ftdi_usb_open_dev ( cameraInfo->ftdiContext, usbDevice ) < 0 ) {
-          fprintf ( stderr, "FTDI open of serial device failed\n" );
+          oaLogError ( OA_LOG_CAMERA, "%s: FTDI open of serial device failed",
+							__func__ );
           matched = 0;
         }
       }
@@ -153,15 +157,16 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
   libusb_free_device_list ( devlist, 0 );
 
   if ( !matched ) {
-    fprintf ( stderr, "no matching camera\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: no matching camera", __func__ );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
   if (( ret = ftdi_set_baudrate ( cameraInfo->ftdiContext, 115200 )) < 0 ) {
-    fprintf ( stderr, "set baud rate for FTDI serial device failed, "
-        "err = %d\n", ret );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: set baud rate for FTDI serial device failed, err = %d",
+				__func__, ret );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
@@ -170,7 +175,8 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
 
   if ( ftdi_set_line_property ( cameraInfo->ftdiContext, BITS_8, STOP_BIT_1,
       NONE ) < 0 ) {
-    fprintf ( stderr, "set 8N1 for device FTDI serial device failed\n" );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: set 8N1 for device FTDI serial device failed", __func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
@@ -183,7 +189,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
 
   // Send a PING command to the PIC.  No idea if this is really required.
   if ( cameraInfo->write ( cameraInfo, pingCmd, 4 )) {
-    fprintf ( stderr, "%s: write error on ping\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: write error on ping", __func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
@@ -192,7 +198,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
   usleep ( 100000 );
   memset ( buffer, 0, 16 );
   if (( numRead = cameraInfo->read ( cameraInfo, buffer, 1 ) != 1 )) {
-    fprintf ( stderr, "%s: read error on ping\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: read error on ping", __func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
@@ -200,7 +206,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
   }
 
   if ( cameraInfo->write ( cameraInfo, capsCmd, 4 )) {
-    fprintf ( stderr, "%s: write error on query caps\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: write error on query caps", __func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
@@ -209,46 +215,44 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
 
   memset ( buffer, 0, 16 );
   if (( numRead = cameraInfo->read ( cameraInfo, buffer, 2 )) != 2 ) {
-    fprintf ( stderr, "%s: read error 1 on query caps (%d)\n", __func__,
-        numRead );
+    oaLogError ( OA_LOG_CAMERA, "%s: read error 1 on query caps (%d)",
+				__func__, numRead );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
-  /*
-  fprintf ( stderr, "%s: camera protocol version %hhu.%hhu\n", __func__,
+  oaLogInfo ( OA_LOG_CAMERA, "%s: camera protocol version %hhu.%hhu", __func__,
       buffer[1], buffer[0] );
-   */
 
   memset ( buffer, 0, 16 );
   if (( numRead = cameraInfo->readToZero ( cameraInfo,
       buffer, BUFFER_LEN )) < 1 ) {
-    fprintf ( stderr, "%s: read error 2 on query caps\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: read error 2 on query caps", __func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
-  // fprintf ( stderr, "%s: camera id '%s'\n", __func__, buffer );
+  oaLogInfo ( OA_LOG_CAMERA, "%s: camera id '%s'", __func__, buffer );
 
   memset ( buffer, 0, 16 );
   if (( numRead = cameraInfo->readToZero ( cameraInfo,
       buffer, BUFFER_LEN )) < 1 ) {
-    fprintf ( stderr, "%s: read error 3 on query caps\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: read error 3 on query caps", __func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
-  // fprintf ( stderr, "%s: manufacturer '%s'\n", __func__, buffer );
+  oaLogInfo ( OA_LOG_CAMERA, "%s: manufacturer '%s'", __func__, buffer );
 
   memset ( buffer, 0, 16 );
   if (( numRead = cameraInfo->read ( cameraInfo, buffer, 16 ) != 16 )) {
-    fprintf ( stderr, "%s: read error 4 on query caps\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: read error 4 on query caps", __func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
@@ -275,59 +279,66 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
   camera->features.pixelSizeX = cameraInfo->pixelSizeX * 10;
   camera->features.pixelSizeY = cameraInfo->pixelSizeY * 10;
 
-  /*
-  fprintf ( stderr, "flags: %04x\n", cameraInfo->cameraFlags );
-  fprintf ( stderr, "pixels X: %d\n", cameraInfo->maxResolutionX );
-  fprintf ( stderr, "pixels Y: %d\n", cameraInfo->maxResolutionY );
-  fprintf ( stderr, "pixel width: %d\n", cameraInfo->pixelSizeX );
-  fprintf ( stderr, "pixel height: %d\n", cameraInfo->pixelSizeY );
-  fprintf ( stderr, "max X binning: %d\n", cameraInfo->maxBinningX );
-  fprintf ( stderr, "max Y binning: %d\n", cameraInfo->maxBinningY );
-  fprintf ( stderr, "well depth: %d\n", cameraInfo->wellDepth * 1000 );
-   */
+  oaLogInfo ( OA_LOG_CAMERA, "%s: flags: %04x", __func__,
+			cameraInfo->cameraFlags );
+  oaLogInfo ( OA_LOG_CAMERA, "%s: pixels X: %d", __func__,
+			cameraInfo->maxResolutionX );
+  oaLogInfo ( OA_LOG_CAMERA, "%s: pixels Y: %d", __func__,
+			cameraInfo->maxResolutionY );
+  oaLogInfo ( OA_LOG_CAMERA, "%s: pixel width: %d", __func__,
+			cameraInfo->pixelSizeX );
+  oaLogInfo ( OA_LOG_CAMERA, "%s: pixel height: %d", __func__,
+			cameraInfo->pixelSizeY );
+  oaLogInfo ( OA_LOG_CAMERA, "%s: max X binning: %d", __func__,
+			cameraInfo->maxBinningX );
+  oaLogInfo ( OA_LOG_CAMERA, "%s: max Y binning: %d", __func__,
+			cameraInfo->maxBinningY );
+  oaLogInfo ( OA_LOG_CAMERA, "%s: well depth: %d", __func__,
+			cameraInfo->wellDepth * 1000 );
 
   if ( cameraInfo->write ( cameraInfo, serialCmd, 4 )) {
-    fprintf ( stderr, "%s: write error on query serial no\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: write error on query serial no",
+				__func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
     return 0;
   }
   if (( numRead = cameraInfo->read ( cameraInfo, buffer, 7 ) != 7 )) {
-    fprintf ( stderr, "%s: read error on query serial no\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: read error on query serial no", __func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
-  /*
-  fprintf ( stderr, "serial no: %.6s\n", buffer );
-  fprintf ( stderr, "hardware type: %s\n", buffer[6] ? "production" : "beta" );
-   */
+  oaLogError ( OA_LOG_CAMERA, "%s: serial no: %.6s", __func__, buffer );
+  oaLogError ( OA_LOG_CAMERA, "%s: hardware type: %s", __func__,
+			buffer[6] ? "production" : "beta" );
 
   cameraInfo->hardwareType = buffer[6];
 
   if ( cameraInfo->write ( cameraInfo, fifoCmd, 4 )) {
-    fprintf ( stderr, "%s: write error on query fifo\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: write error on query fifo", __func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
     return 0;
   }
   if (( numRead = cameraInfo->read ( cameraInfo, buffer, 1 ) != 1 )) {
-    fprintf ( stderr, "%s: read error on query fifo\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: read error on query fifo", __func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
     return 0;
   }
-  // fprintf ( stderr, "have fifo: %s\n", buffer[0] ? "yes" : "no" );
+  oaLogInfo ( OA_LOG_CAMERA, "%s: have fifo: %s", __func__,
+			buffer[0] ? "yes" : "no" );
   cameraInfo->haveFIFO = buffer[0];
 
   // Not sure what this does, but my camera won't work without it.
   if ( cameraInfo->write ( cameraInfo, extCmd, 8 )) {
-    fprintf ( stderr, "%s: write error on ext port\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: write error on ext port", __func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
@@ -335,7 +346,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
   }
 
   if (( numRead = cameraInfo->read ( cameraInfo, buffer, 1 ) != 1 )) {
-    fprintf ( stderr, "%s: read error on ext port\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: read error on ext port", __func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
@@ -358,7 +369,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
 
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed", __func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     FREE_DATA_STRUCTS;
@@ -376,7 +387,8 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
   cameraInfo->imageBufferLength = cameraInfo->maxResolutionX *
       cameraInfo->maxResolutionY * 2;
   if (!( cameraInfo->xferBuffer = malloc ( cameraInfo->imageBufferLength ))) {
-    fprintf ( stderr, "malloc of transfer buffer failed in %s\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc of transfer buffer failed",
+				__func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
@@ -386,7 +398,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
 
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
       sizeof ( frameBuffer )))) {
-    fprintf ( stderr, "malloc of buffer array failed in %s\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc of buffer array failed", __func__ );
     ftdi_usb_close ( cameraInfo->ftdiContext );
     ftdi_free ( cameraInfo->ftdiContext );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
@@ -401,7 +413,7 @@ oaAtikSerialInitCamera ( oaCameraDevice* device )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: malloc failed", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );

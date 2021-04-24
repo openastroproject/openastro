@@ -96,14 +96,15 @@ oaAtikSerialGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   }
 
   if (!( ftdiCtx = ftdi_new())) {
-    fprintf ( stderr, "can't connect to ftdi\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: can't connect to ftdi", __func__ );
     libusb_free_device_list ( devlist, 1 );
     libusb_exit ( ctx );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
   if (( ret = ftdi_init ( ftdiCtx ))) {
-    fprintf ( stderr, "can't initialise ftdi context, err = %d\n", ret );
+    oaLogError ( OA_LOG_CAMERA, "%s: can't initialise ftdi context, err = %d",
+				__func__, ret );
     libusb_free_device_list ( devlist, 1 );
     libusb_exit ( ctx );
     return -OA_ERR_SYSTEM_ERROR;

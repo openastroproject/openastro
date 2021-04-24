@@ -2,7 +2,7 @@
  *
  * atikSerialgetState.c -- state querying for Atik serial cameras
  *
- * Copyright 2014,2015,2016,2017,2018
+ * Copyright 2014,2015,2016,2017,2018,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -75,7 +75,7 @@ oaAtikSerialCameraGetFrameSizes ( oaCamera* camera )
       break;
 */
   }
-  fprintf ( stderr, "oaAtikSerialCameraGetFrameSizes: unknown bin mode %d\n",
+  oaLogError ( OA_LOG_CAMERA, "%s: unknown bin mode %d", __func__,
       cameraInfo->binMode );
   return 0;
 }

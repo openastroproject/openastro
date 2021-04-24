@@ -2,7 +2,7 @@
  *
  * atikSerialcallback.c -- Thread for handling callbacks to user code
  *
- * Copyright 2015,2016,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2016,2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -78,8 +78,8 @@ oacamAtikSerialcallbackHandler ( void* param )
           pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
           break;
         default:
-          fprintf ( stderr, "unexpected callback type %d\n",
-              callback->callbackType );
+          oaLogError ( OA_LOG_CAMERA, "%s: unexpected callback type %d",
+              __func__, callback->callbackType );
           break;
       }
     }

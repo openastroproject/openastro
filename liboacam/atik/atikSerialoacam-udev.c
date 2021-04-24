@@ -2,7 +2,7 @@
  *
  * atikSerialoacam-udev.c -- main entrypoint for Atik serial support via udev
  *
- * Copyright 2013,2014,2015,2016,2020
+ * Copyright 2013,2014,2015,2016,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -87,7 +87,7 @@ oaAtikSerialGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   numCameras = sizeof ( atikCameraList ) / sizeof ( struct atikSerialCam );
 
   if (!( udev = udev_new())) {
-    fprintf ( stderr, "can't get connection to udev\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: can't get connection to udev", __func__ );
     return -OA_ERR_SYSTEM_ERROR;
   }
 

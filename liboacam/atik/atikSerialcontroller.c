@@ -99,13 +99,13 @@ oacamAtikSerialcontroller ( void* param )
             resultCode = _processStreamingStop ( cameraInfo, command );
             break;
           default:
-            fprintf ( stderr, "Invalid command type %d in controller\n",
-                command->commandType );
+            oaLogError ( OA_LOG_CAMERA, "%s: Invalid command type %d",
+                __func__, command->commandType );
             resultCode = -OA_ERR_INVALID_CONTROL;
             break;
         }
         if ( command->callback ) {
-//fprintf ( stderr, "CONT: command has callback\n" );
+					oaLogWarning ( OA_LOG_CAMERA, "%s: command has callback" );
         } else {
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
           command->completed = 1;
@@ -144,7 +144,7 @@ oacamAtikSerialcontroller ( void* param )
           maxWaitTime -= frameWait;
         }
         if ( cameraInfo->write ( cameraInfo, ampOnCmd, 4 )) {
-          fprintf ( stderr, "%s: write error on amp on\n", __func__ );
+          oaLogError ( OA_LOG_CAMERA, "%s: write error on amp on", __func__ );
         }
         usleep ( 100000 );
       }
@@ -202,8 +202,9 @@ _processSetControl ( AtikSerial_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
       if ( val->valueType != OA_CTRL_TYPE_INT64 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int64 expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentExposure = val->int64;
@@ -211,8 +212,9 @@ _processSetControl ( AtikSerial_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_BINNING:
       if ( val->valueType != OA_CTRL_TYPE_DISCRETE ) {
-        fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where discrete expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       if ( val->discrete > OA_BIN_MODE_2x2 ) {
@@ -222,7 +224,8 @@ _processSetControl ( AtikSerial_STATE* cameraInfo, OA_COMMAND* command )
       break;
 
     default:
-      fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+					control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -260,7 +263,7 @@ _processGetControl ( AtikSerial_STATE* cameraInfo, OA_COMMAND* command )
       break;
 
     default:
-      fprintf ( stderr,
+      oaLogError ( OA_LOG_CAMERA,
           "Unrecognised control %d in %s\n", control, __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
@@ -350,25 +353,25 @@ _doStartExposure ( AtikSerial_STATE* cameraInfo )
 			    ATIK_CMD_START_EXPOSURE };
 
   if ( cameraInfo->write ( cameraInfo, ampOffCmd, 5 )) {
-    fprintf ( stderr, "%s: write error on amp off\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: write error on amp off\n", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
   usleep ( 100000 );
 
   if ( cameraInfo->write ( cameraInfo, clearCCDCmd, 4 )) {
-    fprintf ( stderr, "%s: write error on clear CCD\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: write error on clear CCD\n", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
   usleep ( 100000 );
 
   if ( cameraInfo->write ( cameraInfo, shutterCmd, 4 )) {
-    fprintf ( stderr, "%s: write error on shutter\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: write error on shutter\n", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
   usleep ( 100000 );
 
   if ( cameraInfo->write ( cameraInfo, guideOffCmd, 4 )) {
-    fprintf ( stderr, "%s: write error on guide off\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: write error on guide off\n", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
   usleep ( 100000 );
@@ -389,7 +392,7 @@ _doReadExposure ( AtikSerial_STATE* cameraInfo )
   int			allowedEmptyReads, numRead;
 
   if ( cameraInfo->write ( cameraInfo, guideOffCmd, 4 )) {
-    fprintf ( stderr, "%s: write error on guide off\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: write error on guide off\n", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
   usleep ( 100000 );
@@ -426,7 +429,7 @@ _doReadExposure ( AtikSerial_STATE* cameraInfo )
   readCCDCmd[ ATIK_SERIAL_CCD_SIZE_Y_HI ] = cameraInfo->ySize >> 8;
 
   if ( cameraInfo->ccdReadFlags & ATIK_SERIAL_READ_FLAGS_DEINTERLACE ) {
-    fprintf ( stderr, "%s: Help!  can't handle interlaced camera yet.  Add code\n",
+    oaLogError ( OA_LOG_CAMERA, "%s: Help!  can't handle interlaced camera yet.  Add code\n",
         __func__ );
   }
 
@@ -437,7 +440,7 @@ _doReadExposure ( AtikSerial_STATE* cameraInfo )
 
   if ( cameraInfo->write ( cameraInfo, readCCDCmd,
       ATIK_SERIAL_CCD_BUFFER_LENGTH )) {
-    fprintf ( stderr, "%s: write error on read cmd\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: write error on read cmd\n", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
   usleep ( 100000 );
@@ -461,13 +464,13 @@ _doReadExposure ( AtikSerial_STATE* cameraInfo )
   }
 
   if ( bytesToRead ) {
-    fprintf ( stderr, "short read.  Expected %d, got %d\n",
+    oaLogError ( OA_LOG_CAMERA, "short read.  Expected %d, got %d\n",
         cameraInfo->imageBufferLength, ( int ) ( p - cameraInfo->xferBuffer ));
     cameraInfo->droppedFrames++;
   }
 
   if ( cameraInfo->write ( cameraInfo, ampOffCmd, 5 )) {
-    fprintf ( stderr, "%s: write error on amp off\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: write error on amp off\n", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
   usleep ( 100000 );
