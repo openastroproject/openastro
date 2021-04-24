@@ -36,6 +36,7 @@ static unsigned int oaLogType = OA_LOG_NONE;
 static unsigned int	oaLogToStderr = 1;
 static char oaLogFile[ PATH_MAX+1 ];
 
+
 void
 oaSetLogLevel ( unsigned int logLevel )
 {
@@ -97,13 +98,13 @@ oaSetLogFile ( const char* logFile )
 }
 
 
-int
-oaLogError ( unsigned int logType, const char* str, ... )
+static int
+_oaWriteLog ( unsigned int logLevel, char logLetter, unsigned int logType,
+		const char* str, va_list args )
 {
 	FILE*		fp;
-	va_list	args;
 
-	if ( oaLogLevel >= OA_LOG_ERROR && ( oaLogType & logType )) {
+	if ( oaLogLevel >= logLevel && ( oaLogType & logType )) {
 		if ( oaLogToStderr ) {
 			fp = stderr;
 		} else {
@@ -111,10 +112,8 @@ oaLogError ( unsigned int logType, const char* str, ... )
 				return -OA_ERR_NOT_WRITEABLE;
 			}
 		}
-		fprintf ( fp, "[E] " );
-		va_start ( args, str );
+		fprintf ( fp, "[%c] ", logLetter );
 		vfprintf ( fp, str, args );
-		va_end ( args );
 		fprintf ( fp, "\n" );
 		fflush ( fp );
 		if ( !oaLogToStderr ) {
@@ -122,88 +121,56 @@ oaLogError ( unsigned int logType, const char* str, ... )
 		}
 	}
 	return OA_ERR_NONE;
+}
+
+
+int
+oaLogError ( unsigned int logType, const char* str, ... )
+{
+	va_list	args;
+	int			ret;
+
+	va_start ( args, str );
+	ret = _oaWriteLog ( OA_LOG_ERROR, 'E', logType, str, args );
+	va_end ( args );
+	return ret;
 }
 
 
 int
 oaLogWarning ( unsigned int logType, const char* str, ... )
 {
-	FILE*		fp;
 	va_list	args;
+	int			ret;
 
-	if ( oaLogLevel >= OA_LOG_WARN && ( oaLogType & logType )) {
-		if ( oaLogToStderr ) {
-			fp = stderr;
-		} else {
-			if (!( fp = fopen ( oaLogFile, "a" ))) {
-				return -OA_ERR_NOT_WRITEABLE;
-			}
-		}
-		fprintf ( fp, "[W] " );
-		va_start ( args, str );
-		vfprintf ( fp, str, args );
-		va_end ( args );
-		fprintf ( fp, "\n" );
-		fflush ( fp );
-		if ( !oaLogToStderr ) {
-			fclose ( fp );
-		}
-	}
-	return OA_ERR_NONE;
+	va_start ( args, str );
+	ret = _oaWriteLog ( OA_LOG_WARN, 'W', logType, str, args );
+	va_end ( args );
+	return ret;
 }
 
 
 int
 oaLogInfo ( unsigned int logType, const char* str, ... )
 {
-	FILE*		fp;
 	va_list	args;
+	int			ret;
 
-	if ( oaLogLevel >= OA_LOG_INFO && ( oaLogType & logType )) {
-		if ( oaLogToStderr ) {
-			fp = stderr;
-		} else {
-			if (!( fp = fopen ( oaLogFile, "a" ))) {
-				return -OA_ERR_NOT_WRITEABLE;
-			}
-		}
-		fprintf ( fp, "[I] " );
-		va_start ( args, str );
-		vfprintf ( fp, str, args );
-		va_end ( args );
-		fprintf ( fp, "\n" );
-		fflush ( fp );
-		if ( !oaLogToStderr ) {
-			fclose ( fp );
-		}
-	}
-	return OA_ERR_NONE;
+	va_start ( args, str );
+	ret = _oaWriteLog ( OA_LOG_INFO, 'I', logType, str, args );
+	va_end ( args );
+	return ret;
 }
 
 
 int
 oaLogDebug ( unsigned int logType, const char* str, ... )
 {
-	FILE*		fp;
 	va_list	args;
+	int			ret;
 
-	if ( oaLogLevel >= OA_LOG_DEBUG && ( oaLogType & logType )) {
-		if ( oaLogToStderr ) {
-			fp = stderr;
-		} else {
-			if (!( fp = fopen ( oaLogFile, "a" ))) {
-				return -OA_ERR_NOT_WRITEABLE;
-			}
-		}
-		fprintf ( fp, "[D] " );
-		va_start ( args, str );
-		vfprintf ( fp, str, args );
-		va_end ( args );
-		fprintf ( fp, "\n" );
-		fflush ( fp );
-		if ( !oaLogToStderr ) {
-			fclose ( fp );
-		}
-	}
-	return OA_ERR_NONE;
+	va_start ( args, str );
+	ret = _oaWriteLog ( OA_LOG_DEBUG, 'D', logType, str, args );
+	va_end ( args );
+	return ret;
 }
