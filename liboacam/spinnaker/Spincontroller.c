@@ -459,6 +459,24 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 			return OA_ERR_NONE;
 			break;
 
+		case OA_CAM_CTRL_TRIGGER_ENABLE:
+			enumValue = val->boolean ? TriggerMode_On : TriggerMode_Off;
+			if (( *p_spinEnumerationSetEnumValue )( cameraInfo->triggerMode,
+					enumValue ) != SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set trigger enable", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			if (( cameraInfo->triggerEnabled = val->boolean ? 1 : 0 )) {
+				// Now set any saved value for the trigger overlap
+				if (( *p_spinEnumerationSetEnumValue )( cameraInfo->triggerOverlap,
+						cameraInfo->currentOverlapMode ) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't set overlap value", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+			}
+			return OA_ERR_NONE;
+			break;
+
 		case OA_CAM_CTRL_TRIGGER_DELAY_ENABLE:
 			newBool = val->boolean ? True : False;
 			if (( *p_spinBooleanSetValue )( cameraInfo->triggerDelayEnabled,
@@ -911,6 +929,16 @@ _processGetControl ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 			}
 			val->valueType = OA_CTRL_TYPE_BOOLEAN;
 			val->boolean = currBool ? 1 : 0;
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_TRIGGER_ENABLE:
+			if (( err = _getEnumValue ( cameraInfo->triggerMode, &enumValue )) !=
+					OA_ERR_NONE ) {
+				return err;
+			}
+			val->valueType = OA_CTRL_TYPE_BOOLEAN;
+			val->boolean = enumValue == TriggerMode_On ? 1 : 0;
 			return OA_ERR_NONE;
 			break;
 

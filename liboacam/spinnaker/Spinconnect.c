@@ -2411,8 +2411,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				// for our purposes
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
-						"%s: Unrecognised node type '%s' for trigger selector",
-						__func__,
+						"%s: Unrecognised node type '%s' for trigger selector", __func__,
 						nodeTypes[ nodeType ] );
 			}
     } else {
@@ -2543,6 +2542,12 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	cameraInfo->triggerEnabled = 0;
+	camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_ENABLE ) = OA_CTRL_TYPE_BOOLEAN;
+	commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_ENABLE ) = 0;
+	commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_ENABLE ) = 1;
+	commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_ENABLE ) = 1;
+	// off appears to be the case for the Blackfly.  I'll assume for all
+	commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_ENABLE ) = 0;
 
 	return OA_ERR_NONE;
 }
