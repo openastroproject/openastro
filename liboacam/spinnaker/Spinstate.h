@@ -60,6 +60,8 @@ typedef struct SPINNAKER_STATE {
 	frameBuffer*						buffers;
 
 	int											triggerEnabled;
+	int											triggerDelayOn;
+	float										triggerDelayValue;
 	spinTriggerOverlapEnums	currentOverlapMode;
 
 	spinSystem							systemHandle;

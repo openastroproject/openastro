@@ -210,8 +210,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 					cameraInfo->minFloatGain ) / 400.0 + cameraInfo->minFloatGain;
 			if (( *p_spinFloatSetValue )( cameraInfo->gain, newFloat ) !=
 					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA, "%s: Can't set current gain value",
-						__func__ );
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set gain value", __func__ );
 				return -OA_ERR_SYSTEM_ERROR;
 			}
 			return OA_ERR_NONE;
@@ -222,8 +221,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 					cameraInfo->minFloatGamma ) / 100.0 + cameraInfo->minFloatGamma;
 			if (( *p_spinFloatSetValue )( cameraInfo->gamma, newFloat ) !=
 					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA, "%s: Can't set current gamma value",
-						__func__ );
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set gamma value", __func__ );
 				return -OA_ERR_SYSTEM_ERROR;
 			}
 			return OA_ERR_NONE;
@@ -247,7 +245,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 					cameraInfo->minFloatSaturation;
 			if (( *p_spinFloatSetValue )( cameraInfo->saturation, newFloat ) !=
 					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA, "%s: Can't set current saturation value",
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set saturation value",
 						__func__ );
 				return -OA_ERR_SYSTEM_ERROR;
 			}
@@ -257,8 +255,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 		case OA_CAM_CTRL_SHARPNESS:
 			if (( *p_spinIntegerSetValue )( cameraInfo->sharpness, val->int32 ) !=
 					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA, "%s: Can't set current sharpness value",
-						__func__ );
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set sharpness value", __func__ );
 				return -OA_ERR_SYSTEM_ERROR;
 			}
 			return OA_ERR_NONE;
@@ -270,7 +267,7 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 					cameraInfo->minFloatBlacklevel;
 			if (( *p_spinFloatSetValue )( cameraInfo->blackLevel, newFloat ) !=
 					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA, "%s: Can't set current blacklevel value",
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set blacklevel value",
 						__func__ );
 				return -OA_ERR_SYSTEM_ERROR;
 			}
@@ -281,9 +278,25 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 			newFloat = val->int64;
 			if (( *p_spinFloatSetValue )( cameraInfo->exposure, newFloat ) !=
 					SPINNAKER_ERR_SUCCESS ) {
-				oaLogError ( OA_LOG_CAMERA, "%s: Can't set current exposure value",
-						__func__ );
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set exposure value", __func__ );
 				return -OA_ERR_SYSTEM_ERROR;
+			}
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_TRIGGER_DELAY:
+			// It's possible we can't set this without the trigger delay being
+			// enabled first, so if it isn't then we'll have to do it when the
+			// delay is enabled.
+			newFloat = val->int64;
+			cameraInfo->triggerDelayValue = newFloat;
+			if ( cameraInfo->triggerDelayOn ) {
+				if (( *p_spinFloatSetValue )( cameraInfo->triggerDelay, newFloat ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't set trigger delay value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
 			}
 			return OA_ERR_NONE;
 			break;
@@ -453,6 +466,16 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 				oaLogError ( OA_LOG_CAMERA, "%s: Can't set trigger delay enable",
 						__func__ );
 				return -OA_ERR_SYSTEM_ERROR;
+			}
+			cameraInfo->triggerDelayOn = newBool ? 1 : 0;
+			if ( newBool == True ) {
+				// Now set any value saved when the delay was off
+				if (( *p_spinFloatSetValue )( cameraInfo->triggerDelay,
+							cameraInfo->triggerDelayValue ) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't set trigger delay value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
 			}
 			return OA_ERR_NONE;
 			break;
@@ -627,6 +650,18 @@ _processGetControl ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 					SPINNAKER_ERR_SUCCESS ) {
 				oaLogError ( OA_LOG_CAMERA, "%s: Can't get current exposure value",
 						__func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			val->valueType = OA_CTRL_TYPE_INT64;
+			val->int64 = currFloat;
+			return OA_ERR_NONE;
+			break;
+
+		case OA_CAM_CTRL_TRIGGER_DELAY:
+			if (( *p_spinFloatGetValue )( cameraInfo->triggerDelay, &currFloat ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get current trigger delay value", __func__ );
 				return -OA_ERR_SYSTEM_ERROR;
 			}
 			val->valueType = OA_CTRL_TYPE_INT64;

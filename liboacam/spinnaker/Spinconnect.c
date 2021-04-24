@@ -2158,7 +2158,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	spinNodeHandle		triggerActivation, triggerDelayEnabled, triggerDelay;
 	spinNodeHandle		triggerMode, triggerOverlap, triggerSelector;
 	spinNodeHandle		triggerSource, tempHandle;
-  bool8_t						available, readable, writeable, implemented;
+  bool8_t						available, readable, writeable, implemented, currBool;
   spinNodeType			nodeType;
   COMMON_INFO*			commonInfo = camera->_common;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
@@ -2255,6 +2255,13 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) = 1;
 				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) = 1;
 				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_DELAY_ENABLE ) = 0;
+				if (( *p_spinBooleanGetValue )( triggerDelayEnabled, &currBool ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get trigger delay enabled current value", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				cameraInfo->triggerDelayOn = currBool ? 1 : 0;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for trigger delay enabled",
@@ -2307,6 +2314,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_DELAY ) = 1;
 				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_DELAY ) = curr;
 				cameraInfo->triggerDelay = triggerDelay;
+				cameraInfo->triggerDelayValue = curr;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for trigger delay", __func__,
