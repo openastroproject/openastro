@@ -48,7 +48,7 @@ main()
 	oaControlValue			val;
 
 	// Get list of connected cameras.  Don't filter on any specific feature
-	numCameras = oaGetCameras ( &cameraDevs, OA_CAM_FEATURE_STREAMING );
+	numCameras = oaGetCameras ( &cameraDevs, OA_CAM_FEATURE_NONE );
 
 	if ( numCameras > 0 ) {
 		cameraCtx = cameraDevs[0]->initCamera ( cameraDevs[0] );
