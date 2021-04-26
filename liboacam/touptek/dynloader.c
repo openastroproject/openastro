@@ -1168,19 +1168,17 @@ _patchLibrary ( void* p )
     return;
   }
 
-	/*
   offset = 0;
   while ( offset < 0x200 ) {
     if ( offset % 16 == 0 ) {
-      fprintf ( stderr, "%04x  ", offset );
+      oaLogDebugNoNL ( OA_LOG_CAMERA, "%04x  ", __func__, offset );
     }
-    fprintf ( stderr, "%02x ", *pidTableStart++ );
+    oaLogDebugCont ( OA_LOG_CAMERA, "%02x ", *pidTableStart++ );
     offset++;
     if ( offset % 16 == 0 ) {
-      fprintf ( stderr, "\n" );
+      oaLogDebugEndline ( OA_LOG_CAMERA );
     }
   }
-	 */
 
   pidPos = pidTableStart;
 	pidTableEnd = pidTableStart + ( 0x200 * 0x20 );
@@ -1238,14 +1236,15 @@ _patchLibrary ( void* p )
 
   enumFunction = (uint8_t*) p;
 
-	/*
 	for ( offset = 0; offset < 256; offset++ ) {
-		fprintf ( stderr, "%02x ", *( enumFunction + offset ));
+		if ( offset % 16 == 0 ) {
+			oaLogDebugNoNL ( OA_LOG_CAMERA, "%04x  ", __func__, offset );
+		}
+		oaLogDebugCont ( OA_LOG_CAMERA, "%02x ", *( enumFunction + offset ));
 		if ( offset % 16 == 15 ) {
-			fprintf ( stderr, "\n" );
+			oaLogDebugEndline ( OA_LOG_CAMERA );
 		}
 	}
-	*/
 
   lea = enumFunction + 0xa5;
   rip = lea + 0x07;
@@ -1330,19 +1329,17 @@ _patchLibrary ( void* p )
 				__func__ );
 	}
 
-	/*
   offset = 0;
   while ( pidTableStart < pidTableEnd ) {
     if ( offset % 16 == 0 ) {
-      fprintf ( stderr, "%04x  ", offset );
+      oaLogDebugNoNL ( OA_LOG_CAMERA, "%04x  ", __func__, offset );
     }
-    fprintf ( stderr, "%02x ", *pidTableStart++ );
+    oaLogDebugCont ( OA_LOG_CAMERA, "%02x ", *pidTableStart++ );
     offset++;
     if ( offset % 16 == 0 ) {
-      fprintf ( stderr, "\n" );
+      oaLogDebugEndline ( OA_LOG_CAMERA );
     }
   }
-	*/
 }
 #endif	/* DYNLIB_EXT_DYLIB */
 #endif	/* TT_PATCH_BINARY */
