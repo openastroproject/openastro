@@ -102,12 +102,3 @@ main()
 
 	return 0;
 }
-
-
-void*
-handleFrame ( void* args, void* imageData, int length, void* imageMetadata )
-{
-	printf ( "received frame at %p with length %d, args = %p, metadata = %p\n",
-			imageData, length, args, imageMetadata );
-	return 0;
-}
