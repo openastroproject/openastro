@@ -109,8 +109,6 @@ typedef struct SPINNAKER_STATE {
 	spinNodeHandle					frameRateEnabled;
 
 	spinNodeHandle					acquisitionMode;
-	spinNodeHandle					acquisitionStop;
-	spinNodeHandle					acquisitionStart;
 	spinNodeHandle					singleFrameMode;
 
 	spinNodeHandle					triggerActivation;

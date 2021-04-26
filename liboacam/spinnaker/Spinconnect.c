@@ -1757,7 +1757,10 @@ _checkWhiteBalanceControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				"disabled before checking white balance range", __func__ );
 	}
 
-	oaLogError ( OA_LOG_CAMERA, "%s: configure white balance control", __func__ );
+	// FIX ME -- when auto white balance is present and off, there are the
+	// balance ratio and balance ratio selector options, but as I don't have
+	// access to a colour camera I can't really do much with those at the
+	// moment
 
 	return OA_ERR_NONE;
 }
@@ -2012,7 +2015,8 @@ int
 _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle		frameRateEnabled, acquisitionMode, acquisitionStart;
-	spinNodeHandle		acquisitionStop, singleFrameMode;
+	spinNodeHandle		acquisitionStop;
+	//spinNodeHandle		singleFrameMode;
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
@@ -2074,52 +2078,29 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
-  if ( available ) {
-		// Doesn't make much sense that this node not be readable and
-		// writeable?
-    if ( readable && writeable ) {
-			if ( nodeType == CommandNode ) {
-				oaLogInfo ( OA_LOG_CAMERA, "%s: Found acquisition start control",
-						__func__ );
-				cameraInfo->acquisitionStart = acquisitionStart;
-			} else {
-				oaLogWarning ( OA_LOG_CAMERA,
-						"%s: Unrecognised node type '%s' for acquisition start", __func__,
-						nodeTypes[ nodeType ] );
-			}
-    } else {
-      oaLogError ( OA_LOG_CAMERA, "%s: acquisition start is inaccessible",
-					__func__ );
-		}
-  } else {
-    oaLogInfo ( OA_LOG_CAMERA, "%s: acquisition start unavailable", __func__ );
+  if ( !available ) {
+		// This is quite probably not a good thing, but we never actually
+		// use the node directly
+    oaLogWarning ( OA_LOG_CAMERA, "%s: acquisition start unavailable",
+				__func__ );
   }
 
   if ( _getNodeData ( nodeMap, "AcquisitionStop", &acquisitionStop,
 			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
   }
-  if ( available ) {
-		// Doesn't make much sense that this node not be readable and
-		// writeable?
-    if ( readable && writeable ) {
-			if ( nodeType == CommandNode ) {
-				oaLogInfo ( OA_LOG_CAMERA, "%s: Found acquisition stop control",
-						__func__ );
-				cameraInfo->acquisitionStop = acquisitionStop;
-			} else {
-				oaLogWarning ( OA_LOG_CAMERA,
-						"%s: Unrecognised node type '%s' for acquisition stop", __func__,
-						nodeTypes[ nodeType ] );
-			}
-    } else {
-      oaLogError ( OA_LOG_CAMERA, "%s: acquisition stop is inaccessible",
-					__func__ );
-		}
-  } else {
-    oaLogInfo ( OA_LOG_CAMERA, "%s: acquisition stop unavailable", __func__ );
+  if ( !available ) {
+		// This is quite probably not a good thing, but we never actually
+		// use the node directly
+    oaLogWarning ( OA_LOG_CAMERA, "%s: acquisition stop unavailable",
+				__func__ );
   }
 
+	/*
+	 * The Grasshopper camera XML seems to claim this is a standard feature,
+	 * but it doesn't appear in the v2.6 SNFC, so I'm unconvinced.  For the
+	 * time being I'm going to ignore it.
+	 *
   if ( _getNodeData ( nodeMap, "SingleFrameAcquisitionMode", &singleFrameMode,
 			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
@@ -2147,6 +2128,7 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: single frame acquisition mode unavailable",
 				__func__ );
   }
+	 */
 
 	return OA_ERR_NONE;
 }
