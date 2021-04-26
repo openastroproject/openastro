@@ -2,7 +2,7 @@
  *
  * oacam.c -- main entrypoint for Basler Pylon support
  *
- * Copyright 2020
+ * Copyright 2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -30,6 +30,7 @@
 #include <pylonc/PylonC.h>
 
 #include <openastro/camera.h>
+#include <openastro/util.h>
 #include <openastro/demosaic.h>
 
 #include "oacamprivate.h"
@@ -113,6 +114,8 @@ oaPylonGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 			( p_PylonTerminate )();
       return -OA_ERR_MEM_ALLOC;
     }
+		oaLogDebug ( OA_LOG_CAMERA, "%s: allocated @ %p for camera device",
+				__func__, dev );
 
     _oaInitCameraDeviceFunctionPointers ( dev );
     dev->interface = OA_CAM_IF_PYLON;

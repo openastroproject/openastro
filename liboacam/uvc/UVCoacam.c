@@ -2,7 +2,7 @@
  *
  * UVCoacam.c -- main entrypoint for UVC Cameras
  *
- * Copyright 2013,2014,2015,2016,2019,2020
+ * Copyright 2013,2014,2015,2016,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -29,8 +29,10 @@
 
 #if HAVE_LIBUVC
 
-#include <openastro/camera.h>
 #include <libuvc/libuvc.h>
+
+#include <openastro/camera.h>
+#include <openastro/util.h>
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
@@ -101,6 +103,8 @@ oaUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       _oaFreeCameraDeviceList ( deviceList );
       return -OA_ERR_MEM_ALLOC;
     }
+		oaLogDebug ( OA_LOG_CAMERA, "%s: allocated @ %p for camera device",
+				__func__, dev );
 
     _oaInitCameraDeviceFunctionPointers ( dev );
     dev->interface = OA_CAM_IF_UVC;

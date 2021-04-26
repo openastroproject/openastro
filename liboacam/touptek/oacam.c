@@ -81,6 +81,8 @@ TT_FUNC( oa, GetCameras )( CAMERA_LIST* deviceList, unsigned long featureFlags,
       ( void ) free (( void* ) dev );
       return -OA_ERR_MEM_ALLOC;
     }
+		oaLogDebug ( OA_LOG_CAMERA, "%s: allocated @ %p for camera device",
+				__func__, dev );
 
     _oaInitCameraDeviceFunctionPointers ( dev );
     dev->interface = TT_INTERFACE;

@@ -2,7 +2,8 @@
  *
  * QHYoacam.c -- main entrypoint for QHY Cameras
  *
- * Copyright 2013,2014,2015,2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2015,2016,2017,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -25,6 +26,7 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
 #include <openastro/camera.h>
 #include <openastro/util.h>
 
@@ -190,6 +192,8 @@ oaQHYGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
           libusb_exit ( ctx );
           return -OA_ERR_MEM_ALLOC;
         }
+				oaLogDebug ( OA_LOG_CAMERA, "%s: allocated @ %p for camera device",
+						__func__, dev );
 
         _oaInitCameraDeviceFunctionPointers ( dev );
         dev->interface = OA_CAM_IF_QHY;

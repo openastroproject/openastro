@@ -2,7 +2,7 @@
  *
  * dummyoacam.c -- main entrypoint for dummy camera
  *
- * Copyright 2019,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -25,7 +25,9 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
 #include <openastro/camera.h>
+#include <openastro/util.h>
 
 #include "unimplemented.h"
 #include "oacamprivate.h"
@@ -62,6 +64,8 @@ oaDummyGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 			}
 			return -OA_ERR_MEM_ALLOC;
 		}
+		oaLogDebug ( OA_LOG_CAMERA, "%s: allocated @ %p for camera device",
+				__func__, dev[i] );
 		_private[i]->devType = 0;
 		_private[i]->devIndex = 0;
 		dev[i]->interface = OA_CAM_IF_DUMMY;

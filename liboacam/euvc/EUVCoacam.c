@@ -2,7 +2,7 @@
  *
  * EUVCoacam.c -- main entrypoint for TIS EUVC cameras
  *
- * Copyright 2015,2016,2018,2020
+ * Copyright 2015,2016,2018,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -26,6 +26,7 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
 #include <openastro/camera.h>
 #include <openastro/util.h>
 
@@ -135,9 +136,9 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
           *product = 0;
         }
         libusb_close ( handle );
-	( void ) strcpy ( fullname, manufacturer );
-	( void ) strncat ( fullname, " ", OA_MAX_NAME_LEN );
-	( void ) strncat ( fullname, product, OA_MAX_NAME_LEN );
+				( void ) strcpy ( fullname, manufacturer );
+				( void ) strncat ( fullname, " ", OA_MAX_NAME_LEN );
+				( void ) strncat ( fullname, product, OA_MAX_NAME_LEN );
 
         // now we can drop the data into the list
         if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
@@ -149,6 +150,8 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
           ( void ) free (( void* ) dev );
           return -OA_ERR_MEM_ALLOC;
         }
+				oaLogDebug ( OA_LOG_CAMERA, "%s: allocated @ %p for camera device",
+						__func__, dev );
 
         _oaInitCameraDeviceFunctionPointers ( dev );
         dev->interface = OA_CAM_IF_EUVC;

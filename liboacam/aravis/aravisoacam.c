@@ -32,9 +32,11 @@
 #include <dlfcn.h>
 #endif
 #endif
-#include <openastro/camera.h>
-#include <openastro/demosaic.h>
 #include <aravis-0.6/arv.h>
+
+#include <openastro/camera.h>
+#include <openastro/util.h>
+#include <openastro/demosaic.h>
 
 #include "oacamprivate.h"
 #include "unimplemented.h"

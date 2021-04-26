@@ -2,7 +2,7 @@
  *
  * GP2oacam.c -- main entrypoint for libgphoto2 Cameras
  *
- * Copyright 2019
+ * Copyright 2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -27,8 +27,10 @@
 
 #include <oa_common.h>
 
-#include <openastro/camera.h>
 #include <gphoto2/gphoto2-camera.h>
+
+#include <openastro/camera.h>
+#include <openastro/util.h>
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
@@ -186,6 +188,8 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       _oaFreeCameraDeviceList ( deviceList );
       return -OA_ERR_MEM_ALLOC;
     }
+		oaLogDebug ( OA_LOG_CAMERA, "%s: allocated @ %p for camera device",
+				__func__, dev );
 
     _oaInitCameraDeviceFunctionPointers ( dev );
     dev->interface = OA_CAM_IF_GPHOTO2;

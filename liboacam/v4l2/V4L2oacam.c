@@ -176,6 +176,8 @@ oaV4L2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         closedir ( dirp );
         return -OA_ERR_MEM_ALLOC;
       }
+			oaLogDebug ( OA_LOG_CAMERA, "%s: allocated @ %p for camera device",
+					__func__, dev );
       _oaInitCameraDeviceFunctionPointers ( dev );
       dev->interface = OA_CAM_IF_V4L2;
       ( void ) strncpy ( dev->deviceName, name, OA_MAX_NAME_LEN );

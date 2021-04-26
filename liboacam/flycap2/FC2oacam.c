@@ -2,7 +2,7 @@
  *
  * FC2oacam.c -- main entrypoint for Point Grey Gig-E Cameras
  *
- * Copyright 2015,2016,2018,2019,2020
+ * Copyright 2015,2016,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -27,9 +27,11 @@
 
 #include <oa_common.h>
 
-#include <openastro/camera.h>
-#include <openastro/demosaic.h>
 #include <flycapture/C/FlyCapture2_C.h>
+
+#include <openastro/camera.h>
+#include <openastro/util.h>
+#include <openastro/demosaic.h>
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
@@ -184,6 +186,8 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       ( void ) free (( void* ) devList );
       return -OA_ERR_MEM_ALLOC;
     }
+		oaLogDebug ( OA_LOG_CAMERA, "%s: allocated @ %p for camera device",
+				__func__, dev );
 
     _oaInitCameraDeviceFunctionPointers ( dev );
     dev->interface = OA_CAM_IF_FC2;

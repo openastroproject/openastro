@@ -43,11 +43,15 @@ _oaFreeCameraDeviceList ( CAMERA_LIST* deviceList )
   unsigned int		i;
 
   // FIX ME -- free private data
-  // FIX ME -- don't free for spinnaker devices until getCameras code is
-  // fixed up
   for ( i = 0; i < deviceList->numCameras; i++ ) {
-    free (( void* ) deviceList->cameraList[i] );
+		oaLogDebug ( OA_LOG_CAMERA, "%s: freeing camera device entry %d @ %p",
+				__func__, i, deviceList->cameraList[i] );
+		if ( deviceList->cameraList[i] ) {
+			free (( void* ) deviceList->cameraList[i] );
+		}
   }
+	oaLogDebug ( OA_LOG_CAMERA, "%s: freeing camera device list @ %p", __func__,
+			deviceList->cameraList );
   free (( void* ) deviceList->cameraList );
   deviceList->cameraList = 0;
   deviceList->maxCameras = deviceList->numCameras = 0;
@@ -58,7 +62,7 @@ int
 _oaCheckCameraArraySize ( CAMERA_LIST* deviceList )
 {
   oaCameraDevice**	newList;
-  int			newNum;
+  int			newNum, i;
 
   if ( deviceList->maxCameras > deviceList->numCameras ) {
     return OA_ERR_NONE;
@@ -70,8 +74,14 @@ _oaCheckCameraArraySize ( CAMERA_LIST* deviceList )
     return -OA_ERR_MEM_ALLOC;
   }
 
+	oaLogDebug ( OA_LOG_CAMERA, "%s: cameraList was %p, realloced to %p",
+			__func__, deviceList->cameraList, newList );
+
   deviceList->cameraList = newList;
   deviceList->maxCameras = newNum;
+	for ( i = deviceList->numCameras + 1; i < newNum; i++ ) {
+		deviceList->cameraList[i] = 0;
+	}
   return OA_ERR_NONE;
 }
 

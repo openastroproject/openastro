@@ -2,7 +2,7 @@
  *
  * SXoacam.c -- main entrypoint for Starlight Xpress Cameras
  *
- * Copyright 2013,2014,2015,2016,2018,2020
+ * Copyright 2013,2014,2015,2016,2018,2020,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -26,6 +26,7 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
 #include <openastro/camera.h>
 #include <openastro/util.h>
 
@@ -184,6 +185,8 @@ oaSXGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
           ( void ) free (( void* ) dev );
           return -OA_ERR_MEM_ALLOC;
         }
+				oaLogDebug ( OA_LOG_CAMERA, "%s: allocated @ %p for camera device",
+						__func__, dev );
 
         _oaInitCameraDeviceFunctionPointers ( dev );
         dev->interface = OA_CAM_IF_SX;
