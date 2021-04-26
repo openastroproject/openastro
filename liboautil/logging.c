@@ -100,7 +100,7 @@ oaSetLogFile ( const char* logFile )
 
 static int
 _oaWriteLog ( unsigned int logLevel, char logLetter, unsigned int logType,
-		const char* str, va_list args )
+		int newline, const char* str, va_list args )
 {
 	FILE*		fp;
 
@@ -112,8 +112,38 @@ _oaWriteLog ( unsigned int logLevel, char logLetter, unsigned int logType,
 				return -OA_ERR_NOT_WRITEABLE;
 			}
 		}
-		fprintf ( fp, "[%c] ", logLetter );
+		if ( logLetter ) {
+			fprintf ( fp, "[%c] ", logLetter );
+		}
 		vfprintf ( fp, str, args );
+		if ( newline ) {
+			fprintf ( fp, "\n" );
+			fflush ( fp );
+		}
+		if ( !oaLogToStderr ) {
+			fclose ( fp );
+		}
+	}
+	return OA_ERR_NONE;
+}
+
+
+static int
+_oaWriteNL ( unsigned int logLevel, char logLetter, unsigned int logType )
+{
+	FILE*		fp;
+
+	if ( oaLogLevel >= logLevel && ( oaLogType & logType )) {
+		if ( oaLogToStderr ) {
+			fp = stderr;
+		} else {
+			if (!( fp = fopen ( oaLogFile, "a" ))) {
+				return -OA_ERR_NOT_WRITEABLE;
+			}
+		}
+		if ( logLetter ) {
+			fprintf ( fp, "[%c] ", logLetter );
+		}
 		fprintf ( fp, "\n" );
 		fflush ( fp );
 		if ( !oaLogToStderr ) {
@@ -131,7 +161,7 @@ oaLogError ( unsigned int logType, const char* str, ... )
 	int			ret;
 
 	va_start ( args, str );
-	ret = _oaWriteLog ( OA_LOG_ERROR, 'E', logType, str, args );
+	ret = _oaWriteLog ( OA_LOG_ERROR, 'E', 1, logType, str, args );
 	va_end ( args );
 	return ret;
 }
@@ -144,7 +174,7 @@ oaLogWarning ( unsigned int logType, const char* str, ... )
 	int			ret;
 
 	va_start ( args, str );
-	ret = _oaWriteLog ( OA_LOG_WARN, 'W', logType, str, args );
+	ret = _oaWriteLog ( OA_LOG_WARN, 'W', 1, logType, str, args );
 	va_end ( args );
 	return ret;
 }
@@ -157,7 +187,7 @@ oaLogInfo ( unsigned int logType, const char* str, ... )
 	int			ret;
 
 	va_start ( args, str );
-	ret = _oaWriteLog ( OA_LOG_INFO, 'I', logType, str, args );
+	ret = _oaWriteLog ( OA_LOG_INFO, 'I', 1, logType, str, args );
 	va_end ( args );
 	return ret;
 }
@@ -170,7 +200,40 @@ oaLogDebug ( unsigned int logType, const char* str, ... )
 	int			ret;
 
 	va_start ( args, str );
-	ret = _oaWriteLog ( OA_LOG_DEBUG, 'D', logType, str, args );
+	ret = _oaWriteLog ( OA_LOG_DEBUG, 'D', 1, logType, str, args );
 	va_end ( args );
 	return ret;
+}
+
+
+int
+oaLogDebugNoNL ( unsigned int logType, const char* str, ... )
+{
+	va_list	args;
+	int			ret;
+
+	va_start ( args, str );
+	ret = _oaWriteLog ( OA_LOG_DEBUG, 'D', 0, logType, str, args );
+	va_end ( args );
+	return ret;
+}
+
+
+int
+oaLogDebugCont ( unsigned int logType, const char* str, ... )
+{
+	va_list	args;
+	int			ret;
+
+	va_start ( args, str );
+	ret = _oaWriteLog ( OA_LOG_DEBUG, 0, 0, logType, str, args );
+	va_end ( args );
+	return ret;
+}
+
+
+int
+oaLogDebugEndline ( unsigned int logType )
+{
+	return _oaWriteNL ( OA_LOG_DEBUG, 0, logType );
 }

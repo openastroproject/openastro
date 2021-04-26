@@ -80,5 +80,8 @@ extern int		oaLogError ( unsigned int, const char*, ... );
 extern int		oaLogWarning ( unsigned int, const char*, ... );
 extern int		oaLogInfo ( unsigned int, const char*, ... );
 extern int		oaLogDebug ( unsigned int, const char*, ... );
+extern int		oaLogDebugNoNL ( unsigned int, const char*, ... );
+extern int		oaLogDebugCont ( unsigned int, const char*, ... );
+extern int		oaLogDebugEndline ( unsigned int );
 
 #endif	/* OPENASTRO_UTIL_H */
