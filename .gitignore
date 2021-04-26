@@ -179,3 +179,5 @@ ui_*.h
 /liboacam/demo/startStreaming
 /liboacam/demo/updateIntControl
 /liboacam/demo/updateMenuControl
+/liboacam/demo/setFrameFormat
+/liboacam/demo/setFrameSize
