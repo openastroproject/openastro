@@ -49,7 +49,7 @@ main()
 	oaCamera*						cameraCtx = NULL;
 	void*								userData = ( void* ) 0x12345678;
 
-	// Get list of connected cameras.  Don't filter on any specific feature
+	// Get list of connected cameras.
 	numCameras = oaGetCameras ( &cameraDevs, OA_CAM_FEATURE_STREAMING );
 
 	if ( numCameras > 0 ) {
