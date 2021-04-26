@@ -48,7 +48,7 @@ static void	_showIntegerNode ( spinNodeHandle, bool8_t );
 static void	_showBooleanNode ( spinNodeHandle );
 static void	_showFloatNode ( spinNodeHandle, bool8_t );
 //static void	_showStringNode ( spinNodeHandle );
-static void	_showEnumerationNode ( spinNodeHandle );
+static void	_showEnumerationNode ( spinNodeHandle, int );
 static int	_checkGainControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkGammaControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkHueControls ( spinNodeMapHandle, oaCamera* );
@@ -658,7 +658,7 @@ _checkGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 		if ( readable && writeable ) {
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto gain control", __func__ );
-				_showEnumerationNode ( autoGain );
+				_showEnumerationNode ( autoGain, 1 );
 				if (( *p_spinEnumerationGetCurrentEntry )( autoGain,
 						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
 					oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto gain current entry",
@@ -965,7 +965,7 @@ _checkHueControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto hue control",
 						__func__ );
-				_showEnumerationNode ( autoHue );
+				_showEnumerationNode ( autoHue, 0 );
 				if (( *p_spinEnumerationGetCurrentEntry )( autoHue,
 						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
 					oaLogError ( OA_LOG_CAMERA, "%s: Can't get auto hue current entry",
@@ -1157,7 +1157,7 @@ _checkSaturationControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto saturation control",
 						__func__ );
-				_showEnumerationNode ( autoSaturation );
+				_showEnumerationNode ( autoSaturation, 0 );
 				if (( *p_spinEnumerationGetCurrentEntry )( autoSaturation,
 						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
 					oaLogError ( OA_LOG_CAMERA,
@@ -1351,7 +1351,7 @@ _checkSharpnessControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto sharpness control",
 						__func__ );
-				_showEnumerationNode ( autoSharpness );
+				_showEnumerationNode ( autoSharpness, 0 );
 				if (( *p_spinEnumerationGetCurrentEntry )( autoSharpness,
 						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
 					oaLogError ( OA_LOG_CAMERA,
@@ -1559,7 +1559,7 @@ _checkBlackLevelControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto blackLevel control",
 						__func__ );
-				_showEnumerationNode ( autoBlackLevel );
+				_showEnumerationNode ( autoBlackLevel, 1 );
 				if (( *p_spinEnumerationGetCurrentEntry )( autoBlackLevel,
 						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
 					oaLogError ( OA_LOG_CAMERA,
@@ -1701,7 +1701,7 @@ _checkWhiteBalanceControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto white balance control",
 						__func__ );
-				_showEnumerationNode ( autoWhiteBalance );
+				_showEnumerationNode ( autoWhiteBalance, 1 );
 				if (( *p_spinEnumerationGetCurrentEntry )( autoWhiteBalance,
 						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
 					oaLogError ( OA_LOG_CAMERA,
@@ -1862,7 +1862,7 @@ _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found auto exposure control",
 						__func__ );
-				_showEnumerationNode ( autoExposure );
+				_showEnumerationNode ( autoExposure, 1 );
 				if (( *p_spinEnumerationGetCurrentEntry )( autoExposure,
 						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
 					oaLogError ( OA_LOG_CAMERA,
@@ -1989,7 +1989,7 @@ _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found exposure mode control",
 						__func__ );
-				_showEnumerationNode ( exposureMode );
+				_showEnumerationNode ( exposureMode, 1 );
 				cameraInfo->exposureMode = exposureMode;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
@@ -2055,7 +2055,7 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found acquisition mode control",
 						__func__ );
-				_showEnumerationNode ( acquisitionMode );
+				_showEnumerationNode ( acquisitionMode, 1 );
 				cameraInfo->acquisitionMode = acquisitionMode;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
@@ -2131,7 +2131,7 @@ _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found single frame acquisition mode control", __func__ );
-				_showEnumerationNode ( singleFrameMode );
+				_showEnumerationNode ( singleFrameMode, 1 );
 				cameraInfo->singleFrameMode = singleFrameMode;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
@@ -2177,7 +2177,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found trigger mode control", __func__ );
-				_showEnumerationNode ( triggerMode );
+				_showEnumerationNode ( triggerMode, 1 );
 				cameraInfo->triggerMode = triggerMode;
 				triggerModeValid = 1;
 			} else {
@@ -2216,7 +2216,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found trigger activation control", __func__ );
-				_showEnumerationNode ( triggerActivation );
+				_showEnumerationNode ( triggerActivation, 1 );
 				cameraInfo->triggerActivation = triggerActivation;
 				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_POLARITY ) =
 						OA_CTRL_TYPE_MENU;
@@ -2337,7 +2337,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found trigger overlap control", __func__ );
-				_showEnumerationNode ( triggerOverlap );
+				_showEnumerationNode ( triggerOverlap, 1 );
 				// All we really care about here is whether the overlap function
 				// supports "off" and "readout" modes (there is also "previous
 				// frame", but I'm not sure that's useful to us for the moment
@@ -2405,7 +2405,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found trigger selector control", __func__ );
-				_showEnumerationNode ( triggerSelector );
+				_showEnumerationNode ( triggerSelector, 1 );
 				cameraInfo->triggerSelector = triggerSelector;
 				// FIX ME -- this needs to be set to TriggerSelector_AcquisitionStart
 				// for our purposes
@@ -2431,7 +2431,7 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA,
 						"%s: Found trigger source control", __func__ );
-				_showEnumerationNode ( triggerSource );
+				_showEnumerationNode ( triggerSource, 1 );
 				// Now we need to walk through the options to see what's genuinely
 				// available
 				if (( *p_spinEnumerationGetNumEntries )( triggerSource, &numEntries )
@@ -2570,7 +2570,7 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     if ( readable && writeable ) {
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found binning control", __func__ );
-				_showEnumerationNode ( binningType );
+				_showEnumerationNode ( binningType, 1 );
 				cameraInfo->binningType = binningType;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
@@ -2915,7 +2915,7 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     if ( readable && writeable ) {
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel format", __func__ );
-				_showEnumerationNode ( pixelFormat );
+				_showEnumerationNode ( pixelFormat, 1 );
 				cameraInfo->pixelFormat = pixelFormat;
 				pixelFormatValid = 1;
 			} else {
@@ -2939,7 +2939,7 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     if ( readable ) {
 			if ( nodeType == EnumerationNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel CFA", __func__ );
-				_showEnumerationNode ( colourFilter );
+				_showEnumerationNode ( colourFilter, 1 );
 				if (( *p_spinEnumerationGetCurrentEntry )( colourFilter,
 						&tempHandle ) != SPINNAKER_ERR_SUCCESS ) {
 					oaLogError ( OA_LOG_CAMERA, "%s: Can't get colour filter value node",
@@ -3000,7 +3000,7 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( readable ) {
 				if ( nodeType == EnumerationNode ) {
 					oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel size", __func__ );
-					_showEnumerationNode ( pixelSize );
+					_showEnumerationNode ( pixelSize, 1 );
 					oaLogInfo ( OA_LOG_CAMERA,
 							"%s: PixelSize is available for this camera", __func__ );
 				} else {
@@ -3025,7 +3025,7 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( readable ) {
 				if ( nodeType == EnumerationNode ) {
 					oaLogInfo ( OA_LOG_CAMERA, "%s: Found pixel coding", __func__ );
-					_showEnumerationNode ( pixelCoding );
+					_showEnumerationNode ( pixelCoding, 1 );
 					cameraInfo->pixelCoding = pixelCoding;
 				} else {
 					oaLogInfo ( OA_LOG_CAMERA,
@@ -3476,7 +3476,7 @@ _showStringNode ( spinNodeHandle stringNode )
 */
 
 static void
-_showEnumerationNode ( spinNodeHandle enumNode )
+_showEnumerationNode ( spinNodeHandle enumNode, int inSNFC )
 {
   size_t					numEntries;
   unsigned int		i;
@@ -3527,19 +3527,25 @@ _showEnumerationNode ( spinNodeHandle enumNode )
     oaLogError ( OA_LOG_CAMERA, "%s: Can't get enum current value", __func__ );
     return;
   }
-	if (( err = ( *p_spinEnumerationEntryGetEnumValue )( currentHandle,
-			&enumValue )) != SPINNAKER_ERR_SUCCESS ) {
-		oaLogError ( OA_LOG_CAMERA,
-				"%s: Can't get value of enum, error %d", __func__, err );
-		enumValue = -1;
+	if ( inSNFC ) {
+		if (( err = ( *p_spinEnumerationEntryGetEnumValue )( currentHandle,
+				&enumValue )) != SPINNAKER_ERR_SUCCESS ) {
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't get value of enum, error %d", __func__, err );
+			enumValue = -1;
+		}
 	}
 	if (( err = ( *p_spinEnumerationEntryGetIntValue )( currentHandle,
 			&intValue )) != SPINNAKER_ERR_SUCCESS ) {
 		oaLogError ( OA_LOG_CAMERA,
 				"%s: Can't get int value of enum, error %d", __func__, err );
 	}
-  oaLogInfo ( OA_LOG_CAMERA, "%s: := %ld(enum), %ld(int)", __func__,
-			enumValue, intValue );
+	if ( inSNFC ) {
+		oaLogInfo ( OA_LOG_CAMERA, "%s: := %ld(enum), %ld(int)", __func__,
+				enumValue, intValue );
+	} else {
+		oaLogInfo ( OA_LOG_CAMERA, "%s: := %ld(int)", __func__, intValue );
+	}
   return;
 }
 
