@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * startStreaming.c
+ * setFrameFormat.c
  *
- * example program to stream images from a camera
+ * example program to check and change the frame format from a camera
  *
  * Copyright 2021
  *   James Fidell (james@openastroproject.org)
@@ -39,28 +39,62 @@
 #include <openastro/errno.h>
 
 
-void* handleFrame ( void*, void*, int, void* );
-
 int
 main()
 {
 	oaCameraDevice**		cameraDevs;
-	int									numCameras;
+	int									numCameras, format, newFormat, i;
 	oaCamera*						cameraCtx = NULL;
-	void*								userData = ( void* ) 0x12345678;
+	oaControlValue			val;
 
 	// Get list of connected cameras.  Don't filter on any specific feature
 	numCameras = oaGetCameras ( &cameraDevs, OA_CAM_FEATURE_STREAMING );
 
 	if ( numCameras > 0 ) {
 		cameraCtx = cameraDevs[0]->initCamera ( cameraDevs[0] );
-		printf ( "starting streaming on %s\n", cameraDevs[0]->deviceName );
-		cameraCtx->funcs.startStreaming ( cameraCtx, handleFrame, userData );
-		sleep ( 5 );
-		cameraCtx->funcs.stopStreaming ( cameraCtx );
+		format = cameraCtx->funcs.getFramePixelFormat ( cameraCtx );
+		printf ( "Current frame format is: %s\n",
+				oaFrameFormats[ format ].name );
+		newFormat = 0;
+		printf ( "Supported frame formats:\n" );
+		for ( i = 0; i < OA_PIX_FMT_LAST_P1; i++ ) {
+			if ( cameraCtx->frameFormats[i] ) {
+				printf ( "  %s (%s)\n", oaFrameFormats[i].name,
+						oaFrameFormats[i].simpleName );
+				printf ( "    %f bytes per pixel, %d bits per pixel\n",
+						oaFrameFormats[i].bytesPerPixel, oaFrameFormats[i].bitsPerPixel );
+				if ( oaFrameFormats[i].monochrome ) {
+					printf ( "    monochrome\n" );
+				}
+				if ( oaFrameFormats[i].rawColour ) {
+					printf ( "    raw colour\n" );
+				}
+				if ( oaFrameFormats[i].fullColour ) {
+					printf ( "    full colour\n" );
+				}
+				if ( !newFormat && format != i ) {
+					newFormat = i;
+				}
+			}
+		}
+		if ( cameraCtx->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FRAME_FORMAT ) ==
+				OA_CTRL_TYPE_DISCRETE ) {
+			if ( newFormat ) {
+				val.valueType = OA_CTRL_TYPE_DISCRETE;
+				val.discrete = newFormat;
+				cameraCtx->funcs.setControl ( cameraCtx, OA_CAM_CTRL_FRAME_FORMAT,
+						&val, 0 );
+				val.int32 = 0;
+				format = cameraCtx->funcs.getFramePixelFormat ( cameraCtx );
+				printf ( "new frame format is: %s\n",
+						oaFrameFormats[ format ].name );
+			} else {
+				printf ( "No recognised format for change\n" );
+			}
+		} else {
+			printf ( "Camera doesn't appear to support changing frame format\n" );
+		}
 		cameraCtx->funcs.closeCamera ( cameraCtx );
-	} else {
-		printf ( "no cameras supporting streaming are available\n" );
 	}
 
 	// Release camera list
