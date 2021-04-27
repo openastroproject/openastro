@@ -97,11 +97,16 @@ _asiInitLibraryFunctionPointers ( void )
 {
 #if HAVE_LIBDL && !HAVE_STATIC_LIBASICAMERA2
 	static void*		libHandle = 0;
+#if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
+	const char*			libName = "libASICamera2.dylib";
+#else
+	const char*			libName = "libASICamera2.so";
+#endif
 
 	if ( !libHandle ) {
-		if (!( libHandle = dlopen( "libASICamera2.so", RTLD_LAZY ))) {
-			oaLogWarning ( OA_LOG_CAMERA, "%s: unable to open libASICamera2.so",
-					__func__ );
+		if (!( libHandle = dlopen ( libName, RTLD_LAZY ))) {
+			oaLogWarning ( OA_LOG_CAMERA, "%s: unable to open %s", __func__,
+					libName );
 			return OA_ERR_LIBRARY_NOT_FOUND;
 		}
 	}
