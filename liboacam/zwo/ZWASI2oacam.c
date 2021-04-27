@@ -108,9 +108,13 @@ oaZWASI2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
     typesFound[ cameraType+1 ]++;
 
     if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
+			oaLogError ( OA_LOG_CAMERA, "%s: malloc of camera device memory failed",
+					__func__ );
       return -OA_ERR_MEM_ALLOC;
     }
     if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
+			oaLogError ( OA_LOG_CAMERA, "%s: malloc of camera private memory failed",
+					__func__ );
       ( void ) free (( void* ) dev );
       return -OA_ERR_MEM_ALLOC;
     }
