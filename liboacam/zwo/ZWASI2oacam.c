@@ -99,7 +99,8 @@ oaZWASI2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       }
     }
     if ( !found ) {
-      fprintf ( stderr, "Unrecognised camera '%s'\n", currName );
+      oaLogWarning ( OA_LOG_CAMERA, "%s: Unrecognised camera '%s'",
+					__func__, currName );
       cameraType = ZWOCAM_UNKNOWN;
     }
 

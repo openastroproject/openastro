@@ -85,13 +85,15 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   OA_CLEAR ( camera->features );
   
   if ( p_ASIOpenCamera ( cameraInfo->cameraId )) {
-    fprintf ( stderr, "open of camera %ld failed\n", cameraInfo->cameraId );
+    oaLogError ( OA_LOG_CAMERA, "%s: open of camera %ld failed", __func__,
+				cameraInfo->cameraId );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
   if ( p_ASIInitCamera ( cameraInfo->cameraId )) {
-    fprintf ( stderr, "init of camera %ld failed\n", cameraInfo->cameraId );
+    oaLogError ( OA_LOG_CAMERA, "%s: init of camera %ld failed", __func__,
+				cameraInfo->cameraId );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -101,7 +103,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
   if ( p_ASIGetNumOfControls ( cameraInfo->cameraId, &numControls )) {
-    fprintf ( stderr, "%s: ASIGetNumOfControls returns error\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: ASIGetNumOfControls returns error",
+				__func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -505,16 +508,16 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
         case ASI_AUTO_MAX_EXP:
 #endif
         case ASI_HARDWARE_BIN:
-          fprintf ( stderr, "%s: control %s is not supported\n", __func__,
-              controlCaps.Name );
+          oaLogError ( OA_LOG_CAMERA, "%s: control %s is not supported",
+							__func__, controlCaps.Name );
           break;
 
         case ASI_TEMPERATURE:
           break; // handled elsewhere
 
         default:
-          fprintf ( stderr, "%s: Unrecognised control '%s'\n", __func__,
-              controlCaps.Name );
+          oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control '%s'",
+							__func__, controlCaps.Name );
           break;
       }
     }
@@ -625,7 +628,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   }
 
   if ( -1 == cameraInfo->currentMode ) {
-    fprintf ( stderr, "No suitable video format found on camera %ld\n",
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: No suitable video format found on camera %ld", __func__,
         cameraInfo->index );
     FREE_DATA_STRUCTS;
     return 0;
@@ -644,20 +648,23 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI130MM:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           10, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
       if (!( cameraInfo->frameSizes[2].sizes =
           ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed",
+						__func__ );
         free (( void* ) cameraInfo->frameSizes[1].sizes );
         FREE_DATA_STRUCTS;
         return 0;
       }
       if (!( cameraInfo->frameSizes[4].sizes =
           ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed",
+						__func__ );
         free (( void* ) cameraInfo->frameSizes[1].sizes );
         free (( void* ) cameraInfo->frameSizes[2].sizes );
         FREE_DATA_STRUCTS;
@@ -707,13 +714,15 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI120MC:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           18, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
       if (!( cameraInfo->frameSizes[2].sizes =
           ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed",
+						__func__ );
         free (( void* ) cameraInfo->frameSizes[1].sizes );
         FREE_DATA_STRUCTS;
         return 0;
@@ -768,7 +777,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI035MM:
       if (!( cameraInfo->frameSizes[2].sizes =
           ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
@@ -781,7 +791,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI035MC:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           5, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         free (( void* ) cameraInfo->frameSizes[2].sizes );
         FREE_DATA_STRUCTS;
         return 0;
@@ -807,7 +818,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI030MC:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           3, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
@@ -827,7 +839,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI034MC:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           4, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
@@ -853,13 +866,15 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI174MM_MINI:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           3, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
       if (!( cameraInfo->frameSizes[2].sizes =
           ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed",
+						__func__ );
         free (( void* ) cameraInfo->frameSizes[1].sizes );
         FREE_DATA_STRUCTS;
         return 0;
@@ -889,13 +904,15 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI178MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           7, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
       if (!( cameraInfo->frameSizes[2].sizes =
           ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed",
+						__func__ );
         free (( void* ) cameraInfo->frameSizes[1].sizes );
         FREE_DATA_STRUCTS;
         return 0;
@@ -929,13 +946,15 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI185MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           6, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
       if (!( cameraInfo->frameSizes[2].sizes =
           ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed",
+						__func__ );
         free (( void* ) cameraInfo->frameSizes[1].sizes );
         FREE_DATA_STRUCTS;
         return 0;
@@ -967,13 +986,15 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI224MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           5, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
       if (!( cameraInfo->frameSizes[2].sizes =
           ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed",
+						__func__ );
         free (( void* ) cameraInfo->frameSizes[1].sizes );
         FREE_DATA_STRUCTS;
         return 0;
@@ -1006,13 +1027,15 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI290MM_MINI:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           4, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
       if (!( cameraInfo->frameSizes[2].sizes =
           ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed",
+						__func__ );
         free (( void* ) cameraInfo->frameSizes[1].sizes );
         FREE_DATA_STRUCTS;
         return 0;
@@ -1044,13 +1067,15 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI1600MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           6, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
       if (!( cameraInfo->frameSizes[2].sizes =
           ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed",
+						__func__ );
         free (( void* ) cameraInfo->frameSizes[1].sizes );
         FREE_DATA_STRUCTS;
         return 0;
@@ -1084,7 +1109,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI294MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           1, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
@@ -1102,7 +1128,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI385MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           1, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
@@ -1120,7 +1147,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI071MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           5, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
@@ -1146,7 +1174,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI094MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           5, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
@@ -1172,7 +1201,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI128MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           5, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
@@ -1201,13 +1231,15 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
     case ZWOCAM_ASI183MC_COOL:
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           6, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         FREE_DATA_STRUCTS;
         return 0;
       }
       if (!( cameraInfo->frameSizes[2].sizes =
           ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed",
+						__func__ );
         free (( void* ) cameraInfo->frameSizes[1].sizes );
         FREE_DATA_STRUCTS;
         return 0;
@@ -1237,11 +1269,13 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       break;
 
     default:
-      fprintf ( stderr, "unknown camera type %d. Using limited resolutions\n",
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: unknown camera type %d. Using limited resolutions", __func__,
           cameraInfo->cameraType );
       if (!( cameraInfo->frameSizes[1].sizes =
           ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed",
+						__func__ );
         free (( void* ) cameraInfo->frameSizes[1].sizes );
         FREE_DATA_STRUCTS;
         return 0;
@@ -1253,7 +1287,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING )) {
         if (!( cameraInfo->frameSizes[2].sizes =
             ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-          fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+          oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed",
+							__func__ );
           free (( void* ) cameraInfo->frameSizes[1].sizes );
           FREE_DATA_STRUCTS;
           return 0;
@@ -1288,7 +1323,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: malloc failed", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );

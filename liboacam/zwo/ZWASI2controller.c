@@ -111,7 +111,7 @@ oacamZWASI2controller ( void* param )
             break;
         }
         if ( command->callback ) {
-//fprintf ( stderr, "CONT: command has callback\n" );
+					oaLogWarning ( OA_LOG_CAMERA, "%s: command has callback", __func__ );
         } else {
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
           command->completed = 1;
@@ -779,7 +779,7 @@ _processStreamingStart ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
   /*
    * This is now done by assigning the largest possible buffers when
    * the camera is initialised, but could be changed back to here to
-   * use meory more efficiently.
+   * use memory more efficiently.
    *
   cameraInfo->configuredBuffers = 0;
   cameraInfo->buffers = calloc ( OA_CAM_BUFFERS, sizeof ( struct ZWASIbuffer ));
@@ -789,7 +789,7 @@ _processStreamingStart ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "oaZWASICameraStart malloc failed\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: malloc failed", __func__ );
       if ( i ) {
         for ( j = 0; i < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
@@ -853,7 +853,8 @@ _processExposureStart ( ZWASI_STATE* cameraInfo, OA_COMMAND* command )
 	}
 
 	if (( ret = p_ASIStartExposure ( cameraInfo->cameraId, 0 )) < 0 ) {
-		fprintf ( stderr, "ASIStartExposure failed, error %d\n", ret );
+		oaLogError ( OA_LOG_CAMERA, "%s: ASIStartExposure failed, error %d",
+				__func__, ret );
     return -OA_ERR_CAMERA_IO;
 	}
 	cameraInfo->streamingCallback.callback = cb->callback;
@@ -884,7 +885,8 @@ _processAbortExposure ( ZWASI_STATE* cameraInfo )
 	oacamAbortTimer ( cameraInfo );
 
   if (( ret = p_ASIStopExposure ( cameraInfo->cameraId )) < 0 ) {
-    fprintf ( stderr, "%s: ASIStopExposure failed: %d\n", __func__, ret );
+    oaLogError ( OA_LOG_CAMERA, "%s: ASIStopExposure failed, error %d",
+				__func__, ret );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -902,7 +904,8 @@ _timerCallback ( void* param )
 
 retry:
 	if (( ret = p_ASIGetExpStatus ( cameraInfo->cameraId, &status )) < 0 ) {
-		fprintf ( stderr, "ASIGetExpStatus failed, error %d\n", ret );
+		oaLogError ( OA_LOG_CAMERA, "%s: ASIGetExpStatus failed, error %d",
+				__func__, ret );
 		pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
 		cameraInfo->exposureInProgress = 0;
 		pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
@@ -915,7 +918,8 @@ retry:
 			usleep(100000);
 			goto retry;
 		}
-		fprintf ( stderr, "ASIGetExpStatus returned status %d\n", status );
+		oaLogError ( OA_LOG_CAMERA, "%s: ASIGetExpStatus returned status %d",
+				__func__, status );
 		pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
 		cameraInfo->exposureInProgress = 0;
 		pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
@@ -931,7 +935,8 @@ retry:
 		if (( ret = p_ASIGetDataAfterExp ( cameraInfo->cameraId,
 					cameraInfo->buffers[ nextBuffer ].start,
 					cameraInfo->imageBufferLength )) < 0 ) {
-			fprintf ( stderr, "ASIGetDataAfterExp failed, error %d\n", ret );
+			oaLogError ( OA_LOG_CAMERA, "%s: ASIGetDataAfterExp failed, error %d",
+					__func__, ret );
 			pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
 			cameraInfo->exposureInProgress = 0;
 			pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );

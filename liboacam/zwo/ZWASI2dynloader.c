@@ -2,7 +2,7 @@
  *
  * ZWASI2dynloader.c -- handle dynamic loading of libASICamera2
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -37,8 +37,10 @@
 #endif
 #endif
 
-#include <openastro/errno.h>
 #include <ASICamera2.h>
+
+#include <openastro/errno.h>
+#include <openastro/util.h>
 
 #include "ZWASI2private.h"
 
@@ -98,6 +100,8 @@ _asiInitLibraryFunctionPointers ( void )
 
 	if ( !libHandle ) {
 		if (!( libHandle = dlopen( "libASICamera2.so", RTLD_LAZY ))) {
+			oaLogWarning ( OA_LOG_CAMERA, "%s: unable to open libASICamera2.so",
+					__func__ );
 			return OA_ERR_LIBRARY_NOT_FOUND;
 		}
 	}
@@ -428,7 +432,8 @@ _getDLSym ( void* libHandle, const char* symbol )
 
   addr = dlsym ( libHandle, symbol );
   if (( error = dlerror())) {
-    fprintf ( stderr, "libASICamera2 DL error: %s\n", error );
+    oaLogError ( OA_LOG_CAMERA, "%s: libASICamera2 DL error: %s",
+				__func__, error );
     addr = 0;
   }
 
