@@ -59,6 +59,7 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   ASI_CAMERA_INFO	camInfo;
   ASI_CONTROL_CAPS	controlCaps;
   int          		c, f, i, j, bin, multiplier, numControls;
+	int							ret;
   long			currentValue;
   ASI_BOOL		autoSetting;
 
@@ -78,22 +79,27 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   cameraInfo->index = devInfo->devIndex;
   cameraInfo->cameraType = devInfo->devType;
 
-  p_ASIGetCameraProperty ( &camInfo, cameraInfo->index );
+  if (( ret = p_ASIGetCameraProperty ( &camInfo, cameraInfo->index ))) {
+		oaLogError ( OA_LOG_CAMERA, "%s: ASIGetCameraProperty returns error %d",
+				__func__, ret );
+    FREE_DATA_STRUCTS;
+    return 0;
+	}
   cameraInfo->cameraId = camInfo.CameraID;
 
   OA_CLEAR ( camera->controlType );
   OA_CLEAR ( camera->features );
   
-  if ( p_ASIOpenCamera ( cameraInfo->cameraId )) {
-    oaLogError ( OA_LOG_CAMERA, "%s: open of camera %ld failed", __func__,
-				cameraInfo->cameraId );
+  if (( ret = p_ASIOpenCamera ( cameraInfo->cameraId ))) {
+    oaLogError ( OA_LOG_CAMERA, "%s: ASIOpenCamera ( %ld ) failed, error %d",
+				__func__, cameraInfo->cameraId, ret );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
-  if ( p_ASIInitCamera ( cameraInfo->cameraId )) {
-    oaLogError ( OA_LOG_CAMERA, "%s: init of camera %ld failed", __func__,
-				cameraInfo->cameraId );
+  if (( ret = p_ASIInitCamera ( cameraInfo->cameraId ))) {
+    oaLogError ( OA_LOG_CAMERA, "%s: ASIInitCamera ( %ld ) failed, error %d",
+				__func__, cameraInfo->cameraId, ret );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -102,9 +108,9 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
   cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
-  if ( p_ASIGetNumOfControls ( cameraInfo->cameraId, &numControls )) {
-    oaLogError ( OA_LOG_CAMERA, "%s: ASIGetNumOfControls returns error",
-				__func__ );
+  if (( ret = p_ASIGetNumOfControls ( cameraInfo->cameraId, &numControls ))) {
+    oaLogError ( OA_LOG_CAMERA, "%s: ASIGetNumOfControls returns error %d",
+				__func__, ret );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -1307,8 +1313,18 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
   cameraInfo->buffers = 0;
   cameraInfo->configuredBuffers = 0;
 
-  p_ASISetROIFormat ( cameraInfo->cameraId, cameraInfo->xSize,
-      cameraInfo->ySize, cameraInfo->binMode, cameraInfo->currentMode );
+  if (( ret = p_ASISetROIFormat ( cameraInfo->cameraId, cameraInfo->xSize,
+      cameraInfo->ySize, cameraInfo->binMode, cameraInfo->currentMode ))) {
+		oaLogError ( OA_LOG_CAMERA, "%s: ASISetROIFormat returns error %d",
+				__func__, ret );
+		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
+			if ( cameraInfo->frameSizes[j].sizes ) {
+				free (( void* ) cameraInfo->frameSizes[j].sizes );
+			}
+		}
+		FREE_DATA_STRUCTS;
+		return 0;
+	}
 
   // The largest buffer size we should need
   // RGB colour is 3 bytes per pixel, mono one for 8-bit, two for 16-bit,
@@ -1348,6 +1364,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
 
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       oacamZWASI2controller, ( void* ) camera )) {
+		oaLogError ( OA_LOG_CAMERA, "%s: creation of controller thread failed",
+				__func__ );
     for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
       free (( void* ) cameraInfo->buffers[i].start );
     }
@@ -1366,6 +1384,8 @@ oaZWASI2InitCamera ( oaCameraDevice* device )
       oacamZWASIcallbackHandler, ( void* ) camera )) {
 
     void* dummy;
+		oaLogError ( OA_LOG_CAMERA, "%s: creation of callback thread failed",
+				__func__ );
     cameraInfo->stopControllerThread = 1;
     pthread_cond_broadcast ( &cameraInfo->commandQueued );
     pthread_join ( cameraInfo->controllerThread, &dummy );
