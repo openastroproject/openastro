@@ -43,7 +43,7 @@ static int	_processSetResolution ( SPINNAKER_STATE*, OA_COMMAND* );
 static int	_processSetROI ( oaCamera*, OA_COMMAND* );
 static int	_processStreamingStart ( SPINNAKER_STATE*, OA_COMMAND* );
 static int	_processStreamingStop ( SPINNAKER_STATE*, OA_COMMAND* );
-//static int	_setBinning ( SPINNAKER_STATE*, int );
+static int	_setBinning ( SPINNAKER_STATE*, int );
 static int	_getEnumValue ( spinNodeHandle, size_t* );
 static int	_getCustomEnumValue ( spinNodeHandle, int64_t* );
 static int	_doStart ( SPINNAKER_STATE* );
@@ -550,8 +550,9 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 			break;
 
 		case OA_CAM_CTRL_BINNING:
-			oaLogError ( OA_LOG_CAMERA, "%s: Unhandled control %d", __func__,
-					control );
+			if ( OA_CTRL_TYPE_INT32 == val->valueType ) {
+				return _setBinning ( cameraInfo, val->int32 );
+			}
 			break;
 
 		default:
@@ -982,8 +983,15 @@ _processGetControl ( SPINNAKER_STATE* cameraInfo, OA_COMMAND* command )
 			break;
 
 		case OA_CAM_CTRL_BINNING:
-			oaLogError ( OA_LOG_CAMERA, "%s: Unhandled control %d", __func__,
-					control );
+			if (( *p_spinIntegerGetValue )( cameraInfo->verticalBin, &currInt ) !=
+					SPINNAKER_ERR_SUCCESS ) {
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get current vertical binning value", __func__ );
+				return -OA_ERR_SYSTEM_ERROR;
+			}
+			val->valueType = OA_CTRL_TYPE_INT32;
+			val->int32 = currInt;
+			return OA_ERR_NONE;
 			break;
 
 		default:
@@ -1266,14 +1274,39 @@ _unconfigureEvents ( SPINNAKER_STATE* cameraInfo )
 }
 
 
-/*
 static int
 _setBinning ( SPINNAKER_STATE* cameraInfo, int binMode )
 {
-	oaLogError ( OA_LOG_CAMERA, "%s: not yet implemented", __func__ );
+  unsigned int			restart = 0;
+
+	if ( binMode < cameraInfo->minBinning || binMode > cameraInfo->maxBinning ) {
+    return -OA_ERR_OUT_OF_RANGE;
+  }
+
+  if ( cameraInfo->runMode == CAM_RUN_MODE_STREAMING ) {
+    restart = 1;
+    _doStop ( cameraInfo );
+  }
+
+	if (( *p_spinIntegerSetValue )( cameraInfo->verticalBin, binMode ) !=
+			SPINNAKER_ERR_SUCCESS ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't set vertical binning value",
+				__func__ );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+  cameraInfo->binMode = binMode;
+  cameraInfo->xSize = cameraInfo->maxResolutionX / binMode;
+  cameraInfo->ySize = cameraInfo->maxResolutionY / binMode;
+  cameraInfo->imageBufferLength = cameraInfo->xSize * cameraInfo->ySize *
+      cameraInfo->currentBytesPerPixel;
+
+  if ( restart ) {
+    _doStart ( cameraInfo );
+  }
+
   return OA_ERR_NONE;
 }
-*/
 
 
 static int

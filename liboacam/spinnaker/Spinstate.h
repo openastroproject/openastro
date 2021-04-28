@@ -57,6 +57,10 @@ typedef struct SPINNAKER_STATE {
 	int											currentFrameFormat;
 	float										currentBytesPerPixel;
 
+	int											minBinning;
+	int											maxBinning;
+	int											binningStep;
+
 	frameBuffer*						buffers;
 
 	int											triggerEnabled;

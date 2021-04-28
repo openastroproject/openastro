@@ -407,26 +407,28 @@ oaSpinInitCamera ( oaCameraDevice* device )
 
 	cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
-	if ( camera->features.flags & OA_CAM_FEATURE_BINNING ) {
-		oaLogWarning ( OA_LOG_CAMERA,
-				"%s: Need to handle binning when setting up frame sizes", __func__ );
+  cameraInfo->binMode = cameraInfo->minBinning;
+	for ( i = cameraInfo->minBinning; i <= cameraInfo->maxBinning;
+			i += cameraInfo->binningStep ) {
+		cameraInfo->frameSizes[i].numSizes = 1;
+		if (!( tmpPtr = realloc ( cameraInfo->frameSizes[i].sizes,
+				sizeof ( FRAMESIZE )))) {
+			oaLogError ( OA_LOG_CAMERA, "%s: realloc for frame sizes failed",
+					__func__ );
+			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
+				if ( cameraInfo->frameSizes[ j ].numSizes ) {
+					free (( void* ) cameraInfo->frameSizes[ j ].sizes );
+				}
+			}
+			( void ) ( *p_spinCameraRelease )( cameraHandle );
+			( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+			FREE_DATA_STRUCTS;
+			return 0;
+		}
+		cameraInfo->frameSizes[i].sizes = tmpPtr;
+		cameraInfo->frameSizes[i].sizes[0].x = cameraInfo->maxResolutionX / i;
+		cameraInfo->frameSizes[i].sizes[0].y = cameraInfo->maxResolutionY / i;
 	}
-  cameraInfo->binMode = 1;
-	cameraInfo->frameSizes[1].numSizes = 1;
-	if (!( tmpPtr = realloc ( cameraInfo->frameSizes[1].sizes,
-			sizeof ( FRAMESIZE ) * 2 ))) {
-		oaLogError ( OA_LOG_CAMERA, "%s: realloc for frame sizes failed",
-				__func__ );
-		// No need to free any frame size stuff here as we've not allocated
-		// anything yet
-		( void ) ( *p_spinCameraRelease )( cameraHandle );
-		( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
-		FREE_DATA_STRUCTS;
-    return 0;
-	}
-	cameraInfo->frameSizes[1].sizes = tmpPtr;
-	cameraInfo->frameSizes[1].sizes[0].x = cameraInfo->maxResolutionX;
-	cameraInfo->frameSizes[1].sizes[0].y = cameraInfo->maxResolutionY;
 
 	// FIX ME -- force camera into 8-bit mode if it has it?
 
@@ -2538,11 +2540,14 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 int
 _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
-	spinNodeHandle		binningType, horizontalBin, verticalBin;
+	spinNodeHandle		binningType, verticalBin;
+	//spinNodeHandle		horizontalBin;
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
+	int64_t						min, max, step;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
-	int								hbinValid = 0, vbinValid = 0;
+  COMMON_INFO*			commonInfo = camera->_common;
+	//int								hbinValid = 0, vbinValid = 0;
 
   if ( _getNodeData ( nodeMap, "BinningControl", &binningType,
 			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
@@ -2567,6 +2572,22 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: binning control unavailable", __func__ );
   }
 
+	// According to FLIR:
+	//
+	// "the binning modes which are valid for this camera are 2x2 and 4x4 modes.
+	// Technically, spinnaker as latest sdk version help the customer to
+	// implement more reliable code by letting the user avoid setting invalid
+	// binning mode ( such as 1x2 or 2x3 ) on the camera. Hence, the horizontal
+	// binning is locked and depends on current vertical binning while
+	// configuring the camera with spinnaker API. 
+	//
+	// With that said, there is no advantage of letting the user to choose
+	// horizontal binning."
+	//
+	// So, I think we can just ignore the "BinningHorizontal" feature and
+	// treat "BinningVertical" as a straightforward binning control
+
+	/*
   if ( _getNodeData ( nodeMap, "BinningHorizontal", &horizontalBin,
 			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
     return -OA_ERR_SYSTEM_ERROR;
@@ -2594,6 +2615,7 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: horizontal binning unavailable",
 				__func__ );
   }
+	*/
 
   if ( _getNodeData ( nodeMap, "BinningVertical", &verticalBin,
 			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
@@ -2602,11 +2624,37 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
   if ( implemented && available ) {
     if ( readable && writeable ) {
 			if ( nodeType == IntegerNode ) {
-				oaLogInfo ( OA_LOG_CAMERA,
-						"%s: Found vertical bin control", __func__ );
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found vertical bin control", __func__ );
 				_showIntegerNode ( verticalBin, writeable );
+				if (( *p_spinIntegerGetMin )( verticalBin, &min ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get min vertical bin value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinIntegerGetMax )( verticalBin, &max ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get max vertical bin value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+				if (( *p_spinIntegerGetInc )( verticalBin, &step ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA, "%s: Can't get vertical bin step value",
+							__func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
 				cameraInfo->verticalBin = verticalBin;
-				vbinValid = 1;
+				camera->features.flags |= OA_CAM_FEATURE_BINNING;
+				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING ) = OA_CTRL_TYPE_INT32;
+				commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_BINNING ) = min;
+				commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_BINNING ) = max;
+				commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_BINNING ) = step;
+				// This seems a reasonable choice
+				commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_BINNING ) = min;
+				cameraInfo->minBinning = min;
+				cameraInfo->maxBinning = max;
+				cameraInfo->binningStep = step;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for vertical binning",
@@ -2621,12 +2669,6 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: vertical binning unavailable",
 				__func__ );
   }
-
-	if ( hbinValid && vbinValid ) {
-		oaLogWarning ( OA_LOG_CAMERA,
-				"%s: horizontal and vertical binning available & unhandled", __func__ );
-		// camera->features.flags |= OA_CAM_FEATURE_BINNING;
-	}
 
 	return OA_ERR_NONE;
 }
@@ -3540,9 +3582,7 @@ _spinInitFunctionPointers ( oaCamera* camera )
   camera->funcs.initCamera = oaSpinInitCamera;
   camera->funcs.closeCamera = oaSpinCloseCamera;
 
-/*
   camera->funcs.testControl = oaSpinCameraTestControl;
-*/
   camera->funcs.getControlRange = oaSpinCameraGetControlRange;
 /*
   camera->funcs.getControlDiscreteSet = oaSpinCameraGetControlDiscreteSet;
