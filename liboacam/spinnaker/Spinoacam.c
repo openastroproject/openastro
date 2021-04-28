@@ -57,24 +57,24 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   bool8_t		ifaceNameAvailable = False;
   bool8_t		ifaceNameReadable = False;
   char			ifaceName[ SPINNAKER_MAX_BUFF_LEN ];
-  size_t		ifaceNameLen = SPINNAKER_MAX_BUFF_LEN;
+  size_t		ifaceNameLen;
   spinCamera		cameraHandle;
   spinNodeMapHandle	cameraNodeMapHandle = 0;
   spinNodeHandle	vendorNameHandle = 0;
   bool8_t		vendorNameAvailable = False;
   bool8_t		vendorNameReadable = False;
   char			vendorName[ SPINNAKER_MAX_BUFF_LEN ];
-  size_t		vendorNameLen = SPINNAKER_MAX_BUFF_LEN;
+  size_t		vendorNameLen;
   spinNodeHandle	modelNameHandle = 0;
   bool8_t		modelNameAvailable = False;
   bool8_t		modelNameReadable = False;
   char			modelName[ SPINNAKER_MAX_BUFF_LEN ];
-  size_t		modelNameLen = SPINNAKER_MAX_BUFF_LEN;
+  size_t		modelNameLen;
   spinNodeHandle	deviceIdHandle = 0;
   bool8_t		deviceIdAvailable = False;
   bool8_t		deviceIdReadable = False;
   char			deviceId[ SPINNAKER_MAX_BUFF_LEN ];
-  size_t		deviceIdLen = SPINNAKER_MAX_BUFF_LEN;
+  size_t		deviceIdLen;
   spinNodeHandle        deviceTypeHandle = 0;
   spinNodeHandle        currentEntryHandle = 0;
   bool8_t               deviceTypeAvailable = False;
@@ -260,6 +260,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         return -OA_ERR_SYSTEM_ERROR;
       }
       if ( ifaceNameReadable ) {
+				ifaceNameLen = SPINNAKER_MAX_BUFF_LEN;
         if (( *p_spinStringGetValue )( ifaceNameHandle, ifaceName,
             &ifaceNameLen ) != SPINNAKER_ERR_SUCCESS ) {
           oaLogError ( OA_LOG_CAMERA, "%s: Can't get string value", __func__ );
@@ -384,6 +385,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
             return -OA_ERR_SYSTEM_ERROR;
           }
           if ( vendorNameReadable ) {
+						vendorNameLen = SPINNAKER_MAX_BUFF_LEN;
             if (( *p_spinStringGetValue )( vendorNameHandle, vendorName,
                 &vendorNameLen ) != SPINNAKER_ERR_SUCCESS ) {
               oaLogError ( OA_LOG_CAMERA, "%s: Can't get vendor name string",
@@ -451,6 +453,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
           }
 
           if ( modelNameReadable ) {
+						modelNameLen = SPINNAKER_MAX_BUFF_LEN;
             if (( err = ( *p_spinStringGetValue )( modelNameHandle, modelName,
                 &modelNameLen )) != SPINNAKER_ERR_SUCCESS ) {
 							oaLogError ( OA_LOG_CAMERA,
@@ -519,6 +522,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
             return -OA_ERR_SYSTEM_ERROR;
           }
           if ( deviceIdReadable ) {
+						deviceIdLen = SPINNAKER_MAX_BUFF_LEN;
             if (( *p_spinStringGetValue )( deviceIdHandle, deviceId,
                 &deviceIdLen ) != SPINNAKER_ERR_SUCCESS ) {
               oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera id string",
