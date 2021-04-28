@@ -3028,7 +3028,8 @@ _checkFrameFormatControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( implemented && available ) {
-    if ( readable && writeable ) {
+		// Only need this one to be readable
+    if ( readable ) {
 			if ( nodeType == BooleanNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found bigEndian", __func__ );
 				_showBooleanNode ( bigEndian );

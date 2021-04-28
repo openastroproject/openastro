@@ -1283,6 +1283,8 @@ _doFrameFormat ( oaCamera* camera, int format )
 	int								i = 0, found = 0, restart = 0;
 	size_t						newFormat;
 
+	oaLogDebug ( OA_LOG_CAMERA, "%s: setting frame format %d", __func__, format );
+
 	if ( !camera->frameFormats[ format ] ) {
 		return OA_ERR_UNSUPPORTED_FORMAT;
 	}
@@ -1293,6 +1295,8 @@ _doFrameFormat ( oaCamera* camera, int format )
 			newFormat = i;
 		}
 	}
+	oaLogDebug ( OA_LOG_CAMERA, "%s: new spinnaker format enum = %d", __func__,
+			newFormat );
 
 	if ( !found ) {
 		oaLogError ( OA_LOG_CAMERA, "%s: Format %d not found in map", __func__,
