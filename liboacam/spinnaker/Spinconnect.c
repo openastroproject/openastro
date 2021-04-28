@@ -3390,7 +3390,7 @@ _showIntegerNode ( spinNodeHandle intNode, bool8_t writeable )
     return;
   }
 
-  oaLogInfo ( OA_LOG_CAMERA, "%s:   [%ld:%ld]/[%ld] := %ld", __func__,
+  oaLogDebug ( OA_LOG_CAMERA, "%s:   [%ld:%ld]/[%ld] := %ld", __func__,
 		min, max, step, curr );
 
   return;
@@ -3408,7 +3408,7 @@ _showBooleanNode ( spinNodeHandle boolNode )
     return;
   }
 
-  oaLogInfo ( OA_LOG_CAMERA, "%s:   [boolean] := %s", __func__,
+  oaLogDebug ( OA_LOG_CAMERA, "%s:   [boolean] := %s", __func__,
 			curr ? "true" : "false" );
   return;
 }
@@ -3433,7 +3433,7 @@ _showFloatNode ( spinNodeHandle floatNode, bool8_t writeable )
     return;
   }
 
-  oaLogInfo ( OA_LOG_CAMERA, "%s:   [%f:%f] := %f", __func__,
+  oaLogDebug ( OA_LOG_CAMERA, "%s:   [%f:%f] := %f", __func__,
 		min, max, curr );
   
   return;
@@ -3452,7 +3452,7 @@ _showStringNode ( spinNodeHandle stringNode )
     return;
   }
 
-  oaLogInfo ( OA_LOG_CAMERA, "%s:   [%s]", __func__, string );
+  oaLogDebug ( OA_LOG_CAMERA, "%s:   [%s]", __func__, string );
   return;
 }
 */
@@ -3470,7 +3470,7 @@ _showEnumerationNode ( spinNodeHandle enumNode, int inSNFC )
   int64_t					intValue;
 	spinError				err;
 
-  oaLogInfo ( OA_LOG_CAMERA, "%s:   ", __func__ );
+  oaLogDebug ( OA_LOG_CAMERA, "%s:   ", __func__ );
   if (( *p_spinEnumerationGetNumEntries )( enumNode, &numEntries ) !=
       SPINNAKER_ERR_SUCCESS ) {
     oaLogError ( OA_LOG_CAMERA, "%s: Can't get number of enum node entries",
@@ -3500,7 +3500,7 @@ _showEnumerationNode ( spinNodeHandle enumNode, int inSNFC )
 					entryName, err );
 			return;
 		}
-    oaLogInfo ( OA_LOG_CAMERA, "%s: [%s] (%savailable)", __func__, entryName,
+    oaLogDebug ( OA_LOG_CAMERA, "%s: [%s] (%savailable)", __func__, entryName,
 				available ? "" : "un" );
   }
 
@@ -3523,10 +3523,10 @@ _showEnumerationNode ( spinNodeHandle enumNode, int inSNFC )
 				"%s: Can't get int value of enum, error %d", __func__, err );
 	}
 	if ( inSNFC ) {
-		oaLogInfo ( OA_LOG_CAMERA, "%s: := %ld(enum), %ld(int)", __func__,
+		oaLogDebug ( OA_LOG_CAMERA, "%s: := %ld(enum), %ld(int)", __func__,
 				enumValue, intValue );
 	} else {
-		oaLogInfo ( OA_LOG_CAMERA, "%s: := %ld(int)", __func__, intValue );
+		oaLogDebug ( OA_LOG_CAMERA, "%s: := %ld(int)", __func__, intValue );
 	}
   return;
 }
