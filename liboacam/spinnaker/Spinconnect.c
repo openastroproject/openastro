@@ -407,7 +407,6 @@ oaSpinInitCamera ( oaCameraDevice* device )
 
 	cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
-  cameraInfo->binMode = cameraInfo->minBinning;
 	for ( i = cameraInfo->minBinning; i <= cameraInfo->maxBinning;
 			i += cameraInfo->binningStep ) {
 		cameraInfo->frameSizes[i].numSizes = 1;
@@ -2544,7 +2543,7 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	//spinNodeHandle		horizontalBin;
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
-	int64_t						min, max, step;
+	int64_t						min, max, step, curr;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
   COMMON_INFO*			commonInfo = camera->_common;
 	//int								hbinValid = 0, vbinValid = 0;
@@ -2626,6 +2625,12 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 			if ( nodeType == IntegerNode ) {
 				oaLogInfo ( OA_LOG_CAMERA, "%s: Found vertical bin control", __func__ );
 				_showIntegerNode ( verticalBin, writeable );
+				if (( *p_spinIntegerGetValue )( verticalBin, &curr ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get current vertical bin value", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
 				if (( *p_spinIntegerGetMin )( verticalBin, &min ) !=
 						SPINNAKER_ERR_SUCCESS ) {
 					oaLogError ( OA_LOG_CAMERA, "%s: Can't get min vertical bin value",
@@ -2655,6 +2660,7 @@ _checkBinningControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 				cameraInfo->minBinning = min;
 				cameraInfo->maxBinning = max;
 				cameraInfo->binningStep = step;
+				cameraInfo->binMode = curr;
 			} else {
 				oaLogWarning ( OA_LOG_CAMERA,
 						"%s: Unrecognised node type '%s' for vertical binning",
