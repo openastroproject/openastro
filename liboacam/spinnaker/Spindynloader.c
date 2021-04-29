@@ -61,7 +61,10 @@ SPINNAKERC_API	( *p_spinInterfaceListGet )( spinInterfaceList, size_t,
 SPINNAKERC_API	( *p_spinInterfaceRelease )( spinInterface );
 SPINNAKERC_API	( *p_spinInterfaceGetTLNodeMap )( spinInterface,
 			spinNodeMapHandle* );
+SPINNAKERC_API	( *p_spinNodeMapGetNumNodes )( spinNodeMapHandle, size_t* );
 SPINNAKERC_API	( *p_spinNodeMapGetNode )( spinNodeMapHandle, const char*,
+			spinNodeHandle* );
+SPINNAKERC_API	( *p_spinNodeMapGetNodeByIndex )( spinNodeMapHandle, size_t,
 			spinNodeHandle* );
 SPINNAKERC_API	( *p_spinNodeIsAvailable )( spinNodeHandle, bool8_t* );
 SPINNAKERC_API	( *p_spinNodeIsReadable )( spinNodeHandle, bool8_t* );
@@ -222,8 +225,16 @@ _spinInitLibraryFunctionPointers ( void )
       "spinInterfaceGetTLNodeMap" ))) {
     return 0;
   }
+  if (!( *( void** )( &p_spinNodeMapGetNumNodes ) = _getDLSym ( libHandle,
+      "spinNodeMapGetNumNodes" ))) {
+    return 0;
+  }
   if (!( *( void** )( &p_spinNodeMapGetNode ) = _getDLSym ( libHandle,
       "spinNodeMapGetNode" ))) {
+    return 0;
+  }
+  if (!( *( void** )( &p_spinNodeMapGetNodeByIndex ) = _getDLSym ( libHandle,
+      "spinNodeMapGetNodeByIndex" ))) {
     return 0;
   }
   if (!( *( void** )( &p_spinNodeIsAvailable ) = _getDLSym ( libHandle,
@@ -463,7 +474,9 @@ _spinInitLibraryFunctionPointers ( void )
   p_spinInterfaceListGet = spinInterfaceListGet;
   p_spinInterfaceRelease = spinInterfaceRelease;
   p_spinInterfaceGetTLNodeMap = spinInterfaceGetTLNodeMap;
+  p_spinNodeMapGetNumNodes = spinNodeMapGetNumNodes;
   p_spinNodeMapGetNode = spinNodeMapGetNode;
+  p_spinNodeMapGetNodeByIndex = spinNodeMapGetNodeByIndex;
   p_spinNodeIsAvailable = spinNodeIsAvailable;
   p_spinNodeIsImplemented = spinNodeIsImplemented;
   p_spinNodeIsReadable = spinNodeIsReadable;

@@ -70,7 +70,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   bool8_t		modelNameReadable = False;
   char			modelName[ SPINNAKER_MAX_BUFF_LEN ];
   size_t		modelNameLen;
-  spinNodeHandle	deviceIdHandle = 0;
+  spinNodeHandle	deviceIdHandle = 0, valueHandle;
   bool8_t		deviceIdAvailable = False;
   bool8_t		deviceIdReadable = False;
   char			deviceId[ SPINNAKER_MAX_BUFF_LEN ];
@@ -79,8 +79,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   spinNodeHandle        currentEntryHandle = 0;
   bool8_t               deviceTypeAvailable = False;
   bool8_t               deviceTypeReadable = False;
-  // size_t		deviceType;
-  uint64_t		deviceType;
+  uint64_t		deviceType, enumValue;
   spinNodeHandle        ipAddrHandle = 0;
   bool8_t               ipAddrAvailable = False;
   bool8_t               ipAddrReadable = False;
@@ -90,7 +89,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   DEVICE_INFO*		_private;
   int			ret;
 	spinError		err;
-
 
 	if (( ret = _spinInitLibraryFunctionPointers()) != OA_ERR_NONE ) {
 		return ret;
@@ -344,6 +342,51 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
           ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
           return -OA_ERR_SYSTEM_ERROR;
         }
+
+        if (( *p_spinNodeMapGetNode )( cameraNodeMapHandle, "DeviceType",
+            &deviceTypeHandle ) != SPINNAKER_ERR_SUCCESS ) {
+          oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera type node",
+							__func__ );
+          ( void ) ( *p_spinCameraRelease )( cameraHandle );
+          ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+          ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+          ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+          ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+          ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+          return 0;
+        }
+        if (( *p_spinEnumerationGetCurrentEntry )( deviceTypeHandle,
+						&valueHandle ) != SPINNAKER_ERR_SUCCESS ) {
+          oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera type value node",
+							__func__ );
+          ( void ) ( *p_spinCameraRelease )( cameraHandle );
+          ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+          ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+          ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+          ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+          ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+          return 0;
+        }
+
+				if (( err = ( *p_spinEnumerationEntryGetIntValue )( valueHandle,
+						&enumValue )) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get current device type enum value, error %d",
+							__func__, err );
+          ( void ) ( *p_spinCameraRelease )( cameraHandle );
+          ( void ) ( *p_spinCameraListClear )( cameraListHandle );
+          ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+          ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+          ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+          ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+          return 0;
+        }
+
+				if ( enumValue != DeviceType_GigEVision &&
+						enumValue != DeviceType_USB3Vision ) {
+          ( void ) ( *p_spinCameraRelease )( cameraHandle );
+					continue;
+				}
 
         if (( *p_spinNodeMapGetNode )( cameraNodeMapHandle, "DeviceVendorName",
             &vendorNameHandle ) != SPINNAKER_ERR_SUCCESS ) {
