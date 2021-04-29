@@ -27,10 +27,11 @@
 
 #include <oa_common.h>
 
+#include <spinc/SpinnakerC.h>
+
 #include <openastro/camera.h>
 #include <openastro/demosaic.h>
 #include <openastro/util.h>
-#include <spinc/SpinnakerC.h>
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
@@ -85,7 +86,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   bool8_t               ipAddrReadable = False;
   uint64_t		ipAddr;
   unsigned int		i, j, numFound;
-  oaCameraDevice*       devices;
+  oaCameraDevice*       dev;
   DEVICE_INFO*		_private;
   int			ret;
 	spinError		err;
@@ -182,29 +183,12 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
     return 0;
   }
 
-  if (!( devices = malloc ( sizeof ( oaCameraDevice ) * numCameras ))) {
-    ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
-    ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
-    ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
-    return -OA_ERR_MEM_ALLOC;
-  }
-
-  if (!( _private = malloc ( sizeof ( DEVICE_INFO ) * numCameras ))) {
-    ( void ) free (( void* ) devices );
-    ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
-    ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
-    ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
-    return -OA_ERR_MEM_ALLOC;
-  }
-
   numFound = 0;
   for ( i = 0; i < numInterfaces; i++ ) {
     if (( *p_spinInterfaceListGet )( ifaceListHandle, i, &ifaceHandle ) !=
         SPINNAKER_ERR_SUCCESS ) {
       oaLogError ( OA_LOG_CAMERA, "%s: Can't get interface from list",
 					__func__ );
-      ( void ) free (( void* ) devices );
-      ( void ) free (( void* ) _private );
       ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
       ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
       ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
@@ -214,8 +198,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
     if (( *p_spinInterfaceGetTLNodeMap )( ifaceHandle, &ifaceNodeMapHandle ) !=
         SPINNAKER_ERR_SUCCESS ) {
       oaLogError ( OA_LOG_CAMERA, "%s: Can't get TL node map", __func__ );
-      ( void ) free (( void* ) devices );
-      ( void ) free (( void* ) _private );
       ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
       ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
       ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
@@ -225,8 +207,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
     if (( *p_spinNodeMapGetNode )( ifaceNodeMapHandle, "InterfaceDisplayName",
         &ifaceNameHandle ) != SPINNAKER_ERR_SUCCESS ) {
       oaLogError ( OA_LOG_CAMERA, "%s: Can't get TL map node", __func__ );
-      ( void ) free (( void* ) devices );
-      ( void ) free (( void* ) _private );
       ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
       ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
       ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
@@ -237,8 +217,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         SPINNAKER_ERR_SUCCESS ) {
       oaLogError ( OA_LOG_CAMERA, "%s: Can't get interface name availability",
 					__func__ );
-      ( void ) free (( void* ) devices );
-      ( void ) free (( void* ) _private );
       ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
       ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
       ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
@@ -250,8 +228,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
           SPINNAKER_ERR_SUCCESS ) {
         oaLogError ( OA_LOG_CAMERA, "%s: Can't get interface name readability",
 						__func__ );
-        ( void ) free (( void* ) devices );
-        ( void ) free (( void* ) _private );
         ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
         ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
         ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
@@ -262,8 +238,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         if (( *p_spinStringGetValue )( ifaceNameHandle, ifaceName,
             &ifaceNameLen ) != SPINNAKER_ERR_SUCCESS ) {
           oaLogError ( OA_LOG_CAMERA, "%s: Can't get string value", __func__ );
-          ( void ) free (( void* ) devices );
-          ( void ) free (( void* ) _private );
           ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
           ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
           ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
@@ -280,8 +254,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         SPINNAKER_ERR_SUCCESS ) {
       oaLogError ( OA_LOG_CAMERA, "%s: Can't create empty camera list",
 					__func__ );
-      ( void ) free (( void* ) devices );
-      ( void ) free (( void* ) _private );
       ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
       ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
       ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
@@ -292,8 +264,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         SPINNAKER_ERR_SUCCESS ) {
       oaLogError ( OA_LOG_CAMERA, "%s: Can't get interface camera list",
 					__func__ );
-      ( void ) free (( void* ) devices );
-      ( void ) free (( void* ) _private );
       ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
       ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
       ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
@@ -304,8 +274,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         SPINNAKER_ERR_SUCCESS ) {
       oaLogError ( OA_LOG_CAMERA, "%s: Can't get interface camera count",
 					__func__ );
-      ( void ) free (( void* ) devices );
-      ( void ) free (( void* ) _private );
       ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
       ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
       ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
@@ -318,8 +286,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
             SPINNAKER_ERR_SUCCESS ) {
           oaLogError ( OA_LOG_CAMERA, "%s: Can't get interface camera",
 							__func__ );
-          ( void ) free (( void* ) devices );
-          ( void ) free (( void* ) _private );
           ( void ) ( *p_spinCameraListClear )( cameraListHandle );
           ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
           ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
@@ -332,8 +298,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
             &cameraNodeMapHandle ) != SPINNAKER_ERR_SUCCESS ) {
           oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera node map",
 							__func__ );
-          ( void ) free (( void* ) devices );
-          ( void ) free (( void* ) _private );
           ( void ) ( *p_spinCameraRelease )( cameraHandle );
           ( void ) ( *p_spinCameraListClear )( cameraListHandle );
           ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -453,8 +417,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
             SPINNAKER_ERR_SUCCESS ) {
           oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera model node",
 							__func__ );
-          ( void ) free (( void* ) devices );
-          ( void ) free (( void* ) _private );
           ( void ) ( *p_spinCameraRelease )( cameraHandle );
           ( void ) ( *p_spinCameraListClear )( cameraListHandle );
           ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -468,8 +430,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
             != SPINNAKER_ERR_SUCCESS ) {
           oaLogError ( OA_LOG_CAMERA,
               "%s: Can't get vendor model availability", __func__ );
-          ( void ) free (( void* ) devices );
-          ( void ) free (( void* ) _private );
           ( void ) ( *p_spinCameraRelease )( cameraHandle );
           ( void ) ( *p_spinCameraListClear )( cameraListHandle );
           ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -484,8 +444,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
               != SPINNAKER_ERR_SUCCESS ) {
             oaLogError ( OA_LOG_CAMERA,
 								"%s: Can't get vendor model readability", __func__ );
-            ( void ) free (( void* ) devices );
-            ( void ) free (( void* ) _private );
             ( void ) ( *p_spinCameraRelease )( cameraHandle );
             ( void ) ( *p_spinCameraListClear )( cameraListHandle );
             ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -501,8 +459,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
                 &modelNameLen )) != SPINNAKER_ERR_SUCCESS ) {
 							oaLogError ( OA_LOG_CAMERA,
 									"%s: Can't get model name string, error %d", __func__, err );
-              ( void ) free (( void* ) devices );
-              ( void ) free (( void* ) _private );
               ( void ) ( *p_spinCameraRelease )( cameraHandle );
               ( void ) ( *p_spinCameraListClear )( cameraListHandle );
               ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -522,8 +478,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
             &deviceIdHandle ) != SPINNAKER_ERR_SUCCESS ) {
           oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera id node",
 							__func__ );
-          ( void ) free (( void* ) devices );
-          ( void ) free (( void* ) _private );
           ( void ) ( *p_spinCameraRelease )( cameraHandle );
           ( void ) ( *p_spinCameraListClear )( cameraListHandle );
           ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -538,8 +492,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
             &deviceIdAvailable ) != SPINNAKER_ERR_SUCCESS ) {
           oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera id availability",
 							__func__ );
-          ( void ) free (( void* ) devices );
-          ( void ) free (( void* ) _private );
           ( void ) ( *p_spinCameraRelease )( cameraHandle );
           ( void ) ( *p_spinCameraListClear )( cameraListHandle );
           ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -554,8 +506,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
               &deviceIdReadable ) != SPINNAKER_ERR_SUCCESS ) {
             oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera id readability",
 								__func__ );
-            ( void ) free (( void* ) devices );
-            ( void ) free (( void* ) _private );
             ( void ) ( *p_spinCameraRelease )( cameraHandle );
             ( void ) ( *p_spinCameraListClear )( cameraListHandle );
             ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -570,8 +520,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
                 &deviceIdLen ) != SPINNAKER_ERR_SUCCESS ) {
               oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera id string",
 									__func__ );
-              ( void ) free (( void* ) devices );
-              ( void ) free (( void* ) _private );
               ( void ) ( *p_spinCameraRelease )( cameraHandle );
               ( void ) ( *p_spinCameraListClear )( cameraListHandle );
               ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -587,8 +535,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
             &deviceTypeHandle ) != SPINNAKER_ERR_SUCCESS ) {
           oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera type node",
 							__func__ );
-          ( void ) free (( void* ) devices );
-          ( void ) free (( void* ) _private );
           ( void ) ( *p_spinCameraRelease )( cameraHandle );
           ( void ) ( *p_spinCameraListClear )( cameraListHandle );
           ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -602,8 +548,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
             &deviceTypeAvailable ) != SPINNAKER_ERR_SUCCESS ) {
           oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera type availability",
 							__func__ );
-          ( void ) free (( void* ) devices );
-          ( void ) free (( void* ) _private );
           ( void ) ( *p_spinCameraRelease )( cameraHandle );
           ( void ) ( *p_spinCameraListClear )( cameraListHandle );
           ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -618,8 +562,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
               &deviceTypeReadable ) != SPINNAKER_ERR_SUCCESS ) {
             oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera type readability",
 								__func__ );
-            ( void ) free (( void* ) devices );
-            ( void ) free (( void* ) _private );
             ( void ) ( *p_spinCameraRelease )( cameraHandle );
             ( void ) ( *p_spinCameraListClear )( cameraListHandle );
             ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -633,8 +575,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
               &currentEntryHandle ) != SPINNAKER_ERR_SUCCESS ) {
 							oaLogError ( OA_LOG_CAMERA,
 									"%s: Can't get enumeration current value", __func__ );
-              ( void ) free (( void* ) devices );
-              ( void ) free (( void* ) _private );
               ( void ) ( *p_spinCameraRelease )( cameraHandle );
               ( void ) ( *p_spinCameraListClear )( cameraListHandle );
               ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -652,8 +592,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
                 &deviceType ) != SPINNAKER_ERR_SUCCESS ) {
               oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera type value",
 									__func__ );
-              ( void ) free (( void* ) devices );
-              ( void ) free (( void* ) _private );
               ( void ) ( *p_spinCameraRelease )( cameraHandle );
               ( void ) ( *p_spinCameraListClear )( cameraListHandle );
               ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -670,8 +608,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
              "GevDeviceIPAddress", &ipAddrHandle ) != SPINNAKER_ERR_SUCCESS ) {
             oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera address node",
 								__func__ );
-            ( void ) free (( void* ) devices );
-            ( void ) free (( void* ) _private );
             ( void ) ( *p_spinCameraRelease )( cameraHandle );
             ( void ) ( *p_spinCameraListClear )( cameraListHandle );
             ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -685,9 +621,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
               != SPINNAKER_ERR_SUCCESS ) {
             oaLogError ( OA_LOG_CAMERA,
 								"%s: Can't get camera address availability", __func__ );
-            ( void ) free (( void* ) devices );
-            ( void ) free (( void* ) _private );
-            ( void ) ( *p_spinCameraRelease )( cameraHandle );
             ( void ) ( *p_spinCameraListClear )( cameraListHandle );
             ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
             ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
@@ -701,8 +634,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
                 SPINNAKER_ERR_SUCCESS ) {
 							oaLogError ( OA_LOG_CAMERA,
 									"%s: Can't get camera address readability", __func__ );
-              ( void ) free (( void* ) devices );
-              ( void ) free (( void* ) _private );
               ( void ) ( *p_spinCameraRelease )( cameraHandle );
               ( void ) ( *p_spinCameraListClear )( cameraListHandle );
               ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -716,8 +647,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
                   SPINNAKER_ERR_SUCCESS ) {
 								oaLogError ( OA_LOG_CAMERA,
 										"%s: Can't get camera address value", __func__ );
-                ( void ) free (( void* ) devices );
-                ( void ) free (( void* ) _private );
                 ( void ) ( *p_spinCameraRelease )( cameraHandle );
                 ( void ) ( *p_spinCameraListClear )( cameraListHandle );
                 ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
@@ -731,28 +660,50 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         }
 
         if ( *deviceId ) {
-          _oaInitCameraDeviceFunctionPointers ( &devices[ numFound ]);
-          devices[ numFound ].interface = OA_CAM_IF_SPINNAKER;
+
+					if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
+						( void ) ( *p_spinCameraRelease )( cameraHandle );
+						( void ) ( *p_spinCameraListClear )( cameraListHandle );
+						( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+						( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+						( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+						( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+						return -OA_ERR_MEM_ALLOC;
+					}
+
+					if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
+						( void ) free (( void* ) dev );
+						( void ) ( *p_spinCameraRelease )( cameraHandle );
+						( void ) ( *p_spinCameraListClear )( cameraListHandle );
+						( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
+						( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
+						( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
+						( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
+						return -OA_ERR_MEM_ALLOC;
+					}
+
+          _oaInitCameraDeviceFunctionPointers ( dev );
+          dev->interface = OA_CAM_IF_SPINNAKER;
           if ( deviceType == DeviceType_GigEVision ) {
-            ( void ) snprintf ( devices[ numFound ].deviceName,
+            ( void ) snprintf ( dev->deviceName,
                 OA_MAX_NAME_LEN+1, "%.*s (%d.%d.%d.%d)", OA_MAX_NAME_LEN - 20,
 								modelName, ( uint8_t )( ipAddr >> 24 ),
 								( uint8_t )(( ipAddr >> 16 ) & 0xff ),
 								( uint8_t )(( ipAddr >> 8 ) & 0xff ),
                 ( uint8_t )( ipAddr & 0xff ));
           } else {
-            ( void ) snprintf ( devices[ numFound ].deviceName,
-                OA_MAX_NAME_LEN+1, "%.*s", OA_MAX_NAME_LEN, modelName );
+            ( void ) snprintf ( dev->deviceName, OA_MAX_NAME_LEN+1, "%.*s",
+								OA_MAX_NAME_LEN, modelName );
           }
 
-          ( void ) strncpy ( _private[ numFound ].deviceId, deviceId,
+          ( void ) strncpy ( _private->deviceId, deviceId,
 							OA_MAX_DEVICEID_LEN );
-          _private[ numFound ].ipAddress = ipAddr;
+          _private->ipAddress = ipAddr;
 
-          devices[ numFound ]._private = &_private[ numFound ];
-          devices[ numFound ].initCamera = oaSpinInitCamera;
+          dev->_private = _private;
+          dev->initCamera = oaSpinInitCamera;
           if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
-            ( void ) free (( void* ) devices );
+            ( void ) free (( void* ) dev );
             ( void ) free (( void* ) _private );
             ( void ) ( *p_spinCameraRelease )( cameraHandle );
             ( void ) ( *p_spinCameraListClear )( cameraListHandle );
@@ -762,8 +713,7 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
             ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
             return ret;
           }
-          deviceList->cameraList[ deviceList->numCameras++ ] =
-              &devices[ numFound ];
+          deviceList->cameraList[ deviceList->numCameras++ ] = dev;
           numFound++;
 
           oaLogInfo ( OA_LOG_CAMERA, "%s: Interface: %s, Camera: %s",
@@ -773,8 +723,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         if (( *p_spinCameraRelease )( cameraHandle ) !=
             SPINNAKER_ERR_SUCCESS ) {
           oaLogError ( OA_LOG_CAMERA, "%s: Can't release camera", __func__ );
-          ( void ) free (( void* ) devices );
-          ( void ) free (( void* ) _private );
           ( void ) ( *p_spinCameraListClear )( cameraListHandle );
           ( void ) ( *p_spinCameraListDestroy )( cameraListHandle );
           ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
@@ -786,8 +734,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       if (( *p_spinCameraListClear )( cameraListHandle ) !=
           SPINNAKER_ERR_SUCCESS ) { 
         oaLogError ( OA_LOG_CAMERA, "%s: Can't release camera list", __func__ );
-        ( void ) free (( void* ) devices );
-        ( void ) free (( void* ) _private );
         ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
         ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
         ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
@@ -797,8 +743,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       if (( *p_spinCameraListDestroy )( cameraListHandle ) !=
           SPINNAKER_ERR_SUCCESS ) {  
         oaLogError ( OA_LOG_CAMERA, "%s: Can't destroy camera list", __func__ );
-        ( void ) free (( void* ) devices );
-        ( void ) free (( void* ) _private );
         ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
         ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
         ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
@@ -813,8 +757,6 @@ oaSpinGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 
     if (( *p_spinInterfaceRelease )( ifaceHandle ) != SPINNAKER_ERR_SUCCESS ) {
       oaLogError ( OA_LOG_CAMERA, "%s: Can't release interface", __func__ );
-      ( void ) free (( void* ) devices );
-      ( void ) free (( void* ) _private );
       ( void ) ( *p_spinInterfaceListClear )( ifaceListHandle );
       ( void ) ( *p_spinInterfaceListDestroy )( ifaceListHandle );
       ( void ) ( *p_spinSystemReleaseInstance )( systemHandle );
