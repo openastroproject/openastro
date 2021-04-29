@@ -137,6 +137,8 @@ _SpinFrameCallback ( spinImage imageData, void *ptr )
   int								buffersFree, nextBuffer;
   size_t						dataLength;
 
+	oaLogDebug ( OA_LOG_CAMERA, "%s: entered", __func__ );
+
 	if (( *p_spinImageIsIncomplete )( imageData, &imageComplete ) !=
 			SPINNAKER_ERR_SUCCESS ) {
 		if (( *p_spinImageGetStatus )( imageData, &status ) !=
@@ -160,6 +162,8 @@ _SpinFrameCallback ( spinImage imageData, void *ptr )
 				__func__ );
 		return;
 	}
+
+	oaLogDebug ( OA_LOG_CAMERA, "%s: data size = %ld", __func__, dataLength );
 
   pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
   buffersFree = cameraInfo->buffersFree;
@@ -1171,6 +1175,8 @@ _doStart ( SPINNAKER_STATE* cameraInfo )
 static int
 _configureEvents ( SPINNAKER_STATE* cameraInfo )
 {
+	oaLogDebug ( OA_LOG_CAMERA, "%s: entered", __func__ );
+
 #if HAVE_LIBSPINNAKER_V1
 	cameraInfo->imageEvent = 0;
 
@@ -1205,6 +1211,7 @@ _configureEvents ( SPINNAKER_STATE* cameraInfo )
 	}
 #endif
 
+	oaLogDebug ( OA_LOG_CAMERA, "%s: exiting", __func__ );
 	return OA_ERR_NONE;
 }
 
@@ -1241,6 +1248,8 @@ _doStop ( SPINNAKER_STATE* cameraInfo )
 static int
 _unconfigureEvents ( SPINNAKER_STATE* cameraInfo )
 {
+	oaLogDebug ( OA_LOG_CAMERA, "%s: entered", __func__ );
+
 #if HAVE_LIBSPINNAKER_V1
 	if (( *p_spinCameraUnregisterImageEvent )( cameraInfo->cameraHandle,
 			cameraInfo->imageEvent ) != SPINNAKER_ERR_SUCCESS ) {
@@ -1270,6 +1279,9 @@ _unconfigureEvents ( SPINNAKER_STATE* cameraInfo )
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 #endif
+
+	oaLogDebug ( OA_LOG_CAMERA, "%s: exiting", __func__ );
+
 	return OA_ERR_NONE;
 }
 
