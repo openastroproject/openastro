@@ -238,6 +238,9 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 #else
   const char*		libName = "lib" TT_SOLIB ".so.1";
 #endif
+#ifdef RETRY_SO_WITHOUT_PATH
+	int						tryWithoutPath = 1;
+#endif
 
 	*libPath = 0;
   if ( !libHandle ) {
@@ -247,9 +250,19 @@ TT_FUNC( _, InitLibraryFunctionPointers )( void )
 #ifdef SHLIB_PATH
 		( void ) strncat ( libPath, SHLIB_PATH, PATH_MAX );
 #endif
+#ifdef RETRY_SO_WITHOUT_PATH
+retry:
+#endif
 		( void ) strncat ( libPath, libName, PATH_MAX );
 
     if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
+#ifdef RETRY_SO_WITHOUT_PATH
+			if ( tryWithoutPath ) {
+				tryWithoutPath = 0;
+				*libPath = 0;
+				goto retry;
+			}
+#endif
       oaLogInfo ( OA_LOG_CAMERA, "%s: can't load %s: error '%s'", __func__,
 					libPath, dlerror());
       return OA_ERR_LIBRARY_NOT_FOUND;
