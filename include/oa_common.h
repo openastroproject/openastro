@@ -67,6 +67,7 @@ extern int errno;
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <TargetConditionals.h>
+#define	RETRY_SO_WITHOUT_PATH
 #endif
 
 #if !HAVE_NULLPTR

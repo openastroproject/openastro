@@ -2,7 +2,7 @@
  *
  * qhyccdDynloader.c -- dynamic loader for libqhyccd
  *
- * Copyright 2019,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -34,8 +34,10 @@
 #include <limits.h>
 #endif
 #endif
-#include <openastro/errno.h>
 #include <qhyccd/qhyccd.h>
+
+#include <openastro/errno.h>
+#include <openastro/util.h>
 
 #include "oacamprivate.h"
 #include "qhyccdprivate.h"
@@ -125,6 +127,9 @@ _qhyccdInitLibraryFunctionPointers ( void )
 #else
   const char*		libName = "libqhyccd.so.20";
 #endif
+#ifdef RETRY_SO_WITHOUT_PATH
+	int						tryWithoutPath = 1;
+#endif
 
 	*libPath = 0;
 	dlerror();
@@ -135,10 +140,21 @@ _qhyccdInitLibraryFunctionPointers ( void )
 #ifdef SHLIB_PATH
 		( void ) strncat ( libPath, SHLIB_PATH, PATH_MAX );
 #endif
+#ifdef RETRY_SO_WITHOUT_PATH
+retry:
+#endif
 		( void ) strncat ( libPath, libName, PATH_MAX );
 
     if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
-      fprintf ( stderr, "can't load %s:\n%s\n", libPath, dlerror());
+#ifdef RETRY_SO_WITHOUT_PATH
+			if ( tryWithoutPath ) {
+				tryWithoutPath = 0;
+				*libPath = 0;
+				goto retry;
+			}
+#endif
+      oaLogWarning ( OA_LOG_CAMERA, "%s: can't load %s, error '%s'", __func__,
+					libPath, dlerror());
       return OA_ERR_LIBRARY_NOT_FOUND;
     }
 
