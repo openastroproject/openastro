@@ -2,7 +2,7 @@
  *
  * FC2dynloader.c -- dynamic loader for flycapture libraries
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -33,9 +33,11 @@
 #if HAVE_LIMITS_H
 #include <limits.h>
 #endif
-#endif
-#include <openastro/errno.h>
+
 #include <flycapture/C/FlyCapture2_C.h>
+
+#include <openastro/errno.h>
+#include <openastro/util.h>
 
 #include "FC2private.h"
 
@@ -93,9 +95,7 @@ fc2Error							( *p_fc2GetEmbeddedImageInfo )( fc2Context,
 fc2Error							( *p_fc2SetEmbeddedImageInfo )( fc2Context,
 													fc2EmbeddedImageInfo* );
 
-#if HAVE_LIBDL
 static void*		_getDLSym ( void*, const char* );
-#endif
 
 /**
  * Cycle through the list of cameras returned by the Flycapture library
@@ -104,266 +104,228 @@ static void*		_getDLSym ( void*, const char* );
 int
 _fc2InitLibraryFunctionPointers ( void )
 {
-#if HAVE_LIBDL
   static void*		libHandle = 0;
+	const char*			libName = "libflycapture-c.so.2";
 
   if ( !libHandle ) {
-    if (!( libHandle = dlopen( "/usr/lib/libflycapture-c.so.2", RTLD_LAZY ))) {
+    if (!( libHandle = dlopen( libName, RTLD_LAZY ))) {
+      oaLogWarning ( OA_LOG_CAMERA, "%s: can't load %s, error '%s'", __func__,
+					libName, dlerror());
       return OA_ERR_LIBRARY_NOT_FOUND;
     }
-  }
 
-  dlerror();
+		dlerror();
 
-  if (!( *( void** )( &p_fc2Connect ) = _getDLSym ( libHandle,
-      "fc2Connect" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2CreateGigEContext ) = _getDLSym ( libHandle,
-      "fc2CreateGigEContext" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2DestroyContext ) = _getDLSym ( libHandle,
-      "fc2DestroyContext" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2DiscoverGigECameras ) = _getDLSym ( libHandle,
-      "fc2DiscoverGigECameras" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetCameraFromIndex ) = _getDLSym ( libHandle,
-      "fc2GetCameraFromIndex" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetCameraFromIPAddress ) = _getDLSym ( libHandle,
-      "fc2GetCameraFromIPAddress" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetCameraInfo ) = _getDLSym ( libHandle,
-      "fc2GetCameraInfo" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetGigEImageBinningSettings ) =
-      _getDLSym ( libHandle, "fc2GetGigEImageBinningSettings" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetGigEImageSettings ) = _getDLSym ( libHandle,
-      "fc2GetGigEImageSettings" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetGigEImageSettingsInfo ) = _getDLSym ( libHandle,
-      "fc2GetGigEImageSettingsInfo" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetInterfaceTypeFromGuid ) = _getDLSym ( libHandle,
-      "fc2GetInterfaceTypeFromGuid" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetNumOfCameras ) = _getDLSym ( libHandle,
-      "fc2GetNumOfCameras" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetProperty ) = _getDLSym ( libHandle,
-      "fc2GetProperty" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetPropertyInfo ) = _getDLSym ( libHandle,
-      "fc2GetPropertyInfo" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetStrobe ) = _getDLSym ( libHandle,
-      "fc2GetStrobe" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetStrobeInfo ) = _getDLSym ( libHandle,
-      "fc2GetStrobeInfo" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetTriggerDelay ) = _getDLSym ( libHandle,
-      "fc2GetTriggerDelay" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetTriggerDelayInfo ) = _getDLSym ( libHandle,
-      "fc2GetTriggerDelayInfo" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetTriggerMode ) = _getDLSym ( libHandle,
-      "fc2GetTriggerMode" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetTriggerModeInfo ) = _getDLSym ( libHandle,
-      "fc2GetTriggerModeInfo" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2QueryGigEImagingMode ) = _getDLSym ( libHandle,
-      "fc2QueryGigEImagingMode" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2ReadRegister ) = _getDLSym ( libHandle,
-      "fc2ReadRegister" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2SetGigEImageBinningSettings ) =
-      _getDLSym ( libHandle, "fc2SetGigEImageBinningSettings" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2SetGigEImageSettings ) = _getDLSym ( libHandle,
-      "fc2SetGigEImageSettings" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2SetGigEImagingMode ) = _getDLSym ( libHandle,
-      "fc2SetGigEImagingMode" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2SetProperty ) = _getDLSym ( libHandle,
-      "fc2SetProperty" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2SetStrobe ) = _getDLSym ( libHandle,
-      "fc2SetStrobe" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2SetTriggerDelay ) = _getDLSym ( libHandle,
-      "fc2SetTriggerDelay" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2SetTriggerMode ) = _getDLSym ( libHandle,
-      "fc2SetTriggerMode" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2StartCaptureCallback ) = _getDLSym ( libHandle,
-      "fc2StartCaptureCallback" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2StopCapture ) = _getDLSym ( libHandle,
-      "fc2StopCapture" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetImageMetadata ) = _getDLSym ( libHandle,
-      "fc2GetImageMetadata" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2GetEmbeddedImageInfo ) = _getDLSym ( libHandle,
-      "fc2GetEmbeddedImageInfo" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_fc2SetEmbeddedImageInfo ) = _getDLSym ( libHandle,
-      "fc2SetEmbeddedImageInfo" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-#else /* HAVE_LIBDL */
-
-  p_fc2Connect = fc2Connect;
-  p_fc2CreateGigEContext = fc2CreateGigEContext;
-  p_fc2DestroyContext = fc2DestroyContext;
-  p_fc2DiscoverGigECameras = fc2DiscoverGigECameras;
-  p_fc2GetCameraFromIndex = fc2GetCameraFromIndex;
-  p_fc2GetCameraFromIPAddress = fc2GetCameraFromIPAddress;
-  p_fc2GetCameraInfo = fc2GetCameraInfo;
-  p_fc2GetGigEImageBinningSettings = fc2GetGigEImageBinningSettings;
-  p_fc2GetGigEImageSettings = fc2GetGigEImageSettings;
-  p_fc2GetGigEImageSettingsInfo = fc2GetGigEImageSettingsInfo;
-  p_fc2GetInterfaceTypeFromGuid = fc2GetInterfaceTypeFromGuid;
-  p_fc2GetNumOfCameras = fc2GetNumOfCameras;
-  p_fc2GetProperty = fc2GetProperty;
-  p_fc2GetPropertyInfo = fc2GetPropertyInfo;
-  p_fc2GetStrobe = fc2GetStrobe;
-  p_fc2GetStrobeInfo = fc2GetStrobeInfo;
-  p_fc2GetTriggerDelay = fc2GetTriggerDelay;
-  p_fc2GetTriggerDelayInfo = fc2GetTriggerDelayInfo;
-  p_fc2GetTriggerMode = fc2GetTriggerMode;
-  p_fc2GetTriggerModeInfo = fc2GetTriggerModeInfo;
-  p_fc2QueryGigEImagingMode = fc2QueryGigEImagingMode;
-  p_fc2ReadRegister = fc2ReadRegister;
-  p_fc2SetGigEImageBinningSettings = fc2SetGigEImageBinningSettings;
-  p_fc2SetGigEImageSettings = fc2SetGigEImageSettings;
-  p_fc2SetGigEImagingMode = fc2SetGigEImagingMode;
-  p_fc2SetProperty = fc2SetProperty;
-  p_fc2SetStrobe = fc2SetStrobe;
-  p_fc2SetTriggerDelay = fc2SetTriggerDelay;
-  p_fc2SetTriggerMode = fc2SetTriggerMode;
-  p_fc2StartCaptureCallback = fc2StartCaptureCallback;
-  p_fc2StopCapture = fc2StopCapture;
-  p_fc2GetImageMetadata = fc2GetImageMetadata;
-  p_fc2GetEmbeddedImageInfo = fc2GetEmbeddedImageInfo;
-  p_fc2SetEmbeddedImageInfo = fc2SetEmbeddedImageInfo;
-
-#endif /* HAVE_LIBDL */
+		if (!( *( void** )( &p_fc2Connect ) = _getDLSym ( libHandle,
+		    "fc2Connect" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2CreateGigEContext ) = _getDLSym ( libHandle,
+		    "fc2CreateGigEContext" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2DestroyContext ) = _getDLSym ( libHandle,
+		    "fc2DestroyContext" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2DiscoverGigECameras ) = _getDLSym ( libHandle,
+		    "fc2DiscoverGigECameras" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetCameraFromIndex ) = _getDLSym ( libHandle,
+		    "fc2GetCameraFromIndex" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetCameraFromIPAddress ) = _getDLSym ( libHandle,
+		    "fc2GetCameraFromIPAddress" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetCameraInfo ) = _getDLSym ( libHandle,
+		    "fc2GetCameraInfo" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetGigEImageBinningSettings ) =
+		    _getDLSym ( libHandle, "fc2GetGigEImageBinningSettings" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetGigEImageSettings ) = _getDLSym ( libHandle,
+		    "fc2GetGigEImageSettings" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetGigEImageSettingsInfo ) = _getDLSym ( libHandle,
+		    "fc2GetGigEImageSettingsInfo" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetInterfaceTypeFromGuid ) = _getDLSym ( libHandle,
+		    "fc2GetInterfaceTypeFromGuid" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetNumOfCameras ) = _getDLSym ( libHandle,
+		    "fc2GetNumOfCameras" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetProperty ) = _getDLSym ( libHandle,
+		    "fc2GetProperty" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetPropertyInfo ) = _getDLSym ( libHandle,
+		    "fc2GetPropertyInfo" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetStrobe ) = _getDLSym ( libHandle,
+		    "fc2GetStrobe" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetStrobeInfo ) = _getDLSym ( libHandle,
+		    "fc2GetStrobeInfo" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetTriggerDelay ) = _getDLSym ( libHandle,
+		    "fc2GetTriggerDelay" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetTriggerDelayInfo ) = _getDLSym ( libHandle,
+		    "fc2GetTriggerDelayInfo" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetTriggerMode ) = _getDLSym ( libHandle,
+		    "fc2GetTriggerMode" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetTriggerModeInfo ) = _getDLSym ( libHandle,
+		    "fc2GetTriggerModeInfo" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2QueryGigEImagingMode ) = _getDLSym ( libHandle,
+		    "fc2QueryGigEImagingMode" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2ReadRegister ) = _getDLSym ( libHandle,
+		    "fc2ReadRegister" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2SetGigEImageBinningSettings ) =
+		    _getDLSym ( libHandle, "fc2SetGigEImageBinningSettings" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2SetGigEImageSettings ) = _getDLSym ( libHandle,
+		    "fc2SetGigEImageSettings" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2SetGigEImagingMode ) = _getDLSym ( libHandle,
+		    "fc2SetGigEImagingMode" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2SetProperty ) = _getDLSym ( libHandle,
+		    "fc2SetProperty" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2SetStrobe ) = _getDLSym ( libHandle,
+		    "fc2SetStrobe" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2SetTriggerDelay ) = _getDLSym ( libHandle,
+		    "fc2SetTriggerDelay" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2SetTriggerMode ) = _getDLSym ( libHandle,
+		    "fc2SetTriggerMode" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2StartCaptureCallback ) = _getDLSym ( libHandle,
+		    "fc2StartCaptureCallback" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2StopCapture ) = _getDLSym ( libHandle,
+		    "fc2StopCapture" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetImageMetadata ) = _getDLSym ( libHandle,
+		    "fc2GetImageMetadata" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2GetEmbeddedImageInfo ) = _getDLSym ( libHandle,
+		    "fc2GetEmbeddedImageInfo" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_fc2SetEmbeddedImageInfo ) = _getDLSym ( libHandle,
+		    "fc2SetEmbeddedImageInfo" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+	}
 
   return OA_ERR_NONE;
 }
 
 
-#if HAVE_LIBDL
 static void*
 _getDLSym ( void* libHandle, const char* symbol )
 {
@@ -378,4 +340,5 @@ _getDLSym ( void* libHandle, const char* symbol )
 
   return addr;
 }
-#endif
+
+#endif	/* HAVE_LIBDL */
