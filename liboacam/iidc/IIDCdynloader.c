@@ -37,8 +37,10 @@
 #endif
 #endif
 
-#include <openastro/errno.h>
 #include <dc1394/dc1394.h>
+
+#include <openastro/errno.h>
+#include <openastro/util.h>
 
 #include "oacamprivate.h"
 #include "IIDCprivate.h"
@@ -130,12 +132,15 @@ int
 _iidcInitLibraryFunctionPointers ( void )
 {
 #if HAVE_LIBDL && !HAVE_STATIC_LIBDC1394
-	static void*		libHandle = 0;
+  static void*		libHandle = 0;
 	char						libPath[ PATH_MAX+1 ];
 #if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
   const char*		libName = "libdc1394.dylib";
 #else
   const char*		libName = "libdc1394.so.22";
+#endif
+#ifdef RETRY_SO_WITHOUT_PATH
+	int						tryWithoutPath = 1;
 #endif
 
 	*libPath = 0;
@@ -147,302 +152,311 @@ _iidcInitLibraryFunctionPointers ( void )
 #ifdef SHLIB_PATH
 		( void ) strncat ( libPath, SHLIB_PATH, PATH_MAX );
 #endif
+#ifdef RETRY_SO_WITHOUT_PATH
+retry:
+#endif
 		( void ) strncat ( libPath, libName, PATH_MAX );
 
     if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
-      fprintf ( stderr, "can't load %s:\n%s\n", libPath, dlerror());
+#ifdef RETRY_SO_WITHOUT_PATH
+			if ( tryWithoutPath ) {
+				tryWithoutPath = 0;
+				*libPath = 0;
+				goto retry;
+			}
+#endif
+      oaLogWarning ( OA_LOG_CAMERA, "%s: can't load %s, error '%s'", __func__,
+					libPath, dlerror());
       return OA_ERR_LIBRARY_NOT_FOUND;
     }
+
+		if (!( *( void** )( &p_dc1394_camera_enumerate ) = _getDLSym ( libHandle,
+		    "dc1394_camera_enumerate" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_camera_free ) = _getDLSym ( libHandle,
+		    "dc1394_camera_free" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_camera_free_list ) = _getDLSym ( libHandle,
+		    "dc1394_camera_free_list" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_camera_get_broadcast ) = _getDLSym ( libHandle,
+		    "dc1394_camera_get_broadcast" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_camera_new_unit ) = _getDLSym ( libHandle,
+		    "dc1394_camera_new_unit" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_camera_reset ) = _getDLSym ( libHandle,
+		    "dc1394_camera_reset" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_capture_dequeue ) = _getDLSym ( libHandle,
+		    "dc1394_capture_dequeue" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_capture_enqueue ) = _getDLSym ( libHandle,
+		    "dc1394_capture_enqueue" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_capture_setup ) = _getDLSym ( libHandle,
+		    "dc1394_capture_setup" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_capture_stop ) = _getDLSym ( libHandle,
+		    "dc1394_capture_stop" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_external_trigger_set_mode ) =
+				_getDLSym ( libHandle, "dc1394_external_trigger_set_mode" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_external_trigger_set_polarity ) =
+				_getDLSym ( libHandle, "dc1394_external_trigger_set_polarity" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_external_trigger_set_power ) =
+				_getDLSym ( libHandle, "dc1394_external_trigger_set_power" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_feature_get_absolute_value ) =
+				_getDLSym ( libHandle, "dc1394_feature_get_absolute_value" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_feature_get ) = _getDLSym ( libHandle,
+		    "dc1394_feature_get" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_feature_get_all ) = _getDLSym ( libHandle,
+		    "dc1394_feature_get_all" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_feature_get_mode ) = _getDLSym ( libHandle,
+		    "dc1394_feature_get_mode" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_feature_get_value ) = _getDLSym ( libHandle,
+		    "dc1394_feature_get_value" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_feature_set_absolute_control ) =
+				_getDLSym ( libHandle, "dc1394_feature_set_absolute_control" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_feature_set_absolute_value ) =
+				_getDLSym ( libHandle, "dc1394_feature_set_absolute_value" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_feature_set_mode ) = _getDLSym ( libHandle,
+		    "dc1394_feature_set_mode" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_feature_set_power ) = _getDLSym ( libHandle,
+		    "dc1394_feature_set_power" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_feature_set_value ) = _getDLSym ( libHandle,
+		    "dc1394_feature_set_value" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_feature_temperature_get_value ) =
+				_getDLSym ( libHandle, "dc1394_feature_temperature_get_value" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_feature_temperature_set_value ) =
+				_getDLSym ( libHandle, "dc1394_feature_temperature_set_value" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_feature_whitebalance_get_value ) =
+				_getDLSym ( libHandle, "dc1394_feature_whitebalance_get_value" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_feature_whitebalance_set_value ) =
+				_getDLSym ( libHandle, "dc1394_feature_whitebalance_set_value" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_format7_get_modeset ) = _getDLSym ( libHandle,
+		    "dc1394_format7_get_modeset" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_format7_set_roi ) = _getDLSym ( libHandle,
+		    "dc1394_format7_set_roi" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_free ) = _getDLSym ( libHandle,
+		    "dc1394_free" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_get_color_coding_from_video_mode ) =
+				_getDLSym ( libHandle, "dc1394_get_color_coding_from_video_mode" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_get_image_size_from_video_mode ) =
+				_getDLSym ( libHandle, "dc1394_get_image_size_from_video_mode" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_new ) = _getDLSym ( libHandle,
+		    "dc1394_new" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_video_get_supported_framerates ) =
+				_getDLSym ( libHandle, "dc1394_video_get_supported_framerates" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_video_get_supported_modes ) =
+				_getDLSym ( libHandle, "dc1394_video_get_supported_modes" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_video_set_framerate ) = _getDLSym ( libHandle,
+		    "dc1394_video_set_framerate" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_video_set_iso_speed ) = _getDLSym ( libHandle,
+		    "dc1394_video_set_iso_speed" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_video_set_mode ) = _getDLSym ( libHandle,
+		    "dc1394_video_set_mode" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_video_set_operation_mode ) =
+				_getDLSym ( libHandle, "dc1394_video_set_operation_mode" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_video_set_transmission ) =
+				_getDLSym ( libHandle, "dc1394_video_set_transmission" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_dc1394_format7_get_unit_size ) =
+				_getDLSym ( libHandle, "dc1394_format7_get_unit_size" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
 	}
-
-	dlerror();
-
-  if (!( *( void** )( &p_dc1394_camera_enumerate ) = _getDLSym ( libHandle,
-      "dc1394_camera_enumerate" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_camera_free ) = _getDLSym ( libHandle,
-      "dc1394_camera_free" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_camera_free_list ) = _getDLSym ( libHandle,
-      "dc1394_camera_free_list" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_camera_get_broadcast ) = _getDLSym ( libHandle,
-      "dc1394_camera_get_broadcast" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_camera_new_unit ) = _getDLSym ( libHandle,
-      "dc1394_camera_new_unit" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_camera_reset ) = _getDLSym ( libHandle,
-      "dc1394_camera_reset" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_capture_dequeue ) = _getDLSym ( libHandle,
-      "dc1394_capture_dequeue" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_capture_enqueue ) = _getDLSym ( libHandle,
-      "dc1394_capture_enqueue" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_capture_setup ) = _getDLSym ( libHandle,
-      "dc1394_capture_setup" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_capture_stop ) = _getDLSym ( libHandle,
-      "dc1394_capture_stop" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_external_trigger_set_mode ) =
-			_getDLSym ( libHandle, "dc1394_external_trigger_set_mode" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_external_trigger_set_polarity ) =
-			_getDLSym ( libHandle, "dc1394_external_trigger_set_polarity" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_external_trigger_set_power ) =
-			_getDLSym ( libHandle, "dc1394_external_trigger_set_power" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_feature_get_absolute_value ) =
-			_getDLSym ( libHandle, "dc1394_feature_get_absolute_value" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_feature_get ) = _getDLSym ( libHandle,
-      "dc1394_feature_get" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_feature_get_all ) = _getDLSym ( libHandle,
-      "dc1394_feature_get_all" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_feature_get_mode ) = _getDLSym ( libHandle,
-      "dc1394_feature_get_mode" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_feature_get_value ) = _getDLSym ( libHandle,
-      "dc1394_feature_get_value" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_feature_set_absolute_control ) =
-			_getDLSym ( libHandle, "dc1394_feature_set_absolute_control" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_feature_set_absolute_value ) =
-			_getDLSym ( libHandle, "dc1394_feature_set_absolute_value" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_feature_set_mode ) = _getDLSym ( libHandle,
-      "dc1394_feature_set_mode" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_feature_set_power ) = _getDLSym ( libHandle,
-      "dc1394_feature_set_power" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_feature_set_value ) = _getDLSym ( libHandle,
-      "dc1394_feature_set_value" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_feature_temperature_get_value ) =
-			_getDLSym ( libHandle, "dc1394_feature_temperature_get_value" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_feature_temperature_set_value ) =
-			_getDLSym ( libHandle, "dc1394_feature_temperature_set_value" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_feature_whitebalance_get_value ) =
-			_getDLSym ( libHandle, "dc1394_feature_whitebalance_get_value" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_feature_whitebalance_set_value ) =
-			_getDLSym ( libHandle, "dc1394_feature_whitebalance_set_value" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_format7_get_modeset ) = _getDLSym ( libHandle,
-      "dc1394_format7_get_modeset" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_format7_set_roi ) = _getDLSym ( libHandle,
-      "dc1394_format7_set_roi" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_free ) = _getDLSym ( libHandle,
-      "dc1394_free" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_get_color_coding_from_video_mode ) =
-			_getDLSym ( libHandle, "dc1394_get_color_coding_from_video_mode" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_get_image_size_from_video_mode ) =
-			_getDLSym ( libHandle, "dc1394_get_image_size_from_video_mode" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_new ) = _getDLSym ( libHandle,
-      "dc1394_new" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_video_get_supported_framerates ) =
-			_getDLSym ( libHandle, "dc1394_video_get_supported_framerates" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_video_get_supported_modes ) =
-			_getDLSym ( libHandle, "dc1394_video_get_supported_modes" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_video_set_framerate ) = _getDLSym ( libHandle,
-      "dc1394_video_set_framerate" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_video_set_iso_speed ) = _getDLSym ( libHandle,
-      "dc1394_video_set_iso_speed" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_video_set_mode ) = _getDLSym ( libHandle,
-      "dc1394_video_set_mode" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_video_set_operation_mode ) =
-			_getDLSym ( libHandle, "dc1394_video_set_operation_mode" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_video_set_transmission ) =
-			_getDLSym ( libHandle, "dc1394_video_set_transmission" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_dc1394_format7_get_unit_size ) =
-			_getDLSym ( libHandle, "dc1394_format7_get_unit_size" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
 
 #else
 #if HAVE_STATIC_LIBDC1394
