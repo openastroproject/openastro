@@ -2,7 +2,7 @@
  *
  * dynloader.c -- dynamic loader for Pylon SDK
  *
- * Copyright 2020 James Fidell (james@openastroproject.org)
+ * Copyright 2020,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -36,8 +36,11 @@
 #include <limits.h>
 #endif
 #endif
-#include <openastro/errno.h>
 
+#include <openastro/errno.h>
+#include <openastro/util.h>
+
+#include "oacamprivate.h"
 #include "private.h"
 
 // Pointers to SDK functions so we can use them via libdl.
@@ -172,409 +175,439 @@ _pylonInitLibraryFunctionPointers ( void )
 {
 #if HAVE_LIBDL
   static void*		libHandle = 0;
+	char						libPath[ PATH_MAX+1 ];
 
+#if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
+  const char*		libName = "libpylonc.dylib";
+#else
+  const char*		libName = "/opt/pylon/lib/libpylonc.so";
+#endif
+#ifdef RETRY_SO_WITHOUT_PATH
+	int						tryWithoutPath = 1;
+#endif
+
+	*libPath = 0;
+	dlerror();
   if ( !libHandle ) {
-    if (!( libHandle = dlopen( "/opt/pylon/lib/libpylonc.so", RTLD_LAZY ))) {
+		if ( installPathRoot ) {
+			( void ) strncpy ( libPath, installPathRoot, PATH_MAX );
+		}
+#ifdef SHLIB_PATH
+		( void ) strncat ( libPath, SHLIB_PATH, PATH_MAX );
+#endif
+#ifdef RETRY_SO_WITHOUT_PATH
+retry:
+#endif
+		( void ) strncat ( libPath, libName, PATH_MAX );
+
+    if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
+#ifdef RETRY_SO_WITHOUT_PATH
+			if ( tryWithoutPath ) {
+				tryWithoutPath = 0;
+				*libPath = 0;
+				goto retry;
+			}
+#endif
+      oaLogWarning ( OA_LOG_CAMERA, "%s: can't load %s, error '%s'", __func__,
+					libPath, dlerror());
       return OA_ERR_LIBRARY_NOT_FOUND;
     }
-  }
 
-  dlerror();
+		if (!( *( void** )( &p_PylonInitialize ) = _getDLSym ( libHandle,
+		    "PylonInitialize" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonTerminate ) = _getDLSym ( libHandle,
+		    "PylonTerminate" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonEnumerateDevices ) = _getDLSym ( libHandle,
+		    "PylonEnumerateDevices" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonCreateDeviceByIndex ) = _getDLSym ( libHandle,
+		    "PylonCreateDeviceByIndex" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDeviceOpen ) = _getDLSym ( libHandle,
+		    "PylonDeviceOpen" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDeviceClose ) = _getDLSym ( libHandle,
+		    "PylonDeviceClose" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDestroyDevice ) = _getDLSym ( libHandle,
+		    "PylonDestroyDevice" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDeviceFeatureIsReadable ) = _getDLSym ( libHandle,
+		    "PylonDeviceFeatureIsReadable" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDeviceFeatureIsAvailable ) =
+				_getDLSym ( libHandle, "PylonDeviceFeatureIsAvailable" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDeviceFeatureToString ) =
+		    _getDLSym ( libHandle, "PylonDeviceFeatureToString" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDeviceFeatureFromString ) =
+		    _getDLSym ( libHandle, "PylonDeviceFeatureFromString" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonGetDeviceInfoHandle ) =
+		    _getDLSym ( libHandle, "PylonGetDeviceInfoHandle" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDeviceInfoGetNumProperties ) =
+		    _getDLSym ( libHandle, "PylonDeviceInfoGetNumProperties" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDeviceInfoGetPropertyName ) =
+		    _getDLSym ( libHandle, "PylonDeviceInfoGetPropertyName" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
 
-  if (!( *( void** )( &p_PylonInitialize ) = _getDLSym ( libHandle,
-      "PylonInitialize" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonTerminate ) = _getDLSym ( libHandle,
-      "PylonTerminate" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonEnumerateDevices ) = _getDLSym ( libHandle,
-      "PylonEnumerateDevices" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonCreateDeviceByIndex ) = _getDLSym ( libHandle,
-      "PylonCreateDeviceByIndex" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDeviceOpen ) = _getDLSym ( libHandle,
-      "PylonDeviceOpen" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDeviceClose ) = _getDLSym ( libHandle,
-      "PylonDeviceClose" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDestroyDevice ) = _getDLSym ( libHandle,
-      "PylonDestroyDevice" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDeviceFeatureIsReadable ) = _getDLSym ( libHandle,
-      "PylonDeviceFeatureIsReadable" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDeviceFeatureIsAvailable ) =
-			_getDLSym ( libHandle, "PylonDeviceFeatureIsAvailable" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDeviceFeatureToString ) =
-      _getDLSym ( libHandle, "PylonDeviceFeatureToString" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDeviceFeatureFromString ) =
-      _getDLSym ( libHandle, "PylonDeviceFeatureFromString" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonGetDeviceInfoHandle ) =
-      _getDLSym ( libHandle, "PylonGetDeviceInfoHandle" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDeviceInfoGetNumProperties ) =
-      _getDLSym ( libHandle, "PylonDeviceInfoGetNumProperties" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDeviceInfoGetPropertyName ) =
-      _getDLSym ( libHandle, "PylonDeviceInfoGetPropertyName" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
+		if (!( *( void** )( &p_PylonDeviceGetNodeMap ) =
+		    _getDLSym ( libHandle, "PylonDeviceGetNodeMap" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
 
-  if (!( *( void** )( &p_PylonDeviceGetNodeMap ) =
-      _getDLSym ( libHandle, "PylonDeviceGetNodeMap" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
+		if (!( *( void** )( &p_PylonDeviceSetBooleanFeature ) =
+		    _getDLSym ( libHandle, "PylonDeviceSetBooleanFeature" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDeviceSetIntegerFeature ) =
+		    _getDLSym ( libHandle, "PylonDeviceSetIntegerFeature" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDeviceSetFloatFeature ) =
+		    _getDLSym ( libHandle, "PylonDeviceSetFloatFeature" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDeviceGetBooleanFeature ) =
+		    _getDLSym ( libHandle, "PylonDeviceGetBooleanFeature" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDeviceGetIntegerFeature ) =
+		    _getDLSym ( libHandle, "PylonDeviceGetIntegerFeature" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDeviceGetFloatFeature ) =
+		    _getDLSym ( libHandle, "PylonDeviceGetFloatFeature" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
 
-  if (!( *( void** )( &p_PylonDeviceSetBooleanFeature ) =
-      _getDLSym ( libHandle, "PylonDeviceSetBooleanFeature" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDeviceSetIntegerFeature ) =
-      _getDLSym ( libHandle, "PylonDeviceSetIntegerFeature" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDeviceSetFloatFeature ) =
-      _getDLSym ( libHandle, "PylonDeviceSetFloatFeature" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDeviceGetBooleanFeature ) =
-      _getDLSym ( libHandle, "PylonDeviceGetBooleanFeature" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDeviceGetIntegerFeature ) =
-      _getDLSym ( libHandle, "PylonDeviceGetIntegerFeature" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDeviceGetFloatFeature ) =
-      _getDLSym ( libHandle, "PylonDeviceGetFloatFeature" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
+		if (!( *( void** )( &p_GenApiNodeMapGetNumNodes ) =
+		    _getDLSym ( libHandle, "GenApiNodeMapGetNumNodes" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiNodeMapGetNodeByIndex ) =
+		    _getDLSym ( libHandle, "GenApiNodeMapGetNodeByIndex" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiNodeMapGetNode ) =
+		    _getDLSym ( libHandle, "GenApiNodeMapGetNode" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiNodeGetName ) =
+		    _getDLSym ( libHandle, "GenApiNodeGetName" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiNodeGetDisplayName ) =
+		    _getDLSym ( libHandle, "GenApiNodeGetDisplayName" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiNodeGetDescription ) =
+		    _getDLSym ( libHandle, "GenApiNodeGetDescription" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiNodeGetType ) =
+		    _getDLSym ( libHandle, "GenApiNodeGetType" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiNodeIsReadable ) =
+		    _getDLSym ( libHandle, "GenApiNodeIsReadable" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiNodeIsAvailable ) =
+		    _getDLSym ( libHandle, "GenApiNodeIsAvailable" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiNodeIsWritable ) =
+		    _getDLSym ( libHandle, "GenApiNodeIsWritable" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
 
-  if (!( *( void** )( &p_GenApiNodeMapGetNumNodes ) =
-      _getDLSym ( libHandle, "GenApiNodeMapGetNumNodes" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiNodeMapGetNodeByIndex ) =
-      _getDLSym ( libHandle, "GenApiNodeMapGetNodeByIndex" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiNodeMapGetNode ) =
-      _getDLSym ( libHandle, "GenApiNodeMapGetNode" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiNodeGetName ) =
-      _getDLSym ( libHandle, "GenApiNodeGetName" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiNodeGetDisplayName ) =
-      _getDLSym ( libHandle, "GenApiNodeGetDisplayName" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiNodeGetDescription ) =
-      _getDLSym ( libHandle, "GenApiNodeGetDescription" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiNodeGetType ) =
-      _getDLSym ( libHandle, "GenApiNodeGetType" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiNodeIsReadable ) =
-      _getDLSym ( libHandle, "GenApiNodeIsReadable" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiNodeIsAvailable ) =
-      _getDLSym ( libHandle, "GenApiNodeIsAvailable" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiNodeIsWritable ) =
-      _getDLSym ( libHandle, "GenApiNodeIsWritable" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
+		if (!( *( void** )( &p_GenApiEnumerationGetEntryByName ) =
+		    _getDLSym ( libHandle, "GenApiEnumerationGetEntryByName" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiEnumerationGetNumEntries ) =
+		    _getDLSym ( libHandle, "GenApiEnumerationGetNumEntries" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiEnumerationGetEntryByIndex ) =
+		    _getDLSym ( libHandle, "GenApiEnumerationGetEntryByIndex" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
 
-  if (!( *( void** )( &p_GenApiEnumerationGetEntryByName ) =
-      _getDLSym ( libHandle, "GenApiEnumerationGetEntryByName" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiEnumerationGetNumEntries ) =
-      _getDLSym ( libHandle, "GenApiEnumerationGetNumEntries" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiEnumerationGetEntryByIndex ) =
-      _getDLSym ( libHandle, "GenApiEnumerationGetEntryByIndex" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
+		if (!( *( void** )( &p_GenApiCategoryGetNumFeatures ) =
+		    _getDLSym ( libHandle, "GenApiCategoryGetNumFeatures" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiCategoryGetFeatureByIndex ) =
+		    _getDLSym ( libHandle, "GenApiCategoryGetFeatureByIndex" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
 
-  if (!( *( void** )( &p_GenApiCategoryGetNumFeatures ) =
-      _getDLSym ( libHandle, "GenApiCategoryGetNumFeatures" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiCategoryGetFeatureByIndex ) =
-      _getDLSym ( libHandle, "GenApiCategoryGetFeatureByIndex" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
+		if (!( *( void** )( &p_GenApiIntegerGetMin ) =
+		    _getDLSym ( libHandle, "GenApiIntegerGetMin" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiIntegerGetMax ) =
+		    _getDLSym ( libHandle, "GenApiIntegerGetMax" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiIntegerGetInc ) =
+		    _getDLSym ( libHandle, "GenApiIntegerGetInc" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiIntegerGetValue ) =
+		    _getDLSym ( libHandle, "GenApiIntegerGetValue" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
 
-  if (!( *( void** )( &p_GenApiIntegerGetMin ) =
-      _getDLSym ( libHandle, "GenApiIntegerGetMin" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiIntegerGetMax ) =
-      _getDLSym ( libHandle, "GenApiIntegerGetMax" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiIntegerGetInc ) =
-      _getDLSym ( libHandle, "GenApiIntegerGetInc" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiIntegerGetValue ) =
-      _getDLSym ( libHandle, "GenApiIntegerGetValue" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
+		if (!( *( void** )( &p_GenApiFloatGetMin ) =
+		    _getDLSym ( libHandle, "GenApiFloatGetMin" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiFloatGetMax ) =
+		    _getDLSym ( libHandle, "GenApiFloatGetMax" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiFloatGetValue ) =
+		    _getDLSym ( libHandle, "GenApiFloatGetValue" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
 
-  if (!( *( void** )( &p_GenApiFloatGetMin ) =
-      _getDLSym ( libHandle, "GenApiFloatGetMin" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiFloatGetMax ) =
-      _getDLSym ( libHandle, "GenApiFloatGetMax" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiFloatGetValue ) =
-      _getDLSym ( libHandle, "GenApiFloatGetValue" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
+		if (!( *( void** )( &p_GenApiNodeFromString ) =
+		    _getDLSym ( libHandle, "GenApiNodeFromString" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_GenApiNodeToString ) =
+		    _getDLSym ( libHandle, "GenApiNodeToString" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
 
-  if (!( *( void** )( &p_GenApiNodeFromString ) =
-      _getDLSym ( libHandle, "GenApiNodeFromString" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_GenApiNodeToString ) =
-      _getDLSym ( libHandle, "GenApiNodeToString" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
+		if (!( *( void** )( &p_PylonDeviceGetNumStreamGrabberChannels ) =
+		    _getDLSym ( libHandle, "PylonDeviceGetNumStreamGrabberChannels" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDeviceGetStreamGrabber ) =
+		    _getDLSym ( libHandle, "PylonDeviceGetStreamGrabber" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonStreamGrabberOpen ) =
+		    _getDLSym ( libHandle, "PylonStreamGrabberOpen" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonStreamGrabberGetWaitObject ) =
+		    _getDLSym ( libHandle, "PylonStreamGrabberGetWaitObject" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonStreamGrabberSetMaxNumBuffer ) =
+		    _getDLSym ( libHandle, "PylonStreamGrabberSetMaxNumBuffer" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonStreamGrabberGetPayloadSize ) =
+		    _getDLSym ( libHandle, "PylonStreamGrabberGetPayloadSize" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonStreamGrabberSetMaxBufferSize ) =
+		    _getDLSym ( libHandle, "PylonStreamGrabberSetMaxBufferSize" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonStreamGrabberPrepareGrab ) =
+		    _getDLSym ( libHandle, "PylonStreamGrabberPrepareGrab" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonStreamGrabberRegisterBuffer ) =
+		    _getDLSym ( libHandle, "PylonStreamGrabberRegisterBuffer" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonStreamGrabberQueueBuffer ) =
+		    _getDLSym ( libHandle, "PylonStreamGrabberQueueBuffer" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonStreamGrabberStartStreamingIfMandatory ) =
+		    _getDLSym ( libHandle, "PylonStreamGrabberStartStreamingIfMandatory" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonDeviceExecuteCommandFeature ) =
+		    _getDLSym ( libHandle, "PylonDeviceExecuteCommandFeature" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonStreamGrabberStopStreamingIfMandatory ) =
+		    _getDLSym ( libHandle, "PylonStreamGrabberStopStreamingIfMandatory" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonStreamGrabberFlushBuffersToOutput ) =
+		    _getDLSym ( libHandle, "PylonStreamGrabberFlushBuffersToOutput" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonStreamGrabberRetrieveResult ) =
+		    _getDLSym ( libHandle, "PylonStreamGrabberRetrieveResult" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonStreamGrabberDeregisterBuffer ) =
+		    _getDLSym ( libHandle, "PylonStreamGrabberDeregisterBuffer" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonStreamGrabberFinishGrab ) =
+		    _getDLSym ( libHandle, "PylonStreamGrabberFinishGrab" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+		if (!( *( void** )( &p_PylonStreamGrabberClose ) =
+		    _getDLSym ( libHandle, "PylonStreamGrabberClose" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
 
-  if (!( *( void** )( &p_PylonDeviceGetNumStreamGrabberChannels ) =
-      _getDLSym ( libHandle, "PylonDeviceGetNumStreamGrabberChannels" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDeviceGetStreamGrabber ) =
-      _getDLSym ( libHandle, "PylonDeviceGetStreamGrabber" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonStreamGrabberOpen ) =
-      _getDLSym ( libHandle, "PylonStreamGrabberOpen" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonStreamGrabberGetWaitObject ) =
-      _getDLSym ( libHandle, "PylonStreamGrabberGetWaitObject" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonStreamGrabberSetMaxNumBuffer ) =
-      _getDLSym ( libHandle, "PylonStreamGrabberSetMaxNumBuffer" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonStreamGrabberGetPayloadSize ) =
-      _getDLSym ( libHandle, "PylonStreamGrabberGetPayloadSize" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonStreamGrabberSetMaxBufferSize ) =
-      _getDLSym ( libHandle, "PylonStreamGrabberSetMaxBufferSize" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonStreamGrabberPrepareGrab ) =
-      _getDLSym ( libHandle, "PylonStreamGrabberPrepareGrab" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonStreamGrabberRegisterBuffer ) =
-      _getDLSym ( libHandle, "PylonStreamGrabberRegisterBuffer" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonStreamGrabberQueueBuffer ) =
-      _getDLSym ( libHandle, "PylonStreamGrabberQueueBuffer" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonStreamGrabberStartStreamingIfMandatory ) =
-      _getDLSym ( libHandle, "PylonStreamGrabberStartStreamingIfMandatory" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonDeviceExecuteCommandFeature ) =
-      _getDLSym ( libHandle, "PylonDeviceExecuteCommandFeature" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonStreamGrabberStopStreamingIfMandatory ) =
-      _getDLSym ( libHandle, "PylonStreamGrabberStopStreamingIfMandatory" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonStreamGrabberFlushBuffersToOutput ) =
-      _getDLSym ( libHandle, "PylonStreamGrabberFlushBuffersToOutput" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonStreamGrabberRetrieveResult ) =
-      _getDLSym ( libHandle, "PylonStreamGrabberRetrieveResult" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonStreamGrabberDeregisterBuffer ) =
-      _getDLSym ( libHandle, "PylonStreamGrabberDeregisterBuffer" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonStreamGrabberFinishGrab ) =
-      _getDLSym ( libHandle, "PylonStreamGrabberFinishGrab" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-  if (!( *( void** )( &p_PylonStreamGrabberClose ) =
-      _getDLSym ( libHandle, "PylonStreamGrabberClose" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_PylonWaitObjectWait ) =
-      _getDLSym ( libHandle, "PylonWaitObjectWait" ))) {
-    dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-  }
+		if (!( *( void** )( &p_PylonWaitObjectWait ) =
+		    _getDLSym ( libHandle, "PylonWaitObjectWait" ))) {
+		  dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+	}
 #else /* HAVE_LIBDL */
 
   p_PylonInitialize = PylonInitialize;
