@@ -2,7 +2,7 @@
  *
  * GP2dynloader.c -- handle dynamic loading of libgphoto2
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -34,8 +34,11 @@
 #include <limits.h>
 #endif
 #endif
-#include <openastro/errno.h>
+
 #include <gphoto2/gphoto2-camera.h>
+
+#include <openastro/errno.h>
+#include <openastro/util.h>
 
 #include "oacamprivate.h"
 #include "GP2private.h"
@@ -130,8 +133,12 @@ _gp2InitLibraryFunctionPointers ( void )
 #else
   const char*		libName = "libgphoto2.so.6";
 #endif
+#ifdef RETRY_SO_WITHOUT_PATH
+	int						tryWithoutPath = 1;
+#endif
 
 	*libPath = 0;
+	dlerror();
   if ( !libHandle ) {
 		if ( installPathRoot ) {
 			( void ) strncpy ( libPath, installPathRoot, PATH_MAX );
@@ -139,14 +146,23 @@ _gp2InitLibraryFunctionPointers ( void )
 #ifdef SHLIB_PATH
 		( void ) strncat ( libPath, SHLIB_PATH, PATH_MAX );
 #endif
+#ifdef RETRY_SO_WITHOUT_PATH
+retry:
+#endif
 		( void ) strncat ( libPath, libName, PATH_MAX );
 
     if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
-      // fprintf ( stderr, "can't load %s:\n%s\n", libPath, dlerror());
+#ifdef RETRY_SO_WITHOUT_PATH
+			if ( tryWithoutPath ) {
+				tryWithoutPath = 0;
+				*libPath = 0;
+				goto retry;
+			}
+#endif
+      oaLogWarning ( OA_LOG_CAMERA, "%s: can't load %s, error '%s'", __func__,
+					libPath, dlerror());
       return OA_ERR_LIBRARY_NOT_FOUND;
     }
-
-	  dlerror();
 
 	  if (!( *( void** )( &p_gp_context_new ) = _getDLSym ( libHandle,
 	      "gp_context_new" ))) {
