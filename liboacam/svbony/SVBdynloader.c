@@ -2,7 +2,7 @@
  *
  * SVBdynloader.c -- handle dynamic loading of libSVBCameraSDK
  *
- * Copyright 2020 James Fidell (james@openastroproject.org)
+ * Copyright 2020,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -37,9 +37,12 @@
 #endif
 #endif
 
-#include <openastro/errno.h>
 #include <SVBCameraSDK.h>
 
+#include <openastro/errno.h>
+#include <openastro/util.h>
+
+#include "oacamprivate.h"
 #include "SVBprivate.h"
 
 
@@ -86,183 +89,213 @@ int
 _svbInitLibraryFunctionPointers ( void )
 {
 #if HAVE_LIBDL && !HAVE_STATIC_LIBSVBCAMERASDK
-	static void*		libHandle = 0;
+  static void*		libHandle = 0;
+	char						libPath[ PATH_MAX+1 ];
 
-	if ( !libHandle ) {
-		if (!( libHandle = dlopen( "libSVBCameraSDK.so", RTLD_LAZY ))) {
-			return OA_ERR_LIBRARY_NOT_FOUND;
+#if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
+  const char*		libName = "libSVBCameraSDK.dylib";
+#else
+  const char*		libName = "libSVBCameraSDK.so";
+#endif
+#ifdef RETRY_SO_WITHOUT_PATH
+	int						tryWithoutPath = 1;
+#endif
+
+	*libPath = 0;
+	dlerror();
+  if ( !libHandle ) {
+		if ( installPathRoot ) {
+			( void ) strncpy ( libPath, installPathRoot, PATH_MAX );
+		}
+#ifdef SHLIB_PATH
+		( void ) strncat ( libPath, SHLIB_PATH, PATH_MAX );
+#endif
+#ifdef RETRY_SO_WITHOUT_PATH
+retry:
+#endif
+		( void ) strncat ( libPath, libName, PATH_MAX );
+
+    if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
+#ifdef RETRY_SO_WITHOUT_PATH
+			if ( tryWithoutPath ) {
+				tryWithoutPath = 0;
+				*libPath = 0;
+				goto retry;
+			}
+#endif
+      oaLogWarning ( OA_LOG_CAMERA, "%s: can't load %s, error '%s'", __func__,
+					libPath, dlerror());
+      return OA_ERR_LIBRARY_NOT_FOUND;
+    }
+
+		if (!( *( void** )( &p_SVBGetNumOfConnectedCameras ) = _getDLSym ( libHandle,
+		    "SVBGetNumOfConnectedCameras" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBGetCameraProperty ) = _getDLSym ( libHandle,
+		    "SVBGetCameraProperty" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBOpenCamera ) = _getDLSym ( libHandle,
+		    "SVBOpenCamera" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBCloseCamera ) = _getDLSym ( libHandle,
+		    "SVBCloseCamera" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBGetNumOfControls ) = _getDLSym ( libHandle,
+		    "SVBGetNumOfControls" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBGetControlCaps ) = _getDLSym ( libHandle,
+		    "SVBGetControlCaps" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBGetControlValue ) = _getDLSym ( libHandle,
+		    "SVBGetControlValue" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBSetControlValue ) = _getDLSym ( libHandle,
+		    "SVBSetControlValue" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBGetOutputImageType ) = _getDLSym ( libHandle,
+		    "SVBGetOutputImageType" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBSetOutputImageType ) = _getDLSym ( libHandle,
+		    "SVBSetOutputImageType" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBSetROIFormat ) = _getDLSym ( libHandle,
+		    "SVBSetROIFormat" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBGetROIFormat ) = _getDLSym ( libHandle,
+		    "SVBGetROIFormat" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBGetDroppedFrames ) = _getDLSym ( libHandle,
+		    "SVBGetDroppedFrames" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBStartVideoCapture ) = _getDLSym ( libHandle,
+		    "SVBStartVideoCapture" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBStopVideoCapture ) = _getDLSym ( libHandle,
+		    "SVBStopVideoCapture" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBGetVideoData ) = _getDLSym ( libHandle,
+		    "SVBGetVideoData" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBGetSDKVersion ) = _getDLSym ( libHandle,
+		    "SVBGetSDKVersion" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBGetCameraSupportMode ) = _getDLSym ( libHandle,
+		    "SVBGetCameraSupportMode" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBGetCameraMode ) = _getDLSym ( libHandle,
+		    "SVBGetCameraMode" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBSetCameraMode ) = _getDLSym ( libHandle,
+		    "SVBSetCameraMode" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBSendSoftTrigger ) = _getDLSym ( libHandle,
+		    "SVBSendSoftTrigger" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBGetSerialNumber ) = _getDLSym ( libHandle,
+		    "SVBGetSerialNumber" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBSetTriggerOutputIOConf ) = _getDLSym ( libHandle,
+		    "SVBSetTriggerOutputIOConf" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_SVBGetTriggerOutputIOConf ) = _getDLSym ( libHandle,
+		    "SVBGetTriggerOutputIOConf" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
 		}
 	}
-
-	dlerror();
-
-  if (!( *( void** )( &p_SVBGetNumOfConnectedCameras ) = _getDLSym ( libHandle,
-      "SVBGetNumOfConnectedCameras" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetCameraProperty ) = _getDLSym ( libHandle,
-      "SVBGetCameraProperty" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBOpenCamera ) = _getDLSym ( libHandle,
-      "SVBOpenCamera" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBCloseCamera ) = _getDLSym ( libHandle,
-      "SVBCloseCamera" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetNumOfControls ) = _getDLSym ( libHandle,
-      "SVBGetNumOfControls" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetControlCaps ) = _getDLSym ( libHandle,
-      "SVBGetControlCaps" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetControlValue ) = _getDLSym ( libHandle,
-      "SVBGetControlValue" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBSetControlValue ) = _getDLSym ( libHandle,
-      "SVBSetControlValue" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetOutputImageType ) = _getDLSym ( libHandle,
-      "SVBGetOutputImageType" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBSetOutputImageType ) = _getDLSym ( libHandle,
-      "SVBSetOutputImageType" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBSetROIFormat ) = _getDLSym ( libHandle,
-      "SVBSetROIFormat" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetROIFormat ) = _getDLSym ( libHandle,
-      "SVBGetROIFormat" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetDroppedFrames ) = _getDLSym ( libHandle,
-      "SVBGetDroppedFrames" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBStartVideoCapture ) = _getDLSym ( libHandle,
-      "SVBStartVideoCapture" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBStopVideoCapture ) = _getDLSym ( libHandle,
-      "SVBStopVideoCapture" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetVideoData ) = _getDLSym ( libHandle,
-      "SVBGetVideoData" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetSDKVersion ) = _getDLSym ( libHandle,
-      "SVBGetSDKVersion" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetCameraSupportMode ) = _getDLSym ( libHandle,
-      "SVBGetCameraSupportMode" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetCameraMode ) = _getDLSym ( libHandle,
-      "SVBGetCameraMode" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBSetCameraMode ) = _getDLSym ( libHandle,
-      "SVBSetCameraMode" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBSendSoftTrigger ) = _getDLSym ( libHandle,
-      "SVBSendSoftTrigger" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetSerialNumber ) = _getDLSym ( libHandle,
-      "SVBGetSerialNumber" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBSetTriggerOutputIOConf ) = _getDLSym ( libHandle,
-      "SVBSetTriggerOutputIOConf" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_SVBGetTriggerOutputIOConf ) = _getDLSym ( libHandle,
-      "SVBGetTriggerOutputIOConf" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
 
 #else
 #if HAVE_STATIC_LIBSVBCAMERASDK
