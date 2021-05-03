@@ -104,13 +104,13 @@ oacamEUVCcontroller ( void* param )
             resultCode = _processSetFrameInterval ( camera, command );
             break;
           default:
-            fprintf ( stderr, "Invalid command type %d in controller\n",
+            oaLogError ( OA_LOG_CAMERA, "Invalid command type %d in controller\n",
                 command->commandType );
             resultCode = -OA_ERR_INVALID_CONTROL;
             break;
         }
         if ( command->callback ) {
-//fprintf ( stderr, "CONT: command has callback\n" );
+//oaLogError ( OA_LOG_CAMERA, "CONT: command has callback\n" );
         } else {
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
           command->completed = 1;
@@ -143,7 +143,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       unsigned int exp100ns;
 
       if ( val->valueType != OA_CTRL_TYPE_INT64 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where int64 expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -155,7 +155,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_EXPOSURE_TIME_ABSOLUTE_CONTROL << 8, EUVC_CAM_TERMINAL << 8,
           ( unsigned char* ) &exp100ns, sizeof ( exp100ns ),
           USB_CTRL_TIMEOUT ) != sizeof ( exp100ns )) {
-        fprintf ( stderr, "set exposure failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set exposure failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -166,7 +166,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       uint16_t val_u16;
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where int32 expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -177,7 +177,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_PU_BACKLIGHT_COMPENSATION_CONTROL << 8,
           cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u16, 2,
           USB_CTRL_TIMEOUT ) != 2 ) {
-        fprintf ( stderr, "set backlight compensation failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set backlight compensation failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -188,7 +188,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       uint8_t val_u8;
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where int32 expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -199,7 +199,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_PU_POWER_LINE_FREQUENCY_CONTROL << 8,
           cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u8, 1,
           USB_CTRL_TIMEOUT ) != 1 ) {
-        fprintf ( stderr, "set powerline frequency failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set powerline frequency failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -210,7 +210,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       uint8_t val_u8;
       
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
-        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where bool expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -221,7 +221,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_PU_WHITE_BALANCE_TEMPERATURE_AUTO_CONTROL << 8, 
           cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u8, 1,
           USB_CTRL_TIMEOUT ) != 1 ) {
-        fprintf ( stderr, "set auto white balance temperature failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set auto white balance temperature failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -232,7 +232,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       uint8_t val_u8;
       
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
-        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where bool expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -243,7 +243,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_PU_CONTRAST_AUTO_CONTROL << 8,
           cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u8, 1,
           USB_CTRL_TIMEOUT ) != 1 ) {
-        fprintf ( stderr, "set auto contrast control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set auto contrast control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -252,7 +252,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_GAIN:
     {
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where int32 expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -264,7 +264,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           ( unsigned char* ) &cameraInfo->currentGain,
           sizeof ( cameraInfo->currentGain ), USB_CTRL_TIMEOUT ) !=
           sizeof ( cameraInfo->currentGain )) {
-        fprintf ( stderr, "set gain failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set gain failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -273,7 +273,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
     case OA_CAM_CTRL_BRIGHTNESS:
     {
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where int32 expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -285,7 +285,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           ( unsigned char* ) &cameraInfo->currentBrightness,
           sizeof ( cameraInfo->currentBrightness ), USB_CTRL_TIMEOUT ) !=
           sizeof ( cameraInfo->currentBrightness )) {
-        fprintf ( stderr, "set brightness failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set brightness failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -296,7 +296,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       uint32_t	balance;
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where int32 expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -309,7 +309,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_PU_WHITE_BALANCE_COMPONENT_CONTROL << 8,
           cameraInfo->processingUnitId << 8, ( unsigned char* ) &balance,
           sizeof ( balance ), USB_CTRL_TIMEOUT ) != sizeof ( balance )) {
-        fprintf ( stderr, "set white balance failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set white balance failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -320,7 +320,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       uint32_t  balance;
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where int32 expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -333,7 +333,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_PU_WHITE_BALANCE_COMPONENT_CONTROL << 8,
           cameraInfo->processingUnitId << 8, ( unsigned char* ) &balance,
           sizeof ( balance ), USB_CTRL_TIMEOUT ) != sizeof ( balance )) {
-        fprintf ( stderr, "set white balance failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set white balance failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -341,7 +341,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_BINNING:
       if ( val->valueType != OA_CTRL_TYPE_DISCRETE ) {
-        fprintf ( stderr, "%s: invalid control type %d where discrete "
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where discrete "
             "expected\n", __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -355,7 +355,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
 					EUVC_CAM_TERMINAL << 8, ( unsigned char* )
 					&cameraInfo->autoExposure, sizeof ( cameraInfo->autoExposure ),
 					USB_CTRL_TIMEOUT ) != sizeof ( cameraInfo->autoExposure )) {
-				fprintf ( stderr, "set auto exposure failed\n" );
+				oaLogError ( OA_LOG_CAMERA, "set auto exposure failed\n" );
 				return -OA_ERR_SYSTEM_ERROR;
 			}
 			break;
@@ -369,13 +369,13 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           ( unsigned char* ) &cameraInfo->autoWhiteBalance,
           sizeof ( cameraInfo->autoWhiteBalance ), USB_CTRL_TIMEOUT ) !=
           sizeof ( cameraInfo->autoWhiteBalance )) {
-        fprintf ( stderr, "set auto exposure failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set auto exposure failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
 
     case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
-      fprintf ( stderr, "auto gain not yet implemented\n" );
+      oaLogError ( OA_LOG_CAMERA, "auto gain not yet implemented\n" );
       break;
 
     case OA_CAM_CTRL_INTERLACE_ENABLE:
@@ -383,7 +383,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       uint8_t val_u8;
 
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
-        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where bool expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -394,7 +394,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_SCANNING_MODE_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
           USB_CTRL_TIMEOUT ) != 1 ) {
-        fprintf ( stderr, "set interlace mode control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set interlace mode control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -405,7 +405,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       uint16_t val_u16;
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where int32 expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -416,7 +416,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_ZOOM_ABSOLUTE_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
           USB_CTRL_TIMEOUT ) != 2 ) {
-        fprintf ( stderr, "set absolute zoom control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set absolute zoom control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -427,7 +427,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       uint16_t val_u16;
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where int32 expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -438,7 +438,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_FOCUS_ABSOLUTE_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
           USB_CTRL_TIMEOUT ) != 2 ) {
-        fprintf ( stderr, "set absolute focus control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set absolute focus control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -449,7 +449,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       uint16_t val_u16;
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where int32 expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -460,7 +460,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_IRIS_ABSOLUTE_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
           USB_CTRL_TIMEOUT ) != 2 ) {
-        fprintf ( stderr, "set absolute iris control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set absolute iris control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -485,7 +485,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           cameraInfo->terminalId << 8, ( unsigned char* ) data, 8,
           USB_CTRL_TIMEOUT ) != 8 ) {
 
-        fprintf ( stderr, "uvc_set_pantilt_abs ( %d, %d ) failed in %s",
+        oaLogError ( OA_LOG_CAMERA, "uvc_set_pantilt_abs ( %d, %d ) failed in %s",
             cameraInfo->currentPan, cameraInfo->currentTilt, __func__ );
       }
       break;
@@ -496,7 +496,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       uint16_t val_u16;
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where int32 expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -507,7 +507,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_ROLL_ABSOLUTE_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
           USB_CTRL_TIMEOUT ) != 2 ) {
-        fprintf ( stderr, "set absolute roll control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set absolute roll control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -518,7 +518,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       uint8_t val_u8;
 
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
-        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where bool expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -529,7 +529,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_PRIVACY_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
           USB_CTRL_TIMEOUT ) != 1 ) {
-        fprintf ( stderr, "set privacy control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set privacy control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -540,7 +540,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       uint8_t val_u8;
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where int32 expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -551,7 +551,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_ROLL_ABSOLUTE_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
           USB_CTRL_TIMEOUT ) != 1 ) {
-        fprintf ( stderr, "set simple focus control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set simple focus control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -564,7 +564,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       uint8_t val_u8;
 
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
-        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
+        oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where bool expected\n",
             __func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
@@ -575,7 +575,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_FOCUS_AUTO_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
           USB_CTRL_TIMEOUT ) != 1 ) {
-        fprintf ( stderr, "set privacy control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set privacy control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       break;
@@ -588,7 +588,7 @@ _processSetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
       break;
 
     default:
-      fprintf ( stderr, "Unrecognised control %d in %s\n", control,
+      oaLogError ( OA_LOG_CAMERA, "Unrecognised control %d in %s\n", control,
           __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
@@ -646,7 +646,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_PU_BACKLIGHT_COMPENSATION_CONTROL << 8,
           cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u16, 2,
           USB_CTRL_TIMEOUT ) != 2 ) {
-        fprintf ( stderr, "get backlight compensation failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "get backlight compensation failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       val->valueType = OA_CTRL_TYPE_INT32;
@@ -662,7 +662,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           USB_RECIP_INTERFACE, REQ_GET_CUR, EUVC_CT_AE_MODE_CONTROL << 8,
 					cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u8, 1,
 					USB_CTRL_TIMEOUT ) != 1 ) {
-        fprintf ( stderr, "get auto exposure failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "get auto exposure failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       val->valueType = OA_CTRL_TYPE_MENU;
@@ -679,7 +679,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_PU_WHITE_BALANCE_TEMPERATURE_AUTO_CONTROL << 8,
           cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u8, 1,
           USB_CTRL_TIMEOUT ) != 1 ) {
-        fprintf ( stderr, "get auto white balance temperature failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "get auto white balance temperature failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
@@ -696,7 +696,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_PU_CONTRAST_AUTO_CONTROL << 8,
           cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u8, 1,
           USB_CTRL_TIMEOUT ) != 1 ) {
-        fprintf ( stderr, "get auto contrast control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "get auto contrast control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
@@ -713,7 +713,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_PU_POWER_LINE_FREQUENCY_CONTROL << 8,
           cameraInfo->processingUnitId << 8, ( unsigned char* ) &val_u8, 1,
           USB_CTRL_TIMEOUT ) != 1 ) {
-        fprintf ( stderr, "get powerline frequency failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "get powerline frequency failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       val->valueType = OA_CTRL_TYPE_INT32;
@@ -730,7 +730,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_SCANNING_MODE_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
           USB_CTRL_TIMEOUT ) != 1 ) {
-        fprintf ( stderr, "get interlace mode control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "get interlace mode control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       val->valueType = OA_CTRL_TYPE_INT32;
@@ -747,7 +747,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_ZOOM_ABSOLUTE_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
           USB_CTRL_TIMEOUT ) != 2 ) {
-        fprintf ( stderr, "get absolute zoom control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "get absolute zoom control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       val->valueType = OA_CTRL_TYPE_INT32;
@@ -764,7 +764,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_FOCUS_ABSOLUTE_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
           USB_CTRL_TIMEOUT ) != 2 ) {
-        fprintf ( stderr, "get absolute focus control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "get absolute focus control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       val->valueType = OA_CTRL_TYPE_INT32;
@@ -781,7 +781,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_IRIS_ABSOLUTE_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
           USB_CTRL_TIMEOUT ) != 2 ) {
-        fprintf ( stderr, "get absolute iris control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "get absolute iris control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       val->valueType = OA_CTRL_TYPE_INT32;
@@ -797,7 +797,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_ROLL_ABSOLUTE_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u16, 2,
           USB_CTRL_TIMEOUT ) != 2 ) {
-        fprintf ( stderr, "get absolute roll control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "get absolute roll control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       val->valueType = OA_CTRL_TYPE_INT32;
@@ -814,7 +814,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_PRIVACY_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
           USB_CTRL_TIMEOUT ) != 1 ) {
-        fprintf ( stderr, "get privacy control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "get privacy control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
@@ -831,7 +831,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_ROLL_ABSOLUTE_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
           USB_CTRL_TIMEOUT ) != 1 ) {
-        fprintf ( stderr, "set simple focus control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set simple focus control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       val->valueType = OA_CTRL_TYPE_INT32;
@@ -850,7 +850,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
           EUVC_CT_FOCUS_AUTO_CONTROL << 8,
           cameraInfo->terminalId << 8, ( unsigned char* ) &val_u8, 1,
           USB_CTRL_TIMEOUT ) != 1 ) {
-        fprintf ( stderr, "set privacy control failed\n" );
+        oaLogError ( OA_LOG_CAMERA, "set privacy control failed\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       val->valueType = OA_CTRL_TYPE_BOOLEAN;
@@ -859,7 +859,7 @@ _processGetControl ( EUVC_STATE* cameraInfo, OA_COMMAND* command )
     }
 
     default:
-      fprintf ( stderr,
+      oaLogError ( OA_LOG_CAMERA,
           "Unrecognised control %d in %s\n", control, __func__ );
       return -OA_ERR_INVALID_CONTROL;
       break;
@@ -918,7 +918,7 @@ _processSetResolution ( oaCamera* camera, OA_COMMAND* command )
       USB_RECIP_INTERFACE, REQ_SET_CUR, VS_COMMIT_CONTROL << 8, 1,
       ( unsigned char* ) &probe, sizeof ( probe ), USB_CTRL_TIMEOUT ) !=
       sizeof ( probe )) {
-    fprintf ( stderr, "set format failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "set format failed\n" );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
@@ -929,7 +929,7 @@ _processSetResolution ( oaCamera* camera, OA_COMMAND* command )
     binMode = 1;
     if ( setEUVCTermControl ( cameraInfo, EUVC_CT_BINNING,
         &binMode, 1, EUVC_SET_CUR )) {
-      fprintf ( stderr, "unable disable binning\n" );
+      oaLogError ( OA_LOG_CAMERA, "unable disable binning\n" );
       return -OA_ERR_INVALID_CONTROL;
     }
     // usleep ( 5000 );
@@ -940,13 +940,13 @@ _processSetResolution ( oaCamera* camera, OA_COMMAND* command )
     posn = 0;
     if ( setEUVCTermControl ( cameraInfo, EUVC_CT_PARTIAL_SCAN_X,
         &posn, 4, EUVC_SET_CUR )) {
-      fprintf ( stderr, "unable to reset x posn\n" );
+      oaLogError ( OA_LOG_CAMERA, "unable to reset x posn\n" );
       return -OA_ERR_INVALID_CONTROL;
     }
     // usleep ( 5000 );
     if ( setEUVCTermControl ( cameraInfo, EUVC_CT_PARTIAL_SCAN_Y,
         &posn, 4, EUVC_SET_CUR )) {
-      fprintf ( stderr, "unable to reset y posn\n" );
+      oaLogError ( OA_LOG_CAMERA, "unable to reset y posn\n" );
       return -OA_ERR_INVALID_CONTROL;
     }
     // usleep ( 5000 );
@@ -969,7 +969,7 @@ _processSetResolution ( oaCamera* camera, OA_COMMAND* command )
     p[3] = ( x >> 24 ) & 0xff;
     if ( setEUVCTermControl ( cameraInfo, EUVC_CT_PARTIAL_SCAN_WIDTH,
         &posn, 4, EUVC_SET_CUR )) {
-      fprintf ( stderr, "unable to set x size\n" );
+      oaLogError ( OA_LOG_CAMERA, "unable to set x size\n" );
       return -OA_ERR_INVALID_CONTROL;
     }
     // usleep ( 5000 );
@@ -979,20 +979,20 @@ _processSetResolution ( oaCamera* camera, OA_COMMAND* command )
     p[3] = ( y >> 24 ) & 0xff;
     if ( setEUVCTermControl ( cameraInfo, EUVC_CT_PARTIAL_SCAN_HEIGHT,
         &posn, 4, EUVC_SET_CUR )) {
-      fprintf ( stderr, "unable to set y size\n" );
+      oaLogError ( OA_LOG_CAMERA, "unable to set y size\n" );
       return -OA_ERR_INVALID_CONTROL;
     }
     // usleep ( 5000 );
     posn = 0;
     if ( setEUVCTermControl ( cameraInfo, EUVC_CT_PARTIAL_SCAN_X,
         &posn, 4, EUVC_SET_CUR )) {
-      fprintf ( stderr, "unable to set x posn\n" );
+      oaLogError ( OA_LOG_CAMERA, "unable to set x posn\n" );
       return -OA_ERR_INVALID_CONTROL;
     }
     // usleep ( 5000 );
     if ( setEUVCTermControl ( cameraInfo, EUVC_CT_PARTIAL_SCAN_Y,
         &posn, 4, EUVC_SET_CUR )) {
-      fprintf ( stderr, "unable to set y posn\n" );
+      oaLogError ( OA_LOG_CAMERA, "unable to set y posn\n" );
       return -OA_ERR_INVALID_CONTROL;
     }
     // usleep ( 5000 );
@@ -1003,7 +1003,7 @@ _processSetResolution ( oaCamera* camera, OA_COMMAND* command )
     binMode = cameraInfo->binMode;
     if ( setEUVCTermControl ( cameraInfo, EUVC_CT_BINNING,
         &binMode, 1, EUVC_SET_CUR )) {
-      fprintf ( stderr, "unable to set %dx binning\n", binMode );
+      oaLogError ( OA_LOG_CAMERA, "unable to set %dx binning\n", binMode );
       return -OA_ERR_INVALID_CONTROL;
     }
   }
@@ -1053,7 +1053,7 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
   p[3] = ( x >> 24 ) & 0xff;
   if ( setEUVCTermControl ( cameraInfo, EUVC_CT_PARTIAL_SCAN_WIDTH,
       &posn, 4, EUVC_SET_CUR )) {
-    fprintf ( stderr, "unable to set x size\n" );
+    oaLogError ( OA_LOG_CAMERA, "unable to set x size\n" );
     return -OA_ERR_INVALID_CONTROL;
   }
   // usleep ( 5000 );
@@ -1063,21 +1063,21 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
   p[3] = ( y >> 24 ) & 0xff;
   if ( setEUVCTermControl ( cameraInfo, EUVC_CT_PARTIAL_SCAN_HEIGHT,
       &posn, 4, EUVC_SET_CUR )) {
-    fprintf ( stderr, "unable to set y size\n" );
+    oaLogError ( OA_LOG_CAMERA, "unable to set y size\n" );
     return -OA_ERR_INVALID_CONTROL;
   }
   // usleep ( 5000 );
   posn = ( frameX - x ) / 2;
   if ( setEUVCTermControl ( cameraInfo, EUVC_CT_PARTIAL_SCAN_X,
       &posn, 4, EUVC_SET_CUR )) {
-    fprintf ( stderr, "unable to set x posn\n" );
+    oaLogError ( OA_LOG_CAMERA, "unable to set x posn\n" );
     return -OA_ERR_INVALID_CONTROL;
   }
   // usleep ( 5000 );
   posn = ( frameY - y ) / 2;
   if ( setEUVCTermControl ( cameraInfo, EUVC_CT_PARTIAL_SCAN_Y,
       &posn, 4, EUVC_SET_CUR )) {
-    fprintf ( stderr, "unable to set y posn\n" );
+    oaLogError ( OA_LOG_CAMERA, "unable to set y posn\n" );
     return -OA_ERR_INVALID_CONTROL;
   }
   // usleep ( 5000 );
@@ -1103,7 +1103,7 @@ _euvcVideoStreamCallback ( struct libusb_transfer* transfer )
       if ( transfer->num_iso_packets == 0 ) { // bulk mode transfer
         _processPayload ( camera, transfer->buffer, transfer->actual_length );
       } else {
-        fprintf ( stderr, "Unexpected isochronous transfer\n" );
+        oaLogError ( OA_LOG_CAMERA, "Unexpected isochronous transfer\n" );
       }
       break;
 
@@ -1125,7 +1125,7 @@ _euvcVideoStreamCallback ( struct libusb_transfer* transfer )
       }
 
       if ( EUVC_NUM_TRANSFER_BUFS == i ) {
-        fprintf ( stderr, "transfer %p not found; not freeing!\n", transfer );
+        oaLogError ( OA_LOG_CAMERA, "transfer %p not found; not freeing!\n", transfer );
       }
 
       resubmit = 0;
@@ -1139,7 +1139,7 @@ _euvcVideoStreamCallback ( struct libusb_transfer* transfer )
 
     case LIBUSB_TRANSFER_STALL:
     case LIBUSB_TRANSFER_OVERFLOW:
-      fprintf ( stderr, "retrying transfer, status = %d (%s)\n",
+      oaLogError ( OA_LOG_CAMERA, "retrying transfer, status = %d (%s)\n",
           transfer->status, libusb_error_name ( transfer->status ));
       break;
   }
@@ -1156,14 +1156,14 @@ _euvcVideoStreamCallback ( struct libusb_transfer* transfer )
       // Mark transfer deleted
       for ( i = 0; i < EUVC_NUM_TRANSFER_BUFS; i++ ) {
         if ( cameraInfo->transfers[i] == transfer ) {
-          fprintf ( stderr, "Freeing orphan transfer %d (%p)\n", i, transfer );
+          oaLogError ( OA_LOG_CAMERA, "Freeing orphan transfer %d (%p)\n", i, transfer );
           free ( transfer->buffer );
           libusb_free_transfer ( transfer );
           cameraInfo->transfers[i] = 0;
         }
       }
       if ( EUVC_NUM_TRANSFER_BUFS == i ) {
-        fprintf ( stderr, "orphan transfer %p not found; not freeing!\n",
+        oaLogError ( OA_LOG_CAMERA, "orphan transfer %p not found; not freeing!\n",
             transfer );
       }
       pthread_mutex_unlock ( &cameraInfo->videoCallbackMutex );
@@ -1212,7 +1212,7 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
       cameraInfo->transfers[ txId ] = transfer;
       if (!( cameraInfo->transferBuffers [ txId ] =
           malloc ( txBufferSize ))) {
-        fprintf ( stderr, "malloc failed.  Need to free buffer\n" );
+        oaLogError ( OA_LOG_CAMERA, "malloc failed.  Need to free buffer\n" );
         return -OA_ERR_SYSTEM_ERROR;
       }
       libusb_fill_bulk_transfer ( transfer, cameraInfo->usbHandle,
@@ -1329,7 +1329,7 @@ _processSetFrameInterval ( oaCamera* camera, OA_COMMAND* command )
   }
 
   if ( matchedInterval < 0 ) {
-    fprintf ( stderr, "no matching interval found\n" );
+    oaLogError ( OA_LOG_CAMERA, "no matching interval found\n" );
     return -OA_ERR_OUT_OF_RANGE;
   }
 
@@ -1356,7 +1356,7 @@ _processPayload ( oaCamera* camera, unsigned char* buffer, unsigned int len )
 
   headerLength = buffer[0];
   if ( headerLength > len ) {
-    fprintf ( stderr, "Weird packet: actual len: %d, header len: %zd\n",
+    oaLogError ( OA_LOG_CAMERA, "Weird packet: actual len: %d, header len: %zd\n",
         len, headerLength );
     return;
   }
@@ -1366,7 +1366,7 @@ _processPayload ( oaCamera* camera, unsigned char* buffer, unsigned int len )
   } else {
     headerInfo = buffer[1];
     if ( headerInfo & 0x40 ) {
-      fprintf ( stderr, "Bad packet: error bit set\n" );
+      oaLogError ( OA_LOG_CAMERA, "Bad packet: error bit set\n" );
       return;
     }
 
@@ -1439,7 +1439,7 @@ getEUVCControl ( EUVC_STATE* cameraInfo, uint8_t ctrl, int len, int req )
       USB_CTRL_TYPE_CLASS | USB_RECIP_INTERFACE, req, ctrl << 8,
       cameraInfo->processingUnitId << 8, data, len,
       USB_CTRL_TIMEOUT )) != len ) {
-    fprintf ( stderr, "%s requested %d for control %d, got %d\n",
+    oaLogError ( OA_LOG_CAMERA, "%s requested %d for control %d, got %d\n",
         __func__, len, ctrl, ret );
     return ret;
   }
@@ -1464,7 +1464,7 @@ getEUVCTermControl ( EUVC_STATE* cameraInfo, uint8_t ctrl, void* data,
   if (( ret = euvcUsbControlMsg ( cameraInfo, USB_DIR_IN |
       USB_CTRL_TYPE_CLASS | USB_RECIP_INTERFACE, req, ctrl << 8,
       cameraInfo->terminalId << 8, data, len, USB_CTRL_TIMEOUT )) != len ) {
-    fprintf ( stderr, "%s requested %d for control %d, got %d\n",
+    oaLogError ( OA_LOG_CAMERA, "%s requested %d for control %d, got %d\n",
         __func__, len, ctrl, ret );
     return ret;
   }
@@ -1482,7 +1482,7 @@ setEUVCTermControl ( EUVC_STATE* cameraInfo, uint8_t ctrl, void* data,
   if (( ret = euvcUsbControlMsg ( cameraInfo, USB_DIR_OUT |
       USB_CTRL_TYPE_CLASS | USB_RECIP_INTERFACE, req, ctrl << 8,
       cameraInfo->terminalId << 8, data, len, USB_CTRL_TIMEOUT )) != len ) {
-    fprintf ( stderr, "%s requested %d for control %d, got %d\n",
+    oaLogError ( OA_LOG_CAMERA, "%s requested %d for control %d, got %d\n",
         __func__, len, ctrl, ret );
     return ret;
   }
@@ -1502,7 +1502,7 @@ _doSetFrameRate ( EUVC_STATE* cameraInfo, unsigned int x, unsigned int y )
   // connect function
   if ( getEUVCTermControl ( cameraInfo, EUVC_CT_BLANKING_INFO,
       &data, 4, EUVC_GET_CUR )) {
-    fprintf ( stderr, "unable to get blanking info\n" );
+    oaLogError ( OA_LOG_CAMERA, "unable to get blanking info\n" );
     return;
   }
   pixelWidth = x * cameraInfo->binMode;
@@ -1526,7 +1526,7 @@ _doSetFrameRate ( EUVC_STATE* cameraInfo, unsigned int x, unsigned int y )
 
   if ( setEUVCTermControl ( cameraInfo, EUVC_CT_PIXEL_CLOCK,
       &data, 4, EUVC_SET_CUR )) {
-    fprintf ( stderr, "unable to set clock rate\n" );
+    oaLogError ( OA_LOG_CAMERA, "unable to set clock rate\n" );
     return;
   }
 }
@@ -1536,7 +1536,7 @@ const char*
 oaEUVCCameraGetMenuString ( oaCamera* camera, int control, int index )
 {
   if ( control != OA_CAM_CTRL_AUTO_EXPOSURE_PRIORITY ) {
-    fprintf ( stderr, "%s: control not implemented\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: control not implemented\n", __func__ );
     return "";
   }
 

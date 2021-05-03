@@ -104,8 +104,8 @@ oaEUVCCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 
     default:
       // If we reach here it's because we don't recognise the control
-      fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+					control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }

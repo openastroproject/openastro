@@ -65,7 +65,7 @@ oaEUVCCameraGetFrameSizes ( oaCamera* camera )
       return &cameraInfo->frameSizes[2];
       break;
   }
-  fprintf ( stderr, "oaEUVCCameraGetFrameSizes: unknown bin mode %d\n",
+  oaLogError ( OA_LOG_CAMERA, "oaEUVCCameraGetFrameSizes: unknown bin mode %d\n",
       cameraInfo->binMode );
   return 0;
 }

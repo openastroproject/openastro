@@ -241,11 +241,12 @@ oaEUVCInitCamera ( oaCameraDevice* device )
     libusb_free_device_list ( devlist, 1 );
     libusb_exit ( cameraInfo->usbContext );
     if ( numUSBDevices ) {
-      fprintf ( stderr, "Can't see any USB devices now (list returns -1)\n" );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't see any USB devices now (list returns -1)", __func__ );
       FREE_DATA_STRUCTS;
       return 0;
     }
-    fprintf ( stderr, "Can't see any USB devices now\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't see any USB devices now", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -258,7 +259,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
     if ( LIBUSB_SUCCESS != libusb_get_device_descriptor ( usbDevice, &desc )) {
       libusb_free_device_list ( devlist, 1 );
       libusb_exit ( cameraInfo->usbContext );
-      fprintf ( stderr, "get device descriptor failed\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: get device descriptor failed",
+					__func__ );
       FREE_DATA_STRUCTS;
       return 0;
     }
@@ -273,13 +275,13 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   }
   libusb_free_device_list ( devlist, 1 );
   if ( !matched ) {
-    fprintf ( stderr, "No matching USB device found!\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: No matching USB device found", __func__ );
     libusb_exit ( cameraInfo->usbContext );
     FREE_DATA_STRUCTS;
     return 0;
   }
   if ( !usbHandle ) {
-    fprintf ( stderr, "Unable to open USB device!\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Unable to open USB device", __func__ );
     libusb_exit ( cameraInfo->usbContext );
     FREE_DATA_STRUCTS;
     return 0;
@@ -288,7 +290,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   cameraInfo->usbHandle = usbHandle;
 
   if ( libusb_get_config_descriptor ( usbDevice, 0, &deviceConfig )) {
-    fprintf ( stderr, "Unable to get device config descriptor!\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Unable to get device config descriptor",
+				__func__ );
     libusb_exit ( cameraInfo->usbContext );
     FREE_DATA_STRUCTS;
     return 0;
@@ -305,7 +308,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   }
 
   if ( !interfaceDesc ) {
-    fprintf ( stderr, "Unable to find correct interface class\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Unable to find correct interface class",
+				__func__ );
     libusb_free_config_descriptor ( deviceConfig );
     libusb_exit ( cameraInfo->usbContext );
     FREE_DATA_STRUCTS;
@@ -325,7 +329,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   }
 
   if ( libusb_claim_interface ( usbHandle, cameraInfo->controlInterfaceNo )) {
-    fprintf ( stderr, "Unable to claim interface for USB device!\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Unable to claim interface for USB device",
+				__func__ );
 		if ( cameraInfo->reattachControlIface ) {
 			libusb_attach_kernel_driver( usbHandle, cameraInfo->controlInterfaceNo );
 		}
@@ -338,7 +343,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   // or mono
   if ( euvcUsbReadRegister ( cameraInfo, EUVC_REG_CAMERA_TYPE,
       &cameraTypeFlags ) != 1 ) {
-    fprintf ( stderr, "euvcReadRegister for reg %d returns error\n",
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: euvcReadRegister for reg %d returns error", __func__,
         EUVC_REG_CAMERA_TYPE );
 		if ( cameraInfo->reattachControlIface ) {
 			libusb_attach_kernel_driver ( usbHandle, cameraInfo->controlInterfaceNo );
@@ -367,7 +373,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
     switch ( subtype ) {
       case EUVC_VC_HEADER:
         if ( blockSize > 13 ) {
-          fprintf ( stderr, "Not expecting more than one video stream\n" );
+          oaLogError ( OA_LOG_CAMERA,
+							"%s: Not expecting more than one video stream", __func__ );
           libusb_free_config_descriptor ( deviceConfig );
 					if ( cameraInfo->reattachControlIface ) {
 						libusb_attach_kernel_driver ( usbHandle,
@@ -381,7 +388,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
         }
         for ( i = 12; i < blockSize; i++ ) {
           if ( _scanEUVCStream ( camera, deviceConfig, data[i] )) {
-            fprintf ( stderr, "Scan of stream %d failed\n", i );
+            oaLogError ( OA_LOG_CAMERA, "%s: Scan of stream %d failed",
+								__func__, i );
             libusb_free_config_descriptor ( deviceConfig );
 						if ( cameraInfo->reattachControlIface ) {
 							libusb_attach_kernel_driver ( usbHandle,
@@ -414,12 +422,10 @@ oaEUVCInitCamera ( oaCameraDevice* device )
         break;
 
       case EUVC_VC_EXTENSION_UNIT:
-      /*
-       * Nothing much I can do with this for the moment
       {
         int unitId, numPins, numControls, i;
         const uint8_t* startOfControls;
-        uint64_t bmControls;
+        uint64_t bmControls = 0;
 
         unitId = data[3];
         numPins = data[21];
@@ -428,24 +434,25 @@ oaEUVCInitCamera ( oaCameraDevice* device )
         for ( i = numControls - 1; i >= 0; --i ) {
           bmControls = startOfControls[i] | ( bmControls << 8 );
         }
-        fprintf ( stderr, "EUVC extn unit: %d, controls: %08lx, guid: ",
+        oaLogInfoNoNL ( OA_LOG_CAMERA,
+						"%s: EUVC extn unit: %d, controls: %08lx, guid: ", __func__,
           unitId, ( long unsigned int ) bmControls );
         for ( i = 0; i < 16; i++ ) {
-          fprintf ( stderr, "%02x", data[ 4 + i ]);
+          oaLogInfoCont ( OA_LOG_CAMERA, "%02x", data[ 4 + i ]);
           if ( i == 3 || i == 5 || i == 7 || i == 9 ) {
-            fprintf ( stderr, "-" );
+            oaLogInfoCont ( OA_LOG_CAMERA, "-" );
           }
         }
-        fprintf ( stderr, "\n" );
+        oaLogInfoEndline ( OA_LOG_CAMERA );
         break;
       }
-       */
       case EUVC_VC_OUTPUT_TERMINAL:
       case EUVC_VC_SELECTOR_UNIT:
         break;
 
       default:
-        fprintf ( stderr, "Unhandled VC subtype %d\n", subtype );
+        oaLogError ( OA_LOG_CAMERA, "%s: Unhandled VC subtype %d",
+						__func__, subtype );
         break;
     }
 
@@ -454,7 +461,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   }
 
   if ( !cameraInfo->processingUnitId ) {
-    fprintf ( stderr, "processing unit not found\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: processing unit not found", __func__ );
     libusb_free_config_descriptor ( deviceConfig );
 		if ( cameraInfo->reattachControlIface ) {
 			libusb_attach_kernel_driver ( usbHandle,
@@ -483,7 +490,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
     }
 
     if ( libusb_claim_interface ( usbHandle, cameraInfo->streamInterfaceNo )) {
-      fprintf ( stderr, "Unable to claim interface for USB device!\n" );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: Unable to claim interface for USB device", __func__ );
       libusb_exit ( cameraInfo->usbContext );
 			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
@@ -530,7 +538,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_SCANNING_MODE_CONTROL,
               &val_u8, 1, EUVC_GET_DEF )) {
-            fprintf ( stderr, "failed to get default for scanning mode\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get default for scanning mode", __func__ );
           }
 
           camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_INTERLACE_ENABLE ) =
@@ -553,7 +562,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 
 					if ( getEUVCTermControl ( cameraInfo, EUVC_CT_AE_MODE_CONTROL,
 							&modes, 1, EUVC_GET_RES )) {
-						fprintf ( stderr, "failed to get modes for autoexp setting\n" );
+						oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get modes for autoexp setting", __func__ );
 					}
 
 					cameraInfo->numAutoExposureItems = 0;
@@ -576,7 +586,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
               OA_CTRL_TYPE_DISC_MENU;
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_AE_MODE_CONTROL,
               &euvcdef, 1, EUVC_GET_DEF )) {
-            fprintf ( stderr, "failed to get min value for AE setting\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get min value for AE setting", __func__ );
           }
           commonInfo->OA_CAM_CTRL_AUTO_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               euvcdef;
@@ -589,7 +600,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
           if ( getEUVCTermControl ( cameraInfo,
               EUVC_CT_EXPOSURE_TIME_ABSOLUTE_CONTROL, buff, 4,
               EUVC_GET_MIN )) {
-            fprintf ( stderr, "failed to get min value for exposure\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get min value for exposure", __func__ );
           }
           commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               buff[0] + ( buff[1] << 8 ) + ( buff[2] << 16 ) +
@@ -597,7 +609,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
           if ( getEUVCTermControl ( cameraInfo,
               EUVC_CT_EXPOSURE_TIME_ABSOLUTE_CONTROL, buff, 4,
               EUVC_GET_MAX )) {
-            fprintf ( stderr, "failed to get max value for exposure\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get max value for exposure", __func__ );
           }
           commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               buff[0] + ( buff[1] << 8 ) + ( buff[2] << 16 ) +
@@ -605,7 +618,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
           if ( getEUVCTermControl ( cameraInfo,
               EUVC_CT_EXPOSURE_TIME_ABSOLUTE_CONTROL, buff, 4,
               EUVC_GET_RES )) {
-            fprintf ( stderr, "failed to get resolution for exposure\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get resolution for exposure", __func__ );
           }
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               buff[0] + ( buff[1] << 8 ) + ( buff[2] << 16 ) +
@@ -613,7 +627,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
           if ( getEUVCTermControl ( cameraInfo,
               EUVC_CT_EXPOSURE_TIME_ABSOLUTE_CONTROL, buff, 4,
               EUVC_GET_DEF )) {
-            fprintf ( stderr, "failed to get default for exposure\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get default for exposure", __func__ );
           }
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
               buff[0] + ( buff[1] << 8 ) + ( buff[2] << 16 ) +
@@ -634,24 +649,28 @@ oaEUVCInitCamera ( oaCameraDevice* device )
               OA_CTRL_TYPE_INT32;
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_ZOOM_ABSOLUTE_CONTROL,
               &val_u16, 2, EUVC_GET_MIN )) {
-            fprintf ( stderr, "failed to get min value for zoom abs\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get min value for zoom abs", __func__ );
           }
           commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_ZOOM_ABSOLUTE ) = val_u16;
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_ZOOM_ABSOLUTE_CONTROL,
               &val_u16, 2, EUVC_GET_MAX )) {
-            fprintf ( stderr, "failed to get max value for zoom abs\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get max value for zoom abs", __func__ );
           }
           commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_ZOOM_ABSOLUTE ) =
               val_u16;
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_ZOOM_ABSOLUTE_CONTROL,
               &val_u16, 2, EUVC_GET_RES )) {
-            fprintf ( stderr, "failed to get resolution for zoom abs\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get resolution for zoom abs", __func__ );
           }
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_ZOOM_ABSOLUTE ) =
               val_u16;
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_ZOOM_ABSOLUTE_CONTROL,
               &val_u16, 2, EUVC_GET_DEF )) {
-            fprintf ( stderr, "failed to get default for zoom abs\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get default for zoom abs", __func__ );
           }
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_ZOOM_ABSOLUTE ) =
               val_u16;
@@ -677,24 +696,28 @@ oaEUVCInitCamera ( oaCameraDevice* device )
               OA_CTRL_TYPE_INT32;
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_FOCUS_ABSOLUTE_CONTROL,
               &val_u16, 2, EUVC_GET_MIN )) {
-            fprintf ( stderr, "failed to get min value for AE setting\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get min value for AE setting", __func__ );
           }
           commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_FOCUS_ABSOLUTE ) = val_u16;
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_FOCUS_ABSOLUTE_CONTROL,
               &val_u16, 2, EUVC_GET_MAX )) {
-            fprintf ( stderr, "failed to get max value for AE setting\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get max value for AE setting", __func__ );
           }
           commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
               val_u16;
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_FOCUS_ABSOLUTE_CONTROL,
               &val_u16, 2, EUVC_GET_RES )) {
-            fprintf ( stderr, "failed to get resolution for AE setting\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get resolution for AE setting", __func__ );
           }
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
               val_u16;
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_FOCUS_ABSOLUTE_CONTROL,
               &val_u16, 2, EUVC_GET_DEF )) {
-            fprintf ( stderr, "failed to get default for AE setting\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get default for AE setting", __func__ );
           }
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_FOCUS_ABSOLUTE ) =
               val_u16;
@@ -711,19 +734,23 @@ oaEUVCInitCamera ( oaCameraDevice* device )
           autoFocusType = OA_CTRL_TYPE_BOOLEAN;
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_FOCUS_AUTO_CONTROL,
               &autoFocusMin, 1, EUVC_GET_MIN )) {
-            fprintf ( stderr, "failed to get min value for autofocus\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get min value for autofocus", __func__ );
           }
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_FOCUS_AUTO_CONTROL,
               &autoFocusMax, 1, EUVC_GET_MAX )) {
-            fprintf ( stderr, "failed to get max value for autofocus\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get max value for autofocus", __func__ );
           }
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_FOCUS_AUTO_CONTROL,
               &autoFocusStep, 1, EUVC_GET_RES )) {
-            fprintf ( stderr, "failed to get resolution for autofocus\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get resolution for autofocus", __func__ );
           }
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_FOCUS_AUTO_CONTROL,
               &autoFocusDef, 1, EUVC_GET_DEF )) {
-            fprintf ( stderr, "failed to get default for autofocus\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get default for autofocus", __func__ );
           }
           break;
         }
@@ -735,24 +762,28 @@ oaEUVCInitCamera ( oaCameraDevice* device )
               OA_CTRL_TYPE_INT32;
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_IRIS_ABSOLUTE_CONTROL,
               &val_u16, 2, EUVC_GET_MIN )) {
-            fprintf ( stderr, "failed to get min value for iris abs\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get min value for iris abs", __func__ );
           }
           commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_IRIS_ABSOLUTE ) = val_u16;
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_IRIS_ABSOLUTE_CONTROL,
               &val_u16, 2, EUVC_GET_MAX )) {
-            fprintf ( stderr, "failed to get max value for iris abs\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get max value for iris abs", __func__ );
           }
           commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_IRIS_ABSOLUTE ) =
               val_u16;
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_IRIS_ABSOLUTE_CONTROL,
               &val_u16, 2, EUVC_GET_RES )) {
-            fprintf ( stderr, "failed to get resolution for iris abs\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get resolution for iris abs", __func__ );
           }
           commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_IRIS_ABSOLUTE ) =
               val_u16;
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_IRIS_ABSOLUTE_CONTROL,
               &val_u16, 2, EUVC_GET_DEF )) {
-            fprintf ( stderr, "failed to get default for iris abs\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get default for iris abs", __func__ );
           }
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_IRIS_ABSOLUTE ) =
               val_u16;
@@ -784,7 +815,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 
           if ( getEUVCTermControl ( cameraInfo,
               EUVC_CT_PANTILT_ABSOLUTE_CONTROL, defaults, 8, EUVC_GET_DEF )) {
-            fprintf ( stderr, "failed to get default for pan/tilt default\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get default for pan/tilt default", __func__ );
           }
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_PAN_ABSOLUTE ) =
               defaults[0];
@@ -809,7 +841,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_ROLL_ABSOLUTE_CONTROL,
               &val_s16, 2, EUVC_GET_DEF )) {
-            fprintf ( stderr, "failed to get default for roll default\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get default for roll default", __func__ );
           }
           commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_ROLL_ABSOLUTE ) = val_s16;
           break;
@@ -821,7 +854,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_PRIVACY_CONTROL,
               &val_u8, 1, EUVC_GET_DEF )) {
-            fprintf ( stderr, "failed to get default for privacy mode\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get default for privacy mode", __func__ );
           }
 
           camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_PRIVACY_ENABLE ) =
@@ -840,7 +874,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 
           if ( getEUVCTermControl ( cameraInfo, EUVC_CT_FOCUS_SIMPLE_CONTROL,
               &val_u8, 1, EUVC_GET_DEF )) {
-            fprintf ( stderr, "failed to get default for simple focus\n" );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: failed to get default for simple focus", __func__ );
           }
 
           camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_FOCUS_SIMPLE ) =
@@ -906,11 +941,13 @@ oaEUVCInitCamera ( oaCameraDevice* device )
         case EUVC_CT_HDR_VSTEP_3:
         case EUVC_CT_HDR_VSTEP_4:
         case EUVC_CT_UART:
-          // fprintf ( stderr, "Unsupported EUVC control %d\n", control );
+          oaLogWarning ( OA_LOG_CAMERA, "%s: Unsupported EUVC control %d",
+							__func__, control );
           break;
 
         default:
-          fprintf ( stderr, "Unknown EUVC control %d\n", control );
+          oaLogWarning ( OA_LOG_CAMERA, "%s: Unknown EUVC control %d",
+							__func__, control );
           break;
       }
     }
@@ -919,7 +956,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   }
 
   if ( flags ) {
-    fprintf ( stderr, "unknown EUVC processing unit controls are present\n" );
+    oaLogWarning ( OA_LOG_CAMERA,
+				"%s: unknown EUVC processing unit controls are present", __func__ );
   }
 
   // FIX ME -- what if we have auto focus, but none of the three focus
@@ -965,7 +1003,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 
   if ( getEUVCTermControl ( cameraInfo, EUVC_CT_CAPABILITY,
       &buff, 2, EUVC_GET_CUR )) {
-    fprintf ( stderr, "unable to get term capabilities\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: unable to get term capabilities",
+				__func__ );
     libusb_free_config_descriptor ( deviceConfig );
 		if ( cameraInfo->reattachStreamIface ) {
 			libusb_attach_kernel_driver ( usbHandle, cameraInfo->streamInterfaceNo );
@@ -1019,20 +1058,23 @@ oaEUVCInitCamera ( oaCameraDevice* device )
         // FIX ME -- need to know what the default units are for all of these
         _getEUVCControlValues ( camera, k );
       } else {
-        fprintf ( stderr, "Unsupported EUVC processing unit control %d = %d\n",
-            k, euvcControl );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unsupported EUVC processing unit control %d = %d",
+            __func__, k, euvcControl );
       }
     }
     flags >>= 1;
   }
 
   if ( flags ) {
-    fprintf ( stderr, "unknown EUVC processing unit controls are present\n" );
+    oaLogWarning ( OA_LOG_CAMERA,
+				"%s: unknown EUVC processing unit controls are present", __func__ );
   }
 
   if (( puCaps = getEUVCControl ( cameraInfo, EUVC_PU_CAPABILITY, 2,
       EUVC_GET_CUR )) < 0 ) {
-    fprintf ( stderr, "unable to get PU capabilities\n" );
+    oaLogWarning ( OA_LOG_CAMERA, "%s: unable to get PU capabilities",
+				__func__ );
     libusb_free_config_descriptor ( deviceConfig );
 		if ( cameraInfo->reattachStreamIface ) {
 			libusb_attach_kernel_driver ( usbHandle, cameraInfo->streamInterfaceNo );
@@ -1057,7 +1099,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
     if ( puCaps & EUVC_PU_CAPABILITY_COLOUR_FORMAT ) {
       if (( colourFormats = getEUVCControl ( cameraInfo,
           EUVC_PU_COLOR_FORMAT, 2, EUVC_GET_CUR )) < 0 ) {
-        fprintf ( stderr, "unable to get colour formats\n" );
+        oaLogError ( OA_LOG_CAMERA, "%s: unable to get colour formats",
+						__func__ );
         libusb_free_config_descriptor ( deviceConfig );
 				if ( cameraInfo->reattachStreamIface ) {
 					libusb_attach_kernel_driver ( usbHandle,
@@ -1087,25 +1130,29 @@ oaEUVCInitCamera ( oaCameraDevice* device )
         cameraInfo->frameFormat = OA_PIX_FMT_GRBG8;
         break;
       case 0x04:
-        fprintf ( stderr, "Guessing at RGGB8 for colour format %d\n",
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Guessing at RGGB8 for colour format %d", __func__,
             colourFormats );
         camera->frameFormats[ OA_PIX_FMT_RGGB8 ] = 1;
         cameraInfo->frameFormat = OA_PIX_FMT_RGGB8;
         break;
       case 0x05:
-        fprintf ( stderr, "Guessing at BGGR8 for colour format %d\n",
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Guessing at BGGR8 for colour format %d", __func__,
             colourFormats );
         camera->frameFormats[ OA_PIX_FMT_BGGR8 ] = 1;
         cameraInfo->frameFormat = OA_PIX_FMT_BGGR8;
         break;
       case 0x06:
-        fprintf ( stderr, "Guessing at GBRG8 for colour format %d\n",
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: Guessing at GBRG8 for colour format %d", __func__,
             colourFormats );
         camera->frameFormats[ OA_PIX_FMT_GBRG8 ] = 1;
         cameraInfo->frameFormat = OA_PIX_FMT_GBRG8;
         break;
       default:
-        fprintf ( stderr, "Unknown colour format %d, assuming mono8\n",
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: Unknown colour format %d, assuming mono8", __func__,
             colourFormats );
         camera->frameFormats[ OA_PIX_FMT_GREY8 ] = 1;
         cameraInfo->frameFormat = OA_PIX_FMT_GREY8;
@@ -1124,7 +1171,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
       ( termCaps & EUVC_CT_CAPABILITY_BLANKING_INFO )) {
     if ( getEUVCTermControl ( cameraInfo, EUVC_CT_PIXEL_CLOCK,
         buff, 4, EUVC_GET_MIN )) {
-      fprintf ( stderr, "unable to get term capabilities\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: unable to get term capabilities",
+					__func__ );
       libusb_free_config_descriptor ( deviceConfig );
 			if ( cameraInfo->reattachStreamIface ) {
 				libusb_attach_kernel_driver ( usbHandle,
@@ -1150,7 +1198,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
         ( buff[2] << 16 ) + ( buff[3] << 24 );
     if ( getEUVCTermControl ( cameraInfo, EUVC_CT_PIXEL_CLOCK,
         buff, 4, EUVC_GET_MAX )) {
-      fprintf ( stderr, "unable to get term capabilities\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: unable to get term capabilities",
+					__func__ );
       libusb_free_config_descriptor ( deviceConfig );
 			if ( cameraInfo->reattachStreamIface ) {
 				libusb_attach_kernel_driver ( usbHandle,
@@ -1177,7 +1226,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
 
     if ( getEUVCTermControl ( cameraInfo, EUVC_CT_PIXEL_CLOCK,
         &buff, 4, EUVC_GET_CUR )) {
-      fprintf ( stderr, "unable to get term capabilities\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: unable to get term capabilities",
+					__func__ );
       libusb_free_config_descriptor ( deviceConfig );
 			if ( cameraInfo->reattachStreamIface ) {
 				libusb_attach_kernel_driver ( usbHandle,
@@ -1204,7 +1254,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
     cameraInfo->frameRates = &pixelClockFrameRates;
     cameraInfo->currentFrameRate = 1;
   } else {
-    fprintf ( stderr, "need to set up frame rates\n" );
+    oaLogWarning ( OA_LOG_CAMERA, "%s: need to set up frame rates", __func__ );
   }
 
   // need to initialise these two here so they're available for the
@@ -1217,7 +1267,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   // Set up the status transfer and callback
 
   if (!( cameraInfo->statusTransfer = libusb_alloc_transfer(0))) {
-    fprintf ( stderr, "Can't allocate status transfer\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't allocate status transfer",
+				__func__ );
     libusb_free_config_descriptor ( deviceConfig );
 		if ( cameraInfo->reattachStreamIface ) {
 			libusb_attach_kernel_driver ( usbHandle, cameraInfo->streamInterfaceNo );
@@ -1242,7 +1293,8 @@ oaEUVCInitCamera ( oaCameraDevice* device )
       sizeof ( cameraInfo->statusBuffer ), euvcStatusCallback, cameraInfo, 0 );
   if ( libusb_submit_transfer ( cameraInfo->statusTransfer )) {
 		libusb_free_transfer ( cameraInfo->statusTransfer );
-    fprintf ( stderr, "submit of status transfer callback failed\n" );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: submit of status transfer callback failed", __func__ );
     libusb_free_config_descriptor ( deviceConfig );
 		if ( cameraInfo->reattachStreamIface ) {
 			libusb_attach_kernel_driver ( usbHandle, cameraInfo->streamInterfaceNo );
@@ -1278,7 +1330,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
       sizeof ( frameBuffer )))) {
     void* dummy;
-    fprintf ( stderr, "malloc of buffer array failed in %s\n",
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc of buffer array failed in %s",
         __func__ );
 		libusb_cancel_transfer ( cameraInfo->statusTransfer );
     cameraInfo->stopCallbackThread = 1;
@@ -1312,7 +1364,7 @@ oaEUVCInitCamera ( oaCameraDevice* device )
       cameraInfo->configuredBuffers++;
     } else {
 			void* dummy;
-      fprintf ( stderr, "%s malloc failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: malloc failed", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
@@ -1632,8 +1684,8 @@ _getEUVCControlValues ( oaCamera* camera, int index )
         break;
 
       default:
-        fprintf ( stderr, "unhandled control type %d in %s\n",
-            camera->OA_CAM_CTRL_TYPE( oaControl ), __func__ );
+        oaLogWarning ( OA_LOG_CAMERA, "%s: unhandled control type %d",
+            __func__, camera->OA_CAM_CTRL_TYPE( oaControl ));
         break;
     }
   }
@@ -1714,7 +1766,8 @@ _scanEUVCStream ( oaCamera* camera,
               }
               if ( xSize > cameraInfo->frameSizes[1].sizes[i].x ||
                   ySize > cameraInfo->frameSizes[1].sizes[i].y ) {
-                fprintf ( stderr, "size is greater than previous entry\n" );
+                oaLogWarning ( OA_LOG_CAMERA,
+										"%s: size is greater than previous entry", __func__ );
                 skipFrame = 1;
               }
             }
@@ -1727,7 +1780,8 @@ _scanEUVCStream ( oaCamera* camera,
                 if ( !cameraInfo->frameSizes[2].numSizes ) {
                   if ( xSize * 2 != cameraInfo->frameSizes[1].sizes[0].x ||
                       ySize * 2 != cameraInfo->frameSizes[1].sizes[0].y ) {
-                    fprintf ( stderr, "bin mode size is not 2x smaller\n" );
+                    oaLogWarning ( OA_LOG_CAMERA,
+												"%s: bin mode size is not 2x smaller", __func__ );
                     skipFrame = 1;
                   } else {
                     binIndex = 2;
@@ -1737,14 +1791,16 @@ _scanEUVCStream ( oaCamera* camera,
                   if ( !cameraInfo->frameSizes[4].numSizes ) {
                     if ( xSize * 4 != cameraInfo->frameSizes[1].sizes[0].x ||
                         ySize * 4 != cameraInfo->frameSizes[1].sizes[0].y ) {
-                      fprintf ( stderr, "bin mode size is not 4x smaller\n" );
+                      oaLogWarning ( OA_LOG_CAMERA,
+													"%s: bin mode size is not 4x smaller", __func__ );
                       skipFrame = 1;
                     } else {
                       binIndex = 4;
                       sizeIndex = 0;
                     }
                   } else {
-                    fprintf ( stderr, "too many binmode sizes\n" );
+                    oaLogWarning ( OA_LOG_CAMERA, "%s: too many binmode sizes",
+												__func__ );
                     skipFrame = 1;
                   }
                 }
@@ -1758,7 +1814,8 @@ _scanEUVCStream ( oaCamera* camera,
           if ( !skipFrame ) {
             if (!( tmpPtr = realloc ( cameraInfo->frameSizes[binIndex].sizes,
                 sizeof ( FRAMESIZE ) * ( sizeIndex + 1 )))) {
-              fprintf ( stderr, "realloc for frame size failed\n" );
+              oaLogError ( OA_LOG_CAMERA, "%s: realloc for frame size failed",
+									__func__ );
 							for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 								if ( cameraInfo->frameSizes[ j ].numSizes ) {
 									free (( void* ) cameraInfo->frameSizes[ j ].sizes );
@@ -1770,7 +1827,8 @@ _scanEUVCStream ( oaCamera* camera,
 						cameraInfo->frameSizes[binIndex].sizes = ( FRAMESIZE* ) tmpPtr;
             if (!( tmpPtr = realloc ( cameraInfo->frameInfo[binIndex],
                 sizeof ( struct frameExtras ) * ( sizeIndex + 1 )))) {
-              fprintf ( stderr, "realloc for frame extras failed\n" );
+              oaLogError ( OA_LOG_CAMERA, "%s: realloc for frame extras failed",
+									__func__ );
 							for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 								if ( cameraInfo->frameSizes[ j ].numSizes ) {
 									free (( void* ) cameraInfo->frameSizes[ j ].sizes );
@@ -1802,37 +1860,48 @@ _scanEUVCStream ( oaCamera* camera,
         break;
       // We don't expect to see or use any of these with EUVC cameras
       case EUVC_VS_OUTPUT_HEADER:
-        // fprintf ( stderr, "unsupported subtype VS_OUTPUT_HEADER\n" );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: unsupported subtype VS_OUTPUT_HEADER", __func__ );
         break;
       case EUVC_VS_STILL_IMAGE_FRAME:
-        // fprintf ( stderr, "unsupported subtype VS_STILL_IMAGE_FRAME\n" );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: unsupported subtype VS_STILL_IMAGE_FRAME", __func__ );
         break;
       case EUVC_VS_FORMAT_MJPEG:
-        // fprintf ( stderr, "unsupported subtype VS_FORMAT_MJPEG\n" );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: unsupported subtype VS_FORMAT_MJPEG", __func__ );
         break;
       case EUVC_VS_FRAME_MJPEG:
-        // fprintf ( stderr, "unsupported subtype VS_FRAME_MJPEG\n" );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: unsupported subtype VS_FRAME_MJPEG", __func__ );
         break;
       case EUVC_VS_FORMAT_MPEG2TS:
-        // fprintf ( stderr, "unsupported subtype VS_FORMAT_MPEG2TS\n" );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: unsupported subtype VS_FORMAT_MPEG2TS", __func__ );
         break;
       case EUVC_VS_FORMAT_DV:
-        // fprintf ( stderr, "unsupported subtype VS_FORMAT_DV\n" );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: unsupported subtype VS_FORMAT_DV", __func__ );
         break;
       case EUVC_VS_COLORFORMAT:
-        // fprintf ( stderr, "unsupported subtype VS_COLORFORMAT\n" );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: unsupported subtype VS_COLORFORMAT", __func__ );
         break;
       case EUVC_VS_FORMAT_FRAME_BASED:
-        // fprintf ( stderr, "unsupported subtype VS_FORMAT_FRAME_BASED\n" );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: unsupported subtype VS_FORMAT_FRAME_BASED", __func__ );
         break;
       case EUVC_VS_FRAME_FRAME_BASED:
-        // fprintf ( stderr, "unsupported subtype VS_FRAME_FRAME_BASED\n" );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: unsupported subtype VS_FRAME_FRAME_BASED", __func__ );
         break;
       case EUVC_VS_FORMAT_STREAM_BASED:
-        // fprintf ( stderr, "unsupported subtype VS_FORMAT_STREAM_BASED\n" );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: unsupported subtype VS_FORMAT_STREAM_BASED", __func__ );
         break;
       default:
-        fprintf ( stderr, "unsupported descriptor subtype: %d\n", subtype );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: unsupported descriptor subtype: %d", __func__, subtype );
         break;
     }
 

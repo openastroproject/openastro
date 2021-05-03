@@ -194,6 +194,39 @@ oaLogInfo ( unsigned int logType, const char* str, ... )
 
 
 int
+oaLogInfoNoNL ( unsigned int logType, const char* str, ... )
+{
+	va_list	args;
+	int			ret;
+
+	va_start ( args, str );
+	ret = _oaWriteLog ( OA_LOG_INFO, 'I', logType, 0, str, args );
+	va_end ( args );
+	return ret;
+}
+
+
+int
+oaLogInfoCont ( unsigned int logType, const char* str, ... )
+{
+	va_list	args;
+	int			ret;
+
+	va_start ( args, str );
+	ret = _oaWriteLog ( OA_LOG_INFO, 0, logType, 0, str, args );
+	va_end ( args );
+	return ret;
+}
+
+
+int
+oaLogInfoEndline ( unsigned int logType )
+{
+	return _oaWriteNL ( OA_LOG_INFO, 0, logType );
+}
+
+
+int
 oaLogDebug ( unsigned int logType, const char* str, ... )
 {
 	va_list	args;

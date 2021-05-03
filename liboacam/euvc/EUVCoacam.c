@@ -107,7 +107,7 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       if ( TIS_VENDOR_ID == desc.idVendor &&
           desc.idProduct == EUVCCameraList[j].productId ) {
         if ( LIBUSB_SUCCESS != libusb_open ( device, &handle )) {
-          fprintf ( stderr, "libusb_open for EUVC camera failed\n" );
+          oaLogError ( OA_LOG_CAMERA, "libusb_open for EUVC camera failed\n" );
           libusb_free_device_list ( devlist, 1 );
           libusb_exit ( ctx );
           return -OA_ERR_SYSTEM_ERROR;

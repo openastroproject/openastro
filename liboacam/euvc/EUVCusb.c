@@ -71,8 +71,8 @@ euvcUsbControlMsg ( EUVC_STATE* cameraInfo, uint8_t reqType, uint8_t req,
       index, data, length, timeout );
   pthread_mutex_unlock ( &cameraInfo->usbMutex );
   if ( ret != length ) {
-    fprintf ( stderr, "libusb control error: %d\n", ret );
-    fprintf ( stderr, "%s\n", libusb_error_name ( ret ));
+    oaLogError ( OA_LOG_CAMERA, "libusb control error: %d\n", ret );
+    oaLogError ( OA_LOG_CAMERA, "%s\n", libusb_error_name ( ret ));
   }
 
 	oaLogDebug ( OA_LOG_CAMERA, "%s: exiting", __func__ );
@@ -98,8 +98,8 @@ euvcUsbBulkTransfer ( EUVC_STATE* cameraInfo, unsigned char endpoint,
       ( int* ) transferred, timeout );
   pthread_mutex_unlock ( &cameraInfo->usbMutex );
   // if ( ret ) {
-  //   fprintf ( stderr, "libusb bulk error: %d\n", ret );
-  //   fprintf ( stderr, "%s\n", libusb_error_name ( ret ));
+  //   oaLogError ( OA_LOG_CAMERA, "libusb bulk error: %d\n", ret );
+  //   oaLogError ( OA_LOG_CAMERA, "%s\n", libusb_error_name ( ret ));
   // }
 
 	oaLogDebug ( OA_LOG_CAMERA, "%s: exiting", __func__ );
@@ -117,7 +117,7 @@ euvcStatusCallback ( struct libusb_transfer* transfer )
   switch ( transfer->status ) {
     case LIBUSB_TRANSFER_ERROR:
     case LIBUSB_TRANSFER_NO_DEVICE:
-      // fprintf ( stderr, "not processing/resubmitting status xfer: err = %d\n",
+      // oaLogError ( OA_LOG_CAMERA, "not processing/resubmitting status xfer: err = %d\n",
       //     transfer->status );
       return;
       break;
@@ -140,17 +140,17 @@ euvcStatusCallback ( struct libusb_transfer* transfer )
 
     case LIBUSB_TRANSFER_COMPLETED:
       // This is the good one, but for the moment we'll do nothing here
-      // fprintf ( stderr, "unhandled completed status xfer\n" );
+      // oaLogError ( OA_LOG_CAMERA, "unhandled completed status xfer\n" );
       break;
 
     case LIBUSB_TRANSFER_TIMED_OUT:
     case LIBUSB_TRANSFER_STALL:
     case LIBUSB_TRANSFER_OVERFLOW:
-      // fprintf ( stderr, "retrying xfer, status = %d\n", transfer->status );
+      // oaLogError ( OA_LOG_CAMERA, "retrying xfer, status = %d\n", transfer->status );
       break;
 
     default:
-      fprintf ( stderr, "unexpected interrupt transfer status = %d\n",
+      oaLogError ( OA_LOG_CAMERA, "unexpected interrupt transfer status = %d\n",
           transfer->status );
       break;
   }
