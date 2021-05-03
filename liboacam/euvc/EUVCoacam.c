@@ -78,12 +78,17 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   unsigned short			busNum, addr;
   DEVICE_INFO*				_private;
 
+	oaLogInfo ( OA_LOG_CAMERA, "%s ( %p, %ld, %d ): entered", __func__,
+			deviceList, featureFlags, flags );
+
   numCameras = sizeof ( EUVCCameraList ) / sizeof ( struct euvccam );
 
   libusb_init ( &ctx );
   // libusb_set_debug ( ctx, LIBUSB_LOG_LEVEL_DEBUG );
   numUSBDevices = libusb_get_device_list ( ctx, &devlist );
   if ( numUSBDevices < 1 ) {
+		oaLogError ( OA_LOG_CAMERA, "%s: libusb_get_device_list() returns %d",
+				__func__, numUSBDevices );
     libusb_free_device_list ( devlist, 1 );
     libusb_exit ( ctx );
     if ( numUSBDevices ) {
@@ -97,6 +102,8 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
     if ( LIBUSB_SUCCESS != libusb_get_device_descriptor ( device, &desc )) {
       libusb_free_device_list ( devlist, 1 );
       libusb_exit ( ctx );
+			oaLogError ( OA_LOG_CAMERA, "%s: libusb_get_device_descriptor() failed",
+				__func__ );
       return -OA_ERR_SYSTEM_ERROR;
     }
     busNum = libusb_get_bus_number ( device );
@@ -107,7 +114,8 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
       if ( TIS_VENDOR_ID == desc.idVendor &&
           desc.idProduct == EUVCCameraList[j].productId ) {
         if ( LIBUSB_SUCCESS != libusb_open ( device, &handle )) {
-          oaLogError ( OA_LOG_CAMERA, "libusb_open for EUVC camera failed\n" );
+          oaLogError ( OA_LOG_CAMERA,
+							"%s: libusb_open for EUVC camera failed", __func__ );
           libusb_free_device_list ( devlist, 1 );
           libusb_exit ( ctx );
           return -OA_ERR_SYSTEM_ERROR;
@@ -116,6 +124,8 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         if ( desc.iManufacturer > 0 ) {
           if ( libusb_get_string_descriptor_ascii ( handle,
               desc.iManufacturer, manufacturer, OA_MAX_NAME_LEN ) < 1 ) {
+						oaLogError ( OA_LOG_CAMERA,
+								"%s: libusb_get_string_descriptor_ascii() failed", __func__ );
             libusb_close ( handle );
             libusb_free_device_list ( devlist, 1 );
             libusb_exit ( ctx );
@@ -127,6 +137,8 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         if ( desc.iProduct > 0 ) {
           if ( libusb_get_string_descriptor_ascii ( handle, desc.iProduct,
               product, OA_MAX_NAME_LEN ) < 1 ) {
+						oaLogError ( OA_LOG_CAMERA,
+								"%s: libusb_get_string_descriptor_ascii() failed", __func__ );
             libusb_close ( handle );
             libusb_free_device_list ( devlist, 1 );
             libusb_exit ( ctx );
@@ -136,17 +148,21 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
           *product = 0;
         }
         libusb_close ( handle );
-				( void ) strcpy ( fullname, manufacturer );
+				( void ) strcpy ( fullname, ( const char* ) manufacturer );
 				( void ) strncat ( fullname, " ", OA_MAX_NAME_LEN );
-				( void ) strncat ( fullname, product, OA_MAX_NAME_LEN );
+				( void ) strncat ( fullname, ( const char* ) product, OA_MAX_NAME_LEN );
 
         // now we can drop the data into the list
         if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: malloc of camera device memory failed", __func__ );
           libusb_free_device_list ( devlist, 1 );
           libusb_exit ( ctx );
           return -OA_ERR_MEM_ALLOC;
         }
         if (!( _private = malloc ( sizeof ( DEVICE_INFO )))) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: malloc of camera private memory failed", __func__ );
           ( void ) free (( void* ) dev );
           return -OA_ERR_MEM_ALLOC;
         }
@@ -165,6 +181,8 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         // store the device data here so we can use it later
         _private->misc = j;
         if (( ret = _oaCheckCameraArraySize ( deviceList )) < 0 ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: _oaCheckCameraArraySize() failed", __func__ );
           ( void ) free (( void* ) dev );
           ( void ) free (( void* ) _private );
           return ret;
@@ -178,6 +196,9 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 
   libusb_free_device_list ( devlist, 1 );
   libusb_exit ( ctx );
+
+	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting.  Found %d cameras", __func__,
+			numCameras );
 
   return numFound;
 }
