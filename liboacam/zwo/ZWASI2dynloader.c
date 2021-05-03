@@ -42,6 +42,7 @@
 #include <openastro/errno.h>
 #include <openastro/util.h>
 
+#include "oacamprivate.h"
 #include "ZWASI2private.h"
 
 
@@ -97,287 +98,309 @@ _asiInitLibraryFunctionPointers ( void )
 {
 #if HAVE_LIBDL && !HAVE_STATIC_LIBASICAMERA2
 	static void*		libHandle = 0;
+	char						libPath[ PATH_MAX+1 ];
 #if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
 	const char*			libName = "libASICamera2.dylib";
 #else
 	const char*			libName = "libASICamera2.so";
 #endif
+#ifdef RETRY_SO_WITHOUT_PATH
+	int						tryWithoutPath = 1;
+#endif
 
-	if ( !libHandle ) {
-		if (!( libHandle = dlopen ( libName, RTLD_LAZY ))) {
-			oaLogWarning ( OA_LOG_CAMERA, "%s: unable to open %s", __func__,
-					libName );
-			return OA_ERR_LIBRARY_NOT_FOUND;
+	*libPath = 0;
+	dlerror();
+  if ( !libHandle ) {
+		if ( installPathRoot ) {
+			( void ) strncpy ( libPath, installPathRoot, PATH_MAX );
+		}
+#ifdef SHLIB_PATH
+		( void ) strncat ( libPath, SHLIB_PATH, PATH_MAX );
+#endif
+#ifdef RETRY_SO_WITHOUT_PATH
+retry:
+#endif
+		( void ) strncat ( libPath, libName, PATH_MAX );
+
+    if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
+#ifdef RETRY_SO_WITHOUT_PATH
+			if ( tryWithoutPath ) {
+				tryWithoutPath = 0;
+				*libPath = 0;
+				goto retry;
+			}
+#endif
+      oaLogWarning ( OA_LOG_CAMERA, "%s: can't load %s, error '%s'", __func__,
+					libPath, dlerror());
+      return OA_ERR_LIBRARY_NOT_FOUND;
+    }
+
+		if (!( *( void** )( &p_ASIGetNumOfConnectedCameras ) = _getDLSym ( libHandle,
+		    "ASIGetNumOfConnectedCameras" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetProductIDs ) = _getDLSym ( libHandle,
+		    "ASIGetProductIDs" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetCameraProperty ) = _getDLSym ( libHandle,
+		    "ASIGetCameraProperty" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetCameraPropertyByID ) = _getDLSym ( libHandle,
+		    "ASIGetCameraPropertyByID" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIOpenCamera ) = _getDLSym ( libHandle,
+		    "ASIOpenCamera" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIInitCamera ) = _getDLSym ( libHandle,
+		    "ASIInitCamera" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASICloseCamera ) = _getDLSym ( libHandle,
+		    "ASICloseCamera" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetNumOfControls ) = _getDLSym ( libHandle,
+		    "ASIGetNumOfControls" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetControlCaps ) = _getDLSym ( libHandle,
+		    "ASIGetControlCaps" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetControlValue ) = _getDLSym ( libHandle,
+		    "ASIGetControlValue" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASISetControlValue ) = _getDLSym ( libHandle,
+		    "ASISetControlValue" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASISetROIFormat ) = _getDLSym ( libHandle,
+		    "ASISetROIFormat" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetROIFormat ) = _getDLSym ( libHandle,
+		    "ASIGetROIFormat" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASISetStartPos ) = _getDLSym ( libHandle,
+		    "ASISetStartPos" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetStartPos ) = _getDLSym ( libHandle,
+		    "ASIGetStartPos" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetDroppedFrames ) = _getDLSym ( libHandle,
+		    "ASIGetDroppedFrames" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIEnableDarkSubtract ) = _getDLSym ( libHandle,
+		    "ASIEnableDarkSubtract" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIDisableDarkSubtract ) = _getDLSym ( libHandle,
+		    "ASIDisableDarkSubtract" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIStartVideoCapture ) = _getDLSym ( libHandle,
+		    "ASIStartVideoCapture" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIStopVideoCapture ) = _getDLSym ( libHandle,
+		    "ASIStopVideoCapture" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetVideoData ) = _getDLSym ( libHandle,
+		    "ASIGetVideoData" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIPulseGuideOn ) = _getDLSym ( libHandle,
+		    "ASIPulseGuideOn" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIPulseGuideOff ) = _getDLSym ( libHandle,
+		    "ASIPulseGuideOff" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIStartExposure ) = _getDLSym ( libHandle,
+		    "ASIStartExposure" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIStopExposure ) = _getDLSym ( libHandle,
+		    "ASIStopExposure" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetExpStatus ) = _getDLSym ( libHandle,
+		    "ASIGetExpStatus" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetDataAfterExp ) = _getDLSym ( libHandle,
+		    "ASIGetDataAfterExp" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetID ) = _getDLSym ( libHandle,
+		    "ASIGetID" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASISetID ) = _getDLSym ( libHandle,
+		    "ASISetID" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetGainOffset ) = _getDLSym ( libHandle,
+		    "ASIGetGainOffset" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetSDKVersion ) = _getDLSym ( libHandle,
+		    "ASIGetSDKVersion" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetCameraSupportMode ) = _getDLSym ( libHandle,
+		    "ASIGetCameraSupportMode" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetCameraMode ) = _getDLSym ( libHandle,
+		    "ASIGetCameraMode" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASISetCameraMode ) = _getDLSym ( libHandle,
+		    "ASISetCameraMode" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASISendSoftTrigger ) = _getDLSym ( libHandle,
+		    "ASISendSoftTrigger" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetSerialNumber ) = _getDLSym ( libHandle,
+		    "ASIGetSerialNumber" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASISetTriggerOutputIOConf ) = _getDLSym ( libHandle,
+		    "ASISetTriggerOutputIOConf" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_ASIGetTriggerOutputIOConf ) = _getDLSym ( libHandle,
+		    "ASIGetTriggerOutputIOConf" ))) {
+		  dlclose ( libHandle );
+		  libHandle = 0;
+		  return OA_ERR_SYMBOL_NOT_FOUND;
 		}
 	}
-
-	dlerror();
-
-  if (!( *( void** )( &p_ASIGetNumOfConnectedCameras ) = _getDLSym ( libHandle,
-      "ASIGetNumOfConnectedCameras" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetProductIDs ) = _getDLSym ( libHandle,
-      "ASIGetProductIDs" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetCameraProperty ) = _getDLSym ( libHandle,
-      "ASIGetCameraProperty" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetCameraPropertyByID ) = _getDLSym ( libHandle,
-      "ASIGetCameraPropertyByID" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIOpenCamera ) = _getDLSym ( libHandle,
-      "ASIOpenCamera" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIInitCamera ) = _getDLSym ( libHandle,
-      "ASIInitCamera" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASICloseCamera ) = _getDLSym ( libHandle,
-      "ASICloseCamera" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetNumOfControls ) = _getDLSym ( libHandle,
-      "ASIGetNumOfControls" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetControlCaps ) = _getDLSym ( libHandle,
-      "ASIGetControlCaps" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetControlValue ) = _getDLSym ( libHandle,
-      "ASIGetControlValue" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASISetControlValue ) = _getDLSym ( libHandle,
-      "ASISetControlValue" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASISetROIFormat ) = _getDLSym ( libHandle,
-      "ASISetROIFormat" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetROIFormat ) = _getDLSym ( libHandle,
-      "ASIGetROIFormat" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASISetStartPos ) = _getDLSym ( libHandle,
-      "ASISetStartPos" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetStartPos ) = _getDLSym ( libHandle,
-      "ASIGetStartPos" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetDroppedFrames ) = _getDLSym ( libHandle,
-      "ASIGetDroppedFrames" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIEnableDarkSubtract ) = _getDLSym ( libHandle,
-      "ASIEnableDarkSubtract" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIDisableDarkSubtract ) = _getDLSym ( libHandle,
-      "ASIDisableDarkSubtract" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIStartVideoCapture ) = _getDLSym ( libHandle,
-      "ASIStartVideoCapture" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIStopVideoCapture ) = _getDLSym ( libHandle,
-      "ASIStopVideoCapture" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetVideoData ) = _getDLSym ( libHandle,
-      "ASIGetVideoData" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIPulseGuideOn ) = _getDLSym ( libHandle,
-      "ASIPulseGuideOn" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIPulseGuideOff ) = _getDLSym ( libHandle,
-      "ASIPulseGuideOff" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIStartExposure ) = _getDLSym ( libHandle,
-      "ASIStartExposure" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIStopExposure ) = _getDLSym ( libHandle,
-      "ASIStopExposure" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetExpStatus ) = _getDLSym ( libHandle,
-      "ASIGetExpStatus" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetDataAfterExp ) = _getDLSym ( libHandle,
-      "ASIGetDataAfterExp" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetID ) = _getDLSym ( libHandle,
-      "ASIGetID" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASISetID ) = _getDLSym ( libHandle,
-      "ASISetID" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetGainOffset ) = _getDLSym ( libHandle,
-      "ASIGetGainOffset" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetSDKVersion ) = _getDLSym ( libHandle,
-      "ASIGetSDKVersion" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetCameraSupportMode ) = _getDLSym ( libHandle,
-      "ASIGetCameraSupportMode" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetCameraMode ) = _getDLSym ( libHandle,
-      "ASIGetCameraMode" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASISetCameraMode ) = _getDLSym ( libHandle,
-      "ASISetCameraMode" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASISendSoftTrigger ) = _getDLSym ( libHandle,
-      "ASISendSoftTrigger" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetSerialNumber ) = _getDLSym ( libHandle,
-      "ASIGetSerialNumber" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASISetTriggerOutputIOConf ) = _getDLSym ( libHandle,
-      "ASISetTriggerOutputIOConf" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
-
-  if (!( *( void** )( &p_ASIGetTriggerOutputIOConf ) = _getDLSym ( libHandle,
-      "ASIGetTriggerOutputIOConf" ))) {
-    dlclose ( libHandle );
-    libHandle = 0;
-    return OA_ERR_SYMBOL_NOT_FOUND;
-  }
 
 #else
 #if HAVE_STATIC_LIBASICAMERA2
