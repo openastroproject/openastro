@@ -2,7 +2,7 @@
  *
  * UVCdynloader.c -- handle dynamic loading of libuvc
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -37,9 +37,12 @@
 #endif
 #endif
 
-#include <openastro/errno.h>
 #include <libuvc/libuvc.h>
 
+#include <openastro/errno.h>
+#include <openastro/util.h>
+
+#include "oacamprivate.h"
 #include "UVCprivate.h"
 
 
@@ -180,912 +183,941 @@ int
 _uvcInitLibraryFunctionPointers ( void )
 {
 #if HAVE_LIBDL && !HAVE_STATIC_LIBUVC
-	static void*		libHandle = 0;
+  static void*		libHandle = 0;
+	char						libPath[ PATH_MAX+1 ];
 
-	if ( !libHandle ) {
-		if (!( libHandle = dlopen( "libuvc.so.0", RTLD_LAZY ))) {
-			return OA_ERR_LIBRARY_NOT_FOUND;
+#if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
+  const char*		libName = "libuvc.dylib";
+#else
+  const char*		libName = "libuvc.so.0";
+#endif
+#ifdef RETRY_SO_WITHOUT_PATH
+	int						tryWithoutPath = 1;
+#endif
+
+	*libPath = 0;
+	dlerror();
+  if ( !libHandle ) {
+		if ( installPathRoot ) {
+			( void ) strncpy ( libPath, installPathRoot, PATH_MAX );
+		}
+#ifdef SHLIB_PATH
+		( void ) strncat ( libPath, SHLIB_PATH, PATH_MAX );
+#endif
+#ifdef RETRY_SO_WITHOUT_PATH
+retry:
+#endif
+		( void ) strncat ( libPath, libName, PATH_MAX );
+
+    if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
+#ifdef RETRY_SO_WITHOUT_PATH
+			if ( tryWithoutPath ) {
+				tryWithoutPath = 0;
+				*libPath = 0;
+				goto retry;
+			}
+#endif
+      oaLogWarning ( OA_LOG_CAMERA, "%s: can't load %s, error '%s'", __func__,
+					libPath, dlerror());
+      return OA_ERR_LIBRARY_NOT_FOUND;
+    }
+
+		if (!( *( void** )( &p_uvc_init ) = _getDLSym ( libHandle,
+				"uvc_init" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_exit ) = _getDLSym ( libHandle,
+				"uvc_exit" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_device_list ) = _getDLSym ( libHandle,
+				"uvc_get_device_list" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_free_device_list ) = _getDLSym ( libHandle,
+				"uvc_free_device_list" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_device_descriptor ) = _getDLSym ( libHandle,
+				"uvc_get_device_descriptor" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_free_device_descriptor ) = _getDLSym ( libHandle,
+				"uvc_free_device_descriptor" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_bus_number ) = _getDLSym ( libHandle,
+				"uvc_get_bus_number" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_device_address ) = _getDLSym ( libHandle,
+				"uvc_get_device_address" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_find_device ) = _getDLSym ( libHandle,
+				"uvc_find_device" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_find_devices ) = _getDLSym ( libHandle,
+				"uvc_find_devices" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_open ) = _getDLSym ( libHandle,
+				"uvc_open" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_close ) = _getDLSym ( libHandle,
+				"uvc_close" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_device ) = _getDLSym ( libHandle,
+				"uvc_get_device" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_libusb_handle ) = _getDLSym ( libHandle,
+				"uvc_get_libusb_handle" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_ref_device ) = _getDLSym ( libHandle,
+				"uvc_ref_device" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_unref_device ) = _getDLSym ( libHandle,
+				"uvc_unref_device" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_status_callback ) = _getDLSym ( libHandle,
+				"uvc_set_status_callback" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_button_callback ) = _getDLSym ( libHandle,
+				"uvc_set_button_callback" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_camera_terminal ) = _getDLSym ( libHandle,
+				"uvc_get_camera_terminal" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_input_terminals ) = _getDLSym ( libHandle,
+				"uvc_get_input_terminals" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_output_terminals ) = _getDLSym ( libHandle,
+				"uvc_get_output_terminals" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_selector_units ) = _getDLSym ( libHandle,
+				"uvc_get_selector_units" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_processing_units ) = _getDLSym ( libHandle,
+				"uvc_get_processing_units" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_extension_units ) = _getDLSym ( libHandle,
+				"uvc_get_extension_units" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_stream_ctrl_format_size ) =
+				_getDLSym ( libHandle, "uvc_get_stream_ctrl_format_size" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_format_descs ) = _getDLSym ( libHandle,
+				"uvc_get_format_descs" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_probe_stream_ctrl ) = _getDLSym ( libHandle,
+				"uvc_probe_stream_ctrl" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_start_streaming ) = _getDLSym ( libHandle,
+				"uvc_start_streaming" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_start_iso_streaming ) = _getDLSym ( libHandle,
+				"uvc_start_iso_streaming" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_stop_streaming ) = _getDLSym ( libHandle,
+				"uvc_stop_streaming" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_stream_open_ctrl ) = _getDLSym ( libHandle,
+				"uvc_stream_open_ctrl" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_stream_ctrl ) = _getDLSym ( libHandle,
+				"uvc_stream_ctrl" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_stream_start ) = _getDLSym ( libHandle,
+				"uvc_stream_start" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_stream_start_iso ) = _getDLSym ( libHandle,
+				"uvc_stream_start_iso" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_stream_get_frame ) = _getDLSym ( libHandle,
+				"uvc_stream_get_frame" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_stream_stop ) = _getDLSym ( libHandle,
+				"uvc_stream_stop" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_stream_close ) = _getDLSym ( libHandle,
+				"uvc_stream_close" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_ctrl_len ) = _getDLSym ( libHandle,
+				"uvc_get_ctrl_len" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_ctrl ) = _getDLSym ( libHandle,
+				"uvc_get_ctrl" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_ctrl ) = _getDLSym ( libHandle,
+				"uvc_set_ctrl" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_power_mode ) = _getDLSym ( libHandle,
+				"uvc_get_power_mode" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_power_mode ) = _getDLSym ( libHandle,
+				"uvc_set_power_mode" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_scanning_mode ) = _getDLSym ( libHandle,
+				"uvc_get_scanning_mode" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_scanning_mode ) = _getDLSym ( libHandle,
+				"uvc_set_scanning_mode" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_ae_mode ) = _getDLSym ( libHandle,
+				"uvc_get_ae_mode" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_ae_mode ) = _getDLSym ( libHandle,
+				"uvc_set_ae_mode" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_ae_priority ) = _getDLSym ( libHandle,
+				"uvc_get_ae_priority" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_ae_priority ) = _getDLSym ( libHandle,
+				"uvc_set_ae_priority" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_exposure_abs ) = _getDLSym ( libHandle,
+				"uvc_get_exposure_abs" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_exposure_abs ) = _getDLSym ( libHandle,
+				"uvc_set_exposure_abs" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_exposure_rel ) = _getDLSym ( libHandle,
+				"uvc_get_exposure_rel" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_exposure_rel ) = _getDLSym ( libHandle,
+				"uvc_set_exposure_rel" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_focus_abs ) = _getDLSym ( libHandle,
+				"uvc_get_focus_abs" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_focus_abs ) = _getDLSym ( libHandle,
+				"uvc_set_focus_abs" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_focus_rel ) = _getDLSym ( libHandle,
+				"uvc_get_focus_rel" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_focus_rel ) = _getDLSym ( libHandle,
+				"uvc_set_focus_rel" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_focus_simple_range ) = _getDLSym ( libHandle,
+				"uvc_get_focus_simple_range" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_focus_simple_range ) = _getDLSym ( libHandle,
+				"uvc_set_focus_simple_range" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_focus_auto ) = _getDLSym ( libHandle,
+				"uvc_get_focus_auto" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_focus_auto ) = _getDLSym ( libHandle,
+				"uvc_set_focus_auto" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_iris_abs ) = _getDLSym ( libHandle,
+				"uvc_get_iris_abs" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_iris_abs ) = _getDLSym ( libHandle,
+				"uvc_set_iris_abs" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_iris_rel ) = _getDLSym ( libHandle,
+				"uvc_get_iris_rel" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_iris_rel ) = _getDLSym ( libHandle,
+				"uvc_set_iris_rel" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_zoom_abs ) = _getDLSym ( libHandle,
+				"uvc_get_zoom_abs" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_zoom_abs ) = _getDLSym ( libHandle,
+				"uvc_set_zoom_abs" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_zoom_rel ) = _getDLSym ( libHandle,
+				"uvc_get_zoom_rel" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_zoom_rel ) = _getDLSym ( libHandle,
+				"uvc_set_zoom_rel" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_pantilt_abs ) = _getDLSym ( libHandle,
+				"uvc_get_pantilt_abs" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_pantilt_abs ) = _getDLSym ( libHandle,
+				"uvc_set_pantilt_abs" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_pantilt_rel ) = _getDLSym ( libHandle,
+				"uvc_get_pantilt_rel" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_pantilt_rel ) = _getDLSym ( libHandle,
+				"uvc_set_pantilt_rel" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_roll_abs ) = _getDLSym ( libHandle,
+				"uvc_get_roll_abs" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_roll_abs ) = _getDLSym ( libHandle,
+				"uvc_set_roll_abs" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_roll_rel ) = _getDLSym ( libHandle,
+				"uvc_get_roll_rel" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_roll_rel ) = _getDLSym ( libHandle,
+				"uvc_set_roll_rel" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_privacy ) = _getDLSym ( libHandle,
+				"uvc_get_privacy" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_privacy ) = _getDLSym ( libHandle,
+				"uvc_set_privacy" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_digital_window ) = _getDLSym ( libHandle,
+				"uvc_get_digital_window" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_digital_window ) = _getDLSym ( libHandle,
+				"uvc_set_digital_window" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_digital_roi ) = _getDLSym ( libHandle,
+				"uvc_get_digital_roi" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_digital_roi ) = _getDLSym ( libHandle,
+				"uvc_set_digital_roi" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_backlight_compensation ) =
+				_getDLSym ( libHandle, "uvc_get_backlight_compensation" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_backlight_compensation ) =
+				_getDLSym ( libHandle, "uvc_set_backlight_compensation" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_brightness ) = _getDLSym ( libHandle,
+				"uvc_get_brightness" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_brightness ) = _getDLSym ( libHandle,
+				"uvc_set_brightness" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_contrast ) = _getDLSym ( libHandle,
+				"uvc_get_contrast" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_contrast ) = _getDLSym ( libHandle,
+				"uvc_set_contrast" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_contrast_auto ) = _getDLSym ( libHandle,
+				"uvc_get_contrast_auto" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_contrast_auto ) = _getDLSym ( libHandle,
+				"uvc_set_contrast_auto" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_gain ) = _getDLSym ( libHandle,
+				"uvc_get_gain" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_gain ) = _getDLSym ( libHandle,
+				"uvc_set_gain" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_power_line_frequency ) =
+				_getDLSym ( libHandle, "uvc_get_power_line_frequency" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_power_line_frequency ) =
+				_getDLSym ( libHandle, "uvc_set_power_line_frequency" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_hue ) = _getDLSym ( libHandle,
+				"uvc_get_hue" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_hue ) = _getDLSym ( libHandle,
+				"uvc_set_hue" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_hue_auto ) = _getDLSym ( libHandle,
+				"uvc_get_hue_auto" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_hue_auto ) = _getDLSym ( libHandle,
+				"uvc_set_hue_auto" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_saturation ) = _getDLSym ( libHandle,
+				"uvc_get_saturation" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_saturation ) = _getDLSym ( libHandle,
+				"uvc_set_saturation" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_sharpness ) = _getDLSym ( libHandle,
+				"uvc_get_sharpness" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_sharpness ) = _getDLSym ( libHandle,
+				"uvc_set_sharpness" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_gamma ) = _getDLSym ( libHandle,
+				"uvc_get_gamma" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_gamma ) = _getDLSym ( libHandle,
+				"uvc_set_gamma" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_white_balance_temperature ) =
+				_getDLSym ( libHandle, "uvc_get_white_balance_temperature" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_white_balance_temperature ) =
+				_getDLSym ( libHandle, "uvc_set_white_balance_temperature" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_white_balance_temperature_auto ) =
+				_getDLSym ( libHandle, "uvc_get_white_balance_temperature_auto" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_white_balance_temperature_auto ) =
+				_getDLSym ( libHandle, "uvc_set_white_balance_temperature_auto" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_white_balance_component ) =
+				_getDLSym ( libHandle, "uvc_get_white_balance_component" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_white_balance_component ) =
+				_getDLSym ( libHandle, "uvc_set_white_balance_component" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_white_balance_component_auto ) =
+				_getDLSym ( libHandle, "uvc_get_white_balance_component_auto" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_white_balance_component_auto ) =
+				_getDLSym ( libHandle, "uvc_set_white_balance_component_auto" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_digital_multiplier ) =
+				_getDLSym ( libHandle, "uvc_get_digital_multiplier" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_digital_multiplier ) =
+				_getDLSym ( libHandle, "uvc_set_digital_multiplier" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_digital_multiplier_limit ) =
+				_getDLSym ( libHandle, "uvc_get_digital_multiplier_limit" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_digital_multiplier_limit ) =
+				_getDLSym ( libHandle, "uvc_set_digital_multiplier_limit" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_analog_video_standard ) =
+				_getDLSym ( libHandle, "uvc_get_analog_video_standard" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_analog_video_standard ) =
+				_getDLSym ( libHandle, "uvc_set_analog_video_standard" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_analog_video_lock_status ) =
+				_getDLSym ( libHandle, "uvc_get_analog_video_lock_status" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_analog_video_lock_status ) =
+				_getDLSym ( libHandle, "uvc_set_analog_video_lock_status" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_get_input_select ) = _getDLSym ( libHandle,
+				"uvc_get_input_select" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_set_input_select ) = _getDLSym ( libHandle,
+				"uvc_set_input_select" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_perror ) = _getDLSym ( libHandle,
+				"uvc_perror" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_strerror ) = _getDLSym ( libHandle,
+				"uvc_strerror" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_print_diag ) = _getDLSym ( libHandle,
+				"uvc_print_diag" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_print_stream_ctrl ) = _getDLSym ( libHandle,
+				"uvc_print_stream_ctrl" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_allocate_frame ) = _getDLSym ( libHandle,
+				"uvc_allocate_frame" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
+		}
+
+		if (!( *( void** )( &p_uvc_free_frame ) = _getDLSym ( libHandle,
+				"uvc_free_frame" ))) {
+			dlclose ( libHandle );
+			libHandle = 0;
+			return OA_ERR_SYMBOL_NOT_FOUND;
 		}
 	}
-
-	dlerror();
-
-	if (!( *( void** )( &p_uvc_init ) = _getDLSym ( libHandle,
-			"uvc_init" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_exit ) = _getDLSym ( libHandle,
-			"uvc_exit" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_device_list ) = _getDLSym ( libHandle,
-			"uvc_get_device_list" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_free_device_list ) = _getDLSym ( libHandle,
-			"uvc_free_device_list" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_device_descriptor ) = _getDLSym ( libHandle,
-			"uvc_get_device_descriptor" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_free_device_descriptor ) = _getDLSym ( libHandle,
-			"uvc_free_device_descriptor" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_bus_number ) = _getDLSym ( libHandle,
-			"uvc_get_bus_number" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_device_address ) = _getDLSym ( libHandle,
-			"uvc_get_device_address" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_find_device ) = _getDLSym ( libHandle,
-			"uvc_find_device" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_find_devices ) = _getDLSym ( libHandle,
-			"uvc_find_devices" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_open ) = _getDLSym ( libHandle,
-			"uvc_open" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_close ) = _getDLSym ( libHandle,
-			"uvc_close" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_device ) = _getDLSym ( libHandle,
-			"uvc_get_device" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_libusb_handle ) = _getDLSym ( libHandle,
-			"uvc_get_libusb_handle" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_ref_device ) = _getDLSym ( libHandle,
-			"uvc_ref_device" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_unref_device ) = _getDLSym ( libHandle,
-			"uvc_unref_device" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_status_callback ) = _getDLSym ( libHandle,
-			"uvc_set_status_callback" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_button_callback ) = _getDLSym ( libHandle,
-			"uvc_set_button_callback" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_camera_terminal ) = _getDLSym ( libHandle,
-			"uvc_get_camera_terminal" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_input_terminals ) = _getDLSym ( libHandle,
-			"uvc_get_input_terminals" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_output_terminals ) = _getDLSym ( libHandle,
-			"uvc_get_output_terminals" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_selector_units ) = _getDLSym ( libHandle,
-			"uvc_get_selector_units" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_processing_units ) = _getDLSym ( libHandle,
-			"uvc_get_processing_units" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_extension_units ) = _getDLSym ( libHandle,
-			"uvc_get_extension_units" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_stream_ctrl_format_size ) =
-			_getDLSym ( libHandle, "uvc_get_stream_ctrl_format_size" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_format_descs ) = _getDLSym ( libHandle,
-			"uvc_get_format_descs" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_probe_stream_ctrl ) = _getDLSym ( libHandle,
-			"uvc_probe_stream_ctrl" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_start_streaming ) = _getDLSym ( libHandle,
-			"uvc_start_streaming" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_start_iso_streaming ) = _getDLSym ( libHandle,
-			"uvc_start_iso_streaming" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_stop_streaming ) = _getDLSym ( libHandle,
-			"uvc_stop_streaming" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_stream_open_ctrl ) = _getDLSym ( libHandle,
-			"uvc_stream_open_ctrl" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_stream_ctrl ) = _getDLSym ( libHandle,
-			"uvc_stream_ctrl" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_stream_start ) = _getDLSym ( libHandle,
-			"uvc_stream_start" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_stream_start_iso ) = _getDLSym ( libHandle,
-			"uvc_stream_start_iso" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_stream_get_frame ) = _getDLSym ( libHandle,
-			"uvc_stream_get_frame" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_stream_stop ) = _getDLSym ( libHandle,
-			"uvc_stream_stop" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_stream_close ) = _getDLSym ( libHandle,
-			"uvc_stream_close" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_ctrl_len ) = _getDLSym ( libHandle,
-			"uvc_get_ctrl_len" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_ctrl ) = _getDLSym ( libHandle,
-			"uvc_get_ctrl" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_ctrl ) = _getDLSym ( libHandle,
-			"uvc_set_ctrl" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_power_mode ) = _getDLSym ( libHandle,
-			"uvc_get_power_mode" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_power_mode ) = _getDLSym ( libHandle,
-			"uvc_set_power_mode" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_scanning_mode ) = _getDLSym ( libHandle,
-			"uvc_get_scanning_mode" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_scanning_mode ) = _getDLSym ( libHandle,
-			"uvc_set_scanning_mode" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_ae_mode ) = _getDLSym ( libHandle,
-			"uvc_get_ae_mode" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_ae_mode ) = _getDLSym ( libHandle,
-			"uvc_set_ae_mode" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_ae_priority ) = _getDLSym ( libHandle,
-			"uvc_get_ae_priority" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_ae_priority ) = _getDLSym ( libHandle,
-			"uvc_set_ae_priority" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_exposure_abs ) = _getDLSym ( libHandle,
-			"uvc_get_exposure_abs" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_exposure_abs ) = _getDLSym ( libHandle,
-			"uvc_set_exposure_abs" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_exposure_rel ) = _getDLSym ( libHandle,
-			"uvc_get_exposure_rel" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_exposure_rel ) = _getDLSym ( libHandle,
-			"uvc_set_exposure_rel" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_focus_abs ) = _getDLSym ( libHandle,
-			"uvc_get_focus_abs" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_focus_abs ) = _getDLSym ( libHandle,
-			"uvc_set_focus_abs" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_focus_rel ) = _getDLSym ( libHandle,
-			"uvc_get_focus_rel" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_focus_rel ) = _getDLSym ( libHandle,
-			"uvc_set_focus_rel" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_focus_simple_range ) = _getDLSym ( libHandle,
-			"uvc_get_focus_simple_range" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_focus_simple_range ) = _getDLSym ( libHandle,
-			"uvc_set_focus_simple_range" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_focus_auto ) = _getDLSym ( libHandle,
-			"uvc_get_focus_auto" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_focus_auto ) = _getDLSym ( libHandle,
-			"uvc_set_focus_auto" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_iris_abs ) = _getDLSym ( libHandle,
-			"uvc_get_iris_abs" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_iris_abs ) = _getDLSym ( libHandle,
-			"uvc_set_iris_abs" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_iris_rel ) = _getDLSym ( libHandle,
-			"uvc_get_iris_rel" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_iris_rel ) = _getDLSym ( libHandle,
-			"uvc_set_iris_rel" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_zoom_abs ) = _getDLSym ( libHandle,
-			"uvc_get_zoom_abs" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_zoom_abs ) = _getDLSym ( libHandle,
-			"uvc_set_zoom_abs" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_zoom_rel ) = _getDLSym ( libHandle,
-			"uvc_get_zoom_rel" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_zoom_rel ) = _getDLSym ( libHandle,
-			"uvc_set_zoom_rel" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_pantilt_abs ) = _getDLSym ( libHandle,
-			"uvc_get_pantilt_abs" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_pantilt_abs ) = _getDLSym ( libHandle,
-			"uvc_set_pantilt_abs" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_pantilt_rel ) = _getDLSym ( libHandle,
-			"uvc_get_pantilt_rel" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_pantilt_rel ) = _getDLSym ( libHandle,
-			"uvc_set_pantilt_rel" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_roll_abs ) = _getDLSym ( libHandle,
-			"uvc_get_roll_abs" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_roll_abs ) = _getDLSym ( libHandle,
-			"uvc_set_roll_abs" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_roll_rel ) = _getDLSym ( libHandle,
-			"uvc_get_roll_rel" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_roll_rel ) = _getDLSym ( libHandle,
-			"uvc_set_roll_rel" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_privacy ) = _getDLSym ( libHandle,
-			"uvc_get_privacy" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_privacy ) = _getDLSym ( libHandle,
-			"uvc_set_privacy" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_digital_window ) = _getDLSym ( libHandle,
-			"uvc_get_digital_window" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_digital_window ) = _getDLSym ( libHandle,
-			"uvc_set_digital_window" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_digital_roi ) = _getDLSym ( libHandle,
-			"uvc_get_digital_roi" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_digital_roi ) = _getDLSym ( libHandle,
-			"uvc_set_digital_roi" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_backlight_compensation ) =
-			_getDLSym ( libHandle, "uvc_get_backlight_compensation" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_backlight_compensation ) =
-			_getDLSym ( libHandle, "uvc_set_backlight_compensation" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_brightness ) = _getDLSym ( libHandle,
-			"uvc_get_brightness" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_brightness ) = _getDLSym ( libHandle,
-			"uvc_set_brightness" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_contrast ) = _getDLSym ( libHandle,
-			"uvc_get_contrast" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_contrast ) = _getDLSym ( libHandle,
-			"uvc_set_contrast" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_contrast_auto ) = _getDLSym ( libHandle,
-			"uvc_get_contrast_auto" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_contrast_auto ) = _getDLSym ( libHandle,
-			"uvc_set_contrast_auto" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_gain ) = _getDLSym ( libHandle,
-			"uvc_get_gain" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_gain ) = _getDLSym ( libHandle,
-			"uvc_set_gain" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_power_line_frequency ) =
-			_getDLSym ( libHandle, "uvc_get_power_line_frequency" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_power_line_frequency ) =
-			_getDLSym ( libHandle, "uvc_set_power_line_frequency" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_hue ) = _getDLSym ( libHandle,
-			"uvc_get_hue" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_hue ) = _getDLSym ( libHandle,
-			"uvc_set_hue" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_hue_auto ) = _getDLSym ( libHandle,
-			"uvc_get_hue_auto" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_hue_auto ) = _getDLSym ( libHandle,
-			"uvc_set_hue_auto" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_saturation ) = _getDLSym ( libHandle,
-			"uvc_get_saturation" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_saturation ) = _getDLSym ( libHandle,
-			"uvc_set_saturation" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_sharpness ) = _getDLSym ( libHandle,
-			"uvc_get_sharpness" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_sharpness ) = _getDLSym ( libHandle,
-			"uvc_set_sharpness" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_gamma ) = _getDLSym ( libHandle,
-			"uvc_get_gamma" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_gamma ) = _getDLSym ( libHandle,
-			"uvc_set_gamma" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_white_balance_temperature ) =
-			_getDLSym ( libHandle, "uvc_get_white_balance_temperature" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_white_balance_temperature ) =
-			_getDLSym ( libHandle, "uvc_set_white_balance_temperature" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_white_balance_temperature_auto ) =
-			_getDLSym ( libHandle, "uvc_get_white_balance_temperature_auto" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_white_balance_temperature_auto ) =
-			_getDLSym ( libHandle, "uvc_set_white_balance_temperature_auto" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_white_balance_component ) =
-			_getDLSym ( libHandle, "uvc_get_white_balance_component" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_white_balance_component ) =
-			_getDLSym ( libHandle, "uvc_set_white_balance_component" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_white_balance_component_auto ) =
-			_getDLSym ( libHandle, "uvc_get_white_balance_component_auto" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_white_balance_component_auto ) =
-			_getDLSym ( libHandle, "uvc_set_white_balance_component_auto" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_digital_multiplier ) =
-			_getDLSym ( libHandle, "uvc_get_digital_multiplier" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_digital_multiplier ) =
-			_getDLSym ( libHandle, "uvc_set_digital_multiplier" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_digital_multiplier_limit ) =
-			_getDLSym ( libHandle, "uvc_get_digital_multiplier_limit" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_digital_multiplier_limit ) =
-			_getDLSym ( libHandle, "uvc_set_digital_multiplier_limit" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_analog_video_standard ) =
-			_getDLSym ( libHandle, "uvc_get_analog_video_standard" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_analog_video_standard ) =
-			_getDLSym ( libHandle, "uvc_set_analog_video_standard" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_analog_video_lock_status ) =
-			_getDLSym ( libHandle, "uvc_get_analog_video_lock_status" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_analog_video_lock_status ) =
-			_getDLSym ( libHandle, "uvc_set_analog_video_lock_status" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_get_input_select ) = _getDLSym ( libHandle,
-			"uvc_get_input_select" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_set_input_select ) = _getDLSym ( libHandle,
-			"uvc_set_input_select" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_perror ) = _getDLSym ( libHandle,
-			"uvc_perror" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_strerror ) = _getDLSym ( libHandle,
-			"uvc_strerror" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_print_diag ) = _getDLSym ( libHandle,
-			"uvc_print_diag" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_print_stream_ctrl ) = _getDLSym ( libHandle,
-			"uvc_print_stream_ctrl" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_allocate_frame ) = _getDLSym ( libHandle,
-			"uvc_allocate_frame" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
-	if (!( *( void** )( &p_uvc_free_frame ) = _getDLSym ( libHandle,
-			"uvc_free_frame" ))) {
-		dlclose ( libHandle );
-		libHandle = 0;
-		return OA_ERR_SYMBOL_NOT_FOUND;
-	}
-
 
 #else
 #if HAVE_STATIC_LIBUVC
