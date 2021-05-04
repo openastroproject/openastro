@@ -49,7 +49,7 @@ main()
 	int									onOffType, autoType;
 	int									i, ctrl;
 	oaControlValue			val;
-	uint64_t						currentSetting, newSetting, min, max, step, def;
+	int64_t							currentSetting, newSetting, min, max, step, def;
 	const char*					itemStr;
 
 	/*
@@ -127,11 +127,11 @@ main()
 
 			cameraCtx->funcs.readControl ( cameraCtx, baseControl, &val );
 			currentSetting = val.menu;
-			printf ( "  current value is %ld\n", currentSetting );
+			printf ( "  current value is %ld\n", ( long ) currentSetting );
 			cameraCtx->funcs.getControlRange ( cameraCtx, baseControl, &min, &max,
 					&step, &def );
 			printf ( "  control range: min = %ld, max = %ld, step = %ld, "
-					"default = %ld\n", min, max, step, def );
+					"default = %ld\n", (long) min, (long) max, (long) step, (long) def );
 			for ( i = min; i <= max; i += step ) {
 				itemStr = cameraCtx->funcs.getMenuString ( cameraCtx, baseControl, i );
 				printf ( "menu string for %d is '%s'\n", i, itemStr );
@@ -147,7 +147,7 @@ main()
 			val.menu = 0;
 			cameraCtx->funcs.readControl ( cameraCtx, baseControl, &val );
 			currentSetting = val.menu;
-			printf ( "  now current value is %ld\n", currentSetting );
+			printf ( "  now current value is %ld\n", ( long ) currentSetting );
 		} else {
 			printf ( "No menu type controls were found for camera '%s'\n",
 					cameraDevs[0]->deviceName );
