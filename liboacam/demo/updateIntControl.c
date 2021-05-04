@@ -48,7 +48,7 @@ main()
 	int									onOffControl, autoControl, baseControl;
 	int									onOffType, autoType, baseType;
 	oaControlValue			val;
-	uint64_t						currentSetting, newSetting, min, max, step, def, rem;
+	int64_t							currentSetting, newSetting, min, max, step, def, rem;
 
 	baseControl = OA_CAM_CTRL_GAIN;
 	onOffControl = OA_CAM_CTRL_MODE_ON_OFF ( baseControl );
@@ -125,11 +125,11 @@ main()
 			} else {
 				currentSetting = val.int64;
 			}
-			printf ( "  current value is %ld\n", currentSetting );
+			printf ( "  current value is %ld\n", ( long ) currentSetting );
 			cameraCtx->funcs.getControlRange ( cameraCtx, baseControl, &min, &max,
 					&step, &def );
 			printf ( "  control range: min = %ld, max = %ld, step = %ld, "
-					"default = %ld\n", min, max, step, def );
+					"default = %ld\n", (long) min, (long) max, (long) step, (long) def );
 			newSetting = ( min + max ) / 2;
 			// Need to make sure the new setting is consistent with the step value
 			if ( step != 1 ) {
@@ -152,7 +152,7 @@ main()
 			} else {
 				currentSetting = val.int64;
 			}
-			printf ( "  now current value is %ld\n", currentSetting );
+			printf ( "  now current value is %ld\n", ( long ) currentSetting );
 		} else {
 			if ( baseType ) {
 				printf ( "control is available, but is not INT32/INT64\n" );
