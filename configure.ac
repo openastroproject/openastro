@@ -1006,32 +1006,29 @@ then
   LDFLAGS="-rdynamic $LDFLAGS"
 fi
 
-spinnakerlib="-lSpinnaker_C "
-AC_CHECK_LIB([Spinnaker_C],[spinSystemGetInstance],[
+AC_CHECK_LIB([Spinnaker_C],[spinImageEventCreate],[
   AC_MSG_NOTICE([Using Spinnaker v1 library])
   SPINNAKER_CFLAGS="-I/usr/include/spinnaker $CPPFLAGS"
-  LIBS="$spinnakerlib$LIBS"
   AC_DEFINE([HAVE_LIBSPINNAKER],[1],[Have Spinnaker_C library])
   AC_DEFINE([HAVE_LIBSPINNAKER_V1],[1],[Spinnaker is v1])
   have_spinnaker=yes
 ],[
-  AC_MSG_WARN([No Spinnaker v1 library found.  Point Grey cameras will not be supported via this library.  Looking for v2])])
-
-# Nasty, but what can you do?
-if test "x$have_spinnaker" != "xyes"
-then
-	AC_CHECK_FILE([/opt/spinnaker/include/spinc/SpinnakerC.h],[
-  AC_MSG_NOTICE([Using Spinnaker v2 library])
-  SPINNAKER_CFLAGS="-I/opt/spinnaker/include $CPPFLAGS"
-#LDFLAGS="-L/opt/spinnaker/lib $LDFLAGS"
-#LIBS="-Wl,-rpath=/opt/spinnaker/lib $spinnakerlib $LIBS"
-  LIBS="-Wl,-rpath=/opt/spinnaker/lib $LIBS"
-  AC_DEFINE([HAVE_LIBSPINNAKER],[1],[Have Spinnaker_C library])
-  AC_DEFINE([HAVE_LIBSPINNAKER_V2],[1],[Spinnaker is v2])
-  have_spinnaker=yes
-],[
-  AC_MSG_WARN([No Spinnaker v2 library found.  Point Grey cameras will not be supported via this library])])
-fi
+	AC_CHECK_LIB([Spinnaker_C],[spinImageEventHandlerCreate],[
+		AC_MSG_NOTICE([Using Spinnaker v2 library])
+		SPINNAKER_CFLAGS="-I/usr/local/include/spinnaker $CPPFLAGS"
+		AC_DEFINE([HAVE_LIBSPINNAKER],[1],[Have Spinnaker_C library])
+		AC_DEFINE([HAVE_LIBSPINNAKER_V2],[1],[Spinnaker is v2])
+		have_spinnaker=yes
+	],[
+		AC_CHECK_FILE([/opt/spinnaker/include/spinc/SpinnakerC.h],[
+			AC_MSG_NOTICE([Using Spinnaker v2 library])
+			SPINNAKER_CFLAGS="-I/opt/spinnaker/include $CPPFLAGS"
+			LIBS="-Wl,-rpath=/opt/spinnaker/lib $LIBS"
+			AC_DEFINE([HAVE_LIBSPINNAKER],[1],[Have Spinnaker_C library])
+			AC_DEFINE([HAVE_LIBSPINNAKER_V2],[1],[Spinnaker is v2])
+			have_spinnaker=yes
+		],[
+			AC_MSG_WARN([No Spinnaker library found.  Point Grey cameras will not be supported via this library])])])])
 AC_SUBST(SPINNAKER_CFLAGS)
 
 if `$PKG_CONFIG --exists aravis-0.6`; then
