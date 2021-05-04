@@ -107,12 +107,19 @@ install_name_tool -change /System/Library/Frameworks/CFNetwork.framework/Version
 
 install_name_tool -change /opt/local/lib/libgcc/libstdc++.6.dylib @executable_path/../Frameworks/libstdc++.6.dylib $APPDIR/Contents/MacOS/oalive
 
-# This one is because libqhyccd has a hard-coded path to the library
-# /usr/local/lib/libusb-1.0.0.dylib
-if [ -f $APPDIR/Contents/MacOS/libqhyccd.dylib ]
-then
-  install_name_tool -change /usr/local/lib/libusb-1.0.0.dylib @executable_path/../Frameworks/libusb-1.0.0.dylib $APPDIR/Contents/MacOS/libqhyccd.dylib
-fi
+# Both libqhyccd and libdc1394 may have a hard-coded path to
+# /usr/local/lib/libusb-1.0.0.dylib or /opt/local/lib/libusb-1.0.0.dylib
+# that we need to change to point to our local copy
+for i in qhyccd dc1394
+do
+	if [ -f $APPDIR/Contents/MacOS/lib$i.dylib ]
+	then
+		install_name_tool -change /usr/local/lib/libusb-1.0.0.dylib @executable_path/../Frameworks/libusb-1.0.0.dylib $APPDIR/Contents/MacOS/lib$i.dylib
+		install_name_tool -change /opt/local/lib/libusb-1.0.0.dylib @executable_path/../Frameworks/libusb-1.0.0.dylib $APPDIR/Contents/MacOS/lib$i.dylib
+	else
+		echo "$APPDIR/Contents/MacOS/lib$i.dylib not found"
+	fi
+done
 
 cd $ROOT
 rm -f ../oalive-$VERSION.dmg
