@@ -102,8 +102,9 @@ main()
 							int64_t min, max, step, def;
 							cameraCtx->funcs.getControlRange ( cameraCtx, c, &min, &max,
 									&step, &def );
-							printf ( ":\n    min = %ld, max = %ld, step = %ld, default = %ld\n",
-									min, max, step, def );
+							printf (
+									":\n    min = %ld, max = %ld, step = %ld, default = %ld\n",
+									(long) min, (long) max, (long) step, (long) def );
 						} else {
 							printf ( "\n" );
 						}
