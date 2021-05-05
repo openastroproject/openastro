@@ -124,6 +124,9 @@ do
 	fi
 done
 
+# And libASICamera2.dylib needs the path changing for libusb too
+install_name_tool -change @loader_path/libusb-1.0.0.dylib @executable_path/../Frameworks/libusb-1.0.0.dylib $APPDIR/Contents/MacOS/libASICamera2.dylib
+
 cd $ROOT
 rm -f ../oaCapture-$VERSION.dmg
 hdiutil create -format UDBZ -quiet -srcfolder oaCapture.app ../oaCapture-$VERSION.dmg
