@@ -148,19 +148,46 @@ int
 _spinInitLibraryFunctionPointers ( void )
 {
   static void*		libHandle = 0;
-
-  if ( !libHandle ) {
-#if HAVE_LIBSPINNAKER_V1
-		  if (!( libHandle = dlopen( "libSpinnaker_C.so.1", RTLD_LAZY ))) {
+	char						libPath[ PATH_MAX+1 ];
+#if defined(__APPLE__) && defined(__MACH__) && TARGET_OS_MAC == 1
+  const char*		libName = "/usr/local/lib/libSpinnaker_C.dylib";
 #else
-		  if (!( libHandle = dlopen( "libSpinnaker_C.so.2", RTLD_LAZY ))) {
+#if HAVE_LIBSPINNAKER_V1
+  const char*		libName = "libSpinnaker_C.so.1";
+#else
+  const char*		libName = "libSpinnaker_C.so.2";
 #endif
-				oaLogWarning ( OA_LOG_CAMERA, "%s: libSpinnaker_C.so not found",
-						__func__ );
-		    return OA_ERR_LIBRARY_NOT_FOUND;
-		  }
+#endif
+#ifdef RETRY_SO_WITHOUT_PATH
+	int						tryWithoutPath = 1;
+#endif
 
-		dlerror();
+	*libPath = 0;
+	dlerror();
+  if ( !libHandle ) {
+		if ( installPathRoot ) {
+			( void ) strncpy ( libPath, installPathRoot, PATH_MAX );
+		}
+#ifdef SHLIB_PATH
+		( void ) strncat ( libPath, SHLIB_PATH, PATH_MAX );
+#endif
+#ifdef RETRY_SO_WITHOUT_PATH
+retry:
+#endif
+		( void ) strncat ( libPath, libName, PATH_MAX );
+
+    if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
+#ifdef RETRY_SO_WITHOUT_PATH
+			if ( tryWithoutPath ) {
+				tryWithoutPath = 0;
+				*libPath = 0;
+				goto retry;
+			}
+#endif
+			oaLogWarning ( OA_LOG_CAMERA, "%s: %s not loaded, error '%s'", __func__,
+					libPath, dlerror());
+	    return OA_ERR_LIBRARY_NOT_FOUND;
+	  }
 
 		if (!( *( void** )( &p_spinSystemGetInstance ) = _getDLSym ( libHandle,
 		    "spinSystemGetInstance" ))) {
