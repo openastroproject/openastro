@@ -1,7 +1,7 @@
 #
 # Makefile.am -- liboacam ZWO Makefile template
 #
-# Copyright 2018 James Fidell (james@openastroproject.org)
+# Copyright 2018,2021 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -26,7 +26,7 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/include \
   -I$(top_srcdir)/ext/libASICamera/include \
   -I$(top_srcdir)/liboacam \
-  $(LIBASI2_CFLAGS) \
+  $(SHLIBS_CFLAGS) $(LIBASI2_CFLAGS) \
   $(DYNLIB_EXTN_CFLAGS)
 
 noinst_LTLIBRARIES = libzwo.la
