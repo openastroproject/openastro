@@ -2,7 +2,7 @@
  *
  * PWCconnect.c -- Initialise non V4L2 PWC camera
  *
- * Copyright 2013,2014 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -25,7 +25,9 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
 #include <openastro/camera.h>
+#include <openastro/util.h>
 
 #include "oacamprivate.h"
 #include "PWCoacam.h"
@@ -37,7 +39,8 @@
 oaCamera*
 oaPWCInitCamera ( oaCameraDevice* device )
 {
-  fprintf ( stderr, "initialising PWC camera %s\n", device->deviceName );
+  oaLogWarning ( OA_LOG_CAMERA, "%s: initialising PWC camera %s", __func__,
+			device->deviceName );
 
   return 0;
 }
