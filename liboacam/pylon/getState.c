@@ -2,7 +2,7 @@
  *
  * getState.c -- state querying for Basler Pylon cameras
  *
- * Copyright 2020 James Fidell (james@openastroproject.org)
+ * Copyright 2020,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -80,7 +80,8 @@ oaPylonCameraGetFramePixelFormat ( oaCamera* camera )
 		}
 	}
 
-	fprintf ( stderr, "frame format '%s' not recognised\n", buffer );
+	oaLogError ( OA_LOG_CAMERA, "%s: frame format '%s' not recognised", __func__,
+			buffer );
 
 	// return something as a default
   return OA_PIX_FMT_RGB24;

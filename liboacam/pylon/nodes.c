@@ -2,7 +2,7 @@
  *
  * nodes.c -- Basler Pylon node-handling functions
  *
- * Copyright 2020
+ * Copyright 2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -30,6 +30,7 @@
 #include <pylonc/PylonC.h>
 
 #include <openastro/errno.h>
+#include <openastro/util.h>
 
 #include "private.h"
 #include "nodes.h"
@@ -43,37 +44,44 @@ _pylonGetEnumerationNode ( NODEMAP_HANDLE nodeMap, const char* nodeName,
 	_Bool							res;
 
 	if (( p_GenApiNodeMapGetNode )( nodeMap, nodeName, node ) != GENAPI_E_OK ) {
-    fprintf ( stderr, "GenApiNodeMapGetNode ('%s') failed\n", nodeName );
+    oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeMapGetNode ('%s') failed",
+				__func__, nodeName );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
 	if (( p_GenApiNodeGetType )( *node, &nodeType ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiNodeGetType ('%s') failed\n", nodeName );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeGetType ('%s') failed",
+				__func__, nodeName );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if ( EnumerationNode != nodeType ) {
-		fprintf ( stderr, "'%s' is not an enumeration node\n", nodeName );
+		oaLogError ( OA_LOG_CAMERA, "%s: '%s' is not an enumeration node",
+				__func__, nodeName );
 		return -OA_ERR_INVALID_CONTROL_TYPE;
 	}
 
 	if ( readWrite ) {
 		if (( p_GenApiNodeIsReadable )( *node, &res ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeIsReadable ('%s') failed\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeIsReadable ('%s') failed",
+					__func__, nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
 		if ( !res ) {
-			fprintf ( stderr, "node %s is not readable\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: node %s is not readable", __func__,
+					nodeName );
 			return -OA_ERR_NOT_READABLE;
 		}
 	}
 
 	if ( readWrite & 0x2 ) {
 		if (( p_GenApiNodeIsWritable )( *node, &res ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeIsWritable ('%s') failed\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeIsWritable ('%s') failed",
+					__func__, nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
 		if ( !res ) {
-			fprintf ( stderr, "node %s is not writeable\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: node %s is not writeable", __func__,
+					nodeName );
 			return -OA_ERR_NOT_WRITEABLE;
 		}
 	}
@@ -90,37 +98,44 @@ _pylonGetBooleanNode ( NODEMAP_HANDLE nodeMap, const char* nodeName,
 	_Bool							res;
 
 	if (( p_GenApiNodeMapGetNode )( nodeMap, nodeName, node ) != GENAPI_E_OK ) {
-    fprintf ( stderr, "GenApiNodeMapGetNode ('%s') failed\n", nodeName );
+    oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeMapGetNode ('%s') failed",
+				__func__, nodeName );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
 	if (( p_GenApiNodeGetType )( *node, &nodeType ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiNodeGetType ('%s') failed\n", nodeName );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeGetType ('%s') failed",
+				__func__, nodeName );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if ( BooleanNode != nodeType ) {
-		fprintf ( stderr, "'%s' is not a boolean node: %d\n", nodeName, nodeType );
+		oaLogError ( OA_LOG_CAMERA, "%s: '%s' is not a boolean node: %d", __func__,
+				nodeName, nodeType );
 		return -OA_ERR_INVALID_CONTROL_TYPE;
 	}
 
 	if ( readWrite & 0x1 ) {
 		if (( p_GenApiNodeIsReadable )( *node, &res ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeIsReadable ('%s') failed\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeIsReadable ('%s') failed",
+					__func__, nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
 		if ( !res ) {
-			fprintf ( stderr, "node %s is not readable\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: node %s is not readable", __func__,
+					nodeName );
 			return -OA_ERR_NOT_READABLE;
 		}
 	}
 
 	if ( readWrite & 0x2 ) {
 		if (( p_GenApiNodeIsWritable )( *node, &res ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeIsWritable ('%s') failed\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeIsWritable ('%s') failed",
+					__func__, nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
 		if ( !res ) {
-			fprintf ( stderr, "node %s is not writeable\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: node %s is not writeable", __func__,
+					nodeName );
 			return -OA_ERR_NOT_WRITEABLE;
 		}
 	}
@@ -137,37 +152,44 @@ _pylonGetIntNode ( NODEMAP_HANDLE nodeMap, const char* nodeName,
 	_Bool							res;
 
 	if (( p_GenApiNodeMapGetNode )( nodeMap, nodeName, node ) != GENAPI_E_OK ) {
-    fprintf ( stderr, "GenApiNodeMapGetNode ('%s') failed\n", nodeName );
+    oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeMapGetNode ('%s') failed",
+				__func__, nodeName );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
 	if (( p_GenApiNodeGetType )( *node, &nodeType ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiNodeGetType ('%s') failed\n", nodeName );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeGetType ('%s') failed",
+				__func__, nodeName );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if ( IntegerNode != nodeType ) {
-		fprintf ( stderr, "'%s' is not an integer node: %d\n", nodeName, nodeType );
+		oaLogError ( OA_LOG_CAMERA, "%s: '%s' is not an integer node: %d",
+				__func__, nodeName, nodeType );
 		return -OA_ERR_INVALID_CONTROL_TYPE;
 	}
 
 	if ( readWrite & 0x1 ) {
 		if (( p_GenApiNodeIsReadable )( *node, &res ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeIsReadable ('%s') failed\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeIsReadable ('%s') failed",
+					__func__, nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
 		if ( !res ) {
-			fprintf ( stderr, "node %s is not readable\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: node %s is not readable", __func__,
+					nodeName );
 			return -OA_ERR_NOT_READABLE;
 		}
 	}
 
 	if ( readWrite & 0x2 ) {
 		if (( p_GenApiNodeIsWritable )( *node, &res ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeIsWritable ('%s') failed\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeIsWritable ('%s') failed",
+					__func__, nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
 		if ( !res ) {
-			fprintf ( stderr, "node %s is not writeable\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: node %s is not writeable", __func__,
+					nodeName );
 			return -OA_ERR_NOT_WRITEABLE;
 		}
 	}
@@ -184,37 +206,44 @@ _pylonGetFloatNode ( NODEMAP_HANDLE nodeMap, const char* nodeName,
 	_Bool							res;
 
 	if (( p_GenApiNodeMapGetNode )( nodeMap, nodeName, node ) != GENAPI_E_OK ) {
-    fprintf ( stderr, "GenApiNodeMapGetNode ('%s') failed\n", nodeName );
+    oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeMapGetNode ('%s') failed",
+				__func__, nodeName );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
 	if (( p_GenApiNodeGetType )( *node, &nodeType ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiNodeGetType ('%s') failed\n", nodeName );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeGetType ('%s') failed",
+				__func__, nodeName );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if ( FloatNode != nodeType ) {
-		fprintf ( stderr, "'%s' is not a float node: %d\n", nodeName, nodeType );
+		oaLogError ( OA_LOG_CAMERA, "%s: '%s' is not a float node: %d", __func__,
+				nodeName, nodeType );
 		return -OA_ERR_INVALID_CONTROL_TYPE;
 	}
 
 	if ( readWrite & 0x1 ) {
 		if (( p_GenApiNodeIsReadable )( *node, &res ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeIsReadable ('%s') failed\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeIsReadable ('%s') failed",
+					__func__, nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
 		if ( !res ) {
-			fprintf ( stderr, "node %s is not readable\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: node %s is not readable", __func__,
+					nodeName );
 			return -OA_ERR_NOT_READABLE;
 		}
 	}
 
 	if ( readWrite & 0x2 ) {
 		if (( p_GenApiNodeIsWritable )( *node, &res ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeIsWritable ('%s') failed\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeIsWritable ('%s') failed",
+					__func__, nodeName );
 			return -OA_ERR_SYSTEM_ERROR;
 		}
 		if ( !res ) {
-			fprintf ( stderr, "node %s is not writeable\n", nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: node %s is not writeable", __func__,
+					nodeName );
 			return -OA_ERR_NOT_WRITEABLE;
 		}
 	}
@@ -232,7 +261,8 @@ _pylonShowEnumValues ( NODE_HANDLE node, const char* nodeName )
 
 	if (( p_GenApiEnumerationGetNumEntries )( node, &numEnums ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiEnumerationGetNumEntries ('%s') failed\n",
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: GenApiEnumerationGetNumEntries ('%s') failed", __func__,
 				nodeName );
 		return;
 	}
@@ -241,22 +271,23 @@ _pylonShowEnumValues ( NODE_HANDLE node, const char* nodeName )
 	for ( i = 0; i < numEnums; i++ ) {
 		if (( p_GenApiEnumerationGetEntryByIndex )( node, i, &enumNode ) !=
 				GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiEnumerationGetEntryByIndex ('%s') failed\n",
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: GenApiEnumerationGetEntryByIndex ('%s') failed", __func__,
 					nodeName );
 			return;
 		}
 		len = sizeof ( val1 );
 		if (( p_GenApiNodeGetName )( enumNode, val1, &len ) !=
 				GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeGetName ('%s') failed\n",
-					nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeGetName ('%s') failed",
+					__func__, nodeName );
 			return;
 		}
 		len = sizeof ( val2 );
 		if (( p_GenApiNodeGetDisplayName )( enumNode, val2, &len ) !=
 				GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeGetDisplayName ('%s') failed\n",
-					nodeName );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeGetDisplayName ('%s') failed",
+					__func__, nodeName );
 			return;
 		}
 		printf ( "  %s (%s)\n", val1, val2 );
@@ -269,19 +300,20 @@ _pylonGetIntSettings ( NODE_HANDLE node, int64_t* pmin, int64_t* pmax,
 		int64_t* pstep, int64_t* pcurr )
 {
 	if (( p_GenApiIntegerGetMin )( node, pmin ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "p_GenApiIntegerGetMin failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: p_GenApiIntegerGetMin failed", __func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if (( p_GenApiIntegerGetMax )( node, pmax ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "p_GenApiIntegerGetMax failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: p_GenApiIntegerGetMax failed", __func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if (( p_GenApiIntegerGetInc )( node, pstep ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "p_GenApiIntegerGetInc failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: p_GenApiIntegerGetInc failed", __func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if (( p_GenApiIntegerGetValue )( node, pcurr ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "p_GenApiIntegerGetValue failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: p_GenApiIntegerGetValue failed",
+				__func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
@@ -294,15 +326,15 @@ _pylonGetFloatSettings ( NODE_HANDLE node, double* pmin, double* pmax,
 		double* pcurr )
 {
 	if (( p_GenApiFloatGetMin )( node, pmin ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "p_GenApiFloatGetMin failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: p_GenApiFloatGetMin failed", __func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if (( p_GenApiFloatGetMax )( node, pmax ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "p_GenApiFloatGetMax failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: p_GenApiFloatGetMax failed", __func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if (( p_GenApiFloatGetValue )( node, pcurr ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "p_GenApiFloatGetValue failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: p_GenApiFloatGetValue failed", __func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 

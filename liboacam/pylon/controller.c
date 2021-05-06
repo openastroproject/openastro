@@ -102,7 +102,8 @@ oacamPylonController ( void* param )
             break;
 						break;
           default:
-            fprintf ( stderr, "Invalid command type %d in controller\n",
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: Invalid command type %d in controller", __func__,
                 command->commandType );
             resultCode = -OA_ERR_INVALID_CONTROL;
             break;
@@ -146,17 +147,21 @@ oacamPylonController ( void* param )
 									frame = grab.pBuffer;
 									bufferIdx = *(( unsigned int* ) grab.Context );
 								} else {
-									fprintf ( stderr, "grab status was not Grabbed\n" );
+									oaLogError ( OA_LOG_CAMERA,
+											"%s: grab status was not Grabbed", __func__ );
 								}
 							} else {
-								fprintf ( stderr, "no frame when a frame should be ready?\n" );
+								oaLogError ( OA_LOG_CAMERA,
+										"%s: no frame when a frame should be ready?", __func__ );
 							}
 						} else {
-							fprintf ( stderr, "PylonStreamGrabberRetrieveResult failed\n" );
+							oaLogError ( OA_LOG_CAMERA,
+									"%s: PylonStreamGrabberRetrieveResult() failed", __func__ );
 						}
 					}
 				} else {
-					fprintf ( stderr, "PylonWaitObjectWait failed\n" );
+					oaLogError ( OA_LOG_CAMERA, "%s: PylonWaitObjectWait() failed",
+							__func__ );
 				}
 
 				if ( !exitThread && haveFrame ) {
@@ -205,8 +210,9 @@ _processSetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 
 		case OA_CAM_CTRL_BINNING:
 			if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
-				fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-						__func__, val->valueType );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int32 expected", __func__,
+						val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			return _doBinning ( cameraInfo, val->int32 );
@@ -214,67 +220,73 @@ _processSetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 
 		case OA_CAM_CTRL_HFLIP:
 			if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
-				fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-						__func__, val->valueType );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where bool expected", __func__,
+						val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			if ( p_PylonDeviceSetBooleanFeature ( cameraInfo->deviceHandle,
 					"ReverseX", val->boolean ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "HFLIP failed\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: HFLIP failed", __func__ );
 			}
 			break;
 
 		case OA_CAM_CTRL_VFLIP:
 			if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
-				fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-						__func__, val->valueType );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where bool expected", __func__,
+						val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			if ( p_PylonDeviceSetBooleanFeature ( cameraInfo->deviceHandle,
 					"ReverseY", val->boolean ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "VFLIP failed\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: VFLIP failed", __func__ );
 			}
 			break;
 
 		case OA_CAM_CTRL_GAIN:
 			if ( cameraInfo->gainIsFloat ) {
-				fprintf ( stderr, "float gain value not currently supported\n" );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: float gain value not currently supported", __func__ );
 			} else {
 				if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
-					fprintf ( stderr,
-						"%s: invalid control (%d) type %d where int32 expected\n",
+					oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control (%d) type %d where int32 expected",
 						__func__, control, val->valueType );
 					return -OA_ERR_INVALID_CONTROL_TYPE;
 				}
 				if ( p_PylonDeviceSetIntegerFeature ( cameraInfo->deviceHandle,
 						"GainRaw", val->int64 ) != GENAPI_E_OK ) {
-					fprintf ( stderr, "set GainRaw failed\n" );
+					oaLogError ( OA_LOG_CAMERA, "%s: set GainRaw failed", __func__ );
 				}
 			}
 			break;
 
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_GAIN ):
 			if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
-				fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-						__func__, val->valueType );
+				oaLogError ( OA_LOG_CAMERA, 
+						"%s: invalid control type %d where bool expected", __func__,
+						val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			if ( p_PylonDeviceFeatureFromString ( cameraInfo->deviceHandle,
 					"GainAuto", val->boolean ? "Continuous" : "Off" ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "set GainAuto failed\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: set GainAuto failed", __func__ );
 			}
 			break;
 
 		case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
 			if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
-				fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
-						__func__, val->valueType );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int64 expected", __func__,
+						val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			if ( p_PylonDeviceSetFloatFeature ( cameraInfo->deviceHandle,
 					cameraInfo->exposureTimeName, ( double ) val->int64 ) !=
 					GENAPI_E_OK ) {
-				fprintf ( stderr, "set %s failed\n", cameraInfo->exposureTimeName );
+				oaLogError ( OA_LOG_CAMERA, "%s: set %s failed", __func__,
+						cameraInfo->exposureTimeName );
 			} else {
 				cameraInfo->currentAbsoluteExposure = val->int64;
 			}
@@ -282,34 +294,37 @@ _processSetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 
 		case OA_CAM_CTRL_EXPOSURE_UNSCALED:
 			if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
-				fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
-						__func__, val->valueType );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int64 expected", __func__,
+						val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			if ( p_PylonDeviceSetIntegerFeature ( cameraInfo->deviceHandle,
 					"ExposureTimeRaw", val->int64 ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "set ExposureTimeRaw failed\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: set ExposureTimeRaw failed",
+						__func__ );
 			}
 			break;
 
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ):
 		case OA_CAM_CTRL_MODE_AUTO( OA_CAM_CTRL_EXPOSURE_UNSCALED ):
 			if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
-				fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-						__func__, val->valueType );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where bool expected", __func__,
+						val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 			if ( p_PylonDeviceFeatureFromString ( cameraInfo->deviceHandle,
 					"ExposureAuto", val->boolean ? "Continuous" : "Off" ) !=
 					GENAPI_E_OK ) {
-				fprintf ( stderr, "set ExposureAuto failed\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: set ExposureAuto failed", __func__ );
 			}
 			break;
 
 		case OA_CAM_CTRL_FRAME_FORMAT:
 			if ( OA_CTRL_TYPE_DISCRETE != val->valueType ) {
-				fprintf ( stderr,
-						"%s: invalid control type %d where discrete expected\n",
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where discrete expected",
           __func__, val->valueType );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
@@ -317,7 +332,8 @@ _processSetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 			break;
 
 		default:
-			fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
+			oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+					control );
 			return -OA_ERR_INVALID_CONTROL;
 			break;
   }
@@ -343,7 +359,7 @@ _processGetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 			// binning differently in each direction
 			if (( p_PylonDeviceGetIntegerFeature )( cameraInfo->deviceHandle,
 					"BinningHorizontal", &curr ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "Get binning failed\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: Get binning failed", __func__ );
 			}
 			val->int32 = curr;
 			break;
@@ -355,7 +371,7 @@ _processGetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 			val->valueType = OA_CTRL_TYPE_BOOLEAN;
 			if ( p_PylonDeviceGetBooleanFeature ( cameraInfo->deviceHandle,
 					"ReverseX", &curr ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "Get HFLIP failed\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: Get HFLIP failed", __func__ );
 			}
 			val->boolean = curr ? 1 : 0;
 			break;
@@ -367,7 +383,7 @@ _processGetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 			val->valueType = OA_CTRL_TYPE_BOOLEAN;
 			if ( p_PylonDeviceGetBooleanFeature ( cameraInfo->deviceHandle,
 					"ReverseY", &curr ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "Get VFLIP failed\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: Get VFLIP failed", __func__ );
 			}
 			val->boolean = curr ? 1 : 0;
 			break;
@@ -378,17 +394,18 @@ _processGetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 
 			val->valueType = OA_CTRL_TYPE_INT32;
 			if ( cameraInfo->gainIsFloat ) {
-				fprintf ( stderr, "float gain value not currently supported\n" );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: float gain value not currently supported", __func__ );
 			} else {
 				if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
-					fprintf ( stderr,
-						"%s: invalid control type %d where int32 expected\n",
+					oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int32 expected",
 						__func__, val->valueType );
 					return -OA_ERR_INVALID_CONTROL_TYPE;
 				}
 				if ( p_PylonDeviceGetIntegerFeature ( cameraInfo->deviceHandle,
 						"GainRaw", &curr ) != GENAPI_E_OK ) {
-					fprintf ( stderr, "get GainRaw failed\n" );
+					oaLogError ( OA_LOG_CAMERA, "%s: get GainRaw failed", __func__ );
 				}
 				val->int32 = curr;
 			}
@@ -401,7 +418,7 @@ _processGetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 			val->valueType = OA_CTRL_TYPE_BOOLEAN;
 			if ( p_PylonDeviceGetBooleanFeature ( cameraInfo->deviceHandle,
 					"GainAuto", &curr ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "Get GainAuto failed\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: Get GainAuto failed", __func__ );
 			}
 			val->boolean = curr ? 1 : 0;
 			break;
@@ -413,7 +430,8 @@ _processGetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 			val->valueType = OA_CTRL_TYPE_INT64;
 			if ( p_PylonDeviceGetFloatFeature ( cameraInfo->deviceHandle,
 					cameraInfo->exposureTimeName, &curr ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "get %s failed\n", cameraInfo->exposureTimeName );
+				oaLogError ( OA_LOG_CAMERA, "%s: get %s failed", __func__,
+						cameraInfo->exposureTimeName );
 			}
 			val->int64 = curr;
 			break;
@@ -425,7 +443,8 @@ _processGetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 			val->valueType = OA_CTRL_TYPE_INT64;
 			if ( p_PylonDeviceGetIntegerFeature ( cameraInfo->deviceHandle,
 					"ExposureTimeRaw", &curr ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "get %s failed\n", cameraInfo->exposureTimeName );
+				oaLogError ( OA_LOG_CAMERA, "%s: get %s failed", __func__,
+						cameraInfo->exposureTimeName );
 			}
 			val->int64 = curr;
 			break;
@@ -440,13 +459,14 @@ _processGetControl ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 			val->valueType = OA_CTRL_TYPE_BOOLEAN;
 			if ( p_PylonDeviceFeatureToString ( cameraInfo->deviceHandle,
 					"ExposureAuto", curr, &len ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "Get ExposureAuto failed\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: Get ExposureAuto failed", __func__ );
 			}
 			val->boolean = !strcmp ( curr, "Continuous" );
 			break;
 		}
 		default:
-			fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
+			oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+					control );
 			return -OA_ERR_INVALID_CONTROL;
 			break;
   }
@@ -493,27 +513,27 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
 
 	if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
 			"OffsetX", 0 ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "reset OffsetX failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: reset OffsetX failed", __func__ );
 	}
 	if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
 			"OffsetY", 0 ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "reset OffsetY failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: reset OffsetY failed", __func__ );
 	}
 	if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
 			"Width", size->x ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "set Width failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: set Width failed", __func__ );
 	}
 	if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
 			"Height", size->y ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "set Height failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: set Height failed", __func__ );
 	}
 	if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
 			"OffsetX", offsetX ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "set OffsetX failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: set OffsetX failed", __func__ );
 	}
 	if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
 			"OffsetY", offsetY ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "set OffsetY failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: set OffsetY failed", __func__ );
 	}
 
   cameraInfo->xSize = size->x;
@@ -544,33 +564,38 @@ _processStreamingStart ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
 
 	if ( p_PylonDeviceFeatureFromString ( cameraInfo->deviceHandle,
 			"AcquisitionMode", "Continuous" ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "set AcquisitionMode failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: set AcquisitionMode failed", __func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if ( p_PylonDeviceGetNumStreamGrabberChannels ( cameraInfo->deviceHandle,
 			&numStreams ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "PylonDeviceGetNumStreamGrabberChannels failed\n" );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: PylonDeviceGetNumStreamGrabberChannels() failed", __func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if ( numStreams < 1 ) {
-		fprintf ( stderr, "PylonDeviceGetNumStreamGrabberChannels returns %d\n",
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: PylonDeviceGetNumStreamGrabberChannels() returns %d", __func__,
 				( int ) numStreams );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
 	if ( p_PylonDeviceGetStreamGrabber ( cameraInfo->deviceHandle, 0,
 			&cameraInfo->grabberHandle ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "PylonDeviceGetStreamGrabber failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: PylonDeviceGetStreamGrabber() failed",
+				__func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if ( p_PylonStreamGrabberOpen ( cameraInfo->grabberHandle ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "PylonStreamGrabberOpen failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: PylonStreamGrabberOpen() failed",
+				__func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if ( p_PylonStreamGrabberGetWaitObject ( cameraInfo->grabberHandle,
 			&cameraInfo->waitHandle ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "PylonStreamGrabberGetWaitObject failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: PylonStreamGrabberGetWaitObject() failed",
+				__func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
@@ -587,7 +612,8 @@ _doStart ( PYLON_STATE* cameraInfo )
 	if (( res = p_PylonStreamGrabberGetPayloadSize ( cameraInfo->deviceHandle,
 			cameraInfo->grabberHandle, &payloadSize )) != GENAPI_E_OK ) {
 		unsigned int r = res;
-		fprintf ( stderr, "PylonStreamGrabberGetPayloadSize failed: %08x\n", r );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: PylonStreamGrabberGetPayloadSize() failed: %08x", __func__, r );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if ( cameraInfo->imageBufferLength != payloadSize ) {
@@ -603,14 +629,16 @@ _doStart ( PYLON_STATE* cameraInfo )
 		}
 		if ( p_PylonStreamGrabberSetMaxNumBuffer ( cameraInfo->grabberHandle,
 				OA_CAM_BUFFERS ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "PylonStreamGrabberSetMaxNumBuffer failed\n" );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: PylonStreamGrabberSetMaxNumBuffer() failed", __func__ );
 			// free buffers?
 			return -OA_ERR_SYSTEM_ERROR;
 		}
 		if (( res = p_PylonStreamGrabberSetMaxBufferSize ( 
 				cameraInfo->grabberHandle, payloadSize )) != GENAPI_E_OK ) {
 			unsigned int r = res;
-			fprintf ( stderr, "PylonStreamGrabberSetMaxBufferSize failed: %08x\n",
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: PylonStreamGrabberSetMaxBufferSize() failed: %08x", __func__,
 					r );
 			// free buffers?
 			return -OA_ERR_SYSTEM_ERROR;
@@ -620,7 +648,8 @@ _doStart ( PYLON_STATE* cameraInfo )
 
 	if ( p_PylonStreamGrabberPrepareGrab ( cameraInfo->grabberHandle ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "PylonStreamGrabberPrepareGrab failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: PylonStreamGrabberPrepareGrab() failed",
+				__func__ );
 		// free buffers?
 		return -OA_ERR_SYSTEM_ERROR;
 	}
@@ -630,7 +659,8 @@ _doStart ( PYLON_STATE* cameraInfo )
 				cameraInfo->buffers[i].start, payloadSize,
 				&( cameraInfo->bufferHandle[i] ))) != GENAPI_E_OK ) {
 			unsigned int r = res;
-			fprintf ( stderr, "PylonStreamGrabberRegisterBuffer failed: %08x\n", r );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: PylonStreamGrabberRegisterBuffer() failed: %08x", __func__, r );
 			// free buffers, deregister buffers?
 			return -OA_ERR_SYSTEM_ERROR;
 		}
@@ -638,7 +668,8 @@ _doStart ( PYLON_STATE* cameraInfo )
 		if ( p_PylonStreamGrabberQueueBuffer ( cameraInfo->grabberHandle,
 				cameraInfo->bufferHandle[i],
 				( void* ) &( cameraInfo->ctx[i] )) != GENAPI_E_OK ) {
-			fprintf ( stderr, "PylonStreamGrabberQueueBuffer failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: PylonStreamGrabberQueueBuffer failed",
+					__func__ );
 			// free buffers, deregister buffers, dequeue buffers?
 			return -OA_ERR_SYSTEM_ERROR;
 		}
@@ -646,13 +677,15 @@ _doStart ( PYLON_STATE* cameraInfo )
 
 	if ( p_PylonStreamGrabberStartStreamingIfMandatory (
 			cameraInfo->grabberHandle ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "PylonStreamGrabberStartStreamingIfMandatory failed\n" );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: PylonStreamGrabberStartStreamingIfMandatory() failed", __func__ );
 		// free buffers, deregister buffers, dequeue buffers?
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if ( p_PylonDeviceExecuteCommandFeature ( cameraInfo->deviceHandle,
 			"AcquisitionStart" ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "PylonDeviceExecuteCommandFeature failed\n" );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: PylonDeviceExecuteCommandFeature() failed", __func__ );
 		// free buffers, deregister buffers, dequeue buffers?
 		return -OA_ERR_SYSTEM_ERROR;
 	}
@@ -675,7 +708,8 @@ _processStreamingStop ( PYLON_STATE* cameraInfo, OA_COMMAND* command )
   ( void ) _doStop ( cameraInfo );
 	if ( p_PylonStreamGrabberClose ( cameraInfo->grabberHandle ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "PylonStreamGrabberClose failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: PylonStreamGrabberClose() failed",
+				__func__ );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 
@@ -696,19 +730,22 @@ _doStop ( PYLON_STATE* cameraInfo )
 
 	if ( p_PylonDeviceExecuteCommandFeature ( cameraInfo->deviceHandle,
 			"AcquisitionStop" ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "PylonDeviceExecuteCommandFeature failed\n" );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: PylonDeviceExecuteCommandFeature() failed", __func__ );
 		// free buffers, deregister buffers, dequeue buffers?
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if ( p_PylonStreamGrabberStopStreamingIfMandatory (
 			cameraInfo->grabberHandle ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "PylonStreamGrabberStopStreamingIfMandatory failed\n" );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: PylonStreamGrabberStopStreamingIfMandatory() failed", __func__ );
 		// free buffers, deregister buffers, dequeue buffers?
 		return -OA_ERR_SYSTEM_ERROR;
 	}
 	if ( p_PylonStreamGrabberFlushBuffersToOutput (
 			cameraInfo->grabberHandle ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "PylonStreamGrabberFlushBuffersToOutput failed\n" );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: PylonStreamGrabberFlushBuffersToOutput() failed", __func__ );
 		// free buffers, deregister buffers, dequeue buffers?
 		return -OA_ERR_SYSTEM_ERROR;
 	}
@@ -716,7 +753,8 @@ _doStop ( PYLON_STATE* cameraInfo )
 	do {
 		if ( p_PylonStreamGrabberRetrieveResult ( cameraInfo->grabberHandle,
 					&grabResult, &ready ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "PylonStreamGrabberRetrieveResult failed\n" );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: PylonStreamGrabberRetrieveResult() failed", __func__ );
 			// free buffers, deregister buffers, dequeue buffers?
 			return -OA_ERR_SYSTEM_ERROR;
 		}
@@ -725,7 +763,8 @@ _doStop ( PYLON_STATE* cameraInfo )
 	for ( i = 0; i < OA_CAM_BUFFERS; i++ ) {
 		if ( p_PylonStreamGrabberDeregisterBuffer ( cameraInfo->grabberHandle,
 					cameraInfo->bufferHandle[i] ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "PylonStreamGrabberDeregisterBuffer failed\n" );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: PylonStreamGrabberDeregisterBuffer() failed", __func__ );
 			// free buffers, deregister buffers, dequeue buffers?
 			return -OA_ERR_SYSTEM_ERROR;
 		}
@@ -733,7 +772,8 @@ _doStop ( PYLON_STATE* cameraInfo )
 
 	if ( p_PylonStreamGrabberFinishGrab ( cameraInfo->grabberHandle ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "PylonStreamGrabberFinishGrab failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: PylonStreamGrabberFinishGrab() failed",
+				__func__ );
 		// free buffers, deregister buffers, dequeue buffers?
 		return -OA_ERR_SYSTEM_ERROR;
 	}
@@ -760,12 +800,12 @@ _doBinning ( PYLON_STATE* cameraInfo, int binMode )
 
 	if ( p_PylonDeviceSetIntegerFeature ( cameraInfo->deviceHandle,
 			"BinningHorizontal", binMode ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "set BinningHorizontal failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: set BinningHorizontal failed", __func__ );
 		err = OA_ERR_SYSTEM_ERROR;
 	} else {
 		if ( p_PylonDeviceSetIntegerFeature ( cameraInfo->deviceHandle,
 				"BinningVertical", binMode ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "set BinningVertical failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: set BinningVertical failed", __func__ );
 			( void ) p_PylonDeviceSetIntegerFeature ( cameraInfo->deviceHandle,
 					"BinningHorizontal", oldBinMode );
 			err = OA_ERR_SYSTEM_ERROR;
@@ -814,7 +854,8 @@ _doFrameFormat ( PYLON_STATE* cameraInfo, int format )
 	if (( res = p_PylonDeviceFeatureFromString ( cameraInfo->deviceHandle,
 			"PixelFormat", pylonFormat )) != GENAPI_E_OK ) {
 		unsigned int r = res;
-		fprintf ( stderr, "set PixelFormat (%s) failed: %08x\n", pylonFormat, r );
+		oaLogError ( OA_LOG_CAMERA, "%s: set PixelFormat (%s) failed: %08x",
+				__func__, pylonFormat, r );
 	}
   cameraInfo->currentFrameFormat = format;
 

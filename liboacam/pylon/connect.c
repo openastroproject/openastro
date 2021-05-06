@@ -127,7 +127,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 	deviceIndex = devInfo->devIndex;
 	if (( p_PylonCreateDeviceByIndex )( deviceIndex, &deviceHandle ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "Error creating Basler device by index\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: Error creating Basler device by index",
+				__func__ );
 		FREE_DATA_STRUCTS;
 		( p_PylonTerminate )();
 		return 0;
@@ -138,7 +139,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 	if (( res = ( p_PylonGetDeviceInfoHandle )( deviceIndex, &infoHandle )) !=
 			GENAPI_E_OK ) {
 		unsigned int r = res;
-		fprintf ( stderr, "PylonGetDeviceInfoHandle() failed: %08x\n", r );
+		oaLogError ( OA_LOG_CAMERA, "%s: PylonGetDeviceInfoHandle() failed: %08x",
+				__func__, r );
 		FREE_DATA_STRUCTS;
 		( p_PylonTerminate )();
 		return 0;
@@ -146,7 +148,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_PylonDeviceInfoGetNumProperties )( infoHandle, &numProps ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "PylonDeviceInfoGetNumProperties() failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: PylonDeviceInfoGetNumProperties() failed",
+				__func__ );
 		FREE_DATA_STRUCTS;
 		( p_PylonTerminate )();
 		return 0;
@@ -156,7 +159,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 		len = sizeof ( strBuff );
 		if (( p_PylonDeviceInfoGetPropertyName )( infoHandle, i, strBuff,
 				&len ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "PylonDeviceInfoGetPropertyName () failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: PylonDeviceInfoGetPropertyName() failed",
+					__func__ );
 			( p_PylonTerminate )();
 			FREE_DATA_STRUCTS;
 			return 0;
@@ -167,7 +171,7 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_PylonDeviceOpen )( deviceHandle, PYLONC_ACCESS_MODE_CONTROL |
 			PYLONC_ACCESS_MODE_STREAM ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "Error opening Basler device\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: Error opening Basler device", __func__ );
 		FREE_DATA_STRUCTS;
 		( p_PylonTerminate )();
 		return 0;
@@ -176,7 +180,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 	if (( res = ( p_PylonDeviceGetNodeMap )( deviceHandle, &nodeMap ))
 			!= GENAPI_E_OK ) {
 		unsigned int r = res;
-		fprintf ( stderr, "PylonDeviceGetNodeMap() failed: %08x\n", r );
+		oaLogError ( OA_LOG_CAMERA, "%s: PylonDeviceGetNodeMap() failed: %08x",
+				__func__, r );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -184,7 +189,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 #ifdef DEBUG
 	if (( p_GenApiNodeMapGetNumNodes )( nodeMap, &numNodes ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiNodeMapGetNumNodes() failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeMapGetNumNodes() failed",
+				__func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -194,13 +200,14 @@ oaPylonInitCamera ( oaCameraDevice* device )
 		len = sizeof ( strBuff );
 		if (( p_GenApiNodeMapGetNodeByIndex )( nodeMap, i, &node )
 				!= GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeMapGetNodeByIndex () failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeMapGetNodeByIndex() failed",
+					__func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
 		}
 		if (( p_GenApiNodeGetName )( node, strBuff, &len ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeGetName () failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeGetName() failed", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -208,7 +215,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 		len = sizeof ( descBuff );
 		if (( p_GenApiNodeGetDescription )( node, descBuff, &len ) !=
 				GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeGetDescription() failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeGetDescription() failed",
+					__func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -218,7 +226,7 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_GenApiNodeMapGetNode )( nodeMap, "AnalogControls", &controls ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiNodeMapGetNode() failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeMapGetNode() failed", __func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -226,7 +234,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_GenApiCategoryGetNumFeatures )( controls, &numFeatures ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiCategoryGetNumFeatures() failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiCategoryGetNumFeatures() failed",
+				__func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -236,13 +245,14 @@ oaPylonInitCamera ( oaCameraDevice* device )
 		len = sizeof ( strBuff );
 		if (( p_GenApiCategoryGetFeatureByIndex )( controls, i, &node )
 				!= GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiCategoryGetFeatureByIndex () failed\n" );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: GenApiCategoryGetFeatureByIndex() failed", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
 		}
 		if (( p_GenApiNodeGetName )( node, strBuff, &len ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeGetName () failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeGetName () failed", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -252,7 +262,7 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_GenApiNodeMapGetNode )( nodeMap, "ImageFormat", &format ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiNodeMapGetNode() failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeMapGetNode() failed", __func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -260,7 +270,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_GenApiCategoryGetNumFeatures )( format, &numFeatures ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiCategoryGetNumFeatures() failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiCategoryGetNumFeatures() failed",
+				__func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -270,13 +281,14 @@ oaPylonInitCamera ( oaCameraDevice* device )
 		len = sizeof ( strBuff );
 		if (( p_GenApiCategoryGetFeatureByIndex )( format, i, &node )
 				!= GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiCategoryGetFeatureByIndex () failed\n" );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: GenApiCategoryGetFeatureByIndex () failed", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
 		}
 		if (( p_GenApiNodeGetName )( node, strBuff, &len ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeGetName () failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeGetName() failed", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -286,7 +298,7 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_GenApiNodeMapGetNode )( nodeMap, "AOI", &aoi ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiNodeMapGetNode() failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeMapGetNode() failed", __func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -294,7 +306,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_GenApiCategoryGetNumFeatures )( aoi, &numFeatures ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiCategoryGetNumFeatures() failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiCategoryGetNumFeatures() failed",
+				__func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -304,13 +317,14 @@ oaPylonInitCamera ( oaCameraDevice* device )
 		len = sizeof ( strBuff );
 		if (( p_GenApiCategoryGetFeatureByIndex )( aoi, i, &node )
 				!= GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiCategoryGetFeatureByIndex () failed\n" );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: GenApiCategoryGetFeatureByIndex() failed", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
 		}
 		if (( p_GenApiNodeGetName )( node, strBuff, &len ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeGetName () failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeGetName() failed", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -320,7 +334,7 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_GenApiNodeMapGetNode )( nodeMap, "ColorImprovementsControl",
 			&colour ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiNodeMapGetNode() failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeMapGetNode() failed", __func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -328,7 +342,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_GenApiCategoryGetNumFeatures )( colour, &numFeatures ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiCategoryGetNumFeatures() failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiCategoryGetNumFeatures() failed",
+				__func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -338,13 +353,14 @@ oaPylonInitCamera ( oaCameraDevice* device )
 		len = sizeof ( strBuff );
 		if (( p_GenApiCategoryGetFeatureByIndex )( colour, i, &node )
 				!= GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiCategoryGetFeatureByIndex () failed\n" );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: GenApiCategoryGetFeatureByIndex() failed", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
 		}
 		if (( p_GenApiNodeGetName )( node, strBuff, &len ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeGetName () failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeGetName() failed", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -354,7 +370,7 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_GenApiNodeMapGetNode )( nodeMap, "AcquisitionTrigger",
 			&image ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiNodeMapGetNode() failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeMapGetNode() failed", __func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -362,7 +378,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_GenApiCategoryGetNumFeatures )( image, &numFeatures ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiCategoryGetNumFeatures() failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiCategoryGetNumFeatures() failed",
+				__func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -372,13 +389,14 @@ oaPylonInitCamera ( oaCameraDevice* device )
 		len = sizeof ( strBuff );
 		if (( p_GenApiCategoryGetFeatureByIndex )( image, i, &node )
 				!= GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiCategoryGetFeatureByIndex () failed\n" );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: GenApiCategoryGetFeatureByIndex() failed", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
 		}
 		if (( p_GenApiNodeGetName )( node, strBuff, &len ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeGetName () failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeGetName() failed", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -388,7 +406,7 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_GenApiNodeMapGetNode )( nodeMap, "TimerControls",
 			&timer ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiNodeMapGetNode() failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeMapGetNode() failed", __func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -396,7 +414,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_GenApiCategoryGetNumFeatures )( timer, &numFeatures ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "GenApiCategoryGetNumFeatures() failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: GenApiCategoryGetNumFeatures() failed",
+				__func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -406,13 +425,14 @@ oaPylonInitCamera ( oaCameraDevice* device )
 		len = sizeof ( strBuff );
 		if (( p_GenApiCategoryGetFeatureByIndex )( timer, i, &node )
 				!= GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiCategoryGetFeatureByIndex () failed\n" );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: GenApiCategoryGetFeatureByIndex() failed", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
 		}
 		if (( p_GenApiNodeGetName )( node, strBuff, &len ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiNodeGetName () failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: GenApiNodeGetName() failed", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -430,42 +450,43 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
   if ( p_PylonDeviceExecuteCommandFeature ( cameraInfo->deviceHandle,
       "AcquisitionStop" ) != GENAPI_E_OK ) {
-    fprintf ( stderr, "PylonDeviceExecuteCommandFeature failed\n" );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: PylonDeviceExecuteCommandFeature() failed", __func__ );
   }
 
   if ( p_PylonDeviceSetIntegerFeature ( cameraInfo->deviceHandle,
       "BinningHorizontal", 1 ) != GENAPI_E_OK ) {
-    fprintf ( stderr, "set BinningHorizontal failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: set BinningHorizontal failed", __func__ );
   }
   if ( p_PylonDeviceSetIntegerFeature ( cameraInfo->deviceHandle,
       "BinningVertical", 1 ) != GENAPI_E_OK ) {
-    fprintf ( stderr, "set BinningVertical failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: set BinningVertical failed", __func__ );
   }
 
 	if ( p_PylonDeviceSetBooleanFeature ( cameraInfo->deviceHandle,
 			"ReverseX", 0 ) != GENAPI_E_OK ) {
-    fprintf ( stderr, "set HFLIP failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: set HFLIP failed", __func__ );
   }
 	if ( p_PylonDeviceSetBooleanFeature ( cameraInfo->deviceHandle,
 			"ReverseY", 0 ) != GENAPI_E_OK ) {
-    fprintf ( stderr, "set VFLIP failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: set VFLIP failed", __func__ );
   }
 
   if (( p_PylonDeviceFeatureFromString )( cameraInfo->deviceHandle,
 			"GainAuto", "Off" ) == GENAPI_E_OK ) {
-		fprintf ( stderr, "set GainAuto failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: set GainAuto failed", __func__ );
 	}
   if (( p_PylonDeviceFeatureFromString )( cameraInfo->deviceHandle,
 			"ExposureAuto", "Off" ) == GENAPI_E_OK ) {
-		fprintf ( stderr, "set ExposureAuto failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: set ExposureAuto failed", __func__ );
 	}
 	if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
 			"OffsetX", 0 ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "set OffsetX failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: set OffsetX failed", __func__ );
 	}
 	if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
 			"OffsetY", 0 ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "set OffsetY failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: set OffsetY failed", __func__ );
 	}
 
 	// There are a number of options here depending on the version of the
@@ -477,14 +498,14 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			OA_ERR_NONE ) {
 		if ( _pylonGetFloatSettings ( node, &fmin, &fmax, &fcurr ) !=
 				OA_ERR_NONE ) {
-			fprintf ( stderr, "Can't get settings for Gain\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't get settings for Gain", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
 		}
 		cameraInfo->gainIsFloat = 1;
-		fprintf ( stderr, "can't handle float gain: %f, %f, %f\n", fmin,
-				fmax, fcurr );
+		oaLogError ( OA_LOG_CAMERA, "%s: can't handle float gain: %f, %f, %f",
+				__func__, fmin, fmax, fcurr );
 	}
 
 	if ( !gainFound ) {
@@ -492,7 +513,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 				OA_ERR_NONE ) {
 			if ( _pylonGetIntSettings ( node, &imin, &imax, &istep, &icurr ) !=
 					OA_ERR_NONE ) {
-				fprintf ( stderr, "Can't get settings for GainRaw\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get settings for GainRaw",
+						__func__ );
 				FREE_DATA_STRUCTS;
 				CLOSE_PYLON;
 				return 0;
@@ -513,13 +535,15 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			// _pylonShowEnumValues ( node, "GainAuto" );
 			if (( p_GenApiEnumerationGetEntryByName )( node, "Off", &setting ) !=
 					GENAPI_E_OK ) {
-				fprintf ( stderr, "Can't get GainAuto Off setting by name\n" );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get GainAuto Off setting by name", __func__ );
 				FREE_DATA_STRUCTS;
 				CLOSE_PYLON;
 				return 0;
 			}
 			if (( p_GenApiNodeIsAvailable )( setting, &available ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "Can't get GainAuto Off availability\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't get GainAuto Off availability",
+						__func__ );
 				FREE_DATA_STRUCTS;
 				CLOSE_PYLON;
 				return 0;
@@ -527,14 +551,16 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			if ( available ) {
 				if (( p_GenApiEnumerationGetEntryByName )( node, "Continuous",
 						&setting ) != GENAPI_E_OK ) {
-					fprintf ( stderr, "Can't get GainAuto Continuous setting by name\n" );
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get GainAuto Continuous setting by name", __func__ );
 					FREE_DATA_STRUCTS;
 					CLOSE_PYLON;
 					return 0;
 				}
 				if (( p_GenApiNodeIsAvailable )( setting, &available ) !=
 						GENAPI_E_OK ) {
-					fprintf ( stderr, "Can't get GainAuto Continuous availability\n" );
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get GainAuto Continuous availability", __func__ );
 					FREE_DATA_STRUCTS;
 					CLOSE_PYLON;
 					return 0;
@@ -546,7 +572,7 @@ oaPylonInitCamera ( oaCameraDevice* device )
 					commonInfo->OA_CAM_CTRL_MAX( autogain ) = 1;
 					commonInfo->OA_CAM_CTRL_STEP( autogain ) = 1;
 					commonInfo->OA_CAM_CTRL_DEF( autogain ) = 1;
-					fprintf ( stderr, "GainAuto is available\n" );
+					oaLogError ( OA_LOG_CAMERA, "%s: GainAuto is available", __func__ );
 				}
 			}
 		}
@@ -563,7 +589,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( ret = _pylonGetEnumerationNode ( nodeMap, "ExposureMode", 0x03,
 			&node )) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get Pylon ExposureMode, err = %d\n", ret );
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't get Pylon ExposureMode, err = %d",
+				__func__, ret );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -571,26 +598,30 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( p_GenApiEnumerationGetEntryByName )( node, "Timed", &setting ) !=
 			GENAPI_E_OK ) {
-		fprintf ( stderr, "Can't get ExposureMode Timed setting by name\n" );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get ExposureMode Timed setting by name", __func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
 	}
 	if (( p_GenApiNodeIsAvailable )( setting, &available ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "Can't get ExposureMode Timed availability\n" );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get ExposureMode Timed availability", __func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
 	}
 	if ( available ) {
 		if (( p_GenApiNodeFromString )( node, "Timed" ) != GENAPI_E_OK ) { 
-			fprintf ( stderr, "Can't set ExposureMode = Timed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't set ExposureMode = Timed",
+					__func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
 		}
 	} else {
-		fprintf ( stderr, "Don't know if ExposureMode has a suitable setting\n" );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Don't know if ExposureMode has a suitable setting", __func__ );
 	}
 
   // And then find the valid settings for ExposureTime (or ExposureTimeAbs,
@@ -601,7 +632,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			OA_ERR_NONE ) {
 		if ( _pylonGetFloatSettings ( node, &fmin, &fmax, &fcurr ) !=
 				OA_ERR_NONE ) {
-			fprintf ( stderr, "Can't get settings for ExposureTime\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't get settings for ExposureTime",
+					__func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -621,7 +653,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 				&node )) == OA_ERR_NONE ) {
 			if ( _pylonGetFloatSettings ( node, &fmin, &fmax, &fcurr ) !=
 					OA_ERR_NONE ) {
-				fprintf ( stderr, "Can't get settings for ExposureTimeAbs\n" );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get settings for ExposureTimeAbs", __func__ );
 				FREE_DATA_STRUCTS;
 				CLOSE_PYLON;
 				return 0;
@@ -642,7 +675,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 				&node )) == OA_ERR_NONE ) {
 			if ( _pylonGetIntSettings ( node, &imin, &imax, &istep, &icurr ) !=
 					OA_ERR_NONE ) {
-				fprintf ( stderr, "Can't get settings for ExposureTimeRaw\n" );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get settings for ExposureTimeRaw", __func__ );
 				FREE_DATA_STRUCTS;
 				CLOSE_PYLON;
 				return 0;
@@ -669,13 +703,15 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			// _pylonShowEnumValues ( node, "ExposureAuto" );
 			if (( p_GenApiEnumerationGetEntryByName )( node, "Off", &setting ) !=
 					GENAPI_E_OK ) {
-				fprintf ( stderr, "Can't get ExposureAuto Off setting by name\n" );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get ExposureAuto Off setting by name", __func__ );
 				FREE_DATA_STRUCTS;
 				CLOSE_PYLON;
 				return 0;
 			}
 			if (( p_GenApiNodeIsAvailable )( setting, &available ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "Can't get ExposureAuto Off availability\n" );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get ExposureAuto Off availability", __func__ );
 				FREE_DATA_STRUCTS;
 				CLOSE_PYLON;
 				return 0;
@@ -683,16 +719,17 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			if ( available ) {
 				if (( p_GenApiEnumerationGetEntryByName )( node, "Continuous",
 						&setting ) != GENAPI_E_OK ) {
-					fprintf ( stderr,
-							"Can't get ExposureAuto Continuous setting by name\n" );
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get ExposureAuto Continuous setting by name",
+							__func__ );
 					FREE_DATA_STRUCTS;
 					CLOSE_PYLON;
 					return 0;
 				}
 				if (( p_GenApiNodeIsAvailable )( setting, &available ) !=
 						GENAPI_E_OK ) {
-					fprintf ( stderr,
-							"Can't get ExposureAuto Continuous availability\n" );
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get ExposureAuto Continuous availability", __func__ );
 					FREE_DATA_STRUCTS;
 					CLOSE_PYLON;
 					return 0;
@@ -704,7 +741,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 					commonInfo->OA_CAM_CTRL_MAX( autoexp ) = 1;
 					commonInfo->OA_CAM_CTRL_STEP( autoexp ) = 1;
 					commonInfo->OA_CAM_CTRL_DEF( autoexp ) = 1;
-					fprintf ( stderr, "ExposureAuto is available\n" );
+					oaLogError ( OA_LOG_CAMERA, "%s: ExposureAuto is available",
+							__func__ );
 				}
 			}
 		}
@@ -739,7 +777,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			&node )) == OA_ERR_NONE ) {
 		if ( _pylonGetIntSettings ( node, &hmin, &hmax, &hstep, &hcurr ) !=
 				OA_ERR_NONE ) {
-			fprintf ( stderr, "Can't get settings for BinningHorizontal\n" );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't get settings for BinningHorizontal", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -750,7 +789,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 					&node )) == OA_ERR_NONE ) {
 				if ( _pylonGetIntSettings ( node, &vmin, &vmax, &vstep, &vcurr ) !=
 						OA_ERR_NONE ) {
-					fprintf ( stderr, "Can't get settings for BinningVertical\n" );
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get settings for BinningVertical", __func__ );
 					FREE_DATA_STRUCTS;
 					CLOSE_PYLON;
 					return 0;
@@ -759,7 +799,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			cameraInfo->node_BinningVertical = node;
 			if ( vmax > 1 ) {
 				if ( hstep != 1 || vstep != 1 ) {
-					fprintf ( stderr, "Can't handle mismatched binning steps\n" );
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't handle mismatched binning steps", __func__ );
 				} else {
 					binMax = ( hmax > vmax ) ? vmax : hmax;
 					if ( binMax > 1 ) {
@@ -785,7 +826,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			OA_ERR_NONE || ret == -OA_ERR_NOT_WRITEABLE ) {
 		if ( _pylonGetIntSettings ( node, &imin, &imax, &istep, &icurr ) !=
 				OA_ERR_NONE ) {
-			fprintf ( stderr, "Can't get settings for Width\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't get settings for Width",
+					__func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -798,7 +840,7 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			camera->features.flags &= ~OA_CAM_FEATURE_ROI;
 		}
 	} else {
-		fprintf ( stderr, "Can't determine frame width\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't determine frame width", __func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -807,7 +849,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			OA_ERR_NONE || ret == -OA_ERR_NOT_WRITEABLE ) {
 		if ( _pylonGetIntSettings ( node, &imin, &imax, &istep, &icurr ) !=
 				OA_ERR_NONE ) {
-			fprintf ( stderr, "Can't get settings for Height\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't get settings for Height",
+					__func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -822,7 +865,7 @@ oaPylonInitCamera ( oaCameraDevice* device )
 	} else {
 		if ( ret == -OA_ERR_NOT_WRITEABLE ) {
 		} else {
-			fprintf ( stderr, "Can't determine frame width\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't determine frame width", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -833,7 +876,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if (( ret = _pylonGetEnumerationNode ( nodeMap, "PixelFormat", 1, &node )) !=
 			OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get Pylon PixelFormat, err = %d\n", ret );
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't get Pylon PixelFormat, err = %d",
+				__func__, ret );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -841,7 +885,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	len = sizeof ( strBuff );
 	if (( p_GenApiNodeToString )( node, strBuff, &len ) != GENAPI_E_OK ) {
-		fprintf ( stderr, "Can't get current Pylon PixelFormat\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't get current Pylon PixelFormat",
+				__func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -852,20 +897,22 @@ oaPylonInitCamera ( oaCameraDevice* device )
 	for ( i = 0; i < numFormats; i++ ) {
 		if (( p_GenApiEnumerationGetEntryByName )( node,
 				_frameFormats[i].pylonName, &format ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "GenApiEnumerationGetEntryByName() failed\n" );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: GenApiEnumerationGetEntryByName() failed", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
 		}
 		if ( format != GENAPIC_INVALID_HANDLE ) {
 			if (( p_GenApiNodeIsAvailable )( format, &available ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "GenApiEnumerationGetEntryByName() failed\n" );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: GenApiEnumerationGetEntryByName() failed", __func__ );
 				FREE_DATA_STRUCTS;
 				CLOSE_PYLON;
 				return 0;
 			}
 			if ( available ) {
-				fprintf ( stderr, "format '%s' is supported\n",
+				oaLogError ( OA_LOG_CAMERA, "%s: format '%s' is supported", __func__,
 						_frameFormats[i].pylonName );
 				int oaFormat = _frameFormats[i].pixFormat;
 				if ( !oaFrameFormats[ oaFormat ].monochrome ) {
@@ -893,7 +940,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
 	if ( cameraInfo->currentFrameFormatIdx < 0 ) {
 		// FIX ME -- set first available format?
-		fprintf ( stderr, "Can't determine current frame format\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't determine current frame format",
+				__func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -903,7 +951,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 	if ( cameraInfo->colour ) {
 		if (( ret = _pylonGetEnumerationNode ( nodeMap, "PixelColorFilter", 1,
 				&node )) != OA_ERR_NONE ) {
-			fprintf ( stderr, "Can't get Pylon PixelColorFilter, err = %d\n", ret );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't get Pylon PixelColorFilter, err = %d", __func__, ret );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -911,7 +960,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 	
 		len = sizeof ( strBuff );
 		if (( p_GenApiNodeToString )( node, strBuff, &len ) != GENAPI_E_OK ) {
-			fprintf ( stderr, "Can't get current Pylon PixelFormat\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't get current Pylon PixelFormat",
+					__func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -927,7 +977,7 @@ oaPylonInitCamera ( oaCameraDevice* device )
 	for ( i = 1; i <= binMax; i++ ) {
 		if (!( cameraInfo->frameSizes[i].sizes = ( FRAMESIZE* ) malloc (
 					sizeof ( FRAMESIZE )))) {
-			fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+			oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed", __func__ );
 			if ( i ) {
 				// FIX ME -- missing code here?
 			}
@@ -945,15 +995,16 @@ oaPylonInitCamera ( oaCameraDevice* device )
 			&node )) == OA_ERR_NONE ) {
 		if (( p_GenApiEnumerationGetEntryByName )( node, "SingleFrame",
 				&setting ) != GENAPI_E_OK ) {
-			fprintf ( stderr,
-					"Can't get AcquisitionMode SingleFrame setting by name\n" );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't get AcquisitionMode SingleFrame setting by name",
+					__func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
 		}
 		if (( p_GenApiNodeIsAvailable )( setting, &available ) != GENAPI_E_OK ) {
-			fprintf ( stderr,
-					"Can't get AcquisitionMode SingleFrame availability\n" );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't get AcquisitionMode SingleFrame availability", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -963,15 +1014,16 @@ oaPylonInitCamera ( oaCameraDevice* device )
 		}
 		if (( p_GenApiEnumerationGetEntryByName )( node, "Continuous",
 				&setting ) != GENAPI_E_OK ) {
-			fprintf ( stderr,
-					"Can't get AcquisitionMode SingleFrame setting by name\n" );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't get AcquisitionMode SingleFrame setting by name",
+					__func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
 		}
 		if (( p_GenApiNodeIsAvailable )( setting, &available ) != GENAPI_E_OK ) {
-			fprintf ( stderr,
-					"Can't get AcquisitionMode SingleFrame availability\n" );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't get AcquisitionMode SingleFrame availability", __func__ );
 			FREE_DATA_STRUCTS;
 			CLOSE_PYLON;
 			return 0;
@@ -982,7 +1034,8 @@ oaPylonInitCamera ( oaCameraDevice* device )
 	}
 	if (!( camera->features.flags & ( OA_CAM_FEATURE_SINGLE_SHOT |
 			OA_CAM_FEATURE_STREAMING ))) {
-		fprintf ( stderr, "Can't find any suitable acquisition mode\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't find any suitable acquisition mode",
+				__func__ );
 		FREE_DATA_STRUCTS;
 		CLOSE_PYLON;
 		return 0;
@@ -990,11 +1043,11 @@ oaPylonInitCamera ( oaCameraDevice* device )
 
   if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
       "Width", cameraInfo->maxResolutionX ) != GENAPI_E_OK ) {
-    fprintf ( stderr, "set Width failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: set Width failed", __func__ );
   }
   if (( p_PylonDeviceSetIntegerFeature )( cameraInfo->deviceHandle,
       "Height", cameraInfo->maxResolutionY ) != GENAPI_E_OK ) {
-    fprintf ( stderr, "set Height failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: set Height failed", __func__ );
   }
 	cameraInfo->xSize = cameraInfo->maxResolutionX;
 	cameraInfo->ySize = cameraInfo->maxResolutionY;
@@ -1015,10 +1068,10 @@ oaPylonInitCamera ( oaCameraDevice* device )
 					"TriggerSelector", "AcquisitionStart" ) == GENAPI_E_OK ) {
       if (( p_PylonDeviceFeatureFromString )( cameraInfo->deviceHandle,
 						"TriggerMode", "Off" ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "Can't set TriggerMode #1\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set TriggerMode #1", __func__ );
 			}
 		} else {
-			fprintf ( stderr, "Can't set TriggerSelector #1\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't set TriggerSelector #1", __func__ );
 		}
 	}
 
@@ -1028,10 +1081,11 @@ oaPylonInitCamera ( oaCameraDevice* device )
 					"TriggerSelector", "FrameBurstStart" ) == GENAPI_E_OK ) {
       if (( p_PylonDeviceFeatureFromString )( cameraInfo->deviceHandle,
 						"TriggerMode", "Off" ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "Can't set TriggerMode #2\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set TriggerMode #2", __func__ );
 			}
 		} else {
-			fprintf ( stderr, "Can't set TriggerSelector #2\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't set TriggerSelector #2",
+					__func__ );
 		}
 	}
 
@@ -1041,10 +1095,11 @@ oaPylonInitCamera ( oaCameraDevice* device )
 					"TriggerSelector", "FrameStart" ) == GENAPI_E_OK ) {
       if (( p_PylonDeviceFeatureFromString )( cameraInfo->deviceHandle,
 						"TriggerMode", "Off" ) != GENAPI_E_OK ) {
-				fprintf ( stderr, "Can't set TriggerMode #3\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: Can't set TriggerMode #3", __func__ );
 			}
 		} else {
-			fprintf ( stderr, "Can't set TriggerSelector #3\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't set TriggerSelector #3",
+					__func__ );
 		}
 	}
 
