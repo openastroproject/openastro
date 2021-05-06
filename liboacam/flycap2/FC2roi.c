@@ -2,7 +2,7 @@
  *
  * FC2roi.c -- region of interest management for Point Grey GigE cameras
  *
- * Copyright 2015,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2018,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -45,7 +45,7 @@ oaFC2CameraTestROISize ( oaCamera* camera, unsigned int tryX,
 
   if (( *p_fc2GetGigEImageSettingsInfo )( cameraInfo->pgeContext,
       &imageInfo ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get image settings info\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get image settings info", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
 

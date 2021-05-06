@@ -137,67 +137,54 @@ oaFC2InitCamera ( oaCameraDevice* device )
   devInfo = device->_private;
 
   if (( *p_fc2CreateGigEContext )( &pgeContext ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get FC2 context\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get FC2 context", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
   if (( *p_fc2Connect )( pgeContext, &devInfo->pgeGuid ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't connect to FC2 GUID\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't connect to FC2 GUID", __func__ );
     ( *p_fc2DestroyContext )( pgeContext );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
   if (( *p_fc2GetCameraInfo )( pgeContext, &camInfo ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get camera info for FC2 camera\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get camera info for FC2 camera",
+				__func__ );
     ( *p_fc2DestroyContext )( pgeContext );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
-  /*
-  fprintf(
-      stderr,
-      "GigE major version - %u\n"
-      "GigE minor version - %u\n"
-      "User-defined name - %s\n"
-      "Model name - %s\n"
-      "XML URL1 - %s\n"
-      "XML URL2 - %s\n"
-      "Firmware version - %s\n"
-      "IIDC version - %1.2f\n"
-      "MAC address - %02X:%02X:%02X:%02X:%02X:%02X\n"
-      "IP address - %u.%u.%u.%u\n"
-      "Subnet mask - %u.%u.%u.%u\n"
-      "Default gateway - %u.%u.%u.%u\n\n",
-      camInfo.gigEMajorVersion,
-      camInfo.gigEMinorVersion,
-      camInfo.userDefinedName,
-      camInfo.modelName,
-      camInfo.xmlURL1,
-      camInfo.xmlURL2,
-      camInfo.firmwareVersion,
-      camInfo.iidcVer / 100.0f,
-      camInfo.macAddress.octets[0],
-      camInfo.macAddress.octets[1],
-      camInfo.macAddress.octets[2],
-      camInfo.macAddress.octets[3],
-      camInfo.macAddress.octets[4],
-      camInfo.macAddress.octets[5],
-      camInfo.ipAddress.octets[0],
-      camInfo.ipAddress.octets[1],
-      camInfo.ipAddress.octets[2],
-      camInfo.ipAddress.octets[3],
-      camInfo.subnetMask.octets[0],
-      camInfo.subnetMask.octets[1],
-      camInfo.subnetMask.octets[2],
-      camInfo.subnetMask.octets[3],
-      camInfo.defaultGateway.octets[0],
-      camInfo.defaultGateway.octets[1],
-      camInfo.defaultGateway.octets[2],
-      camInfo.defaultGateway.octets[3]);
-  */
+  oaLogDebug ( OA_LOG_CAMERA, "%s: GigE major version - %u", __func__,
+      camInfo.gigEMajorVersion );
+  oaLogDebug ( OA_LOG_CAMERA, "%s: GigE minor version - %u", __func__,
+      camInfo.gigEMinorVersion );
+  oaLogDebug ( OA_LOG_CAMERA, "%s: User-defined name - %s", __func__,
+      camInfo.userDefinedName );
+  oaLogDebug ( OA_LOG_CAMERA, "%s: Model name - %s", __func__,
+      camInfo.modelName );
+  oaLogDebug ( OA_LOG_CAMERA, "%s: XML URL1 - %s", __func__, camInfo.xmlURL1 );
+  oaLogDebug ( OA_LOG_CAMERA, "%s: XML URL2 - %s", __func__, camInfo.xmlURL2 );
+  oaLogDebug ( OA_LOG_CAMERA, "%s: Firmware version - %s", __func__,
+      camInfo.firmwareVersion );
+  oaLogDebug ( OA_LOG_CAMERA, "%s: IIDC version - %1.2f", __func__,
+      camInfo.iidcVer / 100.0f );
+  oaLogDebug ( OA_LOG_CAMERA,
+			"%s: MAC address - %02X:%02X:%02X:%02X:%02X:%02X", __func__,
+      camInfo.macAddress.octets[0], camInfo.macAddress.octets[1],
+      camInfo.macAddress.octets[2], camInfo.macAddress.octets[3],
+      camInfo.macAddress.octets[4], camInfo.macAddress.octets[5] );
+  oaLogDebug ( OA_LOG_CAMERA, "%s: IP address - %u.%u.%u.%u", __func__,
+      camInfo.ipAddress.octets[0], camInfo.ipAddress.octets[1],
+      camInfo.ipAddress.octets[2], camInfo.ipAddress.octets[3] );
+  oaLogDebug ( OA_LOG_CAMERA, "%s: Subnet mask - %u.%u.%u.%u", __func__,
+      camInfo.subnetMask.octets[0], camInfo.subnetMask.octets[1],
+      camInfo.subnetMask.octets[2], camInfo.subnetMask.octets[3] );
+  oaLogDebug ( OA_LOG_CAMERA, "%s: Default gateway - %u.%u.%u.%u", __func__,
+      camInfo.defaultGateway.octets[0], camInfo.defaultGateway.octets[1],
+      camInfo.defaultGateway.octets[2], camInfo.defaultGateway.octets[3]);
 
   camera->interface = device->interface;
 
@@ -213,7 +200,8 @@ oaFC2InitCamera ( oaCameraDevice* device )
   OA_CLEAR ( propertyInfo );
   propertyInfo.type = FC2_FRAME_RATE;
   if (( *p_fc2GetPropertyInfo )( pgeContext, &propertyInfo ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get property info for PGR frame rate\n" );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get property info for PGR frame rate", __func__ );
     ( *p_fc2DestroyContext )( pgeContext );
     FREE_DATA_STRUCTS;
     return 0;
@@ -222,7 +210,8 @@ oaFC2InitCamera ( oaCameraDevice* device )
     OA_CLEAR ( property );
     property.type = FC2_FRAME_RATE;
     if (( *p_fc2GetProperty )( pgeContext, &property ) != FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get property for PGR frame rate\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't get property for PGR frame rate",
+					__func__ );
       ( *p_fc2DestroyContext )( pgeContext );
       FREE_DATA_STRUCTS;
       return 0;
@@ -231,13 +220,15 @@ oaFC2InitCamera ( oaCameraDevice* device )
       property.onOff = 0;
       property.autoManualMode = 0;
       if (( *p_fc2SetProperty )( pgeContext, &property ) != FC2_ERROR_OK ) {
-        fprintf ( stderr, "Can't set property for PGR frame rate\n" );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't set property for PGR frame rate", __func__ );
         ( *p_fc2DestroyContext )( pgeContext );
         FREE_DATA_STRUCTS;
         return 0;
       }
     } else {
-      fprintf ( stderr, "FC2 frame rate exists, but cannot be turned off\n" );
+      oaLogWarning ( OA_LOG_CAMERA,
+					"%s: FC2 frame rate exists, but cannot be turned off", __func__ );
     }
   }
 
@@ -251,7 +242,8 @@ oaFC2InitCamera ( oaCameraDevice* device )
     propertyInfo.type = i;
     if (( *p_fc2GetPropertyInfo )( pgeContext, &propertyInfo ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get property info %d for FC2 GUID\n", i );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't get property info %d for FC2 GUID", __func__, i );
       ( *p_fc2DestroyContext )( pgeContext );
       FREE_DATA_STRUCTS;
       return 0;
@@ -262,18 +254,25 @@ oaFC2InitCamera ( oaCameraDevice* device )
     OA_CLEAR ( property );
     property.type = i;
     if (( *p_fc2GetProperty )( pgeContext, &property ) != FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get property %d for FC2 GUID\n", i );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't get property %d for FC2 GUID",
+					__func__, i );
       ( *p_fc2DestroyContext )( pgeContext );
       FREE_DATA_STRUCTS;
       return 0;
     }
-/*
-fprintf ( stderr, "property %d, units: %s, abbrev: %s\n", i, propertyInfo.pUnits, propertyInfo.pUnitAbbr );
-fprintf ( stderr, "  on/off: %d, value %d\n", propertyInfo.onOffSupported, property.onOff  );
-fprintf ( stderr, "  min: %d, max %d\n", propertyInfo.min, propertyInfo.max );
-fprintf ( stderr, "  abs: %d, absmin: %f, absmax: %f\n", propertyInfo.absValSupported, propertyInfo.absMin, propertyInfo.absMax );
-fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupported, propertyInfo.manualSupported, property.autoManualMode );
-*/
+
+		oaLogDebug ( OA_LOG_CAMERA, "%s: property %d, units: %s, abbrev: %s",
+				__func__, i, propertyInfo.pUnits, propertyInfo.pUnitAbbr );
+		oaLogDebug ( OA_LOG_CAMERA, "%s:   on/off: %d, value %d", __func__,
+				propertyInfo.onOffSupported, property.onOff  );
+		oaLogDebug ( OA_LOG_CAMERA, "%s:   min: %d, max %d", __func__,
+				propertyInfo.min, propertyInfo.max );
+		oaLogDebug ( OA_LOG_CAMERA, "%s:   abs: %d, absmin: %f, absmax: %f",
+				__func__, propertyInfo.absValSupported, propertyInfo.absMin,
+				propertyInfo.absMax );
+		oaLogDebug ( OA_LOG_CAMERA, "%s:   auto: %d, manual %d, state: %d",
+				__func__, propertyInfo.autoSupported, propertyInfo.manualSupported,
+				property.autoManualMode );
 
     oaControl = pgeControls[ i ].oaControl;
     oaAutoControl = pgeControls[ i ].oaAutoControl;
@@ -309,8 +308,9 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
             commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) =
                 ( property.autoManualMode ) ? 1 : 0;
           } else {
-            fprintf ( stderr, "%s: have auto for control %d, but "
-                "liboacam does not\n", __func__, oaControl );
+            oaLogWarning ( OA_LOG_CAMERA,
+								"%s: have auto for control %d, but liboacam does not",
+								__func__, oaControl );
           }
         }
         if ( propertyInfo.onOffSupported ) {
@@ -403,8 +403,9 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
             commonInfo->OA_CAM_CTRL_DEF( oaAutoControl ) =
                 ( property.autoManualMode ) ? 1 : 0;
           } else {
-            fprintf ( stderr, "%s: have auto for control %d, but "
-                "liboacam does not\n", __func__, oaControl );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: have auto for control %d, but liboacam does not",
+								__func__, oaControl );
           }
         }
         if ( propertyInfo.onOffSupported ) {
@@ -418,7 +419,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
       case FC2_FRAME_RATE:
 				// FIX ME
-        fprintf ( stderr, "Need to set up frame rates for FC2 camera\n" );
+        oaLogInfo ( OA_LOG_CAMERA,
+						"%s: Need to set up frame rates for FC2 camera", __func__ );
         break;
 
       case FC2_TEMPERATURE:
@@ -433,7 +435,7 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         break;
 
       default:
-        fprintf ( stderr, "%s: unknown FC2 control %d\n", __func__,
+        oaLogError ( OA_LOG_CAMERA, "%s: unknown FC2 control %d", __func__,
             i + FC2_BRIGHTNESS );
         break;
     }
@@ -443,23 +445,30 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
   if (( p_fc2GetTriggerModeInfo )( pgeContext, &triggerInfo ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get trigger mode info %d for FC2 GUID\n", i );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get trigger mode info %d for FC2 GUID", __func__, i );
     ( *p_fc2DestroyContext )( pgeContext );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
-  /*
-  fprintf ( stderr, "trigger mode:\n" );
-  fprintf ( stderr, "  present  : %d\n", triggerInfo.present ? 1 : 0 );
-  fprintf ( stderr, "  readout  : %d\n", triggerInfo.readOutSupported ? 1 : 0 );
-  fprintf ( stderr, "  on/off   : %d\n", triggerInfo.onOffSupported ? 1 : 0 );
-  fprintf ( stderr, "  polarity : %d\n", triggerInfo.polaritySupported ? 1 : 0 );
-  fprintf ( stderr, "  readable : %d\n", triggerInfo.valueReadable ? 1 : 0 );
-  fprintf ( stderr, "  src mask : %08x\n", triggerInfo.sourceMask );
-  fprintf ( stderr, "  sw trig  : %d\n", triggerInfo.softwareTriggerSupported ? 1 : 0 );
-  fprintf ( stderr, "  mode mask: %08x\n", triggerInfo.modeMask );
-   */
+  oaLogDebug ( OA_LOG_CAMERA, "%s: trigger mode:", __func__ );
+  oaLogDebug ( OA_LOG_CAMERA, "%s:   present  : %d", __func__,
+			triggerInfo.present ? 1 : 0 );
+  oaLogDebug ( OA_LOG_CAMERA, "%s:   readout  : %d", __func__,
+			triggerInfo.readOutSupported ? 1 : 0 );
+  oaLogDebug ( OA_LOG_CAMERA, "%s:   on/off   : %d", __func__,
+			triggerInfo.onOffSupported ? 1 : 0 );
+  oaLogDebug ( OA_LOG_CAMERA, "%s:   polarity : %d", __func__,
+			triggerInfo.polaritySupported ? 1 : 0 );
+  oaLogDebug ( OA_LOG_CAMERA, "%s:   readable : %d", __func__,
+			triggerInfo.valueReadable ? 1 : 0 );
+  oaLogDebug ( OA_LOG_CAMERA, "%s:   src mask : %08x", __func__,
+			triggerInfo.sourceMask );
+  oaLogDebug ( OA_LOG_CAMERA, "%s:   sw trig  : %d", __func__,
+			triggerInfo.softwareTriggerSupported ? 1 : 0 );
+  oaLogDebug ( OA_LOG_CAMERA, "%s:   mode mask: %08x", __func__,
+			triggerInfo.modeMask );
 
   if ( triggerInfo.present ) {
 		camera->features.flags |= OA_CAM_FEATURE_EXTERNAL_TRIGGER;
@@ -474,9 +483,11 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     cameraInfo->triggerEnable = triggerInfo.onOffSupported ? 1 : 0;
     if ( triggerInfo.onOffSupported ) {
       if ( !triggerInfo.valueReadable ) {
-        fprintf ( stderr, "Trigger info is not readable. This will break\n" );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: Trigger info is not readable. This will break", __func__ );
       }
-      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_ENABLE ) = OA_CTRL_TYPE_BOOLEAN;
+      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_ENABLE ) =
+					OA_CTRL_TYPE_BOOLEAN;
       commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_ENABLE ) = 0;
       commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_ENABLE ) = 1;
       commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_ENABLE ) = 1;
@@ -485,7 +496,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     }
 
     if ( triggerInfo.polaritySupported ) {
-      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_POLARITY ) = OA_CTRL_TYPE_MENU;
+      camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_TRIGGER_POLARITY ) =
+					OA_CTRL_TYPE_MENU;
       commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_POLARITY ) = 0;
       commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_POLARITY ) = 1;
       commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_POLARITY ) = 1;
@@ -513,8 +525,9 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
             // At this point we don't have a source for the current GPIO pin,
             // but there appear to be sources for higher-numbered pins.  This
             // is not going to lead to happiness at the moment
-            fprintf ( stderr, "Available source GPIO pins appear to be "
-                "non-contiguous.  This will lead to pain and needs fixing.\n" );
+            oaLogError ( OA_LOG_CAMERA, "%s: Available source GPIO pins "
+								"appear to be non-contiguous.  This will lead to pain and "
+								"needs fixing.", __func__ );
           }
         }
         mask16 = ( mask16 << 1 ) & 0x0f;
@@ -527,7 +540,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         commonInfo->OA_CAM_CTRL_MIN( OA_CAM_CTRL_TRIGGER_SOURCE ) = 0;
         commonInfo->OA_CAM_CTRL_MAX( OA_CAM_CTRL_TRIGGER_SOURCE ) = numberOfSources;
         commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_TRIGGER_SOURCE ) = 1;
-        fprintf ( stderr, "Need to set default trigger source value\n" );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Need to set default trigger source value", __func__ );
         commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_TRIGGER_SOURCE ) = 0;
       }
     }
@@ -557,7 +571,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         cameraInfo->triggerModeCount = numberOfModes;
         if (!( cameraInfo->triggerModes = calloc ( numberOfModes,
             sizeof ( int64_t )))) {
-          fprintf ( stderr, "Can't calloc space for trigger mode list\n" );
+          oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't calloc space for trigger mode list", __func__ );
           ( *p_fc2DestroyContext )( pgeContext );
           FREE_DATA_STRUCTS;
           return 0;
@@ -579,7 +594,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       triggerMode.source = cameraInfo->triggerGPIO;
       if (( ret = ( *p_fc2GetTriggerMode )( pgeContext, &triggerMode )) !=
           FC2_ERROR_OK ) {
-        fprintf ( stderr, "Can't get trigger mode for FC2 GUID\n" );
+        oaLogError ( OA_LOG_CAMERA, "%s: Can't get trigger mode for FC2 GUID",
+						__func__ );
         ( *p_fc2DestroyContext )( pgeContext );
         if ( cameraInfo->triggerModes ) {
 					free (( void* ) cameraInfo->triggerModes );
@@ -588,13 +604,16 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         return 0;
       }
 
-      /*
-      fprintf ( stderr, "trigger %d:\n", cameraInfo->triggerGPIO );
-      fprintf ( stderr, "  on/off   : %d\n", triggerMode.onOff ? 1 : 0 );
-      fprintf ( stderr, "  polarity : %d\n", triggerMode.polarity ? 1 : 0 );
-      fprintf ( stderr, "  mode     : %d\n", triggerMode.mode );
-      fprintf ( stderr, "  param    : %d\n", triggerMode.parameter );
-       */
+      oaLogDebug ( OA_LOG_CAMERA, "%s: trigger %d:", __func__,
+					cameraInfo->triggerGPIO );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   on/off   : %d", __func__,
+					triggerMode.onOff ? 1 : 0 );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   polarity : %d", __func__,
+					triggerMode.polarity ? 1 : 0 );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   mode     : %d", __func__,
+					triggerMode.mode );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   param    : %d", __func__,
+					triggerMode.parameter );
 
       cameraInfo->triggerEnabled = triggerMode.onOff;
       cameraInfo->triggerCurrentPolarity = triggerMode.polarity;
@@ -602,7 +621,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
       if (( ret = ( *p_fc2GetTriggerDelayInfo )( pgeContext, &delayInfo )) !=
           FC2_ERROR_OK ) {
-        fprintf ( stderr, "Can't get trigger delay info for FC2 GUID\n" );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get trigger delay info for FC2 GUID", __func__ );
         ( *p_fc2DestroyContext )( pgeContext );
         if ( cameraInfo->triggerModes ) {
 					free (( void* ) cameraInfo->triggerModes );
@@ -611,27 +631,39 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         return 0;
       }
 
-      /*
-      fprintf ( stderr, "trigger delay info:\n" );
-      fprintf ( stderr, "  present  : %d\n", delayInfo.present ? 1 : 0 );
-      fprintf ( stderr, "  auto     : %d\n", delayInfo.autoSupported ? 1 : 0 );
-      fprintf ( stderr, "  manual   : %d\n", delayInfo.manualSupported ? 1 : 0 );
-      fprintf ( stderr, "  on/off   : %d\n", delayInfo.onOffSupported ? 1 : 0 );
-      fprintf ( stderr, "  one push : %d\n", delayInfo.onePushSupported ? 1 : 0 );
-      fprintf ( stderr, "  absolute : %d\n", delayInfo.absValSupported ? 1 : 0 );
-      fprintf ( stderr, "  readout  : %d\n", delayInfo.readOutSupported ? 1 : 0 );
-      fprintf ( stderr, "  min      : %d\n", delayInfo.min );
-      fprintf ( stderr, "  max      : %d\n", delayInfo.max );
-      fprintf ( stderr, "  min      : %f\n", delayInfo.absMin );
-      fprintf ( stderr, "  max      : %f\n", delayInfo.absMax );
-      fprintf ( stderr, "  units    : %s\n", delayInfo.pUnits );
-      fprintf ( stderr, "  units    : %s\n", delayInfo.pUnitAbbr );
-       */
+      oaLogDebug ( OA_LOG_CAMERA, "%s: trigger delay info:", __func__ );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   present  : %d", __func__,
+					delayInfo.present ? 1 : 0 );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   auto     : %d", __func__,
+					delayInfo.autoSupported ? 1 : 0 );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   manual   : %d", __func__,
+					delayInfo.manualSupported ? 1 : 0 );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   on/off   : %d", __func__,
+					delayInfo.onOffSupported ? 1 : 0 );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   one push : %d", __func__,
+					delayInfo.onePushSupported ? 1 : 0 );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   absolute : %d", __func__,
+					delayInfo.absValSupported ? 1 : 0 );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   readout  : %d", __func__,
+					delayInfo.readOutSupported ? 1 : 0 );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   min      : %d", __func__,
+					delayInfo.min );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   max      : %d", __func__,
+					delayInfo.max );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   min      : %f", __func__,
+					delayInfo.absMin );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   max      : %f", __func__,
+					delayInfo.absMax );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   units    : %s", __func__,
+					delayInfo.pUnits );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   units    : %s", __func__,
+					delayInfo.pUnitAbbr );
 
       if ( delayInfo.present ) {
         if (( ret = ( *p_fc2GetTriggerDelay )( pgeContext, &triggerDelay )) !=
             FC2_ERROR_OK ) {
-          fprintf ( stderr, "Can't get trigger delay for FC2 GUID\n" );
+          oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't get trigger delay for FC2 GUID", __func__ );
           ( *p_fc2DestroyContext )( pgeContext );
 					if ( cameraInfo->triggerModes ) {
 						free (( void* ) cameraInfo->triggerModes );
@@ -640,16 +672,21 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
           return 0;
         }
 
-        /*
-        fprintf ( stderr, "trigger delay:\n" );
-        fprintf ( stderr, "  present  : %d\n", triggerDelay.present ? 1 : 0 );
-        fprintf ( stderr, "  absolute : %d\n", triggerDelay.absControl ? 1 : 0 );
-        fprintf ( stderr, "  one push : %d\n", triggerDelay.onePush ? 1 : 0 );
-        fprintf ( stderr, "  on/off   : %d\n", triggerDelay.onOff ? 1 : 0 );
-        fprintf ( stderr, "  auto/man : %d\n", triggerDelay.autoManualMode ? 1 : 0 );
-        fprintf ( stderr, "  valueA   : %d\n", triggerDelay.valueA ? 1 : 0 );
-        fprintf ( stderr, "  absValue : %f\n", triggerDelay.absValue );
-         */
+        oaLogDebug ( OA_LOG_CAMERA, "%s: trigger delay:", __func__ );
+        oaLogDebug ( OA_LOG_CAMERA, "%s:   present  : %d", __func__,
+						triggerDelay.present ? 1 : 0 );
+        oaLogDebug ( OA_LOG_CAMERA, "%s:   absolute : %d", __func__,
+						triggerDelay.absControl ? 1 : 0 );
+        oaLogDebug ( OA_LOG_CAMERA, "%s:   one push : %d", __func__,
+						triggerDelay.onePush ? 1 : 0 );
+        oaLogDebug ( OA_LOG_CAMERA, "%s:   on/off   : %d", __func__,
+						triggerDelay.onOff ? 1 : 0 );
+        oaLogDebug ( OA_LOG_CAMERA, "%s:   auto/man : %d", __func__,
+						triggerDelay.autoManualMode ? 1 : 0 );
+        oaLogDebug ( OA_LOG_CAMERA, "%s:   valueA   : %d", __func__,
+						triggerDelay.valueA ? 1 : 0 );
+        oaLogDebug ( OA_LOG_CAMERA, "%s:   absValue : %f", __func__,
+						triggerDelay.absValue );
 
         cameraInfo->triggerDelayEnable = delayInfo.onOffSupported ? 1 : 0;
         if ( delayInfo.onOffSupported ) {
@@ -687,7 +724,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         FC2_ERROR_OK ) {
       // not an error if this isn't a strobe line
       if ( ret != FC2_ERROR_INVALID_PARAMETER ) {
-        fprintf ( stderr, "Can't get strobe mode info for FC2 GUID\n" );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: Can't get strobe mode info for FC2 GUID", __func__ );
         ( *p_fc2DestroyContext )( pgeContext );
 				if ( cameraInfo->triggerModes ) {
 					free (( void* ) cameraInfo->triggerModes );
@@ -698,23 +736,27 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     }
 
     if ( strobeInfo.present ) {
-      /*
-      fprintf ( stderr, "GPIO %d strobe mode:\n", i );
-      fprintf ( stderr, "  present  : %d\n", strobeInfo.present ? 1 : 0 );
-      fprintf ( stderr, "  on/off   : %d\n", strobeInfo.onOffSupported ?
+      oaLogDebug ( OA_LOG_CAMERA, "%s: GPIO %d strobe mode:", __func__ , i );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   present  : %d", __func__ ,
+					strobeInfo.present ? 1 : 0 );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   on/off   : %d", __func__ ,
+					strobeInfo.onOffSupported ?
           1 : 0 );
-      fprintf ( stderr, "  polarity : %d\n", strobeInfo.polaritySupported ?
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   polarity : %d", __func__ ,
+					strobeInfo.polaritySupported ?
           1 : 0 );
-      fprintf ( stderr, "  min val  : %f\n", strobeInfo.minValue );
-      fprintf ( stderr, "  max val  : %f\n", strobeInfo.maxValue );
-       */
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   min val  : %f", __func__ ,
+					strobeInfo.minValue );
+      oaLogDebug ( OA_LOG_CAMERA, "%s:   max val  : %f", __func__ ,
+					strobeInfo.maxValue );
       if ( camera->features.flags & OA_CAM_FEATURE_STROBE_OUTPUT ) {
-        fprintf ( stderr, "Looks like there is more than one strobe output\n"
-            "This could get messy\n" );
+        oaLogWarning ( OA_LOG_CAMERA,
+						"%s: More than one strobe output found", __func__ );
       }
       if ( !i ) {
-        fprintf ( stderr, "Looks like the strobe output may be the same as"
-            "the trigger input.\nThis could get very messy\n" );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: Strobe output may be the same as the trigger input",
+						__func__ );
       }
  
       camera->features.flags |= OA_CAM_FEATURE_STROBE_OUTPUT;
@@ -766,7 +808,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     strobeControl.source = cameraInfo->strobeGPIO;
     if (( ret = ( *p_fc2GetStrobe )( pgeContext, &strobeControl )) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get strobe control for FC2 GUID\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't get strobe control for FC2 GUID",
+					__func__ );
       ( *p_fc2DestroyContext )( pgeContext );
 			if ( cameraInfo->triggerModes ) {
 				free (( void* ) cameraInfo->triggerModes );
@@ -779,13 +822,17 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     cameraInfo->strobeCurrentPolarity = strobeControl.polarity ? 1 : 0;
     cameraInfo->strobeCurrentDelay = strobeControl.delay * 1000000;
     cameraInfo->strobeCurrentDuration = strobeControl.duration * 1000000;
-    /*
-    fprintf ( stderr, "source %d:\n", cameraInfo->strobeGPIO );
-    fprintf ( stderr, "  on/off   : %d\n", strobeControl.onOff ? 1 : 0 );
-    fprintf ( stderr, "  polarity : %d\n", strobeControl.polarity ? 1 : 0 );
-    fprintf ( stderr, "  delay    : %f\n", strobeControl.delay );
-    fprintf ( stderr, "  duration : %f\n", strobeControl.duration );
-     */
+
+    oaLogDebug ( OA_LOG_CAMERA, "%s: source %d:", __func__,
+				cameraInfo->strobeGPIO );
+    oaLogDebug ( OA_LOG_CAMERA, "%s:   on/off   : %d", __func__,
+				strobeControl.onOff ? 1 : 0 );
+    oaLogDebug ( OA_LOG_CAMERA, "%s:   polarity : %d", __func__,
+				strobeControl.polarity ? 1 : 0 );
+    oaLogDebug ( OA_LOG_CAMERA, "%s:   delay    : %f", __func__,
+				strobeControl.delay );
+    oaLogDebug ( OA_LOG_CAMERA, "%s:   duration : %f", __func__,
+				strobeControl.duration );
   }
 
   // There are problems here if not all colour modes are supported in
@@ -819,7 +866,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 
     if (( *p_fc2QueryGigEImagingMode )( pgeContext, mode, &supported ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get mode info %d for FC2 GUID\n", i );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't get mode info %d for FC2 GUID",
+					__func__, i );
       ( *p_fc2DestroyContext )( pgeContext );
 			if ( cameraInfo->triggerModes ) {
 				free (( void* ) cameraInfo->triggerModes );
@@ -829,7 +877,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     }
     if ( supported ) {
       if (( *p_fc2SetGigEImagingMode )( pgeContext, mode ) != FC2_ERROR_OK ) {
-        fprintf ( stderr, "Can't set mode %d for FC2 GUID\n", mode );
+        oaLogError ( OA_LOG_CAMERA, "%s: Can't set mode %d for FC2 GUID",
+						__func__, mode );
         ( *p_fc2DestroyContext )( pgeContext );
 				if ( cameraInfo->triggerModes ) {
 					free (( void* ) cameraInfo->triggerModes );
@@ -839,7 +888,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       }
       if (( *p_fc2GetGigEImageSettingsInfo )( pgeContext, &imageInfo ) !=
           FC2_ERROR_OK ) {
-        fprintf ( stderr, "Can't get image info %d for FC2 GUID\n", i );
+        oaLogError ( OA_LOG_CAMERA, "%s: Can't get image info %d for FC2 GUID",
+						__func__, i );
         ( *p_fc2DestroyContext )( pgeContext );
 				if ( cameraInfo->triggerModes ) {
 					free (( void* ) cameraInfo->triggerModes );
@@ -889,7 +939,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       if ( !found ) {
         if (!( tmpPtr = realloc ( cameraInfo->frameSizes[ xbin ].sizes,
 							( numResolutions + 1 ) * sizeof ( FRAMESIZE )))) {
-          fprintf ( stderr, "realloc for frame sizes failed\n" );
+          oaLogError ( OA_LOG_CAMERA, "%s: realloc for frame sizes failed",
+							__func__ );
 					( *p_fc2DestroyContext )( pgeContext );
 					for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 						if ( cameraInfo->frameSizes[ j ].numSizes ) {
@@ -908,7 +959,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 				cameraInfo->frameSizes[ xbin ].sizes = tmpPtr;
         if (!( tmpPtr = realloc ( cameraInfo->frameModes[ xbin ],
             sizeof ( struct modeInfo ) * ( numResolutions + 1 )))) {
-          fprintf ( stderr, "realloc for frame modes failed\n" );
+          oaLogError ( OA_LOG_CAMERA, "%s: realloc for frame modes failed",
+							__func__ );
 					( *p_fc2DestroyContext )( pgeContext );
 					for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 						if ( cameraInfo->frameSizes[ j ].numSizes ) {
@@ -965,7 +1017,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   // Put the camera into a known state
   // FIX ME -- probably should just handle whatever is already set?
   if (( *p_fc2SetGigEImagingMode )( pgeContext, firstMode ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set mode %d for FC2 GUID\n", i );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set mode %d for FC2 GUID",
+				__func__, i );
     ( *p_fc2DestroyContext )( pgeContext );
 		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
@@ -980,7 +1033,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   }
   if (( *p_fc2GetGigEImageSettings )( pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get settings %d for FC2 GUID\n", i );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get settings %d for FC2 GUID",
+				__func__, i );
     ( *p_fc2DestroyContext )( pgeContext );
 		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
@@ -1001,11 +1055,13 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
     cameraInfo->currentBytesPerPixel = 1;
   } else {
     // FIX ME
-    fprintf ( stderr, "Don't know what to set default camera format to\n" );
+    oaLogWarning ( OA_LOG_CAMERA,
+				"%s: Don't know what to set default camera format to", __func__ );
   }
   if (( *p_fc2SetGigEImageSettings )( pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set settings %d for FC2 GUID\n", i );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set settings %d for FC2 GUID",
+				__func__, i );
     ( *p_fc2DestroyContext )( pgeContext );
 		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
@@ -1023,7 +1079,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   }
   if (( *p_fc2SetGigEImageBinningSettings )( pgeContext, 1, 1 ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set binmode 1 for FC2 GUID\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set binmode 1 for FC2 GUID",
+				__func__ );
     ( *p_fc2DestroyContext )( pgeContext );
 		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
@@ -1060,8 +1117,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   if ( camInfo.iidcVer >= 132 ) {
     if (( *p_fc2ReadRegister )( pgeContext, FC2_REG_DATA_DEPTH,
         &dataFormat ) != FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't read FC2 register 0x%04x\n",
-          FC2_REG_DATA_DEPTH );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't read FC2 register 0x%04x",
+          __func__, FC2_REG_DATA_DEPTH );
       ( *p_fc2DestroyContext )( pgeContext );
 			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
@@ -1084,8 +1141,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   } else {
     if (( *p_fc2ReadRegister )( pgeContext, FC2_REG_IMAGE_DATA_FORMAT,
         &dataFormat ) != FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't read FC2 register 0x%04x\n",
-          FC2_REG_IMAGE_DATA_FORMAT );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't read FC2 register 0x%04x",
+          __func__, FC2_REG_IMAGE_DATA_FORMAT );
       ( *p_fc2DestroyContext )( pgeContext );
 			for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 				if ( cameraInfo->frameSizes[ j ].numSizes ) {
@@ -1102,7 +1159,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       return 0;
     }
     if (( dataFormat & 0x80000000 ) == 0 ) {
-      fprintf ( stderr, "Image Data Format register unsupported\n" );
+      oaLogWarning ( OA_LOG_CAMERA,
+					"%s: Image Data Format register unsupported", __func__ );
     }
     cameraInfo->bigEndian = ( dataFormat & 0xff ) ? 1 : 0;
   }
@@ -1197,7 +1255,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         break;
       default: // a random selection really.  Just ensures initialisation.
         format = OA_PIX_FMT_RGGB8;
-        fprintf ( stderr, "Unrecognised CFA pattern.  Should not happen\n" );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: Unrecognised CFA pattern.  Should not happen", __func__ );
         break;
     }
     camera->frameFormats[ format ] = 1;
@@ -1230,7 +1289,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         break;
       default: // a random selection really.  Just ensures initialisation.
         format = OA_PIX_FMT_RGGB16LE;
-        fprintf ( stderr, "Unrecognised CFA pattern.  Should not happen\n" );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: Unrecognised CFA pattern.  Should not happen", __func__ );
         break;
     }
     camera->frameFormats[ format ] = 1;
@@ -1266,7 +1326,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
         break;
       default: // a random selection really.  Just ensures initialisation.
         format = OA_PIX_FMT_RGGB12;
-        fprintf ( stderr, "Unrecognised CFA pattern.  Should not happen\n" );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: Unrecognised CFA pattern.  Should not happen", __func__ );
         break;
     }
     camera->frameFormats[ format ] = 1;
@@ -1301,13 +1362,14 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
   }
 
   if ( !cameraInfo->maxBytesPerPixel ) {
-    fprintf ( stderr, "Unsupported pixel formats exist: 0x%04x\n",
-        imageInfo.pixelFormatBitField );
+    oaLogError ( OA_LOG_CAMERA, "%s: Unsupported pixel formats exist: 0x%04x",
+        __func__, imageInfo.pixelFormatBitField );
   }
 
   if (( *p_fc2GetEmbeddedImageInfo )( pgeContext, &embeddedInfo ) !=
       FC2_ERROR_OK ) {
-		fprintf ( stderr, "fc2GetEmbeddedImageInfo failed\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: fc2GetEmbeddedImageInfo failed",
+				__func__ );
     ( *p_fc2DestroyContext )( pgeContext );
 		for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 			if ( cameraInfo->frameSizes[ j ].numSizes ) {
@@ -1329,7 +1391,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
 			embeddedInfo.frameCounter.onOff = 1;
 			if (( *p_fc2SetEmbeddedImageInfo )( pgeContext, &embeddedInfo ) !=
 					FC2_ERROR_OK ) {
-				fprintf ( stderr, "fc2SetEmbeddedImageInfo failed\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: fc2SetEmbeddedImageInfo failed",
+						__func__ );
 				( *p_fc2DestroyContext )( pgeContext );
 				for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
 					if ( cameraInfo->frameSizes[ j ].numSizes ) {
@@ -1364,7 +1427,8 @@ fprintf ( stderr, "  auto: %d, manual %d, state: %d\n", propertyInfo.autoSupport
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: malloc of camera buffers failed",
+					__func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );

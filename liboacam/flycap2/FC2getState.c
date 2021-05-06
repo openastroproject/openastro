@@ -82,7 +82,7 @@ oaFC2CameraGetFrameSizes ( oaCamera* camera )
 const FRAMERATES*
 oaFC2CameraGetFrameRates ( oaCamera* camera, int resX, int resY )
 {
-fprintf ( stderr, "implement %s\n", __func__ );
+	oaLogError ( OA_LOG_CAMERA, "%s: implement this function", __func__ );
   FC2_STATE*		cameraInfo = camera->_private;
 /*
   dc1394framerates_t    framerates;
@@ -91,12 +91,12 @@ fprintf ( stderr, "implement %s\n", __func__ );
 
   if ( dc1394_video_get_supported_framerates ( cameraInfo->iidcHandle,
       cameraInfo->videoCurrent, &framerates ) != DC1394_SUCCESS ) {
-    fprintf ( stderr, "%s: dc1394_video_get_supported_framerates failed\n",
+    oaLogError ( OA_LOG_CAMERA, "%s: %s: dc1394_video_get_supported_framerates failed\n",
          __func__ );
     return 0;
   }
   if ( !framerates.num ) {
-    fprintf ( stderr, "%s: dc1394_video_get_supported_framerates returns "
+    oaLogError ( OA_LOG_CAMERA, "%s: %s: dc1394_video_get_supported_framerates returns "
         "no frame rates\n", __func__ );
     return 0;
   }
@@ -143,7 +143,7 @@ fprintf ( stderr, "implement %s\n", __func__ );
         denominator = 240;
         break;
       default:
-        fprintf ( stderr, "%s: unknown frame rate %d\n", __func__,
+        oaLogError ( OA_LOG_CAMERA, "%s: unknown frame rate %d", __func__,
             framerates.framerates[i] );
         matched = 0;
         break;
@@ -153,7 +153,7 @@ fprintf ( stderr, "implement %s\n", __func__ );
       if (!( cameraInfo->frameRates.rates = realloc (
           cameraInfo->frameRates.rates, ( numRates + 1 ) *
           sizeof ( FRAMERATE )))) {
-        fprintf ( stderr, "%s: realloc failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: realloc failed", __func__ );
         return 0;
       }
       cameraInfo->frameRates.rates[ numRates ].numerator = numerator;
@@ -163,7 +163,7 @@ fprintf ( stderr, "implement %s\n", __func__ );
   }
 
   if ( !numRates ) {
-    fprintf ( stderr, "%s: no frame rates found\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: no frame rates found", __func__ );
     return 0;
   }
   cameraInfo->frameRates.numRates = numRates;
@@ -180,7 +180,7 @@ oaFC2CameraGetFramePixelFormat ( oaCamera* camera )
 
   if (( *p_fc2GetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get image info\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get image info", __func__ );
     return 0;
   }
 
@@ -209,7 +209,8 @@ oaFC2CameraGetFramePixelFormat ( oaCamera* camera )
     case FC2_PIXEL_FORMAT_RAW12:
     case FC2_PIXEL_FORMAT_RAW16:
     case FC2_PIXEL_FORMAT_BGR16:
-      fprintf ( stderr, "No idea of byte order for >8bit colour format %d\n",
+      oaLogWarning ( OA_LOG_CAMERA,
+					"%s: No idea of byte order for >8bit colour format %d", __func__,
           settings.pixelFormat );
       break;
 
@@ -224,12 +225,13 @@ oaFC2CameraGetFramePixelFormat ( oaCamera* camera )
 
     case FC2_PIXEL_FORMAT_BGRU:
     case FC2_PIXEL_FORMAT_422YUV8_JPEG:
-      fprintf ( stderr, "Unhandled colour format %d\n",
-          settings.pixelFormat );
+      oaLogWarning ( OA_LOG_CAMERA, "%s: Unhandled colour format %d",
+          __func__, settings.pixelFormat );
       break;
 
     default:
-      fprintf ( stderr, "Unknown colour format %d\n", settings.pixelFormat );
+      oaLogError ( OA_LOG_CAMERA, "%s: Unknown colour format %d", __func__,
+					settings.pixelFormat );
       break;
   }
 

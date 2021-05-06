@@ -115,7 +115,8 @@ oacamFC2controller ( void* param )
             break;
  */
           default:
-            fprintf ( stderr, "Invalid command type %d in controller\n",
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: Invalid command type %d in controller", __func__,
                 command->commandType );
             resultCode = -OA_ERR_INVALID_CONTROL;
             break;
@@ -197,8 +198,9 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
   // do this first as it's not a recognised control in itself
   if ( OA_CAM_CTRL_BINNING == control ) {
     if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
-      fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-          __func__, val->valueType );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: invalid control type %d where int32 expected", __func__,
+					val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     return _doBinning ( cameraInfo, val->int32 );
@@ -251,13 +253,14 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
   if ( found == 2 || found == 3 ) { // auto or on/off
     uint32_t val_u32;
     if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
-      fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-          __func__, val->valueType );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: invalid control type %d where bool expected", __func__,
+					val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     val_u32 = val->boolean;
     if ( val_u32 > 1 ) {
-      fprintf ( stderr, "%s: control value out of range\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: control value out of range", __func__ );
       return -OA_ERR_OUT_OF_RANGE;
     }
 
@@ -266,7 +269,8 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
     property.type = pgeControl;
     if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get FC2 property %d\n", pgeControl );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't get FC2 property %d",
+					__func__, pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
     if ( found == 2 ) {
@@ -276,7 +280,8 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
     }
     if (( *p_fc2SetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't set FC2 property %d\n", pgeControl );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't set FC2 property %d", __func__,
+					pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -290,7 +295,7 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
     property.type = FC2_WHITE_BALANCE;
     if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get FC2 white balance\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't get FC2 white balance", __func__ );
       return -OA_ERR_CAMERA_IO;
     }
     if ( OA_CAM_CTRL_BLUE_BALANCE == control ) {
@@ -302,7 +307,7 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
     }
     if (( *p_fc2SetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't set FC2 white balance\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't set FC2 white balance", __func__ );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -315,8 +320,9 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
     // We should also have a 64-bit value here and it can't be negative.
     // Probably shouldn't be non-positive, really.
     if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
-      fprintf ( stderr, "%s: invalid control type %d where int64 expected "
-          "for OA_CAM_CTRL_EXPOSURE_ABSOLUTE\n", __func__, val->valueType );
+      oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d where int64 "
+					"expected for OA_CAM_CTRL_EXPOSURE_ABSOLUTE", __func__,
+					val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     val_s64 = val->int64;
@@ -324,14 +330,16 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
     property.type = pgeControl;
     if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get FC2 property %d\n", pgeControl );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't get FC2 property %d", __func__,
+					pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
     property.absControl = 1;
     property.absValue = decval;
     if (( *p_fc2SetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't set FC2 property %d\n", pgeControl );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't set FC2 property %d", __func__,
+					pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
     cameraInfo->currentAbsoluteExposure = val_s64;
@@ -341,21 +349,24 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
   if ( found >= 0 || OA_CAM_CTRL_EXPOSURE_UNSCALED == control ) {
     uint32_t val_u32;
     if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
-      fprintf ( stderr, "%s: invalid control type %d where int32 expected "
-          "for control %d\n", __func__, val->valueType, control );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: invalid control type %d where int32 expected for control %d",
+					__func__, val->valueType, control );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     val_u32 = val->int32;
     property.type = pgeControl;
     if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get FC2 property %d\n", pgeControl );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't get FC2 property %d", __func__,
+					pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
     property.valueA = val_u32;
     if (( *p_fc2SetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't set FC2 property %d\n", pgeControl );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't set FC2 property %d", __func__,
+					pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
     return OA_ERR_NONE;
@@ -363,14 +374,16 @@ _processSetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 
   if ( OA_CAM_CTRL_FRAME_FORMAT == control ) {
     if ( OA_CTRL_TYPE_DISCRETE != val->valueType ) {
-      fprintf ( stderr, "%s: invalid control type %d where discrete expected\n",
-          __func__, val->valueType );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: invalid control type %d where discrete expected", __func__,
+					val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     return _doFrameFormat ( cameraInfo, val->discrete );
   }
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
+  oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+			control );
 
   return -OA_ERR_INVALID_CONTROL;
 }
@@ -411,7 +424,7 @@ _processGetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
     property.type = FC2_WHITE_BALANCE;
     if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get FC2 white balance\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't get FC2 white balance", __func__ );
       return -OA_ERR_CAMERA_IO;
     }
     val->valueType = OA_CTRL_TYPE_INT32;
@@ -444,7 +457,8 @@ _processGetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
     property.type = pgeControl;
     if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get FC2 control %d\n", pgeControl );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't get FC2 control %d", __func__,
+					pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
     if ( oaIsAuto ( control )) {
@@ -474,7 +488,8 @@ _processGetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
     property.type = FC2_SHUTTER;
     if (( *p_fc2GetProperty )( cameraInfo->pgeContext, &property ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't get FC2 control %d\n", pgeControl );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't get FC2 control %d", __func__,
+					pgeControl );
       return -OA_ERR_CAMERA_IO;
     }
     val->valueType = OA_CTRL_TYPE_INT64;
@@ -494,7 +509,7 @@ _processGetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 
 	  if (( *p_fc2GetGigEImageBinningSettings )( cameraInfo->pgeContext, &xbin,
 				&ybin ) != FC2_ERROR_OK ) {
-			fprintf ( stderr, "Can't get binning state\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't get binning state", __func__ );
 			return -OA_ERR_CAMERA_IO;
 		}
 
@@ -503,7 +518,8 @@ _processGetControl ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 		return OA_ERR_NONE;
   }
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
+  oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+			control );
 
   return -OA_ERR_INVALID_CONTROL;
 }
@@ -534,7 +550,7 @@ _processSetResolution ( FC2_STATE* cameraInfo, OA_COMMAND* command )
   }
 
   if ( found < 0 ) {
-    fprintf ( stderr, "resolution not found\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: resolution not found", __func__ );
     return -OA_ERR_OUT_OF_RANGE;
   }
 
@@ -542,13 +558,13 @@ _processSetResolution ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 
   if (( *p_fc2GetGigEImageSettingsInfo )( cameraInfo->pgeContext,
       &imageInfo ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get image settings info\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get image settings info", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
 
   if (( *p_fc2GetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get FC2 image settings\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get FC2 image settings", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
   settings.width = size->x;
@@ -564,26 +580,29 @@ _processSetResolution ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 /*
   if (( *p_fc2SetGigEImageBinningSettings )( cameraInfo->pgeContext, 1, 1 ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set mode %d for FC2 GUID\n", mode );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set mode %d for FC2 GUID",
+				__func__, mode );
     return -OA_ERR_CAMERA_IO;
   }
 */
 
   if (( *p_fc2SetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set FC2 image settings\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set FC2 image settings", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
 
   if (( *p_fc2SetGigEImagingMode )( cameraInfo->pgeContext, mode ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set mode %d for FC2 GUID\n", mode );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set mode %d for FC2 GUID",
+				__func__, mode );
     return -OA_ERR_CAMERA_IO;
   }
 
   if (( *p_fc2SetGigEImageBinningSettings )( cameraInfo->pgeContext,
       cameraInfo->binMode, cameraInfo->binMode ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set mode %d for FC2 GUID\n", mode );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set mode %d for FC2 GUID", __func__,
+				mode );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -619,14 +638,15 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
 
   if (( *p_fc2GetGigEImageSettingsInfo )( cameraInfo->pgeContext,
       &imageInfo ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get image settings info\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get image settings info", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
 
   if ( x > imageInfo.maxWidth || y > imageInfo.maxHeight ||
       (( x % imageInfo.imageHStepSize ) != 0 ) ||
       (( y % imageInfo.imageVStepSize ) != 0 )) {
-    fprintf ( stderr, "Requested image size out of range\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Requested image size out of range",
+				__func__ );
     return -OA_ERR_OUT_OF_RANGE;
   }
 
@@ -643,7 +663,8 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
   }
   if (( ret = ( *p_fc2SetGigEImageSettings )( cameraInfo->pgeContext,
       &settings )) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set image settings, error %d\n", ret );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set image settings, error %d",
+				__func__, ret );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -666,7 +687,7 @@ _processSetFrameInterval ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 {
   FRAMERATE*                    rate = command->commandData;
 
-fprintf ( stderr, "implement %s\n", __func__ );
+	oaLogWarning ( OA_LOG_CAMERA, "%s: implement this function", __func__ );
   cameraInfo->frameRateNumerator = rate->numerator;
   cameraInfo->frameRateDenominator = rate->denominator;
   return _doCameraConfig ( cameraInfo );
@@ -689,7 +710,7 @@ _processStreamingStart ( FC2_STATE* cameraInfo, OA_COMMAND* command )
 
   if (( *p_fc2GetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get image info\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get image info", __func__ );
     return -OA_ERR_CAMERA_IO;
   }   
       
@@ -709,7 +730,7 @@ _processStreamingStart ( FC2_STATE* cameraInfo, OA_COMMAND* command )
       cameraInfo->currentBytesPerPixel = 3;
       break;
     default:
-      fprintf ( stderr, "Can't handle pixel depth calculation in %s\n",
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't handle pixel depth calculation",
           __func__ );
       return -OA_ERR_OUT_OF_RANGE;
       break;
@@ -729,8 +750,8 @@ _doStart ( FC2_STATE* cameraInfo )
 
   if (( ret = ( *p_fc2StartCaptureCallback )( cameraInfo->pgeContext,
       _FC2FrameCallback, cameraInfo )) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "%s: fc2StartCaptureCallback failed: %d\n", __func__,
-        ret );
+    oaLogError ( OA_LOG_CAMERA, "%s: fc2StartCaptureCallback failed: %d",
+				__func__, ret );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -764,7 +785,8 @@ _doStop ( FC2_STATE* cameraInfo )
 
   if (( ret = ( *p_fc2StopCapture )( cameraInfo->pgeContext )) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "%s: fc2StopCapture failed: %d\n", __func__, ret );
+    oaLogError ( OA_LOG_CAMERA, "%s: fc2StopCapture failed: %d", __func__,
+				ret );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -818,8 +840,9 @@ _processSetTriggerControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
   switch ( control ) {
     case OA_CAM_CTRL_TRIGGER_ENABLE:
       if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
-        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where bool expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->triggerEnabled = val->boolean;
@@ -827,8 +850,9 @@ _processSetTriggerControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
 
     case OA_CAM_CTRL_TRIGGER_MODE:
       if ( OA_CTRL_TYPE_DISC_MENU != val->valueType ) {
-        fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "menu expected\n", __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where discrete menu expected",
+						__func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->triggerCurrentMode = val->menu;
@@ -836,8 +860,9 @@ _processSetTriggerControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
 
     case OA_CAM_CTRL_TRIGGER_SOURCE:
       if ( OA_CTRL_TYPE_MENU != val->valueType ) {
-        fprintf ( stderr, "%s: invalid control type %d where "
-            "menu expected\n", __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where menu expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->triggerGPIO = val->menu;
@@ -845,8 +870,9 @@ _processSetTriggerControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
 
     case OA_CAM_CTRL_TRIGGER_POLARITY:
       if ( OA_CTRL_TYPE_MENU != val->valueType ) {
-        fprintf ( stderr, "%s: invalid control type %d where "
-            "menu expected\n", __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where menu expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->triggerCurrentPolarity = val->menu;
@@ -862,7 +888,7 @@ _processSetTriggerControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
 
     if (( *p_fc2SetTriggerMode )( cameraInfo->pgeContext, &triggerMode ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't set FC2 trigger mode\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't set FC2 trigger mode", __func__ );
       return -OA_ERR_CAMERA_IO;
     }
   }
@@ -907,8 +933,9 @@ _processSetTriggerDelayControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
   switch ( control ) {
     case OA_CAM_CTRL_TRIGGER_DELAY_ENABLE:
       if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
-        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where bool expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->triggerDelayEnabled = val->boolean;
@@ -916,8 +943,9 @@ _processSetTriggerDelayControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
 
     case OA_CAM_CTRL_TRIGGER_DELAY:
       if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
-        fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "menu expected\n", __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where discrete menu expected",
+						__func__, val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->triggerCurrentDelay = val->int64;
@@ -933,7 +961,7 @@ _processSetTriggerDelayControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
 
     if (( *p_fc2SetTriggerDelay )( cameraInfo->pgeContext, &triggerDelay ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't set FC2 trigger delay\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't set FC2 trigger delay", __func__ );
       return -OA_ERR_CAMERA_IO;
     }
   }
@@ -988,8 +1016,9 @@ _processSetStrobeControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
   switch ( control ) {
     case OA_CAM_CTRL_STROBE_ENABLE:
       if ( OA_CTRL_TYPE_BOOLEAN != val->valueType ) {
-        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where bool expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->strobeEnabled = val->boolean;
@@ -997,8 +1026,9 @@ _processSetStrobeControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
 
     case OA_CAM_CTRL_STROBE_POLARITY:
       if ( OA_CTRL_TYPE_MENU != val->valueType ) {
-        fprintf ( stderr, "%s: invalid control type %d where "
-            "menu expected\n", __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where menu expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->strobeCurrentPolarity = val->menu;
@@ -1006,8 +1036,9 @@ _processSetStrobeControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
 
     case OA_CAM_CTRL_STROBE_DELAY:
       if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
-        fprintf ( stderr, "%s: invalid control type %d where int64 "
-            "expected\n", __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int64 expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->strobeCurrentDelay = val->int64;
@@ -1015,8 +1046,9 @@ _processSetStrobeControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
 
     case OA_CAM_CTRL_STROBE_DURATION:
       if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
-        fprintf ( stderr, "%s: invalid control type %d where int64 "
-            "expected\n", __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int64 expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->strobeCurrentDuration = val->int64;
@@ -1037,7 +1069,8 @@ _processSetStrobeControl ( FC2_STATE* cameraInfo, OA_COMMAND* command,
 
     if (( *p_fc2SetStrobe )( cameraInfo->pgeContext, &strobeControl ) !=
         FC2_ERROR_OK ) {
-      fprintf ( stderr, "Can't set FC2 strobe control\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't set FC2 strobe control",
+					__func__ );
       return -OA_ERR_CAMERA_IO;
     }
   }
@@ -1072,7 +1105,7 @@ _doBinning ( FC2_STATE* cameraInfo, int binMode )
   }
 
   if ( found < 0 ) {
-    fprintf ( stderr, "resolution not found\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: resolution not found", __func__ );
     return -OA_ERR_OUT_OF_RANGE;
   }
 
@@ -1086,14 +1119,15 @@ _doBinning ( FC2_STATE* cameraInfo, int binMode )
 /*
   if (( *p_fc2SetGigEImagingMode )( cameraInfo->pgeContext, mode ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set mode %d\n", mode );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set mode %d", __func__, mode );
     return -OA_ERR_CAMERA_IO;
   }
 */
 
   if (( *p_fc2SetGigEImageBinningSettings )( cameraInfo->pgeContext,
       binMode, binMode ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set binning %d for mode %d\n", binMode, mode );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set binning %d for mode %d",
+				__func__, binMode, mode );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -1119,7 +1153,7 @@ _doFrameFormat ( FC2_STATE* cameraInfo, int format )
 
   if (( *p_fc2GetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get FC2 image settings\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get FC2 image settings", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -1188,7 +1222,7 @@ _doFrameFormat ( FC2_STATE* cameraInfo, int format )
 
   if (( *p_fc2SetGigEImageSettings )( cameraInfo->pgeContext, &settings ) !=
       FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't set FC2 image settings\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set FC2 image settings", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
 

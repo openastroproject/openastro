@@ -64,7 +64,7 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   }
 
   if (( *p_fc2CreateGigEContext )( &pgeContext ) != FC2_ERROR_OK ) {
-    fprintf ( stderr, "Can't get FC2 context\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get FC2 context", __func__ );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
@@ -80,7 +80,7 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
     ret = ( *p_fc2DiscoverGigECameras )( pgeContext, devList, &numCameras );
     if ( ret != FC2_ERROR_OK && ret != FC2_ERROR_BUFFER_TOO_SMALL ) {
       ( *p_fc2DestroyContext )( pgeContext );
-      fprintf ( stderr, "Can't enumerate FC2 devices\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: Can't enumerate FC2 devices", __func__ );
       ( void ) free (( void* ) devList );
       return -OA_ERR_SYSTEM_ERROR;
     }
@@ -96,7 +96,8 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   if (( * p_fc2GetNumOfCameras )( pgeContext, &numCameras ) != FC2_ERROR_OK ) {
     ( *p_fc2DestroyContext )( pgeContext );
     free (( void* ) devList );
-    fprintf ( stderr, "Error fetching number of cameras\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Error fetching number of cameras",
+		__func__ );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
@@ -114,14 +115,16 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         &guid ) != FC2_ERROR_OK ) {
       ( *p_fc2DestroyContext )( pgeContext );
       ( void ) free (( void* ) devList );
-      fprintf ( stderr, "Error fetching details for camera %d\n", i );
+      oaLogError ( OA_LOG_CAMERA, "%s: Error fetching details for camera %d",
+					__func__, i );
       return -OA_ERR_SYSTEM_ERROR;
     }
 
     if (( *p_fc2GetInterfaceTypeFromGuid )( pgeContext, &guid,
         &interfaceType ) != FC2_ERROR_OK ) {
       ( *p_fc2DestroyContext )( pgeContext );
-      fprintf ( stderr, "Error getting interface type for camera %d\n", i );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: Error getting interface type for camera %d", __func__, i );
       ( void ) free (( void* ) devList );
       return -OA_ERR_SYSTEM_ERROR;
     }
@@ -129,48 +132,39 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
     if ( interfaceType != FC2_INTERFACE_GIGE ) {
       continue;
     }
-    /*
-    fprintf(
-        stderr,
-        "GigE major version - %u\n"
-        "GigE minor version - %u\n"
-        "User-defined name - %s\n"
-        "Model name - %s\n"
-        "XML URL1 - %s\n"
-        "XML URL2 - %s\n"
-        "Firmware version - %s\n"
-        "IIDC version - %1.2f\n"
-        "MAC address - %02X:%02X:%02X:%02X:%02X:%02X\n"
-        "IP address - %u.%u.%u.%u\n"
-        "Subnet mask - %u.%u.%u.%u\n"
-        "Default gateway - %u.%u.%u.%u\n\n",
-        devList[i].gigEMajorVersion,
-        devList[i].gigEMinorVersion,
-        devList[i].userDefinedName,
-        devList[i].modelName,
-        devList[i].xmlURL1,
-        devList[i].xmlURL2,
-        devList[i].firmwareVersion,
-        devList[i].iidcVer / 100.0f,
-        devList[i].macAddress.octets[0],
-        devList[i].macAddress.octets[1],
-        devList[i].macAddress.octets[2],
-        devList[i].macAddress.octets[3],
-        devList[i].macAddress.octets[4],
-        devList[i].macAddress.octets[5],
-        devList[i].ipAddress.octets[0],
-        devList[i].ipAddress.octets[1],
-        devList[i].ipAddress.octets[2],
-        devList[i].ipAddress.octets[3],
-        devList[i].subnetMask.octets[0],
-        devList[i].subnetMask.octets[1],
-        devList[i].subnetMask.octets[2],
-        devList[i].subnetMask.octets[3],
+
+    oaLogDebug ( OA_LOG_CAMERA, "%s: GigE major version - %u", __func__,
+        devList[i].gigEMajorVersion );
+    oaLogDebug ( OA_LOG_CAMERA, "%s: GigE minor version - %u", __func__,
+        devList[i].gigEMinorVersion );
+    oaLogDebug ( OA_LOG_CAMERA, "%s: User-defined name - %s", __func__,
+        devList[i].userDefinedName );
+    oaLogDebug ( OA_LOG_CAMERA, "%s: Model name - %s", __func__,
+        devList[i].modelName );
+    oaLogDebug ( OA_LOG_CAMERA, "%s: XML URL1 - %s", __func__,
+        devList[i].xmlURL1 );
+    oaLogDebug ( OA_LOG_CAMERA, "%s: XML URL2 - %s", __func__,
+        devList[i].xmlURL2 );
+    oaLogDebug ( OA_LOG_CAMERA, "%s: Firmware version - %s", __func__,
+        devList[i].firmwareVersion );
+    oaLogDebug ( OA_LOG_CAMERA, "%s: IIDC version - %1.2f", __func__,
+        devList[i].iidcVer / 100.0f );
+    oaLogDebug ( OA_LOG_CAMERA,
+				"%s: MAC address - %02X:%02X:%02X:%02X:%02X:%02X", __func__,
+        devList[i].macAddress.octets[0], devList[i].macAddress.octets[1],
+        devList[i].macAddress.octets[2], devList[i].macAddress.octets[3],
+        devList[i].macAddress.octets[4], devList[i].macAddress.octets[5] );
+    oaLogDebug ( OA_LOG_CAMERA, "%s: IP address - %u.%u.%u.%u", __func__,
+        devList[i].ipAddress.octets[0], devList[i].ipAddress.octets[1],
+        devList[i].ipAddress.octets[2], devList[i].ipAddress.octets[3] );
+    oaLogDebug ( OA_LOG_CAMERA, "%s: Subnet mask - %u.%u.%u.%u", __func__,
+        devList[i].subnetMask.octets[0], devList[i].subnetMask.octets[1],
+        devList[i].subnetMask.octets[2], devList[i].subnetMask.octets[3] );
+    oaLogDebug ( OA_LOG_CAMERA, "%s: Default gateway - %u.%u.%u.%u", __func__,
         devList[i].defaultGateway.octets[0],
         devList[i].defaultGateway.octets[1],
         devList[i].defaultGateway.octets[2],
         devList[i].defaultGateway.octets[3]);
-     */
 
     if (!( dev = malloc ( sizeof ( oaCameraDevice )))) {
 			// FIX ME -- does this need to happen?
@@ -235,10 +229,13 @@ oaFC2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 		unsigned long	val;
 		if ( fscanf ( fd, "%ld", &val ) == 1 ) {
 			if ( val <= 10485760 ) {
-				fprintf ( stderr, "**************\nIt may be necessary to raise "
-						"rmem_default and rmem_max to a larger value\n(for example, "
-						"10000000) for best performance with GigE cameras.\n"
-						"**************\n" );
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: It may be necessary to raise rmem_default and rmem_max",
+						__func__ );
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: to a larger value (for example, 10000000) for", __func__ );
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: best performance with GigE cameras.", __func__ );
 			}
 		}
 		fclose ( fd );

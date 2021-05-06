@@ -112,7 +112,8 @@ oaFC2CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 
     default:
       // If we reach here it's because we don't recognise the control
-      fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+					control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -173,7 +174,7 @@ oaFC2CameraGetMenuString ( oaCamera* camera, int control, int index )
     return "Invalid index";
   }
 
-  fprintf ( stderr, "%s: control not implemented\n", __func__ );
+  oaLogError ( OA_LOG_CAMERA, "%s: control not implemented\n", __func__ );
   return "";
 }
 
