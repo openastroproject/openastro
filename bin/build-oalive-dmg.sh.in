@@ -128,23 +128,27 @@ install_name_tool -change @loader_path/libusb-1.0.0.dylib @executable_path/../Fr
 # temporarily disabled until such time as I work out what version of MacOS
 # can actually run these commands without an error
 #
-#for lib in libSpinnaker_C.dylib.2.3.0.77 libSpinnaker.dylib.2.3.0.77 libGenApi_clang90_v3_0.dylib libGCBase_clang90_v3_0.dylib liblog4cpp_clang90_v3_0.dylib libLog_clang90_v3_0.dylib libMathParser_clang90_v3_0.dylib libNodeMapData_clang90_v3_0.dylib libXmlParser_clang90_v3_0.dylib
-#do
-#	cp /usr/local/lib/$lib $APPDIR/Contents/MacOS/$lib
-#	install_name_tool -change @rpath/libGenApi_clang90_v3_0.dylib @executable_path/libGenApi_clang90_v3_0.dylib $APPDIR/Contents/MacOS/$lib
-#	install_name_tool -change @rpath/libGCBase_clang90_v3_0.dylib @executable_path/libGCBase_clang90_v3_0.dylib $APPDIR/Contents/MacOS/$lib
-#	install_name_tool -change @rpath/liblog4cpp_clang90_v3_0.dylib @executable_path/liblog4cpp_clang90_v3_0.dylib $APPDIR/Contents/MacOS/$lib
-#	install_name_tool -change @rpath/libLog_clang90_v3_0.dylib @executable_path/libLog_clang90_v3_0.dylib $APPDIR/Contents/MacOS/$lib
-#	install_name_tool -change @rpath/libMathParser_clang90_v3_0.dylib @executable_path/libMathParser_clang90_v3_0.dylib $APPDIR/Contents/MacOS/$lib
-#	install_name_tool -change @rpath/libNodeMapData_clang90_v3_0.dylib @executable_path/libNodeMapData_clang90_v3_0.dylib $APPDIR/Contents/MacOS/$lib
-#	install_name_tool -change @rpath/libXmlParser_clang90_v3_0.dylib @executable_path/libXmlParser_clang90_v3_0.dylib $APPDIR/Contents/MacOS/$lib
-#		install_name_tool -change /usr/local/opt/libusb/lib/libusb-1.0.0.dylib @executable_path/../Frameworks/libusb-1.0.0.dylib $APPDIR/Contents/MacOS/$lib
-#		install_name_tool -change /usr/local/opt/libusb/lib/libusb-1.0.0.dylib @executable_path/../Frameworks/libusb-1.0.0.dylib $APPDIR/Contents/MacOS/$lib
-#		install_name_tool -change /usr/local/opt/libomp/lib/libomp.dylib @executable_path/libomp.dylib $APPDIR/Contents/MacOS/$lib
-#done
-#cp /opt/local/lib/libomp/libomp.dylib $APPDIR/Contents/MacOS
-#ln -s ./libSpinnaker_C.dylib.2.3.0.77 $APPDIR/Contents/MacOS/libSpinnaker_C.dylib
-	
+if [ -r /usr/local/lib/libSpinnaker_C.dylib ]
+then
+	for lib in libSpinnaker_C.dylib.2.3.0.77 libSpinnaker.dylib.2.3.0.77 libGenApi_clang90_v3_0.dylib libGCBase_clang90_v3_0.dylib liblog4cpp_clang90_v3_0.dylib libLog_clang90_v3_0.dylib libMathParser_clang90_v3_0.dylib libNodeMapData_clang90_v3_0.dylib libXmlParser_clang90_v3_0.dylib
+	do
+		cp /usr/local/lib/$lib $APPDIR/Contents/MacOS/$lib
+		install_name_tool -change @rpath/libGenApi_clang90_v3_0.dylib @executable_path/libGenApi_clang90_v3_0.dylib $APPDIR/Contents/MacOS/$lib
+		install_name_tool -change @rpath/libGCBase_clang90_v3_0.dylib @executable_path/libGCBase_clang90_v3_0.dylib $APPDIR/Contents/MacOS/$lib
+		install_name_tool -change @rpath/liblog4cpp_clang90_v3_0.dylib @executable_path/liblog4cpp_clang90_v3_0.dylib $APPDIR/Contents/MacOS/$lib
+		install_name_tool -change @rpath/libLog_clang90_v3_0.dylib @executable_path/libLog_clang90_v3_0.dylib $APPDIR/Contents/MacOS/$lib
+		install_name_tool -change @rpath/libMathParser_clang90_v3_0.dylib @executable_path/libMathParser_clang90_v3_0.dylib $APPDIR/Contents/MacOS/$lib
+		install_name_tool -change @rpath/libNodeMapData_clang90_v3_0.dylib @executable_path/libNodeMapData_clang90_v3_0.dylib $APPDIR/Contents/MacOS/$lib
+		install_name_tool -change @rpath/libXmlParser_clang90_v3_0.dylib @executable_path/libXmlParser_clang90_v3_0.dylib $APPDIR/Contents/MacOS/$lib
+		install_name_tool -change /usr/local/opt/libusb/lib/libusb-1.0.0.dylib @executable_path/../Frameworks/libusb-1.0.0.dylib $APPDIR/Contents/MacOS/$lib
+		install_name_tool -change /usr/local/opt/libomp/lib/libomp.dylib @executable_path/libomp.dylib $APPDIR/Contents/MacOS/$lib
+		install_name_tool -change libSpinnaker.dylib.2.3.0.77 @executable_path/libSpinnaker.dylib.2.3.0.77 $APPDIR/Contents/MacOS/$lib
+	done
+	cp /opt/local/lib/libomp/libomp.dylib $APPDIR/Contents/MacOS
+	cp /usr/local/lib/flir-gentl/FLIR_GenTL.cti $APPDIR/Contents/MacOS
+	ln -s ./libSpinnaker_C.dylib.2.3.0.77 $APPDIR/Contents/MacOS/libSpinnaker_C.dylib
+fi
+
 cd $ROOT
 rm -f ../oalive-$VERSION.dmg
 hdiutil create -format UDBZ -quiet -srcfolder oalive.app ../oalive-$VERSION.dmg
