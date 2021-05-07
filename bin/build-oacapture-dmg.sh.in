@@ -2,7 +2,7 @@
 #
 # build-oacapture-dmg.sh.in -- Build a DMG install file from built binaries
 #
-# Copyright 2013,2014,2015,2016,2018,2019,2020
+# Copyright 2013,2014,2015,2016,2018,2019,2020,2021
 #     James Fidell (james@openastroproject.org)
 #
 # License:
@@ -60,7 +60,7 @@ ln -s . $APPDIR/Contents/Resources/firmware/qhy/firmware
 
 cp oacapture/translations/*.qm $APPDIR/Contents/Resources/translations
 
-/opt/local/bin/macdeployqt $APPDIR
+macdeployqt $APPDIR
 
 for lib in ASICamera2 toupcam mallincam altaircam altaircamlegacy qhyccd omegonprocam nncam starshootg SVBCameraSDK
 do
