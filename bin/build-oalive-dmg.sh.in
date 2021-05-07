@@ -143,6 +143,7 @@ install_name_tool -change @loader_path/libusb-1.0.0.dylib @executable_path/../Fr
 #		install_name_tool -change /usr/local/opt/libomp/lib/libomp.dylib @executable_path/libomp.dylib $APPDIR/Contents/MacOS/$lib
 #done
 #cp /opt/local/lib/libomp/libomp.dylib $APPDIR/Contents/MacOS
+#ln -s ./libSpinnaker_C.dylib.2.3.0.77 $APPDIR/Contents/MacOS/libSpinnaker_C.dylib
 	
 cd $ROOT
 rm -f ../oalive-$VERSION.dmg
