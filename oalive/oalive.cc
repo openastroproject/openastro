@@ -28,6 +28,10 @@
 
 #include <QApplication>
 
+extern "C" {
+#include <openastro/util.h>
+}
+
 #include "captureSettings.h"
 #include "fitsSettings.h"
 
@@ -103,6 +107,9 @@ main ( int argc, char* argv[] )
       }
     }
   }
+
+	oaSetLogLevel ( OA_LOG_NONE );
+	oaSetLogType ( OA_LOG_NONE );
 
   MainWindow mainWindow ( configFile );
   mainWindow.show();
