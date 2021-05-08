@@ -47,6 +47,17 @@ main ( int argc, char* argv[] )
 {
   QApplication app ( argc, argv );
   QString translateDir;
+	QString configFile = "";
+
+	unsigned int logLevel = OA_LOG_NONE;
+	unsigned int logType = OA_LOG_NONE;
+
+#if HAVE_QT5
+	QStringList debugTypeValues = { "none", "app", "camera", "fw", "timer" };
+	QStringList debugLevelValues = { "none", "error", "warning", "info",
+			"debug" };
+	int i, j, found;
+#endif
 
   app.setOrganizationName( ORGANISATION_NAME );
   app.setApplicationName( APPLICATION_NAME );
@@ -78,6 +89,63 @@ main ( int argc, char* argv[] )
     app.installTranslator ( &appTranslator );
   }
 
+#if HAVE_QT5
+	QCommandLineParser parser;
+
+	parser.addHelpOption();
+	parser.addVersionOption();
+
+	QCommandLineOption configFileOption ( "c",
+		QCoreApplication::translate ( "main", "name of config file to use" ),
+		QCoreApplication::translate ( "main", "filename" ), "" );
+	parser.addOption ( configFileOption );
+
+	QCommandLineOption debugLevelOption ( "debug-level",
+		QCoreApplication::translate ( "main",
+			"Debug level (error|warning|info|debug)" ),
+		QCoreApplication::translate ( "main", "level" ), "" );
+	parser.addOption ( debugLevelOption );
+
+	QCommandLineOption debugTypeOption ( "debug-type",
+		QCoreApplication::translate ( "main",
+			"Debug type ( app, camera, fw, timer )" ),
+		QCoreApplication::translate ( "main", "type" ), "" );
+	parser.addOption ( debugTypeOption );
+
+	// Process the actual command line arguments given by the user
+	parser.process ( app );
+
+  QString debugLevel = parser.value ( debugLevelOption );
+	found = 0;
+	for ( i = 1; !found && i <= OA_LOG_DEBUG; i++ ) {
+		if ( debugLevelValues[i] == debugLevel ) {
+			found = 1;
+			logLevel = i;
+		}
+	}
+	if ( !found ) {
+		qWarning() << "Unknown debug level: " << debugLevel;
+	}
+
+  QString debugTypes = parser.value ( debugTypeOption );
+	QStringList types = debugTypes.split ( "," );
+	for ( j = 0; j < types.size(); j++ ) {
+		found = 0;
+		for ( i = 1; !found && i <= OA_LOG_NUM_TYPES; i++ ) {
+			if ( debugTypeValues[i] == types[j] ) {
+				found = 1;
+				logType |= ( 1 << ( i - 1 ));
+			}
+		}
+		if ( !found ) {
+			qWarning() << "Unknown debug type: " << types[j];
+		}
+	}
+
+	configFile = parser.value ( configFileOption );
+
+#else
+
   // FIX ME -- This all a bit cack-handed.  Find a better way to do it when
   // more command line parameters are required
   QStringList args = QCoreApplication::arguments();
@@ -107,9 +175,10 @@ main ( int argc, char* argv[] )
       }
     }
   }
+#endif
 
-	oaSetLogLevel ( OA_LOG_NONE );
-	oaSetLogType ( OA_LOG_NONE );
+	oaSetLogLevel ( logLevel );
+	oaSetLogType ( logType );
 
   MainWindow mainWindow ( configFile );
   mainWindow.show();
@@ -121,6 +190,6 @@ main ( int argc, char* argv[] )
 void
 usage()
 {
-  qCritical( "usage: oacapture [-c <config filename>]" );
+  qCritical( "usage: oalive [-c <config filename>]" );
   exit(1);
 }
