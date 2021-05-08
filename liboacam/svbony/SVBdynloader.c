@@ -116,6 +116,8 @@ retry:
 		( void ) strncat ( libPath, libName, PATH_MAX );
 
     if (!( libHandle = dlopen ( libPath, RTLD_LAZY ))) {
+      oaLogWarning ( OA_LOG_CAMERA, "%s: can't load %s, error '%s'", __func__,
+					libPath, dlerror());
 #ifdef RETRY_SO_WITHOUT_PATH
 			if ( tryWithoutPath ) {
 				tryWithoutPath = 0;
@@ -123,8 +125,6 @@ retry:
 				goto retry;
 			}
 #endif
-      oaLogWarning ( OA_LOG_CAMERA, "%s: can't load %s, error '%s'", __func__,
-					libPath, dlerror());
       return OA_ERR_LIBRARY_NOT_FOUND;
     }
 
