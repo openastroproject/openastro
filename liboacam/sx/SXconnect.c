@@ -67,8 +67,8 @@ oaSXInitCamera ( oaCameraDevice* device )
     case CAM_COSTAR:
       break;
     default:
-      fprintf ( stderr, "Unsupported camera %ld: %s\n", devInfo->devType,
-          device->deviceName );
+      oaLogError ( OA_LOG_CAMERA, "%s: Unsupported camera %ld: %s", __func__,
+					devInfo->devType, device->deviceName );
       return 0;
       break;
   }
@@ -93,11 +93,12 @@ oaSXInitCamera ( oaCameraDevice* device )
     libusb_free_device_list ( devlist, 1 );
     libusb_exit ( cameraInfo->usbContext );
     if ( numUSBDevices ) {
-      fprintf ( stderr, "Can't see any USB devices now (list returns -1)\n" );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't see any USB devices now (list returns -1)", __func__ );
       FREE_DATA_STRUCTS;
       return 0;
     }
-    fprintf ( stderr, "Can't see any USB devices now\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't see any USB devices now", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -110,7 +111,8 @@ oaSXInitCamera ( oaCameraDevice* device )
     if ( LIBUSB_SUCCESS != libusb_get_device_descriptor ( usbDevice, &desc )) {
       libusb_free_device_list ( devlist, 1 );
       libusb_exit ( cameraInfo->usbContext );
-      fprintf ( stderr, "get device descriptor failed\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: get device descriptor failed",
+					__func__ );
       FREE_DATA_STRUCTS;
       return 0;
     }
@@ -125,13 +127,13 @@ oaSXInitCamera ( oaCameraDevice* device )
   }
   libusb_free_device_list ( devlist, 1 );
   if ( !matched ) {
-    fprintf ( stderr, "No matching USB device found!\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: No matching USB device found!", __func__ );
     libusb_exit ( cameraInfo->usbContext );
     FREE_DATA_STRUCTS;
     return 0;
   }
   if ( !usbHandle ) {
-    fprintf ( stderr, "Unable to open USB device!\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Unable to open USB device!", __func__ );
     libusb_exit ( cameraInfo->usbContext );
     FREE_DATA_STRUCTS;
     return 0;
@@ -142,7 +144,8 @@ oaSXInitCamera ( oaCameraDevice* device )
   }
 
   if ( libusb_claim_interface ( usbHandle, 1 )) {
-    fprintf ( stderr, "Unable to claim interface for USB device!\n" );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: Unable to claim interface for USB device!", __func__ );
     libusb_exit ( cameraInfo->usbContext );
     FREE_DATA_STRUCTS;
     return 0;
@@ -154,7 +157,8 @@ oaSXInitCamera ( oaCameraDevice* device )
   buff[ SXUSB_REQ_LENGTH_L ] = SXUSB_GET_CCD_BUFSIZE;
   if (( ret = libusb_bulk_transfer ( usbHandle, SXUSB_BULK_ENDP_OUT, buff,
       SXUSB_REQUEST_BUFSIZE, &transferred, SXUSB_TIMEOUT ))) {
-    fprintf ( stderr, "request GET_CCD for SX failed: %d\n", ret );
+    oaLogError ( OA_LOG_CAMERA, "%s: request GET_CCD for SX failed: %d",
+				__func__, ret );
     libusb_release_interface ( usbHandle, 1 );
     libusb_close ( usbHandle );
     libusb_free_device_list ( devlist, 1 );
@@ -164,7 +168,8 @@ oaSXInitCamera ( oaCameraDevice* device )
   }
   if (( ret = libusb_bulk_transfer ( usbHandle, SXUSB_BULK_ENDP_IN, buff,
       SXUSB_GET_CCD_BUFSIZE, &transferred, SXUSB_TIMEOUT ))) {
-    fprintf ( stderr, "request GET_CCD for SX failed: %d\n", ret );
+    oaLogError ( OA_LOG_CAMERA, "%s: request GET_CCD for SX failed: %d",
+				__func__, ret );
     libusb_release_interface ( usbHandle, 1 );
     libusb_close ( usbHandle );
     libusb_free_device_list ( devlist, 1 );
@@ -189,7 +194,8 @@ oaSXInitCamera ( oaCameraDevice* device )
   buff[ SXUSB_REQ_LENGTH_L ] = SXUSB_CAMERA_MODEL_BUFSIZE;
   if (( ret = libusb_bulk_transfer ( usbHandle, SXUSB_BULK_ENDP_OUT, buff,
       SXUSB_REQUEST_BUFSIZE, &transferred, SXUSB_TIMEOUT ))) {
-    fprintf ( stderr, "request GET_CCD for SX failed: %d\n", ret );
+    oaLogError ( OA_LOG_CAMERA, "%s: request GET_CCD for SX failed: %d",
+				__func__, ret );
     libusb_release_interface ( usbHandle, 1 );
     libusb_close ( usbHandle );
     libusb_free_device_list ( devlist, 1 );
@@ -199,7 +205,8 @@ oaSXInitCamera ( oaCameraDevice* device )
   }
   if (( ret = libusb_bulk_transfer ( usbHandle, SXUSB_BULK_ENDP_IN, buff,
       SXUSB_CAMERA_MODEL_BUFSIZE, &transferred, SXUSB_TIMEOUT ))) {
-    fprintf ( stderr, "request GET_CCD for SX failed: %d\n", ret );
+    oaLogError ( OA_LOG_CAMERA, "%s: request GET_CCD for SX failed: %d",
+				__func__, ret );
     libusb_release_interface ( usbHandle, 1 );
     libusb_close ( usbHandle );
     libusb_free_device_list ( devlist, 1 );
@@ -294,13 +301,13 @@ oaSXInitCamera ( oaCameraDevice* device )
 
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
   if (!( cameraInfo->frameSizes[2].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     FREE_DATA_STRUCTS;
     return 0;
@@ -326,7 +333,8 @@ oaSXInitCamera ( oaCameraDevice* device )
 			cameraInfo->maxResolutionX * cameraInfo->maxResolutionY *
 			cameraInfo->bytesPerPixel;
   if (!( cameraInfo->xferBuffer = malloc ( cameraInfo->imageBufferLength ))) {
-    fprintf ( stderr, "malloc of transfer buffer failed in %s\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc of transfer buffer failed",
+				__func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->frameSizes[2].sizes );
     FREE_DATA_STRUCTS;
@@ -335,7 +343,7 @@ oaSXInitCamera ( oaCameraDevice* device )
 
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
       sizeof ( frameBuffer )))) {
-    fprintf ( stderr, "malloc of buffer array failed in %s\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc of buffer array failed", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->frameSizes[2].sizes );
     free (( void* ) cameraInfo->xferBuffer );
@@ -349,7 +357,7 @@ oaSXInitCamera ( oaCameraDevice* device )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: malloc failed", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );

@@ -107,13 +107,15 @@ oacamSXcontroller ( void* param )
             resultCode = _processStreamingStop ( cameraInfo, command );
             break;
           default:
-            fprintf ( stderr, "Invalid command type %d in controller\n",
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: Invalid command type %d in controller", __func__,
                 command->commandType );
             resultCode = -OA_ERR_INVALID_CONTROL;
             break;
         }
         if ( command->callback ) {
-//fprintf ( stderr, "CONT: command has callback\n" );
+					oaLogWarning ( OA_LOG_CAMERA, "%s: CONT: command has callback",
+							__func__ );
         } else {
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
           command->completed = 1;
@@ -214,8 +216,9 @@ _processSetControl ( SX_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
       if ( val->valueType != OA_CTRL_TYPE_INT64 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int64 expected", __func__,
+            val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentExposure = val->int64;
@@ -227,8 +230,9 @@ _processSetControl ( SX_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_BINNING:
       if ( val->valueType != OA_CTRL_TYPE_DISCRETE ) {
-        fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where discrete expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
 			if ( val->discrete == OA_BIN_MODE_NONE ||
@@ -252,7 +256,8 @@ _processSetControl ( SX_STATE* cameraInfo, OA_COMMAND* command )
       break;
 
     default:
-      fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+					control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -297,8 +302,8 @@ _processGetControl ( SX_STATE* cameraInfo, OA_COMMAND* command )
       break;
 
     default:
-      fprintf ( stderr,
-          "Unrecognised control %d in %s\n", control, __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d in %s",
+					__func__, control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -434,7 +439,8 @@ _doReadExposure ( SX_STATE* cameraInfo )
 					cameraInfo->actualImageLength );
 		}
 	} else {
-		fprintf ( stderr, "trying to read non-interlaced camera?!\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: trying to read non-interlaced camera?!",
+				__func__ );
 	}
   return OA_ERR_NONE;
 }
@@ -455,15 +461,18 @@ _readTemperature ( SX_STATE* cameraInfo )
   if (( ret = libusb_bulk_transfer ( cameraInfo->usbHandle,
       SXUSB_BULK_ENDP_OUT, buff, SXUSB_REQUEST_BUFSIZE, &transferred,
       SXUSB_TIMEOUT )) || transferred != SXUSB_REQUEST_BUFSIZE ) {
-    fprintf ( stderr, "request TEMPERATURE for SX failed: ret = %d, "
-        "transferred = %d of %d\n", ret, transferred, SXUSB_REQUEST_BUFSIZE );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: request TEMPERATURE for SX failed: ret = %d, "
+        "transferred = %d of %d", __func__, ret, transferred,
+				SXUSB_REQUEST_BUFSIZE );
     return 0;
   }
   if (( ret = libusb_bulk_transfer ( cameraInfo->usbHandle,
       SXUSB_BULK_ENDP_IN, buff, 2, &transferred,
       SXUSB_TIMEOUT )) || transferred != 2 ) {
-    fprintf ( stderr, "request TEMPERATURE for SX failed: ret = %d, "
-        "transferred = %d of %d\n", ret, transferred, 2 );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: request TEMPERATURE for SX failed: ret = %d, "
+        "transferred = %d of %d", __func__, ret, transferred, 2 );
     return 0;
   }
 
@@ -486,8 +495,9 @@ _clearFrame ( SX_STATE* cameraInfo, unsigned int flags )
   ret = libusb_bulk_transfer ( cameraInfo->usbHandle, SXUSB_BULK_ENDP_OUT,
       buff, SXUSB_REQUEST_BUFSIZE, &transferred, SXUSB_TIMEOUT );
   if ( ret || transferred != SXUSB_REQUEST_BUFSIZE ) {
-    fprintf ( stderr, "send CLEAR PIXELS for SX failed: ret = %d, "
-        "transferred = %d of %d\n", ret, transferred, SXUSB_REQUEST_BUFSIZE );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: send CLEAR PIXELS for SX failed: ret = %d, xferred = %d of %d",
+				__func__, ret, transferred, SXUSB_REQUEST_BUFSIZE );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -532,8 +542,9 @@ _latchFrame ( SX_STATE* cameraInfo, unsigned int flags, unsigned int x,
   if (( ret = libusb_bulk_transfer ( cameraInfo->usbHandle,
       SXUSB_BULK_ENDP_OUT, buff, SXUSB_READ_BUFSIZE, &transferred,
       SXUSB_TIMEOUT )) || transferred != SXUSB_READ_BUFSIZE ) {
-    fprintf ( stderr, "request READ for SX failed: ret = %d, "
-        "transferred = %d of %d\n", ret, transferred, SXUSB_READ_BUFSIZE );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: request READ for SX failed: ret = %d, xferred = %d of %d",
+				__func__, ret, transferred, SXUSB_READ_BUFSIZE );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -551,14 +562,15 @@ _readFrame ( SX_STATE* cameraInfo, unsigned char* buffer, int length )
 		if (( ret = libusb_bulk_transfer ( cameraInfo->usbHandle,
 				SXUSB_BULK_ENDP_IN, buffer, length, &transferred,
 				SXUSB_FRAME_TIMEOUT ))) {
-			fprintf ( stderr, "receive READ for SX failed: ret = %d, "
-					"transferred = %d of %d\n", ret, transferred, length );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: receive READ for SX failed: ret = %d, xferred = %d of %d",
+					__func__, ret, transferred, length );
 			return -OA_ERR_CAMERA_IO;
 		}
 		/*
 		if ( length != transferred ) {
-			fprintf ( stderr, "length %d != transferred %d in %s\n", length,
-					transferred, __func__ );
+			oaLogError ( OA_LOG_CAMERA, "%s: length %d != transferred %d",
+			__func__, length, transferred );
 			return -OA_ERR_CAMERA_IO;
 		}
 		 */
@@ -589,8 +601,9 @@ _SXsetTimer ( SX_STATE* cameraInfo, unsigned int microseconds )
   ret = libusb_bulk_transfer ( cameraInfo->usbHandle, SXUSB_BULK_ENDP_OUT,
       buff, SXUSB_TIMER_BUFSIZE, &transferred, SXUSB_TIMEOUT );
   if ( ret || transferred != SXUSB_TIMER_BUFSIZE ) {
-    fprintf ( stderr, "send TIMER for SX failed: ret = %d, "
-        "transferred = %d of %d\n", ret, transferred, SXUSB_TIMER_BUFSIZE );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: send TIMER for SX failed: ret = %d, xferred = %d of %d",
+				__func__, ret, transferred, SXUSB_TIMER_BUFSIZE );
     return -OA_ERR_CAMERA_IO;
   }
 

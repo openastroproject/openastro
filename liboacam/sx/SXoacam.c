@@ -124,7 +124,8 @@ oaSXGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         unsigned char buff[ SXUSB_REQUEST_BUFSIZE ];
 
         if ( LIBUSB_SUCCESS != libusb_open ( device, &handle )) {
-          fprintf ( stderr, "libusb_open for SX camera failed\n" );
+          oaLogError ( OA_LOG_CAMERA, "%s: libusb_open for SX camera failed",
+							__func__ );
           libusb_free_device_list ( devlist, 1 );
           libusb_exit ( ctx );
           return -OA_ERR_SYSTEM_ERROR;
@@ -135,7 +136,8 @@ oaSXGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         }
 
         if (( ret = libusb_claim_interface ( handle, 1 ))) {
-          fprintf ( stderr, "Unable to claim interface for USB device: %d\n",
+          oaLogError ( OA_LOG_CAMERA,
+							"%s: Unable to claim interface for USB device: %d", __func__,
               ret );
           libusb_exit ( ctx );
           return 0;
@@ -147,7 +149,8 @@ oaSXGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         buff[ SXUSB_REQ_LENGTH_L ] = SXUSB_CAMERA_MODEL_BUFSIZE;
         if (( ret = libusb_bulk_transfer ( handle, SXUSB_BULK_ENDP_OUT,
             buff, SXUSB_REQUEST_BUFSIZE, &transferred, SXUSB_TIMEOUT ))) {
-          fprintf ( stderr, "request MODEL for SX failed: %d\n", ret );
+          oaLogError ( OA_LOG_CAMERA, "%s: request MODEL for SX failed: %d",
+							__func__, ret );
           libusb_release_interface ( handle, 1 );
           libusb_close ( handle );
           libusb_free_device_list ( devlist, 1 );
@@ -156,7 +159,8 @@ oaSXGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
         }
         if (( ret = libusb_bulk_transfer ( handle, SXUSB_BULK_ENDP_IN, buff,
             SXUSB_CAMERA_MODEL_BUFSIZE, &transferred, SXUSB_TIMEOUT ))) {
-          fprintf ( stderr, "response MODEL for SX failed: %d\n", ret );
+          oaLogError ( OA_LOG_CAMERA, "%s: response MODEL for SX failed: %d",
+							__func__, ret );
           libusb_release_interface ( handle, 1 );
           libusb_close ( handle );
           libusb_free_device_list ( devlist, 1 );

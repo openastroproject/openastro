@@ -100,7 +100,8 @@ oaSXCameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
 
     default:
       // If we reach here it's because we don't recognise the control
-      fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+					control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -123,8 +124,9 @@ oaSXCameraReset ( oaCamera* camera )
   ret = libusb_bulk_transfer ( cameraInfo->usbHandle, SXUSB_BULK_ENDP_OUT,
       buff, SXUSB_REQUEST_BUFSIZE, &transferred, SXUSB_TIMEOUT );
   if ( ret || transferred != SXUSB_REQUEST_BUFSIZE ) {
-    fprintf ( stderr, "send RESET for SX failed: ret = %d, "
-        "transferred = %d of %d\n", ret, transferred, SXUSB_REQUEST_BUFSIZE );
+    oaLogError ( OA_LOG_CAMERA, "%s: send RESET for SX failed: ret = %d, "
+        "transferred = %d of %d", __func__, ret, transferred,
+				SXUSB_REQUEST_BUFSIZE );
     return -OA_ERR_CAMERA_IO`;
   }
 
