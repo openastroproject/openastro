@@ -1199,20 +1199,26 @@ AC_SUBST(FFMPEG_SUBDIRS)
 
 # Same play again, but this time for libusb-1.0
 
-if test "$use_system_libusb" == "no" -o "$build_libusb" == "yes"
+if test "$build_libusb" == "yes"
 then
 
-  LIBUSB_CFLAGS="-I \$(top_srcdir)/ext/libusb"
-  LIBUSB_CFLAGS_SUBDIR="-I \$(top_srcdir)/ext/libusb/libusb"
-  LIBUSB_LDFLAGS=""
-  LIBUSB_LIBS="\$(top_builddir)/ext/libusb/libusb/libusb-1.0.la"
+	if test "$use_system_libusb" == "no"
+	then
+		AC_MSG_NOTICE([Using included libusb-1.0 code])
+		LIBUSB_CFLAGS="-I \$(top_srcdir)/ext/libusb"
+		LIBUSB_CFLAGS_SUBDIR="-I \$(top_srcdir)/ext/libusb/libusb"
+		LIBUSB_LDFLAGS=""
+		LIBUSB_LIBS="\$(top_builddir)/ext/libusb/libusb/libusb-1.0.la"
 
-  # Should be done with AS_LN_S in all probability, but I can't find
-  # any documentation
-  if ! test -e "$ac_top_build_prefix"ext/libusb/libusb-1.0
-  then
-    ln -s ./libusb "$ac_top_build_prefix"ext/libusb/libusb-1.0
-  fi
+		# Should be done with AS_LN_S in all probability, but I can't find
+		# any documentation
+		if ! test -e "$ac_top_build_prefix"ext/libusb/libusb-1.0
+		then
+			ln -s ./libusb "$ac_top_build_prefix"ext/libusb/libusb-1.0
+		fi
+	else
+		AC_MSG_NOTICE([Building libusb-1.0 for fxload])
+	fi
 
   AC_ARG_WITH(libusb-extra-configure, 
     AC_HELP_STRING([--with-libusb-extra-configure="xxx"],
@@ -1253,7 +1259,6 @@ then
      cd "$origdir"
     ],
     [emblibusb_configure_args="$emblibusb_configure_args"])
-  AC_MSG_NOTICE([Using included libusb-1.0 code])
 fi
 
 AC_SUBST(LIBUSB_CFLAGS)
