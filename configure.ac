@@ -75,7 +75,7 @@ have_svbcamerasdk=no
 have_libaravis=no
 
 checkQtForPIC=no
-checkSystemFFMPEG=no
+checkSystemFFMPEG=yes
 checkSystemLibusb=yes
 checkSystemDC1394=yes
 checkSystemLibuvc=no
@@ -97,7 +97,6 @@ zwoSupportedArch=yes
 case $host in
   *-linux-*)
     checkQtForPIC=yes
-    checkSystemFFMPEG=yes
     checkSystemDC1394=yes
     checkSystemLibuvc=yes
     checkSystemLibasicamera=yes
