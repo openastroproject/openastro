@@ -75,13 +75,14 @@ oaIIDCCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
 
   if ( p_dc1394_video_get_supported_framerates ( cameraInfo->iidcHandle,
       cameraInfo->currentIIDCMode, &framerates ) != DC1394_SUCCESS ) {
-    fprintf ( stderr, "%s: dc1394_video_get_supported_framerates failed\n",
-         __func__ );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: dc1394_video_get_supported_framerates failed", __func__ );
     return 0;
   }
   if ( !framerates.num ) {
-    fprintf ( stderr, "%s: dc1394_video_get_supported_framerates returns "
-        "no frame rates\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: dc1394_video_get_supported_framerates returns no frame rates",
+				__func__ );
     return 0;
   }
 
@@ -127,7 +128,7 @@ oaIIDCCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
         denominator = 240;
         break;
       default:
-        fprintf ( stderr, "%s: unknown frame rate %d\n", __func__,
+        oaLogError ( OA_LOG_CAMERA, "%s: unknown frame rate %d", __func__,
             framerates.framerates[i] );
         matched = 0;
         break;
@@ -137,7 +138,7 @@ oaIIDCCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
       if (!( cameraInfo->frameRates.rates = realloc (
           cameraInfo->frameRates.rates, ( numRates + 1 ) *
           sizeof ( FRAMERATE )))) {
-        fprintf ( stderr, "%s: realloc failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: realloc failed", __func__ );
         return 0;
       }
       cameraInfo->frameRates.rates[ numRates ].numerator = numerator;
@@ -147,7 +148,7 @@ oaIIDCCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
   }
 
   if ( !numRates ) {
-    fprintf ( stderr, "%s: no frame rates found\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: no frame rates found", __func__ );
     return 0;
   }
 

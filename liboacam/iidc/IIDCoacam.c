@@ -66,13 +66,13 @@ oaIIDCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 
   iidcContext = p_dc1394_new();
   if ( !iidcContext ) {
-    fprintf ( stderr, "Can't get IIDC context\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get IIDC context", __func__ );
     return -OA_ERR_SYSTEM_ERROR;
   }
   err = p_dc1394_camera_enumerate ( iidcContext, &devlist );
   if ( err < 0 ) {
     p_dc1394_free ( iidcContext );
-    fprintf ( stderr, "Can't enumerate IIDC devices\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't enumerate IIDC devices", __func__ );
     return -OA_ERR_SYSTEM_ERROR;
   }
   if ( !devlist->num ) {

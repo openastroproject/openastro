@@ -123,14 +123,14 @@ oaIIDCInitCamera ( oaCameraDevice* device )
 
   iidcContext = p_dc1394_new();
   if ( !iidcContext ) {
-    fprintf ( stderr, "%s: Can't get IIDC context\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get IIDC context", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
   if (!( iidcCam = p_dc1394_camera_new_unit ( iidcContext, devInfo->guid,
       devInfo->unit ))) {
-    fprintf ( stderr, "%s: dc1394_camera_new_unit failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: dc1394_camera_new_unit failed", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -140,21 +140,26 @@ oaIIDCInitCamera ( oaCameraDevice* device )
     if ( !strncasecmp ( "DB", iidcCam->model, 2 ) ||
         !strncasecmp ( "DF", iidcCam->model, 2 )) {
       cameraInfo->isTISColour = 1;
-      fprintf ( stderr, "vendor '%s', model '%s', vendor_id %04x, "
-          "model_id %04x\n", iidcCam->vendor, iidcCam->model,
-          iidcCam->vendor_id, iidcCam->model_id );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: vendor '%s', model '%s', vendor_id %04x, model_id %04x",
+					iidcCam->vendor, iidcCam->model, iidcCam->vendor_id,
+					iidcCam->model_id );
     }
     if ( iidcCam->vendor_id != 0x0748 ) {
-      fprintf ( stderr, "unexpected TIS camera configuration:\n  "
-          "vendor '%s', model '%s', vendor_id %04x, model_id %04x\n",
-          iidcCam->vendor, iidcCam->model, iidcCam->vendor_id,
+      oaLogError ( OA_LOG_CAMERA, "%s: unexpected TIS camera configuration:",
+					__func__ );
+      oaLogError ( OA_LOG_CAMERA,
+          "%s: vendor '%s', model '%s', vendor_id %04x, model_id %04x",
+          __func__, iidcCam->vendor, iidcCam->model, iidcCam->vendor_id,
           iidcCam->model_id );
     }
   } else {
     if ( 0x0748 == iidcCam->vendor_id ) {
-      fprintf ( stderr, "unexpected non-TIS camera configuration:\n  "
-          "vendor '%s', model '%s', vendor_id %04x, model_id %04x\n",
-          iidcCam->vendor, iidcCam->model, iidcCam->vendor_id,
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: unexpected non-TIS camera configuration:", __func__ );
+      oaLogError ( OA_LOG_CAMERA,
+          "%s: vendor '%s', model '%s', vendor_id %04x, model_id %04x",
+          __func__, iidcCam->vendor, iidcCam->model, iidcCam->vendor_id,
           iidcCam->model_id );
     }
   }
@@ -168,7 +173,7 @@ oaIIDCInitCamera ( oaCameraDevice* device )
   // values for those controls
 
   if ( p_dc1394_camera_reset ( iidcCam ) != DC1394_SUCCESS ) {
-    fprintf ( stderr, "%s: dc1394_camera_reset failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: dc1394_camera_reset failed", __func__ );
   }
   // Allow the camera reset a little time to happen.  Doesn't seem to cause
   // a problem on Linux, but makes OSX barf if we don't.
@@ -180,8 +185,8 @@ oaIIDCInitCamera ( oaCameraDevice* device )
 
 	frFeature.id = DC1394_FEATURE_FRAME_RATE;
   if ( p_dc1394_feature_get ( iidcCam, &frFeature ) != DC1394_SUCCESS ) {
-    fprintf ( stderr, "%s: dc1394_feature_get ( frame rate ) failed\n",
-			__func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: dc1394_feature_get ( frame rate ) failed",
+				__func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -189,12 +194,13 @@ oaIIDCInitCamera ( oaCameraDevice* device )
 	if ( frFeature.available && frFeature.on_off_capable && frFeature.is_on ) {
 		if ( p_dc1394_feature_set_power ( iidcCam, DC1394_FEATURE_FRAME_RATE,
 				DC1394_OFF ) != DC1394_SUCCESS ) {
-			fprintf ( stderr, "Unable to turn off frame rate control\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: Unable to turn off frame rate control",
+					__func__ );
 		}
 	}
 
   if ( p_dc1394_feature_get_all ( iidcCam, &features ) != DC1394_SUCCESS ) {
-    fprintf ( stderr, "%s: dc1394_feature_get_all failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: dc1394_feature_get_all failed", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -260,14 +266,16 @@ oaIIDCInitCamera ( oaCameraDevice* device )
                 break;
 
               case DC1394_FEATURE_MODE_ONE_PUSH_AUTO:
-                fprintf ( stderr, "%s: unhandled feature mode %d for %d\n",
-                    __func__, features.feature[i].modes.modes[j],
-                    i + DC1394_FEATURE_MIN );
+                oaLogError ( OA_LOG_CAMERA,
+										"%s: unhandled feature mode %d for %d", __func__,
+                    features.feature[i].modes.modes[j],
+										i + DC1394_FEATURE_MIN );
                 break;
 
               default:
-                fprintf ( stderr, "%s: unexpected feature mode %d for %d\n",
-                    __func__, features.feature[i].modes.modes[j],
+                oaLogError ( OA_LOG_CAMERA,
+										"%s: unexpected feature mode %d for %d", __func__,
+                    features.feature[i].modes.modes[j],
                     i + DC1394_FEATURE_MIN );
                 break;
             }
@@ -289,8 +297,9 @@ oaIIDCInitCamera ( oaCameraDevice* device )
             // have to set the control to use the absolute settings...
             if (( err = p_dc1394_feature_set_absolute_control ( iidcCam,
                 DC1394_FEATURE_SHUTTER, DC1394_ON ) != DC1394_SUCCESS )) {
-              fprintf ( stderr, "%s: dc1394_feature_set_absolute_control "
-                  "failed, err: %d\n", __func__, err );
+              oaLogError ( OA_LOG_CAMERA,
+									"%s: dc1394_feature_set_absolute_control failed, err: %d",
+									__func__, err );
               FREE_DATA_STRUCTS;
               return 0;
             }
@@ -299,8 +308,9 @@ oaIIDCInitCamera ( oaCameraDevice* device )
             // IIDC cameras may be more than just on/off
             if ( p_dc1394_feature_set_mode ( iidcCam, DC1394_FEATURE_SHUTTER,
                 DC1394_FEATURE_MODE_MANUAL ) != DC1394_SUCCESS ) {
-              fprintf ( stderr, "%s: dc1394_feature_set_mode failed for "
-                  "shutter speed\n", __func__ );
+              oaLogError ( OA_LOG_CAMERA,
+									"%s: dc1394_feature_set_mode failed for shutter speed",
+									__func__ );
               FREE_DATA_STRUCTS;
               return 0;
             }
@@ -375,8 +385,9 @@ oaIIDCInitCamera ( oaCameraDevice* device )
                 break;
 
               default:
-                fprintf ( stderr, "%s: unexpected feature mode %d for %d\n",
-                    __func__, features.feature[i].modes.modes[j],
+                oaLogError ( OA_LOG_CAMERA,
+										"%s: unexpected feature mode %d for %d", __func__,
+                    features.feature[i].modes.modes[j],
                     i + DC1394_FEATURE_MIN );
                 break;
             }
@@ -441,8 +452,9 @@ oaIIDCInitCamera ( oaCameraDevice* device )
                 break;
 
               default:
-                fprintf ( stderr, "%s: unhandled feature mode %d for %d\n",
-                    __func__, features.feature[i].modes.modes[j],
+                oaLogError ( OA_LOG_CAMERA,
+										"%s: unhandled feature mode %d for %d", __func__,
+                    features.feature[i].modes.modes[j],
                     i + DC1394_FEATURE_MIN );
                 break;
             }
@@ -513,13 +525,13 @@ oaIIDCInitCamera ( oaCameraDevice* device )
         case DC1394_FEATURE_CAPTURE_SIZE: // only relevant for format6
         case DC1394_FEATURE_CAPTURE_QUALITY: // only relevant for format6
           oaOnOffControl = 0;
-          fprintf ( stderr, "%s: unsupported IIDC control %d\n", __func__,
-              i + DC1394_FEATURE_MIN );
+          oaLogError ( OA_LOG_CAMERA, "%s: unsupported IIDC control %d",
+							__func__, i + DC1394_FEATURE_MIN );
           break;
 
         default:
           oaOnOffControl = 0;
-          fprintf ( stderr, "%s: unknown IIDC control %d\n", __func__,
+          oaLogError ( OA_LOG_CAMERA, "%s: unknown IIDC control %d", __func__,
               i + DC1394_FEATURE_MIN );
           break;
       }
@@ -543,7 +555,8 @@ oaIIDCInitCamera ( oaCameraDevice* device )
 
   if ( p_dc1394_video_get_supported_modes ( iidcCam, &videoModes ) !=
       DC1394_SUCCESS ) {
-    fprintf ( stderr, "%s: dc1394_video_get_supported_modes failed", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: dc1394_video_get_supported_modes failed",
+				__func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -583,7 +596,8 @@ oaIIDCInitCamera ( oaCameraDevice* device )
   }
 
   if ( !cameraInfo->currentIIDCMode ) {
-    fprintf ( stderr, "%s: No suitable video format found", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: No suitable video format found",
+				__func__ );
 		free (( void* ) cameraInfo->frameSizes[1].sizes );
     FREE_DATA_STRUCTS;
     return 0;
@@ -594,8 +608,8 @@ oaIIDCInitCamera ( oaCameraDevice* device )
   if ( !cameraInfo->haveFormat7 ) {
     if ( p_dc1394_video_get_supported_framerates ( iidcCam,
         cameraInfo->currentIIDCMode, &framerates ) != DC1394_SUCCESS ) {
-      fprintf ( stderr, "%s: dc1394_video_get_supported_framerates failed\n",
-         __func__ );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: dc1394_video_get_supported_framerates failed", __func__ );
     }
     if ( framerates.num > 1 ) {
 			camera->features.flags |= OA_CAM_FEATURE_FRAME_RATES;
@@ -647,8 +661,8 @@ oaIIDCInitCamera ( oaCameraDevice* device )
         ( iidcCam->bmode_capable == DC1394_TRUE ) ?
         DC1394_OPERATION_MODE_1394B : DC1394_OPERATION_MODE_LEGACY) !=
         DC1394_SUCCESS ) {
-      fprintf ( stderr, "%s: dc1394_video_set_operation_mode failed\n",
-          __func__ );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: dc1394_video_set_operation_mode failed", __func__ );
 			free (( void* ) cameraInfo->frameSizes[1].sizes );
       FREE_DATA_STRUCTS;
       return 0;
@@ -656,21 +670,22 @@ oaIIDCInitCamera ( oaCameraDevice* device )
     if ( p_dc1394_video_set_iso_speed ( iidcCam,
         ( iidcCam->bmode_capable == DC1394_TRUE ) ?
         DC1394_ISO_SPEED_800 : DC1394_ISO_SPEED_400 ) != DC1394_SUCCESS ) {
-      fprintf ( stderr, "%s: dc1394_video_set_iso_speed failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: dc1394_video_set_iso_speed failed",
+					__func__ );
     }
   }
 
   /*
   if ( p_dc1394_video_set_mode ( iidcCam, cameraInfo->currentIIDCMode ) !=
       DC1394_SUCCESS ) {
-    fprintf ( stderr, "%s: dc1394_video_set_mode failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: dc1394_video_set_mode failed", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
   if ( p_dc1394_capture_setup ( iidcCam, OA_CAM_BUFFERS,
       DC1394_CAPTURE_FLAGS_DEFAULT ) != DC1394_SUCCESS ) {
-    fprintf ( stderr, "%s: dc1394_capture_setup failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: dc1394_capture_setup failed", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -718,7 +733,7 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
 	void*						tmpPtr;
 
   if ( p_dc1394_format7_get_modeset ( iidcCam, &modeList ) != DC1394_SUCCESS ) {
-    fprintf ( stderr, "%s: dc1394_format7_get_modeset return error\n",
+    oaLogError ( OA_LOG_CAMERA, "%s: dc1394_format7_get_modeset return error",
         __func__ );
     return -OA_ERR_CAMERA_IO;
   }
@@ -847,8 +862,8 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
             break;
 
           default:
-            fprintf ( stderr, "%s: unhandled format7 video coding %d\n",
-                __func__, coding );
+            oaLogError ( OA_LOG_CAMERA,
+								"%s: unhandled format7 video coding %d", __func__, coding );
             break;
         }
       }
@@ -888,7 +903,7 @@ _processFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
   }
 
   if ( !numResolutions ) {
-    fprintf ( stderr, "%s: no suitable resolutions found\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: no suitable resolutions found", __func__ );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -916,8 +931,8 @@ _processNonFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
     uint32_t w, h;
     if ( p_dc1394_get_image_size_from_video_mode ( iidcCam, videoModes.modes[i],
         &w, &h ) != DC1394_SUCCESS ) {
-      fprintf ( stderr, "%s: dc1394_get_image_size_from_video_mode failed",
-          __func__ );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: dc1394_get_image_size_from_video_mode failed", __func__ );
       return -OA_ERR_CAMERA_IO;
     }
     found = 0;
@@ -949,8 +964,8 @@ _processNonFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
 
     if ( p_dc1394_get_color_coding_from_video_mode ( iidcCam,
         videoModes.modes[i], &codec ) != DC1394_SUCCESS ) {
-      fprintf ( stderr, "%s: dc1394_get_color_coding_from_video_mode failed",
-          __func__ );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: dc1394_get_color_coding_from_video_mode failed", __func__ );
       return -OA_ERR_SYSTEM_ERROR;
     }
 
@@ -1058,14 +1073,15 @@ _processNonFormat7Modes ( oaCamera* camera, dc1394camera_t* iidcCam,
         break;
 
       default:
-        fprintf ( stderr, "%s: unhandled non-format7 video codec %d\n",
-            __func__, codec );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: unhandled non-format7 video codec %d", __func__, codec );
         break;
     }
   }
 
   if ( !numResolutions ) {
-    fprintf ( stderr, "%s: no suitable resolutions found\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: no suitable resolutions found",
+				__func__ );
     return -OA_ERR_OUT_OF_RANGE;
   }
   cameraInfo->frameSizes[1].numSizes = numResolutions;
