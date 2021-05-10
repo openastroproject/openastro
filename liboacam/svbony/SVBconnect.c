@@ -84,14 +84,16 @@ oaSVBInitCamera ( oaCameraDevice* device )
   OA_CLEAR ( camera->features );
   
   if ( p_SVBOpenCamera ( cameraInfo->cameraId )) {
-    fprintf ( stderr, "open of camera %ld failed\n", cameraInfo->cameraId );
+    oaLogError ( OA_LOG_CAMERA, "%s: open of camera %ld failed", __func__,
+				cameraInfo->cameraId );
     FREE_DATA_STRUCTS;
     return 0;
   }
 
 #if 0
   if ( p_SVBInitCamera ( cameraInfo->cameraId )) {
-    fprintf ( stderr, "init of camera %ld failed\n", cameraInfo->cameraId );
+    oaLogError ( OA_LOG_CAMERA, "%s: init of camera %ld failed", __func__,
+				cameraInfo->cameraId );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -102,7 +104,7 @@ oaSVBInitCamera ( oaCameraDevice* device )
   cameraInfo->runMode = CAM_RUN_MODE_STOPPED;
 
   if ( p_SVBGetNumOfControls ( cameraInfo->cameraId, &numControls )) {
-    fprintf ( stderr, "%s: SVBGetNumOfControls returns error\n",
+    oaLogError ( OA_LOG_CAMERA, "%s: SVBGetNumOfControls returns error",
       __func__ );
     FREE_DATA_STRUCTS;
     return 0;
@@ -513,8 +515,8 @@ oaSVBInitCamera ( oaCameraDevice* device )
 #if 0
         case SVB_HARDWARE_BIN:
 #endif
-          fprintf ( stderr, "%s: control %s is not supported\n", __func__,
-              controlCaps.Name );
+          oaLogWarning ( OA_LOG_CAMERA, "%s: control %s is not supported",
+							__func__, controlCaps.Name );
           break;
 
 #if 0
@@ -523,8 +525,8 @@ oaSVBInitCamera ( oaCameraDevice* device )
 #endif
 
         default:
-          fprintf ( stderr, "%s: Unrecognised control '%s'\n", __func__,
-              controlCaps.Name );
+          oaLogWarning ( OA_LOG_CAMERA, "%s: Unrecognised control '%s'",
+							__func__, controlCaps.Name );
           break;
       }
     }
@@ -625,7 +627,8 @@ oaSVBInitCamera ( oaCameraDevice* device )
   }
 
   if ( -1 == cameraInfo->currentMode ) {
-    fprintf ( stderr, "No suitable video format found on camera %ld\n",
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: No suitable video format found on camera %ld", __func__,
         cameraInfo->index );
     FREE_DATA_STRUCTS;
     return 0;
@@ -641,7 +644,7 @@ oaSVBInitCamera ( oaCameraDevice* device )
 
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     FREE_DATA_STRUCTS;
     return 0;
@@ -653,7 +656,7 @@ oaSVBInitCamera ( oaCameraDevice* device )
   if ( camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BINNING )) {
     if (!( cameraInfo->frameSizes[2].sizes =
         ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-      fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed", __func__ );
       free (( void* ) cameraInfo->frameSizes[1].sizes );
       FREE_DATA_STRUCTS;
       return 0;
@@ -685,7 +688,7 @@ oaSVBInitCamera ( oaCameraDevice* device )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: malloc for buffer failed", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
