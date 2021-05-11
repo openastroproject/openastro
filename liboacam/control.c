@@ -338,7 +338,7 @@ oacamGetControlValue ( oaControlValue* v )
       ret = v->readonly;
       break;
     default:
-      fprintf ( stderr, "%s: Unexpected valueType %d\n", __func__,
+      oaLogError ( OA_LOG_CAMERA, "%s: Unexpected valueType %d", __func__,
           v->valueType );
       break;
   }
@@ -463,7 +463,7 @@ oacamSetControl ( oaCamera* camera, int control, oaControlValue* val,
 	modifier = OA_CAM_CTRL_MODIFIER( control );
 	baseVal = OA_CAM_CTRL_MODE_BASE ( control );
 	if ( val->valueType != camera->controlType[ modifier ][ baseVal ] ) {
-		fprintf ( stderr, "%s: invalid control type %d for control %d\n",
+		oaLogError ( OA_LOG_CAMERA, "%s: invalid control type %d for control %d",
             __func__, val->valueType, control  );
 		return -OA_ERR_INVALID_CONTROL_TYPE;
 	}
