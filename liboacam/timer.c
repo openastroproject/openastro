@@ -86,7 +86,8 @@ _oacamTimerThread ( void* param )
 		if ( ret == ETIMEDOUT && !cameraInfo->stopControllerThread ) {
 			cameraInfo->timerCallback ( cameraInfo );
 		} else {
-			fprintf ( stderr, "timer condition failed with error %d\n", ret );
+			oaLogError ( OA_LOG_CAMERA, "%s: timer condition failed with error %d",
+					__func__, ret );
 		}
 	}
 
