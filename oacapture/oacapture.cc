@@ -105,7 +105,7 @@ main ( int argc, char* argv[] )
 
 	QCommandLineOption debugTypeOption ( "debug-type",
 		QCoreApplication::translate ( "main",
-			"Debug type ( app, camera, fw, timer )" ),
+			"Debug type ( app, camera, fw, timer, all )" ),
 		QCoreApplication::translate ( "main", "type" ), "" );
 	parser.addOption ( debugTypeOption );
 
@@ -113,29 +113,38 @@ main ( int argc, char* argv[] )
 	parser.process ( app );
 
   QString debugLevel = parser.value ( debugLevelOption );
-	found = 0;
-	for ( i = 1; !found && i <= OA_LOG_DEBUG; i++ ) {
-		if ( debugLevelValues[i] == debugLevel ) {
-			found = 1;
-			logLevel = i;
-		}
-	}
-	if ( !found ) {
-		qWarning() << "Unknown debug level: " << debugLevel;
-	}
-
-  QString debugTypes = parser.value ( debugTypeOption );
-	QStringList types = debugTypes.split ( "," );
-	for ( j = 0; j < types.size(); j++ ) {
+	if ( debugLevel != "" ) {
 		found = 0;
-		for ( i = 1; !found && i <= OA_LOG_NUM_TYPES; i++ ) {
-			if ( debugTypeValues[i] == types[j] ) {
+		for ( i = 1; !found && i <= OA_LOG_DEBUG; i++ ) {
+			if ( debugLevelValues[i] == debugLevel ) {
 				found = 1;
-				logType |= ( 1 << ( i - 1 ));
+				logLevel = i;
 			}
 		}
 		if ( !found ) {
-			qWarning() << "Unknown debug type: " << types[j];
+			qWarning() << "Unknown debug level: " << debugLevel;
+		}
+	}
+
+  QString debugTypes = parser.value ( debugTypeOption );
+	if ( debugTypes != "" ) {
+		QStringList types = debugTypes.split ( "," );
+		for ( j = 0; j < types.size(); j++ ) {
+			found = 0;
+			for ( i = 1; !found && i <= OA_LOG_NUM_TYPES; i++ ) {
+				if ( types[j] == "all" ) {
+					found = 1;
+					logType = OA_LOG_TYPE_ALL;
+				} else {
+					if ( debugTypeValues[i] == types[j] ) {
+						found = 1;
+						logType |= ( 1 << ( i - 1 ));
+					}
+				}
+			}
+			if ( !found ) {
+				qWarning() << "Unknown debug type: " << types[j];
+			}
 		}
 	}
 

@@ -70,7 +70,7 @@ extern void*		oaDLListRemoveAt ( DL_LIST, int );
 #define	OA_LOG_FILTERWHEEL	4
 #define	OA_LOG_TIMER				8
 #define OA_LOG_NUM_TYPES		4
-#define	OA_LOG_TYPE_MAX			( OA_LOG_APP | OA_LOG_CAMERA | OA_LOG_FILTERWHEEL | OA_LOG_TIMER )
+#define	OA_LOG_TYPE_ALL			( OA_LOG_APP | OA_LOG_CAMERA | OA_LOG_FILTERWHEEL | OA_LOG_TIMER )
 
 extern void		oaSetLogLevel ( unsigned int );
 extern int		oaSetLogType ( unsigned int );

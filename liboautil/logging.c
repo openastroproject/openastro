@@ -50,7 +50,7 @@ oaSetLogLevel ( unsigned int logLevel )
 int
 oaSetLogType ( unsigned int logType )
 {
-	if ( logType > OA_LOG_TYPE_MAX ) {
+	if ( logType > OA_LOG_TYPE_ALL ) {
 		return -OA_ERR_OUT_OF_RANGE;
 	}
 	oaLogType = logType;
@@ -64,7 +64,7 @@ oaAddLogType ( unsigned int logType )
 	unsigned int n;
 
 	n = oaLogType | logType;
-	if ( n > OA_LOG_TYPE_MAX ) {
+	if ( n > OA_LOG_TYPE_ALL ) {
 		return -OA_ERR_OUT_OF_RANGE;
 	}
 	oaLogType = n;
