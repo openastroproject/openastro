@@ -90,7 +90,7 @@ oaDummyCameraTestControl ( oaCamera* camera, int control,
 
     default:
       // If we reach here it's because we don't recognise the control
-      fprintf ( stderr, "Unrecognised control %d in oaDummyCameraSetControl\n",
+      oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
           control );
       return -OA_ERR_INVALID_CONTROL;
       break;
