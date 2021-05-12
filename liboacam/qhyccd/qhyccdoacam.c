@@ -65,7 +65,7 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 	p_SetQHYCCDLogLevel ( 2 );
 
 	if ( p_InitQHYCCDResource() != QHYCCD_SUCCESS ) {
-		fprintf ( stderr, "can't init libqhyccd\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: can't init libqhyccd", __func__ );
 		return 0;
 	}
 
@@ -108,13 +108,15 @@ oaQHYCCDGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 
 		if ( p_GetQHYCCDId ( i, qhyccdId ) != QHYCCD_SUCCESS ) {
 			p_ReleaseQHYCCDResource();
-			fprintf ( stderr, "can't get id for camera %d\n", i );
+			oaLogError ( OA_LOG_CAMERA, "%s: can't get id for camera %d", __func__,
+					i );
 			return 0;
 		} 
 
 		if ( p_GetQHYCCDModel ( qhyccdId, qhyccdModel ) != QHYCCD_SUCCESS ) {
 			p_ReleaseQHYCCDResource();
-			fprintf ( stderr, "can't get model for camera %d\n", i );
+			oaLogError ( OA_LOG_CAMERA, "%s: can't get model for camera %d",
+					__func__, i );
 			return 0;
 		} 
 
