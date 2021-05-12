@@ -129,7 +129,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
   p_SetQHYCCDLogLevel (loglevel);
 
   if ( p_InitQHYCCDResource() != QHYCCD_SUCCESS ) {
-    fprintf ( stderr, "can't init libqhyccd\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: can't init libqhyccd", __func__ );
     return 0;
   }
 
@@ -148,7 +148,8 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 	for ( i = 0; i < numCameras && found == -1; i++ ) {
 		if ( p_GetQHYCCDId ( i, cameraInfo->qhyccdId ) != QHYCCD_SUCCESS ) {
       p_ReleaseQHYCCDResource();
-      fprintf ( stderr, "can't get id for camera %d\n", i );
+      oaLogError ( OA_LOG_CAMERA, "%s: can't get id for camera %d", __func__,
+					i );
       FREE_DATA_STRUCTS;
       return 0;
     }
@@ -166,7 +167,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 
   if (!( handle = ( p_OpenQHYCCD )( cameraInfo->qhyccdId ))) {
     p_ReleaseQHYCCDResource();
-    fprintf ( stderr, "Can't get QHYCCD handle\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't get QHYCCD handle", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -174,7 +175,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 	if ( p_SetQHYCCDStreamMode ( handle, 1 ) != QHYCCD_SUCCESS ) {
 		p_CloseQHYCCD ( handle );
     p_ReleaseQHYCCDResource();
-    fprintf ( stderr, "Can't set streaming mode\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set streaming mode", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
 	}
@@ -182,7 +183,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 	if ( p_InitQHYCCD ( handle ) != QHYCCD_SUCCESS ) {
 		p_CloseQHYCCD ( handle );
     p_ReleaseQHYCCDResource();
-    fprintf ( stderr, "Can't init camera\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't init camera", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
 	}
@@ -201,7 +202,9 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 		int m = 1, qhyControl = QHYControlData[i].qhyControl;
 		if ( p_IsQHYCCDControlAvailable ( handle, qhyControl ) == QHYCCD_SUCCESS ) {
       p_GetQHYCCDParamMinMaxStep ( handle, qhyControl, &min, &max, &step );
-			// fprintf ( stderr, "qhy control: %d, min: %f, max: %f, step: %f ", qhyControl, min, max, step );
+			oaLogInfo ( OA_LOG_CAMERA,
+					"%s: qhy control: %d, min: %f, max: %f, step: %f ", __func__,
+					qhyControl, min, max, step );
 			while (( step - (( int ) step )) != 0 ) {
 				step *= 10;
 				m *= 10;
@@ -215,7 +218,8 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 			// this is just a best guess, really.
 			commonInfo->OA_CAM_CTRL_DEF( oactrl ) = p_GetQHYCCDParam (
 					handle, qhyControl ) * m;
-			//fprintf ( stderr, "def: %f\n", p_GetQHYCCDParam ( handle, qhyControl ));
+			oaLogInfo ( OA_LOG_CAMERA, "%s: def: %f", __func__,
+					p_GetQHYCCDParam ( handle, qhyControl ));
 		}
 	}
 
@@ -237,8 +241,8 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 	if ( cameraInfo->has8Bit && cameraInfo->has16Bit &&
 			p_IsQHYCCDControlAvailable ( handle, CONTROL_TRANSFERBIT ) !=
 			QHYCCD_SUCCESS ) {
-		fprintf ( stderr,
-			"Odd.  8-bit & 16-bit modes supported, but no way to switch\n" );
+		oaLogWarning ( OA_LOG_CAMERA,
+			"Odd.  8-bit & 16-bit modes supported, but no way to switch", __func__ );
 	}
 
 	// Assuming all 16-bit modes are little-endian here...
@@ -291,7 +295,8 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 		// Force RGB images for startup of colour cameras
 		if ( p_SetQHYCCDDebayerOnOff ( handle, cameraInfo->colour ) !=
 				QHYCCD_SUCCESS ) {
-      fprintf ( stderr, "p_SetQHYCCDDebayerOnOff ( %d ) returns error\n",
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: SetQHYCCDDebayerOnOff ( %d ) returns error", __func__,
 					cameraInfo->colour );
 			p_CloseQHYCCD ( handle );
 			p_ReleaseQHYCCDResource();
@@ -316,8 +321,8 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 			QHYCCD_SUCCESS ) {
 			if ( p_SetQHYCCDBitsMode ( handle, 8 ) !=
 					QHYCCD_SUCCESS ) {
-				fprintf ( stderr,
-						"SetQHYCCDParam ( transferbit, 8 ) returns error\n" );
+				oaLogError ( OA_LOG_CAMERA,
+						"SetQHYCCDParam ( transferbit, 8 ) returns error", __func__ );
 				p_CloseQHYCCD ( handle );
 				p_ReleaseQHYCCDResource();
 				FREE_DATA_STRUCTS;
@@ -349,7 +354,8 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 
 	if ( p_GetQHYCCDChipInfo ( handle, &ddummy, &ddummy, &x, &y, &pixelSizeX,
 			&pixelSizeY, &dummy ) != QHYCCD_SUCCESS ) {
-    fprintf ( stderr, "GetQHYCCDChipInfo returns error\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: GetQHYCCDChipInfo returns error",
+				__func__ );
     p_CloseQHYCCD ( handle );
     p_ReleaseQHYCCDResource();
     FREE_DATA_STRUCTS;
@@ -362,7 +368,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 
 	cameraInfo->frameSizes[1].numSizes = 1;
 	if (!( cameraInfo->frameSizes[1].sizes = malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "malloc for frame sizes failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc for frame sizes failed", __func__ );
     p_CloseQHYCCD ( handle );
     p_ReleaseQHYCCDResource();
     FREE_DATA_STRUCTS;
@@ -378,7 +384,8 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
 			binModes++;
 			if (!( cameraInfo->frameSizes[i].sizes = malloc (
 					sizeof ( FRAMESIZE )))) {
-				fprintf ( stderr, "malloc for frame sizes failed\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: malloc for frame sizes failed",
+						__func__ );
 				p_CloseQHYCCD ( handle );
 				p_ReleaseQHYCCDResource();
 				for ( j = 1; j <= OA_MAX_BINNING; j++ ) {
@@ -425,7 +432,7 @@ oaQHYCCDInitCamera ( oaCameraDevice* device )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: malloc of buffers failed", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
