@@ -540,7 +540,7 @@ _getDLSym ( void* libHandle, const char* symbol )
 
   addr = dlsym ( libHandle, symbol );
   if (( error = dlerror())) {
-    fprintf ( stderr, "libqhyccd DL error: %s\n", error );
+    oaLogError ( OA_LOG_CAMERA, "%s: libqhyccd DL error: %s", __func__, error );
     addr = 0;
   }
 
