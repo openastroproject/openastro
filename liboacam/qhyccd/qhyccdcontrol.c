@@ -95,6 +95,7 @@ oaQHYCCDCameraTestControl ( oaCamera* camera, int control,
 		return OA_ERR_NONE;
 	}
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
+  oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+			control );
   return -OA_ERR_INVALID_CONTROL;
 }
