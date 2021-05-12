@@ -110,8 +110,8 @@ oacamQHYCCDcontroller ( void* param )
 						resultCode = _processAbortExposure ( cameraInfo );
 						break;
           default:
-            fprintf ( stderr, "Invalid command type %d in controller\n",
-                command->commandType );
+            oaLogError ( OA_LOG_CAMERA, "%s: Invalid command type %d",
+								__func__, command->commandType );
             resultCode = -OA_ERR_INVALID_CONTROL;
             break;
         }
@@ -206,8 +206,9 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
 	if ( OA_CAM_CTRL_FRAME_FORMAT == control ) {
 		if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
-			fprintf ( stderr, "%s: invalid control type %d where discrete "
-					"expected\n", __func__, valp->valueType );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: invalid control type %d where discrete expected", __func__,
+					valp->valueType );
 			return -OA_ERR_INVALID_CONTROL_TYPE;
 		}
 		val = valp->discrete;
@@ -219,8 +220,9 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
 	if ( OA_CAM_CTRL_BINNING == control ) {
 		if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
-			fprintf ( stderr, "%s: invalid control type %d where discrete "
-					"expected\n", __func__, valp->valueType );
+			oaLogError ( OA_LOG_CAMERA,
+					" %s: invalid control type %d where discrete expected", __func__,
+					valp->valueType );
 			return -OA_ERR_INVALID_CONTROL_TYPE;
 		}
 		val = valp->discrete;
@@ -232,9 +234,10 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 		if ( QHYControlData[i].oaControl == control ) {
 			found = 1;
 			if ( valp->valueType != QHYControlData[i].oaControlType ) {
-				fprintf ( stderr, "%s: invalid control type %d where %d expected "
-						"for control %d\n", __func__, valp->valueType,
-						QHYControlData[i].oaControlType, control );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where %d expected for control %d",
+						__func__, valp->valueType, QHYControlData[i].oaControlType,
+						control );
 				return -OA_ERR_INVALID_CONTROL_TYPE;
 			}
 
@@ -244,7 +247,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 					val_s32 /= QHYControlData[i].multiplier;
 					if ( p_SetQHYCCDParam ( cameraInfo->handle,
 							QHYControlData[i].qhyControl, val_s32 ) != QHYCCD_SUCCESS ) {
-						fprintf ( stderr, "QHYCCD: Set control %d to %f failed\n",
+						oaLogError ( OA_LOG_CAMERA,
+								"%s: QHYCCD: Set control %d to %f failed", __func__,
 								QHYControlData[i].qhyControl, val_s32 );
 						return -OA_ERR_CAMERA_IO;
 					}
@@ -255,7 +259,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 					val_s64 /= QHYControlData[i].multiplier;
 					if ( p_SetQHYCCDParam ( cameraInfo->handle,
 							QHYControlData[i].qhyControl, val_s64 ) != QHYCCD_SUCCESS ) {
-						fprintf ( stderr, "QHYCCD: Set control %d to %f failed\n",
+						oaLogError ( OA_LOG_CAMERA,
+								"%s: QHYCCD: Set control %d to %f failed", __func__,
 								QHYControlData[i].qhyControl, val_s64 );
 						return -OA_ERR_CAMERA_IO;
 					}
@@ -268,7 +273,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 		}
 	}
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
+  oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+			control );
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -301,7 +307,8 @@ _processGetControl ( QHYCCD_STATE* cameraInfo, OA_COMMAND* command )
 		}
 	}
 
-  fprintf ( stderr, "Unrecognised control %d in %s\n", control, __func__ );
+  oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+			control );
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -337,8 +344,8 @@ _processSetResolution ( QHYCCD_STATE* cameraInfo, OA_COMMAND* command )
 
 	if ( p_SetQHYCCDResolution ( cameraInfo->handle, 0, 0, size->x, size->y ) !=
 			QHYCCD_SUCCESS ) {
-    fprintf ( stderr, "Can't set QHYCCD frame size %dx%d\n", size->x,
-      size->y );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set QHYCCD frame size %dx%d",
+				__func__, size->x, size->y );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -383,8 +390,8 @@ _processSetROI ( oaCamera* camera, OA_COMMAND* command )
 
 	if ( p_SetQHYCCDResolution ( cameraInfo->handle, 0, 0, size->x, size->y ) !=
 			QHYCCD_SUCCESS ) {
-    fprintf ( stderr, "Can't set QHYCCD ROI ( %d, %d, %d, %d\n", offsetX,
-				offsetY, size->x, size->y );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set QHYCCD ROI ( %d, %d, %d, %d )",
+				__func__, offsetX, offsetY, size->x, size->y );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -414,7 +421,8 @@ _processStreamingStart ( QHYCCD_STATE* cameraInfo, OA_COMMAND* command )
 	if ( cameraInfo->runMode != CAM_RUN_MODE_STREAMING ) {
 		if (( ret = p_SetQHYCCDStreamMode ( cameraInfo->handle, 1 )) !=
 				QHYCCD_SUCCESS ) {
-			fprintf ( stderr, "SetQHYCCDStreamMode failed, error %d\n", ret );
+			oaLogError ( OA_LOG_CAMERA, "%s: SetQHYCCDStreamMode failed, error %d",
+					__func__, ret );
 			return -OA_ERR_CAMERA_IO;
 		}
 	}
@@ -434,7 +442,8 @@ _doStart ( QHYCCD_STATE* cameraInfo )
   int			ret;
 
   if (( ret = p_BeginQHYCCDLive ( cameraInfo->handle )) != QHYCCD_SUCCESS ) {
-    fprintf ( stderr, "%s: BeginQHYCCDLive failed: %d\n", __func__, ret );
+    oaLogError ( OA_LOG_CAMERA, "%s: BeginQHYCCDLive failed: %d", __func__,
+				ret );
     return -OA_ERR_CAMERA_IO;
 	}
 
@@ -466,7 +475,8 @@ _doStop ( QHYCCD_STATE* cameraInfo )
   pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 
   if (( ret = p_StopQHYCCDLive ( cameraInfo->handle )) != QHYCCD_SUCCESS ) {
-    fprintf ( stderr, "%s: StopQHYCCDLive failed: %d\n", __func__, ret );
+    oaLogError ( OA_LOG_CAMERA, "%s: StopQHYCCDLive failed: %d", __func__,
+				ret );
     return -OA_ERR_CAMERA_IO;
   }
   return OA_ERR_NONE;
@@ -487,7 +497,8 @@ _setBinning ( QHYCCD_STATE* cameraInfo, int binMode )
   y = cameraInfo->frameSizes[ binMode ].sizes[0].y;
 	if ( p_SetQHYCCDBinMode ( cameraInfo->handle, binMode, binMode ) !=
 			QHYCCD_SUCCESS ) {
-    fprintf ( stderr, "Can't set bin mode %d\n", binMode );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set bin mode %d", __func__,
+				binMode );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -513,7 +524,8 @@ _setFrameFormat ( QHYCCD_STATE* cameraInfo, int format )
 	// Handle change of bit depth
 	bitspp = oaFrameFormats[ format ].bitsPerPixel;
    if ( p_SetQHYCCDBitsMode ( cameraInfo->handle, bitspp ) != QHYCCD_SUCCESS ) {
-     fprintf ( stderr, "SetQHYCCDBitsMode ( transferbit, %d ) fails\n",
+     oaLogError ( OA_LOG_CAMERA,
+				 "%s: SetQHYCCDBitsMode ( transferbit, %d ) fails", __func__,
 				bitspp );
 		return -OA_ERR_CAMERA_IO;
 	}
@@ -522,8 +534,8 @@ _setFrameFormat ( QHYCCD_STATE* cameraInfo, int format )
 
 	if ( p_SetQHYCCDResolution ( cameraInfo->handle, 0, 0, cameraInfo->xSize,
 			cameraInfo->ySize ) != QHYCCD_SUCCESS ) {
-    fprintf ( stderr, "Can't set QHYCCD ROI ( %d, %d, %d, %d\n", 0,
-				0, cameraInfo->xSize, cameraInfo->ySize );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't set QHYCCD ROI ( %d, %d, %d, %d )",
+				__func__, 0, 0, cameraInfo->xSize, cameraInfo->ySize );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -531,7 +543,8 @@ _setFrameFormat ( QHYCCD_STATE* cameraInfo, int format )
 		// Colour can also switch between raw and RGB
     if ( p_SetQHYCCDDebayerOnOff ( cameraInfo->handle,
 					oaFrameFormats[ format ].rawColour ? 0 : 1 ) != QHYCCD_SUCCESS ) {
-      fprintf ( stderr, "p_SetQHYCCDDebayerOnOff ( %d ) returns error\n",
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: p_SetQHYCCDDebayerOnOff ( %d ) returns error", __func__,
           cameraInfo->colour );
 			return -OA_ERR_CAMERA_IO;
 		}
@@ -569,12 +582,14 @@ _processExposureStart ( QHYCCD_STATE* cameraInfo, OA_COMMAND* command )
 	if ( cameraInfo->runMode != CAM_RUN_MODE_SINGLE_SHOT ) {
 		if (( ret = p_SetQHYCCDStreamMode ( cameraInfo->handle, 0 )) !=
 				QHYCCD_SUCCESS ) {
-			fprintf ( stderr, "SetQHYCCDStreamMode failed, error %d\n", ret );
+			oaLogError ( OA_LOG_CAMERA, "%s: SetQHYCCDStreamMode failed, error %d",
+					__func__, ret );
 			return -OA_ERR_CAMERA_IO;
 		}
 	}
 	if (( ret = p_ExpQHYCCDSingleFrame ( cameraInfo->handle )) < 0 ) {
-		fprintf ( stderr, "ExpQHYCCDSingleFrame failed, error %d\n", ret );
+		oaLogError ( OA_LOG_CAMERA, "%s: ExpQHYCCDSingleFrame failed, error %d",
+				__func__, ret );
     return -OA_ERR_CAMERA_IO;
 	}
 	cameraInfo->streamingCallback.callback = cb->callback;
@@ -605,7 +620,8 @@ _processAbortExposure ( QHYCCD_STATE* cameraInfo )
 	oacamAbortTimer ( cameraInfo );
 
   if (( ret = p_CancelQHYCCDExposing ( cameraInfo->handle )) < 0 ) {
-    fprintf ( stderr, "%s: CancelQHYCCDExposing failed: %d\n", __func__, ret );
+    oaLogError ( OA_LOG_CAMERA, "%s: CancelQHYCCDExposing failed: %d",
+				__func__, ret );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -630,13 +646,15 @@ _timerCallback ( void* param )
 		if (( ret = p_GetQHYCCDSingleFrame ( cameraInfo->handle, &xsize, &ysize,
 				&bpp, &channels, cameraInfo->buffers[ nextBuffer ].start )) !=
 				QHYCCD_SUCCESS ) {
-			fprintf ( stderr, "GetQHYCCDSingleFrame failed, error %d\n", ret );
+			oaLogError ( OA_LOG_CAMERA, "%s: GetQHYCCDSingleFrame failed, error %d",
+					__func__, ret );
 			pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
 			cameraInfo->exposureInProgress = 0;
 			pthread_mutex_unlock ( &cameraInfo->commandQueueMutex );
 			if (( ret = p_CancelQHYCCDExposingAndReadout ( cameraInfo->handle )) !=
 					QHYCCD_SUCCESS ) {
-				fprintf ( stderr, "CancelQHYCCDExposingAndReadout failed, error %d\n",
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: CancelQHYCCDExposingAndReadout failed, error %d", __func__,
 						ret );
 			}
 			return;
@@ -644,7 +662,8 @@ _timerCallback ( void* param )
 
 		if (( ret = p_CancelQHYCCDExposingAndReadout ( cameraInfo->handle )) !=
 				QHYCCD_SUCCESS ) {
-			fprintf ( stderr, "CancelQHYCCDExposingAndReadout failed, error %d\n",
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: CancelQHYCCDExposingAndReadout failed, error %d", __func__,
 					ret );
 		}
 		cameraInfo->exposureInProgress = 0;
@@ -669,7 +688,8 @@ _timerCallback ( void* param )
   } else {
 		if (( ret = p_CancelQHYCCDExposingAndReadout ( cameraInfo->handle )) !=
 				QHYCCD_SUCCESS ) {
-			fprintf ( stderr, "CancelQHYCCDExposingAndReadout failed, error %d\n",
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: CancelQHYCCDExposingAndReadout failed, error %d", __func__,
 					ret );
 		}
 		cameraInfo->exposureInProgress = 0;
