@@ -104,7 +104,7 @@ oaDummyInitCamera ( oaCameraDevice* device )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: malloc of buffers failed", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
@@ -333,12 +333,14 @@ _initAstroCamera ( oaCamera* camera, DUMMY_STATE* cameraInfo,
 			camera->features.flags |= OA_CAM_FEATURE_STREAMING;
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           18, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         return 0;
       }
       if (!( cameraInfo->frameSizes[2].sizes =
           ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed",
+						__func__ );
         free (( void* ) cameraInfo->frameSizes[1].sizes );
         return 0;
       }
@@ -395,7 +397,8 @@ _initAstroCamera ( oaCamera* camera, DUMMY_STATE* cameraInfo,
 			cameraInfo->maxResolutionY = 3250;
       if (!( cameraInfo->frameSizes[1].sizes = ( FRAMESIZE* ) calloc (
           6, sizeof ( FRAMESIZE )))) {
-        fprintf ( stderr, "%s: calloc ( FRAMESIZE ) failed\n", __func__ );
+        oaLogError ( OA_LOG_CAMERA, "%s: calloc ( FRAMESIZE ) failed",
+						__func__ );
         return 0;
       }
 
