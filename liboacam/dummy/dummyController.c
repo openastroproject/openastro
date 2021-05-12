@@ -2,7 +2,7 @@
  *
  * dummyController.c -- Main camera controller thread
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -92,7 +92,7 @@ oacamDummyController ( void* param )
             break;
         }
         if ( command->callback ) {
-//fprintf ( stderr, "CONT: command has callback\n" );
+					oaLogWarning ( OA_LOG_CAMERA, "%s: command has callback", __func__ );
         } else {
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
           command->completed = 1;
