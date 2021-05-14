@@ -2,7 +2,7 @@
  *
  * GP2common.c -- private functions for libgphoto2 Cameras
  *
- * Copyright 2019
+ * Copyright 2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -27,8 +27,10 @@
 
 #include <oa_common.h>
 
-#include <openastro/camera.h>
 #include <gphoto2/gphoto2-camera.h>
+
+#include <openastro/camera.h>
+#include <openastro/util.h>
 
 #include "oacamprivate.h"
 #include "unimplemented.h"
@@ -113,7 +115,8 @@ _gp2OpenCamera ( Camera** camera, const char* name, const char* port,
 	if (( portIndex = p_gp_port_info_list_lookup_path ( _gp2PortInfoList,
 			port )) < 0 ) {
 		if ( portIndex == GP_ERROR_UNKNOWN_PORT ) {
-			fprintf ( stderr, "Unrecognised port '%s'\n", port );
+			oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised port '%s'", __func__,
+					port );
 		}
 		p_gp_port_info_list_free ( _gp2PortInfoList );
 		p_gp_camera_unref ( *camera );
@@ -137,7 +140,7 @@ _gp2OpenCamera ( Camera** camera, const char* name, const char* port,
 	}
 
 	if ( p_gp_camera_init ( *camera, ctx ) != GP_OK ) {
-		fprintf ( stderr, "can't init camera\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: can't init camera", __func__ );
 		p_gp_port_info_list_free ( _gp2PortInfoList );
 		p_gp_camera_unref ( *camera );
 		_gp2PortInfoList = 0;
@@ -162,7 +165,7 @@ _gp2GetConfig ( Camera* camera, CameraWidget** widget, GPContext* ctx )
 	int ret;
 
 	if (( ret = p_gp_camera_get_config ( camera, widget, ctx )) != GP_OK ) {
-		fprintf ( stderr, "_gp2GetConfig caught error %d\n", ret );
+		oaLogError ( OA_LOG_CAMERA, "%s: caught error %d", __func__, ret );
 	}
 	return ( ret == GP_OK ) ? OA_ERR_NONE : -OA_ERR_CAMERA_IO;
 }
@@ -201,22 +204,22 @@ _gp2ConfigureCallbacks ( GPContext* ctx )
 static void
 _gp2ErrorCallback ( GPContext* ctx, const char* str, void* data )
 {
-	fprintf ( stderr, "gphoto2::ERROR: %s\n", str ? str : "no text" );
-	fflush ( stderr );
+	oaLogError ( OA_LOG_CAMERA, "%s: gphoto2::ERROR: %s", __func__,
+			str ? str : "no text" );
 }
 
 
 static void
 _gp2StatusCallback ( GPContext* ctx, const char* str, void* data )
 {
-	fprintf ( stderr, "gphoto2::STATUS: %s\n", str ? str : "no text" );
-	fflush ( stderr );
+	oaLogInfo ( OA_LOG_CAMERA, "%s: gphoto2::STATUS: %s", __func__,
+			str ? str : "no text" );
 }
 
 
 static void
 _gp2MessageCallback ( GPContext* ctx, const char* str, void* data )
 {
-	fprintf ( stderr, "gphoto2::MESSAGE: %s\n", str ? str : "no text" );
-	fflush ( stderr );
+	oaLogInfo ( OA_LOG_CAMERA, "%s: gphoto2::MESSAGE: %s", __func__,
+			str ? str : "no text" );
 }
