@@ -95,13 +95,13 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	_gp2ConfigureCallbacks ( cameraInfo->ctx );
 
   if ( p_gp_list_new ( &cameraList ) != GP_OK ) {
-    fprintf ( stderr, "gp_list_new failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: gp_list_new failed", __func__ );
 		p_gp_context_unref ( cameraInfo->ctx );
     FREE_DATA_STRUCTS;
     return 0;
   }
   if ( p_gp_list_reset ( cameraList ) != GP_OK ) {
-    fprintf ( stderr, "gp_list_reset failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: gp_list_reset failed", __func__ );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
     FREE_DATA_STRUCTS;
@@ -112,7 +112,8 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	// number of cameras found, but this appears to be the case.
   if (( numCameras = p_gp_camera_autodetect ( cameraList,
 			cameraInfo->ctx )) < 0 ) {
-    fprintf ( stderr, "gp_camera_autodetect failed: error code %d\n",
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: gp_camera_autodetect failed: error code %d", __func__,
 				numCameras );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
@@ -121,7 +122,8 @@ oaGP2InitCamera ( oaCameraDevice* device )
   }
 
 	if ( numCameras < 1 ) {
-    fprintf ( stderr, "Can't see any UVC devices now\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't see any gphoto devices now",
+				__func__ );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
     FREE_DATA_STRUCTS;
@@ -130,7 +132,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 
   for ( i = 0; i < numCameras && found < 0; i++ ) {
 		if ( p_gp_list_get_name ( cameraList, i, &camName ) != GP_OK ) {
-			fprintf ( stderr, "gp_list_get_name failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: gp_list_get_name failed", __func__ );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );
 			FREE_DATA_STRUCTS;
@@ -140,7 +142,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
 			continue;
 		}
 		if ( p_gp_list_get_value ( cameraList, i, &camPort ) != GP_OK ) {
-			fprintf ( stderr, "gp_list_get_name failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: gp_list_get_name failed", __func__ );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );
 			FREE_DATA_STRUCTS;
@@ -152,7 +154,8 @@ oaGP2InitCamera ( oaCameraDevice* device )
 	}
 
 	if ( found < 0) {
-    fprintf ( stderr, "No matching libgphoto2 device found!\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: No matching libgphoto2 device found!",
+				__func__ );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
 		FREE_DATA_STRUCTS;
@@ -164,8 +167,8 @@ oaGP2InitCamera ( oaCameraDevice* device )
 
 	if ( _gp2OpenCamera ( &cameraInfo->handle, camName, camPort,
 			cameraInfo->ctx ) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't open camera '%s' at port '%s'\n", camName,
-				camPort );
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't open camera '%s' at port '%s'",
+				__func__, camName, camPort );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
 		FREE_DATA_STRUCTS;
@@ -174,9 +177,10 @@ oaGP2InitCamera ( oaCameraDevice* device )
 
 	if (( ret = _gp2GetConfig ( cameraInfo->handle, &cameraInfo->rootWidget,
 			cameraInfo->ctx )) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get config for camera '%s' at port '%s'\n",
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get config for camera '%s' at port '%s'", __func__,
 				camName, camPort );
-		fprintf ( stderr, "  error code %d\n", ret );
+		oaLogError ( OA_LOG_CAMERA, "%s:   error code %d", __func__, ret );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
@@ -189,8 +193,9 @@ oaGP2InitCamera ( oaCameraDevice* device )
 
 	if ( _gp2FindWidget ( cameraInfo->rootWidget, "imgsettings",
 			&cameraInfo->imgSettings ) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get imgsettings widget for camera '%s' "
-				"at port '%s'\n", camName, camPort );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get imgsettings widget for camera '%s' at port '%s'",
+				__func__, camName, camPort );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
@@ -202,8 +207,9 @@ oaGP2InitCamera ( oaCameraDevice* device )
 
 	if ( _gp2FindWidget ( cameraInfo->rootWidget, "capturesettings",
 			&cameraInfo->captureSettings ) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get capturesettings widget for camera '%s' "
-				"at port '%s'\n", camName, camPort );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get capturesettings widget for camera '%s' at port '%s'",
+				__func__, camName, camPort );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
@@ -215,8 +221,9 @@ oaGP2InitCamera ( oaCameraDevice* device )
 
 	if ( _gp2FindWidget ( cameraInfo->rootWidget, "settings",
 			&cameraInfo->settings ) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get settings widget for camera '%s' "
-				"at port '%s'\n", camName, camPort );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get settings widget for camera '%s' at port '%s'",
+				__func__, camName, camPort );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
@@ -228,7 +235,8 @@ oaGP2InitCamera ( oaCameraDevice* device )
 
 	if ( _gp2FindWidget ( cameraInfo->rootWidget, "status",
 			&cameraInfo->status ) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get status widget for camera '%s' at port '%s'\n",
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get status widget for camera '%s' at port '%s'", __func__,
 				camName, camPort );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
@@ -241,7 +249,8 @@ oaGP2InitCamera ( oaCameraDevice* device )
 
 	if ( _gp2FindWidget ( cameraInfo->rootWidget, "actions",
 			&cameraInfo->actions ) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get actions widget for camera '%s' at port '%s'\n",
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get actions widget for camera '%s' at port '%s'", __func__,
 				camName, camPort );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
@@ -298,7 +307,8 @@ oaGP2InitCamera ( oaCameraDevice* device )
 
 		if ( p_gp_widget_get_value ( tempWidget, &modelStr ) !=
 				GP_OK ) {
-			fprintf ( stderr, "can't get value of camera model string\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: can't get value of camera model string",
+					__func__ );
 			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );
@@ -323,7 +333,7 @@ oaGP2InitCamera ( oaCameraDevice* device )
     return 0;
 	}
   if ( ret == OA_ERR_NONE ) {
-fprintf ( stderr, "have acpower flag\n" );
+		oaLogInfo ( OA_LOG_CAMERA, "%s: have acpower flag", __func__ );
 		camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_POWER_SOURCE ) =
 				OA_CTRL_TYPE_READONLY;
 	}
@@ -450,7 +460,8 @@ fprintf ( stderr, "have acpower flag\n" );
 
 			if ( p_gp_widget_get_value ( cameraInfo->customfuncex, &customStr ) !=
 					GP_OK ) {
-				fprintf ( stderr, "can't get value of customfuncex string\n" );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: can't get value of customfuncex string", __func__ );
 				_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 				p_gp_list_unref ( cameraList );
 				p_gp_context_unref ( cameraInfo->ctx );
@@ -532,7 +543,7 @@ fprintf ( stderr, "have acpower flag\n" );
 	// for Canon as eosremoterelease
 
 	if ( !cameraInfo->bulbMode ) {
-fprintf ( stderr, "checking for bulb\n" );
+		oaLogInfo ( OA_LOG_CAMERA, "%s: checking for bulb", __func__ );
 		if (( ret = _GP2ProcessToggleWidget ( cameraInfo->actions, "bulb",
 				&cameraInfo->bulbMode, camName, camPort )) != OA_ERR_NONE &&
 				ret != -OA_ERR_INVALID_COMMAND ) {
@@ -551,7 +562,7 @@ fprintf ( stderr, "checking for bulb\n" );
 	// camera has it
 
 	if ( cameraInfo->bulbMode ) {
-fprintf ( stderr, "have some bulb mode\n" );
+		oaLogInfo ( OA_LOG_CAMERA, "%s: have some bulb mode", __func__ );
 		camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_BULB_MODE ) = OA_CTRL_TYPE_READONLY;
 		camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
 							OA_CTRL_TYPE_INT64;
@@ -671,7 +682,7 @@ fprintf ( stderr, "have some bulb mode\n" );
 			}
 		}
 	} else {
-		fprintf ( stderr, "can't determine image format.\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: can't determine image format", __func__ );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
@@ -693,20 +704,22 @@ fprintf ( stderr, "have some bulb mode\n" );
 				cameraInfo->formatMenuValues[1] = OA_PIX_FMT_NIKON_NEF;
 				break;
 			default:
-				fprintf ( stderr, "Unknown raw camera format\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: Unknown raw camera format", __func__ );
 				break;
 		}
 	}
 
 	if ( cameraInfo->rawOption >= 0 && cameraInfo->jpegOption == -1 ) {
-		fprintf ( stderr, "Weird.  We have a raw option, but no JPEG\n" );
+		oaLogWarning ( OA_LOG_CAMERA,
+				"%s: Weird.  We have a raw option, but no JPEG", __func__ );
 	}
 
 	// Get the current format option.  If it isn't one of the two values
 	// we like, set it to the one we like that's closest.
 
 	if ( p_gp_widget_get_value ( cameraInfo->frameFormat, &format ) != GP_OK ) {
-		fprintf ( stderr, "Can't get current frame format\n" );
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't get current frame format",
+				__func__ );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
@@ -722,7 +735,8 @@ fprintf ( stderr, "have some bulb mode\n" );
 		}
 	}
 	if ( !found ) {
-		fprintf ( stderr, "Can't find current frame format in options list\n" );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't find current frame format in options list", __func__ );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
@@ -765,7 +779,8 @@ fprintf ( stderr, "have some bulb mode\n" );
 		if ( p_gp_widget_set_value ( cameraInfo->frameFormat,
 				cameraInfo->frameFormatOptions[ cameraInfo->currentFormatOption ]) !=
 				GP_OK ) {
-			fprintf ( stderr, "Can't set current frame format\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't set current frame format",
+					__func__ );
 			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );
@@ -775,8 +790,8 @@ fprintf ( stderr, "have some bulb mode\n" );
 
 		if (( ret = p_gp_camera_set_config ( cameraInfo->handle,
 			cameraInfo->rootWidget, cameraInfo->ctx )) != GP_OK ) {
-			fprintf ( stderr, "Failed to write config to camera in %s, error %d\n",
-					__func__, ret );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Failed to write config to camera, error %d", __func__, ret );
 			_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( cameraInfo->ctx );
@@ -802,7 +817,8 @@ fprintf ( stderr, "have some bulb mode\n" );
 
   if ( pthread_create ( &( cameraInfo->controllerThread ), 0,
       oacamGP2controller, ( void* ) camera )) {
-    fprintf ( stderr, "controller thread creation failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: controller thread creation failed",
+				__func__ );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
@@ -819,7 +835,8 @@ fprintf ( stderr, "have some bulb mode\n" );
     cameraInfo->stopControllerThread = 1;
     pthread_cond_broadcast ( &cameraInfo->commandQueued );
     pthread_join ( cameraInfo->controllerThread, &dummy );
-    fprintf ( stderr, "callback thread creation failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: callback thread creation failed",
+				__func__ );
 		_gp2CloseCamera ( cameraInfo->handle, cameraInfo->ctx );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( cameraInfo->ctx );
@@ -865,22 +882,25 @@ _GP2ProcessMenuWidget ( CameraWidget* parent, const char* name,
 
 	if (( ret = _gp2FindWidget ( parent, name, ptarget )) != OA_ERR_NONE ) {
 		if ( ret != -OA_ERR_INVALID_COMMAND ) {
-			fprintf ( stderr, "Can't get %s widget for camera '%s' "
-					"at port '%s'\n", name, camName, camPort );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't get %s widget for camera '%s' at port '%s'", __func__,
+					name, camName, camPort );
 		}
     return ret;
 	}
 
   if ( _gp2GetWidgetType ( *ptarget, ptargetType ) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get type for %s widget for camera "
-				"'%s' at port '%s'\n", name, camName, camPort );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get type for %s widget for camera '%s' at port '%s'",
+				__func__, name, camName, camPort );
     return -OA_ERR_CAMERA_IO;
 	}
 
 	// We'll accept RADIO and MENU types for menus
 	if ( *ptargetType != GP_WIDGET_RADIO && *ptargetType != GP_WIDGET_MENU ) {
-		fprintf ( stderr, "Unexpected type %d for %s widget for "
-				"camera '%s' at port '%s'\n", *ptargetType, name , camName, camPort );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Unexpected type %d for %s widget for camera '%s' at port '%s'",
+				__func__, *ptargetType, name , camName, camPort );
     return -OA_ERR_CAMERA_IO;
 	}
 
@@ -891,8 +911,9 @@ _GP2ProcessMenuWidget ( CameraWidget* parent, const char* name,
 	// the default.
 
 	if (( *numVals = p_gp_widget_count_choices ( *ptarget )) < GP_OK ) {
-		fprintf ( stderr, "Can't get number of choices for %s "
-				"widget for camera '%s' at port '%s'\n", name, camName, camPort );
+		oaLogError ( OA_LOG_CAMERA, "%s: Can't get number of choices for %s "
+				"widget for camera '%s' at port '%s'", __func__, name, camName,
+				camPort );
     return -OA_ERR_CAMERA_IO;
 	}
 
@@ -909,21 +930,23 @@ _GP2ProcessStringWidget ( CameraWidget* parent, const char* name,
 
 	if (( ret = _gp2FindWidget ( parent, name, ptarget )) != OA_ERR_NONE ) {
 		if ( ret != -OA_ERR_INVALID_COMMAND ) {
-			fprintf ( stderr, "Can't get %s widget for camera '%s' "
-					"at port '%s'\n", name, camName, camPort );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't get %s widget for camera '%s' at port '%s'", __func__,
+					name, camName, camPort );
 		}
     return ret;
 	}
 
   if ( _gp2GetWidgetType ( *ptarget, &type ) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get type for %s widget for camera "
-				"'%s' at port '%s'\n", name, camName, camPort );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get type for %s widget for camera '%s' at port '%s'",
+				__func__, name, camName, camPort );
     return -OA_ERR_CAMERA_IO;
 	}
 
 	if ( type != GP_WIDGET_TEXT ) {
-		fprintf ( stderr, "Unexpected type %d for %s widget for "
-				"camera '%s' at port '%s'\n", type, name , camName, camPort );
+		oaLogError ( OA_LOG_CAMERA, "%s: Unexpected type %d for %s widget for "
+				"camera '%s' at port '%s'", __func__, type, name , camName, camPort );
     return -OA_ERR_CAMERA_IO;
 	}
 
@@ -940,21 +963,24 @@ _GP2ProcessToggleWidget ( CameraWidget* parent, const char* name,
 
 	if (( ret = _gp2FindWidget ( parent, name, ptarget )) != OA_ERR_NONE ) {
 		if ( ret != -OA_ERR_INVALID_COMMAND ) {
-			fprintf ( stderr, "Can't get %s widget for camera '%s' "
-					"at port '%s'\n", name, camName, camPort );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't get %s widget for camera '%s' at port '%s'", __func__,
+					name, camName, camPort );
 		}
     return ret;
 	}
 
   if ( _gp2GetWidgetType ( *ptarget, &type ) != OA_ERR_NONE ) {
-		fprintf ( stderr, "Can't get type for %s widget for camera "
-				"'%s' at port '%s'\n", name, camName, camPort );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get type for %s widget for camera '%s' at port '%s'",
+				__func__, name, camName, camPort );
     return -OA_ERR_CAMERA_IO;
 	}
 
 	if ( type != GP_WIDGET_TOGGLE ) {
-		fprintf ( stderr, "Unexpected type %d for %s widget for "
-				"camera '%s' at port '%s'\n", type, name , camName, camPort );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Unexpected type %d for %s widget for camera '%s' at port '%s'",
+				__func__, type, name , camName, camPort );
     return -OA_ERR_CAMERA_IO;
 	}
 
