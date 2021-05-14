@@ -2,7 +2,7 @@
  *
  * GP2callback.c -- Thread for handling callbacks to user code
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -75,8 +75,8 @@ oacamGP2callbackHandler ( void* param )
           pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
           break;
         default:
-          fprintf ( stderr, "unexpected callback type %d\n",
-              callback->callbackType );
+          oaLogWarning ( OA_LOG_CAMERA, "%s: unexpected callback type %d",
+							__func__, callback->callbackType );
           break;
       }
     }
