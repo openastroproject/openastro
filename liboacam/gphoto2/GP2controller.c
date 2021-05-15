@@ -96,13 +96,13 @@ oacamGP2controller ( void* param )
             resultCode = _processAbortExposure ( camera );
             break;
           default:
-            fprintf ( stderr, "Invalid command type %d in controller\n",
-                command->commandType );
+            oaLogError ( OA_LOG_CAMERA, "%s: Invalid command type %d",
+								__func__, command->commandType );
             resultCode = -OA_ERR_INVALID_CONTROL;
             break;
         }
         if ( command->callback ) {
-//fprintf ( stderr, "CONT: command has callback\n" );
+					oaLogWarning ( OA_LOG_CAMERA, "%s: command has callback", __func__ );
         } else {
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
           command->completed = 1;
@@ -154,12 +154,13 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 	if ( control == OA_CAM_CTRL_BATTERY_LEVEL ) {
 		if ( p_gp_widget_get_value ( cameraInfo->batteryLevel, &currOption ) !=
 				GP_OK ) {
-			fprintf ( stderr, "Failed to read value of control %d in %s\n",
-					control, __func__ );
+			oaLogError ( OA_LOG_CAMERA, "%s: Failed to read value of control %d",
+					__func__, control );
 			return -OA_ERR_CAMERA_IO;
 		}
 		if ( sscanf ( currOption, "%d%%", &val ) != 1 ) {
-			fprintf ( stderr, "Don't recognise data '%s' in battery level\n",
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Don't recognise data '%s' in battery level", __func__,
 					currOption );
 			val = 0;
 		}
@@ -194,8 +195,8 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 			break;
 
 		default:
-			fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __func__ );
+			oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+					control );
 			return -OA_ERR_INVALID_CONTROL;
 			break;
 	}
@@ -206,8 +207,8 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 	}
 
 	if ( p_gp_widget_get_value ( widget, &currOption ) != GP_OK ) {
-		fprintf ( stderr, "Failed to read value of control %d in %s\n",
-				control, __func__ );
+		oaLogError ( OA_LOG_CAMERA, "%s: Failed to read value of control %d",
+				__func__, control );
 		return -OA_ERR_CAMERA_IO;
 	}
 
@@ -220,8 +221,8 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 		}
 	}
 	if ( !found ) {
-		fprintf ( stderr, "Failed to match value of control %d in %s [%s]\n",
-				control, __func__, currOption );
+		oaLogError ( OA_LOG_CAMERA, "%s: Failed to match value of control %d [%s]",
+				__func__, control, currOption );
 		return -OA_ERR_CAMERA_IO;
 	}
 
@@ -232,14 +233,16 @@ _processGetControl ( oaCamera* camera, OA_COMMAND* command )
 		} else {
 			switch ( cameraInfo->manufacturer ) {
 				case CAMERA_MANUF_CANON:
-					fprintf ( stderr, "Returning Canon CR2 format, but may be CR3\n" );
+					oaLogWarning ( OA_LOG_CAMERA,
+							"%s: Returning Canon CR2 format, but may be CR3", __func__ );
 					valp->int32 = OA_PIX_FMT_CANON_CR2;
 					break;
 				case CAMERA_MANUF_NIKON:
 					valp->int32 = OA_PIX_FMT_NIKON_NEF;
 					break;
 				default:
-					fprintf ( stderr, "Unknown raw camera format\n" );
+					oaLogError ( OA_LOG_CAMERA, "%s: Unknown raw camera format",
+							__func__ );
 					break;
 			}
 		}
@@ -292,8 +295,8 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 				break;
 
 			default:
-				fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __func__ );
+				oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+						control );
 				return -OA_ERR_INVALID_CONTROL;
 				break;
 		}
@@ -348,14 +351,15 @@ _setWidgetValue ( GP2_STATE* cameraInfo, CameraWidget* widget,
 	int			ret;
 
 	if ( p_gp_widget_set_value ( widget, value ) != GP_OK ) {
-		fprintf ( stderr, "Failed to set value of control in %s\n", __func__ );
+		oaLogError ( OA_LOG_CAMERA, "%s: Failed to set value of control",
+				__func__ );
 		return -OA_ERR_CAMERA_IO;
 	}
 
 	if (( ret = p_gp_camera_set_config ( cameraInfo->handle,
 			cameraInfo->rootWidget, cameraInfo->ctx )) != GP_OK ) {
-		fprintf ( stderr, "Failed to write config to camera in %s, error %d\n",
-				__func__, ret );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: Failed to write config to camera, error %d", __func__, ret );
 		return -OA_ERR_CAMERA_IO;
 	}
 
@@ -383,8 +387,8 @@ _processExposureSetup ( oaCamera* camera, OA_COMMAND* command )
 		int			onOff = 1;
 		if (( ret = _setWidgetValue ( cameraInfo, cameraInfo->capture,
 				&onOff )) != GP_OK ) {
-			fprintf ( stderr, "setting capture toggle on failed with error %d\n",
-					ret );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: setting capture toggle on failed with error %d", __func__, ret );
 			return -OA_ERR_CAMERA_IO;
 		}
 	}
@@ -412,7 +416,8 @@ _startExposure ( oaCamera* camera )
 		int		enable = cameraInfo->bulbPressOption;
 		if (( ret = _setWidgetValue ( cameraInfo, cameraInfo->bulbMode,
 				&enable )) != GP_OK ) {
-			fprintf ( stderr, "starting bulb mode on failed with error %d\n", ret );
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: starting bulb mode on failed with error %d", __func__, ret );
 			return -OA_ERR_CAMERA_IO;
 		}
 		cameraInfo->timerCallback = _timerCallback;
@@ -445,7 +450,8 @@ _handleCompletedExposure ( GP2_STATE* cameraInfo )
 
 	if (( ret = p_gp_camera_wait_for_event ( cameraInfo->handle, 100,
 			&eventType, &data, cameraInfo->ctx )) != GP_OK ) {
-		fprintf ( stderr, "wait for event returns error %d\n", ret );
+		oaLogError ( OA_LOG_CAMERA, "%s: wait for event returns error %d",
+				__func__, ret );
 		return -OA_ERR_CAMERA_IO;
 	}
 
@@ -459,7 +465,7 @@ _handleCompletedExposure ( GP2_STATE* cameraInfo )
 				free ( data );
 				break;
 			default:
-				fprintf ( stderr, "%s: unexpected event type %d returned\n",
+				oaLogError ( OA_LOG_CAMERA, "%s: unexpected event type %d returned",
 						__func__, eventType );
 				break;
 		}
@@ -479,7 +485,8 @@ _handleCompletedExposure ( GP2_STATE* cameraInfo )
 
 	if (( ret = p_gp_camera_file_get ( cameraInfo->handle, filePath->folder,
 			filePath->name, GP_FILE_TYPE_NORMAL, file, cameraInfo->ctx )) != GP_OK ) {
-		fprintf ( stderr, "gp_camera_file_get %s/%s failed with error %d\n",
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: gp_camera_file_get %s/%s failed with error %d", __func__,
 				filePath->folder, filePath->name, ret );
 		( void ) p_gp_file_free ( file );
 		return -OA_ERR_CAMERA_IO;
@@ -487,13 +494,15 @@ _handleCompletedExposure ( GP2_STATE* cameraInfo )
 
 	if (( ret = p_gp_file_get_data_and_size ( file, &imageBuffer,
 			&size )) != GP_OK ) {
-		fprintf ( stderr, "gp_file_get_data_and_size failed with error %d\n", ret );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: gp_file_get_data_and_size failed with error %d", __func__, ret );
 		( void ) p_gp_file_free ( file );
 		return -OA_ERR_CAMERA_IO;
 	}
 
 	if (( ret = p_gp_file_get_mime_type ( file, &mimeType )) != GP_OK ) {
-		fprintf ( stderr, "gp_file_get_mime_type failed with error %d\n", ret );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: gp_file_get_mime_type failed with error %d", __func__, ret );
 		( void ) p_gp_file_free ( file );
 		return -OA_ERR_CAMERA_IO;
 	}
@@ -511,7 +520,8 @@ _handleCompletedExposure ( GP2_STATE* cameraInfo )
 				ptr = realloc ( cameraInfo->buffers[ nextBuffer ].start, size );
 			}
 			if ( !ptr ) {
-				fprintf ( stderr, "failed to make bigger buffer for camera frame\n" );
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: failed to make bigger buffer for camera frame", __func__ );
 				return -OA_ERR_MEM_ALLOC;
 			}
 			cameraInfo->buffers[ nextBuffer ].start = ptr;
@@ -569,6 +579,7 @@ _timerCallback ( void* param )
 	release = cameraInfo->bulbReleaseOption;
 	if (( ret = _setWidgetValue ( cameraInfo, cameraInfo->bulbMode,
 			&release )) != GP_OK ) {
-		fprintf ( stderr, "release bulb mode on failed with error %d\n", ret );
+		oaLogError ( OA_LOG_CAMERA,
+				"%s: release bulb mode on failed with error %d", __func__, ret );
 	}
 }
