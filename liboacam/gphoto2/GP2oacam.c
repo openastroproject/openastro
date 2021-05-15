@@ -85,13 +85,13 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 	_gp2ConfigureCallbacks ( ctx );
 
   if ( p_gp_list_new ( &cameraList ) != GP_OK ) {
-    fprintf ( stderr, "gp_list_new failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: gp_list_new failed", __func__ );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( ctx );
     return -OA_ERR_CAMERA_IO;
   }
   if ( p_gp_list_reset ( cameraList ) != GP_OK ) {
-    fprintf ( stderr, "gp_list_reset failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: gp_list_reset failed", __func__ );
 		p_gp_list_unref ( cameraList );
 		p_gp_context_unref ( ctx );
     return -OA_ERR_CAMERA_IO;
@@ -100,7 +100,8 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 	// gp_camera_autodetect isn't explicitly documented as returning the
 	// number of cameras found, but this appears to be the case.
   if (( numCameras = p_gp_camera_autodetect ( cameraList, ctx )) < 0 ) {
-    fprintf ( stderr, "gp_camera_autodetect failed: error code %d\n", ret );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: gp_camera_autodetect failed: error code %d", __func__, ret );
     return -OA_ERR_CAMERA_IO;
   }
 	if ( numCameras < 1 ) {
@@ -111,30 +112,31 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 
   for ( i = 0; i < numCameras; i++ ) {
 		if ( p_gp_list_get_name ( cameraList, i, &camName ) != GP_OK ) {
-			fprintf ( stderr, "gp_list_get_name failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: gp_list_get_name failed", __func__ );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( ctx );
 			return -OA_ERR_CAMERA_IO;
 		}
 		if ( p_gp_list_get_value ( cameraList, i, &camPort ) != GP_OK ) {
-			fprintf ( stderr, "gp_list_get_name failed\n" );
+			oaLogError ( OA_LOG_CAMERA, "%s: gp_list_get_name failed", __func__ );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( ctx );
 			return -OA_ERR_CAMERA_IO;
 		}
 
 		if ( _gp2OpenCamera ( &camera, camName, camPort, ctx ) != OA_ERR_NONE ) {
-			fprintf ( stderr, "Can't open camera '%s' at port '%s'\n", camName,
-					camPort );
+			oaLogError ( OA_LOG_CAMERA, "%s: Can't open camera '%s' at port '%s'",
+					__func__, camName, camPort );
 			p_gp_list_unref ( cameraList );
 			p_gp_context_unref ( ctx );
       return -OA_ERR_MEM_ALLOC;
     }
 
 		if (( ret = _gp2GetConfig ( camera, &rootWidget, ctx )) != OA_ERR_NONE ) {
-			fprintf ( stderr, "Can't get config for camera '%s' at port '%s'\n",
+			oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't get config for camera '%s' at port '%s'", __func__,
 					camName, camPort );
-		fprintf ( stderr, "  error code %d\n", ret );
+			oaLogError ( OA_LOG_CAMERA, "%s:   error code %d", __func__, ret );
 			_gp2CloseCamera ( camera, ctx );
 			// FIX ME -- free rootWidget?
 			p_gp_list_unref ( cameraList );
@@ -159,7 +161,8 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 				return -OA_ERR_CAMERA_IO;
 			}
 			if ( widgetType != GP_WIDGET_TEXT ) {
-				fprintf ( stderr, "unexpected type %d for camera model widget type\n",
+				oaLogError ( OA_LOG_CAMERA,
+						"%s: unexpected type %d for camera model widget type", __func__,
 						widgetType );
 				// FIX ME -- free rootWidget and tempWidget?
 				p_gp_list_unref ( cameraList );
@@ -167,7 +170,8 @@ oaGP2GetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
 				return -OA_ERR_CAMERA_IO;
 			}
 			if ( p_gp_widget_get_value ( tempWidget, &widgetValue ) != GP_OK ) {
-				fprintf ( stderr, "failed to get camera model value\n" );
+				oaLogError ( OA_LOG_CAMERA, "%s: failed to get camera model value",
+						__func__ );
 				// FIX ME -- free rootWidget and tempWidget?
 				p_gp_list_unref ( cameraList );
 				p_gp_context_unref ( ctx ); 
@@ -221,6 +225,6 @@ static void
 _gp2ErrorLogger ( GPLogLevel level, const char *domain, const char *str,
 		void* data )
 {
-	fprintf ( stderr, "%s\n", str );
+	oaLogError ( OA_LOG_CAMERA, "%s: %s", __func__, str );
 }
 #endif
