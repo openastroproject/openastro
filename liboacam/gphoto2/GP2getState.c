@@ -2,7 +2,7 @@
  *
  * GP2getState.c -- state querying for libgphoto2 cameras
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -136,7 +136,8 @@ oaGP2CameraGetFramePixelFormat ( oaCamera* camera )
 	}
 
 	if ( cameraInfo->manufacturer == CAMERA_MANUF_CANON ) {
-fprintf ( stderr, "Returning CR2 format which may be CRW or CR3\n" );
+		oaLogWarning ( OA_LOG_CAMERA,
+				"%s: Returning CR2 format which may be CRW or CR3", __func__ );
 		return OA_PIX_FMT_CANON_CR2;
 	}
 
