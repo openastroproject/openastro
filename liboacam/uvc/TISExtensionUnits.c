@@ -2,7 +2,7 @@
  *
  * TISExtensionUnits.c -- Process TIS Extension Units
  *
- * Copyright 2017 James Fidell (james@openastroproject.org)
+ * Copyright 2017,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -29,6 +29,7 @@
 #if HAVE_LIBUVC
 
 #include <openastro/camera.h>
+#include <openastro/util.h>
 
 #include "oacamprivate.h"
 #include "UVCExtnUnits.h"
@@ -39,8 +40,8 @@ void
 processTISExtnUnitUSB ( oaCamera* camera, COMMON_INFO* commonInfo,
     uint64_t flags )
 {
-  fprintf ( stderr, "TIS USB XU 0aba49de-5c0b-49d5-8f71-0be40f94a67a not "
-      "currently handled\n" );
+  oaLogError ( OA_LOG_CAMERA, "%s: TIS USB XU "
+			"0aba49de-5c0b-49d5-8f71-0be40f94a67a not currently handled", __func__ );
 }
 
 
@@ -48,8 +49,8 @@ void
 processTISExtnUnitUSB3 ( oaCamera* camera, COMMON_INFO* commonInfo,
     uint64_t flags )
 {
-  fprintf ( stderr, "TIS USB3 XU de49ba0a-0b5c-d549-8f71-0be40f94a67a not "
-      "currently handled\n" );
+  oaLogError ( OA_LOG_CAMERA, "%s: TIS USB3 XU "
+			"de49ba0a-0b5c-d549-8f71-0be40f94a67a not currently handled", __func__ );
 }
 
 #endif /* HAVE_LIBUVC */
