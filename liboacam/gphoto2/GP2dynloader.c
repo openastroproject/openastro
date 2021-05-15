@@ -576,7 +576,8 @@ _getDLSym ( void* libHandle, const char* symbol )
 
   addr = dlsym ( libHandle, symbol );
   if (( error = dlerror())) {
-    fprintf ( stderr, "libgphoto2 DL error: %s\n", error );
+    oaLogError ( OA_LOG_CAMERA, "%s: libgphoto2 DL error: %s", __func__,
+				error );
     addr = 0;
   }
 
