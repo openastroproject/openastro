@@ -82,7 +82,8 @@ oaUVCCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
   } while ( frame );
 
   if ( !frame ) {
-    fprintf ( stderr, "%s: no frame rates size matches found\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: no frame rates size matches found",
+				__func__ );
     return 0;
   }
 
@@ -96,7 +97,8 @@ oaUVCCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
   while ( interval && *interval ) {
     if (!( cameraInfo->frameRates.rates = realloc (
       cameraInfo->frameRates.rates, ( i + 1 ) * sizeof ( FRAMERATE )))) {
-      fprintf ( stderr, "%s: realloc failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: realloc ( FRAMERATE ) failed",
+					__func__ );
       return 0;
     }
     // interval units are 100ns
@@ -108,7 +110,7 @@ oaUVCCameraGetFrameRates ( oaCamera* camera, int resX, int resY )
   }
 
   if ( !i ) {
-    fprintf ( stderr, "%s: no frame rates found\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: no frame rates found", __func__ );
     return 0;
   }
 
