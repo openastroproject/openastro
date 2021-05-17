@@ -76,7 +76,7 @@ _IMG132EInitCamera ( oaCamera* camera )
 
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( 5 * sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed", __func__ );
     return -OA_ERR_MEM_ALLOC;
   }
 
@@ -146,7 +146,8 @@ _IMG132EInitCamera ( oaCamera* camera )
       cameraInfo->maxResolutionY );
 
   if ( oaIMG132EInitialiseRegisters ( cameraInfo ) != OA_ERR_NONE ) {
-    fprintf ( stderr, "IMG132E register initialisation failed\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: IMG132E register initialisation failed",
+				__func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     return -OA_ERR_SYSTEM_ERROR;
   }
@@ -156,7 +157,8 @@ _IMG132EInitCamera ( oaCamera* camera )
 
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
       sizeof ( frameBuffer )))) {
-    fprintf ( stderr, "malloc of buffer array failed in %s\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc of buffer array failed",
+				__func__ );
     cameraInfo->stopCallbackThread = 1;
     pthread_join ( cameraInfo->eventHandler, &dummy );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
@@ -169,7 +171,7 @@ _IMG132EInitCamera ( oaCamera* camera )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: malloc of buffer failed",  __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
