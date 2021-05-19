@@ -150,13 +150,13 @@ oacamQHY5LIIcontroller ( void* param )
             resultCode = _processStreamingStop ( cameraInfo, command );
             break;
           default:
-            fprintf ( stderr, "Invalid command type %d in controller\n",
-                command->commandType );
+            oaLogError ( OA_LOG_CAMERA, "%s: Invalid command type %d",
+								__func__, command->commandType );
             resultCode = -OA_ERR_INVALID_CONTROL;
             break;
         }
         if ( command->callback ) {
-//fprintf ( stderr, "CONT: command has callback\n" );
+					oaLogError ( OA_LOG_CAMERA, "%s: command has callback", __func__ );
         } else {
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
           command->completed = 1;
@@ -191,8 +191,9 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
     case OA_CAM_CTRL_GAIN:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __func__, valp->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int32 expected", __func__,
+            valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       if ( valp->int32 < 0 ) {
@@ -204,8 +205,9 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
     case OA_CAM_CTRL_EXPOSURE_ABSOLUTE:
       if ( valp->valueType != OA_CTRL_TYPE_INT64 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
-            __func__, valp->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int64 expected", __func__,
+            valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s64 = valp->int64;
@@ -219,8 +221,9 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       int format;
 
       if ( valp->valueType != OA_CTRL_TYPE_DISCRETE ) {
-        fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __func__, valp->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where discrete expected",
+						__func__, valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       format = valp->discrete;
@@ -242,8 +245,9 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
     case OA_CAM_CTRL_HIGHSPEED:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __func__, valp->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where bool expected", __func__,
+            valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentHighSpeed = valp->int32;
@@ -252,8 +256,9 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
     case OA_CAM_CTRL_USBTRAFFIC:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __func__, valp->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int32 expected", __func__,
+            valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s32 = valp->int32;
@@ -266,8 +271,9 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
     case OA_CAM_CTRL_BLUE_BALANCE:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __func__, valp->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int32 expected", __func__,
+            valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s32 = valp->int32;
@@ -280,8 +286,9 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
 
     case OA_CAM_CTRL_RED_BALANCE:
       if ( valp->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __func__, valp->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int32 expected", __func__,
+            valp->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s32 = valp->int32;
@@ -298,12 +305,13 @@ _processSetControl ( oaCamera* camera, OA_COMMAND* command )
       break;
 
     case OA_CAM_CTRL_GREEN_BALANCE:
-      fprintf ( stderr, "QHY5L-II: No idea how to set green balance\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: No idea how to set green balance",
+					__func__ );
       break;
 
     default:
-      fprintf ( stderr, "QHY5L-II: unrecognised control %d in %s\n", control,
-          __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: unrecognised control %d", __func__,
+					control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -468,7 +476,7 @@ _doSetHDR ( QHY_STATE* cameraInfo, unsigned int state )
 			state );
 
   if ( state ) {
-    fprintf ( stderr, "QHY5L-II: %s: function unimplemented\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: function unimplemented", __func__ );
   }
 
 	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting", __func__ );
@@ -496,7 +504,8 @@ _doSetExposure ( QHY_STATE* cameraInfo, unsigned int value, int doAbortFrame )
   newTimeMicrosec = value * 1000;
 
   if ( newTimeMicrosec > maxShortExposureTime ) {
-    fprintf ( stderr, "%s: long exposure mode may not work\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: long exposure mode may not work",
+				__func__ );
     cameraInfo->longExposureMode = 1;
     shortExposureTime = 65000;
     _i2cWrite16 ( cameraInfo, MT9M034_COARSE_INTEGRATION_TIME,
@@ -797,8 +806,8 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
       break;
 
     default:
-      fprintf ( stderr, "Unimplemented control %d in QHY5L-II:%s\n", control,
-          __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: Unimplemented control %d", __func__,
+					control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -822,7 +831,8 @@ _qhy5liiVideoStreamCallback ( struct libusb_transfer* transfer )
       if ( transfer->num_iso_packets == 0 ) { // bulk mode transfer
         _processPayload ( camera, transfer->buffer, transfer->actual_length );
       } else {
-        fprintf ( stderr, "Unexpected isochronous transfer\n" );
+        oaLogError ( OA_LOG_CAMERA, "%s: Unexpected isochronous transfer",
+						__func__ );
       } 
       break;
     
@@ -844,7 +854,8 @@ _qhy5liiVideoStreamCallback ( struct libusb_transfer* transfer )
       }
 
       if ( QHY_NUM_TRANSFER_BUFS == i ) {
-        fprintf ( stderr, "transfer %p not found; not freeing!\n", transfer );
+        oaLogError ( OA_LOG_CAMERA, "%s: transfer %p not found; not freeing!",
+						__func__, transfer );
       }
 
       resubmit = 0;
@@ -857,8 +868,8 @@ _qhy5liiVideoStreamCallback ( struct libusb_transfer* transfer )
 
     case LIBUSB_TRANSFER_STALL:
     case LIBUSB_TRANSFER_OVERFLOW:
-      fprintf ( stderr, "retrying transfer, status = %d (%s)\n",
-          transfer->status, libusb_error_name ( transfer->status ));
+      oaLogError ( OA_LOG_CAMERA, "%s: retrying transfer, status = %d (%s)",
+					__func__, transfer->status, libusb_error_name ( transfer->status ));
       break;
   }
 
@@ -874,14 +885,16 @@ _qhy5liiVideoStreamCallback ( struct libusb_transfer* transfer )
       // Mark transfer deleted
       for ( i = 0; i < QHY_NUM_TRANSFER_BUFS; i++ ) {
         if ( cameraInfo->transfers[i] == transfer ) {
-          fprintf ( stderr, "Freeing orphan transfer %d (%p)\n", i, transfer );
+          oaLogError ( OA_LOG_CAMERA, "%s: Freeing orphan transfer %d (%p)",
+							__func__, i, transfer );
           free ( transfer->buffer );
           libusb_free_transfer ( transfer );
           cameraInfo->transfers[i] = 0;
         }
       }
       if ( QHY_NUM_TRANSFER_BUFS == i ) {
-        fprintf ( stderr, "orphan transfer %p not found; not freeing!\n",
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: orphan transfer %p not found; not freeing!", __func__,
             transfer );
       }
       pthread_mutex_unlock ( &cameraInfo->videoCallbackMutex );
@@ -926,7 +939,8 @@ _processStreamingStart ( oaCamera* camera, OA_COMMAND* command )
       cameraInfo->transfers[ txId ] = transfer;
       if (!( cameraInfo->transferBuffers [ txId ] =
           malloc ( txBufferSize ))) {
-        fprintf ( stderr, "malloc failed.  Need to free buffer\n" );
+        oaLogError ( OA_LOG_CAMERA, "%s: malloc failed.  Need to free buffer",
+						__func__ );
         return -OA_ERR_SYSTEM_ERROR;
       }
       libusb_fill_bulk_transfer ( transfer, cameraInfo->usbHandle,
