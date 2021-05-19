@@ -84,7 +84,7 @@ _QHY5LIIInitCamera ( oaCamera* camera )
 
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( 5 * sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed", __func__ );
     return -OA_ERR_MEM_ALLOC;
   }
 
@@ -194,7 +194,7 @@ _QHY5LIIInitCamera ( oaCamera* camera )
 
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
       sizeof ( frameBuffer )))) {
-    fprintf ( stderr, "malloc of buffer array failed in %s\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc of buffer array failed", __func__ );
     cameraInfo->stopCallbackThread = 1;
     pthread_join ( cameraInfo->eventHandler, &dummy );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
@@ -207,7 +207,7 @@ _QHY5LIIInitCamera ( oaCamera* camera )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: malloc of buffer failed", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
@@ -426,7 +426,7 @@ oaQHY5LIICameraTestControl ( oaCamera* camera, int control,
       break;
 
     case OA_CAM_CTRL_HDR:
-      fprintf ( stderr, "QHY5L-II: %s not yet implemented for control %d\n",
+      oaLogError ( OA_LOG_CAMERA, "%s: control %d not yet implemented",
           __func__, control );
       return -OA_ERR_INVALID_CONTROL;
       break;
