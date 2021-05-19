@@ -98,12 +98,12 @@ _QHY6InitCamera ( oaCamera* camera )
 
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed", __func__ );
     return -OA_ERR_MEM_ALLOC;
   }
   if (!( cameraInfo->frameSizes[2].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     return -OA_ERR_MEM_ALLOC;
   }
@@ -147,7 +147,8 @@ _QHY6InitCamera ( oaCamera* camera )
 
   oaQHY6RecalculateSizes ( cameraInfo );
   if (!( cameraInfo->xferBuffer = malloc ( cameraInfo->captureLength ))) {
-    fprintf ( stderr, "malloc of transfer buffer failed in %s\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc of transfer buffer failed",
+				__func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->frameSizes[2].sizes );
     return -OA_ERR_MEM_ALLOC;
@@ -157,7 +158,7 @@ _QHY6InitCamera ( oaCamera* camera )
       cameraInfo->maxResolutionY * 2;
   if (!( cameraInfo->buffers = calloc ( OA_CAM_BUFFERS,
       sizeof ( frameBuffer )))) {
-    fprintf ( stderr, "malloc of buffer array failed in %s\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc of buffer array failed", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->frameSizes[2].sizes );
     free (( void* ) cameraInfo->xferBuffer );
@@ -170,7 +171,7 @@ _QHY6InitCamera ( oaCamera* camera )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: malloc failed", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
@@ -273,7 +274,7 @@ oaQHY6CameraTestControl ( oaCamera* camera, int control, oaControlValue* val )
       break;
 
     default:
-      fprintf ( stderr, "QHY6: %s not yet implemented for control %d\n",
+      oaLogError ( OA_LOG_CAMERA, "%s: control %d not yet implemented",
           __func__, control );
       return -OA_ERR_INVALID_CONTROL;
       break;
