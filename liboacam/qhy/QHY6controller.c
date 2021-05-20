@@ -106,13 +106,13 @@ oacamQHY6controller ( void* param )
             resultCode = _processStreamingStop ( cameraInfo, command );
             break;
           default:
-            fprintf ( stderr, "Invalid command type %d in controller\n",
-                command->commandType );
+            oaLogError ( OA_LOG_CAMERA, "%s: Invalid command type %d",
+								__func__, command->commandType );
             resultCode = -OA_ERR_INVALID_CONTROL;
             break;
         }
         if ( command->callback ) {
-//fprintf ( stderr, "CONT: command has callback\n" );
+					oaLogError ( OA_LOG_CAMERA, "%s: command has callback", __func__ );
         } else {
           pthread_mutex_lock ( &cameraInfo->commandQueueMutex );
           command->completed = 1;
@@ -222,8 +222,9 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_GAIN:
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int32 expected", __func__,
+            val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentGain = val->int64;
@@ -235,8 +236,9 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
       uint64_t val_u64;
 
       if ( val->valueType != OA_CTRL_TYPE_INT64 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int64 expected", __func__,
+            val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s64 = val->int64;
@@ -256,8 +258,9 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_BINNING:
       if ( val->valueType != OA_CTRL_TYPE_DISCRETE ) {
-        fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where discrete expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       switch ( val->discrete ) {
@@ -277,8 +280,9 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
 
     case OA_CAM_CTRL_HIGHSPEED:
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
-        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where bool expected", __func__,
+            val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentHighSpeed = val->boolean;
@@ -295,7 +299,7 @@ _processSetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
       break;
 
     default:
-      fprintf ( stderr, "QHY6: %s not yet implemented for control %d\n",
+      oaLogError ( OA_LOG_CAMERA, "%s: control %d not yet implemented",
           __func__, control );
       return -OA_ERR_INVALID_CONTROL;
       break;
@@ -507,13 +511,14 @@ _doReadExposure ( QHY_STATE* cameraInfo )
   ret = _usbBulkTransfer ( cameraInfo, QHY_BULK_ENDP_IN,
       cameraInfo->xferBuffer, expectedSize, &readSize, USB1_BULK_TIMEOUT );
   if ( ret ) {
-    fprintf ( stderr, "readExposure: USB bulk transfer failed, err = %d\n",
-        ret );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: readExposure: USB bulk transfer failed, err = %d", __func__, ret );
     cameraInfo->droppedFrames++;
     return -OA_ERR_CAMERA_IO;
   }
   if ( readSize != expectedSize ) {
-    fprintf ( stderr, "readExposure: USB bulk transfer was short. %d != %d\n",
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: readExposure: USB bulk transfer was short. %d != %d", __func__,
         readSize, expectedSize );
     cameraInfo->droppedFrames++;
     return -OA_ERR_CAMERA_IO;
