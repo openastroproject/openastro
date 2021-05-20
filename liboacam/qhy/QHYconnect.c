@@ -2,7 +2,7 @@
  *
  * QHYconnect.c -- Initialise QHY cameras
  *
- * Copyright 2013,2014,2015,2017,2018,2019
+ * Copyright 2013,2014,2015,2017,2018,2019,2021
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -75,8 +75,8 @@ oaQHYInitCamera ( oaCameraDevice* device )
     case CAM_IMG132E:
       break;
     default:
-      fprintf ( stderr, "Unsupported camera %ld: %s\n", devInfo->devType,
-          device->deviceName );
+      oaLogError ( OA_LOG_CAMERA, "%s: Unsupported camera %ld: %s", __func__,
+					devInfo->devType, device->deviceName );
       return 0;
       break;
   }
@@ -102,11 +102,12 @@ oaQHYInitCamera ( oaCameraDevice* device )
     libusb_free_device_list ( devlist, 1 );
     libusb_exit ( cameraInfo->usbContext );
     if ( numUSBDevices ) {
-      fprintf ( stderr, "Can't see any USB devices now (list returns -1)\n" );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: Can't see any USB devices now (list returns -1)", __func__ );
       FREE_DATA_STRUCTS;
       return 0;
     }
-    fprintf ( stderr, "Can't see any USB devices now\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Can't see any USB devices now", __func__ );
     FREE_DATA_STRUCTS;
     return 0;
   }
@@ -119,7 +120,8 @@ oaQHYInitCamera ( oaCameraDevice* device )
     if ( LIBUSB_SUCCESS != libusb_get_device_descriptor ( usbDevice, &desc )) {
       libusb_free_device_list ( devlist, 1 );
       libusb_exit ( cameraInfo->usbContext );
-      fprintf ( stderr, "get device descriptor failed\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: get device descriptor failed",
+					__func__ );
       FREE_DATA_STRUCTS;
       return 0;
     }
@@ -134,13 +136,13 @@ oaQHYInitCamera ( oaCameraDevice* device )
   }
   libusb_free_device_list ( devlist, 1 );
   if ( !matched ) {
-    fprintf ( stderr, "No matching USB device found!\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: No matching USB device found!", __func__ );
     libusb_exit ( cameraInfo->usbContext );
     FREE_DATA_STRUCTS;
     return 0;
   }
   if ( !usbHandle ) {
-    fprintf ( stderr, "Unable to open USB device!\n" );
+    oaLogError ( OA_LOG_CAMERA, "%s: Unable to open USB device!", __func__ );
     libusb_exit ( cameraInfo->usbContext );
     FREE_DATA_STRUCTS;
     return 0;
@@ -152,15 +154,18 @@ oaQHYInitCamera ( oaCameraDevice* device )
   }
 
   if (( ret = libusb_set_configuration ( usbHandle, 1 ))) {
-    fprintf ( stderr, "Can't get configuration for USB device! err = %d\n",
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: Can't get configuration for USB device! err = %d", __func__,
         ret );
-    fprintf ( stderr, "Try unplugging and reconnecting the device?\n" );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: Try unplugging and reconnecting the device?", __func__ );
     libusb_exit ( cameraInfo->usbContext );
     FREE_DATA_STRUCTS;
     return 0;
   }
   if ( libusb_claim_interface ( usbHandle, 0 )) {
-    fprintf ( stderr, "Unable to claim interface for USB device!\n" );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: Unable to claim interface for USB device!", __func__ );
     libusb_exit ( cameraInfo->usbContext );
     FREE_DATA_STRUCTS;
     return 0;
@@ -169,7 +174,8 @@ oaQHYInitCamera ( oaCameraDevice* device )
   if ( CAM_QHY5 == cameraInfo->cameraType ) {
     // may not be required?
     if ( libusb_set_interface_alt_setting ( usbHandle, 0, 0 )) {
-      fprintf ( stderr, "Unable to set alternate interface for USB device!\n" );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: Unable to set alternate interface for USB device!", __func__ );
       libusb_release_interface ( cameraInfo->usbHandle, 0 );
       libusb_exit ( cameraInfo->usbContext );
       FREE_DATA_STRUCTS;
@@ -207,7 +213,7 @@ oaQHYInitCamera ( oaCameraDevice* device )
       ret = _IMG132EInitCamera ( camera );
       break;
     default:
-      fprintf ( stderr, "unsupported camera type\n" );
+      oaLogError ( OA_LOG_CAMERA, "%s: unsupported camera type", __func__ );
       ret = -1;
       break;
   }
