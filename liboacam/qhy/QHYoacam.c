@@ -153,7 +153,8 @@ oaQHYGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
           if ( cameraList[j].wIndex != lastWindex ) {
             lastWindex = cameraList[j].wIndex;
             if ( LIBUSB_SUCCESS != libusb_open ( device, &handle )) {
-              fprintf ( stderr, "libusb_open for QHY camera failed\n" );
+              oaLogError ( OA_LOG_CAMERA,
+									"%s: libusb_open for QHY camera failed", __func__ );
               libusb_free_device_list ( devlist, 1 );
               libusb_exit ( ctx );
               return -OA_ERR_SYSTEM_ERROR;
@@ -162,7 +163,8 @@ oaQHYGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
             if (( ret = libusb_control_transfer ( handle,
                 QHY_CMD_DEFAULT_IN, 0xca, 0, cameraList[j].wIndex, buf, 16,
                 2000 )) < 16 ) {
-              fprintf ( stderr, "read QHY EEPROM failed: %d\n", ret );
+              oaLogError ( OA_LOG_CAMERA,
+									"%s: read QHY EEPROM failed: %d", __func__, ret );
               libusb_close ( handle );
               libusb_free_device_list ( devlist, 1 );
               libusb_exit ( ctx );
