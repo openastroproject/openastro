@@ -125,12 +125,12 @@ _oldQHY6InitCamera ( oaCamera* camera )
   }
   if (!( cameraInfo->frameSizes[1].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed", __func__ );
     return -OA_ERR_MEM_ALLOC;
   }
   if (!( cameraInfo->frameSizes[2].sizes =
       ( FRAMESIZE* ) malloc ( sizeof ( FRAMESIZE )))) {
-    fprintf ( stderr, "%s: malloc ( FRAMESIZE ) failed\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc ( FRAMESIZE ) failed", __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     return -OA_ERR_MEM_ALLOC;
   }
@@ -155,7 +155,7 @@ _oldQHY6InitCamera ( oaCamera* camera )
 
   _recalculateSizes ( camera );
   if (!( cameraInfo->xferBuffer = malloc ( cameraInfo->captureLength ))) {
-    fprintf ( stderr, "malloc of transfer buffer failed in %s\n",
+    oaLogError ( OA_LOG_CAMERA, "%s: malloc of transfer buffer failed",
         __func__ );
     free (( void* ) cameraInfo->frameSizes[1].sizes );
     free (( void* ) cameraInfo->frameSizes[2].sizes );
@@ -192,7 +192,7 @@ _oldQHY6InitCamera ( oaCamera* camera )
       cameraInfo->buffers[i].start = m;
       cameraInfo->configuredBuffers++;
     } else {
-      fprintf ( stderr, "%s malloc failed\n", __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: malloc of buffers failed", __func__ );
       if ( i ) {
         for ( j = 0; j < i; j++ ) {
           free (( void* ) cameraInfo->buffers[j].start );
@@ -271,7 +271,8 @@ _readExposure ( oaCamera* camera, void* buffer, unsigned int readLength )
     return ret;
   }
   if ( readSize != readLength ) {
-    fprintf ( stderr, "readExposure: USB bulk transfer was short. %d != %d\n",
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: readExposure: USB bulk transfer was short. %d != %d", __func__,
         readSize, readLength );
     cameraInfo->droppedFrames++;
     return -OA_ERR_CAMERA_IO;
@@ -290,8 +291,9 @@ setControl ( oaCamera* camera, int control, oaControlValue* val )
 
     case OA_CAM_CTRL_GAIN:
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int32 expected", __func__,
+            val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentGain = val->int64;
@@ -303,8 +305,9 @@ setControl ( oaCamera* camera, int control, oaControlValue* val )
       uint64_t val_u64;
 
       if ( val->valueType != OA_CTRL_TYPE_INT64 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int64 expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where int64 expected", __func__,
+            val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       val_s64 = val->int64;
@@ -334,8 +337,9 @@ setControl ( oaCamera* camera, int control, oaControlValue* val )
     // FIX ME -- binning currently disabled
     case OA_CAM_CTRL_BINNING:
       if ( val->valueType != OA_CTRL_TYPE_DISCRETE ) {
-        fprintf ( stderr, "%s: invalid control type %d where discrete "
-            "expected\n", __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where discrete expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       switch ( val->discrete ) {
@@ -357,8 +361,9 @@ setControl ( oaCamera* camera, int control, oaControlValue* val )
 
     case OA_CAM_CTRL_HIGHSPEED:
       if ( val->valueType != OA_CTRL_TYPE_BOOLEAN ) {
-        fprintf ( stderr, "%s: invalid control type %d where bool expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_CAMERA,
+						"%s: invalid control type %d where bool expected", __func__,
+            val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       cameraInfo->currentHighSpeed = val->boolean;
@@ -371,8 +376,8 @@ setControl ( oaCamera* camera, int control, oaControlValue* val )
       break;
 
     default:
-      fprintf ( stderr, "oldQHY6: %s not yet implemented for control %d\n",
-          __func__, control );
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: oldQHY6: control %d not yet implemented", __func__, control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -464,8 +469,8 @@ testControl ( oaCamera* camera, int control, oaControlValue* val )
 #endif
 
     default:
-      fprintf ( stderr, "oldQHY6: %s not yet implemented for control %d\n",
-          __func__, control );
+      oaLogError ( OA_LOG_CAMERA, "%s: not yet implemented for control %d",
+					__func__, control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
