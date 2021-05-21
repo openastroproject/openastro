@@ -55,8 +55,8 @@ _usbControlMsg ( QHY_STATE* cameraInfo, uint8_t reqType, uint8_t req,
       index, data, length, timeout );
   pthread_mutex_unlock ( &cameraInfo->usbMutex );
   if ( ret != length ) {
-    fprintf ( stderr, "libusb control error: %d\n", ret );
-    fprintf ( stderr, "%s\n", libusb_error_name ( ret ));
+    oaLogError ( OA_LOG_CAMERA, "%s: libusb control error: %d", __func__, ret );
+    oaLogError ( OA_LOG_CAMERA, "%s: %s", __func__, libusb_error_name ( ret ));
   }
 
   oaLogDebug ( OA_LOG_CAMERA, "%s: exiting", __func__ );
@@ -81,10 +81,11 @@ _usbBulkTransfer ( QHY_STATE* cameraInfo, unsigned char endpoint,
   ret = libusb_bulk_transfer ( cameraInfo->usbHandle, endpoint, data, length,
       ( int* ) transferred, timeout );
   pthread_mutex_unlock ( &cameraInfo->usbMutex );
-  // if ( ret ) {
-  //   fprintf ( stderr, "libusb bulk error: %d\n", ret );
-  //   fprintf ( stderr, "%s\n", libusb_error_name ( ret ));
-  // }
+  if ( ret ) {
+    oaLogWarning ( OA_LOG_CAMERA, "%s: libusb bulk error: %d", __func__, ret );
+    oaLogWarning ( OA_LOG_CAMERA, "%s: %s", __func__,
+				libusb_error_name ( ret ));
+  }
 
   oaLogDebug ( OA_LOG_CAMERA, "%s: exiting", __func__ );
 
@@ -156,8 +157,9 @@ qhyStatusCallback ( struct libusb_transfer* transfer )
   switch ( transfer->status ) {
     case LIBUSB_TRANSFER_ERROR:
     case LIBUSB_TRANSFER_NO_DEVICE:
-      // fprintf ( stderr, "not processing/resubmitting status xfer: err = %d\n",
-      //     transfer->status );
+      oaLogWarning ( OA_LOG_CAMERA,
+					"%s: not processing/resubmitting status xfer: err = %d", __func__,
+					transfer->status );
       return;
       break;
 
@@ -179,16 +181,18 @@ qhyStatusCallback ( struct libusb_transfer* transfer )
 
     case LIBUSB_TRANSFER_COMPLETED:
       // This is the good one, but for the moment we'll do nothing here
-      // fprintf ( stderr, "unhandled completed status xfer\n" );
+      // oaLogError ( OA_LOG_CAMERA, "%s: unhandled completed status xfer", __func__ );
       break;
 
     case LIBUSB_TRANSFER_TIMED_OUT:
     case LIBUSB_TRANSFER_STALL:
     case LIBUSB_TRANSFER_OVERFLOW:
-      // fprintf ( stderr, "retrying xfer, status = %d\n", transfer->status );
+      oaLogWarning ( OA_LOG_CAMERA, "%s: retrying xfer, status = %d", __func__,
+					transfer->status );
       break;
     default:
-      fprintf ( stderr, "unexpected interrupt transfer status = %d\n",
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: unexpected interrupt transfer status = %d", __func__,
           transfer->status );
       break;
   }
