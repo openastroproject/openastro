@@ -89,11 +89,13 @@ oaSetLogFile ( const char* logFile )
 		oaLogToStderr = 1;
 		return OA_ERR_NONE;
 	}
-	if (!( fp = fopen ( logFile, "a" ))) {
+	if (!( fp = fopen ( logFile, "w" ))) {
 		return -OA_ERR_NOT_WRITEABLE;
 	}
-
 	fclose ( fp );
+
+	oaLogToStderr = 0;
+	( void ) strncpy ( oaLogFile, logFile, PATH_MAX );
 	return OA_ERR_NONE;
 }
 
