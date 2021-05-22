@@ -42,12 +42,14 @@ void usage();
 int
 main ( int argc, char* argv[] )
 {
-  QApplication app ( argc, argv );
-  QString translateDir;
-  QString configFile = "";
+  QApplication	app ( argc, argv );
+  QString				translateDir;
+  QString				configFile = "";
+	QString				debugLog = "-";
 
-	unsigned int logLevel = OA_LOG_NONE;
-	unsigned int logType = OA_LOG_NONE;
+	unsigned int	logLevel = OA_LOG_NONE;
+	unsigned int	logType = OA_LOG_NONE;
+	int						ret;
 
 #if HAVE_QT5
 	QStringList debugTypeValues = { "none", "app", "camera", "fw", "timer" };
@@ -109,6 +111,12 @@ main ( int argc, char* argv[] )
 		QCoreApplication::translate ( "main", "type" ), "" );
 	parser.addOption ( debugTypeOption );
 
+	QCommandLineOption debugLogOption ( "debug-log",
+		QCoreApplication::translate ( "main",
+			"Debug log filename ( use '-' for stderr )" ),
+		QCoreApplication::translate ( "main", "filename" ), "-" );
+	parser.addOption ( debugLogOption );
+
 	// Process the actual command line arguments given by the user
 	parser.process ( app );
 
@@ -149,6 +157,7 @@ main ( int argc, char* argv[] )
 	}
 
 	configFile = parser.value ( configFileOption );
+	debugLog = parser.value ( debugLogOption );
 
 #else
 
@@ -185,6 +194,15 @@ main ( int argc, char* argv[] )
 
 	oaSetLogLevel ( logLevel );
 	oaSetLogType ( logType );
+	if (( ret = oaSetLogFile ( debugLog.toStdString().c_str())) !=
+			OA_ERR_NONE ) {
+		if ( ret == -OA_ERR_NOT_WRITEABLE ) {
+			qCritical( "Debug log file cannot be written" );
+		} else {
+			qCritical( "Error opening debug log file" );
+		}
+		exit ( 1 );
+	}
 
   MainWindow mainWindow ( configFile );
   mainWindow.show();
