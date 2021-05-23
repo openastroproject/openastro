@@ -417,8 +417,8 @@ readControl ( oaCamera* camera, int control, oaControlValue* val )
       break;
 
     default:
-      fprintf ( stderr,
-          "Unrecognised control %d in oldQHY6:%s\n", control, __func__ );
+      oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
+					control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
