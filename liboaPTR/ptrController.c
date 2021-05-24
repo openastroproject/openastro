@@ -114,18 +114,18 @@ oaPTRcontroller ( void* param )
         numRead = _readTimestamp ( deviceInfo->version, deviceInfo->fd,
             readBuffer );
         if ( numRead != timestampLength ) {
-          oaLogError ( OA_LOG_TIMER, "%s: read incorrect timestamp length %d",
-							__func__, numRead );
+          oaLogErrorNoNL ( OA_LOG_TIMER,
+							"%s: read incorrect timestamp length %d: ", __func__, numRead );
           if ( numRead > 0 ) {
             for ( i = 0; i < numRead; i++ ) {
               if ( readBuffer[i] < 32 ) {
-                fprintf ( stderr, "%02x ", readBuffer[i] );
+                oaLogErrorCont ( OA_LOG_TIMER, "%02x ", readBuffer[i] );
               } else {
-                fprintf ( stderr, "%c ", readBuffer[i] );
+                oaLogErrorCont ( OA_LOG_TIMER, "%c ", readBuffer[i] );
               }
             }
           }
-          fprintf ( stderr, ")\n" );
+          oaLogErrorEndline ( OA_LOG_TIMER );
         } else {
 					oaLogDebug ( OA_LOG_TIMER, "%s: read timestamp '%s'", __func__,
 							readBuffer );
@@ -839,17 +839,17 @@ _readResultCode ( PRIVATE_INFO* deviceInfo, int idx )
 
 	numRead = _readTimestamp ( deviceInfo->version, deviceInfo->fd, readBuffer );
   if ( numRead != 5 ) { // 5 == result code length
-    oaLogError ( OA_LOG_TIMER, "%s: read incorrect result code length %d",
-				__func__, numRead );
+    oaLogErrorNoNL ( OA_LOG_TIMER,
+				"%s: read incorrect result code length %d: ", __func__, numRead );
 		if ( numRead > 0 ) {
 			for ( i = 0; i < numRead; i++ ) {
 				if ( readBuffer[i] < 32 ) {
-					fprintf ( stderr, "%02x ", readBuffer[i] );
+					oaLogErrorCont ( OA_LOG_TIMER, "%02x ", readBuffer[i] );
 				} else {
-					fprintf ( stderr, "%c ", readBuffer[i] );
+					oaLogErrorCont ( OA_LOG_TIMER, "%c ", readBuffer[i] );
 				}
 			}
-			fprintf ( stderr, ")\n" );
+			oaLogErrorEndline ( OA_LOG_TIMER );
 			return;
 		}
 	}
