@@ -2,7 +2,7 @@
  *
  * ptrCallback.c -- Thread for handling callbacks to user code
  *
- * Copyright 2015,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -65,8 +65,8 @@ oaPTRcallbackHandler ( void* param )
     if ( callback ) {
       switch ( callback->callbackType ) {
         default:
-          fprintf ( stderr, "unexpected callback type %d\n",
-              callback->callbackType );
+          oaLogError ( OA_LOG_TIMER, "%s: unexpected callback type %d",
+							__func__, callback->callbackType );
           break;
       }
     }
