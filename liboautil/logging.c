@@ -170,6 +170,39 @@ oaLogError ( unsigned int logType, const char* str, ... )
 
 
 int
+oaLogErrorNoNL ( unsigned int logType, const char* str, ... )
+{
+	va_list	args;
+	int			ret;
+
+	va_start ( args, str );
+	ret = _oaWriteLog ( OA_LOG_ERROR, 'E', logType, 0, str, args );
+	va_end ( args );
+	return ret;
+}
+
+
+int
+oaLogErrorCont ( unsigned int logType, const char* str, ... )
+{
+	va_list	args;
+	int			ret;
+
+	va_start ( args, str );
+	ret = _oaWriteLog ( OA_LOG_ERROR, 0, logType, 0, str, args );
+	va_end ( args );
+	return ret;
+}
+
+
+int
+oaLogErrorEndline ( unsigned int logType )
+{
+	return _oaWriteNL ( OA_LOG_ERROR, 0, logType );
+}
+
+
+int
 oaLogWarning ( unsigned int logType, const char* str, ... )
 {
 	va_list	args;
