@@ -198,7 +198,7 @@ oaEUVCGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   libusb_exit ( ctx );
 
 	oaLogInfo ( OA_LOG_CAMERA, "%s: exiting.  Found %d cameras", __func__,
-			numCameras );
+			numFound );
 
   return numFound;
 }
