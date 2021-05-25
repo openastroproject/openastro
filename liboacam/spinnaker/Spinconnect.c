@@ -2012,6 +2012,10 @@ _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 					return -OA_ERR_SYSTEM_ERROR;
 				}
 
+				oaLogInfo ( OA_LOG_CAMERA,
+						"%s: exposure range:  min = %f, max = %f, current = %f",
+						__func__, min, max, curr );
+
 				camera->OA_CAM_CTRL_TYPE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) =
 						OA_CTRL_TYPE_INT64;
 				// FIX ME -- need to round min up to nearest microsecond?
