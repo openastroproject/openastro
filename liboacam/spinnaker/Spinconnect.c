@@ -761,6 +761,8 @@ _checkGainControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	// gain values may not be correct, so auto gain must be disabled.
 
 	if ( autoGainValid ) {
+		oaLogDebug ( OA_LOG_CAMERA, "%s: attempting to turn off auto gain",
+				__func__ );
 		if (( *p_spinEnumerationSetEnumValue )( autoGain, GainAuto_Off ) !=
 				SPINNAKER_ERR_SUCCESS ) {
 			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn off auto gain", __func__ );
@@ -1664,6 +1666,8 @@ _checkBlackLevelControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	// values in case auto mode modifies the way black level works
 
 	if ( autoBlackLevelValid ) {
+		oaLogDebug ( OA_LOG_CAMERA, "%s: attempting to turn off auto black level",
+				__func__ );
 		if (( *p_spinEnumerationSetEnumValue )( autoBlackLevel,
 				BlackLevelAuto_Off ) != SPINNAKER_ERR_SUCCESS ) {
 			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn off auto black level",
@@ -1976,6 +1980,8 @@ _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 	// correct, so auto exposure must be disabled.
 
 	if ( autoExposureValid ) {
+		oaLogDebug ( OA_LOG_CAMERA, "%s: attempting to turn off auto exposure",
+				__func__ );
 		if (( *p_spinEnumerationSetEnumValue )( autoExposure, ExposureAuto_Off ) !=
 				SPINNAKER_ERR_SUCCESS ) {
 			oaLogError ( OA_LOG_CAMERA, "%s: Can't turn off auto exposure",
@@ -2573,6 +2579,8 @@ _checkTriggerControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
     oaLogInfo ( OA_LOG_CAMERA, "%s: trigger source unavailable", __func__ );
   }
 
+	oaLogDebug ( OA_LOG_CAMERA, "%s: attempting to turn off trigger mode",
+			__func__ );
 	if (( *p_spinEnumerationSetEnumValue )( triggerMode, TriggerMode_Off ) !=
 			SPINNAKER_ERR_SUCCESS ) {
 		oaLogError ( OA_LOG_CAMERA, "%s: Can't turn off trigger mode", __func__ );
