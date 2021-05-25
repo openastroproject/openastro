@@ -2,7 +2,7 @@
  *
  * oaptr.c -- main PTR library entrypoint
  *
- * Copyright 2016,2017 James Fidell (james@openastroproject.org)
+ * Copyright 2016,2017,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
