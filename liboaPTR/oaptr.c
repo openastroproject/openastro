@@ -111,13 +111,6 @@ oaGetPTRAPIVersionStr ( void )
 
 
 void
-oaSetPTRDebugLevel ( int v )
-{
-  oaptrSetDebugLevel ( v );
-}
-
-
-void
 oaClearPTRIDFilters ( void )
 {
   oaPTRClearIDFilters();

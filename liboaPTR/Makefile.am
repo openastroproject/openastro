@@ -1,7 +1,7 @@
 #
 # Makefile.am -- liboaPTR Makefile template
 #
-# Copyright 2015,2016,2017 James Fidell (james@openastroproject.org)
+# Copyright 2015,2016,2017,2021 James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -35,8 +35,8 @@ IOSRC = ptrIO-acm.c ptr-acm.c
 endif
 
 liboaPTR_la_SOURCES = \
-  debug.c oaptr.c ptrCallback.c ptrConfig.c ptrControl.c ptrController.c \
-  unimplemented.c utils.c $(IOSRC)
+  oaptr.c ptrCallback.c ptrConfig.c ptrControl.c ptrController.c utils.c \
+  unimplemented.c $(IOSRC)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 

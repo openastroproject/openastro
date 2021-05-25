@@ -2,7 +2,7 @@
  *
  * oaptrprivate.h -- shared declarations not exposed to the cruel world
  *
- * Copyright 2015,2016,2017,2018,2019,2020
+ * Copyright 2015,2016,2017,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -94,10 +94,6 @@ typedef struct {
 extern void*		oaPTRcontroller ( void* );
 extern void*		oaPTRcallbackHandler ( void* );
 
-extern void		oaptrSetDebugLevel ( int );
-extern void		oaptrClearDebugLevel ( int );
-extern void		oaptrAddDebugLevel ( int );
-extern void		oaptrDebugMsg ( int, const char*, ... );
 extern int		_oaCheckPTRArraySize ( PTR_LIST* );
 extern void		_oaFreePTRDeviceList ( PTR_LIST* );
 
