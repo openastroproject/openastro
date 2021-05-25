@@ -50,7 +50,7 @@ main ( int argc, char* argv[] )
 	QString				configFile = "";
 	QString				debugLog = "";
 
-	unsigned int	logLevel = OA_LOG_NONE;
+	unsigned int	logLevel = OA_LOG_ERROR;
 	unsigned int	logType = OA_LOG_NONE;
 	int						ret;
 
