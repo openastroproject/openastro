@@ -47,7 +47,9 @@ static int	_processCameraEntry ( spinCamera, oaCamera* );
 static void	_showIntegerNode ( spinNodeHandle, bool8_t );
 static void	_showBooleanNode ( spinNodeHandle );
 static void	_showFloatNode ( spinNodeHandle, bool8_t );
-//static void	_showStringNode ( spinNodeHandle );
+#ifdef EXTREME_DEBUG
+static void	_showStringNode ( spinNodeHandle );
+#endif
 static void	_showEnumerationNode ( spinNodeHandle, int );
 static int	_checkGainControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkGammaControls ( spinNodeMapHandle, oaCamera* );
@@ -58,6 +60,7 @@ static int	_checkBlackLevelControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkWhiteBalanceControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkResetControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkTemperatureControls ( spinNodeMapHandle, oaCamera* );
+static int	_checkFrameRateControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkExposureControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkAcquisitionControls ( spinNodeMapHandle, oaCamera* );
 static int	_checkTriggerControls ( spinNodeMapHandle, oaCamera* );
@@ -623,6 +626,11 @@ _processCameraEntry ( spinCamera cameraHandle, oaCamera* camera )
 	}
 
 	if ( _checkTemperatureControls ( cameraNodeMapHandle, camera ) < 0 ) {
+    ( void ) ( *p_spinCameraDeInit )( cameraHandle );
+		return -OA_ERR_SYSTEM_ERROR;
+	}
+
+	if ( _checkFrameRateControls ( cameraNodeMapHandle, camera ) < 0 ) {
     ( void ) ( *p_spinCameraDeInit )( cameraHandle );
 		return -OA_ERR_SYSTEM_ERROR;
 	}
@@ -2075,39 +2083,11 @@ _checkExposureControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 int
 _checkAcquisitionControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
-	spinNodeHandle		frameRateEnabled, acquisitionMode, acquisitionStart;
-	spinNodeHandle		acquisitionStop;
+	spinNodeHandle		acquisitionMode, acquisitionStart,	acquisitionStop;
 	//spinNodeHandle		singleFrameMode;
   bool8_t						available, readable, writeable, implemented;
   spinNodeType			nodeType;
   SPINNAKER_STATE*	cameraInfo = camera->_private;
-
-  if ( _getNodeData ( nodeMap, "AcquisitionFrameRateEnabled",
-			&frameRateEnabled, &implemented, &available, &readable, &writeable,
-			&nodeType ) < 0 ) {
-    return -OA_ERR_SYSTEM_ERROR;
-  }
-  if ( available ) {
-		// Doesn't make much sense that this node not be readable and
-		// writeable?
-    if ( readable && writeable ) {
-			if ( nodeType == BooleanNode ) {
-				oaLogInfo ( OA_LOG_CAMERA, "%s: Found frame rate enabled control",
-						__func__ );
-				_showBooleanNode ( frameRateEnabled );
-				cameraInfo->frameRateEnabled = frameRateEnabled;
-			} else {
-				oaLogWarning ( OA_LOG_CAMERA,
-						"%s: Unrecognised node type '%s' for frame rate enabled", __func__,
-						nodeTypes[ nodeType ] );
-			}
-    } else {
-      oaLogError ( OA_LOG_CAMERA, "%s: frame rate enabled is inaccessible",
-					__func__ );
-		}
-  } else {
-    oaLogInfo ( OA_LOG_CAMERA, "%s: frame rate enabled unavailable", __func__ );
-  }
 
   if ( _getNodeData ( nodeMap, "AcquisitionMode", &acquisitionMode,
 			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
@@ -3313,11 +3293,101 @@ _checkFlipControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 
 
 int
+_checkFrameRateControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
+{
+	spinNodeHandle		frameRateEnabled, frameRateAuto;
+  bool8_t						available, readable, writeable, implemented;
+  spinNodeType			nodeType;
+  SPINNAKER_STATE*	cameraInfo = camera->_private;
+
+  if ( _getNodeData ( nodeMap, "AcquisitionFrameRateAuto", &frameRateAuto,
+			&implemented, &available, &readable, &writeable, &nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+		// Doesn't make much sense that this node not be readable and
+		// writeable?
+    if ( readable && writeable ) {
+			if ( nodeType == EnumerationNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found AcquisitionFrameRateAuto control",
+						__func__ );
+				_showEnumerationNode ( frameRateAuto, 0 );
+				// If we don't turn this off it can mess with the reported range of
+				// values available for exposure time
+				oaLogDebug ( OA_LOG_CAMERA,
+						"%s: attempting to turn off AcquisitionFrameRateEnabled",
+						__func__ );
+				if (( *p_spinEnumerationSetIntValue )( frameRateAuto, 0 ) !=
+						SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't turn off AcquisitionFrameRateAuto", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for AcquisitionFrameRateAuto",
+						__func__, nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA,
+					"%s: AcquisitionFrameRateAuto is inaccessible", __func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: AcquisitionFrameRateAuto unavailable",
+				__func__ );
+  }
+
+  if ( _getNodeData ( nodeMap, "AcquisitionFrameRateEnabled",
+			&frameRateEnabled, &implemented, &available, &readable, &writeable,
+			&nodeType ) < 0 ) {
+    return -OA_ERR_SYSTEM_ERROR;
+  }
+  if ( available ) {
+		// Doesn't make much sense that this node not be readable and
+		// writeable?
+    if ( readable && writeable ) {
+			if ( nodeType == BooleanNode ) {
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Found frame rate enabled control",
+						__func__ );
+				_showBooleanNode ( frameRateEnabled );
+				cameraInfo->frameRateEnabled = frameRateEnabled;
+				oaLogDebug ( OA_LOG_CAMERA,
+						"%s: attempting to turn off AcquisitionFrameRateEnabled",
+						__func__ );
+				if (( *p_spinBooleanSetValue )( cameraInfo->frameRateEnabled,
+							False ) != SPINNAKER_ERR_SUCCESS ) {
+					oaLogError ( OA_LOG_CAMERA,
+							"%s: Can't turn off AcquisitionFrameRateEnabled", __func__ );
+					return -OA_ERR_SYSTEM_ERROR;
+				}
+			} else {
+				oaLogWarning ( OA_LOG_CAMERA,
+						"%s: Unrecognised node type '%s' for frame rate enabled", __func__,
+						nodeTypes[ nodeType ] );
+			}
+    } else {
+      oaLogError ( OA_LOG_CAMERA, "%s: frame rate enabled is inaccessible",
+					__func__ );
+		}
+  } else {
+    oaLogInfo ( OA_LOG_CAMERA, "%s: frame rate enabled unavailable", __func__ );
+  }
+
+	return OA_ERR_NONE;
+}
+
+
+int
 _checkUnknownControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 {
 	spinNodeHandle			rootHandle, categoryHandle, featureHandle;
 	spinNodeType				nodeType;
 	bool8_t							available, readable;
+#ifdef EXTREME_DEBUG
+	spinNodeHandle			node;
+	spinNodeType				ntype;
+	bool8_t							implemented, writeable;
+#endif
 	size_t							numCategories, numFeatures, featureNameLen;
 	unsigned int				i, j, k, found;
 	char								featureName[ SPINNAKER_MAX_BUFF_LEN ];
@@ -3396,6 +3466,116 @@ _checkUnknownControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 						found = 0;
 						for ( k = 0; !found && k < sizeof ( spinFeatureStrings ); k++ ) {
 							if ( !strcmp ( featureName, spinFeatureStrings[k] )) {
+#ifdef EXTREME_DEBUG
+								oaLogDebug ( OA_LOG_CAMERA, "%s: found feature %s", __func__,
+										featureName );
+								if ( _getNodeData ( nodeMap, featureName, &node, &implemented,
+											&available, &readable, &writeable, &ntype ) < 0 ) {
+									oaLogError ( OA_LOG_CAMERA, "%s:   can't get node data",
+											__func__ );
+								} else {
+									if ( implemented ) {
+										if ( available ) {
+											if ( readable ) {
+												int			inSNFC = 1;
+
+												switch ( ntype ) {
+													case BaseNode:
+														oaLogDebug ( OA_LOG_CAMERA,
+																"%s: node %s is a base node", __func__,
+																featureName );
+														break;
+													case IntegerNode:
+														_showIntegerNode ( node, inSNFC );
+														break;
+													case BooleanNode:
+														_showBooleanNode ( node );
+														break;
+													case FloatNode:
+														_showFloatNode ( node, inSNFC );
+														break;
+													case CommandNode:
+														oaLogDebug ( OA_LOG_CAMERA,
+																"%s: node %s is a command node", __func__,
+																featureName );
+														break;
+													case StringNode:
+														_showStringNode ( node );
+														break;
+													case RegisterNode:
+														oaLogDebug ( OA_LOG_CAMERA,
+																"%s: node %s is a register node", __func__,
+																featureName );
+														break;
+													case EnumerationNode:
+														if ( !strcmp ( featureName, "SharpnessAuto" ) ||
+																!strcmp  ( featureName,
+																	"AutoFunctionAOIsControl" ) ||
+																!strcmp  ( featureName,
+																	"pgrDevicePowerSupplySelector" ) ||
+																!strcmp  ( featureName,
+																	"pgrExposureCompensationAuto" ) ||
+																!strcmp  ( featureName,
+																	"AcquisitionFrameRateAuto" ) ||
+																!strcmp  ( featureName, "VideoMode" ) ||
+																!strcmp  ( featureName, "pgrPixelBigEndian" ) ||
+																!strcmp  ( featureName, "PixelCoding" ) ||
+																!strcmp  ( featureName, "TestImageSelector" ) ||
+																!strcmp  ( featureName,
+																	"UserSetDefaultSelector" ) ||
+																!strcmp  ( featureName, "LUTSelector" ) ||
+																!strcmp  ( featureName,
+																	"GevDeviceModeCharacterSet" ) ||
+																!strcmp  ( featureName, "GevSCPDirection" ) ||
+																!strcmp  ( featureName, "ChunkSelector" ) ||
+																!strcmp  ( featureName, "EventSelector" )) {
+															inSNFC = 0;
+														}
+														_showEnumerationNode ( node, inSNFC );
+														break;
+													case EnumEntryNode:
+														oaLogDebug ( OA_LOG_CAMERA,
+																"%s: node %s is an enum entry node", __func__,
+																featureName );
+														break;
+													case CategoryNode:
+														oaLogDebug ( OA_LOG_CAMERA,
+																"%s: node %s is a category node", __func__,
+																featureName );
+														break;
+													case PortNode:
+														oaLogDebug ( OA_LOG_CAMERA,
+																"%s: node %s is a port node", __func__,
+																featureName );
+														break;
+													case ValueNode:
+														oaLogDebug ( OA_LOG_CAMERA,
+																"%s: node %s is a value node", __func__,
+																featureName );
+														break;
+													case UnknownNode:
+														oaLogDebug ( OA_LOG_CAMERA,
+																"%s: node %s is an unknown node", __func__,
+																featureName );
+														break;
+												}
+											} else {
+												oaLogDebug ( OA_LOG_CAMERA,
+														"%s: node %s is not readable", __func__,
+														featureName );
+											}
+										} else {
+											oaLogDebug ( OA_LOG_CAMERA,
+													"%s: node %s is not available", __func__,
+													featureName );
+										}
+									} else {
+											oaLogDebug ( OA_LOG_CAMERA,
+													"%s: node %s is present, but not implemented?!",
+													__func__, featureName );
+									}
+								}
+#endif /* EXTREME_DEBUG */
 								found = 1;
 							}
 						}
@@ -3550,7 +3730,8 @@ _showFloatNode ( spinNodeHandle floatNode, bool8_t writeable )
   return;
 }
 
-/*
+
+#ifdef EXTREME_DEBUG
 static void
 _showStringNode ( spinNodeHandle stringNode )
 {
@@ -3566,7 +3747,8 @@ _showStringNode ( spinNodeHandle stringNode )
   oaLogDebug ( OA_LOG_CAMERA, "%s:   [%s]", __func__, string );
   return;
 }
-*/
+#endif
+
 
 static void
 _showEnumerationNode ( spinNodeHandle enumNode, int inSNFC )
