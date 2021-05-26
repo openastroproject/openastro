@@ -2,7 +2,8 @@
  *
  * oafw.c -- main filter wheel library entrypoint
  *
- * Copyright 2014,2015,2018,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2015,2018,2020,2021
+ *   James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -140,13 +141,6 @@ oaGetFilterWheelAPIVersionStr ( void )
   snprintf ( vs, 40, "%d.%d.%d", OAFWHEEL_MAJOR_VERSION,
       OAFWHEEL_MINOR_VERSION, OAFWHEEL_REVISION );
   return vs;
-}
-
-
-void
-oaSetFilterWheelDebugLevel ( int v )
-{
-  oafwSetDebugLevel ( v );
 }
 
 

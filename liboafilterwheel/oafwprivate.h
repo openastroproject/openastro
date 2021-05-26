@@ -82,10 +82,6 @@ typedef struct {
 
 } PRIVATE_INFO;
 
-extern void		oafwSetDebugLevel ( int );
-extern void		oafwClearDebugLevel ( int );
-extern void		oafwAddDebugLevel ( int );
-extern void		oafwDebugMsg ( int, const char*, ... );
 extern int		_oaCheckFilterWheelArraySize ( FILTERWHEEL_LIST* );
 extern void		_oaFreeFilterWheelDeviceList ( FILTERWHEEL_LIST* );
 

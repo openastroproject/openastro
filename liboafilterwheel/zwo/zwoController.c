@@ -110,8 +110,8 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
   int			control = command->controlId;
   oaControlValue*	val = command->commandData;
 
-  oafwDebugMsg ( DEBUG_CAM_CTRL, "ZWO: control: %s ( %d, ? )\n",
-      __func__, control );
+  oaLogDebug ( OA_LOG_FILTERWHEEL, "%s: ZWO control:  %d", __func__,
+			control );
 
   switch ( control ) {
 
@@ -145,8 +145,8 @@ _processGetControl ( PRIVATE_INFO* cameraInfo, OA_COMMAND* command )
   int			control = command->controlId;
   // oaControlValue*	val = command->resultData;
 
-  oafwDebugMsg ( DEBUG_CAM_CTRL, "ZWO: control: %s ( %d )\n",
-      __func__, control );
+  oaLogDebug ( OA_LOG_FILTERWHEEL, "%s: ZWO control:  %d", __func__,
+			control );
 
   fprintf ( stderr,
       "Unrecognised control %d in %s\n", control, __func__ );
