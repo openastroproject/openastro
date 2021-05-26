@@ -1,7 +1,8 @@
 #
 # Makefile.am -- liboafilterwheel Makefile template
 #
-# Copyright 2014,2015,2017,2018 James Fidell (james@openastroproject.org)
+# Copyright 2014,2015,2017,2018,2021
+#   James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -52,7 +53,7 @@ endif
 SUBDIRS = sx $(XAGYLDIR) $(ZWODIR) $(BRIGHTSTARDIR)
 
 liboafilterwheel_la_SOURCES = \
-	oafw.c debug.c unimplemented.c utils.c genericControl.c genericCallback.c
+	oafw.c unimplemented.c utils.c genericControl.c genericCallback.c
 
 liboafilterwheel_la_LIBADD = \
   sx/libsx.la $(XAGYLLIB) $(ZWOLIB) $(BRIGHTSTARLIB)
