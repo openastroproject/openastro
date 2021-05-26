@@ -65,8 +65,8 @@ oafwCallbackHandler ( void* param )
     if ( callback ) {
       switch ( callback->callbackType ) {
         default:
-          fprintf ( stderr, "unexpected callback type %d\n",
-              callback->callbackType );
+          oaLogWarning ( OA_LOG_FILTERWHEEL, "%s: unexpected callback type %d",
+              __func__, callback->callbackType );
           break;
       }
     }
