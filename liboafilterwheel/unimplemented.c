@@ -37,7 +37,7 @@
 static oaFilterWheel*
 _initFilterWheel ( oaFilterWheelDevice* device )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __func__,
+  oaLogWarning ( OA_LOG_FILTERWHEEL, "%s not implemented for %s", __func__,
       device->deviceName );
   return 0;
 }
@@ -46,8 +46,8 @@ _initFilterWheel ( oaFilterWheelDevice* device )
 static int
 _closeFilterWheel ( oaFilterWheel* wheel )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __func__,
-      wheel->deviceName );
+  oaLogWarning ( OA_LOG_FILTERWHEEL, "%s not implemented for %s", __func__,
+      device->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
 
@@ -55,8 +55,8 @@ _closeFilterWheel ( oaFilterWheel* wheel )
 static int
 _readControl ( oaFilterWheel* wheel, int c, oaControlValue* v )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __func__,
-      wheel->deviceName );
+  oaLogWarning ( OA_LOG_FILTERWHEEL, "%s not implemented for %s", __func__,
+      device->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
 
@@ -64,8 +64,8 @@ _readControl ( oaFilterWheel* wheel, int c, oaControlValue* v )
 static int
 _setControl ( oaFilterWheel* wheel, int c, oaControlValue* v )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __func__,
-      wheel->deviceName );
+  oaLogWarning ( OA_LOG_FILTERWHEEL, "%s not implemented for %s", __func__,
+      device->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
 
@@ -73,8 +73,8 @@ _setControl ( oaFilterWheel* wheel, int c, oaControlValue* v )
 static int
 _testControl ( oaFilterWheel* wheel, int c, oaControlValue* v )
 {
-  fprintf ( stderr, "%s not implemented for %s\n", __func__,
-      wheel->deviceName );
+  oaLogWarning ( OA_LOG_FILTERWHEEL, "%s not implemented for %s", __func__,
+      device->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
 
