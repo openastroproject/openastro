@@ -47,7 +47,7 @@ static int
 _closeFilterWheel ( oaFilterWheel* wheel )
 {
   oaLogWarning ( OA_LOG_FILTERWHEEL, "%s not implemented for %s", __func__,
-      device->deviceName );
+      wheel->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
 
@@ -56,7 +56,7 @@ static int
 _readControl ( oaFilterWheel* wheel, int c, oaControlValue* v )
 {
   oaLogWarning ( OA_LOG_FILTERWHEEL, "%s not implemented for %s", __func__,
-      device->deviceName );
+      wheel->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
 
@@ -65,7 +65,7 @@ static int
 _setControl ( oaFilterWheel* wheel, int c, oaControlValue* v )
 {
   oaLogWarning ( OA_LOG_FILTERWHEEL, "%s not implemented for %s", __func__,
-      device->deviceName );
+      wheel->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
 
@@ -74,7 +74,7 @@ static int
 _testControl ( oaFilterWheel* wheel, int c, oaControlValue* v )
 {
   oaLogWarning ( OA_LOG_FILTERWHEEL, "%s not implemented for %s", __func__,
-      device->deviceName );
+      wheel->deviceName );
   return -OA_ERR_UNIMPLEMENTED;
 }
 
