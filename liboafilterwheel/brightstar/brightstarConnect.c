@@ -85,7 +85,7 @@ oaBrightstarInitFilterWheel ( oaFilterWheelDevice* device )
   privateInfo->index = -1;
 
   if (( fwDesc = open ( devInfo->sysPath, O_RDWR | O_NOCTTY )) < 0 ) {
-    fprintf ( stderr, "%s: Can't open %s read-write, errno = %d\n",
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: Can't open %s read-write, errno = %d",
         __func__, devInfo->sysPath, errno );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
@@ -96,8 +96,8 @@ oaBrightstarInitFilterWheel ( oaFilterWheelDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( fwDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't get lock on %s, errno = %d\n", __func__,
-        devInfo->sysPath, errnoCopy );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: can't get lock on %s, errno = %d",
+				__func__, devInfo->sysPath, errnoCopy );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;
@@ -107,8 +107,8 @@ oaBrightstarInitFilterWheel ( oaFilterWheelDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( fwDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't get termio on %s, errno = %d\n", __func__,
-        devInfo->sysPath, errnoCopy );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: can't get termio on %s, errno = %d",
+				__func__, devInfo->sysPath, errnoCopy );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;
@@ -123,8 +123,8 @@ oaBrightstarInitFilterWheel ( oaFilterWheelDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( fwDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't set termio on %s, errno = %d\n", __func__,
-        devInfo->sysPath, errnoCopy );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: can't set termio on %s, errno = %d",
+				__func__, devInfo->sysPath, errnoCopy );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;
