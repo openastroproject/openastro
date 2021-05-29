@@ -93,7 +93,7 @@ oaSXInitFilterWheel ( oaFilterWheelDevice* device )
   privateInfo->index = -1;
 
   if (!( hidHandle = hid_open_path ( devInfo->sysPath ))) {
-    fprintf ( stderr, "No matching USB device found!\n" );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: No matching USB device found!" );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;
@@ -139,8 +139,8 @@ oaSXInitFilterWheel ( oaFilterWheelDevice* device )
 
 
   if (( wheel->numSlots = _getNumSlots ( wheel )) < 1 ) {
-    fprintf ( stderr, "%s: invalid number of slots in filter wheel\n",
-        __func__ );
+    oaLogError ( OA_LOG_FILTERWHEEL,
+				"%s: invalid number of slots in filter wheel", __func__ );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;
@@ -176,7 +176,7 @@ _getNumSlots ( oaFilterWheel* wheel )
   buffer[0] = 0;
   buffer[1] = 1;
   if ( _sxWheelWrite ( privateInfo, buffer )) {
-    fprintf ( stderr, "%s: write error on get filters command\n",
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: write error on get filters command",
       __func__ );
     pthread_mutex_unlock ( &privateInfo->ioMutex );
     return 0;
@@ -192,8 +192,8 @@ _getNumSlots ( oaFilterWheel* wheel )
     buffer[0] = 0;
     buffer[1] = 0;
     if ( _sxWheelWrite ( privateInfo, buffer )) {
-      fprintf ( stderr, "%s: write error on get filters command\n",
-        __func__ );
+      oaLogError ( OA_LOG_FILTERWHEEL,
+					"%s: write error on get filters command", __func__ );
       pthread_mutex_unlock ( &privateInfo->ioMutex );
       return 0;
     }
