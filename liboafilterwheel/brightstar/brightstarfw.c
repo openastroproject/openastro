@@ -2,7 +2,7 @@
  *
  * brightstarfw.c -- Find Brightstar filter wheels
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -55,7 +55,8 @@ oaBrightstarGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
   DEVICE_INFO*			_private;
 
   if (!( udev = udev_new())) {
-    fprintf ( stderr, "can't get connection to udev\n" );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: can't get connection to udev",
+				__func__ );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
