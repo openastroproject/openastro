@@ -89,7 +89,7 @@ oaBrightstarMoveTo ( PRIVATE_INFO* wheelInfo, int slot, int nodelay )
   pthread_mutex_lock ( &wheelInfo->ioMutex );
 
   if ( nodelay ) {
-    fprintf ( stderr, "%s: ignoring nodelay\n", __func__ );
+    oaLogWarning ( OA_LOG_FILTERWHEEL, "%s: ignoring nodelay", __func__ );
   }
 
   char buffer[50];
@@ -102,8 +102,8 @@ oaBrightstarMoveTo ( PRIVATE_INFO* wheelInfo, int slot, int nodelay )
   tcflush ( wheelInfo->fd, TCIFLUSH );
 
   if ( _brightstarWheelWrite ( wheelInfo->fd, buffer, 5 )) {
-    fprintf ( stderr, "%s: write error on command '%s'\n", __func__,
-        buffer );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: write error on command '%s'",
+				__func__, buffer );
     pthread_mutex_unlock ( &wheelInfo->ioMutex );
     return -1;
   }
@@ -118,8 +118,9 @@ oaBrightstarMoveTo ( PRIVATE_INFO* wheelInfo, int slot, int nodelay )
 		if ( numRead > 0 ) {
 			if ( strncmp ( buffer, expected, 2 )) {
 				if ( !strncmp ( buffer, "M-", 2 ) && !strncmp ( buffer, "M+", 2 )) {
-					fprintf ( stderr, "%s: '%s' failed to match expected string '%s'\n",
-							__func__, buffer, expected );
+					oaLogError ( OA_LOG_FILTERWHEEL,
+							"%s: '%s' failed to match expected string '%s'\n", __func__,
+							buffer, expected );
 					pthread_mutex_unlock ( &wheelInfo->ioMutex );
 					return -1;
 				}
@@ -127,7 +128,7 @@ oaBrightstarMoveTo ( PRIVATE_INFO* wheelInfo, int slot, int nodelay )
 				moveComplete = 1;
 			}
 		} else {
-			fprintf ( stderr, "%s: no data read from wheel interface\n",
+			oaLogError ( OA_LOG_FILTERWHEEL, "%s: no data read from wheel interface",
 					__func__ );
 			pthread_mutex_unlock ( &wheelInfo->ioMutex );
 			return -1;
