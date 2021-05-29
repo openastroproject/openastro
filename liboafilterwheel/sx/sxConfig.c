@@ -63,14 +63,14 @@ oaSXAddIDFilter ( userDeviceConfig* config )
   if ( !sxConfig ) {
     if (!( sxConfig = ( userDeviceConfig* ) malloc ( sizeof (
         userDeviceConfig ) * 3 ))) {
-      fprintf ( stderr, "malloc failed in %s\n", __func__ );
+      oaLogError ( OA_LOG_FILTERWHEEL, "%s: malloc failed", __func__ );
       return;
     }
   } else {
     if ( sxConfigEntries % 3 == 0 ) {
       if (!( sxConfig = ( userDeviceConfig* ) realloc ( sxConfig,
           sizeof ( userDeviceConfig ) * ( sxConfigEntries / 3 + 1 )))) {
-        fprintf ( stderr, "realloc failed in %s\n", __func__ );
+        oaLogError ( OA_LOG_FILTERWHEEL, "%s: realloc failed", __func__ );
         return;
       }
     }
