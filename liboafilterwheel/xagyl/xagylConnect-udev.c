@@ -85,8 +85,9 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
   privateInfo->index = -1;
 
   if (( fwDesc = open ( devInfo->sysPath, O_RDWR | O_NOCTTY )) < 0 ) {
-    fprintf ( stderr, "Can't open %s read-write, errno = %d\n",
-        devInfo->sysPath, errno );
+    oaLogError ( OA_LOG_FILTERWHEEL,
+				"%s: Can't open %s read-write, errno = %d", __func__, devInfo->sysPath,
+				errno );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;
@@ -96,8 +97,8 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( fwDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't get lock on %s, errno = %d\n", __func__,
-        devInfo->sysPath, errnoCopy );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: can't get lock on %s, errno = %d",
+				__func__, devInfo->sysPath, errnoCopy );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;
@@ -107,8 +108,8 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( fwDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't get termio on %s, errno = %d\n", __func__,
-        devInfo->sysPath, errnoCopy );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: can't get termio on %s, errno = %d",
+				__func__, devInfo->sysPath, errnoCopy );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;
@@ -123,8 +124,8 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
     int errnoCopy = errno;
     errno = 0;
     while (( close ( fwDesc ) < 0 ) && EINTR == errno );
-    fprintf ( stderr, "%s: can't set termio on %s, errno = %d\n", __func__,
-        devInfo->sysPath, errnoCopy );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: can't set termio on %s, errno = %d",
+				__func__, devInfo->sysPath, errnoCopy );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;
@@ -172,8 +173,9 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
   oaXagylWheelWarmReset ( privateInfo, 0 );
 
   if (( wheel->numSlots = _getNumSlots ( wheel )) < 1 ) {
-    fprintf ( stderr, "%s: invalid number of slots in filter wheel %s\n",
-        __func__, devInfo->sysPath );
+    oaLogError ( OA_LOG_FILTERWHEEL,
+				"%s: invalid number of slots in filter wheel %s", __func__,
+				devInfo->sysPath );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;
@@ -215,7 +217,8 @@ _getNumSlots ( oaFilterWheel* wheel )
   tcflush ( privateInfo->fd, TCIFLUSH );
 
   if ( _xagylWheelWrite ( privateInfo->fd, "i8", 2 )) {
-    fprintf ( stderr, "%s: write error on i8 command\n", __func__ );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: write error on i8 command",
+				__func__ );
     return 0;
   }
 
@@ -224,19 +227,20 @@ _getNumSlots ( oaFilterWheel* wheel )
 
   if ( numRead > 0 ) {
     if ( strncmp ( buffer, "FilterSlots ", 12 )) {
-      fprintf ( stderr, "%s: failed to match expecting string 'FilterSlots '"
-           ", got '%40s'\n", __func__, buffer );
+      oaLogError ( OA_LOG_FILTERWHEEL,
+					"%s: failed to match expecting string 'FilterSlots ', got '%40s'",
+					__func__, buffer );
       return 0;
     }
     if ( sscanf ( buffer, "FilterSlots %d", &numSlots ) != 1 ) {
-      fprintf ( stderr, "%s: Failed to match number of slots in '%s'\n",
-          __func__, buffer );
+      oaLogError ( OA_LOG_FILTERWHEEL,
+					"%s: Failed to match number of slots in '%s'", __func__, buffer );
       return 0;
     }
     return numSlots;
   }
 
-  fprintf ( stderr, "%s: no data read from wheel interface\n",
+  oaLogError ( OA_LOG_FILTERWHEEL, "%s: no data read from wheel interface",
       __func__ );
   return 0;
 }
