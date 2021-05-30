@@ -57,14 +57,15 @@ oaXagylAddIDFilter ( userDeviceConfig* config )
   if ( !xagylConfig ) {
     if (!( xagylConfig = ( userDeviceConfig* ) malloc ( sizeof (
         userDeviceConfig ) * 3 ))) {
-      fprintf ( stderr, "malloc failed in %s\n", __func__ );
+      oaLogError ( OA_LOG_FILTERWHEEL, "%s: malloc of userDeviceConfig failed",
+					__func__ );
       return;
     }
   } else {
     if ( xagylConfigEntries % 3 == 0 ) {
       if (!( xagylConfig = ( userDeviceConfig* ) realloc ( xagylConfig,
           sizeof ( userDeviceConfig ) * ( xagylConfigEntries / 3 + 1 )))) {
-        fprintf ( stderr, "realloc failed in %s\n", __func__ );
+        oaLogError ( OA_LOG_FILTERWHEEL, "%s: realloc failed", __func__ );
         return;
       }
     }
