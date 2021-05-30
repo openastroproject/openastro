@@ -83,13 +83,14 @@ oafwSXcontroller ( void* param )
             resultCode = _processGetControl ( wheelInfo, command );
             break;
           default:
-            fprintf ( stderr, "Invalid command type %d in controller\n",
-                command->commandType );
+            oaLogError ( OA_LOG_FILTERWHEEL, "%s: Invalid command type %d",
+                __func__, command->commandType );
             resultCode = -OA_ERR_INVALID_CONTROL;
             break;
         }
         if ( command->callback ) {
-//fprintf ( stderr, "CONT: command has callback\n" );
+					oaLogError ( OA_LOG_FILTERWHEEL, "%s: command has callback",
+							__func__ );
         } else {
           pthread_mutex_lock ( &wheelInfo->commandQueueMutex );
           command->completed = 1;
@@ -121,8 +122,9 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
       int	slot;
 
       if ( val->valueType != OA_CTRL_TYPE_INT32 ) {
-        fprintf ( stderr, "%s: invalid control type %d where int32 expected\n",
-            __func__, val->valueType );
+        oaLogError ( OA_LOG_FILTERWHEEL,
+						"%s: invalid control type %d where int32 expected", __func__,
+						val->valueType );
         return -OA_ERR_INVALID_CONTROL_TYPE;
       }
       slot = val->int32;
@@ -130,8 +132,8 @@ _processSetControl ( PRIVATE_INFO* wheelInfo, OA_COMMAND* command )
       break;
     }
     default:
-      fprintf ( stderr, "Unrecognised control %d in %s\n", control,
-          __func__ );
+      oaLogError ( OA_LOG_FILTERWHEEL, "%s: Unrecognised control %d", __func__,
+					control );
       return -OA_ERR_INVALID_CONTROL;
       break;
   }
@@ -148,8 +150,8 @@ _processGetControl ( PRIVATE_INFO* cameraInfo, OA_COMMAND* command )
 
   oaLogDebug ( OA_LOG_FILTERWHEEL, "%s: SX control:  %d", __func__, control );
 
-  fprintf ( stderr,
-      "Unrecognised control %d in %s\n", control, __func__ );
+  oaLogError ( OA_LOG_FILTERWHEEL, "%s: Unrecognised control %d", __func__,
+			control );
   return -OA_ERR_INVALID_CONTROL;
 }
 
@@ -165,7 +167,7 @@ _oaSXMoveTo ( PRIVATE_INFO* wheelInfo, int slot )
   buffer[0] = slot;
   buffer[1] = 0;
   if ( _sxWheelWrite ( wheelInfo, buffer )) {
-    fprintf ( stderr, "%s: write error on move command\n",
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: write error on move command",
       __func__ );
     pthread_mutex_unlock ( &wheelInfo->ioMutex );
     return -1;
@@ -181,7 +183,7 @@ _oaSXMoveTo ( PRIVATE_INFO* wheelInfo, int slot )
     buffer[0] = 0;
     buffer[1] = 0;
     if ( _sxWheelWrite ( wheelInfo, buffer )) {
-      fprintf ( stderr, "%s: write error on move command 2\n",
+      oaLogError ( OA_LOG_FILTERWHEEL, "%s: write error on move command 2",
         __func__ );
       pthread_mutex_unlock ( &wheelInfo->ioMutex );
       return -1;
@@ -196,7 +198,7 @@ _oaSXMoveTo ( PRIVATE_INFO* wheelInfo, int slot )
 
   actualSlot = buffer[0];
   if ( actualSlot != slot ) {
-    fprintf ( stderr, "%s: requested slot %d, got slot %d\n",
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: requested slot %d, got slot %d",
         __func__, slot, actualSlot );
     return -1;
   }
