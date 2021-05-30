@@ -98,11 +98,13 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
     libusb_free_device_list ( devlist, 1 );
     libusb_exit ( usbContext );
     if ( numUSBDevices ) {
-      fprintf ( stderr, "Can't see any USB devices now (list returns -1)\n" );
+      oaLogError ( OA_LOG_FILTERWHEEL,
+					"%s: Can't see any USB devices now (list returns -1)", __func__ );
       free ( wheel );
       return 0;
     }
-    fprintf ( stderr, "Can't see any USB devices now\n" );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: Can't see any USB devices now",
+				__func__ );
     free ( wheel );
     return 0;
   }
@@ -113,7 +115,8 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
     if ( LIBUSB_SUCCESS != libusb_get_device_descriptor ( usbDevice, &desc )) {
       libusb_free_device_list ( devlist, 1 );
       libusb_exit ( usbContext );
-      fprintf ( stderr, "get device descriptor failed\n" );
+      oaLogError ( OA_LOG_FILTERWHEEL, "%s: get device descriptor failed",
+					__func__ );
       free ( wheel );
       return 0;
     }
@@ -129,16 +132,18 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
 
   if ( matched ) {
     if (!( privateInfo->ftdiContext = ftdi_new())) {
-      fprintf ( stderr, "ftdi_new() failed\n" );
+      oaLogError ( OA_LOG_FILTERWHEEL, "%s: ftdi_new() failed", __func__ );
       matched = 0;
     } else {
       if (( ret = ftdi_init ( privateInfo->ftdiContext ))) {
-        fprintf ( stderr, "can't initialise ftdi context, err = %d\n", ret );
+        oaLogError ( OA_LOG_FILTERWHEEL,
+						"%s: can't initialise ftdi context, err = %d", __func__, ret );
         matched = 0;
       } else {
         ftdi_set_interface ( privateInfo->ftdiContext, INTERFACE_ANY );
         if ( ftdi_usb_open_dev ( privateInfo->ftdiContext, usbDevice ) < 0 ) {
-          fprintf ( stderr, "FTDI open of serial device failed\n" );
+          oaLogError ( OA_LOG_FILTERWHEEL,
+							"%s: FTDI open of serial device failed", __func__ );
           matched = 0;
         }
       }
@@ -151,15 +156,16 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
   // libusb_exit ( usbContext );
 
   if ( !matched ) {
-    fprintf ( stderr, "no matching filter wheel\n" );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: no matching filter wheel", __func__ );
     free ( wheel );
     ftdi_free ( privateInfo->ftdiContext );
     return 0;
   }
 
   if (( ret = ftdi_set_baudrate ( privateInfo->ftdiContext, 9600 )) < 0 ) {
-    fprintf ( stderr, "set baud rate for FTDI serial device failed, "
-        "err = %d\n", ret );
+    oaLogError ( OA_LOG_FILTERWHEEL,
+				"%s: set baud rate for FTDI serial device failed, err = %d", __func__,
+				ret );
     ftdi_usb_close ( privateInfo->ftdiContext );
     ftdi_free ( privateInfo->ftdiContext );
     return 0;
@@ -167,7 +173,8 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
 
   if ( ftdi_set_line_property ( privateInfo->ftdiContext, BITS_8, STOP_BIT_1,
       NONE ) < 0 ) {
-    fprintf ( stderr, "set 8N1 for device FTDI serial device failed\n" );
+    oaLogError ( OA_LOG_FILTERWHEEL,
+				"%s: set 8N1 for device FTDI serial device failed", __func__ );
     ftdi_usb_close ( privateInfo->ftdiContext );
     ftdi_free ( privateInfo->ftdiContext );
     return 0;
@@ -213,8 +220,9 @@ oaXagylInitFilterWheel ( oaFilterWheelDevice* device )
   oaXagylWheelWarmReset ( privateInfo, 0 );
 
   if (( wheel->numSlots = _getNumSlots ( wheel )) < 1 ) {
-    fprintf ( stderr, "%s: invalid number of slots in filter wheel %s\n",
-        __func__, devInfo->sysPath );
+    oaLogError ( OA_LOG_FILTERWHEEL,
+				"%s: invalid number of slots in filter wheel %s", __func__,
+				devInfo->sysPath );
     free (( void* ) wheel );
     free (( void* ) privateInfo );
     return 0;
@@ -250,7 +258,8 @@ _getNumSlots ( oaFilterWheel* wheel )
   pthread_mutex_lock ( &privateInfo->ioMutex );
 
   if ( _xagylWheelWrite ( privateInfo->ftdiContext, "i8", 2 )) {
-    fprintf ( stderr, "%s: write error on i8 command\n", __func__ );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: write error on i8 command",
+				__func__ );
     return 0;
   }
 
@@ -259,19 +268,20 @@ _getNumSlots ( oaFilterWheel* wheel )
 
   if ( numRead > 0 ) {
     if ( strncmp ( buffer, "FilterSlots ", 12 )) {
-      fprintf ( stderr, "%s: failed to match expecting string 'FilterSlots '"
-           ", got '%40s'\n", __func__, buffer );
+      oaLogError ( OA_LOG_FILTERWHEEL,
+					"%s: failed to match expecting string 'FilterSlots ', got '%40s'",
+					__func__, buffer );
       return 0;
     }
     if ( sscanf ( buffer, "FilterSlots %d", &numSlots ) != 1 ) {
-      fprintf ( stderr, "%s: Failed to match number of slots in '%s'\n",
-          __func__, buffer );
+      oaLogError ( OA_LOG_FILTERWHEEL,
+					"%s: Failed to match number of slots in '%s'", __func__, buffer );
       return 0;
     }
     return numSlots;
   }
 
-  fprintf ( stderr, "%s: no data read from wheel interface\n",
+  oaLogError ( OA_LOG_FILTERWHEEL, "%s: no data read from wheel interface",
       __func__ );
   return 0;
 }
