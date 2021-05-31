@@ -75,14 +75,15 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
   }
 
   if (!( ftdiCtx = ftdi_new())) {
-    fprintf ( stderr, "can't connect to ftdi\n" );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: can't connect to ftdi", __func__ );
     libusb_free_device_list ( devlist, 1 );
     libusb_exit ( ctx );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
   if (( ret = ftdi_init ( ftdiCtx ))) {
-    fprintf ( stderr, "can't initialise ftdi context, err = %d\n", ret );
+    oaLogError ( OA_LOG_FILTERWHEEL,
+				"%s: can't initialise ftdi context, err = %d", __func__, ret );
     libusb_free_device_list ( devlist, 1 );
     libusb_exit ( ctx );
     return -OA_ERR_SYSTEM_ERROR;
@@ -119,7 +120,8 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
     if ( matchedVidPid ) {
 
       if ( LIBUSB_SUCCESS != libusb_open ( device, &handle )) {
-        fprintf ( stderr, "libusb_open for Xagyl FTDI filterwheel failed\n" );
+        oaLogError ( OA_LOG_FILTERWHEEL,
+						"%s: libusb_open for Xagyl FTDI filterwheel failed", __func__ );
         libusb_free_device_list ( devlist, 1 );
         libusb_exit ( ctx );
         ftdi_free ( ftdiCtx );
@@ -171,13 +173,15 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
 
 /*
         if ( ftdi_usb_open_dev ( ftdiCtx, device ) < 0 ) {
-          fprintf ( stderr, "FTDI open of device serial '%s' failed\n",
+          oaLogError ( OA_LOG_FILTERWHEEL,
+					"%s: FTDI open of device serial '%s' failed", __func__,
               serialBuffer );
           continue;
         }
 
         if ( ftdi_set_baudrate ( ftdiCtx, 9600 ) < 0 ) {
-          fprintf ( stderr, "set baud rate for device serial '%s' failed\n",
+          oaLogError ( OA_LOG_FILTERWHEEL,
+					"%s: set baud rate for device serial '%s' failed", __func__,
               serialBuffer );
           ftdi_usb_close ( ftdiCtx );
           continue;
@@ -185,7 +189,8 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
 
         if ( ftdi_set_line_property ( ftdiCtx, BITS_8, STOP_BIT_1,
             NONE ) < 0 ) {
-          fprintf ( stderr, "set 8N1 for device serial '%s' failed\n",
+          oaLogError ( OA_LOG_FILTERWHEEL,
+							"%s: set 8N1 for device serial '%s' failed", __func__,
               serialBuffer );
           ftdi_usb_close ( ftdiCtx );
           continue;
@@ -193,7 +198,8 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
 
         cmd[0] = 'i'; cmd[1] = '0'; cmd[2] = 0;
         if ( ftdi_write_data ( ftdiCtx, cmd, 2 ) != 2 ) {
-          fprintf ( stderr, "write i0 for device serial '%s' failed\n",
+          oaLogError ( OA_LOG_FILTERWHEEL,
+							"%s: write i0 for device serial '%s' failed", __func__,
               serialBuffer );
           ftdi_usb_close ( ftdiCtx );
           continue;
@@ -210,8 +216,9 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
             buffer[numRead--] = 0;
           }
         } else {
-          fprintf ( stderr, "%s: failed to read name from device serial %s, "
-              "error %d\n", __func__, serialBuffer, numRead );
+          oaLogError ( OA_LOG_FILTERWHEEL,
+							"%s: failed to read name from device serial %s, error %d",
+							__func__, serialBuffer, numRead );
           continue;
         }
 */
@@ -248,8 +255,8 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
         _private->devType = XAGYL_5125;
 
         if ( !_private->devType ) {
-          fprintf ( stderr, "%s: Unrecognised filter wheel '%s'\n",
-              __func__, buffer );
+          oaLogError ( OA_LOG_FILTERWHEEL,
+							"%s: Unrecognised filter wheel '%s'", __func__, buffer );
         } else {
           _oaInitFilterWheelDeviceFunctionPointers ( wheel );
           wheel->interface = OA_FW_IF_XAGYL;
