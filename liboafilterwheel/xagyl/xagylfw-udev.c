@@ -73,7 +73,8 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
 #endif
 
   if (!( udev = udev_new())) {
-    fprintf ( stderr, "can't get connection to udev\n" );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: can't get connection to udev",
+				__func__ );
     return -OA_ERR_SYSTEM_ERROR;
   }
 
@@ -140,15 +141,17 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
         // and run inquiries to get the product name and firmware version
 
         if (( fwDesc = open ( deviceNode, O_RDWR | O_NOCTTY )) < 0 ) {
-          fprintf ( stderr, "Can't open %s read-write, errno = %d\n",
-              deviceNode, errno );
+          oaLogError ( OA_LOG_FILTERWHEEL,
+							"%s: Can't open %s read-write, errno = %d", __func__, deviceNode,
+							errno );
         } else {
           if ( ioctl ( fwDesc, TIOCEXCL )) {
             int errnoCopy = errno;
             errno = 0;
             while (( close ( fwDesc ) < 0 ) && EINTR == errno );
-            fprintf ( stderr, "%s: can't get lock on %s, errno = %d\n",
-              __func__, deviceNode, errnoCopy );
+            oaLogError ( OA_LOG_FILTERWHEEL,
+								"%s: can't get lock on %s, errno = %d", __func__, deviceNode,
+								errnoCopy );
             continue;
           }
 
@@ -156,8 +159,9 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
             int errnoCopy = errno;
             errno = 0;
             while (( close ( fwDesc ) < 0 ) && EINTR == errno );
-            fprintf ( stderr, "%s: can't get termio on %s, errno = %d\n",
-              __func__, deviceNode, errnoCopy );
+            oaLogError ( OA_LOG_FILTERWHEEL,
+								"%s: can't get termio on %s, errno = %d", __func__, deviceNode,
+								errnoCopy );
             continue;
           }
 
@@ -170,8 +174,9 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
             int errnoCopy = errno;
             errno = 0;
             while (( close ( fwDesc ) < 0 ) && EINTR == errno );
-            fprintf ( stderr, "%s: can't set termio on %s, errno = %d\n",
-              __func__, deviceNode, errnoCopy );
+            oaLogError ( OA_LOG_FILTERWHEEL,
+								"%s: can't set termio on %s, errno = %d", __func__, deviceNode,
+								errnoCopy );
             continue;
           }
 #endif
@@ -194,7 +199,7 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
           wheel->_private = _private;
 #ifdef XAGYL_READ_FOUND_WHEEL
           if ( write ( fwDesc, "i0", 2 ) != 2 ) {
-            fprintf ( stderr, "%s: write error on %s\n", __func__,
+            oaLogError ( OA_LOG_FILTERWHEEL, "%s: write error on %s", __func__,
                 deviceNode );
             close ( fwDesc );
             continue;
@@ -207,7 +212,7 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
               buffer[numRead--] = 0;
             }
           } else {
-            fprintf ( stderr, "%s: failed to read name from %s\n",
+            oaLogError ( OA_LOG_FILTERWHEEL, "%s: failed to read name from %s",
                 __func__, deviceNode );
             close ( fwDesc );
             continue;
@@ -248,8 +253,8 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
             }
             deviceList->wheelList[ deviceList->numFilterWheels++ ] = wheel;
           } else {
-            fprintf ( stderr, "%s: Unrecognised filter wheel '%s'\n",
-                __func__, buffer );
+            oaLogError ( OA_LOG_FILTERWHEEL,
+								"%s: Unrecognised filter wheel '%s'", __func__, buffer );
           }
 #ifdef XAGYL_READ_FOUND_WHEEL
           close ( fwDesc );
