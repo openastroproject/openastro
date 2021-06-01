@@ -60,15 +60,17 @@ oaZWOInitFilterWheel ( oaFilterWheelDevice* device )
 
   if (( err = p_EFWGetID ( devInfo->devIndex, &wheelInfo.ID )) !=
 			EFW_SUCCESS ) {
-    fprintf ( stderr, "%s: EFWGetID returns error %d\n", __func__, err );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: EFWGetID returns error %d", __func__,
+				err );
     return 0;
   }
   if (( err = p_EFWOpen ( wheelInfo.ID )) != EFW_SUCCESS ) {
-    fprintf ( stderr, "%s: EFWOpen returns error %d\n", __func__, err );
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: EFWOpen returns error %d", __func__,
+				err );
     return 0;
   }
   if (( err = p_EFWGetProperty ( wheelInfo.ID, &wheelInfo )) != EFW_SUCCESS ) {
-    fprintf ( stderr, "%s: EFWGetProperty returns error %d\n",
+    oaLogError ( OA_LOG_FILTERWHEEL, "%s: EFWGetProperty returns error %d",
         __func__, err );
     return 0;
   }
