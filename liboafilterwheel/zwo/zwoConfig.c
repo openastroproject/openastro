@@ -56,14 +56,15 @@ oaZWOAddIDFilter ( userDeviceConfig* config )
   if ( !zwoConfig ) {
     if (!( zwoConfig = ( userDeviceConfig* ) malloc ( sizeof (
         userDeviceConfig ) * 3 ))) {
-      fprintf ( stderr, "malloc failed in %s\n", __func__ );
+      oaLogError ( OA_LOG_FILTERWHEEL,
+					"%s: malloc ( userDeviceConfig ) failed", __func__ );
       return;
     }
   } else {
     if ( zwoConfigEntries % 3 == 0 ) {
       if (!( zwoConfig = ( userDeviceConfig* ) realloc ( zwoConfig,
           sizeof ( userDeviceConfig ) * ( zwoConfigEntries / 3 + 1 )))) {
-        fprintf ( stderr, "realloc failed in %s\n", __func__ );
+        oaLogError ( OA_LOG_FILTERWHEEL, "%s: realloc failed", __func__ );
         return;
       }
     }
