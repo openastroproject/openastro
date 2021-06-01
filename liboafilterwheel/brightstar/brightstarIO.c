@@ -119,7 +119,7 @@ oaBrightstarMoveTo ( PRIVATE_INFO* wheelInfo, int slot, int nodelay )
 			if ( strncmp ( buffer, expected, 2 )) {
 				if ( !strncmp ( buffer, "M-", 2 ) && !strncmp ( buffer, "M+", 2 )) {
 					oaLogError ( OA_LOG_FILTERWHEEL,
-							"%s: '%s' failed to match expected string '%s'\n", __func__,
+							"%s: '%s' failed to match expected string '%s'", __func__,
 							buffer, expected );
 					pthread_mutex_unlock ( &wheelInfo->ioMutex );
 					return -1;
