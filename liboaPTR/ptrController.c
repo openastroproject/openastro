@@ -741,12 +741,12 @@ _processGPSFetch ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
   // of the data
   if (( readBytes = _ptrRead ( deviceInfo->fd, buffer, 127 )) < 1 ) {
     oaLogError ( OA_LOG_TIMER, "%s: failed to read back command: '%s'"
-        "  from %s, commandLen = %d, read len = %d\n", __func__, commandStr,
+        "  from %s, commandLen = %d, read len = %d", __func__, commandStr,
 				deviceInfo->devicePath, commandLen,
         readBytes );
     if ( readBytes > 0 ) {
       buffer[ readBytes ] = 0;
-      oaLogError ( OA_LOG_TIMER, "%s:  string read = '%s'\n", __func__,
+      oaLogError ( OA_LOG_TIMER, "%s:  string read = '%s'", __func__,
 					buffer );
     }
     return -OA_ERR_SYSTEM_ERROR;
