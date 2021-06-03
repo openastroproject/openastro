@@ -332,7 +332,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     if ( OA_CTRL_TYPE_INT64 != val->valueType ) {
       oaLogError ( OA_LOG_CAMERA,
 					"%s: invalid control type %d where int64 expected "
-          "for OA_CAM_CTRL_EXPOSURE_ABSOLUTE\n", __func__, val->valueType );
+          "for OA_CAM_CTRL_EXPOSURE_ABSOLUTE", __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     val_s64 = val->int64;
@@ -395,7 +395,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
       oaLogError ( OA_LOG_CAMERA,
 					"%s: invalid control type %d where int32 expected "
-          "for OA_CAM_CTRL_TEMP_SETPOINT\n", __func__, val->valueType );
+          "for OA_CAM_CTRL_TEMP_SETPOINT", __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
 
@@ -490,7 +490,7 @@ _processSetControl ( IIDC_STATE* cameraInfo, OA_COMMAND* command )
     if ( OA_CTRL_TYPE_INT32 != val->valueType ) {
       oaLogError ( OA_LOG_CAMERA,
 					"%s: invalid control type %d where int32 expected "
-          "for OA_CAM_CTRL_TRIGGER_DELAY\n", __func__, val->valueType );
+          "for OA_CAM_CTRL_TRIGGER_DELAY", __func__, val->valueType );
       return -OA_ERR_INVALID_CONTROL_TYPE;
     }
     val_u32 = val->int32;
