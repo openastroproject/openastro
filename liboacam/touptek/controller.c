@@ -1268,7 +1268,7 @@ _processExposureStart ( TOUPTEK_STATE* cameraInfo, OA_COMMAND* command )
 					cameraInfo->handle, TT_FUNC( _, PullCallbackV1 ),
 					cameraInfo )) < 0 ) {
 				oaLogError ( OA_LOG_CAMERA, "%s: " TT_DRIVER
-						"_StartPullModeWithCallback failed, returning 0x%x\n", __func__,
+						"_StartPullModeWithCallback failed, returning 0x%x", __func__,
 						ret );
 				return -OA_ERR_CAMERA_IO;
 			}
@@ -1370,7 +1370,7 @@ TT_FUNC( _, PullCallbackV1 )( unsigned int event, void* ptr )
 				cameraInfo->buffers[ nextBuffer ].start, bytesPerPixel * 8, &height,
 				&width )) < 0 ) {
 			oaLogError ( OA_LOG_CAMERA,
-					"%s: " TT_DRIVER "_PullImage failed, returning 0x%x\n", __func__,
+					"%s: " TT_DRIVER "_PullImage failed, returning 0x%x", __func__,
 					ret );
 			return;
 		}
@@ -1406,7 +1406,7 @@ TT_FUNC( _, PullCallbackV2 )( unsigned int event, void* ptr )
 				cameraInfo->buffers[ nextBuffer ].start, bytesPerPixel * 8,
 				&frameInfo )) < 0 ) {
 			oaLogError ( OA_LOG_CAMERA,
-					"%s: " TT_DRIVER "_PullImageV2 failed, returning 0x%x\n",
+					"%s: " TT_DRIVER "_PullImageV2 failed, returning 0x%x",
 					__func__, ret );
 			return;
 		}
@@ -1432,7 +1432,7 @@ _processAbortExposure ( TOUPTEK_STATE* cameraInfo )
 
   if (( ret = ( TT_LIB_PTR( Stop ))( cameraInfo->handle )) < 0 ) {
     oaLogError ( OA_LOG_CAMERA,
-				"%s: " TT_DRIVER "_Stop failed, returning %d\n", __func__, ret );
+				"%s: " TT_DRIVER "_Stop failed, returning %d", __func__, ret );
     return -OA_ERR_CAMERA_IO;
   }
 
@@ -1449,7 +1449,7 @@ _timerCallback ( void* param )
 
 	if (( ret = TT_LIB_PTR( Trigger )( cameraInfo->handle, 1 )) < 0 ) {
 		cameraInfo->exposureInProgress = 0;
-		oaLogError ( OA_LOG_CAMERA, "%s: trigger image frame failed, err %04x\n",
+		oaLogError ( OA_LOG_CAMERA, "%s: trigger image frame failed, err %04x",
 				__func__, ret );
 	}
 }
