@@ -174,7 +174,7 @@ oaFC2CameraGetMenuString ( oaCamera* camera, int control, int index )
     return "Invalid index";
   }
 
-  oaLogError ( OA_LOG_CAMERA, "%s: control not implemented\n", __func__ );
+  oaLogError ( OA_LOG_CAMERA, "%s: control not implemented", __func__ );
   return "";
 }
 
