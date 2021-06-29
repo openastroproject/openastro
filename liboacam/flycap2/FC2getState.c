@@ -91,13 +91,14 @@ oaFC2CameraGetFrameRates ( oaCamera* camera, int resX, int resY )
 
   if ( dc1394_video_get_supported_framerates ( cameraInfo->iidcHandle,
       cameraInfo->videoCurrent, &framerates ) != DC1394_SUCCESS ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: %s: dc1394_video_get_supported_framerates failed\n",
-         __func__ );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: dc1394_video_get_supported_framerates failed", __func__ );
     return 0;
   }
   if ( !framerates.num ) {
-    oaLogError ( OA_LOG_CAMERA, "%s: %s: dc1394_video_get_supported_framerates returns "
-        "no frame rates\n", __func__ );
+    oaLogError ( OA_LOG_CAMERA,
+				"%s: dc1394_video_get_supported_framerates returns no frame rates",
+				__func__ );
     return 0;
   }
 
