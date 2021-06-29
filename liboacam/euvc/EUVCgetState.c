@@ -2,7 +2,7 @@
  *
  * EUVCgetState.c -- state querying for EUVC cameras
  *
- * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -65,8 +65,8 @@ oaEUVCCameraGetFrameSizes ( oaCamera* camera )
       return &cameraInfo->frameSizes[2];
       break;
   }
-  oaLogError ( OA_LOG_CAMERA, "oaEUVCCameraGetFrameSizes: unknown bin mode %d\n",
-      cameraInfo->binMode );
+  oaLogError ( OA_LOG_CAMERA, "%s: unknown bin mode %d", __func__,
+			cameraInfo->binMode );
   return 0;
 }
 
