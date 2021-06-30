@@ -706,9 +706,9 @@ oaV4L2InitCamera ( oaCameraDevice* device )
               if ( errno == EINVAL ) {
                 autoExposureType = OA_CTRL_TYPE_DISC_MENU;
               } else {
-								oaLogWarning ( OA_LOG_CAMERA, "%s: VIDIOC_QUERYMENU failed\n"
-										"     auto-exposure, index %d, err = %d", __func__,
-                    idx, errno );
+								oaLogWarning ( OA_LOG_CAMERA,
+										"%s: VIDIOC_QUERYMENU failed auto-exposure, index %d, "
+										"err = %d", __func__, idx, errno );
               }
             } else {
               // FIX ME -- what happens if we fill this array?
@@ -1205,8 +1205,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
     }
 
     oaLogInfo ( OA_LOG_CAMERA,
-				"%s: This %s camera has a private control of type %d\n"
-				"     The description is: '%s'", __func__, camera->deviceName,
+				"%s: This %s camera has a private control of type %d."
+				"  The description is: '%s'", __func__, camera->deviceName,
 				ctrl.type, ctrl.name );
   }
 
@@ -1846,8 +1846,8 @@ oaV4L2InitCamera ( oaCameraDevice* device )
 				cameraInfo->minHeight = fsize.stepwise.min_height;
 				cameraInfo->maxHeight = fsize.stepwise.max_height;
 				cameraInfo->stepHeight = fsize.stepwise.step_height;
-				oaLogInfo ( OA_LOG_CAMERA, "%s: Stepwise frame size %dx%d found\n"
-						"     min width %d, width step %d, min height %d, height step %d",
+				oaLogInfo ( OA_LOG_CAMERA, "%s: Stepwise frame size %dx%d found.  "
+						"min width %d, width step %d, min height %d, height step %d",
 						__func__, fsize.stepwise.max_width, fsize.stepwise.max_height,
 						fsize.stepwise.min_width, fsize.stepwise.step_width,
 						fsize.stepwise.min_height, fsize.stepwise.step_height );
