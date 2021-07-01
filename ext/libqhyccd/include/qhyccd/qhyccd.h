@@ -21,6 +21,7 @@
 
 typedef void qhyccd_handle;
 
+EXPORTC void STDCALL OutputQHYCCDDebug(char *strOutput);
 
 EXPORTC void STDCALL SetQHYCCDAutoDetectCamera(bool enable);
 
@@ -296,6 +297,15 @@ EXPORTC uint32_t STDCALL StopQHYCCDLive(qhyccd_handle *handle);
   on success,return QHYCCD_SUCCESS \n
   another QHYCCD_ERROR code on other failures
 */
+
+
+
+
+EXPORTFUNC uint32_t STDCALL QHYCCDPcieRecv(qhyccd_handle *handle, void * data, int len,uint64_t timeout);
+EXPORTFUNC uint32_t STDCALL GetQHYCCDPcieDDRNum(qhyccd_handle *handle);
+
+
+
 EXPORTC uint32_t STDCALL SetQHYCCDBinMode(qhyccd_handle *handle,uint32_t wbin,uint32_t hbin);
 
 /**
@@ -802,6 +812,27 @@ EXPORTC uint32_t STDCALL SetQHYCCDTwoChannelCombineParameter(qhyccd_handle *hand
 
 EXPORTC uint32_t STDCALL EnableQHYCCDImageOSD(qhyccd_handle *h,uint32_t i);
 
+/**
+  @fn uint32_t GetQHYCCDPreciseExposureInfo(qhyccd_handle *h,
+                                            uint32_t *PixelPeriod_ps,
+                                            uint32_t *LinePeriod_ns,
+                                            uint32_t *FramePeriod_us,
+                                            uint32_t *ClocksPerLine,
+                                            uint32_t *LinesPerFrame,
+                                            uint32_t *ActualExposureTime,
+                                            uint8_t  *isLongExposureMode);
+  @brief get the sensor precise timing data from camera. These data can be used for high precise GPS time calculation 
+  @param h camera control handle
+  @param PixelPeriod_ps return pixel period, unit is ps \n
+  @param LinePeriod_ns return row period, unit is ns \n
+  @param FramePeriod_us return frame period, unit is us \n 
+  @param ClocksPerLine return how many clocks per line \n 
+  @param LinesPerFrame return how many rows per frame. Please note this maybe not the picture y size. \n   
+  @param ActualExposureTime return actual exposure time. most cmos exposure is row based. So the exposure time is n*row period. It maybe has a little difference with the set value. \n   
+  @param isLongExposureMode return if camera works in long exposure mode. For cmos camera. When exposure time > frame period. It will add the verical blanking rows. in this case it is long exposure mode \n     
+  @return QHYCCD_SUCCESS or QHYCCD_ERROR. If the camera does not support this function, it will return QHYCCD_ERROR \n
+
+*/
 EXPORTC uint32_t STDCALL GetQHYCCDPreciseExposureInfo(qhyccd_handle *h,
                                                          uint32_t *PixelPeriod_ps,
                                                          uint32_t *LinePeriod_ns,
@@ -812,10 +843,41 @@ EXPORTC uint32_t STDCALL GetQHYCCDPreciseExposureInfo(qhyccd_handle *h,
                                                          uint8_t  *isLongExposureMode);
 
 
+
+
+/**
+  @fn uint32_t GetQHYCCDRollingShutterEndOffset(qhyccd_handle *h,uint32_t row,uint32_t *offset);   
+  @brief for rolling shutter camera with GPS meassurement signal output or with GPSBOX connection. it will output the meassurement pulse. But the pulse is not at the exactly time of the \n
+         the exposure time. This api will return the calibrated data of the offset value from GPS meassurement pulse to the end of exposure time of certain row. 
+  @param h camera control handle \n
+  @param row the shutter status \n
+  @param offset the shutter offset value from shutter meassure signal falling edge (gps messured end exposure) . unit us \n
+  @return QHYCCD_SUCCESS or QHYCCD_ERROR. If the camera does not support this function, it will return QHYCCD_ERROR \n
+*/
+EXPORTFUNC uint32_t STDCALL GetQHYCCDRollingShutterEndOffset(qhyccd_handle *h,uint32_t row,double *offset);                                                        
+
+
 EXPORTC void STDCALL QHYCCDQuit();
 
 EXPORTC QHYDWORD STDCALL SetQHYCCDCallBack(QHYCCDProcCallBack ProcCallBack,
     int32_t Flag);
+
+EXPORTFUNC void RegisterPnpEventIn( void (*in_pnp_event_in_func)(char *id));
+
+EXPORTFUNC void RegisterPnpEventOut( void (*in_pnp_event_out_func)(char *id));
+
+
+EXPORTFUNC uint32_t STDCALL resetDev(char *deviceID, uint32_t readModeIndex, uint8_t streamMode,qhyccd_handle* devHandle, uint32_t* imageWidth, uint32_t* imageHigh, uint32_t bitDepth);
+
+EXPORTFUNC void RegisterDataEventSingle( void (*in_data_event_single_func)(char *id, uint8_t *imgdata));
+
+EXPORTFUNC void RegisterDataEventLive( void (*in_data_event_live_func)(char *id, uint8_t *imgdata));
+
+EXPORTFUNC void RegisterTransferEventError( void (*transfer_event_error_func)());
+
+EXPORTFUNC uint32_t STDCALL GetReadModesNumber(char* deviceID,uint32_t* numModes);
+
+EXPORTFUNC uint32_t STDCALL GetReadModeName(char* deviceID, uint32_t modeIndex, char* modeName);
 
 #if 0//PCIE_MODE_TEST
 
