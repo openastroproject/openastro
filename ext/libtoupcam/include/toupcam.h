@@ -1,7 +1,7 @@
 #ifndef __toupcam_h__
 #define __toupcam_h__
 
-/* Version: 48.18042.2020.1128 */
+/* Version: 48.18081.2020.1205 */
 /*
    Platform & Architecture:
        (1) Win32:
@@ -268,10 +268,10 @@ typedef struct {
     char                  id[64];             /* unique and opaque id of a connected camera, for Toupcam_Open */
 #endif
     const ToupcamModelV2* model;
-}ToupcamInstV2, ToupcamDeviceV2; /* camera instance for enumerating */
+}ToupcamDeviceV2; /* camera instance for enumerating */
 
 /*
-    get the version of this dll/so/dylib, which is: 48.18042.2020.1128
+    get the version of this dll/so/dylib, which is: 48.18081.2020.1205
 */
 #ifdef _WIN32
 TOUPCAM_API(const wchar_t*)   Toupcam_Version();
