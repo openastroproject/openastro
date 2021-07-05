@@ -2,7 +2,7 @@
  *
  * touptek-conf.h -- Touptek build configuration for Altaircam cameras
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -45,7 +45,7 @@
 #define TT_FUNC( prefix, suffix)	prefix ## Altaircam ## suffix
 
 // library handle type
-#define	TT_HANDLE									HAltairCam
+#define	TT_HANDLE									HAltaircam
 
 // config flag prefix
 #define	TT_FLAG( flag )						ALTAIRCAM_FLAG_ ## flag
