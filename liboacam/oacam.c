@@ -101,6 +101,9 @@
 #if HAVE_LIBOMEGONPROCAM
 #include "omegonpro/oacam.h"
 #endif
+#if HAVE_LIBMEADECAM
+#include "meadecam/oacam.h"
+#endif
 #if HAVE_PYLON
 #include "pylon/oacam.h"
 #endif
@@ -344,9 +347,21 @@ oaInterface	oaCameraInterfaces[] = {
 #if HAVE_LIBOMEGONPROCAM
   {
     OA_CAM_IF_OMEGONPROCAM,
-    "Risingcam",
-    "RCam",
+    "OmegonProcam",
+    "OPCam",
     oaOmegonprocamGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if HAVE_LIBMEADECAM
+  {
+    OA_CAM_IF_MEADECAM,
+    "Meadecam",
+    "Meadecam",
+    oaMeadecamGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },

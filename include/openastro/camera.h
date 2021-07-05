@@ -59,8 +59,9 @@ enum oaCameraInterfaceType {
   OA_CAM_IF_PYLON			= 22,
   OA_CAM_IF_SVB			= 23,
   OA_CAM_IF_ARAVIS		= 24,
-  OA_CAM_IF_DUMMY			= 25,
-  OA_CAM_IF_COUNT			= 26
+  OA_CAM_IF_MEADECAM		= 25,
+  OA_CAM_IF_DUMMY			= 26,
+  OA_CAM_IF_COUNT			= 27
 };
 
 extern oaInterface	oaCameraInterfaces[ OA_CAM_IF_COUNT + 1 ];

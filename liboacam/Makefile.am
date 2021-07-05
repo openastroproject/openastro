@@ -1,7 +1,7 @@
 #
 # Makefile.am -- liboacam Makefile template
 #
-# Copyright 2013,2014,2015,2016,2017,2018,2019,2020
+# Copyright 2013,2014,2015,2016,2017,2018,2019,2020,2021
 #     James Fidell (james@openastroproject.org)
 #
 # License:
@@ -31,7 +31,7 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/ext/libqhyccd/include \
   $(LIBUSB_CFLAGS) $(LIBUVC_CFLAGS) \
   $(LIBALTAIRCAM_CFLAGS) $(LIBALTAIRCAM_LEGACY_CFLAGS) $(LIBTOUPCAM_CFLAGS) \
-	$(LIBQHYCCD_CFLAGS) $(PYLON_CFLAGS) \
+	$(LIBQHYCCD_CFLAGS) $(PYLON_CFLAGS) $(LIBMEADECAM_CFLAGS) \
   $(DYNLIB_EXTN_CFLAGS)
 
 lib_LTLIBRARIES = liboacam.la
@@ -121,11 +121,16 @@ SVBONYDIR = svbony
 SVBONYLIB = $(SVBONYDIR)/libsvbony.la
 endif
 
+if LIBMEADECAM_COND
+MEADECAMDIR = meadecam
+MEADECAMLIB = $(MEADECAMDIR)/libmeadecam.la
+endif
+
 SUBDIRS	= euvc iidc pwc qhy sx uvc dummy $(ALTAIRDIR) $(ATIKDIR) \
 	$(MALLINCAMDIR) $(FC2DIR) $(SPINDIR) $(TOUPCAMDIR) $(V4L2DIR) $(ZWODIR) \
 	$(ALTAIRLEGACYDIR) $(QHYCCDDIR) $(GPHOTO2DIR) $(STARSHOOTGDIR) \
 	$(RISINGCAMDIR) $(OMEGONPROCAMDIR) $(PYLONDIR) $(SVBONYDIR) $(ARAVISDIR) \
-	. demo
+	$(MEADECAMDIR) . demo
 
 liboacam_la_SOURCES = \
   control.c oacam.c unimplemented.c utils.c timer.c
@@ -134,7 +139,8 @@ liboacam_la_LIBADD = euvc/libeuvc.la iidc/libiidc.la pwc/libpwc.la \
   qhy/libqhy.la sx/libsx.la uvc/libuvc.la dummy/libdummy.la $(ALTAIRLIB) \
 	$(ATIKLIB) $(MALLINCAMLIB) $(FC2LIB) $(SPINLIB) $(TOUPCAMLIB) $(V4L2LIB) \
 	$(ZWOLIB) $(ALTAIRLEGACYLIB) $(QHYCCDLIB) $(GPHOTO2LIB) $(STARSHOOTGLIB) \
-	$(RISINGCAMLIB) $(OMEGONPROCAMLIB) $(PYLONLIB) $(SVBONYLIB) $(ARAVISLIB)
+	$(RISINGCAMLIB) $(OMEGONPROCAMLIB) $(PYLONLIB) $(SVBONYLIB) $(ARAVISLIB) \
+	$(MEADECAMLIB)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
