@@ -1229,7 +1229,7 @@ _doStart ( V4L2_STATE* cameraInfo )
 
   if ( fmt.fmt.pix.pixelformat != cameraInfo->currentV4L2Format ) {
     oaLogError ( OA_LOG_CAMERA,
-				"%s: Can't get expected video format: %c%c%c%c\n", __func__,
+				"%s: Can't get expected video format: %c%c%c%c", __func__,
         cameraInfo->currentV4L2Format & 0xff,
         cameraInfo->currentV4L2Format >> 8 & 0xff,
         cameraInfo->currentV4L2Format >> 16 & 0xff,
@@ -1433,7 +1433,7 @@ _processGetMenuItem ( V4L2_STATE* cameraInfo, OA_COMMAND* command )
       menuItem.index = index;
       if ( v4l2ioctl ( cameraInfo->fd, VIDIOC_QUERYMENU, &menuItem )) {
         perror ("VIDIOC_QUERYMENU");
-        oaLogError ( OA_LOG_CAMERA, "%s: control: %d, index %d\n", __func__,
+        oaLogError ( OA_LOG_CAMERA, "%s: control: %d, index %d", __func__,
             menuItem.id, index );
         retStr = "";
       } else {
