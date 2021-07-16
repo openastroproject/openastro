@@ -48,10 +48,10 @@
 #define	TT_HANDLE									HToupCam
 
 // config flag prefix
-#define	TT_FLAG( flag )						TOUPCAM_FLAG_ ## flag
+#define	TT_FLAG( flag )						MALLINCAM_FLAG_ ## flag
 
 // option flag prefix
-#define	TT_OPTION( option )				TOUPCAM_OPTION_ ## option
+#define	TT_OPTION( option )				MALLINCAM_OPTION_ ## option
 
 // library function name prefix
 #define	TT_LIB_PREFIX							"Toupcam"
@@ -63,13 +63,13 @@
 #define	TT_DRIVER									"Toupcam"
 
 // define prefix
-#define	TT_DEFINE( var )					TOUPCAM_ ## var
+#define	TT_DEFINE( var )					MALLINCAM_ ## var
 
 // variable type prefix
 #define TT_VAR_TYPE( type )				Toupcam ## type
 
 // function type
-#define TT_FUNC_TYPE( prefix, suffix )	prefix ## TOUPCAM_ ## suffix
+#define TT_FUNC_TYPE( prefix, suffix )	prefix ## MALLINCAM_ ## suffix
 
 // shared object name
 #define	TT_SOLIB									"mallincam"
