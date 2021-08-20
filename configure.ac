@@ -65,6 +65,7 @@ have_altaircamlegacy=$armelavailable
 have_starshootg=$armelavailable
 have_nncam=$armelavailable
 have_omegonprocam=$armelavailable
+have_meadecam=$armelavailable
 have_qhyccd=$armelavailable
 have_libavformat=no
 have_libavutil=no
@@ -89,6 +90,7 @@ checkSystemLibstarshootg=no
 checkSystemLibnncam=no
 checkSystemLibmallincam=no
 checkSystemLibomegonprocam=no
+checkSystemLibmeadecam=no
 checkSystemLibqhyccd=no
 checkSystemLibsvbcamerasdk=no
 useisystemInclude=no
@@ -109,6 +111,7 @@ case $host in
     checkSystemLibstarshootg=$armelavailable
     checkSystemLibnncam=$armelavailable
     checkSystemLibomegonprocam=$armelavailable
+    checkSystemLibmeadecam=$armelavailable
 		checkSystemLibsvbcamerasdk=yes
     ;;
   *-apple-*)
@@ -917,6 +920,37 @@ then
 fi
 
 
+use_system_libmeadecam=no
+if test "$checkSystemLibmeadecam" == "yes"
+then
+  if `$PKG_CONFIG --exists libmeadecam`; then
+    AC_MSG_NOTICE([Using system libmeadecam library])
+    flags=`$PKG_CONFIG --cflags-only-I libmeadecam`
+		if test "$useisystemInclude" == "yes"; then
+      flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+    fi
+    LIBMEADECAM_CFLAGS="$flags"
+    # can't use shared libmeadecam if we're not using the system libusb
+    # because it will try to pull it in anyhow
+    if test "x$use_system_libusb" == "xyes"; then
+      LIBMEADECAM_LDFLAGS="`$PKG_CONFIG --libs-only-L libmeadecam`"
+      LIBMEADECAM_LIBS="`$PKG_CONFIG --libs-only-l libmeadecam`"
+    else
+      AC_MSG_WARN([libmeadecam not compatible with internal libusb.  No support for Meade cameras.])
+    fi
+    use_system_libmeadecam=yes
+    AC_DEFINE([HAVE_LIBMEADECAM],[1],[Have libmeadecam])
+  else
+    AC_CHECK_LIB([meadecam],[Toupcam_Open],[
+      LIBS="-lnncam $LIBS"
+      AC_DEFINE([HAVE_LIBMEADECAM],[1],[Have libmeadecam])
+    ],[
+      AC_MSG_WARN([libmeadecam not found.  Dynamic support for Meade cameras.])
+    ])
+  fi
+fi
+
+
 use_system_libqhyccd=no
 if test "$checkSystemLibqhyccd" == "yes"
 then
@@ -1434,6 +1468,7 @@ case $host in
     AC_CONFIG_LINKS([$ext8/libnncam/libnncam.dylib:ext/libnncam/mac/libnncam.dylib])
     AC_CONFIG_LINKS([$ext9/libomegonprocam/libomegonprocam.dylib:ext/libomegonprocam/mac64/libomegonprocam.dylib])
     AC_CONFIG_LINKS([$extA/libSVBCameraSDK/libSVBCameraSDK.dylib:ext/libSVBCameraSDK/mac64/libSVBCameraSDK.dylib])
+    AC_CONFIG_LINKS([$extB/libmeadecam/libmeadecam.dylib:ext/libmeadecam/mac/libmeadecam.dylib])
     OSX_FRAMEWORKS="-framework Carbon -framework VideoDecodeAcceleration -framework CoreVideo -framework IOKit $FW_CORE_MEDIA $FW_VID_TBOX"
     FXLOAD_CFLAGS="-DFXLOAD_PATH=\\\"/MacOS/fxload\\\" -DFIRMWARE_QHY_PATH=\\\"/Resources/firmware/qhy\\\""
 		SHLIBS_CFLAGS="-DSHLIB_PATH=\\\"/MacOS/\\\""
@@ -1606,6 +1641,16 @@ then
 	fi
 fi
 
+if test "x$use_system_libmeadecam" == "xno"
+then
+	if test "x$have_meadecam" != "xno"
+	then
+		LIBMEADECAM_CFLAGS="-I \$(top_srcdir)/ext/libmeadecam/include"
+		LIBMEADECAM_LIBS=""
+		AC_DEFINE([HAVE_LIBMEADECAM],[1],[Have Meade library support])
+	fi
+fi
+
 if test "x$use_system_libsvbcamerasdk" == "xno"
 then
 	if test "x$have_svbcamerasdk" != "xno"
@@ -1642,6 +1687,8 @@ AC_SUBST(LIBNNCAM_CFLAGS)
 AC_SUBST(LIBNNCAM_LIBS)
 AC_SUBST(LIBOMEGONPROCAM_CFLAGS)
 AC_SUBST(LIBOMEGONPROCAM_LIBS)
+AC_SUBST(LIBMEADECAM_CFLAGS)
+AC_SUBST(LIBMEADECAM_LIBS)
 AC_SUBST(LIBQHYCCD_CFLAGS)
 AC_SUBST(LIBQHYCCD_LIBS)
 AC_SUBST(PYLON_CFLAGS)
@@ -1678,6 +1725,7 @@ AM_CONDITIONAL([LIBALTAIRCAM_LEGACY_COND], [test "x$have_altaircamlegacy" == "xy
 AM_CONDITIONAL([LIBSTARSHOOTG_COND], [test "x$have_starshootg" == "xyes"])
 AM_CONDITIONAL([LIBNNCAM_COND], [test "x$have_nncam" == "xyes"])
 AM_CONDITIONAL([LIBOMEGONPROCAM_COND], [test "x$have_omegonprocam" == "xyes"])
+AM_CONDITIONAL([LIBMEADECAM_COND], [test "x$have_meadecam" == "xyes"])
 AM_CONDITIONAL([LIBQHYCCD_COND], [test "x$have_qhyccd" == "xyes"])
 AM_CONDITIONAL([LIBGPHOTO2_COND], [test "x$have_libgphoto2" == "xyes"])
 AM_CONDITIONAL([LIBARAVIS_COND], [test "x$have_libaravis" == "xyes"])
@@ -1689,5 +1737,5 @@ AM_CONDITIONAL([BUILD_LIBUSB_COND], [test "x$build_libusb" == "xyes"])
 AM_CONDITIONAL([LIBHIDAPI_COND], [test "x$use_system_libhidapi" == "xno"])
 AM_CONDITIONAL([INT_LIBUVC_COND], [test "x$internal_uvc" == "xyes"])
 
-AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/altair-legacy/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/pylon/Makefile liboacam/qhy/Makefile liboacam/qhyccd/Makefile liboacam/starshootg/Makefile liboacam/risingcam/Makefile liboacam/omegonpro/Makefile liboacam/svbony/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboacam/dummy/Makefile liboacam/gphoto2/Makefile liboacam/aravis/Makefile liboacam/demo/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
+AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/altair-legacy/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/pylon/Makefile liboacam/qhy/Makefile liboacam/qhyccd/Makefile liboacam/starshootg/Makefile liboacam/risingcam/Makefile liboacam/omegonpro/Makefile liboacam/svbony/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboacam/dummy/Makefile liboacam/gphoto2/Makefile liboacam/aravis/Makefile liboacam/meadecam/Makefile liboacam/demo/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
 AC_OUTPUT
