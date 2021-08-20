@@ -65,7 +65,8 @@ have_altaircamlegacy=$armelavailable
 have_starshootg=$armelavailable
 have_nncam=$armelavailable
 have_omegonprocam=$armelavailable
-have_meadecam=$armelavailable
+#have_meadecam=$armelavailable
+have_meadecam=no
 have_qhyccd=$armelavailable
 have_libavformat=no
 have_libavutil=no
@@ -111,7 +112,8 @@ case $host in
     checkSystemLibstarshootg=$armelavailable
     checkSystemLibnncam=$armelavailable
     checkSystemLibomegonprocam=$armelavailable
-    checkSystemLibmeadecam=$armelavailable
+		#checkSystemLibmeadecam=$armelavailable
+    checkSystemLibmeadecam=no
 		checkSystemLibsvbcamerasdk=yes
     ;;
   *-apple-*)
