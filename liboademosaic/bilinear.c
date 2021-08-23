@@ -29,6 +29,7 @@
 
 #include <stdint.h>
 #include <openastro/demosaic.h>
+#include <openastro/util.h>
 
 #include "bilinear.h"
 
@@ -530,8 +531,9 @@ oadBilinear ( void* source, void* target, int xSize, int ySize,
 	}
 
 	if ( !done ) {
-    fprintf ( stderr, "demosaic: %s cannot handle %d-bit data for format %d\n",
-        __func__, bitDepth, format );
+    oaLogError ( OA_LOG_DEMOSAIC,
+				"demosaic: %s cannot handle %d-bit data for format %d", __func__,
+				bitDepth, format );
 	}
 
 	return;

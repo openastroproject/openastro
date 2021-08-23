@@ -25,7 +25,9 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
 #include <openastro/demosaic.h>
+#include <openastro/util.h>
 
 #include "smoothHue.h"
 
@@ -662,7 +664,7 @@ oadSmoothHue ( void* source, void* target, int xSize, int ySize,
 {
   // FIX ME
   if ( bitDepth != 8 ) {
-    fprintf ( stderr, "demosaic: %s can only handle 8-bit data\n",
+    oaLogError ( OA_LOG_DEMOSAIC, "demosaic: %s can only handle 8-bit data",
         __func__ );
     return;
   }
