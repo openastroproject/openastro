@@ -65,14 +65,16 @@ extern void*		oaDLListRemoveAt ( DL_LIST, int );
 #define	OA_LOG_INFO					3
 #define	OA_LOG_DEBUG				4
 
-#define	OA_LOG_APP					1
-#define	OA_LOG_CAMERA				2
-#define	OA_LOG_FILTERWHEEL	4
-#define	OA_LOG_TIMER				8
-#define	OA_LOG_DEMOSAIC			16
-#define	OA_LOG_IMGPROC			32
-#define OA_LOG_NUM_TYPES		6
-#define	OA_LOG_TYPE_ALL			( OA_LOG_APP | OA_LOG_CAMERA | OA_LOG_FILTERWHEEL | OA_LOG_TIMER | OA_LOG_DEMOSAIC | OA_LOG_IMGPROC )
+#define	OA_LOG_APP					0x0001
+#define	OA_LOG_CAMERA				0x0002
+#define	OA_LOG_FILTERWHEEL	0x0004
+#define	OA_LOG_TIMER				0x0008
+#define	OA_LOG_DEMOSAIC			0x0010
+#define	OA_LOG_IMGPROC			0x0020
+#define	OA_LOG_VIDEO				0x0040
+#define	OA_LOG_EPHEMERIS		0x0080
+#define OA_LOG_NUM_TYPES		8
+#define	OA_LOG_TYPE_ALL			0x00ff
 
 extern void		oaSetLogLevel ( unsigned int );
 extern int		oaSetLogType ( unsigned int );
