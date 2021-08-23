@@ -27,6 +27,10 @@
 
 #include <oa_common.h>
 
+extern "C" {
+#include <openastro/util.h>
+}
+
 #if HAVE_CSTRING
 #include <cstring>
 #endif
@@ -1001,8 +1005,8 @@ CameraControls::buttonPushed ( int control )
               break;
 
             default:
-              fprintf ( stderr, "control type %d not handled in %s\n",
-                  controlType[mod][baseVal], __func__ );
+              oaLogError ( OA_LOG_APP, "%s: control type %d not handled\n",
+                  __func__, controlType[mod][baseVal] );
               break;
           }
         }
@@ -1051,8 +1055,8 @@ CameraControls::buttonPushed ( int control )
             break;
 
           default:
-            fprintf ( stderr, "control type %d not handled in %s\n",
-                controlType[mod][baseVal], __func__ );
+            oaLogError ( OA_LOG_APP, "%s: control type %d not handled\n",
+                __func__, controlType[mod][baseVal] );
             break;
         }
       }
@@ -1245,7 +1249,8 @@ CameraControls::updateFrameRateSlider ( void )
     frameRateMenu->show();
 
   } else {
-    fprintf ( stderr, "Camera::hasFixedFrameRates failed\n" );
+		oaLogError ( OA_LOG_APP, "%s: Camera::hasFixedFrameRates failed",
+				__func__ );
     frameRateLabel->hide();
     frameRateSlider->hide();
     frameRateMenu->hide();
