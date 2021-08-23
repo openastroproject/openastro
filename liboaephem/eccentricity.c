@@ -2,7 +2,7 @@
  *
  * eccentricity.c -- Calculations of eccentricity for a given body
  *
- * Copyright 2018 James Fidell (james@openastroproject.org)
+ * Copyright 2018,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -31,6 +31,7 @@
 #include <math.h>
 #endif
 #include <openastro/ephemeris.h>
+#include <openastro/util.h>
 
 #include "eccentricity.h"
 #include "orbitalElements.h"
@@ -66,7 +67,8 @@ eccentrictyAnomaly ( unsigned int body, struct tm* date )
 				( 1 - eccentricity * cosDeg ( previous ));
 		delta = anomaly - previous;
 		if ( delta > prevDelta ) {
-			fprintf ( stderr, "Doesn't look like eccentricity is converging\n" );
+			oaLogWarning ( OA_LOG_EPHEMERIS,
+					"%s: Doesn't look like eccentricity is converging", __func__ );
 			break;
 		}
 	}
