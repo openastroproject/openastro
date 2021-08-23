@@ -29,6 +29,7 @@
 
 extern "C" {
 #include <openastro/timer.h>
+#include <openastro/util.h>
 #include <strings.h>
 }
 
@@ -704,8 +705,8 @@ CameraSettings::buttonPushed ( int control )
               break;
 
             default:
-              fprintf ( stderr, "control type %d not handled in %s\n",
-                  controlType[mod][baseVal], __func__ );
+              oaLogError ( OA_LOG_APP, "%s: control type %d not handled",
+                  __func__, controlType[mod][baseVal] );
               break;
           }
         }
@@ -758,8 +759,8 @@ CameraSettings::buttonPushed ( int control )
 							break;
 
 						default:
-							fprintf ( stderr, "control type %d not handled in %s\n",
-									controlType[mod][baseVal], __func__ );
+              oaLogError ( OA_LOG_APP, "%s: control type %d not handled",
+                  __func__, controlType[mod][baseVal] );
 							break;
 					}
 				}
