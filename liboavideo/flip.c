@@ -2,7 +2,7 @@
  *
  * flip.c -- flip an image in X and/or Y
  *
- * Copyright 2018,2019
+ * Copyright 2018,2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -26,9 +26,11 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
 #include <openastro/errno.h>
 #include <openastro/video.h>
 #include <openastro/video/formats.h>
+#include <openastro/util.h>
 
 
 static void		_processFlip8Bit ( uint8_t*, unsigned int, unsigned int, int );
@@ -54,8 +56,8 @@ oaFlipImage ( void* imageData, unsigned int xSize, unsigned int ySize,
       if ( oaFrameFormats[ format ].bitsPerPixel == 16 ) {
         assumedFormat = OA_PIX_FMT_GREY16BE;
       } else {
-        fprintf ( stderr, "No flipping idea how to handle format %d\n",
-            format );
+        oaLogError ( OA_LOG_VIDEO,
+						"%s: No flipping idea how to handle format %d", __func__, format );
 				return OA_ERR_UNIMPLEMENTED;
       }
     }
@@ -74,7 +76,8 @@ oaFlipImage ( void* imageData, unsigned int xSize, unsigned int ySize,
       _processFlip24BitColour ( data, xSize, ySize, axis );
       break;
     default:
-      fprintf ( stderr, "Unable to flip format %d\n", format );
+      oaLogError ( OA_LOG_VIDEO, "%s: Unable to flip format %d", __func__,
+					format );
 			return OA_ERR_UNIMPLEMENTED;
       break;
   }

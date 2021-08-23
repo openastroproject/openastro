@@ -26,8 +26,10 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
 #include <openastro/video.h>
 #include <openastro/video/formats.h>
+#include <openastro/util.h>
 
 #include "yuv.h"
 #include "to8Bit.h"
@@ -328,8 +330,8 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
         oaYUV411toRGB888 ( source, target, xSize, ySize );
         result = 0;
       } else {
-        fprintf ( stderr, "unknown target format for YUV411: %d\n",
-            targetFormat );
+        oaLogError ( OA_LOG_VIDEO, "%s: unknown target format for YUV411: %d",
+            __func__, targetFormat );
       }
       break;
     case OA_PIX_FMT_RGBA:
@@ -369,8 +371,8 @@ oaconvert ( void* source, void* target, int xSize, int ySize, int sourceFormat,
     case OA_PIX_FMT_GBRG12:
     case OA_PIX_FMT_GBRG14:
     default:
-      fprintf ( stderr, "unhandled format %d in %s\n", sourceFormat,
-          __func__ );
+      oaLogError ( OA_LOG_VIDEO, "%s: unhandled format %d", __func__,
+					sourceFormat );
   }
 
   return result;
