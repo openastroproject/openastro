@@ -26,8 +26,10 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
 #include <openastro/imgproc.h>
 #include <openastro/errno.h>
+#include <openastro/util.h>
 #include <openastro/video/formats.h>
 
 
@@ -79,8 +81,8 @@ oaContrastTransform ( void* source, void* target, int xSize, int ySize,
 		return OA_ERR_NONE;
 	}
 
-	fprintf ( stderr, "Unrecognised frame format '%s' in %s\n",
-			oaFrameFormats[ frameFormat ].name, __func__ );
+	oaLogError ( OA_LOG_IMGPROC, "%s: Unrecognised frame format '%s'",
+			__func__, oaFrameFormats[ frameFormat ].name );
 
   // FIX ME -- return more meaningful error
   return -OA_ERR_UNSUPPORTED_FORMAT;

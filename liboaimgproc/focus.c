@@ -26,9 +26,11 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
 #include <openastro/imgproc.h>
 #include <openastro/demosaic.h>
 #include <openastro/errno.h>
+#include <openastro/util.h>
 #include <openastro/video/formats.h>
 
 #include "sobel.h"
@@ -79,7 +81,7 @@ oaFocusScore ( void* source, void* target, int xSize, int ySize,
         new8BitFormat = OA_PIX_FMT_GBRG8;
         break;
       default:
-        fprintf ( stderr, "%s can't handle format %d\n", __func__,
+        oaLogError ( OA_LOG_IMGPROC, "%s: can't handle format %d", __func__,
             frameFormat );
         // FIX ME --return meaningful error code
         return -1;

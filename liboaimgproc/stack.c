@@ -2,7 +2,7 @@
  *
  * stack.c -- main stacking entrypoints
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019, 2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -25,7 +25,9 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
 #include <openastro/errno.h>
+#include <openastro/util.h>
 #include <openastro/imgproc.h>
 #include <openastro/video/formats.h>
 
@@ -39,7 +41,8 @@ oaStackSum ( void** frameArray, unsigned int numFrames, void* target,
 	int numBits, littleEndian, fullColour;
 
 	if ( oaFrameFormats[ frameFormat ].planar ) {
-		fprintf ( stderr, "Unable to stack frame format %d\n", frameFormat );
+		oaLogError ( OA_LOG_IMGPROC, "Unable to stack frame format %d",
+				frameFormat );
 		return -OA_ERR_UNSUPPORTED_FORMAT;
 	}
 
@@ -58,7 +61,8 @@ oaStackSum ( void** frameArray, unsigned int numFrames, void* target,
 		return oaStackSum16BE ( frameArray, numFrames, target, length );
 	}
 
-	fprintf ( stderr, "Unable to stack frame format %d\n", frameFormat );
+	oaLogError ( OA_LOG_IMGPROC, "Unable to stack frame format %d",
+			frameFormat );
 	return -OA_ERR_UNSUPPORTED_FORMAT;
 }
 
@@ -70,7 +74,8 @@ oaStackMean ( void** frameArray, unsigned int numFrames, void* target,
 	int numBits, littleEndian, fullColour;
 
 	if ( oaFrameFormats[ frameFormat ].planar ) {
-		fprintf ( stderr, "Unable to stack frame format %d\n", frameFormat );
+		oaLogError ( OA_LOG_IMGPROC, "Unable to stack frame format %d",
+				frameFormat );
 		return -OA_ERR_UNSUPPORTED_FORMAT;
 	}
 
@@ -89,7 +94,8 @@ oaStackMean ( void** frameArray, unsigned int numFrames, void* target,
 		return oaStackMean16BE ( frameArray, numFrames, target, length );
 	}
 
-	fprintf ( stderr, "Unable to stack frame format %d\n", frameFormat );
+	oaLogError ( OA_LOG_IMGPROC, "Unable to stack frame format %d",
+			frameFormat );
 	return -OA_ERR_UNSUPPORTED_FORMAT;
 }
 
@@ -101,7 +107,8 @@ oaStackMedian ( void** frameArray, unsigned int numFrames, void* target,
 	int numBits, littleEndian, fullColour;
 
 	if ( oaFrameFormats[ frameFormat ].planar ) {
-		fprintf ( stderr, "Unable to stack frame format %d\n", frameFormat );
+		oaLogError ( OA_LOG_IMGPROC, "Unable to stack frame format %d",
+				frameFormat );
 		return -OA_ERR_UNSUPPORTED_FORMAT;
 	}
 
@@ -120,7 +127,8 @@ oaStackMedian ( void** frameArray, unsigned int numFrames, void* target,
 		return oaStackMedian16BE ( frameArray, numFrames, target, length );
 	}
 
-	fprintf ( stderr, "Unable to stack frame format %d\n", frameFormat );
+	oaLogError ( OA_LOG_IMGPROC, "Unable to stack frame format %d",
+			frameFormat );
 	return -OA_ERR_UNSUPPORTED_FORMAT;
 }
 
@@ -132,7 +140,8 @@ oaStackMaximum ( void** frameArray, unsigned int numFrames, void* target,
 	int numBits, littleEndian, fullColour;
 
 	if ( oaFrameFormats[ frameFormat ].planar ) {
-		fprintf ( stderr, "Unable to stack frame format %d\n", frameFormat );
+		oaLogError ( OA_LOG_IMGPROC, "Unable to stack frame format %d",
+				frameFormat );
 		return -OA_ERR_UNSUPPORTED_FORMAT;
 	}
 
@@ -151,7 +160,8 @@ oaStackMaximum ( void** frameArray, unsigned int numFrames, void* target,
 		return oaStackMaximum16BE ( frameArray, numFrames, target, length );
 	}
 
-	fprintf ( stderr, "Unable to stack frame format %d\n", frameFormat );
+	oaLogError ( OA_LOG_IMGPROC, "Unable to stack frame format %d",
+			frameFormat );
 	return -OA_ERR_UNSUPPORTED_FORMAT;
 }
 
@@ -163,7 +173,8 @@ oaStackKappaSigma ( void** frameArray, unsigned int numFrames, void* target,
 	int numBits, littleEndian, fullColour;
 
 	if ( oaFrameFormats[ frameFormat ].planar ) {
-		fprintf ( stderr, "Unable to stack frame format %d\n", frameFormat );
+		oaLogError ( OA_LOG_IMGPROC, "Unable to stack frame format %d",
+				frameFormat );
 		return -OA_ERR_UNSUPPORTED_FORMAT;
 	}
 
@@ -184,7 +195,8 @@ oaStackKappaSigma ( void** frameArray, unsigned int numFrames, void* target,
 				kappa );
 	}
 
-	fprintf ( stderr, "Unable to stack frame format %d\n", frameFormat );
+	oaLogError ( OA_LOG_IMGPROC, "Unable to stack frame format %d",
+			frameFormat );
 	return -OA_ERR_UNSUPPORTED_FORMAT;
 }
 
@@ -196,7 +208,8 @@ oaStackMedianKappaSigma ( void** frameArray, unsigned int numFrames,
 	int numBits, littleEndian, fullColour;
 
 	if ( oaFrameFormats[ frameFormat ].planar ) {
-		fprintf ( stderr, "Unable to stack frame format %d\n", frameFormat );
+		oaLogError ( OA_LOG_IMGPROC, "Unable to stack frame format %d",
+				frameFormat );
 		return -OA_ERR_UNSUPPORTED_FORMAT;
 	}
 
@@ -218,6 +231,7 @@ oaStackMedianKappaSigma ( void** frameArray, unsigned int numFrames,
 				kappa );
 	}
 
-	fprintf ( stderr, "Unable to stack frame format %d\n", frameFormat );
+	oaLogError ( OA_LOG_IMGPROC, "Unable to stack frame format %d",
+			frameFormat );
 	return -OA_ERR_UNSUPPORTED_FORMAT;
 }

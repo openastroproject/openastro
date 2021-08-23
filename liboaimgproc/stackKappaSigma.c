@@ -2,7 +2,7 @@
  *
  * stackKappaSigma.c -- kappa sigma stacking method
  *
- * Copyright 2019,2020 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -25,7 +25,9 @@
  *****************************************************************************/
 
 #include <oa_common.h>
+
 #include <openastro/imgproc.h>
+#include <openastro/util.h>
 
 #include <stdlib.h>
 #include <math.h>
@@ -67,7 +69,8 @@ oaStackKappaSigma8 ( void** frameArray, unsigned int numFrames, void* target,
 		if ( numSamples ) {
 			*tgt++ = finalMean / numSamples;
 		} else {
-			fprintf ( stderr, "no samples are between %f and %f\n", min, max );
+			oaLogError ( OA_LOG_IMGPROC, "%s: no samples are between %f and %f",
+					__func__, min, max );
 			*tgt++ = 0;
 		}
 	}
@@ -115,7 +118,8 @@ oaStackKappaSigma16LE ( void** frameArray, unsigned int numFrames, void* target,
 			*tgt++ = v & 0xff;
 			*tgt++ = v >> 8;
 		} else {
-			fprintf ( stderr, "no samples are between %f and %f\n", min, max );
+			oaLogError ( OA_LOG_IMGPROC, "%s: no samples are between %f and %f",
+					__func__, min, max );
 			*tgt++ = 0;
 			*tgt++ = 0;
 		}
@@ -164,7 +168,8 @@ oaStackKappaSigma16BE ( void** frameArray, unsigned int numFrames, void* target,
 			*tgt++ = v >> 8;
 			*tgt++ = v & 0xff;
 		} else {
-			fprintf ( stderr, "no samples are between %f and %f\n", min, max );
+			oaLogError ( OA_LOG_IMGPROC, "%s: no samples are between %f and %f",
+					__func__, min, max );
 			*tgt++ = 0;
 			*tgt++ = 0;
 		}
