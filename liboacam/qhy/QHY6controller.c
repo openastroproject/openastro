@@ -424,7 +424,7 @@ _processGetControl ( QHY_STATE* cameraInfo, OA_COMMAND* command )
       break;
 
     default:
-      fprintf ( stderr, "%s: Unrecognised control %d", __func__,
+      oaLogError ( OA_LOG_CAMERA, "%s: Unrecognised control %d", __func__,
 					control );
       return -OA_ERR_INVALID_CONTROL;
       break;
