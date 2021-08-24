@@ -1649,10 +1649,6 @@ MainWindow::connectCamera ( int deviceIndex )
   // widget?
   state.cameraWidget->enableBinningControl (
 			commonState.camera->hasBinning ( 2 ));
-  if ( state.occultationWidget ) {
-	  state.occultationWidget->enableBinningControl (
-	  			commonState.camera->hasBinning ( 2 ));
-  }
   // styleStatusBarTemp ( v );
   v = commonState.camera->hasControl ( OA_CAM_CTRL_DROPPED );
   styleStatusBarDroppedFrames ( v );
@@ -3125,9 +3121,6 @@ MainWindow::enableOccultations ( void )
     }
     state.occultationWidget->configure();
     state.occultationWidget->show();
-    if (state.cameraWidget) {
-    	state.cameraWidget->connectExternalControls();
-    }
     config.occultations = 1;
   } else {
     if ( state.occultationWidget ) {
@@ -3140,7 +3133,6 @@ MainWindow::enableOccultations ( void )
 void
 MainWindow::occultationClosed ( void )
 {
-  state.cameraWidget->disconnectExternalControls();
   state.occultationWidget = nullptr;
   if ( !doingQuit ) {
     occultations->setChecked ( 0 );

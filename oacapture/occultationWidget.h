@@ -3,7 +3,7 @@
  * occultationWidget.h -- class for occultation tools
  *
  * Copyright 2021
- *     Dave Tucker (dave@dtucker.co.uk)
+ *   Dave Tucker (dave@dtucker.co.uk), James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -43,21 +43,15 @@ class OccultationWidget : public QWidget
     ~OccultationWidget();
     void                enableBinningControl ( int );
     void configure(void);
-  public slots:
-    void setBinning (int);
   private slots:
     void externalLEDCheckboxChanged ( int );
     void resetCaptureCounter ( void );
   private:
     QGridLayout*	grid;
-    QCheckBox*		binning2x2;
     QCheckBox*		reticle;
     QCheckBox*		externalLEDEnabled;
     QPushButton*	resetCaptureCounterButton;
     QPushButton*	captureTenFrames;
-    QLabel* 		exposureTimeLabel;
-    QLineEdit* 		exposureTime;
-    QComboBox*		exposureTimeInterval;
     QLabel*         interframeIntervalLabel;
     QComboBox*		interframeIntervalInterval;
     QLineEdit*		interframeInterval;

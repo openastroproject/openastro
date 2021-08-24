@@ -1,9 +1,9 @@
 /*****************************************************************************
  *
- * occultationWidget.h -- class declaration
+ * occultationWidget.cc -- class declaration
  *
  * Copyright 2021
- *     Dave Tucker (dave@dtucker.co.uk)
+ *     Dave Tucker (dave@dtucker.co.uk), James Fidell (james@openastroject.org)
  *
  * License:
  *
@@ -39,12 +39,12 @@
 OccultationWidget::OccultationWidget(const char *appName, QWidget *parent) :
 		QWidget(parent) {
 	windowSizeX = 300;
-	windowSizeY = 300;
+	windowSizeY = 180;
 	resize(windowSizeX, windowSizeY);
 	if (appName) {
 		char str[256];
 		(void) strncpy(str, appName, 255);
-		(void) strncat(str, " Targeted Capture Controls", 255);
+		(void) strncat(str, " Occultation Capture Controls", 255);
 		setWindowTitle(str);
 		setWindowIcon(QIcon(":/qt-icons/occultation.png"));
 	}
@@ -52,12 +52,6 @@ OccultationWidget::OccultationWidget(const char *appName, QWidget *parent) :
 	intervalMultipliers << 1 << 1000 << 1000000 << 60000000;
 	intervalsList << "usec" << "msec" << "sec" << "min";
 
-	binning2x2 = new QCheckBox(tr("2x2 Binning"), this);
-	binning2x2->setChecked(commonConfig.binning2x2);
-	if (state.cameraWidget) {
-		connect(binning2x2, SIGNAL(stateChanged ( int )), state.cameraWidget,
-			SLOT(setBinning (int)));
-	}
 	reticle = new QCheckBox(tr("Display Reticle"), this);
 	reticle->setChecked(config.showReticle);
 	if (state.mainWindow) {
@@ -77,12 +71,6 @@ OccultationWidget::OccultationWidget(const char *appName, QWidget *parent) :
 
 	captureTenFrames = new QPushButton(tr("Capture 10 Frames"), this);
 	captureTenFrames->setEnabled(false);
-	exposureTimeLabel = new QLabel(tr("Exposure Time"), this);
-	exposureTime = new QLineEdit(this);
-	exposureTime->setEnabled(false);
-	exposureTimeInterval = new QComboBox(this);
-	exposureTimeInterval->addItems(intervalsList);
-	exposureTimeInterval->setEnabled(false);
 
 	interframeIntervalLabel = new QLabel(tr("Interframe Interval"), this);
 	interframeInterval = new QLineEdit(this);
@@ -99,20 +87,16 @@ OccultationWidget::OccultationWidget(const char *appName, QWidget *parent) :
 
 	grid = new QGridLayout();
 
-	grid->addWidget(binning2x2, 0, 0);
-	grid->addWidget(reticle, 1, 0);
-	grid->addWidget(externalLEDEnabled, 2, 0);
+	grid->addWidget(reticle, 0, 0);
+	grid->addWidget(externalLEDEnabled, 1, 0);
 	grid->addWidget(resetCaptureCounterButton, 0, 2);
 	grid->addWidget(captureTenFrames, 1, 2);
-	grid->addWidget(exposureTimeLabel, 3, 0);
-	grid->addWidget(exposureTimeInterval, 3, 1);
-	grid->addWidget(exposureTime, 3, 2);
-	grid->addWidget(interframeIntervalLabel, 4, 0);
-	grid->addWidget(interframeIntervalInterval, 4, 1);
-	grid->addWidget(interframeInterval, 4, 2);
-	grid->addWidget(triggerIntervalLabel, 5, 0);
-	grid->addWidget(triggerIntervalInterval, 5, 1);
-	grid->addWidget(triggerInterval, 5, 2);
+	grid->addWidget(interframeIntervalLabel, 2, 0);
+	grid->addWidget(interframeIntervalInterval, 2, 1);
+	grid->addWidget(interframeInterval, 2, 2);
+	grid->addWidget(triggerIntervalLabel, 3, 0);
+	grid->addWidget(triggerIntervalInterval, 3, 1);
+	grid->addWidget(triggerInterval, 3, 2);
 
 	setLayout(grid);
 }
@@ -120,33 +104,25 @@ OccultationWidget::OccultationWidget(const char *appName, QWidget *parent) :
 OccultationWidget::~OccultationWidget() {
 }
 
-QSize OccultationWidget::sizeHint() const {
+QSize
+OccultationWidget::sizeHint() const {
 	QSize size(windowSizeX, windowSizeY);
 	return size;
 }
 
-void OccultationWidget::externalLEDCheckboxChanged(int value) {
+void
+OccultationWidget::externalLEDCheckboxChanged(int value) {
 	QMetaObject::invokeMethod(state.mainWindow, "enableTimerExternalLED",
 			Qt::DirectConnection, Q_ARG(int, value));
 }
 
-void OccultationWidget::enableBinningControl(int value) {
-	binning2x2->setEnabled(value);
+void
+OccultationWidget::configure(void) {
+	return;
 }
 
-void OccultationWidget::configure(void) {
-	if (commonState.camera) {
-		binning2x2->setEnabled(commonState.camera->hasBinning(2) ? 1 : 0);
-	} else {
-		binning2x2->setEnabled(true);
-	}
-}
-
-void OccultationWidget::setBinning(int value) {
-	binning2x2->setChecked(value);
-}
-
-void OccultationWidget::resetCaptureCounter(void) {
+void
+OccultationWidget::resetCaptureCounter(void) {
 	// FIX ME -- this might not be good in the middle of a capture run
 	commonState.captureIndex = 0;
 }

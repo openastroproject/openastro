@@ -56,8 +56,6 @@ class CameraWidget : public QGroupBox
     void                showFPSMaxValue ( int );
     void                clearFPSMaxValue ( void );
     void		updateForceFrameFormat ( unsigned int, unsigned int );
-    void		connectExternalControls ( void );
-    void		disconnectExternalControls ( void );
 
   private:
     QCheckBox*		binning2x2;
