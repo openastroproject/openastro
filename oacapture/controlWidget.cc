@@ -1384,7 +1384,10 @@ ControlWidget::updateSelectableControl ( int control )
     int value = selectableControlSpinbox[ control ]->value();
     cameraConf.CONTROL_VALUE( control ) = value;
     SET_PROFILE_CONTROL( control, value );
-    commonState.camera->setControl ( control, value );
+		// If we're in auto mode then there's no need to call setControl
+		if ( !cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO ( control ))) {
+			commonState.camera->setControl ( control, value );
+		}
     if ( state.settingsWidget ) {
       state.settingsWidget->updateControl ( control, value );
     }
@@ -2215,7 +2218,7 @@ ControlWidget::doAutoControlUpdate ( void )
 					commonState.camera->hasControl ( OA_CAM_CTRL_MODE_AUTO ( c )) ==
 					OA_CTRL_TYPE_BOOLEAN ) {
 				if ( cameraConf.CONTROL_VALUE( OA_CAM_CTRL_MODE_AUTO ( c ))) {
-					// we have a control, an gain control, and auto mode is on
+					// we have a control and auto mode is on
 					cameraConf.CONTROL_VALUE( c ) = commonState.camera->readControl ( c );
 					selectableControlSpinbox[ c ]->setValue (
 							cameraConf.CONTROL_VALUE( c ));
