@@ -2,7 +2,7 @@
  *
  * trampoline.h -- functions redirecting to class function calls
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021 James Fidell (james@openastroproject.org)
  *
  * License:
  *

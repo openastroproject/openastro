@@ -2,7 +2,7 @@
  *
  * timerSettings.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -59,6 +59,7 @@ class TimerSettings : public QWidget
     			TimerSettings ( QWidget*, QString, trampolineFuncs* );
     			~TimerSettings();
     void		storeSettings ( void );
+		void		updateTriggerInterval ( int );
 
   private:
     QLabel*             enableLabel;

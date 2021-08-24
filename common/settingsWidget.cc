@@ -302,3 +302,12 @@ SettingsWidget::getTabset ( void )
 {
   return dynamic_cast<QWidget*>( tabSet );
 }
+
+
+void
+SettingsWidget::updateTriggerInterval ( int interval )
+{
+	if ( timer ) {
+		timer->updateTriggerInterval ( interval );
+	}
+}

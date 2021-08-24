@@ -2,7 +2,7 @@
  *
  * timerSettings.cc -- class for the timer settings in the settings UI
  *
- * Copyright 2013,2014,2015,2016,2017,2018,2019,2020
+ * Copyright 2013,2014,2015,2016,2017,2018,2019,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -256,4 +256,12 @@ TimerSettings::externalLEDCheckboxChanged ( void )
 {
 	trampolines->enableTimerExternalLED (
 			externalLEDEnabled->isChecked() ? 1 : 0 );
+}
+
+
+void
+TimerSettings::updateTriggerInterval ( int newInterval )
+{
+	QString n = QString::number ( newInterval );
+	interval->setText ( n );
 }

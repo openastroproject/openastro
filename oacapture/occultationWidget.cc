@@ -74,10 +74,14 @@ OccultationWidget::OccultationWidget(const char *appName, QWidget *parent) :
 	interframeInterval->setEnabled(false);
 	triggerIntervalLabel = new QLabel(tr("Trigger Interval (ms)"), this);
 	triggerInterval = new QLineEdit(this);
-	triggerInterval->setEnabled(false);
+	intervalValidator = new QIntValidator ( 0, 99999, this );
+	triggerInterval->setValidator ( intervalValidator );
+	if ( timerConf.triggerInterval ) {
+		QString n = QString::number ( timerConf.triggerInterval );
+		triggerInterval->setText ( n );
+	}
 
 	grid = new QGridLayout();
-
 	grid->addWidget(reticle, 0, 0);
 	grid->addWidget(externalLEDEnabled, 1, 0);
 	grid->addWidget(resetCaptureCounterButton, 0, 1);
@@ -86,8 +90,10 @@ OccultationWidget::OccultationWidget(const char *appName, QWidget *parent) :
 	grid->addWidget(interframeInterval, 2, 1);
 	grid->addWidget(triggerIntervalLabel, 3, 0);
 	grid->addWidget(triggerInterval, 3, 1);
-
 	setLayout(grid);
+
+	connect ( triggerInterval, SIGNAL ( textEdited ( const QString& )), this,
+			SLOT ( triggerIntervalChanged()));
 }
 
 OccultationWidget::~OccultationWidget() {
@@ -114,4 +120,17 @@ void
 OccultationWidget::resetCaptureCounter(void) {
 	// FIX ME -- this might not be good in the middle of a capture run
 	commonState.captureIndex = 0;
+}
+
+
+void
+OccultationWidget::triggerIntervalChanged ( void )
+{
+	QString intervalStr = triggerInterval->text();
+	if ( intervalStr != "" ) {
+		timerConf.triggerInterval = intervalStr.toInt();
+		if ( state.settingsWidget ) {
+			state.settingsWidget->updateTriggerInterval ( timerConf.triggerInterval );
+		}
+	}
 }

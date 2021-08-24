@@ -46,6 +46,7 @@ class OccultationWidget : public QWidget
   private slots:
     void externalLEDCheckboxChanged ( int );
     void resetCaptureCounter ( void );
+    void triggerIntervalChanged ( void );
   private:
     QGridLayout*	grid;
     QCheckBox*		reticle;
@@ -56,7 +57,7 @@ class OccultationWidget : public QWidget
     QLineEdit*		interframeInterval;
     QLabel*			triggerIntervalLabel;
     QLineEdit*		triggerInterval;
-	int64_t			intervalMultiplier;
+		QIntValidator*	intervalValidator;
 	QSize			sizeHint() const;
 	int				windowSizeX;
 	int				windowSizeY;

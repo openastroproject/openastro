@@ -2,7 +2,7 @@
  *
  * settingsWidget.h -- class declaration
  *
- * Copyright 2013,2014,2015,2016,2018,2020
+ * Copyright 2013,2014,2015,2016,2018,2020,2021
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -82,6 +82,7 @@ class SettingsWidget : public QWidget
     void		updateFrameRate ( int );
     void		reconfigureControl ( int );
     QWidget*		getTabset ( void );
+		void		updateTriggerInterval ( int );
 
   private:
     GeneralSettings*	general;
