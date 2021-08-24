@@ -11,10 +11,10 @@
 
 
 #define version_year                21
-#define version_month               6
-#define version_day                 25
-#define version_subday              11
-#define SDK_SVN_REVISION            11098
+#define version_month               8
+#define version_day                 14
+#define version_subday              15
+#define SDK_SVN_REVISION            11270
 
 #if defined (_WIN32)
 #define QHYCCD_OPENCV_SUPPORT

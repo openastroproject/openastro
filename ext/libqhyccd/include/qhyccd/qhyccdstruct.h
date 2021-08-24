@@ -233,6 +233,8 @@ typedef enum CONTROL_ID
 /*63*/  CAM_PRESSURE,             //check if camera has pressure sensor
 /*64*/  CONTROL_VACUUM_PUMP,        /// if camera has VACUUM PUMP
 /*65*/  CONTROL_SensorChamberCycle_PUMP, ///air cycle pump for sensor drying
+/*66*/  CAM_32BITS,
+/*67*/  CAM_Sensor_ULVO_Status, /// Sensor working status [0:init  1:good  2:checkErr  3:monitorErr]  410 461 411 600 268 [Eris board]
 
 
 /* Do not Put Item after  CONTROL_MAX_ID !! This should be the max index of the list */
