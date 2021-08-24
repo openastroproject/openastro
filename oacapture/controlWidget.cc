@@ -31,6 +31,7 @@
 
 extern "C" {
 #include <openastro/camera.h>
+#include <openastro/util.h>
 }
 
 #include "commonState.h"
@@ -1158,7 +1159,8 @@ ControlWidget::updateFrameRates ( void )
     framerateMenu->show();
 
   } else {
-    fprintf ( stderr, "Camera::hasFixedFrameRates failed\n" );
+    oaLogError ( OA_LOG_APP, "%s: Camera::hasFixedFrameRates failed",
+				__func__ );
     framerateLabel->hide();
     framerateSlider->hide();
     framerateMenu->hide();
