@@ -1194,9 +1194,10 @@ ControlWidget::exposureMenuChanged ( int index )
   // current value be outside the range
   ignoreExposureChanges = 1;
   exposureSlider->setRange ( newMin, newMax );
-  ignoreExposureChanges = 0;
-  exposureSlider->setValue ( newSetting );
+	// don't need this because changing the spinbox will do it
+  // exposureSlider->setValue ( newSetting );
   exposureSpinbox->setRange ( newMin, newMax );
+  ignoreExposureChanges = 0;
   exposureSpinbox->setValue ( newSetting );
 
   ignoreExposureChanges = 1;
@@ -1279,8 +1280,8 @@ ControlWidget::updateExposure ( int value )
 			}
 		}
 
-    cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = value;
-    SET_PROFILE_CONTROL( OA_CAM_CTRL_EXPOSURE_ABSOLUTE, value );
+    cameraConf.CONTROL_VALUE( OA_CAM_CTRL_EXPOSURE_ABSOLUTE ) = usecValue;
+    SET_PROFILE_CONTROL( OA_CAM_CTRL_EXPOSURE_ABSOLUTE, usecValue );
     // convert value back to microseconds from milliseconds
     commonState.camera->setControl ( OA_CAM_CTRL_EXPOSURE_ABSOLUTE, usecValue );
     if ( !commonState.camera->hasFrameRateSupport()) {
