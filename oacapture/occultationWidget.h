@@ -53,13 +53,9 @@ class OccultationWidget : public QWidget
     QPushButton*	resetCaptureCounterButton;
     QPushButton*	captureTenFrames;
     QLabel*         interframeIntervalLabel;
-    QComboBox*		interframeIntervalInterval;
     QLineEdit*		interframeInterval;
     QLabel*			triggerIntervalLabel;
-    QComboBox*		triggerIntervalInterval;
     QLineEdit*		triggerInterval;
-    QStringList		intervalsList;
-	QList<int>		intervalMultipliers;
 	int64_t			intervalMultiplier;
 	QSize			sizeHint() const;
 	int				windowSizeX;

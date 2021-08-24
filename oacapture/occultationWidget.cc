@@ -49,9 +49,6 @@ OccultationWidget::OccultationWidget(const char *appName, QWidget *parent) :
 		setWindowIcon(QIcon(":/qt-icons/occultation.png"));
 	}
 
-	intervalMultipliers << 1 << 1000 << 1000000 << 60000000;
-	intervalsList << "usec" << "msec" << "sec" << "min";
-
 	reticle = new QCheckBox(tr("Display Reticle"), this);
 	reticle->setChecked(config.showReticle);
 	if (state.mainWindow) {
@@ -75,13 +72,7 @@ OccultationWidget::OccultationWidget(const char *appName, QWidget *parent) :
 	interframeIntervalLabel = new QLabel(tr("Interframe Interval"), this);
 	interframeInterval = new QLineEdit(this);
 	interframeInterval->setEnabled(false);
-	interframeIntervalInterval = new QComboBox(this);
-	interframeIntervalInterval->addItems(intervalsList);
-	interframeIntervalInterval->setEnabled(false);
-	triggerIntervalLabel = new QLabel(tr("Trigger Interval"), this);
-	triggerIntervalInterval = new QComboBox(this);
-	triggerIntervalInterval->addItems(intervalsList);
-	triggerIntervalInterval->setEnabled(false);
+	triggerIntervalLabel = new QLabel(tr("Trigger Interval (ms)"), this);
 	triggerInterval = new QLineEdit(this);
 	triggerInterval->setEnabled(false);
 
@@ -89,14 +80,12 @@ OccultationWidget::OccultationWidget(const char *appName, QWidget *parent) :
 
 	grid->addWidget(reticle, 0, 0);
 	grid->addWidget(externalLEDEnabled, 1, 0);
-	grid->addWidget(resetCaptureCounterButton, 0, 2);
-	grid->addWidget(captureTenFrames, 1, 2);
+	grid->addWidget(resetCaptureCounterButton, 0, 1);
+	grid->addWidget(captureTenFrames, 1, 1);
 	grid->addWidget(interframeIntervalLabel, 2, 0);
-	grid->addWidget(interframeIntervalInterval, 2, 1);
-	grid->addWidget(interframeInterval, 2, 2);
+	grid->addWidget(interframeInterval, 2, 1);
 	grid->addWidget(triggerIntervalLabel, 3, 0);
-	grid->addWidget(triggerIntervalInterval, 3, 1);
-	grid->addWidget(triggerInterval, 3, 2);
+	grid->addWidget(triggerInterval, 3, 1);
 
 	setLayout(grid);
 }
