@@ -220,6 +220,7 @@ qDebug() << "Set external LED on/off";
    */
   if ( intervalStr != "" ) {
     timerConf.triggerInterval = intervalStr.toInt();
+		trampolines->updateTriggerInterval ( timerConf.triggerInterval );
   }
   if ( drainDelayStr != "" ) {
     timerConf.drainDelay = drainDelayStr.toInt();

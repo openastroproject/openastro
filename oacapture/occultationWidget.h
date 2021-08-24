@@ -43,6 +43,7 @@ class OccultationWidget : public QWidget
     ~OccultationWidget();
     void                enableBinningControl ( int );
     void configure(void);
+		void	updateTriggerInterval ( int );
   private slots:
     void externalLEDCheckboxChanged ( int );
     void resetCaptureCounter ( void );

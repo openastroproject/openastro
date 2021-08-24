@@ -320,6 +320,13 @@ t_getTimerExternalLED ( void )
 }
 
 
+void
+t_updateTriggerInterval ( int interval __attribute__((unused)))
+{
+	qWarning() << __func__ << "doing nothing";
+}
+
+
 trampolineFuncs trampolines = {
 	t_getCurrentGain,
 	t_getCurrentExposure,
@@ -357,5 +364,6 @@ trampolineFuncs trampolines = {
 	t_propagateNewSlotName,
 	t_slotFilterName,
 	t_enableTimerExternalLED,
-	t_getTimerExternalLED
+	t_getTimerExternalLED,
+	t_updateTriggerInterval
 };

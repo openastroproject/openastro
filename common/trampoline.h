@@ -75,6 +75,7 @@ typedef struct {
 	QString ( *slotFilterName )( int );
 	void ( *enableTimerExternalLED )( int );
 	int ( *getTimerExternalLED )( void );
+	void ( *updateTriggerInterval )( int );
 } trampolineFuncs;
 
 extern trampolineFuncs trampolines;

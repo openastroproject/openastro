@@ -337,6 +337,15 @@ t_getTimerExternalLED ( void )
 }
 
 
+void
+t_updateTriggerInterval ( int interval )
+{
+	if ( state.occultationWidget ) {
+		state.occultationWidget->updateTriggerInterval ( interval );
+	}
+}
+
+
 trampolineFuncs trampolines = {
   t_getCurrentGain,
   t_getCurrentExposure,
@@ -374,5 +383,6 @@ trampolineFuncs trampolines = {
   t_propagateNewSlotName,
   t_slotFilterName,
 	t_enableTimerExternalLED,
-	t_getTimerExternalLED
+	t_getTimerExternalLED,
+	t_updateTriggerInterval
 };

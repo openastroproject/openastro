@@ -134,3 +134,11 @@ OccultationWidget::triggerIntervalChanged ( void )
 		}
 	}
 }
+
+
+void
+OccultationWidget::updateTriggerInterval ( int interval )
+{
+	QString n = QString::number ( interval );
+		triggerInterval->setText ( n );
+}
