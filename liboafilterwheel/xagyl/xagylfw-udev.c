@@ -2,7 +2,7 @@
  *
  * xagylfw-udev.c -- Find Xagyl filter wheels using (Linux) udev
  *
- * Copyright 2014,2015,2017,2018,2020,2021
+ * Copyright 2014,2015,2017,2018,2020,2021,2023
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -112,7 +112,7 @@ oaXagylGetFilterWheels ( FILTERWHEEL_LIST* deviceList )
         product = udev_device_get_sysattr_value ( dev, "product" );
         userDeviceConfig* confp = xagylConfig;
         for ( entry = 0; entry < xagylConfigEntries && !haveWheel; entry++ ) {
-          char vidStr[8], pidStr[8];
+          char vidStr[9], pidStr[9];
           if ( confp->vendorId && confp->productId ) {
             sprintf ( vidStr, "%04x", confp->vendorId );
             sprintf ( pidStr, "%04x", confp->productId );
