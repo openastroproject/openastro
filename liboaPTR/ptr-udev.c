@@ -2,7 +2,7 @@
  *
  * ptr-udev.c -- Find PTR devices using (Linux) udev
  *
- * Copyright 2015,2017,2018,2019,2020,2021
+ * Copyright 2015,2017,2018,2019,2020,2021,2023
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -117,7 +117,7 @@ oaPTREnumerate ( PTR_LIST* deviceList )
         product = udev_device_get_sysattr_value ( dev, "product" );
         userDeviceConfig* confp = ptrConfig;
         for ( entry = 0; entry < ptrConfigEntries && !havePTR; entry++ ) {
-          char vidStr[8], pidStr[8];
+          char vidStr[9], pidStr[9];
           if ( confp->vendorId && confp->productId ) {
             sprintf ( vidStr, "%04x", confp->vendorId );
             sprintf ( pidStr, "%04x", confp->productId );
