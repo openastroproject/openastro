@@ -2,7 +2,7 @@
  *
  * QHY5II.c -- QHY5II camera interface
  *
- * Copyright 2013,2014,2015,2017,2018,2019,2020,2021
+ * Copyright 2013,2014,2015,2017,2018,2019,2020,2021,2023
  *     James Fidell (james@openastroproject.org)
  *
  * License:
@@ -277,7 +277,6 @@ oaQHY5IICloseCamera ( oaCamera* camera )
     if ( cameraInfo->statusTransfer ) {
       res = libusb_cancel_transfer ( cameraInfo->statusTransfer );
       if ( res < 0 && res != LIBUSB_ERROR_NOT_FOUND ) {
-        free ( cameraInfo->statusBuffer );
         libusb_free_transfer ( cameraInfo->statusTransfer );
         cameraInfo->statusTransfer = 0;
       }
