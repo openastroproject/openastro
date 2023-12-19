@@ -2,7 +2,7 @@
  *
  * common.h -- common liboacam header bits
  *
- * Copyright 2014,2018,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2014,2018,2019,2023 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -32,7 +32,9 @@
 #endif
 
 #if HAVE_CREAT64 || HAVE_LSEEK64
+#ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
+#endif
 #endif
 
 #include <stdio.h>
