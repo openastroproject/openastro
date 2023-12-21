@@ -1041,6 +1041,8 @@ then
   LDFLAGS="-rdynamic $LDFLAGS"
 fi
 
+save_ldflags="${LDFLAGS}"
+LDFLAGS="${LDFLAGS} -L/opt/spinnaker/lib"
 AC_CHECK_LIB([Spinnaker_C],[spinImageEventCreate],[
   AC_MSG_NOTICE([Using Spinnaker v1 library])
   SPINNAKER_CFLAGS="-I/usr/include/spinnaker $CPPFLAGS"
@@ -1048,22 +1050,31 @@ AC_CHECK_LIB([Spinnaker_C],[spinImageEventCreate],[
   AC_DEFINE([HAVE_LIBSPINNAKER_V1],[1],[Spinnaker is v1])
   have_spinnaker=yes
 ],[
-	AC_CHECK_LIB([Spinnaker_C],[spinImageEventHandlerCreate],[
-		AC_MSG_NOTICE([Using Spinnaker v2 library])
-		SPINNAKER_CFLAGS="-I/usr/local/include/spinnaker $CPPFLAGS"
+	AC_CHECK_LIB([Spinnaker_C],[spinImageListCreateEmpty],[
+		AC_MSG_NOTICE([Using Spinnaker v3 library])
+		SPINNAKER_CFLAGS="-I/opt/spinnaker/include $CPPFLAGS"
+		LIBS="-Wl,-rpath=/opt/spinnaker/lib $LIBS"
 		AC_DEFINE([HAVE_LIBSPINNAKER],[1],[Have Spinnaker_C library])
-		AC_DEFINE([HAVE_LIBSPINNAKER_V2],[1],[Spinnaker is v2])
+		AC_DEFINE([HAVE_LIBSPINNAKER_V3],[1],[Spinnaker is v3])
 		have_spinnaker=yes
 	],[
-		AC_CHECK_FILE([/opt/spinnaker/include/spinc/SpinnakerC.h],[
+		AC_CHECK_LIB([Spinnaker_C],[spinImageEventHandlerCreate],[
 			AC_MSG_NOTICE([Using Spinnaker v2 library])
-			SPINNAKER_CFLAGS="-I/opt/spinnaker/include $CPPFLAGS"
-			LIBS="-Wl,-rpath=/opt/spinnaker/lib $LIBS"
+			SPINNAKER_CFLAGS="-I/usr/local/include/spinnaker $CPPFLAGS"
 			AC_DEFINE([HAVE_LIBSPINNAKER],[1],[Have Spinnaker_C library])
 			AC_DEFINE([HAVE_LIBSPINNAKER_V2],[1],[Spinnaker is v2])
 			have_spinnaker=yes
 		],[
-			AC_MSG_WARN([No Spinnaker library found.  Point Grey cameras will not be supported via this library])])])])
+			AC_CHECK_FILE([/opt/spinnaker/include/spinc/SpinnakerC.h],[
+				AC_MSG_NOTICE([Using Spinnaker v2 library])
+				SPINNAKER_CFLAGS="-I/opt/spinnaker/include $CPPFLAGS"
+				LIBS="-Wl,-rpath=/opt/spinnaker/lib $LIBS"
+				AC_DEFINE([HAVE_LIBSPINNAKER],[1],[Have Spinnaker_C library])
+				AC_DEFINE([HAVE_LIBSPINNAKER_V2],[1],[Spinnaker is v2])
+				have_spinnaker=yes
+			],[
+				AC_MSG_WARN([No Spinnaker library found.  Point Grey cameras will not be supported via this library])])])])])
+LD_FLAGS="${save_ldflags}"
 AC_SUBST(SPINNAKER_CFLAGS)
 
 if `$PKG_CONFIG --exists aravis-0.6`; then
