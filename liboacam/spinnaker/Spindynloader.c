@@ -2,7 +2,7 @@
  *
  * Spindynloader.c -- dynamic loader for Spinnaker
  *
- * Copyright 2021
+ * Copyright 2021,2023
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -155,7 +155,13 @@ _spinInitLibraryFunctionPointers ( void )
 #if HAVE_LIBSPINNAKER_V1
   const char*		libName = "libSpinnaker_C.so.1";
 #else
+#if HAVE_LIBSPINNAKER_V2
   const char*		libName = "libSpinnaker_C.so.2";
+#else
+#if HAVE_LIBSPINNAKER_V3
+  const char*		libName = "libSpinnaker_C.so.3";
+#endif
+#endif
 #endif
 #endif
 #ifdef RETRY_SO_WITHOUT_PATH

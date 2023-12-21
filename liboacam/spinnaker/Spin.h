@@ -2,7 +2,7 @@
  *
  * Spin.h -- internal stuff
  *
- * Copyright 2021
+ * Copyright 2021,2023
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -37,6 +37,12 @@
 #if HAVE_LIBSPINNAKER_V1
 // This appears to have changed between V1 and V2
 #define DeviceType_GigEVision DeviceType_GEV
+#endif
+
+#if HAVE_LIBSPINNAKER_V1 || HAVE_LIBSPINNAKER_V2
+// These changed name between V2 and V3
+#define	SPINNAKER_ERR_GENICAM_ACCESS	GENICAM_ERR_ACCESS
+#define	SPINNAKER_IMAGE_STATUS_UNKNOWN_ERROR	IMAGE_UNKNOWN_ERROR
 #endif
 
 #define NUM_SPIN_FORMATS		251

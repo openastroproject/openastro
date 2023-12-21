@@ -2,7 +2,7 @@
  *
  * Spinconnect.c -- Initialise Point Grey Spinnaker-based cameras
  *
- * Copyright 2018,2019,2021
+ * Copyright 2018,2019,2021,2023
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -3266,7 +3266,7 @@ _checkFlipControls ( spinNodeMapHandle nodeMap, oaCamera* camera )
 					commonInfo->OA_CAM_CTRL_STEP( OA_CAM_CTRL_HFLIP ) = 1;
 					commonInfo->OA_CAM_CTRL_DEF( OA_CAM_CTRL_HFLIP ) = 0;
 				} else {
-					if ( err == GENICAM_ERR_ACCESS ) {
+					if ( err == SPINNAKER_ERR_GENICAM_ACCESS ) {
 						oaLogWarning ( OA_LOG_CAMERA,
 								"%s: ReverseX returns Genicam access error", __func__ );
 					} else {

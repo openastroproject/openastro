@@ -2,7 +2,7 @@
  *
  * Spincontroller.c -- Main camera controller thread
  *
- * Copyright 2021  James Fidell (james@openastroproject.org)
+ * Copyright 2021,2023  James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -143,7 +143,7 @@ _SpinFrameCallback ( spinImage imageData, void *ptr )
 			SPINNAKER_ERR_SUCCESS ) {
 		if (( *p_spinImageGetStatus )( imageData, &status ) !=
 				SPINNAKER_ERR_SUCCESS ) {
-			status = IMAGE_UNKNOWN_ERROR;
+			status = SPINNAKER_IMAGE_STATUS_UNKNOWN_ERROR;
 		}
 		oaLogError ( OA_LOG_CAMERA, "%s: incomplete image; status %d, ignoring",
 				__func__, status );
