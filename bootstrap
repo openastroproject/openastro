@@ -1,10 +1,13 @@
 #!/bin/sh
 
 set -x -e
+echo "Processing top level..."
 autoreconf -fvi
 
 for extdir in ext/libdc1394 ext/libhidapi ext/libusb
 do
+  echo
+  echo "Processing $extdir..."
   cd $extdir
   if [ -f bootstrap.sh ]
   then
