@@ -89,7 +89,7 @@ oaQHYCameraDeviceLoadFirmware ( oaCameraDevice* device )
     return -OA_ERR_FXLOAD_NOT_FOUND;
   }
 
-  numCommands = sizeof ( firmwareLoadCommands ) / sizeof ( commandByUSBID* );
+  numCommands = sizeof ( firmwareLoadCommands ) / ( sizeof ( commandByUSBID* ));
   _private = device->_private;
   bus = _private->devIndex >> 8;
   addr = _private->devIndex & 0xff;
