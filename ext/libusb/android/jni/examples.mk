@@ -16,39 +16,67 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
-LOCAL_PATH:= $(call my-dir)
-LIBUSB_ROOT_REL:= ../..
-LIBUSB_ROOT_ABS:= $(LOCAL_PATH)/../..
+LOCAL_PATH := $(call my-dir)
+LIBUSB_ROOT_REL := ../..
+LIBUSB_ROOT_ABS := $(LOCAL_PATH)/../..
 
-# listdevs
+ifeq ($(USE_PC_NAME),1)
+  LIBUSB_MODULE := usb-1.0
+else
+  LIBUSB_MODULE := libusb1.0
+endif
+
+# dpfp
 
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
-  $(LIBUSB_ROOT_REL)/examples/listdevs.c
+  $(LIBUSB_ROOT_REL)/examples/dpfp.c
 
 LOCAL_C_INCLUDES += \
+  $(LOCAL_PATH)/.. \
   $(LIBUSB_ROOT_ABS)
 
-LOCAL_SHARED_LIBRARIES += libusb1.0
+LOCAL_SHARED_LIBRARIES += $(LIBUSB_MODULE)
 
-LOCAL_MODULE:= listdevs
+LOCAL_MODULE := dpfp
 
 include $(BUILD_EXECUTABLE)
 
-# xusb
+# dpfp_threaded
 
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
-  $(LIBUSB_ROOT_REL)/examples/xusb.c
+  $(LIBUSB_ROOT_REL)/examples/dpfp.c
 
 LOCAL_C_INCLUDES += \
+  $(LOCAL_PATH)/.. \
   $(LIBUSB_ROOT_ABS)
 
-LOCAL_SHARED_LIBRARIES += libusb1.0
+LOCAL_CFLAGS := -DDPFP_THREADED -pthread
 
-LOCAL_MODULE:= xusb
+LOCAL_SHARED_LIBRARIES += $(LIBUSB_MODULE)
+
+LOCAL_MODULE := dpfp_threaded
+
+include $(BUILD_EXECUTABLE)
+
+# fxload
+
+include $(CLEAR_VARS)
+
+LOCAL_SRC_FILES := \
+  $(LIBUSB_ROOT_REL)/examples/ezusb.c \
+  $(LIBUSB_ROOT_REL)/examples/fxload.c
+
+LOCAL_C_INCLUDES += \
+  $(LOCAL_PATH)/.. \
+  $(LIBUSB_ROOT_ABS)
+
+LOCAL_SHARED_LIBRARIES += $(LIBUSB_MODULE)
+
+LOCAL_MODULE := fxload
 
 include $(BUILD_EXECUTABLE)
 
@@ -60,32 +88,33 @@ LOCAL_SRC_FILES := \
   $(LIBUSB_ROOT_REL)/examples/hotplugtest.c
 
 LOCAL_C_INCLUDES += \
+  $(LOCAL_PATH)/.. \
   $(LIBUSB_ROOT_ABS)
 
-LOCAL_SHARED_LIBRARIES += libusb1.0
+LOCAL_SHARED_LIBRARIES += $(LIBUSB_MODULE)
 
-LOCAL_MODULE:= hotplugtest
+LOCAL_MODULE := hotplugtest
 
 include $(BUILD_EXECUTABLE)
 
-# fxload
+# listdevs
 
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
-  $(LIBUSB_ROOT_REL)/examples/fxload.c \
-  $(LIBUSB_ROOT_REL)/examples/ezusb.c
+  $(LIBUSB_ROOT_REL)/examples/listdevs.c
 
 LOCAL_C_INCLUDES += \
+  $(LOCAL_PATH)/.. \
   $(LIBUSB_ROOT_ABS)
 
-LOCAL_SHARED_LIBRARIES += libusb1.0
+LOCAL_SHARED_LIBRARIES += $(LIBUSB_MODULE)
 
-LOCAL_MODULE:= fxload
+LOCAL_MODULE := listdevs
 
 include $(BUILD_EXECUTABLE)
 
-# sam3u_benchmake
+# sam3u_benchmark
 
 include $(CLEAR_VARS)
 
@@ -93,42 +122,47 @@ LOCAL_SRC_FILES := \
   $(LIBUSB_ROOT_REL)/examples/sam3u_benchmark.c
 
 LOCAL_C_INCLUDES += \
+  $(LOCAL_PATH)/.. \
   $(LIBUSB_ROOT_ABS)
 
-LOCAL_SHARED_LIBRARIES += libusb1.0
+LOCAL_SHARED_LIBRARIES += $(LIBUSB_MODULE)
 
-LOCAL_MODULE:= sam3u_benchmark
+LOCAL_MODULE := sam3u_benchmark
 
 include $(BUILD_EXECUTABLE)
 
-# dpfp
+# xusb
 
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
-  $(LIBUSB_ROOT_REL)/examples/dpfp.c
+  $(LIBUSB_ROOT_REL)/examples/xusb.c
 
 LOCAL_C_INCLUDES += \
+  $(LOCAL_PATH)/.. \
   $(LIBUSB_ROOT_ABS)
 
-LOCAL_SHARED_LIBRARIES += libusb1.0
+LOCAL_SHARED_LIBRARIES += $(LIBUSB_MODULE)
 
-LOCAL_MODULE:= dpfp
+LOCAL_MODULE := xusb
 
 include $(BUILD_EXECUTABLE)
 
-# dpfp_threaded
+# unrooted_android
 
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
-  $(LIBUSB_ROOT_REL)/examples/dpfp_threaded.c
+  $(LIBUSB_ROOT_REL)/android/examples/unrooted_android.c
 
 LOCAL_C_INCLUDES += \
+  $(LOCAL_PATH)/.. \
   $(LIBUSB_ROOT_ABS)
 
 LOCAL_SHARED_LIBRARIES += libusb1.0
 
-LOCAL_MODULE:= dpfp_threaded
+LOCAL_LDLIBS += -llog
 
-include $(BUILD_EXECUTABLE)
+LOCAL_MODULE := unrooted_android
+
+include $(BUILD_SHARED_LIBRARY)

@@ -116,6 +116,8 @@ EXPORTS
   libusb_has_capability@4 = libusb_has_capability
   libusb_hotplug_deregister_callback
   libusb_hotplug_deregister_callback@8 = libusb_hotplug_deregister_callback
+  libusb_hotplug_get_user_data
+  libusb_hotplug_get_user_data@8 = libusb_hotplug_get_user_data
   libusb_hotplug_register_callback
   libusb_hotplug_register_callback@36 = libusb_hotplug_register_callback
   libusb_init
@@ -148,12 +150,12 @@ EXPORTS
   libusb_set_configuration@8 = libusb_set_configuration
   libusb_set_debug
   libusb_set_debug@8 = libusb_set_debug
-  libusb_set_log_cb
-  libusb_set_log_cb@12 = libusb_set_log_cb
   libusb_set_interface_alt_setting
   libusb_set_interface_alt_setting@12 = libusb_set_interface_alt_setting
+  libusb_set_log_cb
+  libusb_set_log_cb@12 = libusb_set_log_cb
   libusb_set_option
-  _libusb_set_option = libusb_set_option
+  libusb_set_option@8 = libusb_set_option
   libusb_set_pollfd_notifiers
   libusb_set_pollfd_notifiers@16 = libusb_set_pollfd_notifiers
   libusb_setlocale
@@ -176,3 +178,5 @@ EXPORTS
   libusb_unref_device@4 = libusb_unref_device
   libusb_wait_for_event
   libusb_wait_for_event@8 = libusb_wait_for_event
+  libusb_wrap_sys_device
+  libusb_wrap_sys_device@12 = libusb_wrap_sys_device

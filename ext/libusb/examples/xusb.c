@@ -18,34 +18,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
+#include <time.h>
 
 #include "libusb.h"
-
-#if defined(_WIN32)
-#define msleep(msecs) Sleep(msecs)
-#else
-#include <time.h>
-#define msleep(msecs) nanosleep(&(struct timespec){msecs / 1000, (msecs * 1000000) % 1000000000UL}, NULL);
-#endif
 
 #if defined(_MSC_VER)
 #define snprintf _snprintf
 #define putenv _putenv
-#endif
-
-#if !defined(bool)
-#define bool int
-#endif
-#if !defined(true)
-#define true (1 == 1)
-#endif
-#if !defined(false)
-#define false (!true)
 #endif
 
 // Future versions of libusb will use usb_interface instead of interface
@@ -57,6 +42,16 @@ static bool binary_dump = false;
 static bool extra_info = false;
 static bool force_device_request = false;	// For WCID descriptor queries
 static const char* binary_name = NULL;
+
+static inline void msleep(int msecs)
+{
+#if defined(_WIN32)
+	Sleep(msecs);
+#else
+	const struct timespec ts = { msecs / 1000, (msecs % 1000) * 1000000L };
+	nanosleep(&ts, NULL);
+#endif
+}
 
 static void perr(char const *format, ...)
 {
@@ -225,7 +220,7 @@ static int display_ps3_status(libusb_device_handle *handle)
 			printf("\tRIGHT 3 pressed\n");
 			break;
 		case 0x08:
-			printf("\tSTART presed\n");
+			printf("\tSTART pressed\n");
 			break;
 		case 0x10:
 			printf("\tUP pressed\n");
@@ -251,7 +246,7 @@ static int display_ps3_status(libusb_device_handle *handle)
 			printf("\tLEFT 1 pressed\n");
 			break;
 		case 0x08:
-			printf("\tRIGHT 1 presed\n");
+			printf("\tRIGHT 1 pressed\n");
 			break;
 		case 0x10:
 			printf("\tTRIANGLE pressed\n");
@@ -868,6 +863,8 @@ static int test_device(uint16_t vid, uint16_t pid)
 
 	printf("\nReading first configuration descriptor:\n");
 	CALL_CHECK_CLOSE(libusb_get_config_descriptor(dev, 0, &conf_desc), handle);
+	printf("              total length: %d\n", conf_desc->wTotalLength);
+	printf("         descriptor length: %d\n", conf_desc->bLength);
 	nb_ifaces = conf_desc->bNumInterfaces;
 	printf("             nb interfaces: %d\n", nb_ifaces);
 	if (nb_ifaces > 0)
@@ -919,6 +916,8 @@ static int test_device(uint16_t vid, uint16_t pid)
 	libusb_set_auto_detach_kernel_driver(handle, 1);
 	for (iface = 0; iface < nb_ifaces; iface++)
 	{
+		int ret = libusb_kernel_driver_active(handle, iface);
+		printf("\nKernel driver attached for interface %d: %d\n", iface, ret);
 		printf("\nClaiming interface %d...\n", iface);
 		r = libusb_claim_interface(handle, iface);
 		if (r != LIBUSB_SUCCESS) {
@@ -935,12 +934,16 @@ static int test_device(uint16_t vid, uint16_t pid)
 			printf("   String (0x%02X): \"%s\"\n", string_index[i], string);
 		}
 	}
-	// Read the OS String Descriptor
+
+	printf("\nReading OS string descriptor:");
 	r = libusb_get_string_descriptor(handle, MS_OS_DESC_STRING_INDEX, 0, (unsigned char*)string, MS_OS_DESC_STRING_LENGTH);
 	if (r == MS_OS_DESC_STRING_LENGTH && memcmp(ms_os_desc_string, string, sizeof(ms_os_desc_string)) == 0) {
 		// If this is a Microsoft OS String Descriptor,
 		// attempt to read the WinUSB extended Feature Descriptors
+		printf("\n");
 		read_ms_winsub_feature_descriptors(handle, string[MS_OS_DESC_VENDOR_CODE_OFFSET], first_iface);
+	} else {
+		printf(" no descriptor\n");
 	}
 
 	switch(test_mode) {
@@ -976,6 +979,7 @@ static int test_device(uint16_t vid, uint16_t pid)
 
 int main(int argc, char** argv)
 {
+	static char debug_env_str[] = "LIBUSB_DEBUG=4";	// LIBUSB_LOG_LEVEL_DEBUG
 	bool show_help = false;
 	bool debug_mode = false;
 	const struct libusb_version* version;
@@ -1103,7 +1107,7 @@ int main(int argc, char** argv)
 	// but since we can't call on libusb_set_option() before libusb_init(), we use the env variable method
 	old_dbg_str = getenv("LIBUSB_DEBUG");
 	if (debug_mode) {
-		if (putenv("LIBUSB_DEBUG=4") != 0)	// LIBUSB_LOG_LEVEL_DEBUG
+		if (putenv(debug_env_str) != 0)
 			printf("Unable to set debug level\n");
 	}
 
