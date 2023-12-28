@@ -1,9 +1,0 @@
-libdir=
-includedir=
-
-Name: libuvc
-Description: A user-space interface for UVC-compliant cameras.
-URL: https://github.com/ktossell/libuvc
-Version: 0.0.5
-Libs: -L${libdir} -luvc
-Cflags: -I${includedir}

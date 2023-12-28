@@ -1,128 +1,230 @@
-cmake_minimum_required(VERSION 2.8)
-project(libuvc)
+cmake_minimum_required(VERSION 3.1)
+project(libuvc
+  VERSION 0.0.7
+  LANGUAGES C
+)
 
-if (NOT CMAKE_BUILD_TYPE)
-  message(STATUS "No build type selected, default to Release")
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
-endif ()
+# Additional search scripts path for libusb-1.0, libjpeg, OpenCV
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
-if (NOT CMAKE_BUILD_TARGET)
-  message(STATUS "No target type selected, default to both shared and static library")
-  set(CMAKE_BUILD_TARGET "Both" CACHE STRING "" FORCE)
-endif()
-
-set(libuvc_VERSION_MAJOR 0)
-set(libuvc_VERSION_MINOR 0)
-set(libuvc_VERSION_PATCH 5)
-set(libuvc_VERSION ${libuvc_VERSION_MAJOR}.${libuvc_VERSION_MINOR}.${libuvc_VERSION_PATCH})
-
-set(libuvc_DESCRIPTION "A user-space interface for UVC-compliant cameras.")
-set(libuvc_URL "https://github.com/ktossell/libuvc")
-
-
-find_package(PkgConfig)
-pkg_check_modules(LIBUSB libusb-1.0)
-
-# Try to find JPEG using a module or pkg-config. If that doesn't work, search for the header.
-find_package(jpeg QUIET)
-if(NOT JPEG_FOUND)
-  find_path(JPEG_INCLUDE_DIR jpeglib.h)
-  if(JPEG_INCLUDE_DIR)
-    set(JPEG_FOUND ON)
-    set(JPEG_LIBRARIES -ljpeg)
+# Xcode and Visual Studio do not using CMAKE_BUILD_TYPE cache variable
+# so we use Release build type only with single configuration generators.
+if (NOT CMAKE_CONFIGURATION_TYPES)
+  if(NOT CMAKE_BUILD_TYPE)
+    message(STATUS "No build type selected, default to Release")
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
   endif()
 endif()
 
-SET(CMAKE_C_FLAGS_DEBUG "-g -DUVC_DEBUGGING")
+if(NOT CMAKE_BUILD_TARGET)
+    message(STATUS "No target type selected, default to both shared and static library")
+    set(CMAKE_BUILD_TARGET "Both" CACHE STRING "" FORCE)
+endif()
 
-SET(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/lib/cmake/libuvc" CACHE PATH
-	"Installation directory for CMake files")
+option(BUILD_EXAMPLE "Build example program" ON)
+option(BUILD_TEST "Build test program" OFF)
+option(ENABLE_UVC_DEBUGGING "Enable UVC debugging" OFF)
 
-SET(SOURCES src/ctrl.c src/ctrl-gen.c src/device.c src/diag.c
-           src/frame.c src/init.c src/stream.c
-           src/misc.c)
+set(libuvc_DESCRIPTION "A cross-platform library for USB video devices")
+set(libuvc_URL "https://github.com/libuvc/libuvc")
 
-include_directories(
-  ${libuvc_SOURCE_DIR}/include
-  ${libuvc_BINARY_DIR}/include
-  ${LIBUSB_INCLUDE_DIRS}
+set(SOURCES 
+  src/ctrl.c
+  src/ctrl-gen.c
+  src/device.c
+  src/diag.c
+  src/frame.c
+  src/init.c
+  src/stream.c
+  src/misc.c
 )
 
+find_package(LibUSB)
+
+# JpegPkg name to differ from shipped with CMake
+find_package(JpegPkg QUIET)
 if(JPEG_FOUND)
   message(STATUS "Building libuvc with JPEG support.")
-  include_directories(${JPEG_INCLUDE_DIR})
-  SET(LIBUVC_HAS_JPEG TRUE)
-  SET(SOURCES ${SOURCES} src/frame-mjpeg.c)
+  set(LIBUVC_HAS_JPEG TRUE)
+  list(APPEND SOURCES src/frame-mjpeg.c)
 else()
   message(WARNING "JPEG not found. libuvc will not support JPEG decoding.")
 endif()
 
+if(UNIX AND NOT APPLE)
+  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+  set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+  find_package(Threads REQUIRED)
+  set(threads Threads::Threads)
+endif()
+
 if(${CMAKE_BUILD_TARGET} MATCHES "Shared")
-  add_library(uvc SHARED ${SOURCES})
+  set(BUILD_UVC_SHARED TRUE)
 elseif(${CMAKE_BUILD_TARGET} MATCHES "Static")
-  add_library(uvc STATIC ${SOURCES})
+  set(BUILD_UVC_STATIC TRUE)
 elseif(${CMAKE_BUILD_TARGET} MATCHES "Both")
-  add_library(uvc SHARED ${SOURCES})
-  add_library(uvc_static STATIC ${SOURCES})
-  set_target_properties(uvc_static PROPERTIES OUTPUT_NAME uvc)
+  set(BUILD_UVC_SHARED TRUE)
+  set(BUILD_UVC_STATIC TRUE)
 else()
-  message( FATAL_ERROR "Invalid build type ${CMAKE_BUILD_TARGET}" )
+  message(FATAL_ERROR "Invalid build type ${CMAKE_BUILD_TARGET}" )
+endif()
+
+if(BUILD_UVC_SHARED)
+  add_library(uvc SHARED ${SOURCES})
+  set_target_properties(uvc PROPERTIES
+    VERSION ${libuvc_VERSION}
+    SOVERSION ${libuvc_VERSION_MAJOR}
+    # Exported name of target within namespace LibUVC
+    EXPORT_NAME UVCShared
+  )
+  list(APPEND UVC_TARGETS uvc)
+  if(NOT LibUVC_STATIC)  
+    add_library(LibUVC::UVC ALIAS uvc)
+  endif()
+  # Aliases defined here available only if project included 
+  # via addsubdirectory
+  add_library(LibUVC::UVCShared ALIAS uvc)
+endif()
+
+if(BUILD_UVC_STATIC)
+  add_library(uvc_static STATIC ${SOURCES})
+  set_target_properties(uvc_static PROPERTIES
+    OUTPUT_NAME uvc
+    # Exported name of target within namespace LibUVC
+    EXPORT_NAME UVCStatic
+  )
+  list(APPEND UVC_TARGETS uvc_static)
+  add_library(LibUVC::UVCStatic ALIAS uvc_static)
+  if(LibUVC_STATIC)
+    add_library(LibUVC::UVC ALIAS uvc_static)
+  endif()
 endif()
 
 configure_file(include/libuvc/libuvc_config.h.in
-  ${PROJECT_BINARY_DIR}/include/libuvc/libuvc_config.h @ONLY)
-
-set_target_properties(uvc PROPERTIES
-  PUBLIC_HEADER "include/libuvc/libuvc.h;${libuvc_BINARY_DIR}/include/libuvc/libuvc_config.h" )
-
-set_target_properties(uvc PROPERTIES VERSION ${libuvc_VERSION}
-                                         SOVERSION ${libuvc_VERSION_MAJOR})
-
-
-if(JPEG_FOUND)
-  target_link_libraries (uvc ${JPEG_LIBRARIES})
-endif(JPEG_FOUND)
-
-target_link_libraries(uvc ${LIBUSB_LIBRARIES})
-
-#add_executable(test src/test.c)
-#target_link_libraries(test uvc ${LIBUSB_LIBRARIES} opencv_highgui
-#  opencv_core)
-
-install(TARGETS uvc uvc_static
-  EXPORT libuvcTargets
-  LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_LIBRARY_ARCHITECTURE}"
-  ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_LIBRARY_ARCHITECTURE}"
-  PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_PREFIX}/include/libuvc"
-)
-
-export(TARGETS uvc
-  FILE "${PROJECT_BINARY_DIR}/libuvcTargets.cmake")
-export(PACKAGE libuvc)
-
-set(CONF_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
-set(CONF_LIBRARY_DIR "${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_LIBRARY_ARCHITECTURE}")
-set(CONF_LIBRARY "${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}uvc${CMAKE_SHARED_LIBRARY_SUFFIX}")
-
-configure_file(libuvcConfig.cmake.in ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/libuvcConfig.cmake)
-
-configure_file(libuvcConfigVersion.cmake.in ${PROJECT_BINARY_DIR}/libuvcConfigVersion.cmake @ONLY)
-
-install(FILES
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/libuvcConfig.cmake"
-  "${PROJECT_BINARY_DIR}/libuvcConfigVersion.cmake"
-  DESTINATION "${INSTALL_CMAKE_DIR}")
-
-install(EXPORT libuvcTargets
-  DESTINATION "${INSTALL_CMAKE_DIR}")
-
-# pkg-config
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/libuvc.pc.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/libuvc.pc"
+  include/libuvc/libuvc_config.h
   @ONLY
 )
-install(FILES
-  "${CMAKE_CURRENT_BINARY_DIR}/libuvc.pc"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
+
+foreach(target_name IN LISTS UVC_TARGETS)
+  target_include_directories(${target_name}
+    PUBLIC
+      # Different paths for includes for build and install phase supported 
+      # via INSTALL_INTERFACE and BUILD_INTERFACE generator expressions.
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+      $<INSTALL_INTERFACE:include>
+  )
+  target_link_libraries(${target_name}
+    # libusb-1.0 used internally so we link to it privately.
+    PRIVATE LibUSB::LibUSB ${threads}
+  )
+  if(JPEG_FOUND)
+    target_link_libraries(${target_name}
+      PRIVATE JPEG::JPEG
+    )
+  endif()
+  set_target_properties(${target_name} PROPERTIES
+      PUBLIC_HEADER "include/libuvc/libuvc.h;${CMAKE_CURRENT_BINARY_DIR}/include/libuvc/libuvc_config.h"
+  )
+  if(ENABLE_UVC_DEBUGGING)
+    target_compile_definitions(${target_name}
+      PRIVATE
+        UVC_DEBUGGING
+    )
+    find_library(
+            log-lib
+            log
+    )
+    target_link_libraries(
+            ${target_name}
+            PRIVATE
+            ${log-lib}
+    )
+  endif()
+endforeach()
+
+if(BUILD_EXAMPLE)
+  add_executable(example src/example.c)
+  find_package(Threads)
+  target_link_libraries(example
+    PRIVATE
+      LibUVC::UVC
+      Threads::Threads
+  )
+endif()
+
+if(BUILD_TEST)
+  # OpenCV defines targets with transitive dependencies not with namespaces but using opencv_ prefix. 
+  # This targets provide necessary include directories and linked flags.
+  find_package(OpenCVPkg REQUIRED
+    COMPONENTS
+      opencv_core
+      opencv_highgui
+  )
+
+  add_executable(uvc_test src/test.c)
+  target_link_libraries(uvc_test
+    PRIVATE
+      LibUVC::UVC
+      opencv_core
+      opencv_highgui
+  )
+endif()
+
+
+include(GNUInstallDirs)
+set(CMAKE_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/libuvc)
+
+install(
+  TARGETS ${UVC_TARGETS}
+  EXPORT libuvcTargets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/libuvc
 )
+
+install(EXPORT libuvcTargets
+  FILE libuvcTargets.cmake
+  NAMESPACE LibUVC::
+  DESTINATION ${CMAKE_INSTALL_CMAKEDIR}
+)
+
+install(FILES 
+    cmake/FindLibUSB.cmake
+    cmake/FindJpegPkg.cmake
+  DESTINATION ${CMAKE_INSTALL_CMAKEDIR}
+)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(libuvcConfigVersion.cmake
+  COMPATIBILITY AnyNewerVersion
+)
+
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/libuvcConfigVersion.cmake
+  DESTINATION ${CMAKE_INSTALL_CMAKEDIR}
+)
+
+if(JPEG_FOUND)
+  # If we have used JPEG library we need to 
+  # add linker flag for it in config file for pkgconfig
+  set(PKGCONFIG_JPEG_LDFLAG "-ljpeg")
+endif()
+
+configure_file(libuvc.pc.in
+  ${PROJECT_BINARY_DIR}/libuvc.pc
+  @ONLY
+)
+
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/libuvc.pc
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+)
+
+install(FILES libuvcConfig.cmake
+  DESTINATION ${CMAKE_INSTALL_CMAKEDIR}
+)
+
+

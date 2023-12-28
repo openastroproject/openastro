@@ -50,10 +50,18 @@
 
 #ifdef UVC_DEBUGGING
 #include <libgen.h>
+#ifdef __ANDROID__
+#include <android/log.h>
+#define UVC_DEBUG(format, ...) __android_log_print(ANDROID_LOG_DEBUG, "libuvc", "[%s:%d/%s] " format "\n", basename(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define UVC_ENTER() __android_log_print(ANDROID_LOG_DEBUG, "libuvc", "[%s:%d] begin %s\n", basename(__FILE__), __LINE__, __FUNCTION__)
+#define UVC_EXIT(code) __android_log_print(ANDROID_LOG_DEBUG, "libuvc", "[%s:%d] end %s (%d)\n", basename(__FILE__), __LINE__, __FUNCTION__, code)
+#define UVC_EXIT_VOID() __android_log_print(ANDROID_LOG_DEBUG, "libuvc", "[%s:%d] end %s\n", basename(__FILE__), __LINE__, __FUNCTION__)
+#else
 #define UVC_DEBUG(format, ...) fprintf(stderr, "[%s:%d/%s] " format "\n", basename(__FILE__), __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define UVC_ENTER() fprintf(stderr, "[%s:%d] begin %s\n", basename(__FILE__), __LINE__, __FUNCTION__)
 #define UVC_EXIT(code) fprintf(stderr, "[%s:%d] end %s (%d)\n", basename(__FILE__), __LINE__, __FUNCTION__, code)
 #define UVC_EXIT_VOID() fprintf(stderr, "[%s:%d] end %s\n", basename(__FILE__), __LINE__, __FUNCTION__)
+#endif
 #else
 #define UVC_DEBUG(format, ...)
 #define UVC_ENTER()
@@ -172,6 +180,7 @@ typedef struct uvc_streaming_interface {
   /** USB endpoint to use when communicating with this interface */
   uint8_t bEndpointAddress;
   uint8_t bTerminalLink;
+  uint8_t bStillCaptureMethod;
 } uvc_streaming_interface_t;
 
 /** VideoControl interface */
@@ -211,12 +220,18 @@ typedef struct uvc_device_info {
   avoids problems with scheduling delays on slow boards causing missed
   transfers. A better approach may be to make the transfer thread FIFO
   scheduled (if we have root).
-  We could/should change this to allow reduce it to, say, 5 by default
-  and then allow the user to change the number of buffers as required.
+  Default number of transfer buffers can be overwritten by defining
+  this macro.
  */
+#ifndef LIBUVC_NUM_TRANSFER_BUFS
+#if defined(__APPLE__) && defined(__MACH__)
+#define LIBUVC_NUM_TRANSFER_BUFS 20
+#else
 #define LIBUVC_NUM_TRANSFER_BUFS 100
+#endif
+#endif
 
-#define LIBUVC_XFER_BUF_SIZE	( 16 * 1024 * 1024 )
+#define LIBUVC_XFER_META_BUF_SIZE ( 4 * 1024 )
 
 struct uvc_stream_handle {
   struct uvc_device_handle *devh;
@@ -227,8 +242,6 @@ struct uvc_stream_handle {
   uint8_t running;
   /** Current control block */
   struct uvc_stream_ctrl cur_ctrl;
-  /** status of last transfer */
-  enum libusb_transfer_status transfer_status;
 
   /* listeners may only access hold*, and only when holding a
    * lock on cb_mutex (probably signaled with cb_cond) */
@@ -248,6 +261,11 @@ struct uvc_stream_handle {
   uint8_t *transfer_bufs[LIBUVC_NUM_TRANSFER_BUFS];
   struct uvc_frame frame;
   enum uvc_frame_format frame_format;
+  struct timespec capture_time_finished;
+
+  /* raw metadata buffer if available */
+  uint8_t *meta_outbuf, *meta_holdbuf;
+  size_t meta_got_bytes, meta_hold_bytes;
 };
 
 /** Handle on an open UVC device
