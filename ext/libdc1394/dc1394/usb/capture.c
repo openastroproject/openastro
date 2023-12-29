@@ -423,9 +423,9 @@ dc1394_usb_capture_dequeue (platform_camera_t * craw,
     int next = NEXT_BUFFER (craw, craw->current);
     struct usb_frame * f = craw->frames + next;
 
-    if ((policy < DC1394_CAPTURE_POLICY_MIN)
-            || (policy > DC1394_CAPTURE_POLICY_MAX))
+    if (policy < DC1394_CAPTURE_POLICY_MIN || policy > DC1394_CAPTURE_POLICY_MAX) {
         return DC1394_INVALID_CAPTURE_POLICY;
+	}
 
 	if(craw->buffer==NULL || craw->capture_is_set==0) {
 		*frame_return=NULL;

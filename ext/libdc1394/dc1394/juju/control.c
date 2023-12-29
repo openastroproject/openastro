@@ -105,7 +105,7 @@ dc1394_juju_get_device_list (platform_t * p)
     }
 
     while ((de = readdir(dir))) {
-        char filename[32];
+        char filename[262];
         int fd;
         platform_device_t * device;
         struct fw_cdev_get_info get_info;

@@ -28,7 +28,7 @@
 #include "../control.h"
 #include "basler_sff_registry.h"
 
-const struct sff_feature const sff_feature_registry[] = {
+const struct sff_feature sff_feature_registry[] = {
     /* DC1394_BASLER_SFF_EXTENDED_DATA_STREAM */
     {
         /* name       */ "Extended Data Stream",
