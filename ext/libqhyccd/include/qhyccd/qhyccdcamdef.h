@@ -405,6 +405,40 @@
 #define DEVICETYPE_QHY991                4111
 #define DEVICETYPE_QHY1253               4112
 #define DEVICETYPE_QHY5III415            4113
+
+#define DEVICETYPE_QHY1920             4114
+#define DEVICETYPE_QHY1920M            4115
+#define DEVICETYPE_QHY1920C            4116
+
+#define DEVICETYPE_QHY9701             4117
+#define DEVICETYPE_QHY530              4118
+
+#define DEVICETYPE_QHY600M_OEM     		4119
+#define DEVICETYPE_QHY533M              4120
+#define DEVICETYPE_QHY5III200M              4121
+#define DEVICETYPE_QHY5III585C              4122
+#define DEVICETYPE_QHY10768              4123
+#define DEVICETYPE_QHY6060Pro              4124
+
+#define DEVICETYPE_QHY5III678              4125
+#define DEVICETYPE_QHY5III678C             4126
+#define DEVICETYPE_QHY5III678M             4127
+
+#define DEVICETYPE_QHY342PRO              4128
+
+#define DEVICETYPE_QHY5III715              4129
+#define DEVICETYPE_QHY5III715C             4130
+#define DEVICETYPE_QHY5III715M             4131
+
+#define DEVICETYPE_QHY630T                 4132
+
+#define DEVICETYPE_QHY268_OEM              4133
+#define DEVICETYPE_QHY268M_OEM             4134
+#define DEVICETYPE_QHY268C_OEM             4135
+
+#define DEVICETYPE_QHY5III568M             4136
+#define DEVICETYPE_QHY5III568C             4137
+
 /**
  * Type define for QHY5IIIEND*/
 #define DEVICETYPE_QHY5IIIEND   	4999
@@ -569,7 +603,12 @@
 #define DEVICETYPE_QHY411ERISPCIE  		0X6618c414
 #define DEVICETYPE_QHY600PCIE      		0X6618c603
 #define DEVICETYPE_QHY268PCIE      		0X6618c269
+#define DEVICETYPE_QHY530PCIE      		0X6618c531
+#define DEVICETYPE_QHY6060P_PCIE      	0X66186063
+#define DEVICETYPE_QHY990PCIE      		0X6618c991
+#define DEVICETYPE_QHY991PCIE      		0X6618d992
 #define DEVICETYPE_QHY461PCIE      		0X6618c462
+#define DEVICETYPE_QHY342PCIE      		0X66180345
 
 
 
@@ -989,8 +1028,8 @@
 
 /**
  * Type define for QHY-DevelopDev*/
-#define QHY5IIICOMMON_MAX_WIDTH      4144//3864//5680//2712//3864// 2712// 1408    //8432  	
-#define QHY5IIICOMMON_MAX_HEIGHT     3064//2192//3710//1538//2180// 1538// 1052    //5648	  
+#define QHY5IIICOMMON_MAX_WIDTH      14304//6280//5336//4144//3864//5680//2712//3864// 2712// 1408    //8432  	
+#define QHY5IIICOMMON_MAX_HEIGHT     10748//4210//4908//3064//2192//3710//1538//2180// 1538// 1052    //5648	  
 
 /**
  * Type define for QHY247*/
@@ -1052,6 +1091,9 @@
 #define QHY4040PRO_MAX_WIDTH        	4096
 #define QHY4040PRO_MAX_HEIGHT        	4118
 
+#define QHY342PRO_MAX_WIDTH        	6488
+#define QHY342PRO_MAX_HEIGHT        	4870
+
 
 #define QHY550_MAX_WIDTH        	2496
 #define QHY550_MAX_HEIGHT        	2080
@@ -1068,11 +1110,49 @@
 #define QHY6060_MAX_WIDTH        	7936
 #define QHY6060_MAX_HEIGHT        	6134
 
+#define QHY10768_MAX_WIDTH        	1028
+#define QHY10768_MAX_HEIGHT        	50
+
 #define QHY411_MAX_WIDTH        	14304
 #define QHY411_MAX_HEIGHT        	10748
 
+// 10802-92-54=10656 max_y-topBlank-bottomBlank=imageHeight
+// 14304-48-48=14208 max_x-leftBlank-rightBlank=imageWidth
+// only y-shift is supported by most sensor
 #define QHY411ERIS_MAX_WIDTH        14304
-#define QHY411ERIS_MAX_HEIGHT       10748
+// the target image is  W 14304 H 10748, top blank cut by soft roi, so, have to add 38 to bottom
+#define QHY411ERIS_MAX_HEIGHT       (10802 + 38)
+// can not use isOverscanRemoved=false to get a black border image in sharpCap,because sharpCap use effective size to set whole image size, not like ezcap or ascom driver
+#define QHY411ERIS_Left_Blank_single       48
+#define QHY411ERIS_right_Blank_single      48
+#define QHY411ERIS_Left_Blank_live       0
+#define QHY411ERIS_right_Blank_live      0
+#define QHY411ERIS_Top_Blank        92
+//81 is a default shift value, set to 81 can save data size
+#define QHY411ERIS_M_Default_SHIFT  81
+// for color sensor, shift value must be an odd number
+#define QHY411ERIS_C_Default_SHIFT  81
+// bottom can be set to 0 to reduce data size (set bottom to 0 and set max_height to 10748 (but now we need overScan area and fit to W 14304 H 10748 , so, can not set to 0)
+//#define QHY411ERIS_Bottom_Blank     (54 + 38)
+#define QHY411ERIS_Bottom_Blank_live     (0 + 0)
+#define QHY411ERIS_Bottom_Blank_single     (54 + 38)
+
+
+#define QHY411ERIS_BIN33_MAX_WIDTH        4768
+#define QHY411ERIS_BIN33_MAX_HEIGHT       3588
+#define QHY411ERIS_M_BIN33_Left_Blank       16
+#define QHY411ERIS_M_BIN33_right_Blank      16
+#define QHY411ERIS_BIN33_Top_Blank        34
+
+#define QHY411ERIS_BIN33_M_C_Default_SHIFT  27
+//for onchip 3*3binning. in camera firmware it is input * 3 . it can be both odd or even
+#define QHY411ERIS_BIN33_M_Default_SHIFT  28
+// for color sensor, shift value must be an odd number
+#define QHY411ERIS_BIN33_C_Default_SHIFT  85
+// bottom can be set to 0 to reduce data size (set bottom to 0 and set max_height to 10748
+#define QHY411ERIS_BIN33_Bottom_Blank     6
+
+
 
 #define QHY600_MAX_WIDTH        	9600
 #define QHY600_MAX_HEIGHT        	6422
@@ -1081,7 +1161,7 @@
 #define QHY461_MAX_WIDTH		   11760
 #define QHY461_MAX_HEIGHT		   8842
 
-#define QHY268C_MAX_WIDTH        6280
+#define QHY268C_MAX_WIDTH        6288
 #define QHY268C_MAX_HEIGHT       4210
 
 #define QHY410C_MAX_WIDTH        6112
@@ -1294,7 +1374,7 @@
 
 #define		MAX_CAMERA_NUMBER		200
 #define		CAMERA_ID_LENGTH		64   //(CAMERA_ID_LENGTH and ID_STR_LEN) more like a full ID length: QHY178-xxxxx(Mode included)
-#define   	MAXDEVICES 				10
+#define   	MAXDEVICES 				15
 
 
 #define		MAX_READMODE_NAME			256
@@ -1339,6 +1419,13 @@
 
 #define   SINGLE_MODE 								0
 #define   LIVE_MODE 								1
+
+#define   QHYCCDParam_On            1
+#define   QHYCCDParam_Off           0
+#define   QHYCCDParam_AirPump_On           3
+#define   QHYCCDParam_AirPump_Off          4
+
+#define   FLASH_CONFIG_PAGE_INDEX					1
 
 #define   FPGA_MODE_DEFAULT 						99
 #define   FPGA_MODE_12_47M 								12     //14bit rigister= 11M  12bit rigister = 47M
