@@ -2,7 +2,7 @@
  *
  * ptrController.c -- PTR device control functions
  *
- * Copyright 2015,2016,2017,2018,2019,2020,2021
+ * Copyright 2015,2016,2017,2018,2019,2020,2021,2023
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -829,7 +829,7 @@ _processGPSFetchCached ( PRIVATE_INFO* deviceInfo, OA_COMMAND* command )
 static void
 _readResultCode ( PRIVATE_INFO* deviceInfo, int idx )
 {
-	char	readBuffer[ 16 ];
+	char	readBuffer[ 64 ]; // This is a magic number.  See _readTimestamp()
 	int		numRead, i;
 
 	// FIX ME -- this is all a bit gross, copying code and being a bit
