@@ -2,7 +2,8 @@
  *
  * oaser.c -- main SER library entrypoint
  *
- * Copyright 2013,2014,2016,2019 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2016,2019,2023
+ *		James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -28,8 +29,9 @@
 #include <openastro/SER.h>
 
 #include <time.h>
-#include <sys/time.h>
-#include <fcntl.h>
+#if HAVE_FCNTL_H
+# include <fcntl.h>
+#endif
 
 
 static void    _oaSERInitMicrosoftTimestamp();
