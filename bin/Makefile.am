@@ -1,7 +1,8 @@
 #
 # Makefile.am -- for bin utilities
 #
-# Copyright 2013,2014,2018 James Fidell (james@openastroproject.org)
+# Copyright 2013,2014,2018,2023
+#		James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -28,7 +29,7 @@ all: $(HELPERS)
 
 %.sh: %.sh.in $(top_srcdir)/version
 	-rm -f $@
-	sed -e "s/##FULL_VERSION##/`cat $(top_srcdir)/version`/g" >$@ $<
+	sed -e "s/@FULL_VERSION@/`cat $(top_srcdir)/version`/g" >$@ $<
 	chmod +x $@
 
 install:
