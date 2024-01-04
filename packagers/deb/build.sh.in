@@ -2,7 +2,8 @@
 #
 # build.sh.in -- helper script for .deb build
 #
-# Copyright 2017,2018 James Fidell (james@openastroproject.org)
+# Copyright 2017,2018,2023
+#		James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -28,7 +29,7 @@ set -e
 export DEBEMAIL=james@openastro.org
 export DEBFULLNAME="James Fidell"
 
-version="##FULL_VERSION##"
+version="@FULL_VERSION@"
 
 srcdir=oacapture-$version
 debdir=debian

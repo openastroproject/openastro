@@ -1,7 +1,8 @@
 #
 # oacapture.spec.in -- RPM spec file for building oacapture
 #
-# Copyright 2017,2018,2020 James Fidell (james@openastroproject.org)
+# Copyright 2017,2018,2020,2023
+#		James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -22,14 +23,14 @@
 # <http://www.gnu.org/licenses/>.
 #
 Name:           oacapture
-Version:        ##FULL_VERSION##
+Version:        @FULL_VERSION@
 Release:        1
 Summary:        planetary capture application
 License:        GPL-3
 URL:            http://www.openastroproject.org/
 Prefix:         %{_prefix}
 Provides:       oacapture = %{version}-%{release}
-Obsoletes:      oacapture < ##FULL_VERSION##
+Obsoletes:      oacapture < @FULL_VERSION@
 Requires:       libtiff
 Requires:       libdc1394
 Requires:       systemd

@@ -2,7 +2,8 @@
 #
 # clean.sh.in -- helper script for cleaning up deb build
 #
-# Copyright 2017,2018 James Fidell (james@openastroproject.org)
+# Copyright 2017,2018,2023
+#		James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -23,7 +24,7 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-version="##FULL_VERSION##"
+version="@FULL_VERSION@"
 
 rm -fr oacapture-$version
 rm -fr oacapture_*

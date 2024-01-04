@@ -1,7 +1,8 @@
 #
 # Makefile.am -- deb packagers Makefile template
 #
-# Copyright 2018,2019 James Fidell (james@openastroproject.org)
+# Copyright 2018,2019,2023
+#		James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -30,7 +31,7 @@ all: $(HELPERS)
 
 %.sh: %.sh.in $(top_srcdir)/version
 	rm -f $@
-	sed -e "s/##FULL_VERSION##/`cat $(top_srcdir)/version`/g" >$@ $<
+	sed -e "s/@FULL_VERSION@/`cat $(top_srcdir)/version`/g" >$@ $<
 	chmod +x $@
 
 install:
