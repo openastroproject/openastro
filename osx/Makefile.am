@@ -1,7 +1,8 @@
 #
 # Makefile.am -- lib Makefile template
 #
-# Copyright 2019 James Fidell (james@openastroproject.org)
+# Copyright 2019,2023
+#		James Fidell (james@openastroproject.org)
 #
 # License:
 #
@@ -28,9 +29,12 @@ BUILT_SOURCES = oacapture.plist oalive.plist
 
 %.plist: %.plist.in $(top_srcdir)/version
 	-rm -f -f $@.tmp
-	maj=`cat $(top_srcdir)/version | cut -d. -f1`; \
-	min=`cat $(top_srcdir)/version | cut -d. -f2`; \
-	rev=`cat $(top_srcdir)/version | cut -d. -f3`; \
-	sed -e "s/##MAJOR_VERSION##/$$maj/g" -e "s/##MINOR_VERSION##/$$min/g" \
-		-e "s/##REVISION##/$$rev/g" >$@.tmp $<
+	sed -e "s/@FULL_VERSION@/`cat $(top_srcdir)/version`/g" >$@.tmp $<
 	cmp -s $@.tmp $@ || ( rm -f $@ && mv $@.tmp $@ )
+
+install:
+
+clean:
+
+mostlyclean-local:
+	-rm -rf $(BUILT_SOURCES)

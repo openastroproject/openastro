@@ -9,7 +9,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>org.openastroproject.oacapture</string>
 	<key>CFBundleVersion</key>
-	<string>##MAJOR_VERSION##.##MINOR_VERSION##.##REVISION##</string>
+	<string>@FULL_VERSION@</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
@@ -17,7 +17,7 @@
 	<key>CFBundleExecutable</key>
 	<string>oaCapture</string>
 	<key>CFBundleShortVersionString</key>
-	<string>##MAJOR_VERSION##.##MINOR_VERSION##.##REVISION##</string>
+	<string>@FULL_VERSION@string>
 	<key>CFBundleIconFile</key>
 	<string>oaCapture.icns</string>
 </dict>
