@@ -30,6 +30,7 @@
 #include "libavutil/avutil.h"
 #include "libavutil/intmath.h"
 #include "libavutil/log.h"
+#include "libavutil/mem_internal.h"
 #include "postprocess.h"
 
 #define V_DEBLOCK       0x01
@@ -149,9 +150,9 @@ typedef struct PPContext{
     DECLARE_ALIGNED(32, uint64_t, mmxDcOffset)[64];
     DECLARE_ALIGNED(32, uint64_t, mmxDcThreshold)[64];
 
-    QP_STORE_T *stdQPTable;       ///< used to fix MPEG2 style qscale
-    QP_STORE_T *nonBQPTable;
-    QP_STORE_T *forcedQPTable;
+    int8_t *stdQPTable;       ///< used to fix MPEG2 style qscale
+    int8_t *nonBQPTable;
+    int8_t *forcedQPTable;
 
     int QP;
     int nonBQP;

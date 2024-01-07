@@ -62,7 +62,7 @@ typedef struct SIFFContext {
     uint8_t gmc[4];
 } SIFFContext;
 
-static int siff_probe(AVProbeData *p)
+static int siff_probe(const AVProbeData *p)
 {
     uint32_t tag = AV_RL32(p->buf + 8);
     /* check file header */
@@ -78,12 +78,12 @@ static int create_audio_stream(AVFormatContext *s, SIFFContext *c)
     ast = avformat_new_stream(s, NULL);
     if (!ast)
         return AVERROR(ENOMEM);
-    ast->codec->codec_type            = AVMEDIA_TYPE_AUDIO;
-    ast->codec->codec_id              = AV_CODEC_ID_PCM_U8;
-    ast->codec->channels              = 1;
-    ast->codec->channel_layout        = AV_CH_LAYOUT_MONO;
-    ast->codec->bits_per_coded_sample = 8;
-    ast->codec->sample_rate           = c->rate;
+    ast->codecpar->codec_type            = AVMEDIA_TYPE_AUDIO;
+    ast->codecpar->codec_id              = AV_CODEC_ID_PCM_U8;
+    ast->codecpar->channels              = 1;
+    ast->codecpar->channel_layout        = AV_CH_LAYOUT_MONO;
+    ast->codecpar->bits_per_coded_sample = 8;
+    ast->codecpar->sample_rate           = c->rate;
     avpriv_set_pts_info(ast, 16, 1, c->rate);
     ast->start_time                   = 0;
     return 0;
@@ -123,14 +123,14 @@ static int siff_parse_vbv1(AVFormatContext *s, SIFFContext *c, AVIOContext *pb)
     st = avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
-    st->codec->codec_type = AVMEDIA_TYPE_VIDEO;
-    st->codec->codec_id   = AV_CODEC_ID_VB;
-    st->codec->codec_tag  = MKTAG('V', 'B', 'V', '1');
-    st->codec->width      = width;
-    st->codec->height     = height;
-    st->codec->pix_fmt    = AV_PIX_FMT_PAL8;
-    st->nb_frames         =
-    st->duration          = c->frames;
+    st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
+    st->codecpar->codec_id   = AV_CODEC_ID_VB;
+    st->codecpar->codec_tag  = MKTAG('V', 'B', 'V', '1');
+    st->codecpar->width      = width;
+    st->codecpar->height     = height;
+    st->codecpar->format     = AV_PIX_FMT_PAL8;
+    st->nb_frames            =
+    st->duration             = c->frames;
     avpriv_set_pts_info(st, 16, 1, 12);
 
     c->cur_frame = 0;
@@ -192,6 +192,7 @@ static int siff_read_header(AVFormatContext *s)
 static int siff_read_packet(AVFormatContext *s, AVPacket *pkt)
 {
     SIFFContext *c = s->priv_data;
+    int ret;
 
     if (c->has_video) {
         unsigned int size;
@@ -200,6 +201,8 @@ static int siff_read_packet(AVFormatContext *s, AVPacket *pkt)
         if (c->curstrm == -1) {
             c->pktsize = avio_rl32(s->pb) - 4;
             c->flags   = avio_rl16(s->pb);
+            if (c->flags & VB_HAS_AUDIO && !c->has_audio)
+                return AVERROR_INVALIDDATA;
             c->gmcsize = (c->flags & VB_HAS_GMC) ? 4 : 0;
             if (c->gmcsize)
                 avio_read(s->pb, c->gmc, c->gmcsize);
@@ -213,13 +216,12 @@ static int siff_read_packet(AVFormatContext *s, AVPacket *pkt)
 
             size = c->pktsize - c->sndsize - c->gmcsize - 2;
             size = ffio_limit(s->pb, size);
-            if (av_new_packet(pkt, size + c->gmcsize + 2) < 0)
-                return AVERROR(ENOMEM);
+            if ((ret = av_new_packet(pkt, size + c->gmcsize + 2)) < 0)
+                return ret;
             AV_WL16(pkt->data, c->flags);
             if (c->gmcsize)
                 memcpy(pkt->data + 2, c->gmc, c->gmcsize);
             if (avio_read(s->pb, pkt->data + 2 + c->gmcsize, size) != size) {
-                av_free_packet(pkt);
                 return AVERROR_INVALIDDATA;
             }
             pkt->stream_index = 0;

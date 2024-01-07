@@ -23,6 +23,7 @@
 #include "neon.S"
 
 function ff_h264_idct_add_neon, export=1
+.L_ff_h264_idct_add_neon:
         ld1             {v0.4H, v1.4H, v2.4H, v3.4H},  [x1]
         sxtw            x2,     w2
         movi            v30.8H, #0
@@ -33,25 +34,25 @@ function ff_h264_idct_add_neon, export=1
         sshr            v17.4H, v3.4H,  #1
         st1             {v30.8H},    [x1], #16
         sub             v5.4H,  v0.4H,  v2.4H
-        add             v6.4H,  v1.4H,  v17.4H
-        sub             v7.4H,  v16.4H, v3.4H
-        add             v0.4H,  v4.4H,  v6.4H
-        add             v1.4H,  v5.4H,  v7.4H
-        sub             v2.4H,  v4.4H,  v6.4H
-        sub             v3.4H,  v5.4H,  v7.4H
+        sub             v6.4H,  v16.4H, v3.4H
+        add             v7.4H,  v1.4H,  v17.4H
+        add             v0.4H,  v4.4H,  v7.4H
+        add             v1.4H,  v5.4H,  v6.4H
+        sub             v2.4H,  v5.4H,  v6.4H
+        sub             v3.4H,  v4.4H,  v7.4H
 
         transpose_4x4H  v0, v1, v2, v3, v4, v5, v6, v7
 
-        add             v4.4H,  v0.4H,  v3.4H
+        add             v4.4H,  v0.4H,  v2.4H
         ld1             {v18.S}[0], [x0], x2
-        sshr            v16.4H,  v2.4H,  #1
+        sshr            v16.4H,  v3.4H,  #1
         sshr            v17.4H,  v1.4H,  #1
-        ld1             {v19.S}[1], [x0], x2
-        sub             v5.4H,  v0.4H,  v3.4H
         ld1             {v18.S}[1], [x0], x2
+        sub             v5.4H,  v0.4H,  v2.4H
+        ld1             {v19.S}[1], [x0], x2
         add             v6.4H,  v16.4H, v1.4H
         ins             v4.D[1],  v5.D[0]
-        sub             v7.4H,  v2.4H,  v17.4H
+        sub             v7.4H,  v17.4H, v3.4H
         ld1             {v19.S}[0], [x0], x2
         ins             v6.D[1],  v7.D[0]
         sub             x0,  x0,  x2, lsl #2
@@ -68,8 +69,8 @@ function ff_h264_idct_add_neon, export=1
         sqxtun          v1.8B, v1.8H
 
         st1             {v0.S}[0],  [x0], x2
-        st1             {v1.S}[1],  [x0], x2
         st1             {v0.S}[1],  [x0], x2
+        st1             {v1.S}[1],  [x0], x2
         st1             {v1.S}[0],  [x0], x2
 
         sub             x1,  x1,  #32
@@ -77,6 +78,7 @@ function ff_h264_idct_add_neon, export=1
 endfunc
 
 function ff_h264_idct_dc_add_neon, export=1
+.L_ff_h264_idct_dc_add_neon:
         sxtw            x2,  w2
         mov             w3,       #0
         ld1r            {v2.8H},  [x1]
@@ -106,8 +108,8 @@ function ff_h264_idct_add16_neon, export=1
         mov             w9,  w3         // stride
         movrel          x7,  scan8
         mov             x10, #16
-        movrel          x13, X(ff_h264_idct_dc_add_neon)
-        movrel          x14, X(ff_h264_idct_add_neon)
+        movrel          x13, .L_ff_h264_idct_dc_add_neon
+        movrel          x14, .L_ff_h264_idct_add_neon
 1:      mov             w2,  w9
         ldrb            w3,  [x7], #1
         ldrsw           x0,  [x5], #4
@@ -133,8 +135,8 @@ function ff_h264_idct_add16intra_neon, export=1
         mov             w9,  w3         // stride
         movrel          x7,  scan8
         mov             x10, #16
-        movrel          x13, X(ff_h264_idct_dc_add_neon)
-        movrel          x14, X(ff_h264_idct_add_neon)
+        movrel          x13, .L_ff_h264_idct_dc_add_neon
+        movrel          x14, .L_ff_h264_idct_add_neon
 1:      mov             w2,  w9
         ldrb            w3,  [x7], #1
         ldrsw           x0,  [x5], #4
@@ -160,9 +162,9 @@ function ff_h264_idct_add8_neon, export=1
         add             x5,  x1,  #16*4         // block_offset
         add             x9,  x2,  #16*32        // block
         mov             w19, w3                 // stride
-        movrel          x13, X(ff_h264_idct_dc_add_neon)
-        movrel          x14, X(ff_h264_idct_add_neon)
-        movrel          x7,  scan8+16
+        movrel          x13, .L_ff_h264_idct_dc_add_neon
+        movrel          x14, .L_ff_h264_idct_add_neon
+        movrel          x7,  scan8, 16
         mov             x10, #0
         mov             x11, #16
 1:      mov             w2,  w19
@@ -263,7 +265,9 @@ endfunc
 .endm
 
 function ff_h264_idct8_add_neon, export=1
+.L_ff_h264_idct8_add_neon:
         movi            v19.8H,   #0
+        sxtw            x2,       w2
         ld1             {v24.8H, v25.8H}, [x1]
         st1             {v19.8H},  [x1],   #16
         st1             {v19.8H},  [x1],   #16
@@ -325,6 +329,7 @@ function ff_h264_idct8_add_neon, export=1
 endfunc
 
 function ff_h264_idct8_dc_add_neon, export=1
+.L_ff_h264_idct8_dc_add_neon:
         mov             w3,       #0
         sxtw            x2,       w2
         ld1r            {v31.8H}, [x1]
@@ -374,8 +379,8 @@ function ff_h264_idct8_add4_neon, export=1
         mov             w2,  w3
         movrel          x7,  scan8
         mov             w10, #16
-        movrel          x13, X(ff_h264_idct8_dc_add_neon)
-        movrel          x14, X(ff_h264_idct8_add_neon)
+        movrel          x13, .L_ff_h264_idct8_dc_add_neon
+        movrel          x14, .L_ff_h264_idct8_add_neon
 1:      ldrb            w9,  [x7], #4
         ldrsw           x0,  [x5], #16
         ldrb            w9,  [x4, w9, UXTW]

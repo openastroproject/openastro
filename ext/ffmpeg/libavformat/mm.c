@@ -58,7 +58,7 @@ typedef struct MmDemuxContext {
   unsigned int audio_pts, video_pts;
 } MmDemuxContext;
 
-static int probe(AVProbeData *p)
+static int probe(const AVProbeData *p)
 {
     int len, type, fps, w, h;
     if (p->buf_size < MM_HEADER_LEN_AV + MM_PREAMBLE_SIZE)
@@ -109,11 +109,11 @@ static int read_header(AVFormatContext *s)
     st = avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
-    st->codec->codec_type = AVMEDIA_TYPE_VIDEO;
-    st->codec->codec_id = AV_CODEC_ID_MMVIDEO;
-    st->codec->codec_tag = 0;  /* no fourcc */
-    st->codec->width = width;
-    st->codec->height = height;
+    st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
+    st->codecpar->codec_id = AV_CODEC_ID_MMVIDEO;
+    st->codecpar->codec_tag = 0;  /* no fourcc */
+    st->codecpar->width = width;
+    st->codecpar->height = height;
     avpriv_set_pts_info(st, 64, 1, frame_rate);
 
     /* audio stream */
@@ -121,12 +121,12 @@ static int read_header(AVFormatContext *s)
         st = avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
-        st->codec->codec_type = AVMEDIA_TYPE_AUDIO;
-        st->codec->codec_tag = 0; /* no fourcc */
-        st->codec->codec_id = AV_CODEC_ID_PCM_U8;
-        st->codec->channels = 1;
-        st->codec->channel_layout = AV_CH_LAYOUT_MONO;
-        st->codec->sample_rate = 8000;
+        st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
+        st->codecpar->codec_tag = 0; /* no fourcc */
+        st->codecpar->codec_id = AV_CODEC_ID_PCM_U8;
+        st->codecpar->channels = 1;
+        st->codecpar->channel_layout = AV_CH_LAYOUT_MONO;
+        st->codecpar->sample_rate = 8000;
         avpriv_set_pts_info(st, 64, 1, 8000); /* 8000 hz */
     }
 
@@ -142,6 +142,7 @@ static int read_packet(AVFormatContext *s,
     AVIOContext *pb = s->pb;
     unsigned char preamble[MM_PREAMBLE_SIZE];
     unsigned int type, length;
+    int ret;
 
     while(1) {
 
@@ -161,8 +162,8 @@ static int read_packet(AVFormatContext *s,
         case MM_TYPE_INTRA_HHV :
         case MM_TYPE_INTER_HHV :
             /* output preamble + data */
-            if (av_new_packet(pkt, length + MM_PREAMBLE_SIZE))
-                return AVERROR(ENOMEM);
+            if ((ret = av_new_packet(pkt, length + MM_PREAMBLE_SIZE)) < 0)
+                return ret;
             memcpy(pkt->data, preamble, MM_PREAMBLE_SIZE);
             if (avio_read(pb, pkt->data + MM_PREAMBLE_SIZE, length) != length)
                 return AVERROR(EIO);
@@ -174,8 +175,10 @@ static int read_packet(AVFormatContext *s,
             return 0;
 
         case MM_TYPE_AUDIO :
-            if (av_get_packet(s->pb, pkt, length)<0)
-                return AVERROR(ENOMEM);
+            if (s->nb_streams < 2)
+                return AVERROR_INVALIDDATA;
+            if ((ret = av_get_packet(s->pb, pkt, length)) < 0)
+                return ret;
             pkt->stream_index = 1;
             pkt->pts = mm->audio_pts++;
             return 0;

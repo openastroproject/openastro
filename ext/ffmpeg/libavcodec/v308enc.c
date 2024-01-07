@@ -31,6 +31,9 @@ static av_cold int v308_encode_init(AVCodecContext *avctx)
         return AVERROR_INVALIDDATA;
     }
 
+    avctx->bits_per_coded_sample = 24;
+    avctx->bit_rate = ff_guess_coded_bitrate(avctx);
+
     return 0;
 }
 
@@ -65,11 +68,6 @@ static int v308_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
     return 0;
 }
 
-static av_cold int v308_encode_close(AVCodecContext *avctx)
-{
-    return 0;
-}
-
 AVCodec ff_v308_encoder = {
     .name         = "v308",
     .long_name    = NULL_IF_CONFIG_SMALL("Uncompressed packed 4:4:4"),
@@ -77,7 +75,5 @@ AVCodec ff_v308_encoder = {
     .id           = AV_CODEC_ID_V308,
     .init         = v308_encode_init,
     .encode2      = v308_encode_frame,
-    .close        = v308_encode_close,
     .pix_fmts     = (const enum AVPixelFormat[]){ AV_PIX_FMT_YUV444P, AV_PIX_FMT_NONE },
-    .capabilities = AV_CODEC_CAP_INTRA_ONLY,
 };

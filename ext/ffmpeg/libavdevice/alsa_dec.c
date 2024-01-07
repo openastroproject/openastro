@@ -79,11 +79,11 @@ static av_cold int audio_read_header(AVFormatContext *s1)
     }
 
     /* take real parameters */
-    st->codec->codec_type  = AVMEDIA_TYPE_AUDIO;
-    st->codec->codec_id    = codec_id;
-    st->codec->sample_rate = s->sample_rate;
-    st->codec->channels    = s->channels;
-    st->codec->frame_size = s->frame_size;
+    st->codecpar->codec_type  = AVMEDIA_TYPE_AUDIO;
+    st->codecpar->codec_id    = codec_id;
+    st->codecpar->sample_rate = s->sample_rate;
+    st->codecpar->channels    = s->channels;
+    st->codecpar->frame_size = s->frame_size;
     avpriv_set_pts_info(st, 64, 1, 1000000);  /* 64 bits pts in us */
     /* microseconds instead of seconds, MHz instead of Hz */
     s->timefilter = ff_timefilter_new(1000000.0 / s->sample_rate,
@@ -105,33 +105,35 @@ static int audio_read_packet(AVFormatContext *s1, AVPacket *pkt)
     int64_t dts;
     snd_pcm_sframes_t delay = 0;
 
-    if (av_new_packet(pkt, s->period_size * s->frame_size) < 0) {
-        return AVERROR(EIO);
+    if (!s->pkt->data) {
+        int ret = av_new_packet(s->pkt, s->period_size * s->frame_size);
+        if (ret < 0)
+            return ret;
+        s->pkt->size = 0;
     }
 
-    while ((res = snd_pcm_readi(s->h, pkt->data, s->period_size)) < 0) {
+    do {
+        while ((res = snd_pcm_readi(s->h, s->pkt->data + s->pkt->size, s->period_size - s->pkt->size / s->frame_size)) < 0) {
         if (res == -EAGAIN) {
-            av_free_packet(pkt);
-
             return AVERROR(EAGAIN);
         }
+        s->pkt->size = 0;
         if (ff_alsa_xrun_recover(s1, res) < 0) {
             av_log(s1, AV_LOG_ERROR, "ALSA read error: %s\n",
                    snd_strerror(res));
-            av_free_packet(pkt);
-
             return AVERROR(EIO);
         }
         ff_timefilter_reset(s->timefilter);
-    }
+        }
+        s->pkt->size += res * s->frame_size;
+    } while (s->pkt->size < s->period_size * s->frame_size);
 
+    av_packet_move_ref(pkt, s->pkt);
     dts = av_gettime();
     snd_pcm_delay(s->h, &delay);
     dts -= av_rescale(delay + res, 1000000, s->sample_rate);
     pkt->pts = ff_timefilter_update(s->timefilter, dts, s->last_period);
     s->last_period = res;
-
-    pkt->size = res * s->frame_size;
 
     return 0;
 }
@@ -148,7 +150,7 @@ static const AVOption options[] = {
 };
 
 static const AVClass alsa_demuxer_class = {
-    .class_name     = "ALSA demuxer",
+    .class_name     = "ALSA indev",
     .item_name      = av_default_item_name,
     .option         = options,
     .version        = LIBAVUTIL_VERSION_INT,

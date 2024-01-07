@@ -28,10 +28,10 @@ void ff_flv_encode_picture_header(MpegEncContext *s, int picture_number)
 {
     int format;
 
-    avpriv_align_put_bits(&s->pb);
+    align_put_bits(&s->pb);
 
     put_bits(&s->pb, 17, 1);
-    /* 0: h263 escape codes 1: 11-bit escape codes */
+    /* 0: H.263 escape codes 1: 11-bit escape codes */
     put_bits(&s->pb, 5, (s->h263_flv - 1));
     put_bits(&s->pb, 8,
              (((int64_t) s->picture_number * 30 * s->avctx->time_base.num) /   // FIXME use timestamp
@@ -107,6 +107,7 @@ AVCodec ff_flv_encoder = {
     .init           = ff_mpv_encode_init,
     .encode2        = ff_mpv_encode_picture,
     .close          = ff_mpv_encode_end,
+    .caps_internal  = FF_CODEC_CAP_INIT_CLEANUP,
     .pix_fmts       = (const enum AVPixelFormat[]) { AV_PIX_FMT_YUV420P,
                                                      AV_PIX_FMT_NONE},
     .priv_class     = &flv_class,

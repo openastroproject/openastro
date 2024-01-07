@@ -23,8 +23,8 @@
  *
  */
 
-#ifndef AACPS_FIXED_TABLEGEN_H
-#define AACPS_FIXED_TABLEGEN_H
+#ifndef AVCODEC_AACPS_FIXED_TABLEGEN_H
+#define AVCODEC_AACPS_FIXED_TABLEGEN_H
 
 #include <math.h>
 #include <stdint.h>
@@ -36,7 +36,12 @@
 #else
 #include "libavutil/common.h"
 #include "libavutil/mathematics.h"
-#include "libavutil/mem.h"
+#ifdef BUILD_TABLES
+#undef DECLARE_ALIGNED
+#define DECLARE_ALIGNED(align, type, variable) type variable
+#else
+#include "libavutil/mem_internal.h"
+#endif
 
 #include "aac_defines.h"
 #include "libavutil/softfloat.h"
@@ -400,4 +405,4 @@ static void ps_tableinit(void)
 }
 #endif /* CONFIG_HARDCODED_TABLES */
 
-#endif /* AACPS_FIXED_TABLEGEN_H */
+#endif /* AVCODEC_AACPS_FIXED_TABLEGEN_H */

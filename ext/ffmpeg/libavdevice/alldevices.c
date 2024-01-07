@@ -19,60 +19,123 @@
  */
 
 #include "config.h"
+#include "libavutil/thread.h"
+#include "libavformat/internal.h"
 #include "avdevice.h"
 
-#define REGISTER_OUTDEV(X, x)                                           \
-    {                                                                   \
-        extern AVOutputFormat ff_##x##_muxer;                           \
-        if (CONFIG_##X##_OUTDEV)                                        \
-            av_register_output_format(&ff_##x##_muxer);                 \
-    }
+/* devices */
+extern AVInputFormat  ff_alsa_demuxer;
+extern AVOutputFormat ff_alsa_muxer;
+extern AVInputFormat  ff_android_camera_demuxer;
+extern AVOutputFormat ff_audiotoolbox_muxer;
+extern AVInputFormat  ff_avfoundation_demuxer;
+extern AVInputFormat  ff_bktr_demuxer;
+extern AVOutputFormat ff_caca_muxer;
+extern AVInputFormat  ff_decklink_demuxer;
+extern AVOutputFormat ff_decklink_muxer;
+extern AVInputFormat  ff_dshow_demuxer;
+extern AVInputFormat  ff_fbdev_demuxer;
+extern AVOutputFormat ff_fbdev_muxer;
+extern AVInputFormat  ff_gdigrab_demuxer;
+extern AVInputFormat  ff_iec61883_demuxer;
+extern AVInputFormat  ff_jack_demuxer;
+extern AVInputFormat  ff_kmsgrab_demuxer;
+extern AVInputFormat  ff_lavfi_demuxer;
+extern AVInputFormat  ff_openal_demuxer;
+extern AVOutputFormat ff_opengl_muxer;
+extern AVInputFormat  ff_oss_demuxer;
+extern AVOutputFormat ff_oss_muxer;
+extern AVInputFormat  ff_pulse_demuxer;
+extern AVOutputFormat ff_pulse_muxer;
+extern AVOutputFormat ff_sdl2_muxer;
+extern AVInputFormat  ff_sndio_demuxer;
+extern AVOutputFormat ff_sndio_muxer;
+extern AVInputFormat  ff_v4l2_demuxer;
+extern AVOutputFormat ff_v4l2_muxer;
+extern AVInputFormat  ff_vfwcap_demuxer;
+extern AVInputFormat  ff_xcbgrab_demuxer;
+extern AVOutputFormat ff_xv_muxer;
 
-#define REGISTER_INDEV(X, x)                                            \
-    {                                                                   \
-        extern AVInputFormat ff_##x##_demuxer;                          \
-        if (CONFIG_##X##_INDEV)                                         \
-            av_register_input_format(&ff_##x##_demuxer);                \
-    }
+/* external libraries */
+extern AVInputFormat  ff_libcdio_demuxer;
+extern AVInputFormat  ff_libdc1394_demuxer;
 
-#define REGISTER_INOUTDEV(X, x) REGISTER_OUTDEV(X, x); REGISTER_INDEV(X, x)
+#include "libavdevice/outdev_list.c"
+#include "libavdevice/indev_list.c"
 
 void avdevice_register_all(void)
 {
-    static int initialized;
+    avpriv_register_devices(outdev_list, indev_list);
+}
 
-    if (initialized)
-        return;
-    initialized = 1;
+static void *next_input(const AVInputFormat *prev, AVClassCategory c2)
+{
+    const AVClass *pc;
+    const AVClassCategory c1 = AV_CLASS_CATEGORY_DEVICE_INPUT;
+    AVClassCategory category = AV_CLASS_CATEGORY_NA;
+    const AVInputFormat *fmt = NULL;
+    int i = 0;
 
-    /* devices */
-    REGISTER_INOUTDEV(ALSA,             alsa);
-    REGISTER_INDEV   (AVFOUNDATION,     avfoundation);
-    REGISTER_INDEV   (BKTR,             bktr);
-    REGISTER_OUTDEV  (CACA,             caca);
-    REGISTER_INOUTDEV(DECKLINK,         decklink);
-    REGISTER_INDEV   (DSHOW,            dshow);
-    REGISTER_INDEV   (DV1394,           dv1394);
-    REGISTER_INOUTDEV(FBDEV,            fbdev);
-    REGISTER_INDEV   (GDIGRAB,          gdigrab);
-    REGISTER_INDEV   (IEC61883,         iec61883);
-    REGISTER_INDEV   (JACK,             jack);
-    REGISTER_INDEV   (LAVFI,            lavfi);
-    REGISTER_INDEV   (OPENAL,           openal);
-    REGISTER_OUTDEV  (OPENGL,           opengl);
-    REGISTER_INOUTDEV(OSS,              oss);
-    REGISTER_INOUTDEV(PULSE,            pulse);
-    REGISTER_INDEV   (QTKIT,            qtkit);
-    REGISTER_OUTDEV  (SDL,              sdl);
-    REGISTER_INOUTDEV(SNDIO,            sndio);
-    REGISTER_INOUTDEV(V4L2,             v4l2);
-//    REGISTER_INDEV   (V4L,              v4l
-    REGISTER_INDEV   (VFWCAP,           vfwcap);
-    REGISTER_INDEV   (X11GRAB,          x11grab);
-    REGISTER_INDEV   (X11GRAB_XCB,      x11grab_xcb);
-    REGISTER_OUTDEV  (XV,               xv);
+    while (prev && (fmt = indev_list[i])) {
+        i++;
+        if (prev == fmt)
+            break;
+    }
 
-    /* external libraries */
-    REGISTER_INDEV   (LIBCDIO,          libcdio);
-    REGISTER_INDEV   (LIBDC1394,        libdc1394);
+    do {
+        fmt = indev_list[i++];
+        if (!fmt)
+            break;
+        pc = fmt->priv_class;
+        if (!pc)
+            continue;
+        category = pc->category;
+    } while (category != c1 && category != c2);
+    return (AVInputFormat *)fmt;
+}
+
+static void *next_output(const AVOutputFormat *prev, AVClassCategory c2)
+{
+    const AVClass *pc;
+    const AVClassCategory c1 = AV_CLASS_CATEGORY_DEVICE_OUTPUT;
+    AVClassCategory category = AV_CLASS_CATEGORY_NA;
+    const AVOutputFormat *fmt = NULL;
+    int i = 0;
+
+    while (prev && (fmt = outdev_list[i])) {
+        i++;
+        if (prev == fmt)
+            break;
+    }
+
+    do {
+        fmt = outdev_list[i++];
+        if (!fmt)
+            break;
+        pc = fmt->priv_class;
+        if (!pc)
+            continue;
+        category = pc->category;
+    } while (category != c1 && category != c2);
+    return (AVOutputFormat *)fmt;
+}
+
+AVInputFormat *av_input_audio_device_next(AVInputFormat  *d)
+{
+    return next_input(d, AV_CLASS_CATEGORY_DEVICE_AUDIO_INPUT);
+}
+
+AVInputFormat *av_input_video_device_next(AVInputFormat  *d)
+{
+    return next_input(d, AV_CLASS_CATEGORY_DEVICE_VIDEO_INPUT);
+}
+
+AVOutputFormat *av_output_audio_device_next(AVOutputFormat *d)
+{
+    return next_output(d, AV_CLASS_CATEGORY_DEVICE_AUDIO_OUTPUT);
+}
+
+AVOutputFormat *av_output_video_device_next(AVOutputFormat *d)
+{
+    return next_output(d, AV_CLASS_CATEGORY_DEVICE_VIDEO_OUTPUT);
 }

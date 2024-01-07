@@ -1,5 +1,5 @@
 /* Electronic Arts Multimedia File Demuxer
- * Copyright (c) 2004 The FFmpeg Project
+ * Copyright (c) 2004  The FFmpeg project
  * Copyright (c) 2006-2008 Peter Ross
  *
  * This file is part of FFmpeg.
@@ -86,6 +86,8 @@ typedef struct EaDemuxContext {
     int sample_rate;
     int num_channels;
     int num_samples;
+
+    int platform;
 } EaDemuxContext;
 
 static uint32_t read_arbitrary(AVIOContext *pb)
@@ -237,6 +239,7 @@ static int process_audio_header_elements(AVFormatContext *s)
                 return 0;
             }
             break;
+        case 15:
         case 16:
             ea->audio_codec = AV_CODEC_ID_MP3;
             break;
@@ -255,6 +258,8 @@ static int process_audio_header_elements(AVFormatContext *s)
         return 0;
     }
 
+    if (ea->audio_codec == AV_CODEC_ID_NONE && ea->platform == 0x01)
+        ea->audio_codec = AV_CODEC_ID_ADPCM_PSX;
     if (ea->sample_rate == -1)
         ea->sample_rate = revision == 3 ? 48000 : 22050;
 
@@ -387,10 +392,10 @@ static int process_ea_header(AVFormatContext *s)
             blockid = avio_rl32(pb);
             if (blockid == GSTR_TAG) {
                 avio_skip(pb, 4);
-            } else if ((blockid & 0xFFFF) != PT00_TAG) {
-                avpriv_request_sample(s, "unknown SCHl headerid");
-                return 0;
+            } else if ((blockid & 0xFF) != (PT00_TAG & 0xFF)) {
+                blockid = avio_rl32(pb);
             }
+            ea->platform = (blockid >> 16) & 0xFF;
             err = process_audio_header_elements(s);
             break;
 
@@ -453,7 +458,7 @@ static int process_ea_header(AVFormatContext *s)
     return 1;
 }
 
-static int ea_probe(AVProbeData *p)
+static int ea_probe(const AVProbeData *p)
 {
     unsigned big_endian, size;
 
@@ -494,14 +499,14 @@ static int init_video_stream(AVFormatContext *s, VideoProperties *video)
     if (!st)
         return AVERROR(ENOMEM);
     video->stream_index = st->index;
-    st->codec->codec_type  = AVMEDIA_TYPE_VIDEO;
-    st->codec->codec_id    = video->codec;
+    st->codecpar->codec_type  = AVMEDIA_TYPE_VIDEO;
+    st->codecpar->codec_id    = video->codec;
     // parsing is necessary to make FFmpeg generate correct timestamps
-    if (st->codec->codec_id == AV_CODEC_ID_MPEG2VIDEO)
+    if (st->codecpar->codec_id == AV_CODEC_ID_MPEG2VIDEO)
         st->need_parsing = AVSTREAM_PARSE_HEADERS;
-    st->codec->codec_tag   = 0; /* no fourcc */
-    st->codec->width       = video->width;
-    st->codec->height      = video->height;
+    st->codecpar->codec_tag   = 0; /* no fourcc */
+    st->codecpar->width       = video->width;
+    st->codecpar->height      = video->height;
     st->duration           = st->nb_frames = video->nb_frames;
     if (video->time_base.num)
         avpriv_set_pts_info(st, 64, video->time_base.num, video->time_base.den);
@@ -525,20 +530,17 @@ static int ea_read_header(AVFormatContext *s)
         if (ea->num_channels <= 0 || ea->num_channels > 2) {
             av_log(s, AV_LOG_WARNING,
                    "Unsupported number of channels: %d\n", ea->num_channels);
-            ea->audio_codec = 0;
-            return 1;
+            goto no_audio;
         }
         if (ea->sample_rate <= 0) {
             av_log(s, AV_LOG_ERROR,
                    "Unsupported sample rate: %d\n", ea->sample_rate);
-            ea->audio_codec = 0;
-            return 1;
+            goto no_audio;
         }
-        if (ea->bytes <= 0) {
+        if (ea->bytes <= 0 || ea->bytes > 2) {
             av_log(s, AV_LOG_ERROR,
                    "Invalid number of bytes per sample: %d\n", ea->bytes);
-            ea->audio_codec = AV_CODEC_ID_NONE;
-            return 1;
+            goto no_audio;
         }
 
         /* initialize the audio decoder stream */
@@ -546,22 +548,27 @@ static int ea_read_header(AVFormatContext *s)
         if (!st)
             return AVERROR(ENOMEM);
         avpriv_set_pts_info(st, 33, 1, ea->sample_rate);
-        st->codec->codec_type            = AVMEDIA_TYPE_AUDIO;
-        st->codec->codec_id              = ea->audio_codec;
-        st->codec->codec_tag             = 0;   /* no tag */
-        st->codec->channels              = ea->num_channels;
-        st->codec->sample_rate           = ea->sample_rate;
-        st->codec->bits_per_coded_sample = ea->bytes * 8;
-        st->codec->bit_rate              = st->codec->channels *
-                                           st->codec->sample_rate *
-                                           st->codec->bits_per_coded_sample / 4;
-        st->codec->block_align           = st->codec->channels *
-                                           st->codec->bits_per_coded_sample;
+        st->codecpar->codec_type            = AVMEDIA_TYPE_AUDIO;
+        st->codecpar->codec_id              = ea->audio_codec;
+        st->codecpar->codec_tag             = 0;   /* no tag */
+        st->codecpar->channels              = ea->num_channels;
+        st->codecpar->sample_rate           = ea->sample_rate;
+        st->codecpar->bits_per_coded_sample = ea->bytes * 8;
+        st->codecpar->bit_rate              = (int64_t)st->codecpar->channels *
+                                              st->codecpar->sample_rate *
+                                              st->codecpar->bits_per_coded_sample / 4;
+        st->codecpar->block_align           = st->codecpar->channels *
+                                              st->codecpar->bits_per_coded_sample;
         ea->audio_stream_index           = st->index;
         st->start_time                   = 0;
+        return 0;
     }
+no_audio:
+    ea->audio_codec = AV_CODEC_ID_NONE;
 
-    return 1;
+    if (!ea->video.codec)
+        return AVERROR_INVALIDDATA;
+    return 0;
 }
 
 static int ea_read_packet(AVFormatContext *s, AVPacket *pkt)
@@ -569,11 +576,14 @@ static int ea_read_packet(AVFormatContext *s, AVPacket *pkt)
     EaDemuxContext *ea = s->priv_data;
     AVIOContext *pb    = s->pb;
     int partial_packet = 0;
+    int hit_end = 0;
     unsigned int chunk_type, chunk_size;
     int ret = 0, packet_read = 0, key = 0;
     int av_uninit(num_samples);
 
-    while (!packet_read || partial_packet) {
+    while ((!packet_read && !hit_end) || partial_packet) {
+        if (avio_feof(pb))
+            return AVERROR_EOF;
         chunk_type = avio_rl32(pb);
         chunk_size = ea->big_endian ? avio_rb32(pb) : avio_rl32(pb);
         if (chunk_size < 8)
@@ -597,14 +607,21 @@ static int ea_read_packet(AVFormatContext *s, AVPacket *pkt)
                 break;
             } else if (ea->audio_codec == AV_CODEC_ID_PCM_S16LE_PLANAR ||
                        ea->audio_codec == AV_CODEC_ID_MP3) {
+                if (chunk_size < 12)
+                    return AVERROR_INVALIDDATA;
                 num_samples = avio_rl32(pb);
                 avio_skip(pb, 8);
                 chunk_size -= 12;
+            } else if (ea->audio_codec == AV_CODEC_ID_ADPCM_PSX) {
+                if (chunk_size < 8)
+                    return AVERROR_INVALIDDATA;
+                avio_skip(pb, 8);
+                chunk_size -= 8;
             }
 
             if (partial_packet) {
                 avpriv_request_sample(s, "video header followed by audio packet");
-                av_free_packet(pkt);
+                av_packet_unref(pkt);
                 partial_packet = 0;
             }
 
@@ -624,7 +641,6 @@ static int ea_read_packet(AVFormatContext *s, AVPacket *pkt)
             case AV_CODEC_ID_ADPCM_EA_R3:
                 if (pkt->size < 4) {
                     av_log(s, AV_LOG_ERROR, "Packet is too short\n");
-                    av_free_packet(pkt);
                     return AVERROR_INVALIDDATA;
                 }
                 if (ea->audio_codec == AV_CODEC_ID_ADPCM_EA_R3)
@@ -639,6 +655,9 @@ static int ea_read_packet(AVFormatContext *s, AVPacket *pkt)
             case AV_CODEC_ID_MP3:
                 pkt->duration = num_samples;
                 break;
+            case AV_CODEC_ID_ADPCM_PSX:
+                pkt->duration = chunk_size / (16 * ea->num_channels) * 28;
+                break;
             default:
                 pkt->duration = chunk_size / (ea->bytes * ea->num_channels);
             }
@@ -652,8 +671,20 @@ static int ea_read_packet(AVFormatContext *s, AVPacket *pkt)
         case SCEl_TAG:
         case SEND_TAG:
         case SEEN_TAG:
-            ret         = AVERROR(EIO);
-            packet_read = 1;
+            while (!avio_feof(pb)) {
+                int tag = avio_rl32(pb);
+
+                if (tag == ISNh_TAG ||
+                    tag == SCHl_TAG ||
+                    tag == SEAD_TAG ||
+                    tag == SHEN_TAG) {
+                    avio_skip(pb, -4);
+                    break;
+                }
+            }
+            if (avio_feof(pb))
+                ret = AVERROR_EOF;
+            hit_end = 1;
             break;
 
         case MVIh_TAG:
@@ -666,6 +697,8 @@ static int ea_read_packet(AVFormatContext *s, AVPacket *pkt)
         case fVGT_TAG:
         case MADm_TAG:
         case MADe_TAG:
+            if (chunk_size > INT_MAX - 8)
+                return AVERROR_INVALIDDATA;
             avio_seek(pb, -8, SEEK_CUR);    // include chunk preamble
             chunk_size += 8;
             goto get_video_packet;
@@ -695,6 +728,7 @@ get_video_packet:
                 ret = av_get_packet(pb, pkt, chunk_size);
             if (ret < 0) {
                 packet_read = 1;
+                partial_packet = 0;
                 break;
             }
             partial_packet = chunk_type == MVIh_TAG;
@@ -712,8 +746,9 @@ get_video_packet:
         }
     }
 
-    if (ret < 0 && partial_packet)
-        av_free_packet(pkt);
+    if (ret >= 0 && hit_end && !packet_read)
+        return AVERROR(EAGAIN);
+
     return ret;
 }
 

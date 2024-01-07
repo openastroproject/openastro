@@ -34,9 +34,10 @@
 #include "aac_defines.h"
 #include "libavutil/float_dsp.h"
 #include "libavutil/fixed_dsp.h"
+#include "libavutil/mem_internal.h"
 #include "avcodec.h"
 #if !USE_FIXED
-#include "imdct15.h"
+#include "mdct15.h"
 #endif
 #include "fft.h"
 #include "mpeg4audio.h"
@@ -151,6 +152,8 @@ typedef struct PredictorState {
 #define SCALE_MAX_DIFF   60    ///< maximum scalefactor difference allowed by standard
 #define SCALE_DIFF_ZERO  60    ///< codebook index corresponding to zero scalefactor indices difference
 
+#define POW_SF2_ZERO    200    ///< ff_aac_pow2sf_tab index corresponding to pow(2, 0);
+
 #define NOISE_PRE       256    ///< preamble for NOISE_BT, put in bitstream with the first noise band
 #define NOISE_PRE_BITS    9    ///< length of preamble
 #define NOISE_OFFSET     90    ///< subtracted from global gain, used as offset for the preamble
@@ -161,6 +164,7 @@ typedef struct PredictorState {
 typedef struct LongTermPrediction {
     int8_t present;
     int16_t lag;
+    int coef_idx;
     INTFLOAT coef;
     int8_t used[MAX_LTP_LONG_SFB];
 } LongTermPrediction;
@@ -252,6 +256,7 @@ typedef struct SingleChannelElement {
     INTFLOAT sf[120];                               ///< scalefactors
     int sf_idx[128];                                ///< scalefactor indices (used by encoder)
     uint8_t zeroes[128];                            ///< band is not coded (used by encoder)
+    uint8_t can_pns[128];                           ///< band is allowed to PNS (informative)
     float  is_ener[128];                            ///< Intensity stereo pos (used by encoder)
     float pns_ener[128];                            ///< Noise energy values (used by encoder)
     DECLARE_ALIGNED(32, INTFLOAT, pcoeffs)[1024];   ///< coefficients for IMDCT, pristine
@@ -259,6 +264,7 @@ typedef struct SingleChannelElement {
     DECLARE_ALIGNED(32, INTFLOAT, saved)[1536];     ///< overlap
     DECLARE_ALIGNED(32, INTFLOAT, ret_buf)[2048];   ///< PCM output buffer
     DECLARE_ALIGNED(16, INTFLOAT, ltp_state)[3072]; ///< time signal for LTP
+    DECLARE_ALIGNED(32, AAC_FLOAT, lcoeffs)[1024];  ///< MDCT of LTP coefficients (used by encoder)
     DECLARE_ALIGNED(32, AAC_FLOAT, prcoeffs)[1024]; ///< Main prediction coefs (used by encoder)
     PredictorState predictor_state[MAX_PREDICTORS];
     INTFLOAT *ret;                                  ///< PCM output
@@ -322,7 +328,9 @@ struct AACContext {
 #if USE_FIXED
     AVFixedDSPContext *fdsp;
 #else
-    IMDCT15Context *mdct480;
+    MDCT15Context *mdct120;
+    MDCT15Context *mdct480;
+    MDCT15Context *mdct960;
     AVFloatDSPContext *fdsp;
 #endif /* USE_FIXED */
     int random_state;
@@ -348,6 +356,9 @@ struct AACContext {
 
     OutputConfiguration oc[2];
     int warned_num_aac_frames;
+    int warned_960_sbr;
+    unsigned warned_71_wide;
+    int warned_gain_control;
 
     /* aacdec functions pointers */
     void (*imdct_and_windowing)(AACContext *ac, SingleChannelElement *sce);
@@ -358,7 +369,7 @@ struct AACContext {
                                    INTFLOAT *in, IndividualChannelStream *ics);
     void (*update_ltp)(AACContext *ac, SingleChannelElement *sce);
     void (*vector_pow43)(int *coefs, int len);
-    void (*subband_scale)(int *dst, int *src, int scale, int offset, int len);
+    void (*subband_scale)(int *dst, int *src, int scale, int offset, int len, void *log_context);
 
 };
 

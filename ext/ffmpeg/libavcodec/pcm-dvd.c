@@ -33,9 +33,10 @@ typedef struct PCMDVDContext {
     int block_size;          // Size of a block of samples in bytes
     int last_block_size;     // Size of the last block of samples in bytes
     int samples_per_block;   // Number of samples per channel per block
-    int groups_per_block;    // Number of 20/24bit sample groups per block
-    uint8_t *extra_samples;  // Pointer to leftover samples from a frame
+    int groups_per_block;    // Number of 20/24-bit sample groups per block
     int extra_sample_count;  // Number of leftover samples in the buffer
+    uint8_t extra_samples[8 * 3 * 4];  // Space for leftover samples from a frame
+                                       // (8 channels, 3B/sample, 4 samples/block)
 } PCMDVDContext;
 
 static av_cold int pcm_dvd_decode_init(AVCodecContext *avctx)
@@ -44,18 +45,6 @@ static av_cold int pcm_dvd_decode_init(AVCodecContext *avctx)
 
     /* Invalid header to force parsing of the first header */
     s->last_header = -1;
-    /* reserve space for 8 channels, 3 bytes/sample, 4 samples/block */
-    if (!(s->extra_samples = av_malloc(8 * 3 * 4)))
-        return AVERROR(ENOMEM);
-
-    return 0;
-}
-
-static av_cold int pcm_dvd_decode_uninit(AVCodecContext *avctx)
-{
-    PCMDVDContext *s = avctx->priv_data;
-
-    av_freep(&s->extra_samples);
 
     return 0;
 }
@@ -106,7 +95,7 @@ static int pcm_dvd_parse_header(AVCodecContext *avctx, const uint8_t *header)
                       avctx->sample_rate *
                       avctx->bits_per_coded_sample;
 
-    /* 4 samples form a group in 20/24bit PCM on DVD Video.
+    /* 4 samples form a group in 20/24-bit PCM on DVD Video.
      * A block is formed by the number of groups that are
      * needed to complete a set of samples for each channel. */
     if (avctx->bits_per_coded_sample == 16) {
@@ -140,7 +129,7 @@ static int pcm_dvd_parse_header(AVCodecContext *avctx, const uint8_t *header)
 
     if (avctx->debug & FF_DEBUG_PICT_INFO)
         ff_dlog(avctx,
-                "pcm_dvd_parse_header: %d channels, %d bits per sample, %d Hz, %d bit/s\n",
+                "pcm_dvd_parse_header: %d channels, %d bits per sample, %d Hz, %"PRId64" bit/s\n",
                 avctx->channels, avctx->bits_per_coded_sample,
                 avctx->sample_rate, avctx->bit_rate);
 
@@ -310,9 +299,10 @@ AVCodec ff_pcm_dvd_decoder = {
     .priv_data_size = sizeof(PCMDVDContext),
     .init           = pcm_dvd_decode_init,
     .decode         = pcm_dvd_decode_frame,
-    .close          = pcm_dvd_decode_uninit,
-    .capabilities   = AV_CODEC_CAP_DR1,
+    .capabilities   = AV_CODEC_CAP_CHANNEL_CONF |
+                      AV_CODEC_CAP_DR1,
     .sample_fmts    = (const enum AVSampleFormat[]) {
         AV_SAMPLE_FMT_S16, AV_SAMPLE_FMT_S32, AV_SAMPLE_FMT_NONE
-    }
+    },
+    .caps_internal  = FF_CODEC_CAP_INIT_THREADSAFE,
 };

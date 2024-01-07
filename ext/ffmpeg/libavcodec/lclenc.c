@@ -35,7 +35,6 @@
  *   http://www.pcisys.net/~melanson/codecs
  *
  * Supports: BGR24 (RGB 24bpp)
- *
  */
 
 #include <stdio.h>
@@ -50,9 +49,6 @@
 
 #include <zlib.h>
 
-/*
- * Decoder context
- */
 typedef struct LclEncContext {
 
     AVCodecContext *avctx;
@@ -66,11 +62,6 @@ typedef struct LclEncContext {
     z_stream zstream;
 } LclEncContext;
 
-/*
- *
- * Encode a frame
- *
- */
 static int encode_frame(AVCodecContext *avctx, AVPacket *pkt,
                         const AVFrame *p, int *got_packet)
 {
@@ -117,11 +108,6 @@ static int encode_frame(AVCodecContext *avctx, AVPacket *pkt,
     return 0;
 }
 
-/*
- *
- * Init lcl encoder
- *
- */
 static av_cold int encode_init(AVCodecContext *avctx)
 {
     LclEncContext *c = avctx->priv_data;
@@ -171,11 +157,6 @@ FF_ENABLE_DEPRECATION_WARNINGS
     return 0;
 }
 
-/*
- *
- * Uninit lcl encoder
- *
- */
 static av_cold int encode_end(AVCodecContext *avctx)
 {
     LclEncContext *c = avctx->priv_data;
@@ -195,7 +176,7 @@ AVCodec ff_zlib_encoder = {
     .init           = encode_init,
     .encode2        = encode_frame,
     .close          = encode_end,
-    .capabilities   = AV_CODEC_CAP_FRAME_THREADS | AV_CODEC_CAP_INTRA_ONLY,
+    .capabilities   = AV_CODEC_CAP_FRAME_THREADS,
     .pix_fmts       = (const enum AVPixelFormat[]) { AV_PIX_FMT_BGR24, AV_PIX_FMT_NONE },
     .caps_internal  = FF_CODEC_CAP_INIT_THREADSAFE |
                       FF_CODEC_CAP_INIT_CLEANUP,

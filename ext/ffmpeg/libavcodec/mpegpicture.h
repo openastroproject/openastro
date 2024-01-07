@@ -69,6 +69,7 @@ typedef struct Picture {
 
     int alloc_mb_width;         ///< mb_width used to allocate tables
     int alloc_mb_height;        ///< mb_height used to allocate tables
+    int alloc_mb_stride;        ///< mb_stride used to allocate tables
 
     AVBufferRef *mb_mean_buf;
     uint8_t *mb_mean;           ///< Table for MB luminance
@@ -87,7 +88,7 @@ typedef struct Picture {
     int reference;
     int shared;
 
-    uint64_t error[AV_NUM_DATA_POINTERS];
+    uint64_t encoding_error[AV_NUM_DATA_POINTERS];
 } Picture;
 
 /**

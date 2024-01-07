@@ -27,19 +27,41 @@
 #include "internal.h"
 #include "video.h"
 
+static int query_formats(AVFilterContext *ctx)
+{
+    AVFilterFormats *formats = NULL;
+    int ret;
+
+    ret = ff_formats_pixdesc_filter(&formats, 0,
+                                    AV_PIX_FMT_FLAG_HWACCEL);
+    if (ret < 0)
+        return ret;
+    return ff_set_common_formats(ctx, formats);
+}
+
 static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 {
     AVFilterLink *outlink = inlink->dst->outputs[0];
     AVFrame *out = ff_get_video_buffer(outlink, in->width, in->height);
+    int ret;
 
     if (!out) {
-        av_frame_free(&in);
-        return AVERROR(ENOMEM);
+        ret = AVERROR(ENOMEM);
+        goto fail;
     }
-    av_frame_copy_props(out, in);
-    av_frame_copy(out, in);
+
+    ret = av_frame_copy_props(out, in);
+    if (ret < 0)
+        goto fail;
+    ret = av_frame_copy(out, in);
+    if (ret < 0)
+        goto fail;
     av_frame_free(&in);
     return ff_filter_frame(outlink, out);
+fail:
+    av_frame_free(&in);
+    av_frame_free(&out);
+    return ret;
 }
 
 static const AVFilterPad avfilter_vf_copy_inputs[] = {
@@ -64,4 +86,5 @@ AVFilter ff_vf_copy = {
     .description = NULL_IF_CONFIG_SMALL("Copy the input video unchanged to the output."),
     .inputs      = avfilter_vf_copy_inputs,
     .outputs     = avfilter_vf_copy_outputs,
+    .query_formats = query_formats,
 };

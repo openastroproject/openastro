@@ -17,6 +17,8 @@
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
+
+#include <stddef.h>
 #include <stdint.h>
 #include "hash.h"
 
@@ -155,7 +157,11 @@ void av_hash_init(AVHashContext *ctx)
     }
 }
 
+#if FF_API_CRYPTO_SIZE_T
 void av_hash_update(AVHashContext *ctx, const uint8_t *src, int len)
+#else
+void av_hash_update(AVHashContext *ctx, const uint8_t *src, size_t len)
+#endif
 {
     switch (ctx->type) {
     case MD5:     av_md5_update(ctx->ctx, src, len); break;

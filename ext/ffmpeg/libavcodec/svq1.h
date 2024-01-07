@@ -3,8 +3,8 @@
  * ported to MPlayer by Arpi <arpi@thot.banki.hu>
  * ported to libavcodec by Nick Kurshev <nickols_k@mail.ru>
  *
- * Copyright (c) 2002 The Xine Project
- * Copyright (c) 2002 The FFmpeg Project
+ * Copyright (c) 2002 The Xine project
+ * Copyright (c) 2002 The FFmpeg project
  *
  * SVQ1 Encoder (c) 2004 Mike Melanson <melanson@pcisys.net>
  *
@@ -41,9 +41,6 @@
 #define SVQ1_BLOCK_INTER        1
 #define SVQ1_BLOCK_INTER_4V     2
 #define SVQ1_BLOCK_INTRA        3
-
-uint16_t ff_svq1_packet_checksum(const uint8_t *data,
-                                 const int length, int value);
 
 extern const int8_t *const ff_svq1_inter_codebooks[6];
 extern const int8_t *const ff_svq1_intra_codebooks[6];

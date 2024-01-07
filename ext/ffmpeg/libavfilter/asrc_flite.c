@@ -32,7 +32,7 @@
 #include "formats.h"
 #include "internal.h"
 
-typedef struct {
+typedef struct FliteContext {
     const AVClass *class;
     char *voice_str;
     char *textfile;
@@ -51,13 +51,13 @@ typedef struct {
 #define FLAGS AV_OPT_FLAG_AUDIO_PARAM|AV_OPT_FLAG_FILTERING_PARAM
 
 static const AVOption flite_options[] = {
-    { "list_voices", "list voices and exit",              OFFSET(list_voices), AV_OPT_TYPE_INT, {.i64=0}, 0, 1, FLAGS },
+    { "list_voices", "list voices and exit",              OFFSET(list_voices), AV_OPT_TYPE_BOOL, {.i64=0}, 0, 1, FLAGS },
     { "nb_samples",  "set number of samples per frame",   OFFSET(frame_nb_samples), AV_OPT_TYPE_INT, {.i64=512}, 0, INT_MAX, FLAGS },
     { "n",           "set number of samples per frame",   OFFSET(frame_nb_samples), AV_OPT_TYPE_INT, {.i64=512}, 0, INT_MAX, FLAGS },
-    { "text",        "set text to speak",                 OFFSET(text),      AV_OPT_TYPE_STRING, {.str=NULL}, CHAR_MIN, CHAR_MAX, FLAGS },
-    { "textfile",    "set filename of the text to speak", OFFSET(textfile),  AV_OPT_TYPE_STRING, {.str=NULL}, CHAR_MIN, CHAR_MAX, FLAGS },
-    { "v",           "set voice",                         OFFSET(voice_str), AV_OPT_TYPE_STRING, {.str="kal"}, CHAR_MIN, CHAR_MAX, FLAGS },
-    { "voice",       "set voice",                         OFFSET(voice_str), AV_OPT_TYPE_STRING, {.str="kal"}, CHAR_MIN, CHAR_MAX, FLAGS },
+    { "text",        "set text to speak",                 OFFSET(text),      AV_OPT_TYPE_STRING, {.str=NULL}, 0, 0, FLAGS },
+    { "textfile",    "set filename of the text to speak", OFFSET(textfile),  AV_OPT_TYPE_STRING, {.str=NULL}, 0, 0, FLAGS },
+    { "v",           "set voice",                         OFFSET(voice_str), AV_OPT_TYPE_STRING, {.str="kal"}, 0, 0, FLAGS },
+    { "voice",       "set voice",                         OFFSET(voice_str), AV_OPT_TYPE_STRING, {.str="kal"}, 0, 0, FLAGS },
     { NULL }
 };
 
@@ -170,8 +170,10 @@ static av_cold int init(AVFilterContext *ctx)
             return ret;
         }
 
-        if (!(flite->text = av_malloc(textbuf_size+1)))
+        if (!(flite->text = av_malloc(textbuf_size+1))) {
+            av_file_unmap(textbuf, textbuf_size);
             return AVERROR(ENOMEM);
+        }
         memcpy(flite->text, textbuf, textbuf_size);
         flite->text[textbuf_size] = 0;
         av_file_unmap(textbuf, textbuf_size);
@@ -194,10 +196,12 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     FliteContext *flite = ctx->priv;
 
-    if (!--flite->voice_entry->usage_count)
-        flite->voice_entry->unregister_fn(flite->voice);
-    flite->voice = NULL;
-    flite->voice_entry = NULL;
+    if (flite->voice_entry) {
+        if (!--flite->voice_entry->usage_count) {
+            flite->voice_entry->unregister_fn(flite->voice);
+            flite->voice_entry->voice = NULL;
+        }
+    }
     delete_wave(flite->wave);
     flite->wave = NULL;
 }
@@ -205,18 +209,20 @@ static av_cold void uninit(AVFilterContext *ctx)
 static int query_formats(AVFilterContext *ctx)
 {
     FliteContext *flite = ctx->priv;
+    int ret;
 
     AVFilterChannelLayouts *chlayouts = NULL;
     int64_t chlayout = av_get_default_channel_layout(flite->wave->num_channels);
     AVFilterFormats *sample_formats = NULL;
     AVFilterFormats *sample_rates = NULL;
 
-    ff_add_channel_layout(&chlayouts, chlayout);
-    ff_set_common_channel_layouts(ctx, chlayouts);
-    ff_add_format(&sample_formats, AV_SAMPLE_FMT_S16);
-    ff_set_common_formats(ctx, sample_formats);
-    ff_add_format(&sample_rates, flite->wave->sample_rate);
-    ff_set_common_samplerates (ctx, sample_rates);
+    if ((ret = ff_add_channel_layout         (&chlayouts     , chlayout                )) < 0 ||
+        (ret = ff_set_common_channel_layouts (ctx            , chlayouts               )) < 0 ||
+        (ret = ff_add_format                 (&sample_formats, AV_SAMPLE_FMT_S16       )) < 0 ||
+        (ret = ff_set_common_formats         (ctx            , sample_formats          )) < 0 ||
+        (ret = ff_add_format                 (&sample_rates  , flite->wave->sample_rate)) < 0 ||
+        (ret = ff_set_common_samplerates     (ctx            , sample_rates            )) < 0)
+        return ret;
 
     return 0;
 }
@@ -251,8 +257,8 @@ static int request_frame(AVFilterLink *outlink)
     memcpy(samplesref->data[0], flite->wave_samples,
            nb_samples * flite->wave->num_channels * 2);
     samplesref->pts = flite->pts;
-    av_frame_set_pkt_pos(samplesref, -1);
-    av_frame_set_sample_rate(samplesref, flite->wave->sample_rate);
+    samplesref->pkt_pos = -1;
+    samplesref->sample_rate = flite->wave->sample_rate;
     flite->pts += nb_samples;
     flite->wave_samples += nb_samples * flite->wave->num_channels;
     flite->wave_nb_samples -= nb_samples;

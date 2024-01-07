@@ -132,18 +132,18 @@ static int decode_frame(AVCodecContext *avctx,
     h         = bytestream2_get_le16(&s->gb);
     bpp       = bytestream2_get_byte(&s->gb);
 
-    if (bytestream2_get_bytes_left(&s->gb) <= idlen) {
-        av_log(avctx, AV_LOG_ERROR,
-                "Not enough data to read header\n");
-        return AVERROR_INVALIDDATA;
-    }
-
     flags     = bytestream2_get_byte(&s->gb);
 
     if (!pal && (first_clr || colors || csize)) {
         av_log(avctx, AV_LOG_WARNING, "File without colormap has colormap information set.\n");
         // specification says we should ignore those value in this case
         first_clr = colors = csize = 0;
+    }
+
+    if (bytestream2_get_bytes_left(&s->gb) < idlen + 2*colors) {
+        av_log(avctx, AV_LOG_ERROR,
+                "Not enough data to read header\n");
+        return AVERROR_INVALIDDATA;
     }
 
     // skip identifier if any
@@ -265,31 +265,32 @@ static int decode_frame(AVCodecContext *avctx,
                 line = advance_line(dst, line, stride, &y, h, interleave);
             } while (line);
         }
-    }
 
-    if (flags & TGA_RIGHTTOLEFT) { // right-to-left, needs horizontal flip
-        int x;
-        for (y = 0; y < h; y++) {
-            void *line = &p->data[0][y * p->linesize[0]];
-            for (x = 0; x < w >> 1; x++) {
-                switch (bpp) {
-                case 32:
-                    FFSWAP(uint32_t, ((uint32_t *)line)[x], ((uint32_t *)line)[w - x - 1]);
-                    break;
-                case 24:
-                    FFSWAP(uint8_t, ((uint8_t *)line)[3 * x    ], ((uint8_t *)line)[3 * w - 3 * x - 3]);
-                    FFSWAP(uint8_t, ((uint8_t *)line)[3 * x + 1], ((uint8_t *)line)[3 * w - 3 * x - 2]);
-                    FFSWAP(uint8_t, ((uint8_t *)line)[3 * x + 2], ((uint8_t *)line)[3 * w - 3 * x - 1]);
-                    break;
-                case 16:
-                    FFSWAP(uint16_t, ((uint16_t *)line)[x], ((uint16_t *)line)[w - x - 1]);
-                    break;
-                case 8:
-                    FFSWAP(uint8_t, ((uint8_t *)line)[x], ((uint8_t *)line)[w - x - 1]);
+        if (flags & TGA_RIGHTTOLEFT) { // right-to-left, needs horizontal flip
+            int x;
+            for (y = 0; y < h; y++) {
+                void *line = &p->data[0][y * p->linesize[0]];
+                for (x = 0; x < w >> 1; x++) {
+                    switch (bpp) {
+                    case 32:
+                        FFSWAP(uint32_t, ((uint32_t *)line)[x], ((uint32_t *)line)[w - x - 1]);
+                        break;
+                    case 24:
+                        FFSWAP(uint8_t, ((uint8_t *)line)[3 * x    ], ((uint8_t *)line)[3 * w - 3 * x - 3]);
+                        FFSWAP(uint8_t, ((uint8_t *)line)[3 * x + 1], ((uint8_t *)line)[3 * w - 3 * x - 2]);
+                        FFSWAP(uint8_t, ((uint8_t *)line)[3 * x + 2], ((uint8_t *)line)[3 * w - 3 * x - 1]);
+                        break;
+                    case 16:
+                        FFSWAP(uint16_t, ((uint16_t *)line)[x], ((uint16_t *)line)[w - x - 1]);
+                        break;
+                    case 8:
+                        FFSWAP(uint8_t, ((uint8_t *)line)[x], ((uint8_t *)line)[w - x - 1]);
+                    }
                 }
             }
         }
     }
+
 
     *got_frame = 1;
 

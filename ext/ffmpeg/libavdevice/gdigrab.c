@@ -230,11 +230,15 @@ gdigrab_read_header(AVFormatContext *s1)
     HBITMAP hbmp   = NULL;
     void *buffer   = NULL;
 
-    const char *filename = s1->filename;
+    const char *filename = s1->url;
     const char *name     = NULL;
     AVStream   *st       = NULL;
 
     int bpp;
+    int horzres;
+    int vertres;
+    int desktophorzres;
+    int desktopvertres;
     RECT virtual_rect;
     RECT clip_rect;
     BITMAP bmp;
@@ -263,13 +267,34 @@ gdigrab_read_header(AVFormatContext *s1)
         goto error;
     }
 
+    /* This will get the device context for the selected window, or if
+     * none, the primary screen */
+    source_hdc = GetDC(hwnd);
+    if (!source_hdc) {
+        WIN32_API_ERROR("Couldn't get window device context");
+        ret = AVERROR(EIO);
+        goto error;
+    }
+    bpp = GetDeviceCaps(source_hdc, BITSPIXEL);
+
+    horzres = GetDeviceCaps(source_hdc, HORZRES);
+    vertres = GetDeviceCaps(source_hdc, VERTRES);
+    desktophorzres = GetDeviceCaps(source_hdc, DESKTOPHORZRES);
+    desktopvertres = GetDeviceCaps(source_hdc, DESKTOPVERTRES);
+
     if (hwnd) {
         GetClientRect(hwnd, &virtual_rect);
+        /* window -- get the right height and width for scaling DPI */
+        virtual_rect.left   = virtual_rect.left   * desktophorzres / horzres;
+        virtual_rect.right  = virtual_rect.right  * desktophorzres / horzres;
+        virtual_rect.top    = virtual_rect.top    * desktopvertres / vertres;
+        virtual_rect.bottom = virtual_rect.bottom * desktopvertres / vertres;
     } else {
+        /* desktop -- get the right height and width for scaling DPI */
         virtual_rect.left = GetSystemMetrics(SM_XVIRTUALSCREEN);
         virtual_rect.top = GetSystemMetrics(SM_YVIRTUALSCREEN);
-        virtual_rect.right = virtual_rect.left + GetSystemMetrics(SM_CXVIRTUALSCREEN);
-        virtual_rect.bottom = virtual_rect.top + GetSystemMetrics(SM_CYVIRTUALSCREEN);
+        virtual_rect.right = (virtual_rect.left + GetSystemMetrics(SM_CXVIRTUALSCREEN)) * desktophorzres / horzres;
+        virtual_rect.bottom = (virtual_rect.top + GetSystemMetrics(SM_CYVIRTUALSCREEN)) * desktopvertres / vertres;
     }
 
     /* If no width or height set, use full screen/window area */
@@ -299,15 +324,6 @@ gdigrab_read_header(AVFormatContext *s1)
             goto error;
     }
 
-    /* This will get the device context for the selected window, or if
-     * none, the primary screen */
-    source_hdc = GetDC(hwnd);
-    if (!source_hdc) {
-        WIN32_API_ERROR("Couldn't get window device context");
-        ret = AVERROR(EIO);
-        goto error;
-    }
-    bpp = GetDeviceCaps(source_hdc, BITSPIXEL);
 
     if (name) {
         av_log(s1, AV_LOG_INFO,
@@ -378,7 +394,7 @@ gdigrab_read_header(AVFormatContext *s1)
     gdigrab->header_size = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) +
                            (bpp <= 8 ? (1 << bpp) : 0) * sizeof(RGBQUAD) /* palette size */;
     gdigrab->time_base   = av_inv_q(gdigrab->framerate);
-    gdigrab->time_frame  = av_gettime() / av_q2d(gdigrab->time_base);
+    gdigrab->time_frame  = av_gettime_relative() / av_q2d(gdigrab->time_base);
 
     gdigrab->hwnd       = hwnd;
     gdigrab->source_hdc = source_hdc;
@@ -397,10 +413,11 @@ gdigrab_read_header(AVFormatContext *s1)
         }
     }
 
-    st->codec->codec_type = AVMEDIA_TYPE_VIDEO;
-    st->codec->codec_id   = AV_CODEC_ID_BMP;
-    st->codec->time_base  = gdigrab->time_base;
-    st->codec->bit_rate   = (gdigrab->header_size + gdigrab->frame_size) * 1/av_q2d(gdigrab->time_base) * 8;
+    st->avg_frame_rate = av_inv_q(gdigrab->time_base);
+
+    st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
+    st->codecpar->codec_id   = AV_CODEC_ID_BMP;
+    st->codecpar->bit_rate   = (gdigrab->header_size + gdigrab->frame_size) * 1/av_q2d(gdigrab->time_base) * 8;
 
     return 0;
 
@@ -440,6 +457,10 @@ static void paint_mouse_pointer(AVFormatContext *s1, struct gdigrab *gdigrab)
         POINT pos;
         RECT clip_rect = gdigrab->clip_rect;
         HWND hwnd = gdigrab->hwnd;
+        int horzres = GetDeviceCaps(gdigrab->source_hdc, HORZRES);
+        int vertres = GetDeviceCaps(gdigrab->source_hdc, VERTRES);
+        int desktophorzres = GetDeviceCaps(gdigrab->source_hdc, DESKTOPHORZRES);
+        int desktopvertres = GetDeviceCaps(gdigrab->source_hdc, DESKTOPVERTRES);
         info.hbmMask = NULL;
         info.hbmColor = NULL;
 
@@ -458,19 +479,24 @@ static void paint_mouse_pointer(AVFormatContext *s1, struct gdigrab *gdigrab)
             goto icon_error;
         }
 
-        pos.x = ci.ptScreenPos.x - clip_rect.left - info.xHotspot;
-        pos.y = ci.ptScreenPos.y - clip_rect.top - info.yHotspot;
-
         if (hwnd) {
             RECT rect;
 
             if (GetWindowRect(hwnd, &rect)) {
-                pos.x -= rect.left;
-                pos.y -= rect.top;
+                pos.x = ci.ptScreenPos.x - clip_rect.left - info.xHotspot - rect.left;
+                pos.y = ci.ptScreenPos.y - clip_rect.top - info.yHotspot - rect.top;
+
+                //that would keep the correct location of mouse with hidpi screens
+                pos.x = pos.x * desktophorzres / horzres;
+                pos.y = pos.y * desktopvertres / vertres;
             } else {
                 CURSOR_ERROR("Couldn't get window rectangle");
                 goto icon_error;
             }
+        } else {
+            //that would keep the correct location of mouse with hidpi screens
+            pos.x = ci.ptScreenPos.x * desktophorzres / horzres - clip_rect.left - info.xHotspot;
+            pos.y = ci.ptScreenPos.y * desktopvertres / vertres - clip_rect.top - info.yHotspot;
         }
 
         av_log(s1, AV_LOG_DEBUG, "Cursor pos (%li,%li) -> (%li,%li)\n",
@@ -525,7 +551,7 @@ static int gdigrab_read_packet(AVFormatContext *s1, AVPacket *pkt)
 
     /* wait based on the frame rate */
     for (;;) {
-        curtime = av_gettime();
+        curtime = av_gettime_relative();
         delay = time_frame * av_q2d(time_base) - curtime;
         if (delay <= 0) {
             if (delay < INT64_C(-1000000) * av_q2d(time_base)) {
@@ -542,7 +568,7 @@ static int gdigrab_read_packet(AVFormatContext *s1, AVPacket *pkt)
 
     if (av_new_packet(pkt, file_size) < 0)
         return AVERROR(ENOMEM);
-    pkt->pts = curtime;
+    pkt->pts = av_gettime();
 
     /* Blit screen grab */
     if (!BitBlt(dest_hdc, 0, 0,
@@ -609,7 +635,7 @@ static int gdigrab_read_close(AVFormatContext *s1)
 static const AVOption options[] = {
     { "draw_mouse", "draw the mouse pointer", OFFSET(draw_mouse), AV_OPT_TYPE_INT, {.i64 = 1}, 0, 1, DEC },
     { "show_region", "draw border around capture area", OFFSET(show_region), AV_OPT_TYPE_INT, {.i64 = 0}, 0, 1, DEC },
-    { "framerate", "set video frame rate", OFFSET(framerate), AV_OPT_TYPE_VIDEO_RATE, {.str = "ntsc"}, 0, 0, DEC },
+    { "framerate", "set video frame rate", OFFSET(framerate), AV_OPT_TYPE_VIDEO_RATE, {.str = "ntsc"}, 0, INT_MAX, DEC },
     { "video_size", "set video frame size", OFFSET(width), AV_OPT_TYPE_IMAGE_SIZE, {.str = NULL}, 0, 0, DEC },
     { "offset_x", "capture area x offset", OFFSET(offset_x), AV_OPT_TYPE_INT, {.i64 = 0}, INT_MIN, INT_MAX, DEC },
     { "offset_y", "capture area y offset", OFFSET(offset_y), AV_OPT_TYPE_INT, {.i64 = 0}, INT_MIN, INT_MAX, DEC },
@@ -621,6 +647,7 @@ static const AVClass gdigrab_class = {
     .item_name  = av_default_item_name,
     .option     = options,
     .version    = LIBAVUTIL_VERSION_INT,
+    .category   = AV_CLASS_CATEGORY_DEVICE_VIDEO_INPUT,
 };
 
 /** gdi grabber device demuxer declaration */

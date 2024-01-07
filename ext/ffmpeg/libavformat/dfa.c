@@ -25,7 +25,7 @@
 #include "avformat.h"
 #include "internal.h"
 
-static int dfa_probe(AVProbeData *p)
+static int dfa_probe(const AVProbeData *p)
 {
     if (p->buf_size < 4 || AV_RL32(p->buf) != MKTAG('D', 'F', 'I', 'A'))
         return 0;
@@ -40,7 +40,7 @@ static int dfa_read_header(AVFormatContext *s)
 {
     AVIOContext *pb = s->pb;
     AVStream *st;
-    int frames;
+    int frames, ret;
     int version;
     uint32_t mspf;
 
@@ -56,10 +56,10 @@ static int dfa_read_header(AVFormatContext *s)
     if (!st)
         return AVERROR(ENOMEM);
 
-    st->codec->codec_type = AVMEDIA_TYPE_VIDEO;
-    st->codec->codec_id   = AV_CODEC_ID_DFA;
-    st->codec->width      = avio_rl16(pb);
-    st->codec->height     = avio_rl16(pb);
+    st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
+    st->codecpar->codec_id   = AV_CODEC_ID_DFA;
+    st->codecpar->width      = avio_rl16(pb);
+    st->codecpar->height     = avio_rl16(pb);
     mspf = avio_rl32(pb);
     if (!mspf) {
         av_log(s, AV_LOG_WARNING, "Zero FPS reported, defaulting to 10\n");
@@ -69,9 +69,9 @@ static int dfa_read_header(AVFormatContext *s)
     avio_skip(pb, 128 - 16); // padding
     st->duration = frames;
 
-    if (ff_alloc_extradata(st->codec, 2))
-        return AVERROR(ENOMEM);
-    AV_WL16(st->codec->extradata, version);
+    if ((ret = ff_alloc_extradata(st->codecpar, 2)) < 0)
+        return ret;
+    AV_WL16(st->codecpar->extradata, version);
     if (version == 0x100)
         st->sample_aspect_ratio = (AVRational){2, 1};
 
@@ -93,7 +93,6 @@ static int dfa_read_packet(AVFormatContext *s, AVPacket *pkt)
         if (!first) {
             ret = av_append_packet(pb, pkt, 12);
             if (ret < 0) {
-                av_free_packet(pkt);
                 return ret;
             }
         } else
@@ -114,7 +113,6 @@ static int dfa_read_packet(AVFormatContext *s, AVPacket *pkt)
         }
         ret = av_append_packet(pb, pkt, frame_size);
         if (ret < 0) {
-            av_free_packet(pkt);
             return ret;
         }
     }

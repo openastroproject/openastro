@@ -1,6 +1,6 @@
 /*
  * copyright (c) 2000,2001 Fabrice Bellard
- * H263+ support
+ * H.263+ support
  * copyright (c) 2001 Juan J. Sierralta P
  * copyright (c) 2002-2004 Michael Niedermayer <michaelni@gmx.at>
  *
@@ -61,7 +61,6 @@ extern const int8_t ff_inter_run[102];
 
 extern RLTable ff_h263_rl_inter;
 extern RLTable ff_rl_intra_aic;
-extern uint8_t ff_h263_static_rl_table_store[2][2][2 * MAX_RUN + MAX_LEVEL + 3];
 
 extern const uint16_t ff_h263_format[8][2];
 

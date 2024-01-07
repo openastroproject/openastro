@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef LIBAVFILTER_SSIM_H
-#define LIBAVFILTER_SSIM_H
+#ifndef AVFILTER_SSIM_H
+#define AVFILTER_SSIM_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -28,9 +28,9 @@ typedef struct SSIMDSPContext {
     void (*ssim_4x4_line)(const uint8_t *buf, ptrdiff_t buf_stride,
                           const uint8_t *ref, ptrdiff_t ref_stride,
                           int (*sums)[4], int w);
-    float (*ssim_end_line)(const int (*sum0)[4], const int (*sum1)[4], int w);
+    double (*ssim_end_line)(const int (*sum0)[4], const int (*sum1)[4], int w);
 } SSIMDSPContext;
 
 void ff_ssim_init_x86(SSIMDSPContext *dsp);
 
-#endif /* LIBAVFILTER_SSIM_H */
+#endif /* AVFILTER_SSIM_H */

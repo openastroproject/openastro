@@ -49,9 +49,12 @@ typedef struct AFormatContext {
 #define A AV_OPT_FLAG_AUDIO_PARAM
 #define F AV_OPT_FLAG_FILTERING_PARAM
 static const AVOption aformat_options[] = {
-    { "sample_fmts",     "A comma-separated list of sample formats.",  OFFSET(formats_str),         AV_OPT_TYPE_STRING, .flags = A|F },
-    { "sample_rates",    "A comma-separated list of sample rates.",    OFFSET(sample_rates_str),    AV_OPT_TYPE_STRING, .flags = A|F },
-    { "channel_layouts", "A comma-separated list of channel layouts.", OFFSET(channel_layouts_str), AV_OPT_TYPE_STRING, .flags = A|F },
+    { "sample_fmts",     "A '|'-separated list of sample formats.",  OFFSET(formats_str),         AV_OPT_TYPE_STRING, .flags = A|F },
+    { "f",               "A '|'-separated list of sample formats.",  OFFSET(formats_str),         AV_OPT_TYPE_STRING, .flags = A|F },
+    { "sample_rates",    "A '|'-separated list of sample rates.",    OFFSET(sample_rates_str),    AV_OPT_TYPE_STRING, .flags = A|F },
+    { "r",               "A '|'-separated list of sample rates.",    OFFSET(sample_rates_str),    AV_OPT_TYPE_STRING, .flags = A|F },
+    { "channel_layouts", "A '|'-separated list of channel layouts.", OFFSET(channel_layouts_str), AV_OPT_TYPE_STRING, .flags = A|F },
+    { "cl",              "A '|'-separated list of channel layouts.", OFFSET(channel_layouts_str), AV_OPT_TYPE_STRING, .flags = A|F },
     { NULL }
 };
 
@@ -60,6 +63,7 @@ AVFILTER_DEFINE_CLASS(aformat);
 #define PARSE_FORMATS(str, type, list, add_to_list, get_fmt, none, desc)    \
 do {                                                                        \
     char *next, *cur = str, sep;                                            \
+    int ret;                                                                \
                                                                             \
     if (str && strchr(str, ',')) {                                          \
         av_log(ctx, AV_LOG_WARNING, "This syntax is deprecated, use '|' to "\
@@ -78,7 +82,9 @@ do {                                                                        \
             av_log(ctx, AV_LOG_ERROR, "Error parsing " desc ": %s.\n", cur);\
             return AVERROR(EINVAL);                                         \
         }                                                                   \
-        add_to_list(&list, fmt);                                            \
+        if ((ret = add_to_list(&list, fmt)) < 0) {                          \
+            return ret;                                                     \
+        }                                                                   \
                                                                             \
         cur = next;                                                         \
     }                                                                       \
@@ -105,6 +111,15 @@ static av_cold int init(AVFilterContext *ctx)
     return 0;
 }
 
+static av_cold void uninit(AVFilterContext *ctx)
+{
+    AFormatContext *s = ctx->priv;
+
+    ff_formats_unref(&s->formats);
+    ff_formats_unref(&s->sample_rates);
+    ff_channel_layouts_unref(&s->channel_layouts);
+}
+
 static int query_formats(AVFilterContext *ctx)
 {
     AFormatContext *s = ctx->priv;
@@ -112,14 +127,18 @@ static int query_formats(AVFilterContext *ctx)
 
     ret = ff_set_common_formats(ctx, s->formats ? s->formats :
                                             ff_all_formats(AVMEDIA_TYPE_AUDIO));
+    s->formats = NULL;
     if (ret < 0)
         return ret;
     ret = ff_set_common_samplerates(ctx, s->sample_rates ? s->sample_rates :
                                                      ff_all_samplerates());
+    s->sample_rates = NULL;
     if (ret < 0)
         return ret;
-    return ff_set_common_channel_layouts(ctx, s->channel_layouts ? s->channel_layouts :
+    ret = ff_set_common_channel_layouts(ctx, s->channel_layouts ? s->channel_layouts :
                                                             ff_all_channel_counts());
+    s->channel_layouts = NULL;
+    return ret;
 }
 
 static const AVFilterPad avfilter_af_aformat_inputs[] = {
@@ -142,6 +161,7 @@ AVFilter ff_af_aformat = {
     .name          = "aformat",
     .description   = NULL_IF_CONFIG_SMALL("Convert the input audio to one of the specified formats."),
     .init          = init,
+    .uninit        = uninit,
     .query_formats = query_formats,
     .priv_size     = sizeof(AFormatContext),
     .priv_class    = &aformat_class,

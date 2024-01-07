@@ -27,6 +27,7 @@
 #include "canopus.h"
 #include "get_bits.h"
 #include "internal.h"
+#include "thread.h"
 
 #include "hqx.h"
 #include "hqxdsp.h"
@@ -121,8 +122,6 @@ static int decode_block(GetBitContext *gb, VLC *vlc,
 
     memset(block, 0, 64 * sizeof(*block));
     dc = get_vlc2(gb, vlc->table, HQX_DC_VLC_BITS, 2);
-    if (dc < 0)
-        return AVERROR_INVALIDDATA;
     *last_dc += dc;
 
     block[0] = sign_extend(*last_dc << (12 - dcb), 12);
@@ -196,7 +195,7 @@ static int hqx_decode_422a(HQXContext *ctx, int slice_no, int x, int y)
     int i, ret;
     int cbp;
 
-    cbp = get_vlc2(gb, ctx->cbp_vlc.table, ctx->cbp_vlc.bits, 1);
+    cbp = get_vlc2(gb, ctx->cbp_vlc.table, HQX_CBP_VLC_BITS, 1);
 
     for (i = 0; i < 12; i++)
         memset(slice->block[i], 0, sizeof(**slice->block) * 64);
@@ -282,7 +281,7 @@ static int hqx_decode_444a(HQXContext *ctx, int slice_no, int x, int y)
     int i, ret;
     int cbp;
 
-    cbp = get_vlc2(gb, ctx->cbp_vlc.table, ctx->cbp_vlc.bits, 1);
+    cbp = get_vlc2(gb, ctx->cbp_vlc.table, HQX_CBP_VLC_BITS, 1);
 
     for (i = 0; i < 16; i++)
         memset(slice->block[i], 0, sizeof(**slice->block) * 64);
@@ -405,6 +404,7 @@ static int hqx_decode_frame(AVCodecContext *avctx, void *data,
                             int *got_picture_ptr, AVPacket *avpkt)
 {
     HQXContext *ctx = avctx->priv_data;
+    ThreadFrame frame = { .f = data };
     uint8_t *src = avpkt->data;
     uint32_t info_tag;
     int data_start;
@@ -417,7 +417,7 @@ static int hqx_decode_frame(AVCodecContext *avctx, void *data,
 
     info_tag    = AV_RL32(src);
     if (info_tag == MKTAG('I', 'N', 'F', 'O')) {
-        unsigned info_offset = AV_RL32(src + 4);
+        uint32_t info_offset = AV_RL32(src + 4);
         if (info_offset > INT_MAX || info_offset + 8 > avpkt->size) {
             av_log(avctx, AV_LOG_ERROR,
                    "Invalid INFO header offset: 0x%08"PRIX32" is too large.\n",
@@ -469,6 +469,14 @@ static int hqx_decode_frame(AVCodecContext *avctx, void *data,
     avctx->height              = ctx->height;
     avctx->bits_per_raw_sample = 10;
 
+    //The minimum size is 2bit per macroblock
+    // hqx_decode_422 & hqx_decode_444 have a unconditionally stored 4bits hqx_quants index
+    // hqx_decode_422a & hqx_decode_444a use cbp_vlc which has a minimum length of 2 bits for its VLCs
+    // The code rejects slices overlapping in their input data
+    if (avctx->coded_width / 16 * (avctx->coded_height / 16) *
+        (100 - avctx->discard_damaged_percentage) / 100 > 4LL * avpkt->size)
+        return AVERROR_INVALIDDATA;
+
     switch (ctx->format) {
     case HQX_422:
         avctx->pix_fmt = AV_PIX_FMT_YUV422P16;
@@ -491,7 +499,7 @@ static int hqx_decode_frame(AVCodecContext *avctx, void *data,
         return AVERROR_INVALIDDATA;
     }
 
-    ret = ff_get_buffer(avctx, ctx->pic, 0);
+    ret = ff_thread_get_buffer(avctx, &frame, 0);
     if (ret < 0)
         return ret;
 
@@ -536,7 +544,8 @@ AVCodec ff_hqx_decoder = {
     .init           = hqx_decode_init,
     .decode         = hqx_decode_frame,
     .close          = hqx_decode_close,
-    .capabilities   = AV_CODEC_CAP_DR1 | AV_CODEC_CAP_SLICE_THREADS,
+    .capabilities   = AV_CODEC_CAP_DR1 | AV_CODEC_CAP_SLICE_THREADS |
+                      AV_CODEC_CAP_FRAME_THREADS,
     .caps_internal  = FF_CODEC_CAP_INIT_THREADSAFE |
                       FF_CODEC_CAP_INIT_CLEANUP,
 };

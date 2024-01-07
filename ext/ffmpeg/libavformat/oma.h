@@ -35,13 +35,13 @@ enum {
     OMA_CODECID_MP3     = 3,
     OMA_CODECID_LPCM    = 4,
     OMA_CODECID_WMA     = 5,
+    OMA_CODECID_ATRAC3PAL = 33,
+    OMA_CODECID_ATRAC3AL  = 34,
 };
 
 extern const uint16_t ff_oma_srate_tab[8];
 
 extern const AVCodecTag ff_oma_codec_tags[];
-
-extern const uint64_t ff_oma_chid_to_native_layout[7];
-extern const int ff_oma_chid_to_num_channels[7];
+extern const AVCodecTag *const ff_oma_codec_tags_list[];
 
 #endif /* AVFORMAT_OMA_H */

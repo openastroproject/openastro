@@ -316,12 +316,6 @@ static const uint8_t vp8_pred4x4_prob_intra[10][10][9] = {
     },
 };
 
-static const int8_t vp8_segmentid_tree[][2] = {
-    {  1,  2 },
-    { -0, -1 }, // '00', '01'
-    { -2, -3 }, // '10', '11'
-};
-
 static const uint8_t vp8_coeff_band[16] = {
     0, 1, 2, 3, 6, 4, 5, 6, 6, 6, 6, 6, 6, 6, 6, 7
 };
@@ -706,14 +700,6 @@ static const uint8_t vp8_token_update_probs[4][8][3][NUM_DCT_TOKENS - 1] = {
             { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 },
         },
     },
-};
-
-// fixme: copied from h264data.h
-static const uint8_t zigzag_scan[16]={
-    0 + 0 * 4, 1 + 0 * 4, 0 + 1 * 4, 0 + 2 * 4,
-    1 + 1 * 4, 2 + 0 * 4, 3 + 0 * 4, 2 + 1 * 4,
-    1 + 2 * 4, 0 + 3 * 4, 1 + 3 * 4, 2 + 2 * 4,
-    3 + 1 * 4, 3 + 2 * 4, 2 + 3 * 4, 3 + 3 * 4,
 };
 
 static const uint8_t vp8_dc_qlookup[VP8_MAX_QUANT + 1] = {

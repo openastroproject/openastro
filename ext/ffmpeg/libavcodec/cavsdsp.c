@@ -42,7 +42,8 @@
 #define Q1 p0_p[ 1*stride]
 #define Q2 p0_p[ 2*stride]
 
-static inline void loop_filter_l2(uint8_t *p0_p,int stride,int alpha, int beta) {
+static inline void loop_filter_l2(uint8_t *p0_p, ptrdiff_t stride, int alpha, int beta)
+{
     int p0 = P0;
     int q0 = Q0;
 
@@ -62,7 +63,8 @@ static inline void loop_filter_l2(uint8_t *p0_p,int stride,int alpha, int beta) 
     }
 }
 
-static inline void loop_filter_l1(uint8_t *p0_p, int stride, int alpha, int beta, int tc) {
+static inline void loop_filter_l1(uint8_t *p0_p, ptrdiff_t stride, int alpha, int beta, int tc)
+{
     int p0 = P0;
     int q0 = Q0;
 
@@ -81,7 +83,8 @@ static inline void loop_filter_l1(uint8_t *p0_p, int stride, int alpha, int beta
     }
 }
 
-static inline void loop_filter_c2(uint8_t *p0_p,int stride,int alpha, int beta) {
+static inline void loop_filter_c2(uint8_t *p0_p, ptrdiff_t stride, int alpha, int beta)
+{
     int p0 = P0;
     int q0 = Q0;
 
@@ -99,8 +102,9 @@ static inline void loop_filter_c2(uint8_t *p0_p,int stride,int alpha, int beta) 
     }
 }
 
-static inline void loop_filter_c1(uint8_t *p0_p,int stride,int alpha, int beta,
-                                  int tc) {
+static inline void loop_filter_c1(uint8_t *p0_p, ptrdiff_t stride, int alpha, int beta,
+                                  int tc)
+{
     if(abs(P0-Q0)<alpha && abs(P1-P0)<beta && abs(Q1-Q0)<beta) {
         int delta = av_clip(((Q0-P0)*3+P1-Q1+4)>>3, -tc, tc);
         P0 = av_clip_uint8(P0+delta);
@@ -115,8 +119,9 @@ static inline void loop_filter_c1(uint8_t *p0_p,int stride,int alpha, int beta,
 #undef Q1
 #undef Q2
 
-static void cavs_filter_lv_c(uint8_t *d, int stride, int alpha, int beta, int tc,
-                           int bs1, int bs2) {
+static void cavs_filter_lv_c(uint8_t *d, ptrdiff_t stride, int alpha, int beta, int tc,
+                             int bs1, int bs2)
+{
     int i;
     if(bs1==2)
         for(i=0;i<16;i++)
@@ -131,8 +136,9 @@ static void cavs_filter_lv_c(uint8_t *d, int stride, int alpha, int beta, int tc
     }
 }
 
-static void cavs_filter_lh_c(uint8_t *d, int stride, int alpha, int beta, int tc,
-                           int bs1, int bs2) {
+static void cavs_filter_lh_c(uint8_t *d, ptrdiff_t stride, int alpha, int beta, int tc,
+                             int bs1, int bs2)
+{
     int i;
     if(bs1==2)
         for(i=0;i<16;i++)
@@ -147,8 +153,9 @@ static void cavs_filter_lh_c(uint8_t *d, int stride, int alpha, int beta, int tc
     }
 }
 
-static void cavs_filter_cv_c(uint8_t *d, int stride, int alpha, int beta, int tc,
-                           int bs1, int bs2) {
+static void cavs_filter_cv_c(uint8_t *d, ptrdiff_t stride, int alpha, int beta, int tc,
+                             int bs1, int bs2)
+{
     int i;
     if(bs1==2)
         for(i=0;i<8;i++)
@@ -163,8 +170,9 @@ static void cavs_filter_cv_c(uint8_t *d, int stride, int alpha, int beta, int tc
     }
 }
 
-static void cavs_filter_ch_c(uint8_t *d, int stride, int alpha, int beta, int tc,
-                           int bs1, int bs2) {
+static void cavs_filter_ch_c(uint8_t *d, ptrdiff_t stride, int alpha, int beta, int tc,
+                             int bs1, int bs2)
+{
     int i;
     if(bs1==2)
         for(i=0;i<8;i++)
@@ -185,27 +193,28 @@ static void cavs_filter_ch_c(uint8_t *d, int stride, int alpha, int beta, int tc
  *
  ****************************************************************************/
 
-static void cavs_idct8_add_c(uint8_t *dst, int16_t *block, int stride) {
+static void cavs_idct8_add_c(uint8_t *dst, int16_t *block, ptrdiff_t stride)
+{
     int i;
     int16_t (*src)[8] = (int16_t(*)[8])block;
 
     src[0][0] += 8;
 
     for( i = 0; i < 8; i++ ) {
-        const int a0 =  3*src[i][1] - (src[i][7]<<1);
-        const int a1 =  3*src[i][3] + (src[i][5]<<1);
-        const int a2 =  (src[i][3]<<1) - 3*src[i][5];
-        const int a3 =  (src[i][1]<<1) + 3*src[i][7];
+        const int a0 = 3 * src[i][1] - 2 * src[i][7];
+        const int a1 = 3 * src[i][3] + 2 * src[i][5];
+        const int a2 = 2 * src[i][3] - 3 * src[i][5];
+        const int a3 = 2 * src[i][1] + 3 * src[i][7];
 
-        const int b4 = ((a0 + a1 + a3)<<1) + a1;
-        const int b5 = ((a0 - a1 + a2)<<1) + a0;
-        const int b6 = ((a3 - a2 - a1)<<1) + a3;
-        const int b7 = ((a0 - a2 - a3)<<1) - a2;
+        const int b4 = 2 * (a0 + a1 + a3) + a1;
+        const int b5 = 2 * (a0 - a1 + a2) + a0;
+        const int b6 = 2 * (a3 - a2 - a1) + a3;
+        const int b7 = 2 * (a0 - a2 - a3) - a2;
 
-        const int a7 = (src[i][2]<<2) - 10*src[i][6];
-        const int a6 = (src[i][6]<<2) + 10*src[i][2];
-        const int a5 = ((src[i][0] - src[i][4]) << 3) + 4;
-        const int a4 = ((src[i][0] + src[i][4]) << 3) + 4;
+        const int a7 = 4 * src[i][2] - 10 * src[i][6];
+        const int a6 = 4 * src[i][6] + 10 * src[i][2];
+        const int a5 = 8 * (src[i][0] - src[i][4]) + 4;
+        const int a4 = 8 * (src[i][0] + src[i][4]) + 4;
 
         const int b0 = a4 + a6;
         const int b1 = a5 + a7;
@@ -222,20 +231,20 @@ static void cavs_idct8_add_c(uint8_t *dst, int16_t *block, int stride) {
         src[i][7] = (b0 - b4) >> 3;
     }
     for( i = 0; i < 8; i++ ) {
-        const int a0 =  3*src[1][i] - (src[7][i]<<1);
-        const int a1 =  3*src[3][i] + (src[5][i]<<1);
-        const int a2 =  (src[3][i]<<1) - 3*src[5][i];
-        const int a3 =  (src[1][i]<<1) + 3*src[7][i];
+        const int a0 = 3 * src[1][i] - 2 * src[7][i];
+        const int a1 = 3 * src[3][i] + 2 * src[5][i];
+        const int a2 = 2 * src[3][i] - 3 * src[5][i];
+        const int a3 = 2 * src[1][i] + 3 * src[7][i];
 
-        const int b4 = ((a0 + a1 + a3)<<1) + a1;
-        const int b5 = ((a0 - a1 + a2)<<1) + a0;
-        const int b6 = ((a3 - a2 - a1)<<1) + a3;
-        const int b7 = ((a0 - a2 - a3)<<1) - a2;
+        const int b4 = 2 * (a0 + a1 + a3) + a1;
+        const int b5 = 2 * (a0 - a1 + a2) + a0;
+        const int b6 = 2 * (a3 - a2 - a1) + a3;
+        const int b7 = 2 * (a0 - a2 - a3) - a2;
 
-        const int a7 = (src[2][i]<<2) - 10*src[6][i];
-        const int a6 = (src[6][i]<<2) + 10*src[2][i];
-        const int a5 = (src[0][i] - src[4][i]) << 3;
-        const int a4 = (src[0][i] + src[4][i]) << 3;
+        const int a7 = 4 * src[2][i] - 10 * src[6][i];
+        const int a6 = 4 * src[6][i] + 10 * src[2][i];
+        const int a5 = 8 * (src[0][i] - src[4][i]);
+        const int a4 = 8 * (src[0][i] + src[4][i]);
 
         const int b0 = a4 + a6;
         const int b1 = a5 + a7;
@@ -260,7 +269,8 @@ static void cavs_idct8_add_c(uint8_t *dst, int16_t *block, int stride) {
  ****************************************************************************/
 
 #define CAVS_SUBPIX(OPNAME, OP, NAME, A, B, C, D, E, F) \
-static void OPNAME ## cavs_filt8_h_ ## NAME(uint8_t *dst, const uint8_t *src, int dstStride, int srcStride){\
+static void OPNAME ## cavs_filt8_h_ ## NAME(uint8_t *dst, const uint8_t *src, ptrdiff_t dstStride, ptrdiff_t srcStride)\
+{                                                                       \
     const int h=8;\
     const uint8_t *cm = ff_crop_tab + MAX_NEG_CROP;\
     int i;\
@@ -279,7 +289,8 @@ static void OPNAME ## cavs_filt8_h_ ## NAME(uint8_t *dst, const uint8_t *src, in
     }\
 }\
 \
-static void OPNAME ## cavs_filt8_v_  ## NAME(uint8_t *dst, const uint8_t *src, int dstStride, int srcStride){\
+static void OPNAME ## cavs_filt8_v_  ## NAME(uint8_t *dst, const uint8_t *src, ptrdiff_t dstStride, ptrdiff_t srcStride)\
+{                                                                       \
     const int w=8;\
     const uint8_t *cm = ff_crop_tab + MAX_NEG_CROP;\
     int i;\
@@ -311,7 +322,8 @@ static void OPNAME ## cavs_filt8_v_  ## NAME(uint8_t *dst, const uint8_t *src, i
     }\
 }\
 \
-static void OPNAME ## cavs_filt16_v_ ## NAME(uint8_t *dst, const uint8_t *src, int dstStride, int srcStride){\
+static void OPNAME ## cavs_filt16_v_ ## NAME(uint8_t *dst, const uint8_t *src, ptrdiff_t dstStride, ptrdiff_t srcStride)\
+{                                                                       \
     OPNAME ## cavs_filt8_v_ ## NAME(dst  , src  , dstStride, srcStride);\
     OPNAME ## cavs_filt8_v_ ## NAME(dst+8, src+8, dstStride, srcStride);\
     src += 8*srcStride;\
@@ -320,7 +332,8 @@ static void OPNAME ## cavs_filt16_v_ ## NAME(uint8_t *dst, const uint8_t *src, i
     OPNAME ## cavs_filt8_v_ ## NAME(dst+8, src+8, dstStride, srcStride);\
 }\
 \
-static void OPNAME ## cavs_filt16_h_ ## NAME(uint8_t *dst, const uint8_t *src, int dstStride, int srcStride){\
+static void OPNAME ## cavs_filt16_h_ ## NAME(uint8_t *dst, const uint8_t *src, ptrdiff_t dstStride, ptrdiff_t srcStride)\
+{                                                                       \
     OPNAME ## cavs_filt8_h_ ## NAME(dst  , src  , dstStride, srcStride);\
     OPNAME ## cavs_filt8_h_ ## NAME(dst+8, src+8, dstStride, srcStride);\
     src += 8*srcStride;\
@@ -330,7 +343,8 @@ static void OPNAME ## cavs_filt16_h_ ## NAME(uint8_t *dst, const uint8_t *src, i
 }\
 
 #define CAVS_SUBPIX_HV(OPNAME, OP, NAME, AH, BH, CH, DH, EH, FH, AV, BV, CV, DV, EV, FV, FULL) \
-static void OPNAME ## cavs_filt8_hv_ ## NAME(uint8_t *dst, const uint8_t *src1, const uint8_t *src2, int dstStride, int srcStride){\
+static void OPNAME ## cavs_filt8_hv_ ## NAME(uint8_t *dst, const uint8_t *src1, const uint8_t *src2, ptrdiff_t dstStride, ptrdiff_t srcStride)\
+{                                                                       \
     int16_t temp[8*(8+5)];\
     int16_t *tmp = temp;\
     const int h=8;\
@@ -411,7 +425,8 @@ static void OPNAME ## cavs_filt8_hv_ ## NAME(uint8_t *dst, const uint8_t *src1, 
     }\
 }\
 \
-static void OPNAME ## cavs_filt16_hv_ ## NAME(uint8_t *dst, const uint8_t *src1, const uint8_t *src2, int dstStride, int srcStride){ \
+static void OPNAME ## cavs_filt16_hv_ ## NAME(uint8_t *dst, const uint8_t *src1, const uint8_t *src2, ptrdiff_t dstStride, ptrdiff_t srcStride)\
+{                                                                       \
     OPNAME ## cavs_filt8_hv_ ## NAME(dst  , src1,   src2  , dstStride, srcStride); \
     OPNAME ## cavs_filt8_hv_ ## NAME(dst+8, src1+8, src2+8, dstStride, srcStride); \
     src1 += 8*srcStride;\

@@ -26,8 +26,6 @@
 #include "metadata.h"
 #include "riff.h"
 
-#define PACKET_SIZE 3200
-
 typedef enum ASFDataType {
     ASF_UNICODE    = 0,
     ASF_BYTE_ARRAY = 1,
@@ -50,7 +48,7 @@ typedef struct ASFMainHeader {
                                  *   invalid if broadcasting (could be ignored) */
     uint32_t preroll;           /**< timestamp of the first packet, in milliseconds
                                  *   if nonzero - subtract from time */
-    uint32_t ignore;            ///< preroll is 64bit - but let's just ignore it
+    uint32_t ignore;            ///< preroll is 64 bits - but let's just ignore it
     uint32_t flags;             /**< 0x01 - broadcast
                                  *   0x02 - seekable
                                  *   rest is reserved should be 0 */
@@ -76,7 +74,6 @@ extern const ff_asf_guid ff_asf_file_header;
 extern const ff_asf_guid ff_asf_stream_header;
 extern const ff_asf_guid ff_asf_ext_stream_header;
 extern const ff_asf_guid ff_asf_audio_stream;
-extern const ff_asf_guid ff_asf_audio_conceal_none;
 extern const ff_asf_guid ff_asf_audio_conceal_spread;
 extern const ff_asf_guid ff_asf_video_stream;
 extern const ff_asf_guid ff_asf_jfif_media;
@@ -101,6 +98,9 @@ extern const ff_asf_guid ff_asf_language_guid;
 extern const ff_asf_guid ff_asf_content_encryption;
 extern const ff_asf_guid ff_asf_ext_content_encryption;
 extern const ff_asf_guid ff_asf_digital_signature;
+extern const ff_asf_guid ff_asf_extended_stream_properties_object;
+extern const ff_asf_guid ff_asf_group_mutual_exclusion_object;
+extern const ff_asf_guid ff_asf_mutex_language;
 
 extern const AVMetadataConv ff_asf_metadata_conv[];
 
@@ -164,7 +164,5 @@ extern const AVMetadataConv ff_asf_metadata_conv[];
 #define ASF_PL_MASK_PAYLOAD_LENGTH_FIELD_SIZE     0xc0 //1100 0000
 
 #define ASF_PL_FLAG_KEY_FRAME 0x80 //1000 0000
-
-extern AVInputFormat ff_asf_demuxer;
 
 #endif /* AVFORMAT_ASF_H */

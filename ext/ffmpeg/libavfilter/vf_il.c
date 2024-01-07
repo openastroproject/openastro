@@ -36,7 +36,7 @@ enum FilterMode {
     MODE_DEINTERLEAVE
 };
 
-typedef struct {
+typedef struct IlContext {
     const AVClass *class;
     int luma_mode, chroma_mode, alpha_mode; ///<FilterMode
     int luma_swap, chroma_swap, alpha_swap;
@@ -46,7 +46,7 @@ typedef struct {
 } IlContext;
 
 #define OFFSET(x) offsetof(IlContext, x)
-#define FLAGS AV_OPT_FLAG_FILTERING_PARAM|AV_OPT_FLAG_VIDEO_PARAM
+#define FLAGS AV_OPT_FLAG_FILTERING_PARAM|AV_OPT_FLAG_VIDEO_PARAM|AV_OPT_FLAG_RUNTIME_PARAM
 
 static const AVOption il_options[] = {
     {"luma_mode",   "select luma mode", OFFSET(luma_mode), AV_OPT_TYPE_INT, {.i64=MODE_NONE}, MODE_NONE, MODE_DEINTERLEAVE, FLAGS, "luma_mode"},
@@ -70,12 +70,12 @@ static const AVOption il_options[] = {
     {"i",            NULL, 0, AV_OPT_TYPE_CONST, {.i64=MODE_INTERLEAVE},   0, 0, FLAGS, "alpha_mode"},
     {"deinterleave", NULL, 0, AV_OPT_TYPE_CONST, {.i64=MODE_DEINTERLEAVE}, 0, 0, FLAGS, "alpha_mode"},
     {"d",            NULL, 0, AV_OPT_TYPE_CONST, {.i64=MODE_DEINTERLEAVE}, 0, 0, FLAGS, "alpha_mode"},
-    {"luma_swap",   "swap luma fields",   OFFSET(luma_swap),   AV_OPT_TYPE_INT, {.i64=0}, 0, 1, FLAGS},
-    {"ls",          "swap luma fields",   OFFSET(luma_swap),   AV_OPT_TYPE_INT, {.i64=0}, 0, 1, FLAGS},
-    {"chroma_swap", "swap chroma fields", OFFSET(chroma_swap), AV_OPT_TYPE_INT, {.i64=0}, 0, 1, FLAGS},
-    {"cs",          "swap chroma fields", OFFSET(chroma_swap), AV_OPT_TYPE_INT, {.i64=0}, 0, 1, FLAGS},
-    {"alpha_swap",  "swap alpha fields",  OFFSET(alpha_swap),  AV_OPT_TYPE_INT, {.i64=0}, 0, 1, FLAGS},
-    {"as",          "swap alpha fields",  OFFSET(alpha_swap),  AV_OPT_TYPE_INT, {.i64=0}, 0, 1, FLAGS},
+    {"luma_swap",   "swap luma fields",   OFFSET(luma_swap),   AV_OPT_TYPE_BOOL, {.i64=0}, 0, 1, FLAGS},
+    {"ls",          "swap luma fields",   OFFSET(luma_swap),   AV_OPT_TYPE_BOOL, {.i64=0}, 0, 1, FLAGS},
+    {"chroma_swap", "swap chroma fields", OFFSET(chroma_swap), AV_OPT_TYPE_BOOL, {.i64=0}, 0, 1, FLAGS},
+    {"cs",          "swap chroma fields", OFFSET(chroma_swap), AV_OPT_TYPE_BOOL, {.i64=0}, 0, 1, FLAGS},
+    {"alpha_swap",  "swap alpha fields",  OFFSET(alpha_swap),  AV_OPT_TYPE_BOOL, {.i64=0}, 0, 1, FLAGS},
+    {"as",          "swap alpha fields",  OFFSET(alpha_swap),  AV_OPT_TYPE_BOOL, {.i64=0}, 0, 1, FLAGS},
     {NULL}
 };
 
@@ -84,14 +84,13 @@ AVFILTER_DEFINE_CLASS(il);
 static int query_formats(AVFilterContext *ctx)
 {
     AVFilterFormats *formats = NULL;
-    int fmt;
+    int ret;
 
-    for (fmt = 0; av_pix_fmt_desc_get(fmt); fmt++) {
-        const AVPixFmtDescriptor *desc = av_pix_fmt_desc_get(fmt);
-        if (!(desc->flags & AV_PIX_FMT_FLAG_PAL) && !(desc->flags & AV_PIX_FMT_FLAG_HWACCEL))
-            ff_add_format(&formats, fmt);
-    }
-
+    ret = ff_formats_pixdesc_filter(&formats, 0,
+                                    AV_PIX_FMT_FLAG_PAL |
+                                    AV_PIX_FMT_FLAG_HWACCEL);
+    if (ret < 0)
+        return ret;
     return ff_set_common_formats(ctx, formats);
 }
 
@@ -107,7 +106,7 @@ static int config_input(AVFilterLink *inlink)
     if ((ret = av_image_fill_linesizes(s->linesize, inlink->format, inlink->w)) < 0)
         return ret;
 
-    s->chroma_height = FF_CEIL_RSHIFT(inlink->h, desc->log2_chroma_h);
+    s->chroma_height = AV_CEIL_RSHIFT(inlink->h, desc->log2_chroma_h);
 
     return 0;
 }
@@ -208,4 +207,5 @@ AVFilter ff_vf_il = {
     .outputs       = outputs,
     .priv_class    = &il_class,
     .flags         = AVFILTER_FLAG_SUPPORT_TIMELINE_GENERIC,
+    .process_command = ff_filter_process_command,
 };

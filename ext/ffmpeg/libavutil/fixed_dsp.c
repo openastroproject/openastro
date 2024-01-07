@@ -134,9 +134,10 @@ static int scalarproduct_fixed_c(const int *v1, const int *v2, int len)
     return (int)(p >> 31);
 }
 
-static void butterflies_fixed_c(int *v1, int *v2, int len)
+static void butterflies_fixed_c(int *v1s, int *v2, int len)
 {
     int i;
+    unsigned int *v1 = v1s;
 
     for (i = 0; i < len; i++){
         int t = v1[i] - v2[i];
@@ -159,6 +160,9 @@ AVFixedDSPContext * avpriv_alloc_fixed_dsp(int bit_exact)
     fdsp->vector_fmul_reverse = vector_fmul_reverse_c;
     fdsp->butterflies_fixed = butterflies_fixed_c;
     fdsp->scalarproduct_fixed = scalarproduct_fixed_c;
+
+    if (ARCH_X86)
+        ff_fixed_dsp_init_x86(fdsp);
 
     return fdsp;
 }

@@ -34,7 +34,7 @@ void ff_acelp_reorder_lsf(int16_t* lsfq, int lsfq_min_distance, int lsfq_min, in
 {
     int i, j;
 
-    /* sort lsfq in ascending order. float bubble agorithm,
+    /* sort lsfq in ascending order. float bubble algorithm,
        O(n) if data already sorted, O(n^2) - otherwise */
     for(i=0; i<lp_order-1; i++)
         for(j=i; j>=0 && lsfq[j] > lsfq[j+1]; j--)
@@ -108,7 +108,7 @@ static void lsp2poly(int* f, const int16_t* lsp, int lp_half_order)
     int i, j;
 
     f[0] = 0x400000;          // 1.0 in (3.22)
-    f[1] = -lsp[0] << 8;      // *2 and (0.15) -> (3.22)
+    f[1] = -lsp[0] * 256;     // *2 and (0.15) -> (3.22)
 
     for(i=2; i<=lp_half_order; i++)
     {
@@ -116,7 +116,7 @@ static void lsp2poly(int* f, const int16_t* lsp, int lp_half_order)
         for(j=i; j>1; j--)
             f[j] -= MULL(f[j-1], lsp[2*i-2], FRAC_BITS) - f[j-2];
 
-        f[1] -= lsp[2*i-2] << 8;
+        f[1] -= lsp[2*i-2] * 256;
     }
 }
 

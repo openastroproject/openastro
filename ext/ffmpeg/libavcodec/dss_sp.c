@@ -22,6 +22,7 @@
 #include "libavutil/channel_layout.h"
 #include "libavutil/common.h"
 #include "libavutil/mem.h"
+#include "libavutil/mem_internal.h"
 #include "libavutil/opt.h"
 
 #include "avcodec.h"
@@ -761,10 +762,8 @@ static int dss_sp_decode_frame(AVCodecContext *avctx, void *data,
     }
 
     frame->nb_samples = DSS_SP_SAMPLE_COUNT;
-    if ((ret = ff_get_buffer(avctx, frame, 0)) < 0) {
-        av_log(avctx, AV_LOG_ERROR, "get_buffer() failed.\n");
+    if ((ret = ff_get_buffer(avctx, frame, 0)) < 0)
         return ret;
-    }
 
     out = (int16_t *)frame->data[0];
 
@@ -783,5 +782,5 @@ AVCodec ff_dss_sp_decoder = {
     .priv_data_size = sizeof(DssSpContext),
     .init           = dss_sp_decode_init,
     .decode         = dss_sp_decode_frame,
-    .capabilities   = AV_CODEC_CAP_DR1,
+    .capabilities   = AV_CODEC_CAP_DR1 | AV_CODEC_CAP_CHANNEL_CONF,
 };

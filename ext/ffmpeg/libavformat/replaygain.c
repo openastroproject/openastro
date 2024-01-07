@@ -61,7 +61,7 @@ static int32_t parse_value(const char *value, int32_t min)
         }
     }
 
-    if (abs(db) > (INT32_MAX - mb) / 100000)
+    if (llabs(db) > (INT32_MAX - mb) / 100000)
         return min;
 
     return db * 100000 + sign * mb;
@@ -75,7 +75,7 @@ int ff_replaygain_export_raw(AVStream *st, int32_t tg, uint32_t tp,
     if (tg == INT32_MIN && ag == INT32_MIN)
         return 0;
 
-    replaygain = (AVReplayGain*)ff_stream_new_side_data(st, AV_PKT_DATA_REPLAYGAIN,
+    replaygain = (AVReplayGain*)av_stream_new_side_data(st, AV_PKT_DATA_REPLAYGAIN,
                                                         sizeof(*replaygain));
     if (!replaygain)
         return AVERROR(ENOMEM);

@@ -23,8 +23,8 @@
 #ifndef AVUTIL_LLS_H
 #define AVUTIL_LLS_H
 
-#include "common.h"
-#include "mem.h"
+#include "macros.h"
+#include "mem_internal.h"
 #include "version.h"
 
 #define MAX_VARS 32

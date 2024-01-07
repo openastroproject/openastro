@@ -28,7 +28,9 @@
 #include <inttypes.h>
 #include <zlib.h>
 
+#include "libavutil/imgutils.h"
 #include "libavutil/intreadwrite.h"
+#include "libavutil/mem_internal.h"
 
 #include "avcodec.h"
 #include "blockdsp.h"
@@ -39,6 +41,7 @@
 #include "internal.h"
 #include "jpegtables.h"
 #include "mjpeg.h"
+#include "mjpegdec.h"
 
 #define EPIC_PIX_STACK_SIZE 1024
 #define EPIC_PIX_STACK_MAX  (EPIC_PIX_STACK_SIZE - 1)
@@ -122,7 +125,7 @@ typedef struct JPGContext {
 
     VLC        dc_vlc[2], ac_vlc[2];
     int        prev_dc[3];
-    DECLARE_ALIGNED(16, int16_t, block)[6][64];
+    DECLARE_ALIGNED(32, int16_t, block)[6][64];
 
     uint8_t    *buf;
 } JPGContext;
@@ -157,45 +160,24 @@ typedef struct G2MContext {
     int        cursor_hot_x, cursor_hot_y;
 } G2MContext;
 
-static av_cold int build_vlc(VLC *vlc, const uint8_t *bits_table,
-                             const uint8_t *val_table, int nb_codes,
-                             int is_ac)
-{
-    uint8_t  huff_size[256] = { 0 };
-    uint16_t huff_code[256];
-    uint16_t huff_sym[256];
-    int i;
-
-    ff_mjpeg_build_huffman_codes(huff_size, huff_code, bits_table, val_table);
-
-    for (i = 0; i < 256; i++)
-        huff_sym[i] = i + 16 * is_ac;
-
-    if (is_ac)
-        huff_sym[0] = 16 * 256;
-
-    return ff_init_vlc_sparse(vlc, 9, nb_codes, huff_size, 1, 1,
-                              huff_code, 2, 2, huff_sym, 2, 2, 0);
-}
-
 static av_cold int jpg_init(AVCodecContext *avctx, JPGContext *c)
 {
     int ret;
 
-    ret = build_vlc(&c->dc_vlc[0], avpriv_mjpeg_bits_dc_luminance,
-                    avpriv_mjpeg_val_dc, 12, 0);
+    ret = ff_mjpeg_build_vlc(&c->dc_vlc[0], avpriv_mjpeg_bits_dc_luminance,
+                             avpriv_mjpeg_val_dc, 0, avctx);
     if (ret)
         return ret;
-    ret = build_vlc(&c->dc_vlc[1], avpriv_mjpeg_bits_dc_chrominance,
-                    avpriv_mjpeg_val_dc, 12, 0);
+    ret = ff_mjpeg_build_vlc(&c->dc_vlc[1], avpriv_mjpeg_bits_dc_chrominance,
+                             avpriv_mjpeg_val_dc, 0, avctx);
     if (ret)
         return ret;
-    ret = build_vlc(&c->ac_vlc[0], avpriv_mjpeg_bits_ac_luminance,
-                    avpriv_mjpeg_val_ac_luminance, 251, 1);
+    ret = ff_mjpeg_build_vlc(&c->ac_vlc[0], avpriv_mjpeg_bits_ac_luminance,
+                             avpriv_mjpeg_val_ac_luminance, 1, avctx);
     if (ret)
         return ret;
-    ret = build_vlc(&c->ac_vlc[1], avpriv_mjpeg_bits_ac_chrominance,
-                    avpriv_mjpeg_val_ac_chrominance, 251, 1);
+    ret = ff_mjpeg_build_vlc(&c->ac_vlc[1], avpriv_mjpeg_bits_ac_chrominance,
+                             avpriv_mjpeg_val_ac_chrominance, 1, avctx);
     if (ret)
         return ret;
 
@@ -243,8 +225,11 @@ static int jpg_decode_block(JPGContext *c, GetBitContext *gb,
     const int is_chroma = !!plane;
     const uint8_t *qmat = is_chroma ? chroma_quant : luma_quant;
 
+    if (get_bits_left(gb) < 1)
+        return AVERROR_INVALIDDATA;
+
     c->bdsp.clear_block(block);
-    dc = get_vlc2(gb, c->dc_vlc[is_chroma].table, 9, 3);
+    dc = get_vlc2(gb, c->dc_vlc[is_chroma].table, 9, 2);
     if (dc < 0)
         return AVERROR_INVALIDDATA;
     if (dc)
@@ -255,7 +240,7 @@ static int jpg_decode_block(JPGContext *c, GetBitContext *gb,
 
     pos = 0;
     while (pos < 63) {
-        val = get_vlc2(gb, c->ac_vlc[is_chroma].table, 9, 3);
+        val = get_vlc2(gb, c->ac_vlc[is_chroma].table, 9, 2);
         if (val < 0)
             return AVERROR_INVALIDDATA;
         pos += val >> 4;
@@ -556,7 +541,7 @@ static uint32_t epic_decode_pixel_pred(ePICContext *dc, int x, int y,
     }
 
     if (R<0 || G<0 || B<0 || R > 255 || G > 255 || B > 255) {
-        avpriv_request_sample(NULL, "RGB %d %d %d is out of range\n", R, G, B);
+        avpriv_request_sample(NULL, "RGB %d %d %d (out of range)", R, G, B);
         return 0;
     }
 
@@ -853,6 +838,9 @@ static int epic_decode_tile(ePICContext *dc, uint8_t *out, int tile_height,
                     uint32_t ref_pix = curr_row[x - 1];
                     if (!x || !epic_decode_from_cache(dc, ref_pix, &pix)) {
                         pix = epic_decode_pixel_pred(dc, x, y, curr_row, above_row);
+                        if (is_pixel_on_stack(dc, pix))
+                            return AVERROR_INVALIDDATA;
+
                         if (x) {
                             int ret = epic_add_pixel_to_cache(&dc->hash,
                                                               ref_pix,
@@ -900,7 +888,7 @@ static int epic_jb_decode_tile(G2MContext *c, int tile_x, int tile_y,
     }
 
     if (src_size < els_dsize) {
-        av_log(avctx, AV_LOG_ERROR, "ePIC: data too short, needed %zu, got %zu\n",
+        av_log(avctx, AV_LOG_ERROR, "ePIC: data too short, needed %"SIZE_SPECIFIER", got %"SIZE_SPECIFIER"\n",
                els_dsize, src_size);
         return AVERROR_INVALIDDATA;
     }
@@ -909,6 +897,11 @@ static int epic_jb_decode_tile(G2MContext *c, int tile_x, int tile_y,
     tile_height = FFMIN(c->height - tile_y * c->tile_height, c->tile_height);
     awidth      = FFALIGN(tile_width,  16);
     aheight     = FFALIGN(tile_height, 16);
+
+    if (tile_width > (1 << FF_ARRAY_ELEMS(c->ec.prev_row_rung))) {
+        avpriv_request_sample(avctx, "large tile width");
+        return AVERROR_INVALIDDATA;
+    }
 
     if (els_dsize) {
         int ret, i, j, k;
@@ -1036,7 +1029,7 @@ static int kempf_restore_buf(const uint8_t *src, int len,
     else if (npal <= 16) nb = 4;
     else                 nb = 8;
 
-    for (j = 0; j < height; j++, dst += stride, jpeg_tile += tile_stride) {
+    for (j = 0; j < height; j++, dst += stride, jpeg_tile = FF_PTR_ADD(jpeg_tile, tile_stride)) {
         if (get_bits(&gb, 8))
             continue;
         for (i = 0; i < width; i++) {
@@ -1431,8 +1424,7 @@ static int g2m_decode_frame(AVCodecContext *avctx, void *data,
             }
             c->width  = bytestream2_get_be32(&bc);
             c->height = bytestream2_get_be32(&bc);
-            if (c->width  < 16 || c->width  > c->orig_width ||
-                c->height < 16 || c->height > c->orig_height) {
+            if (c->width < 16 || c->height < 16) {
                 av_log(avctx, AV_LOG_ERROR,
                        "Invalid frame dimensions %dx%d\n",
                        c->width, c->height);
@@ -1446,9 +1438,8 @@ static int g2m_decode_frame(AVCodecContext *avctx, void *data,
             }
             c->compression = bytestream2_get_be32(&bc);
             if (c->compression != 2 && c->compression != 3) {
-                av_log(avctx, AV_LOG_ERROR,
-                       "Unknown compression method %d\n",
-                       c->compression);
+                avpriv_report_missing_feature(avctx, "Compression method %d",
+                                              c->compression);
                 ret = AVERROR_PATCHWELCOME;
                 goto header_fail;
             }
@@ -1456,7 +1447,8 @@ static int g2m_decode_frame(AVCodecContext *avctx, void *data,
             c->tile_height = bytestream2_get_be32(&bc);
             if (c->tile_width <= 0 || c->tile_height <= 0 ||
                 ((c->tile_width | c->tile_height) & 0xF) ||
-                c->tile_width * (uint64_t)c->tile_height >= INT_MAX / 4
+                c->tile_width * (uint64_t)c->tile_height >= INT_MAX / 4 ||
+                av_image_check_size2(c->tile_width, c->tile_height, avctx->max_pixels, avctx->pix_fmt, 0, avctx) < 0
             ) {
                 av_log(avctx, AV_LOG_ERROR,
                        "Invalid tile dimensions %dx%d\n",
@@ -1479,9 +1471,9 @@ static int g2m_decode_frame(AVCodecContext *avctx, void *data,
                 g_mask = bytestream2_get_be32(&bc);
                 b_mask = bytestream2_get_be32(&bc);
                 if (r_mask != 0xFF0000 || g_mask != 0xFF00 || b_mask != 0xFF) {
-                    av_log(avctx, AV_LOG_ERROR,
-                           "Invalid or unsupported bitmasks: R=%"PRIX32", G=%"PRIX32", B=%"PRIX32"\n",
-                           r_mask, g_mask, b_mask);
+                    avpriv_report_missing_feature(avctx,
+                                                  "Bitmasks: R=%"PRIX32", G=%"PRIX32", B=%"PRIX32,
+                                                  r_mask, g_mask, b_mask);
                     ret = AVERROR_PATCHWELCOME;
                     goto header_fail;
                 }

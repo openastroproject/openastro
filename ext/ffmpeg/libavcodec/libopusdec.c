@@ -22,8 +22,11 @@
 #include <opus.h>
 #include <opus_multistream.h>
 
-#include "libavutil/avassert.h"
+#include "libavutil/internal.h"
 #include "libavutil/intreadwrite.h"
+#include "libavutil/ffmath.h"
+#include "libavutil/opt.h"
+
 #include "avcodec.h"
 #include "internal.h"
 #include "vorbis.h"
@@ -31,10 +34,14 @@
 #include "libopus.h"
 
 struct libopus_context {
+    AVClass *class;
     OpusMSDecoder *dec;
     int pre_skip;
 #ifndef OPUS_SET_GAIN
     union { int i; double d; } gain;
+#endif
+#ifdef OPUS_SET_PHASE_INVERSION_DISABLED_REQUEST
+    int apply_phase_inv;
 #endif
 };
 
@@ -85,7 +92,7 @@ static av_cold int libopus_decode_init(AVCodecContext *avc)
         const uint8_t *vorbis_offset = ff_vorbis_channel_layout_offsets[avc->channels - 1];
         int ch;
 
-        /* Remap channels from vorbis order to ffmpeg order */
+        /* Remap channels from Vorbis order to ffmpeg order */
         for (ch = 0; ch < avc->channels; ch++)
             mapping_arr[ch] = mapping[vorbis_offset[ch]];
         mapping = mapping_arr;
@@ -107,12 +114,21 @@ static av_cold int libopus_decode_init(AVCodecContext *avc)
                opus_strerror(ret));
 #else
     {
-        double gain_lin = pow(10, gain_db / (20.0 * 256));
+        double gain_lin = ff_exp10(gain_db / (20.0 * 256));
         if (avc->sample_fmt == AV_SAMPLE_FMT_FLT)
             opus->gain.d = gain_lin;
         else
             opus->gain.i = FFMIN(gain_lin * 65536, INT_MAX);
     }
+#endif
+
+#ifdef OPUS_SET_PHASE_INVERSION_DISABLED_REQUEST
+    ret = opus_multistream_decoder_ctl(opus->dec,
+                                       OPUS_SET_PHASE_INVERSION_DISABLED(!opus->apply_phase_inv));
+    if (ret != OPUS_OK)
+        av_log(avc, AV_LOG_WARNING,
+               "Unable to set phase inversion: %s\n",
+               opus_strerror(ret));
 #endif
 
     /* Decoder delay (in samples) at 48kHz */
@@ -191,6 +207,24 @@ static void libopus_flush(AVCodecContext *avc)
     avc->internal->skip_samples = opus->pre_skip;
 }
 
+
+#define OFFSET(x) offsetof(struct libopus_context, x)
+#define FLAGS AV_OPT_FLAG_AUDIO_PARAM | AV_OPT_FLAG_DECODING_PARAM
+static const AVOption libopusdec_options[] = {
+#ifdef OPUS_SET_PHASE_INVERSION_DISABLED_REQUEST
+    { "apply_phase_inv", "Apply intensity stereo phase inversion", OFFSET(apply_phase_inv), AV_OPT_TYPE_BOOL, { .i64 = 1 }, 0, 1, FLAGS },
+#endif
+    { NULL },
+};
+
+static const AVClass libopusdec_class = {
+    .class_name = "libopusdec",
+    .item_name  = av_default_item_name,
+    .option     = libopusdec_options,
+    .version    = LIBAVUTIL_VERSION_INT,
+};
+
+
 AVCodec ff_libopus_decoder = {
     .name           = "libopus",
     .long_name      = NULL_IF_CONFIG_SMALL("libopus Opus"),
@@ -201,9 +235,11 @@ AVCodec ff_libopus_decoder = {
     .close          = libopus_decode_close,
     .decode         = libopus_decode,
     .flush          = libopus_flush,
-    .capabilities   = AV_CODEC_CAP_DR1,
+    .capabilities   = AV_CODEC_CAP_DR1 | AV_CODEC_CAP_CHANNEL_CONF,
     .caps_internal  = FF_CODEC_CAP_INIT_CLEANUP,
     .sample_fmts    = (const enum AVSampleFormat[]){ AV_SAMPLE_FMT_FLT,
                                                      AV_SAMPLE_FMT_S16,
                                                      AV_SAMPLE_FMT_NONE },
+    .priv_class     = &libopusdec_class,
+    .wrapper_name   = "libopus",
 };

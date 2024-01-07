@@ -43,6 +43,9 @@ static int txd_decode_frame(AVCodecContext *avctx, void *data, int *got_frame,
     int i, j;
     int ret;
 
+    if (avpkt->size < 88)
+        return AVERROR_INVALIDDATA;
+
     ff_texturedsp_init(&dxtc);
 
     bytestream2_init(&gb, avpkt->data, avpkt->size);
@@ -56,8 +59,7 @@ static int txd_decode_frame(AVCodecContext *avctx, void *data, int *got_frame,
     flags           = bytestream2_get_byte(&gb);
 
     if (version < 8 || version > 9) {
-        av_log(avctx, AV_LOG_ERROR, "texture data version %i is unsupported\n",
-                                                                    version);
+        avpriv_report_missing_feature(avctx, "Texture data version %u", version);
         return AVERROR_PATCHWELCOME;
     }
 
@@ -66,7 +68,7 @@ static int txd_decode_frame(AVCodecContext *avctx, void *data, int *got_frame,
     } else if (depth == 16 || depth == 32) {
         avctx->pix_fmt = AV_PIX_FMT_RGBA;
     } else {
-        av_log(avctx, AV_LOG_ERROR, "depth of %i is unsupported\n", depth);
+        avpriv_report_missing_feature(avctx, "Color depth of %u", depth);
         return AVERROR_PATCHWELCOME;
     }
 
@@ -104,7 +106,7 @@ static int txd_decode_frame(AVCodecContext *avctx, void *data, int *got_frame,
             if (!(flags & 1))
                 goto unsupported;
         case TXD_DXT1:
-            if (bytestream2_get_bytes_left(&gb) < FF_CEIL_RSHIFT(w, 2) * FF_CEIL_RSHIFT(h, 2) * 8)
+            if (bytestream2_get_bytes_left(&gb) < AV_CEIL_RSHIFT(w, 2) * AV_CEIL_RSHIFT(h, 2) * 8)
                 return AVERROR_INVALIDDATA;
             for (j = 0; j < avctx->height; j += 4) {
                 for (i = 0; i < avctx->width; i += 4) {
@@ -115,7 +117,7 @@ static int txd_decode_frame(AVCodecContext *avctx, void *data, int *got_frame,
             }
             break;
         case TXD_DXT3:
-            if (bytestream2_get_bytes_left(&gb) < FF_CEIL_RSHIFT(w, 2) * FF_CEIL_RSHIFT(h, 2) * 16)
+            if (bytestream2_get_bytes_left(&gb) < AV_CEIL_RSHIFT(w, 2) * AV_CEIL_RSHIFT(h, 2) * 16)
                 return AVERROR_INVALIDDATA;
             for (j = 0; j < avctx->height; j += 4) {
                 for (i = 0; i < avctx->width; i += 4) {
@@ -149,7 +151,7 @@ static int txd_decode_frame(AVCodecContext *avctx, void *data, int *got_frame,
     return avpkt->size;
 
 unsupported:
-    av_log(avctx, AV_LOG_ERROR, "unsupported d3d format (%08x)\n", d3d_format);
+    avpriv_report_missing_feature(avctx, "d3d format (%08x)", d3d_format);
     return AVERROR_PATCHWELCOME;
 }
 

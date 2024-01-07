@@ -47,7 +47,7 @@ typedef struct AnmDemuxContext {
 #define LPF_TAG  MKTAG('L','P','F',' ')
 #define ANIM_TAG MKTAG('A','N','I','M')
 
-static int probe(AVProbeData *p)
+static int probe(const AVProbeData *p)
 {
     /* verify tags and video dimensions */
     if (AV_RL32(&p->buf[0])  == LPF_TAG &&
@@ -100,11 +100,11 @@ static int read_header(AVFormatContext *s)
     st = avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
-    st->codec->codec_type = AVMEDIA_TYPE_VIDEO;
-    st->codec->codec_id   = AV_CODEC_ID_ANM;
-    st->codec->codec_tag  = 0; /* no fourcc */
-    st->codec->width      = avio_rl16(pb);
-    st->codec->height     = avio_rl16(pb);
+    st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
+    st->codecpar->codec_id   = AV_CODEC_ID_ANM;
+    st->codecpar->codec_tag  = 0; /* no fourcc */
+    st->codecpar->width      = avio_rl16(pb);
+    st->codecpar->height     = avio_rl16(pb);
     if (avio_r8(pb) != 0)
         goto invalid;
     avio_skip(pb, 1); /* frame rate multiplier info */
@@ -132,12 +132,7 @@ static int read_header(AVFormatContext *s)
     avio_skip(pb, 58);
 
     /* color cycling and palette data */
-    st->codec->extradata_size = 16*8 + 4*256;
-    st->codec->extradata      = av_mallocz(st->codec->extradata_size + AV_INPUT_BUFFER_PADDING_SIZE);
-    if (!st->codec->extradata) {
-        return AVERROR(ENOMEM);
-    }
-    ret = avio_read(pb, st->codec->extradata, st->codec->extradata_size);
+    ret = ff_get_extradata(s, st->codecpar, s->pb, 16*8 + 4*256);
     if (ret < 0)
         return ret;
 

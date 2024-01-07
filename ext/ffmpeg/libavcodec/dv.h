@@ -29,8 +29,9 @@
 
 #include "avcodec.h"
 #include "dv_profile.h"
-#include "get_bits.h"
 #include "me_cmp.h"
+#include "vlc.h"
+#include "idctdsp.h"
 
 typedef struct DVwork_chunk {
     uint16_t buf_offset;
@@ -38,19 +39,23 @@ typedef struct DVwork_chunk {
 } DVwork_chunk;
 
 typedef struct DVVideoContext {
+    AVClass *avclass;
     const AVDVProfile *sys;
-    AVFrame         *frame;
+    const AVFrame   *frame;
     AVCodecContext  *avctx;
     uint8_t         *buf;
 
     uint8_t dv_zigzag[2][64];
 
-    void (*get_pixels)(int16_t *block, const uint8_t *pixels, ptrdiff_t line_size);
+    void (*get_pixels)(int16_t *block, const uint8_t *pixels, ptrdiff_t linesize);
     void (*fdct[2])(int16_t *block);
-    void (*idct_put[2])(uint8_t *dest, int line_size, int16_t *block);
+    void (*idct_put[2])(uint8_t *dest, ptrdiff_t stride, int16_t *block);
     me_cmp_func ildct_cmp;
     DVwork_chunk work_chunks[4 * 12 * 27];
     uint32_t idct_factor[2 * 4 * 16 * 64];
+    IDCTDSPContext idsp;
+
+    int quant_deadzone;
 } DVVideoContext;
 
 enum dv_section_type {
@@ -78,6 +83,7 @@ enum dv_pack_type {
 
 #define DV_PROFILE_IS_HD(p) ((p)->video_stype & 0x10)
 #define DV_PROFILE_IS_1080i50(p) (((p)->video_stype == 0x14) && ((p)->dsf == 1))
+#define DV_PROFILE_IS_1080i60(p) (((p)->video_stype == 0x14) && ((p)->dsf == 0))
 #define DV_PROFILE_IS_720p50(p)  (((p)->video_stype == 0x18) && ((p)->dsf == 1))
 
 /**

@@ -70,6 +70,17 @@ static const AVClass vorbis_class = {
     .version    = LIBAVUTIL_VERSION_INT,
 };
 
+static const uint8_t vorbis_encoding_channel_layout_offsets[8][8] = {
+    { 0 },
+    { 0, 1 },
+    { 0, 2, 1 },
+    { 0, 1, 2, 3 },
+    { 0, 2, 1, 3, 4 },
+    { 0, 2, 1, 4, 5, 3 },
+    { 0, 2, 1, 5, 6, 4, 3 },
+    { 0, 2, 1, 6, 7, 4, 5, 3 },
+};
+
 static int vorbis_error_to_averror(int ov_err)
 {
     switch (ov_err) {
@@ -287,7 +298,7 @@ static int libvorbis_encode_frame(AVCodecContext *avctx, AVPacket *avpkt,
         buffer = vorbis_analysis_buffer(&s->vd, samples);
         for (c = 0; c < channels; c++) {
             int co = (channels > 8) ? c :
-                     ff_vorbis_encoding_channel_layout_offsets[channels - 1][c];
+                     vorbis_encoding_channel_layout_offsets[channels - 1][c];
             memcpy(buffer[c], frame->extended_data[co],
                    samples * sizeof(*buffer[c]));
         }
@@ -377,4 +388,5 @@ AVCodec ff_libvorbis_encoder = {
                                                       AV_SAMPLE_FMT_NONE },
     .priv_class     = &vorbis_class,
     .defaults       = defaults,
+    .wrapper_name   = "libvorbis",
 };

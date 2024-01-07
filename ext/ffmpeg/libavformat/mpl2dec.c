@@ -23,6 +23,8 @@
  * MPL2 subtitles format demuxer
  */
 
+#include "libavutil/intreadwrite.h"
+
 #include "avformat.h"
 #include "internal.h"
 #include "subtitles.h"
@@ -31,13 +33,16 @@ typedef struct {
     FFDemuxSubtitlesQueue q;
 } MPL2Context;
 
-static int mpl2_probe(AVProbeData *p)
+static int mpl2_probe(const AVProbeData *p)
 {
     int i;
     char c;
     int64_t start, end;
     const unsigned char *ptr = p->buf;
     const unsigned char *ptr_end = ptr + p->buf_size;
+
+    if (AV_RB24(ptr) == 0xefbbbf)
+        ptr += 3;
 
     for (i = 0; i < 2; i++) {
         if (sscanf(ptr, "[%"SCNd64"][%"SCNd64"]%c", &start, &end, &c) != 3 &&
@@ -50,7 +55,7 @@ static int mpl2_probe(AVProbeData *p)
     return AVPROBE_SCORE_MAX;
 }
 
-static int read_ts(char **line, int64_t *pts_start, int *duration)
+static int read_ts(char **line, int64_t *pts_start, int64_t *duration)
 {
     char c;
     int len;
@@ -64,7 +69,10 @@ static int read_ts(char **line, int64_t *pts_start, int *duration)
     }
     if (sscanf(*line, "[%"SCNd64"][%"SCNd64"]%c%n",
                pts_start, &end, &c, &len) >= 3) {
-        *duration = end - *pts_start;
+        if (end < *pts_start || end - (uint64_t)*pts_start > INT64_MAX) {
+            *duration = -1;
+        } else
+            *duration = end - *pts_start;
         *line += len - 1;
         return 0;
     }
@@ -75,13 +83,15 @@ static int mpl2_read_header(AVFormatContext *s)
 {
     MPL2Context *mpl2 = s->priv_data;
     AVStream *st = avformat_new_stream(s, NULL);
-    int res = 0;
 
     if (!st)
         return AVERROR(ENOMEM);
     avpriv_set_pts_info(st, 64, 1, 10);
-    st->codec->codec_type = AVMEDIA_TYPE_SUBTITLE;
-    st->codec->codec_id   = AV_CODEC_ID_MPL2;
+    st->codecpar->codec_type = AVMEDIA_TYPE_SUBTITLE;
+    st->codecpar->codec_id   = AV_CODEC_ID_MPL2;
+
+    if (avio_rb24(s->pb) != 0xefbbbf)
+        avio_seek(s->pb, -3, SEEK_CUR);
 
     while (!avio_feof(s->pb)) {
         char line[4096];
@@ -89,7 +99,7 @@ static int mpl2_read_header(AVFormatContext *s)
         const int64_t pos = avio_tell(s->pb);
         int len = ff_get_line(s->pb, line, sizeof(line));
         int64_t pts_start;
-        int duration;
+        int64_t duration;
 
         if (!len)
             break;
@@ -100,16 +110,18 @@ static int mpl2_read_header(AVFormatContext *s)
             AVPacket *sub;
 
             sub = ff_subtitles_queue_insert(&mpl2->q, p, strlen(p), 0);
-            if (!sub)
+            if (!sub) {
+                ff_subtitles_queue_clean(&mpl2->q);
                 return AVERROR(ENOMEM);
+            }
             sub->pos = pos;
             sub->pts = pts_start;
             sub->duration = duration;
         }
     }
 
-    ff_subtitles_queue_finalize(&mpl2->q);
-    return res;
+    ff_subtitles_queue_finalize(s, &mpl2->q);
+    return 0;
 }
 
 static int mpl2_read_packet(AVFormatContext *s, AVPacket *pkt)

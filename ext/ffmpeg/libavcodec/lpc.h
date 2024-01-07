@@ -95,7 +95,7 @@ int ff_lpc_calc_coefs(LPCContext *s,
                       int max_order, int precision,
                       int32_t coefs[][MAX_LPC_ORDER], int *shift,
                       enum FFLPCType lpc_type, int lpc_passes,
-                      int omethod, int max_shift, int zero_shift);
+                      int omethod, int min_shift, int max_shift, int zero_shift);
 
 int ff_lpc_calc_ref_coefs(LPCContext *s,
                           const int32_t *samples, int order, double *ref);
@@ -116,12 +116,15 @@ void ff_lpc_init_x86(LPCContext *s);
 void ff_lpc_end(LPCContext *s);
 
 #if USE_FIXED
-#define LPC_TYPE int
+typedef int LPC_TYPE;
+typedef unsigned LPC_TYPE_U;
 #else
 #ifdef LPC_USE_DOUBLE
-#define LPC_TYPE double
+typedef double LPC_TYPE;
+typedef double LPC_TYPE_U;
 #else
-#define LPC_TYPE float
+typedef float LPC_TYPE;
+typedef float LPC_TYPE_U;
 #endif
 #endif // USE_FIXED
 
@@ -140,7 +143,7 @@ static inline void compute_ref_coefs(const LPC_TYPE *autoc, int max_order,
         gen0[i] = gen1[i] = autoc[i + 1];
 
     err    = autoc[0];
-    ref[0] = -gen1[0] / err;
+    ref[0] = -gen1[0] / ((USE_FIXED || err) ? err : 1);
     err   +=  gen1[0] * ref[0];
     if (error)
         error[0] = err;
@@ -149,7 +152,7 @@ static inline void compute_ref_coefs(const LPC_TYPE *autoc, int max_order,
             gen1[j] = gen1[j + 1] + ref[i - 1] * gen0[j];
             gen0[j] = gen1[j + 1] * ref[i - 1] + gen0[j];
         }
-        ref[i] = -gen1[0] / err;
+        ref[i] = -gen1[0] / ((USE_FIXED || err) ? err : 1);
         err   +=  gen1[0] * ref[i];
         if (error)
             error[i] = err;
@@ -183,7 +186,8 @@ static inline int AAC_RENAME(compute_lpc_coefs)(const LPC_TYPE *autoc, int max_o
             for(j=0; j<i; j++)
                 r -= lpc_last[j] * autoc[i-j-1];
 
-            r /= err;
+            if (err)
+                r /= err;
             err *= FIXR(1.0) - (r * r);
         }
 
@@ -192,8 +196,8 @@ static inline int AAC_RENAME(compute_lpc_coefs)(const LPC_TYPE *autoc, int max_o
         for(j=0; j < (i+1)>>1; j++) {
             LPC_TYPE f = lpc_last[    j];
             LPC_TYPE b = lpc_last[i-1-j];
-            lpc[    j] = f + AAC_MUL26(r, b);
-            lpc[i-1-j] = b + AAC_MUL26(r, f);
+            lpc[    j] = f + (LPC_TYPE_U)AAC_MUL26(r, b);
+            lpc[i-1-j] = b + (LPC_TYPE_U)AAC_MUL26(r, f);
         }
 
         if (fail && err < 0)

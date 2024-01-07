@@ -31,12 +31,6 @@
  *     No known samples exist.  The spec also does not give clear information
  *     on how this is to be implemented.
  *
- * Dependent Streams
- *     Only the independent stream is currently decoded. Any dependent
- *     streams are skipped.  We have only come across two examples of this, and
- *     they are both just test streams, one for HD-DVD and the other for
- *     Blu-ray.
- *
  * Transient Pre-noise Processing
  *     This is side information which a decoder should use to reduce artifacts
  *     caused by transients.  There are samples which are known to have this
@@ -48,7 +42,6 @@
 #include "internal.h"
 #include "aac_ac3_parser.h"
 #include "ac3.h"
-#include "ac3_parser.h"
 #include "ac3dec.h"
 #include "ac3dec_data.h"
 #include "eac3_data.h"
@@ -146,9 +139,11 @@ static void ff_eac3_apply_spectral_extension(AC3DecodeContext *s)
             // spx_noise_blend and spx_signal_blend are both FP.23
             nscale *= 1.0 / (1<<23);
             sscale *= 1.0 / (1<<23);
+            if (nscale < -1.0)
+                nscale = -1.0;
 #endif
             for (i = 0; i < s->spx_band_sizes[bnd]; i++) {
-                float noise  = nscale * (int32_t)av_lfg_get(&s->dith_state);
+                UINTFLOAT noise = (INTFLOAT)(nscale * (int32_t)av_lfg_get(&s->dith_state));
                 s->transform_coeffs[ch][bin]   *= sscale;
                 s->transform_coeffs[ch][bin++] += noise;
             }
@@ -304,10 +299,7 @@ static int ff_eac3_parse_header(AC3DecodeContext *s)
     /* An E-AC-3 stream can have multiple independent streams which the
        application can select from. each independent stream can also contain
        dependent streams which are used to add or replace channels. */
-    if (s->frame_type == EAC3_FRAME_TYPE_DEPENDENT) {
-        avpriv_request_sample(s->avctx, "Dependent substream decoding");
-        return AAC_AC3_PARSE_ERROR_FRAME_TYPE;
-    } else if (s->frame_type == EAC3_FRAME_TYPE_RESERVED) {
+    if (s->frame_type == EAC3_FRAME_TYPE_RESERVED) {
         av_log(s->avctx, AV_LOG_ERROR, "Reserved frame type\n");
         return AAC_AC3_PARSE_ERROR_FRAME_TYPE;
     }
@@ -317,7 +309,10 @@ static int ff_eac3_parse_header(AC3DecodeContext *s)
        associated to an independent stream have matching substream id's. */
     if (s->substreamid) {
         /* only decode substream with id=0. skip any additional substreams. */
-        avpriv_request_sample(s->avctx, "Additional substreams");
+        if (!s->eac3_subsbtreamid_found) {
+            s->eac3_subsbtreamid_found = 1;
+            avpriv_request_sample(s->avctx, "Additional substreams");
+        }
         return AAC_AC3_PARSE_ERROR_FRAME_TYPE;
     }
 
@@ -333,16 +328,35 @@ static int ff_eac3_parse_header(AC3DecodeContext *s)
 
     /* volume control params */
     for (i = 0; i < (s->channel_mode ? 1 : 2); i++) {
-        skip_bits(gbc, 5); // skip dialog normalization
-        if (get_bits1(gbc)) {
-            skip_bits(gbc, 8); // skip compression gain word
+        s->dialog_normalization[i] = -get_bits(gbc, 5);
+        if (s->dialog_normalization[i] == 0) {
+            s->dialog_normalization[i] = -31;
+        }
+        if (s->target_level != 0) {
+            s->level_gain[i] = powf(2.0f,
+                (float)(s->target_level - s->dialog_normalization[i])/6.0f);
+        }
+        s->compression_exists[i] = get_bits1(gbc);
+        if (s->compression_exists[i]) {
+            s->heavy_dynamic_range[i] = AC3_HEAVY_RANGE(get_bits(gbc, 8));
         }
     }
 
     /* dependent stream channel map */
     if (s->frame_type == EAC3_FRAME_TYPE_DEPENDENT) {
         if (get_bits1(gbc)) {
-            skip_bits(gbc, 16); // skip custom channel map
+            int64_t channel_layout = 0;
+            int channel_map = get_bits(gbc, 16);
+            av_log(s->avctx, AV_LOG_DEBUG, "channel_map: %0X\n", channel_map);
+
+            for (i = 0; i < 16; i++)
+                if (channel_map & (1 << (EAC3_MAX_CHANNELS - i - 1)))
+                    channel_layout |= ff_eac3_custom_channel_map_locations[i][1];
+
+            if (av_popcount64(channel_layout) > EAC3_MAX_CHANNELS) {
+                return AVERROR_INVALIDDATA;
+            }
+            s->channel_map = channel_map;
         }
     }
 

@@ -33,13 +33,13 @@ int ff_rv10_encode_picture_header(MpegEncContext *s, int picture_number)
 {
     int full_frame= 0;
 
-    avpriv_align_put_bits(&s->pb);
+    align_put_bits(&s->pb);
 
     put_bits(&s->pb, 1, 1);     /* marker */
 
     put_bits(&s->pb, 1, (s->pict_type == AV_PICTURE_TYPE_P));
 
-    put_bits(&s->pb, 1, 0);     /* not PB frame */
+    put_bits(&s->pb, 1, 0);     /* not PB-mframe */
 
     put_bits(&s->pb, 5, s->qscale);
 
@@ -79,6 +79,7 @@ AVCodec ff_rv10_encoder = {
     .init           = ff_mpv_encode_init,
     .encode2        = ff_mpv_encode_picture,
     .close          = ff_mpv_encode_end,
+    .caps_internal  = FF_CODEC_CAP_INIT_CLEANUP,
     .pix_fmts       = (const enum AVPixelFormat[]){ AV_PIX_FMT_YUV420P, AV_PIX_FMT_NONE },
     .priv_class     = &rv10_class,
 };

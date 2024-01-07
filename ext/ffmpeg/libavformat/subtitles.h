@@ -100,11 +100,12 @@ int ff_text_peek_r8(FFTextReader *r);
 void ff_text_read(FFTextReader *r, char *buf, size_t size);
 
 typedef struct {
-    AVPacket *subs;         ///< array of subtitles packets
+    AVPacket **subs;         ///< array of subtitles packets
     int nb_subs;            ///< number of subtitles packets
     int allocated_size;     ///< allocated size for subs
     int current_sub_idx;    ///< current position for the read packet callback
     enum sub_sort sort;     ///< sort method to use when finalizing subtitles
+    int keep_duplicates;    ///< set to 1 to keep duplicated subtitle events
 } FFDemuxSubtitlesQueue;
 
 /**
@@ -119,9 +120,10 @@ AVPacket *ff_subtitles_queue_insert(FFDemuxSubtitlesQueue *q,
                                     const uint8_t *event, size_t len, int merge);
 
 /**
- * Set missing durations and sort subtitles by PTS, and then byte position.
+ * Set missing durations, sort subtitles by PTS (and then byte position), and
+ * drop duplicated events.
  */
-void ff_subtitles_queue_finalize(FFDemuxSubtitlesQueue *q);
+void ff_subtitles_queue_finalize(void *log_ctx, FFDemuxSubtitlesQueue *q);
 
 /**
  * Generic read_packet() callback for subtitles demuxers using this queue
@@ -186,7 +188,7 @@ static av_always_inline int ff_subtitles_next_line(const char *ptr)
 {
     int n = strcspn(ptr, "\r\n");
     ptr += n;
-    if (*ptr == '\r') {
+    while (*ptr == '\r') {
         ptr++;
         n++;
     }

@@ -24,8 +24,9 @@
 #include <stdint.h>
 
 #include "libavutil/frame.h"
+#include "libavutil/mem_internal.h"
+
 #include "avcodec.h"
-#include "get_bits.h"
 #include "hpeldsp.h"
 #include "me_cmp.h"
 #include "mpegvideo.h"
@@ -42,7 +43,6 @@ typedef struct SVQ1EncContext {
     AVFrame *current_picture;
     AVFrame *last_picture;
     PutBitContext pb;
-    GetBitContext gb;
 
     /* Some compression statistics */
     enum AVPictureType pict_type;

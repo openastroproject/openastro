@@ -29,6 +29,7 @@
 typedef struct {
     AVClass *class;
     uint32_t global_palette[16];
+    char *palette_str;
     int even_rows_fix;
 } DVDSubtitleContext;
 
@@ -118,15 +119,15 @@ static void count_colors(AVCodecContext *avctx, unsigned hits[33],
 {
     DVDSubtitleContext *dvdc = avctx->priv_data;
     unsigned count[256] = { 0 };
-    uint32_t *palette = (uint32_t *)r->pict.data[1];
+    uint32_t *palette = (uint32_t *)r->data[1];
     uint32_t color;
     int x, y, i, j, match, d, best_d, av_uninit(best_j);
-    uint8_t *p = r->pict.data[0];
+    uint8_t *p = r->data[0];
 
     for (y = 0; y < r->h; y++) {
         for (x = 0; x < r->w; x++)
             count[*(p++)]++;
-        p += r->pict.linesize[0] - r->w;
+        p += r->linesize[0] - r->w;
     }
     for (i = 0; i < 256; i++) {
         if (!count[i]) /* avoid useless search */
@@ -236,14 +237,14 @@ static void copy_rectangle(AVSubtitleRect *dst, AVSubtitleRect *src, int cmap[])
     int x, y;
     uint8_t *p, *q;
 
-    p = src->pict.data[0];
-    q = dst->pict.data[0] + (src->x - dst->x) +
-                            (src->y - dst->y) * dst->pict.linesize[0];
+    p = src->data[0];
+    q = dst->data[0] + (src->x - dst->x) +
+                            (src->y - dst->y) * dst->linesize[0];
     for (y = 0; y < src->h; y++) {
         for (x = 0; x < src->w; x++)
             *(q++) = cmap[*(p++)];
-        p += src->pict.linesize[0] - src->w;
-        q += dst->pict.linesize[0] - src->w;
+        p += src->linesize[0] - src->w;
+        q += dst->linesize[0] - src->w;
     }
 }
 
@@ -277,6 +278,21 @@ static int encode_dvd_subtitles(AVCodecContext *avctx,
             forced = 1;
             break;
         }
+
+#if FF_API_AVPICTURE
+FF_DISABLE_DEPRECATION_WARNINGS
+    for (i = 0; i < rects; i++)
+        if (!h->rects[i]->data[0]) {
+            AVSubtitleRect *rect = h->rects[i];
+            int j;
+            for (j = 0; j < 4; j++) {
+                rect->data[j] = rect->pict.data[j];
+                rect->linesize[j] = rect->pict.linesize[j];
+            }
+        }
+FF_ENABLE_DEPRECATION_WARNINGS
+#endif
+
     vrect = *h->rects[0];
 
     if (rects > 1) {
@@ -312,23 +328,23 @@ static int encode_dvd_subtitles(AVCodecContext *avctx,
     if (rects > 1) {
         if (!(vrect_data = av_calloc(vrect.w, vrect.h)))
             return AVERROR(ENOMEM);
-        vrect.pict.data    [0] = vrect_data;
-        vrect.pict.linesize[0] = vrect.w;
+        vrect.data    [0] = vrect_data;
+        vrect.linesize[0] = vrect.w;
         for (i = 0; i < rects; i++) {
-            build_color_map(avctx, cmap, (uint32_t *)h->rects[i]->pict.data[1],
+            build_color_map(avctx, cmap, (uint32_t *)h->rects[i]->data[1],
                             out_palette, out_alpha);
             copy_rectangle(&vrect, h->rects[i], cmap);
         }
         for (i = 0; i < 4; i++)
             cmap[i] = i;
     } else {
-        build_color_map(avctx, cmap, (uint32_t *)h->rects[0]->pict.data[1],
+        build_color_map(avctx, cmap, (uint32_t *)h->rects[0]->data[1],
                         out_palette, out_alpha);
     }
 
     av_log(avctx, AV_LOG_DEBUG, "Selected palette:");
     for (i = 0; i < 4; i++)
-        av_log(avctx, AV_LOG_DEBUG, " 0x%06x@@%02x (0x%x,0x%x)",
+        av_log(avctx, AV_LOG_DEBUG, " 0x%06"PRIx32"@@%02x (0x%x,0x%x)",
                dvdc->global_palette[out_palette[i]], out_alpha[i],
                out_palette[i], out_alpha[i] >> 4);
     av_log(avctx, AV_LOG_DEBUG, "\n");
@@ -342,10 +358,10 @@ static int encode_dvd_subtitles(AVCodecContext *avctx,
         ret = AVERROR_BUFFER_TOO_SMALL;
         goto fail;
     }
-    dvd_encode_rle(&q, vrect.pict.data[0], vrect.w * 2,
+    dvd_encode_rle(&q, vrect.data[0], vrect.w * 2,
                    vrect.w, (vrect.h + 1) >> 1, cmap);
     offset2 = q - outbuf;
-    dvd_encode_rle(&q, vrect.pict.data[0] + vrect.w, vrect.w * 2,
+    dvd_encode_rle(&q, vrect.data[0] + vrect.w, vrect.w * 2,
                    vrect.w, vrect.h >> 1, cmap);
 
     if (dvdc->even_rows_fix && (vrect.h & 1)) {
@@ -408,6 +424,29 @@ fail:
     return ret;
 }
 
+static int bprint_to_extradata(AVCodecContext *avctx, struct AVBPrint *buf)
+{
+    int ret;
+    char *str;
+
+    ret = av_bprint_finalize(buf, &str);
+    if (ret < 0)
+        return ret;
+    if (!av_bprint_is_complete(buf)) {
+        av_free(str);
+        return AVERROR(ENOMEM);
+    }
+
+    avctx->extradata = str;
+    /* Note: the string is NUL terminated (so extradata can be read as a
+     * string), but the ending character is not accounted in the size (in
+     * binary formats you are likely not supposed to mux that character). When
+     * extradata is copied, it is also padded with AV_INPUT_BUFFER_PADDING_SIZE
+     * zeros. */
+    avctx->extradata_size = buf->len;
+    return 0;
+}
+
 static int dvdsub_init(AVCodecContext *avctx)
 {
     DVDSubtitleContext *dvdc = avctx->priv_data;
@@ -421,9 +460,13 @@ static int dvdsub_init(AVCodecContext *avctx)
     int i, ret;
 
     av_assert0(sizeof(dvdc->global_palette) == sizeof(default_palette));
-    memcpy(dvdc->global_palette, default_palette, sizeof(dvdc->global_palette));
+    if (dvdc->palette_str) {
+        ff_dvdsub_parse_palette(dvdc->global_palette, dvdc->palette_str);
+    } else {
+        memcpy(dvdc->global_palette, default_palette, sizeof(dvdc->global_palette));
+    }
 
-    av_bprint_init(&extradata, 0, 1);
+    av_bprint_init(&extradata, 0, AV_BPRINT_SIZE_AUTOMATIC);
     if (avctx->width && avctx->height)
         av_bprintf(&extradata, "size: %dx%d\n", avctx->width, avctx->height);
     av_bprintf(&extradata, "palette:");
@@ -431,7 +474,7 @@ static int dvdsub_init(AVCodecContext *avctx)
         av_bprintf(&extradata, " %06"PRIx32"%c",
                    dvdc->global_palette[i] & 0xFFFFFF, i < 15 ? ',' : '\n');
 
-    ret = avpriv_bprint_to_extradata(avctx, &extradata);
+    ret = bprint_to_extradata(avctx, &extradata);
     if (ret < 0)
         return ret;
 
@@ -452,7 +495,8 @@ static int dvdsub_encode(AVCodecContext *avctx,
 #define OFFSET(x) offsetof(DVDSubtitleContext, x)
 #define SE AV_OPT_FLAG_SUBTITLE_PARAM | AV_OPT_FLAG_ENCODING_PARAM
 static const AVOption options[] = {
-    {"even_rows_fix", "Make number of rows even (workaround for some players)", OFFSET(even_rows_fix), AV_OPT_TYPE_INT, {.i64 = 0}, 0, 1, SE},
+    {"palette", "set the global palette", OFFSET(palette_str), AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, SE },
+    {"even_rows_fix", "Make number of rows even (workaround for some players)", OFFSET(even_rows_fix), AV_OPT_TYPE_BOOL, {.i64 = 0}, 0, 1, SE},
     { NULL },
 };
 

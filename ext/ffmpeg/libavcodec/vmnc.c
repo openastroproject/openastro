@@ -287,17 +287,24 @@ static int decode_hextile(VmncContext *c, uint8_t* dst, GetByteContext *gb,
                     return AVERROR_INVALIDDATA;
                 }
                 for (k = 0; k < rects; k++) {
+                    int rect_x, rect_y, rect_w, rect_h;
                     if (color)
                         fg = vmnc_get_pixel(gb, bpp, c->bigendian);
                     xy = bytestream2_get_byte(gb);
                     wh = bytestream2_get_byte(gb);
-                    if (   (xy >> 4) + (wh >> 4) + 1 > w - i
-                        || (xy & 0xF) + (wh & 0xF)+1 > h - j) {
+
+                    rect_x = xy >> 4;
+                    rect_y = xy & 0xF;
+                    rect_w = (wh >> 4) + 1;
+                    rect_h = (wh & 0xF) + 1;
+
+                    if (rect_x + rect_w > w - i || rect_y + rect_h > h - j) {
                         av_log(c->avctx, AV_LOG_ERROR, "Rectangle outside picture\n");
                         return AVERROR_INVALIDDATA;
                     }
-                    paint_rect(dst2, xy >> 4, xy & 0xF,
-                               (wh>>4)+1, (wh & 0xF)+1, fg, bpp, stride);
+
+                    paint_rect(dst2, rect_x, rect_y,
+                               rect_w, rect_h, fg, bpp, stride);
                 }
             }
         }
@@ -326,10 +333,14 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *got_frame,
     uint8_t *outptr;
     int dx, dy, w, h, depth, enc, chunks, res, size_left, ret;
 
-    if ((ret = ff_reget_buffer(avctx, c->pic)) < 0)
-        return ret;
-
     bytestream2_init(gb, buf, buf_size);
+    bytestream2_skip(gb, 2);
+    chunks = bytestream2_get_be16(gb);
+    if (12LL * chunks > bytestream2_get_bytes_left(gb))
+        return AVERROR_INVALIDDATA;
+
+    if ((ret = ff_reget_buffer(avctx, c->pic, 0)) < 0)
+        return ret;
 
     c->pic->key_frame = 0;
     c->pic->pict_type = AV_PICTURE_TYPE_P;
@@ -362,8 +373,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *got_frame,
             }
         }
     }
-    bytestream2_skip(gb, 2);
-    chunks = bytestream2_get_be16(gb);
+
     while (chunks--) {
         if (bytestream2_get_bytes_left(gb) < 12) {
             av_log(avctx, AV_LOG_ERROR, "Premature end of data!\n");

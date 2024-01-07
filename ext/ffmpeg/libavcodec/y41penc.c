@@ -31,6 +31,7 @@ static av_cold int y41p_encode_init(AVCodecContext *avctx)
     }
 
     avctx->bits_per_coded_sample = 12;
+    avctx->bit_rate = ff_guess_coded_bitrate(avctx);
 
     return 0;
 }
@@ -74,11 +75,6 @@ static int y41p_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
     return 0;
 }
 
-static av_cold int y41p_encode_close(AVCodecContext *avctx)
-{
-    return 0;
-}
-
 AVCodec ff_y41p_encoder = {
     .name         = "y41p",
     .long_name    = NULL_IF_CONFIG_SMALL("Uncompressed YUV 4:1:1 12-bit"),
@@ -86,8 +82,7 @@ AVCodec ff_y41p_encoder = {
     .id           = AV_CODEC_ID_Y41P,
     .init         = y41p_encode_init,
     .encode2      = y41p_encode_frame,
-    .close        = y41p_encode_close,
     .pix_fmts     = (const enum AVPixelFormat[]) { AV_PIX_FMT_YUV411P,
                                                  AV_PIX_FMT_NONE },
-    .capabilities = AV_CODEC_CAP_INTRA_ONLY,
+    .caps_internal = FF_CODEC_CAP_INIT_THREADSAFE,
 };

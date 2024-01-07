@@ -34,37 +34,51 @@
 static SoftFloat sbr_sum_square_c(int (*x)[2], int n)
 {
     SoftFloat ret;
-    int64_t accu = 0;
-    int i, nz, round;
+    uint64_t accu = 0, round;
+    uint64_t accu0 = 0, accu1 = 0, accu2 = 0, accu3 = 0;
+    int i, nz, nz0;
+    unsigned u;
 
+    nz = 0;
     for (i = 0; i < n; i += 2) {
-        // Larger values are inavlid and could cause overflows of accu.
-        av_assert2(FFABS(x[i + 0][0]) >> 29 == 0);
-        accu += (int64_t)x[i + 0][0] * x[i + 0][0];
-        av_assert2(FFABS(x[i + 0][1]) >> 29 == 0);
-        accu += (int64_t)x[i + 0][1] * x[i + 0][1];
-        av_assert2(FFABS(x[i + 1][0]) >> 29 == 0);
-        accu += (int64_t)x[i + 1][0] * x[i + 1][0];
-        av_assert2(FFABS(x[i + 1][1]) >> 29 == 0);
-        accu += (int64_t)x[i + 1][1] * x[i + 1][1];
-    }
-
-    i = (int)(accu >> 32);
-    if (i == 0) {
-        nz = 1;
-    } else {
-        nz = 0;
-        while (FFABS(i) < 0x40000000) {
-            i <<= 1;
-            nz++;
+        accu0 += (int64_t)x[i + 0][0] * x[i + 0][0];
+        accu1 += (int64_t)x[i + 0][1] * x[i + 0][1];
+        accu2 += (int64_t)x[i + 1][0] * x[i + 1][0];
+        accu3 += (int64_t)x[i + 1][1] * x[i + 1][1];
+        if ((accu0|accu1|accu2|accu3) > UINT64_MAX - INT32_MIN*(int64_t)INT32_MIN || i+2>=n) {
+            accu0 >>= nz;
+            accu1 >>= nz;
+            accu2 >>= nz;
+            accu3 >>= nz;
+            while ((accu0|accu1|accu2|accu3) > (UINT64_MAX - accu) >> 2) {
+                accu0 >>= 1;
+                accu1 >>= 1;
+                accu2 >>= 1;
+                accu3 >>= 1;
+                accu  >>= 1;
+                nz ++;
+            }
+            accu += accu0 + accu1 + accu2 + accu3;
+            accu0 = accu1 = accu2 = accu3 = 0;
         }
-        nz = 32 - nz;
     }
 
-    round = 1 << (nz-1);
-    i = (int)((accu + round) >> nz);
-    i >>= 1;
-    ret = av_int2sf(i, 15 - nz);
+    nz0 = 15 - nz;
+
+    u = accu >> 32;
+    if (u) {
+        nz = 33;
+        while (u < 0x80000000U) {
+            u <<= 1;
+            nz--;
+        }
+    } else
+        nz = 1;
+
+    round = 1ULL << (nz-1);
+    u = ((accu + round) >> nz);
+    u >>= 1;
+    ret = av_int2sf(u, nz0 - nz);
 
     return ret;
 }
@@ -73,7 +87,7 @@ static void sbr_neg_odd_64_c(int *x)
 {
     int i;
     for (i = 1; i < 64; i += 2)
-        x[i] = -x[i];
+        x[i] = -(unsigned)x[i];
 }
 
 static void sbr_qmf_pre_shuffle_c(int *z)
@@ -100,30 +114,31 @@ static void sbr_qmf_deint_neg_c(int *v, const int *src)
 {
     int i;
     for (i = 0; i < 32; i++) {
-        v[     i] = ( src[63 - 2*i    ] + 0x10) >> 5;
-        v[63 - i] = (-src[63 - 2*i - 1] + 0x10) >> 5;
+        v[     i] = (int)(0x10U + src[63 - 2*i    ]) >> 5;
+        v[63 - i] = (int)(0x10U - src[63 - 2*i - 1]) >> 5;
     }
 }
 
 static av_always_inline SoftFloat autocorr_calc(int64_t accu)
 {
-        int nz, mant, expo, round;
+        int nz, mant, expo;
+        unsigned round;
         int i = (int)(accu >> 32);
         if (i == 0) {
             nz = 1;
         } else {
             nz = 0;
             while (FFABS(i) < 0x40000000) {
-                i <<= 1;
+                i *= 2;
                 nz++;
             }
             nz = 32-nz;
         }
 
-        round = 1 << (nz-1);
+        round = 1U << (nz-1);
         mant = (int)((accu + round) >> nz);
-        mant = (mant + 0x40)>>7;
-        mant <<= 6;
+        mant = (mant + 0x40LL)>>7;
+        mant *= 64;
         expo = nz + 15;
         return av_int2sf(mant, 30 - expo);
 }

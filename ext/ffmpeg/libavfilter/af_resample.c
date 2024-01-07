@@ -90,22 +90,25 @@ static int query_formats(AVFilterContext *ctx)
 {
     AVFilterLink *inlink  = ctx->inputs[0];
     AVFilterLink *outlink = ctx->outputs[0];
+    AVFilterFormats *in_formats, *out_formats, *in_samplerates, *out_samplerates;
+    AVFilterChannelLayouts *in_layouts, *out_layouts;
+    int ret;
 
-    AVFilterFormats        *in_formats      = ff_all_formats(AVMEDIA_TYPE_AUDIO);
-    AVFilterFormats        *out_formats     = ff_all_formats(AVMEDIA_TYPE_AUDIO);
-    AVFilterFormats        *in_samplerates  = ff_all_samplerates();
-    AVFilterFormats        *out_samplerates = ff_all_samplerates();
-    AVFilterChannelLayouts *in_layouts      = ff_all_channel_layouts();
-    AVFilterChannelLayouts *out_layouts     = ff_all_channel_layouts();
+    if (!(in_formats      = ff_all_formats         (AVMEDIA_TYPE_AUDIO)) ||
+        !(out_formats     = ff_all_formats         (AVMEDIA_TYPE_AUDIO)) ||
+        !(in_samplerates  = ff_all_samplerates     (                  )) ||
+        !(out_samplerates = ff_all_samplerates     (                  )) ||
+        !(in_layouts      = ff_all_channel_layouts (                  )) ||
+        !(out_layouts     = ff_all_channel_layouts (                  )))
+        return AVERROR(ENOMEM);
 
-    ff_formats_ref(in_formats,  &inlink->out_formats);
-    ff_formats_ref(out_formats, &outlink->in_formats);
-
-    ff_formats_ref(in_samplerates,  &inlink->out_samplerates);
-    ff_formats_ref(out_samplerates, &outlink->in_samplerates);
-
-    ff_channel_layouts_ref(in_layouts,  &inlink->out_channel_layouts);
-    ff_channel_layouts_ref(out_layouts, &outlink->in_channel_layouts);
+    if ((ret = ff_formats_ref         (in_formats,      &inlink->outcfg.formats        )) < 0 ||
+        (ret = ff_formats_ref         (out_formats,     &outlink->incfg.formats        )) < 0 ||
+        (ret = ff_formats_ref         (in_samplerates,  &inlink->outcfg.samplerates    )) < 0 ||
+        (ret = ff_formats_ref         (out_samplerates, &outlink->incfg.samplerates    )) < 0 ||
+        (ret = ff_channel_layouts_ref (in_layouts,      &inlink->outcfg.channel_layouts)) < 0 ||
+        (ret = ff_channel_layouts_ref (out_layouts,     &outlink->incfg.channel_layouts)) < 0)
+        return ret;
 
     return 0;
 }
@@ -303,9 +306,18 @@ fail:
     return ret;
 }
 
+#if FF_API_CHILD_CLASS_NEXT
 static const AVClass *resample_child_class_next(const AVClass *prev)
 {
     return prev ? NULL : avresample_get_class();
+}
+#endif
+
+static const AVClass *resample_child_class_iterate(void **iter)
+{
+    const AVClass *c = *iter ? NULL : avresample_get_class();
+    *iter = (void*)(uintptr_t)c;
+    return c;
 }
 
 static void *resample_child_next(void *obj, void *prev)
@@ -318,7 +330,10 @@ static const AVClass resample_class = {
     .class_name       = "resample",
     .item_name        = av_default_item_name,
     .version          = LIBAVUTIL_VERSION_INT,
+#if FF_API_CHILD_CLASS_NEXT
     .child_class_next = resample_child_class_next,
+#endif
+    .child_class_iterate = resample_child_class_iterate,
     .child_next       = resample_child_next,
 };
 

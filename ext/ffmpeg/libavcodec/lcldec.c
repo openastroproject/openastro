@@ -35,7 +35,6 @@
  *   http://www.pcisys.net/~melanson/codecs
  *
  * Supports: BGR24 (RGB 24bpp)
- *
  */
 
 #include <stdio.h>
@@ -47,14 +46,12 @@
 #include "bytestream.h"
 #include "internal.h"
 #include "lcl.h"
+#include "thread.h"
 
 #if CONFIG_ZLIB_DECODER
 #include <zlib.h>
 #endif
 
-/*
- * Decoder context
- */
 typedef struct LclDecContext {
     // Image type
     int imgtype;
@@ -139,7 +136,7 @@ static int zlib_decomp(AVCodecContext *avctx, const uint8_t *src, int src_len, i
         av_log(avctx, AV_LOG_ERROR, "Inflate reset error: %d\n", zret);
         return AVERROR_UNKNOWN;
     }
-    c->zstream.next_in = (uint8_t *)src;
+    c->zstream.next_in = src;
     c->zstream.avail_in = src_len;
     c->zstream.next_out = c->decomp_buf + offset;
     c->zstream.avail_out = c->decomp_size - offset;
@@ -158,14 +155,10 @@ static int zlib_decomp(AVCodecContext *avctx, const uint8_t *src, int src_len, i
 #endif
 
 
-/*
- *
- * Decode a frame
- *
- */
 static int decode_frame(AVCodecContext *avctx, void *data, int *got_frame, AVPacket *avpkt)
 {
     AVFrame *frame = data;
+    ThreadFrame tframe = { .f = data };
     const uint8_t *buf = avpkt->data;
     int buf_size = avpkt->size;
     LclDecContext * const c = avctx->priv_data;
@@ -180,9 +173,9 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *got_frame, AVPac
     int uqvq, ret;
     unsigned int mthread_inlen, mthread_outlen;
     unsigned int len = buf_size;
-    int linesize;
+    int linesize, offset;
 
-    if ((ret = ff_get_buffer(avctx, frame, 0)) < 0)
+    if ((ret = ff_thread_get_buffer(avctx, &tframe, 0)) < 0)
         return ret;
 
     outptr = frame->data[0]; // Output image pointer
@@ -197,11 +190,10 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *got_frame, AVPac
                 ;
             } else if (c->flags & FLAG_MULTITHREAD) {
                 mthread_inlen = AV_RL32(buf);
-                if (len < 8) {
+                if (len < 8 || len - 8 < mthread_inlen) {
                     av_log(avctx, AV_LOG_ERROR, "len %d is too small\n", len);
                     return AVERROR_INVALIDDATA;
                 }
-                mthread_inlen = FFMIN(mthread_inlen, len - 8);
                 mthread_outlen = AV_RL32(buf + 4);
                 mthread_outlen = FFMIN(mthread_outlen, c->decomp_size);
                 mszh_dlen = mszh_decomp(buf + 8, mthread_inlen, c->decomp_buf, c->decomp_size);
@@ -381,8 +373,10 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *got_frame, AVPac
 
     /* Convert colorspace */
     y_out = frame->data[0] + (height - 1) * frame->linesize[0];
-    u_out = frame->data[1] + (height - 1) * frame->linesize[1];
-    v_out = frame->data[2] + (height - 1) * frame->linesize[2];
+    offset = (height - 1) * frame->linesize[1];
+    u_out = FF_PTR_ADD(frame->data[1], offset);
+    offset = (height - 1) * frame->linesize[2];
+    v_out = FF_PTR_ADD(frame->data[2], offset);
     switch (c->imgtype) {
     case IMGTYPE_YUV111:
         for (row = 0; row < height; row++) {
@@ -467,17 +461,15 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *got_frame, AVPac
         return AVERROR_INVALIDDATA;
     }
 
+    frame->key_frame = 1;
+    frame->pict_type = AV_PICTURE_TYPE_I;
+
     *got_frame = 1;
 
     /* always report that the buffer was completely consumed */
     return buf_size;
 }
 
-/*
- *
- * Init lcl decoder
- *
- */
 static av_cold int decode_init(AVCodecContext *avctx)
 {
     LclDecContext * const c = avctx->priv_data;
@@ -632,11 +624,6 @@ static av_cold int decode_init(AVCodecContext *avctx)
     return 0;
 }
 
-/*
- *
- * Uninit lcl decoder
- *
- */
 static av_cold int decode_end(AVCodecContext *avctx)
 {
     LclDecContext * const c = avctx->priv_data;
@@ -660,7 +647,8 @@ AVCodec ff_mszh_decoder = {
     .init           = decode_init,
     .close          = decode_end,
     .decode         = decode_frame,
-    .capabilities   = AV_CODEC_CAP_DR1,
+    .capabilities   = AV_CODEC_CAP_DR1 | AV_CODEC_CAP_FRAME_THREADS,
+    .caps_internal  = FF_CODEC_CAP_INIT_THREADSAFE,
 };
 #endif
 
@@ -674,6 +662,7 @@ AVCodec ff_zlib_decoder = {
     .init           = decode_init,
     .close          = decode_end,
     .decode         = decode_frame,
-    .capabilities   = AV_CODEC_CAP_DR1,
+    .capabilities   = AV_CODEC_CAP_DR1 | AV_CODEC_CAP_FRAME_THREADS,
+    .caps_internal  = FF_CODEC_CAP_INIT_THREADSAFE,
 };
 #endif

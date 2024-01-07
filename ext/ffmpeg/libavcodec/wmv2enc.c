@@ -81,7 +81,7 @@ int ff_wmv2_encode_picture_header(MpegEncContext *s, int picture_number)
     put_bits(&s->pb, 5, s->qscale);
 
     s->dc_table_index  = 1;
-    s->mv_table_index  = 1; /* only if P frame */
+    s->mv_table_index  = 1; /* only if P-frame */
     s->per_mb_rl_table = 0;
     s->mspel           = 0;
     w->per_mb_abt      = 0;
@@ -231,6 +231,7 @@ AVCodec ff_wmv2_encoder = {
     .init           = wmv2_encode_init,
     .encode2        = ff_mpv_encode_picture,
     .close          = ff_mpv_encode_end,
+    .caps_internal  = FF_CODEC_CAP_INIT_CLEANUP,
     .pix_fmts       = (const enum AVPixelFormat[]) { AV_PIX_FMT_YUV420P,
                                                      AV_PIX_FMT_NONE },
 };

@@ -20,43 +20,28 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <inttypes.h>
 #include <stdint.h>
 #include <string.h>
 
 #include "libavutil/avassert.h"
-#include "libavutil/atomic.h"
+#include "libavutil/internal.h"
 #include "libavutil/mem.h"
 
 #include "internal.h"
 #include "parser.h"
 
-static AVCodecParser *av_first_parser = NULL;
-
-AVCodecParser *av_parser_next(const AVCodecParser *p)
-{
-    if (p)
-        return p->next;
-    else
-        return av_first_parser;
-}
-
-void av_register_codec_parser(AVCodecParser *parser)
-{
-    do {
-        parser->next = av_first_parser;
-    } while (parser->next != avpriv_atomic_ptr_cas((void * volatile *)&av_first_parser, parser->next, parser));
-}
-
 AVCodecParserContext *av_parser_init(int codec_id)
 {
     AVCodecParserContext *s = NULL;
-    AVCodecParser *parser;
+    const AVCodecParser *parser;
+    void *i = 0;
     int ret;
 
     if (codec_id == AV_CODEC_ID_NONE)
         return NULL;
 
-    for (parser = av_first_parser; parser; parser = parser->next) {
+    while ((parser = av_parser_iterate(&i))) {
         if (parser->codec_ids[0] == codec_id ||
             parser->codec_ids[1] == codec_id ||
             parser->codec_ids[2] == codec_id ||
@@ -70,7 +55,7 @@ found:
     s = av_mallocz(sizeof(AVCodecParserContext));
     if (!s)
         goto err_out;
-    s->parser = parser;
+    s->parser = (AVCodecParser*)parser;
     s->priv_data = av_mallocz(parser->priv_data_size);
     if (!s->priv_data)
         goto err_out;
@@ -82,7 +67,11 @@ found:
             goto err_out;
     }
     s->key_frame            = -1;
+#if FF_API_CONVERGENCE_DURATION
+FF_DISABLE_DEPRECATION_WARNINGS
     s->convergence_duration = 0;
+FF_ENABLE_DEPRECATION_WARNINGS
+#endif
     s->dts_sync_point       = INT_MIN;
     s->dts_ref_dts_delta    = INT_MIN;
     s->pts_dts_delta        = INT_MIN;
@@ -136,6 +125,15 @@ int av_parser_parse2(AVCodecParserContext *s, AVCodecContext *avctx,
     int index, i;
     uint8_t dummy_buf[AV_INPUT_BUFFER_PADDING_SIZE];
 
+    av_assert1(avctx->codec_id != AV_CODEC_ID_NONE);
+
+    /* Parsers only work for the specified codec ids. */
+    av_assert1(avctx->codec_id == s->parser->codec_ids[0] ||
+               avctx->codec_id == s->parser->codec_ids[1] ||
+               avctx->codec_id == s->parser->codec_ids[2] ||
+               avctx->codec_id == s->parser->codec_ids[3] ||
+               avctx->codec_id == s->parser->codec_ids[4]);
+
     if (!(s->flags & PARSER_FLAG_FETCHED_OFFSET)) {
         s->next_frame_offset =
         s->cur_offset        = pos;
@@ -168,6 +166,11 @@ int av_parser_parse2(AVCodecParserContext *s, AVCodecContext *avctx,
     index = s->parser->parser_parse(s, avctx, (const uint8_t **) poutbuf,
                                     poutbuf_size, buf, buf_size);
     av_assert0(index > -0x20000000); // The API does not allow returning AVERROR codes
+#define FILL(name) if(s->name > 0 && avctx->name <= 0) avctx->name = s->name
+    if (avctx->codec_type == AVMEDIA_TYPE_VIDEO) {
+        FILL(field_order);
+    }
+
     /* update the file pointer */
     if (*poutbuf_size) {
         /* fill the data for the current frame */
@@ -176,6 +179,9 @@ int av_parser_parse2(AVCodecParserContext *s, AVCodecContext *avctx,
         /* offset of the next frame */
         s->next_frame_offset = s->cur_offset + index;
         s->fetch_timestamp   = 1;
+    } else {
+        /* Don't return a pointer to dummy_buf. */
+        *poutbuf = NULL;
     }
     if (index < 0)
         index = 0;
@@ -183,6 +189,7 @@ int av_parser_parse2(AVCodecParserContext *s, AVCodecContext *avctx,
     return index;
 }
 
+#if FF_API_PARSER_CHANGE
 int av_parser_change(AVCodecParserContext *s, AVCodecContext *avctx,
                      uint8_t **poutbuf, int *poutbuf_size,
                      const uint8_t *buf, int buf_size, int keyframe)
@@ -217,7 +224,7 @@ int av_parser_change(AVCodecParserContext *s, AVCodecContext *avctx,
 
     return 0;
 }
-
+#endif
 void av_parser_close(AVCodecParserContext *s)
 {
     if (s) {
@@ -232,7 +239,7 @@ int ff_combine_frame(ParseContext *pc, int next,
                      const uint8_t **buf, int *buf_size)
 {
     if (pc->overread) {
-        ff_dlog(NULL, "overread %d, state:%X next:%d index:%d o_index:%d\n",
+        ff_dlog(NULL, "overread %d, state:%"PRIX32" next:%d index:%d o_index:%d\n",
                 pc->overread, pc->state, next, pc->index, pc->overread_index);
         ff_dlog(NULL, "%X %X %X %X\n",
                 (*buf)[0], (*buf)[1], (*buf)[2], (*buf)[3]);
@@ -241,6 +248,9 @@ int ff_combine_frame(ParseContext *pc, int next,
     /* Copy overread bytes from last frame into buffer. */
     for (; pc->overread > 0; pc->overread--)
         pc->buffer[pc->index++] = pc->buffer[pc->overread_index++];
+
+    if (next > *buf_size)
+        return AVERROR(EINVAL);
 
     /* flush remaining if EOF */
     if (!*buf_size && next == END_NOT_FOUND)
@@ -265,6 +275,8 @@ int ff_combine_frame(ParseContext *pc, int next,
         return -1;
     }
 
+    av_assert0(next >= 0 || pc->buffer);
+
     *buf_size          =
     pc->overread_index = pc->index + next;
 
@@ -287,6 +299,10 @@ int ff_combine_frame(ParseContext *pc, int next,
         *buf      = pc->buffer;
     }
 
+    if (next < -8) {
+        pc->overread += -8 - next;
+        next = -8;
+    }
     /* store overread bytes */
     for (; next < 0; next++) {
         pc->state   = pc->state   << 8 | pc->buffer[pc->last_index + next];
@@ -295,7 +311,7 @@ int ff_combine_frame(ParseContext *pc, int next,
     }
 
     if (pc->overread) {
-        ff_dlog(NULL, "overread %d, state:%X next:%d index:%d o_index:%d\n",
+        ff_dlog(NULL, "overread %d, state:%"PRIX32" next:%d index:%d o_index:%d\n",
                 pc->overread, pc->state, next, pc->index, pc->overread_index);
         ff_dlog(NULL, "%X %X %X %X\n",
                 (*buf)[0], (*buf)[1], (*buf)[2], (*buf)[3]);

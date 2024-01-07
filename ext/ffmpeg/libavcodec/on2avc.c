@@ -21,14 +21,15 @@
  */
 
 #include "libavutil/channel_layout.h"
+#include "libavutil/ffmath.h"
 #include "libavutil/float_dsp.h"
+#include "libavutil/mem_internal.h"
+
 #include "avcodec.h"
 #include "bytestream.h"
 #include "fft.h"
 #include "get_bits.h"
-#include "golomb.h"
 #include "internal.h"
-#include "unary.h"
 
 #include "on2avcdata.h"
 
@@ -170,7 +171,7 @@ static int on2avc_decode_band_scales(On2AVCContext *c, GetBitContext *gb)
                 scale = get_bits(gb, 7);
                 first = 0;
             } else {
-                scale += get_vlc2(gb, c->scale_diff.table, 9, 3) - 60;
+                scale += get_vlc2(gb, c->scale_diff.table, 9, 3);
             }
             if (scale < 0 || scale > 127) {
                 av_log(c->avctx, AV_LOG_ERROR, "Invalid scale value %d\n",
@@ -196,7 +197,7 @@ static int on2avc_decode_quads(On2AVCContext *c, GetBitContext *gb, float *dst,
     int i, j, val, val1;
 
     for (i = 0; i < dst_size; i += 4) {
-        val = get_vlc2(gb, c->cb_vlc[type].table, 9, 3);
+        val = get_vlc2(gb, c->cb_vlc[type].table, 9, 2);
 
         for (j = 0; j < 4; j++) {
             val1 = sign_extend((val >> (12 - j * 4)) & 0xF, 4);
@@ -229,7 +230,7 @@ static int on2avc_decode_pairs(On2AVCContext *c, GetBitContext *gb, float *dst,
     int i, val, val1, val2, sign;
 
     for (i = 0; i < dst_size; i += 2) {
-        val = get_vlc2(gb, c->cb_vlc[type].table, 9, 3);
+        val = get_vlc2(gb, c->cb_vlc[type].table, 9, 2);
 
         val1 = sign_extend(val >> 8,   8);
         val2 = sign_extend(val & 0xFF, 8);
@@ -686,11 +687,11 @@ static void wtf_44(On2AVCContext *c, float *out, float *src, int size)
     }
 }
 
-static int on2avc_reconstruct_stereo(On2AVCContext *c, AVFrame *dst, int offset)
+static int on2avc_reconstruct_channel_ext(On2AVCContext *c, AVFrame *dst, int offset)
 {
     int ch, i;
 
-    for (ch = 0; ch < 2; ch++) {
+    for (ch = 0; ch < c->avctx->channels; ch++) {
         float *out   = (float*)dst->extended_data[ch] + offset;
         float *in    = c->coeffs[ch];
         float *saved = c->delay[ch];
@@ -811,10 +812,6 @@ static int on2avc_decode_subframe(On2AVCContext *c, const uint8_t *buf,
     }
     c->prev_window_type = c->window_type;
     c->window_type      = get_bits(&gb, 3);
-    if (c->window_type >= WINDOW_TYPE_EXT4 && c->avctx->channels == 1) {
-        av_log(c->avctx, AV_LOG_ERROR, "stereo mode window for mono audio\n");
-        return AVERROR_INVALIDDATA;
-    }
 
     c->band_start  = c->modes[c->window_type].band_start;
     c->num_windows = c->modes[c->window_type].num_windows;
@@ -835,7 +832,7 @@ static int on2avc_decode_subframe(On2AVCContext *c, const uint8_t *buf,
         for (i = 0; i < c->avctx->channels; i++)
             on2avc_reconstruct_channel(c, i, dst, offset);
     } else {
-        on2avc_reconstruct_stereo(c, dst, offset);
+        on2avc_reconstruct_channel_ext(c, dst, offset);
     }
 
     return 0;
@@ -911,7 +908,9 @@ static av_cold void on2avc_free_vlcs(On2AVCContext *c)
 static av_cold int on2avc_decode_init(AVCodecContext *avctx)
 {
     On2AVCContext *c = avctx->priv_data;
-    int i;
+    const uint8_t  *lens = ff_on2avc_cb_lens;
+    const uint16_t *syms = ff_on2avc_cb_syms;
+    int i, ret;
 
     if (avctx->channels > 2U) {
         avpriv_request_sample(avctx, "Decoding more than 2 channels");
@@ -924,19 +923,18 @@ static av_cold int on2avc_decode_init(AVCodecContext *avctx)
                                                    : AV_CH_LAYOUT_MONO;
 
     c->is_av500 = (avctx->codec_tag == 0x500);
-    if (c->is_av500 && avctx->channels == 2) {
-        av_log(avctx, AV_LOG_ERROR, "0x500 version should be mono\n");
-        return AVERROR_INVALIDDATA;
-    }
 
     if (avctx->channels == 2)
         av_log(avctx, AV_LOG_WARNING,
                "Stereo mode support is not good, patch is welcome\n");
 
+    // We add -0.01 before ceil() to avoid any values to fall at exactly the
+    // midpoint between different ceil values. The results are identical to
+    // using pow(10, i / 10.0) without such bias
     for (i = 0; i < 20; i++)
-        c->scale_tab[i] = ceil(pow(10.0, i * 0.1) * 16) / 32;
+        c->scale_tab[i] = ceil(ff_exp10(i * 0.1) * 16 - 0.01) / 32;
     for (; i < 128; i++)
-        c->scale_tab[i] = ceil(pow(10.0, i * 0.1) * 0.5);
+        c->scale_tab[i] = ceil(ff_exp10(i * 0.1) * 0.5 - 0.01);
 
     if (avctx->sample_rate < 32000 || avctx->channels == 1)
         memcpy(c->long_win, ff_on2avc_window_long_24000,
@@ -962,36 +960,26 @@ static av_cold int on2avc_decode_init(AVCodecContext *avctx)
     if (!c->fdsp)
         return AVERROR(ENOMEM);
 
-    if (init_vlc(&c->scale_diff, 9, ON2AVC_SCALE_DIFFS,
-                 ff_on2avc_scale_diff_bits,  1, 1,
-                 ff_on2avc_scale_diff_codes, 4, 4, 0)) {
+    ret = ff_init_vlc_from_lengths(&c->scale_diff, 9, ON2AVC_SCALE_DIFFS,
+                                   ff_on2avc_scale_diff_bits, 1,
+                                   ff_on2avc_scale_diff_syms, 1, 1, -60, 0, avctx);
+    if (ret < 0)
         goto vlc_fail;
-    }
-    for (i = 1; i < 9; i++) {
+    for (i = 1; i < 16; i++) {
         int idx = i - 1;
-        if (ff_init_vlc_sparse(&c->cb_vlc[i], 9, ff_on2avc_quad_cb_elems[idx],
-                               ff_on2avc_quad_cb_bits[idx],  1, 1,
-                               ff_on2avc_quad_cb_codes[idx], 4, 4,
-                               ff_on2avc_quad_cb_syms[idx],  2, 2, 0)) {
+        ret = ff_init_vlc_from_lengths(&c->cb_vlc[i], 9, ff_on2avc_cb_elems[idx],
+                                       lens, 1,
+                                       syms, 2, 2, 0, 0, avctx);
+        if (ret < 0)
             goto vlc_fail;
-        }
-    }
-    for (i = 9; i < 16; i++) {
-        int idx = i - 9;
-        if (ff_init_vlc_sparse(&c->cb_vlc[i], 9, ff_on2avc_pair_cb_elems[idx],
-                               ff_on2avc_pair_cb_bits[idx],  1, 1,
-                               ff_on2avc_pair_cb_codes[idx], 2, 2,
-                               ff_on2avc_pair_cb_syms[idx],  2, 2, 0)) {
-            goto vlc_fail;
-        }
+        lens += ff_on2avc_cb_elems[idx];
+        syms += ff_on2avc_cb_elems[idx];
     }
 
     return 0;
 vlc_fail:
     av_log(avctx, AV_LOG_ERROR, "Cannot init VLC\n");
-    on2avc_free_vlcs(c);
-    av_freep(&c->fdsp);
-    return AVERROR(ENOMEM);
+    return ret;
 }
 
 static av_cold int on2avc_decode_close(AVCodecContext *avctx)
@@ -1024,6 +1012,7 @@ AVCodec ff_on2avc_decoder = {
     .decode         = on2avc_decode_frame,
     .close          = on2avc_decode_close,
     .capabilities   = AV_CODEC_CAP_DR1,
+    .caps_internal  = FF_CODEC_CAP_INIT_CLEANUP,
     .sample_fmts    = (const enum AVSampleFormat[]) { AV_SAMPLE_FMT_FLTP,
                                                       AV_SAMPLE_FMT_NONE },
 };

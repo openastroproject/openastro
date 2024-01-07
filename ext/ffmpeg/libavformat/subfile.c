@@ -72,17 +72,21 @@ static int subfile_open(URLContext *h, const char *filename, int flags,
     SubfileContext *c = h->priv_data;
     int ret;
 
+    if (!c->end)
+        c->end = INT64_MAX;
+
     if (c->end <= c->start) {
         av_log(h, AV_LOG_ERROR, "end before start\n");
         return AVERROR(EINVAL);
     }
     av_strstart(filename, "subfile:", &filename);
-    ret = ffurl_open(&c->h, filename, flags, &h->interrupt_callback, options);
+    ret = ffurl_open_whitelist(&c->h, filename, flags, &h->interrupt_callback,
+                               options, h->protocol_whitelist, h->protocol_blacklist, h);
     if (ret < 0)
         return ret;
     c->pos = c->start;
     if ((ret = slave_seek(h)) < 0) {
-        ffurl_close(c->h);
+        ffurl_closep(&c->h);
         return ret;
     }
     return 0;
@@ -91,7 +95,7 @@ static int subfile_open(URLContext *h, const char *filename, int flags,
 static int subfile_close(URLContext *h)
 {
     SubfileContext *c = h->priv_data;
-    return ffurl_close(c->h);
+    return ffurl_closep(&c->h);
 }
 
 static int subfile_read(URLContext *h, unsigned char *buf, int size)
@@ -101,7 +105,7 @@ static int subfile_read(URLContext *h, unsigned char *buf, int size)
     int ret;
 
     if (rest <= 0)
-        return 0;
+        return AVERROR_EOF;
     size = FFMIN(size, rest);
     ret = ffurl_read(c->h, buf, size);
     if (ret >= 0)
@@ -112,20 +116,26 @@ static int subfile_read(URLContext *h, unsigned char *buf, int size)
 static int64_t subfile_seek(URLContext *h, int64_t pos, int whence)
 {
     SubfileContext *c = h->priv_data;
-    int64_t new_pos = -1;
+    int64_t new_pos, end;
     int ret;
 
+    if (whence == AVSEEK_SIZE || whence == SEEK_END) {
+        end = c->end;
+        if (end == INT64_MAX && (end = ffurl_seek(c->h, 0, AVSEEK_SIZE)) < 0)
+            return end;
+    }
+
     if (whence == AVSEEK_SIZE)
-        return c->end - c->start;
+        return end - c->start;
     switch (whence) {
     case SEEK_SET:
         new_pos = c->start + pos;
         break;
     case SEEK_CUR:
-        new_pos += pos;
+        new_pos = c->pos + pos;
         break;
     case SEEK_END:
-        new_pos = c->end + c->pos;
+        new_pos = end + pos;
         break;
     }
     if (new_pos < c->start)
@@ -136,7 +146,7 @@ static int64_t subfile_seek(URLContext *h, int64_t pos, int whence)
     return c->pos - c->start;
 }
 
-URLProtocol ff_subfile_protocol = {
+const URLProtocol ff_subfile_protocol = {
     .name                = "subfile",
     .url_open2           = subfile_open,
     .url_read            = subfile_read,
@@ -144,4 +154,5 @@ URLProtocol ff_subfile_protocol = {
     .url_close           = subfile_close,
     .priv_data_size      = sizeof(SubfileContext),
     .priv_data_class     = &subfile_class,
+    .default_whitelist   = "file",
 };

@@ -529,9 +529,9 @@ static int8_t store_weight(int weight)
 
 static int restore_weight(int8_t weight)
 {
-    int result;
+    int result = 8 * weight;
 
-    if ((result = (int) weight << 3) > 0)
+    if (result > 0)
         result += (result + 64) >> 7;
 
     return result;
@@ -637,22 +637,16 @@ static void reverse_mono_decorr(struct Decorr *dpp)
     }
 }
 
+#define count_bits(av) ((av) ? 32 - ff_clz(av) : 0)
+
 static uint32_t log2sample(uint32_t v, int limit, uint32_t *result)
 {
-    uint32_t dbits;
+    uint32_t dbits = count_bits(v);
 
     if ((v += v >> 9) < (1 << 8)) {
-        dbits = nbits_table[v];
-        *result += (dbits << 8) + wp_log2_table[(v << (9 - dbits)) & 0xff];
+        *result += (dbits << 8) + ff_wp_log2_table[(v << (9 - dbits)) & 0xff];
     } else {
-        if (v < (1 << 16))
-            dbits = nbits_table[v >> 8] + 8;
-        else if (v < (1 << 24))
-            dbits = nbits_table[v >> 16] + 16;
-        else
-            dbits = nbits_table[v >> 24] + 24;
-
-        *result += dbits = (dbits << 8) + wp_log2_table[(v >> (dbits - 9)) & 0xff];
+        *result += dbits = (dbits << 8) + ff_wp_log2_table[(v >> (dbits - 9)) & 0xff];
 
         if (limit && dbits >= limit)
             return 1;
@@ -1834,9 +1828,9 @@ static int wv_stereo(WavPackEncodeContext *s,
     log_limit = (((s->flags & MAG_MASK) >> MAG_LSB) + 4) * 256;
     log_limit = FFMIN(6912, log_limit);
 
-    if (s->joint) {
-        force_js = s->joint > 0;
-        force_ts = s->joint < 0;
+    if (s->joint != -1) {
+        force_js =  s->joint;
+        force_ts = !s->joint;
     }
 
     if ((ret = allocate_buffers(s)) < 0)
@@ -1968,14 +1962,6 @@ static int wv_stereo(WavPackEncodeContext *s,
     }
     return 0;
 }
-
-#define count_bits(av) ( \
- (av) < (1 << 8) ? nbits_table[av] : \
-  ( \
-   (av) < (1 << 16) ? nbits_table[(av) >> 8] + 8 : \
-   ((av) < (1 << 24) ? nbits_table[(av) >> 16] + 16 : nbits_table[(av) >> 24] + 24) \
-  ) \
-)
 
 static void encode_flush(WavPackEncodeContext *s)
 {
@@ -2216,8 +2202,7 @@ static void pack_float_sample(WavPackEncodeContext *s, int32_t *sample)
         }
     } else if (shift_count) {
         if (s->float_flags & FLOAT_SHIFT_SENT) {
-            int32_t data = get_mantissa(*sample) & ((1 << shift_count) - 1);
-            put_bits(pb, shift_count, data);
+            put_sbits(pb, shift_count, get_mantissa(*sample));
         } else if (s->float_flags & FLOAT_SHIFT_SAME) {
             put_bits(pb, 1, get_mantissa(*sample) & 1);
         }
@@ -2572,7 +2557,7 @@ static int wavpack_encode_block(WavPackEncodeContext *s,
             ret = wv_mono(s, samples_l, !s->num_terms, 1);
     } else {
         for (i = 0; i < nb_samples; i++)
-            crc += (crc << 3) + (samples_l[i] << 1) + samples_l[i] + samples_r[i];
+            crc += (crc << 3) + ((uint32_t)samples_l[i] << 1) + samples_l[i] + samples_r[i];
 
         if (s->num_passes)
             ret = wv_stereo(s, samples_l, samples_r, !s->num_terms, 1);
@@ -2960,13 +2945,8 @@ static av_cold int wavpack_encode_close(AVCodecContext *avctx)
 #define OFFSET(x) offsetof(WavPackEncodeContext, x)
 #define FLAGS AV_OPT_FLAG_ENCODING_PARAM | AV_OPT_FLAG_AUDIO_PARAM
 static const AVOption options[] = {
-    { "joint_stereo",  "", OFFSET(joint), AV_OPT_TYPE_INT, {.i64=0},-1, 1, FLAGS, "joint" },
-    { "on",   "mid/side",   0, AV_OPT_TYPE_CONST, {.i64= 1}, 0, 0, FLAGS, "joint"},
-    { "off",  "left/right", 0, AV_OPT_TYPE_CONST, {.i64=-1}, 0, 0, FLAGS, "joint"},
-    { "auto", NULL, 0, AV_OPT_TYPE_CONST, {.i64= 0}, 0, 0, FLAGS, "joint"},
-    { "optimize_mono",        "", OFFSET(optimize_mono), AV_OPT_TYPE_INT, {.i64=0}, 0, 1, FLAGS, "opt_mono" },
-    { "on",   NULL, 0, AV_OPT_TYPE_CONST, {.i64=1}, 0, 0, FLAGS, "opt_mono"},
-    { "off",  NULL, 0, AV_OPT_TYPE_CONST, {.i64=0}, 0, 0, FLAGS, "opt_mono"},
+    { "joint_stereo",  "", OFFSET(joint), AV_OPT_TYPE_BOOL, {.i64=-1}, -1, 1, FLAGS },
+    { "optimize_mono", "", OFFSET(optimize_mono), AV_OPT_TYPE_BOOL, {.i64=0}, 0, 1, FLAGS },
     { NULL },
 };
 

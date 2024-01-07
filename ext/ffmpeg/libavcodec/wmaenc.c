@@ -20,6 +20,7 @@
  */
 
 #include "libavutil/attributes.h"
+#include "libavutil/ffmath.h"
 
 #include "avcodec.h"
 #include "internal.h"
@@ -51,12 +52,12 @@ static av_cold int encode_init(AVCodecContext *avctx)
 
     if (avctx->bit_rate < 24 * 1000) {
         av_log(avctx, AV_LOG_ERROR,
-               "bitrate too low: got %i, need 24000 or higher\n",
+               "bitrate too low: got %"PRId64", need 24000 or higher\n",
                avctx->bit_rate);
         return AVERROR(EINVAL);
     }
 
-    /* extract flag infos */
+    /* extract flag info */
     flags1 = 0;
     flags2 = 1;
     if (avctx->codec->id == AV_CODEC_ID_WMAV1) {
@@ -99,7 +100,7 @@ static av_cold int encode_init(AVCodecContext *avctx)
     return 0;
 }
 
-static void apply_window_and_mdct(AVCodecContext *avctx, const AVFrame *frame)
+static int apply_window_and_mdct(AVCodecContext *avctx, const AVFrame *frame)
 {
     WMACodecContext *s = avctx->priv_data;
     float **audio      = (float **) frame->extended_data;
@@ -118,7 +119,13 @@ static void apply_window_and_mdct(AVCodecContext *avctx, const AVFrame *frame)
                                     win, len);
         s->fdsp->vector_fmul(s->frame_out[ch], s->frame_out[ch], win, len);
         mdct->mdct_calc(mdct, s->coefs[ch], s->output);
+        if (!isfinite(s->coefs[ch][0])) {
+            av_log(avctx, AV_LOG_ERROR, "Input contains NaN/+-Inf\n");
+            return AVERROR(EINVAL);
+        }
     }
+
+    return 0;
 }
 
 // FIXME use for decoding too
@@ -134,7 +141,7 @@ static void init_exp(WMACodecContext *s, int ch, const int *exp_param)
     max_scale = 0;
     while (q < q_end) {
         /* XXX: use a table */
-        v         = pow(10, *exp_param++ *(1.0 / 16.0));
+        v         = ff_exp10(*exp_param++ *(1.0 / 16.0));
         max_scale = FFMAX(max_scale, v);
         n         = *ptr++;
         do {
@@ -229,7 +236,7 @@ static int encode_block(WMACodecContext *s, float (*src_coefs)[BLOCK_MAX_SIZE],
 
             coefs1    = s->coefs1[ch];
             exponents = s->exponents[ch];
-            mult      = pow(10, total_gain * 0.05) / s->max_exponent[ch];
+            mult      = ff_exp10(total_gain * 0.05) / s->max_exponent[ch];
             mult     *= mdct_norm;
             coefs     = src_coefs[ch];
             if (s->use_noise_coding && 0) {
@@ -336,7 +343,7 @@ static int encode_block(WMACodecContext *s, float (*src_coefs)[BLOCK_MAX_SIZE],
                          s->coef_vlcs[tindex]->huffcodes[1]);
         }
         if (s->version == 1 && s->avctx->channels >= 2)
-            avpriv_align_put_bits(&s->pb);
+            align_put_bits(&s->pb);
     }
     return 0;
 }
@@ -351,7 +358,7 @@ static int encode_frame(WMACodecContext *s, float (*src_coefs)[BLOCK_MAX_SIZE],
     else if (encode_block(s, src_coefs, total_gain) < 0)
         return INT_MAX;
 
-    avpriv_align_put_bits(&s->pb);
+    align_put_bits(&s->pb);
 
     return put_bits_count(&s->pb) / 8 - s->avctx->block_align;
 }
@@ -365,7 +372,10 @@ static int encode_superframe(AVCodecContext *avctx, AVPacket *avpkt,
     s->block_len_bits = s->frame_len_bits; // required by non variable block len
     s->block_len      = 1 << s->block_len_bits;
 
-    apply_window_and_mdct(avctx, frame);
+    ret = apply_window_and_mdct(avctx, frame);
+
+    if (ret < 0)
+        return ret;
 
     if (s->ms_stereo) {
         float a, b;
@@ -426,6 +436,7 @@ AVCodec ff_wmav1_encoder = {
     .close          = ff_wma_end,
     .sample_fmts    = (const enum AVSampleFormat[]) { AV_SAMPLE_FMT_FLTP,
                                                       AV_SAMPLE_FMT_NONE },
+    .caps_internal  = FF_CODEC_CAP_INIT_CLEANUP,
 };
 #endif
 #if CONFIG_WMAV2_ENCODER
@@ -440,5 +451,6 @@ AVCodec ff_wmav2_encoder = {
     .close          = ff_wma_end,
     .sample_fmts    = (const enum AVSampleFormat[]) { AV_SAMPLE_FMT_FLTP,
                                                       AV_SAMPLE_FMT_NONE },
+    .caps_internal  = FF_CODEC_CAP_INIT_CLEANUP,
 };
 #endif

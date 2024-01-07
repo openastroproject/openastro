@@ -24,6 +24,7 @@
 #include "libavutil/common.h"
 #include "libavutil/internal.h"
 #include "libavutil/intreadwrite.h"
+#include "libavutil/mem_internal.h"
 
 static const uint32_t pixel_mask[3] = { 0xffffffff, 0x01ff01ff, 0x03ff03ff };
 
@@ -55,7 +56,7 @@ void checkasm_check_h264qpel(void)
     LOCAL_ALIGNED_16(uint8_t, dst1, [BUF_SIZE]);
     H264QpelContext h;
     int op, bit_depth, i, j;
-    declare_func(void, uint8_t *dst, const uint8_t *src, ptrdiff_t stride);
+    declare_func_emms(AV_CPU_FLAG_MMX | AV_CPU_FLAG_MMXEXT, void, uint8_t *dst, const uint8_t *src, ptrdiff_t stride);
 
     for (op = 0; op < 2; op++) {
         qpel_mc_func (*tab)[16] = op ? h.avg_h264_qpel_pixels_tab : h.put_h264_qpel_pixels_tab;

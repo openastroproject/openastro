@@ -37,6 +37,7 @@
 #include "libavutil/opt.h"
 #include "libavutil/timestamp.h"
 #include "avfilter.h"
+#include "filters.h"
 #include "internal.h"
 
 #define INPUT_MAIN     0
@@ -72,13 +73,14 @@ enum comb_dbg {
     NB_COMBDBG
 };
 
-typedef struct {
+typedef struct FieldMatchContext {
     const AVClass *class;
 
     AVFrame *prv,  *src,  *nxt;     ///< main sliding window of 3 frames
     AVFrame *prv2, *src2, *nxt2;    ///< sliding window of the optional second stream
     int got_frame[2];               ///< frame request flag for each input stream
     int hsub, vsub;                 ///< chroma subsampling values
+    int bpc;                        ///< bytes per component
     uint32_t eof;                   ///< bitmask for end of stream
     int64_t lastscdiff;
     int64_t lastn;
@@ -124,12 +126,12 @@ static const AVOption fieldmatch_options[] = {
         { "pc_n_ub", "2-way match + 3rd match on combed + 4th/5th matches if still combed (p/c + u + u/b)",  0, AV_OPT_TYPE_CONST, {.i64=MODE_PC_N_UB}, INT_MIN, INT_MAX, FLAGS, "mode" },
         { "pcn",     "3-way match (p/c/n)",                                                                  0, AV_OPT_TYPE_CONST, {.i64=MODE_PCN},     INT_MIN, INT_MAX, FLAGS, "mode" },
         { "pcn_ub",  "3-way match + 4th/5th matches on combed (p/c/n + u/b)",                                0, AV_OPT_TYPE_CONST, {.i64=MODE_PCN_UB},  INT_MIN, INT_MAX, FLAGS, "mode" },
-    { "ppsrc", "mark main input as a pre-processed input and activate clean source input stream", OFFSET(ppsrc), AV_OPT_TYPE_INT, {.i64=0}, 0, 1, FLAGS },
+    { "ppsrc", "mark main input as a pre-processed input and activate clean source input stream", OFFSET(ppsrc), AV_OPT_TYPE_BOOL, {.i64=0}, 0, 1, FLAGS },
     { "field", "set the field to match from", OFFSET(field), AV_OPT_TYPE_INT, {.i64=FM_PARITY_AUTO}, -1, 1, FLAGS, "field" },
         { "auto",   "automatic (same value as 'order')",    0, AV_OPT_TYPE_CONST, {.i64=FM_PARITY_AUTO},    INT_MIN, INT_MAX, FLAGS, "field" },
         { "bottom", "bottom field",                         0, AV_OPT_TYPE_CONST, {.i64=FM_PARITY_BOTTOM},  INT_MIN, INT_MAX, FLAGS, "field" },
         { "top",    "top field",                            0, AV_OPT_TYPE_CONST, {.i64=FM_PARITY_TOP},     INT_MIN, INT_MAX, FLAGS, "field" },
-    { "mchroma", "set whether or not chroma is included during the match comparisons", OFFSET(mchroma), AV_OPT_TYPE_INT, {.i64=1}, 0, 1,  FLAGS },
+    { "mchroma", "set whether or not chroma is included during the match comparisons", OFFSET(mchroma), AV_OPT_TYPE_BOOL, {.i64=1}, 0, 1,  FLAGS },
     { "y0", "define an exclusion band which excludes the lines between y0 and y1 from the field matching decision", OFFSET(y0), AV_OPT_TYPE_INT, {.i64=0}, 0, INT_MAX, FLAGS },
     { "y1", "define an exclusion band which excludes the lines between y0 and y1 from the field matching decision", OFFSET(y1), AV_OPT_TYPE_INT, {.i64=0}, 0, INT_MAX, FLAGS },
     { "scthresh", "set scene change detection threshold", OFFSET(scthresh_flt), AV_OPT_TYPE_DOUBLE, {.dbl=12}, 0, 100, FLAGS },
@@ -142,7 +144,7 @@ static const AVOption fieldmatch_options[] = {
         { "pcn",   "calculate p/c/n",       0, AV_OPT_TYPE_CONST, {.i64=COMBDBG_PCN},   INT_MIN, INT_MAX, FLAGS, "dbglvl" },
         { "pcnub", "calculate p/c/n/u/b",   0, AV_OPT_TYPE_CONST, {.i64=COMBDBG_PCNUB}, INT_MIN, INT_MAX, FLAGS, "dbglvl" },
     { "cthresh", "set the area combing threshold used for combed frame detection",       OFFSET(cthresh), AV_OPT_TYPE_INT, {.i64= 9}, -1, 0xff, FLAGS },
-    { "chroma",  "set whether or not chroma is considered in the combed frame decision", OFFSET(chroma),  AV_OPT_TYPE_INT, {.i64= 0},  0,    1, FLAGS },
+    { "chroma",  "set whether or not chroma is considered in the combed frame decision", OFFSET(chroma),  AV_OPT_TYPE_BOOL,{.i64= 0},  0,    1, FLAGS },
     { "blockx",  "set the x-axis size of the window used during combed frame detection", OFFSET(blockx),  AV_OPT_TYPE_INT, {.i64=16},  4, 1<<9, FLAGS },
     { "blocky",  "set the y-axis size of the window used during combed frame detection", OFFSET(blocky),  AV_OPT_TYPE_INT, {.i64=16},  4, 1<<9, FLAGS },
     { "combpel", "set the number of combed pixels inside any of the blocky by blockx size blocks on the frame for the frame to be detected as combed", OFFSET(combpel), AV_OPT_TYPE_INT, {.i64=80}, 0, INT_MAX, FLAGS },
@@ -153,12 +155,12 @@ AVFILTER_DEFINE_CLASS(fieldmatch);
 
 static int get_width(const FieldMatchContext *fm, const AVFrame *f, int plane)
 {
-    return plane ? FF_CEIL_RSHIFT(f->width, fm->hsub) : f->width;
+    return plane ? AV_CEIL_RSHIFT(f->width, fm->hsub) : f->width;
 }
 
 static int get_height(const FieldMatchContext *fm, const AVFrame *f, int plane)
 {
-    return plane ? FF_CEIL_RSHIFT(f->height, fm->vsub) : f->height;
+    return plane ? AV_CEIL_RSHIFT(f->height, fm->vsub) : f->height;
 }
 
 static int64_t luma_abs_diff(const AVFrame *f1, const AVFrame *f2)
@@ -270,8 +272,8 @@ static int calc_combed_score(const FieldMatchContext *fm, const AVFrame *src)
         uint8_t *cmkp  = fm->cmask_data[0];
         uint8_t *cmkpU = fm->cmask_data[1];
         uint8_t *cmkpV = fm->cmask_data[2];
-        const int width  = FF_CEIL_RSHIFT(src->width,  fm->hsub);
-        const int height = FF_CEIL_RSHIFT(src->height, fm->vsub);
+        const int width  = AV_CEIL_RSHIFT(src->width,  fm->hsub);
+        const int height = AV_CEIL_RSHIFT(src->height, fm->vsub);
         const int cmk_linesize   = fm->cmask_linesize[0] << 1;
         const int cmk_linesizeUV = fm->cmask_linesize[2];
         uint8_t *cmkpp  = cmkp - (cmk_linesize>>1);
@@ -503,9 +505,9 @@ static int compare_fields(FieldMatchContext *fm, int match1, int match2, int fie
         int prvf_linesize, nxtf_linesize;
         const int width  = get_width (fm, src, plane);
         const int height = get_height(fm, src, plane);
-        const int y0a = fm->y0 >> (plane != 0);
-        const int y1a = fm->y1 >> (plane != 0);
-        const int startx = (plane == 0 ? 8 : 4);
+        const int y0a = fm->y0 >> (plane ? fm->vsub : 0);
+        const int y1a = fm->y1 >> (plane ? fm->vsub : 0);
+        const int startx = (plane == 0 ? 8 : 8 >> fm->hsub);
         const int stopx  = width - startx;
         const uint8_t *srcpf, *srcf, *srcnf;
         const uint8_t *prvpf, *prvnf, *nxtpf, *nxtnf;
@@ -608,10 +610,13 @@ static void copy_fields(const FieldMatchContext *fm, AVFrame *dst,
                         const AVFrame *src, int field)
 {
     int plane;
-    for (plane = 0; plane < 4 && src->data[plane] && src->linesize[plane]; plane++)
+    for (plane = 0; plane < 4 && src->data[plane] && src->linesize[plane]; plane++) {
+        const int plane_h = get_height(fm, src, plane);
+        const int nb_copy_fields = (plane_h >> 1) + (field ? 0 : (plane_h & 1));
         av_image_copy_plane(dst->data[plane] + field*dst->linesize[plane], dst->linesize[plane] << 1,
                             src->data[plane] + field*src->linesize[plane], src->linesize[plane] << 1,
-                            get_width(fm, src, plane), get_height(fm, src, plane) / 2);
+                            get_width(fm, src, plane) * fm->bpc, nb_copy_fields);
+    }
 }
 
 static AVFrame *create_weave_frame(AVFilterContext *ctx, int match, int field,
@@ -674,7 +679,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     AVFilterLink *outlink = ctx->outputs[0];
     FieldMatchContext *fm = ctx->priv;
     int combs[] = { -1, -1, -1, -1, -1 };
-    int order, field, i, match, sc = 0;
+    int order, field, i, match, sc = 0, ret = 0;
     const int *fxo;
     AVFrame *gen_frames[] = { NULL, NULL, NULL, NULL, NULL };
     AVFrame *dst;
@@ -694,9 +699,11 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         av_assert0(prv && src && nxt);                          \
 } while (0)
     if (FF_INLINK_IDX(inlink) == INPUT_MAIN) {
+        av_assert0(fm->got_frame[INPUT_MAIN] == 0);
         SLIDING_FRAME_WINDOW(fm->prv, fm->src, fm->nxt);
         fm->got_frame[INPUT_MAIN] = 1;
     } else {
+        av_assert0(fm->got_frame[INPUT_CLEANSRC] == 0);
         SLIDING_FRAME_WINDOW(fm->prv2, fm->src2, fm->nxt2);
         fm->got_frame[INPUT_CLEANSRC] = 1;
     }
@@ -718,16 +725,20 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
             if (i > mN && fm->combdbg == COMBDBG_PCN)
                 break;
             gen_frames[i] = create_weave_frame(ctx, i, field, fm->prv, fm->src, fm->nxt);
-            if (!gen_frames[i])
-                return AVERROR(ENOMEM);
+            if (!gen_frames[i]) {
+                ret = AVERROR(ENOMEM);
+                goto fail;
+            }
             combs[i] = calc_combed_score(fm, gen_frames[i]);
         }
         av_log(ctx, AV_LOG_INFO, "COMBS: %3d %3d %3d %3d %3d\n",
                combs[0], combs[1], combs[2], combs[3], combs[4]);
     } else {
         gen_frames[mC] = av_frame_clone(fm->src);
-        if (!gen_frames[mC])
-            return AVERROR(ENOMEM);
+        if (!gen_frames[mC]) {
+            ret = AVERROR(ENOMEM);
+            goto fail;
+        }
     }
 
     /* p/c selection and optional 3-way p/c/n matches */
@@ -737,7 +748,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     /* scene change check */
     if (fm->combmatch == COMBMATCH_SC) {
-        if (fm->lastn == outlink->frame_count - 1) {
+        if (fm->lastn == outlink->frame_count_in - 1) {
             if (fm->lastscdiff > fm->scthresh)
                 sc = 1;
         } else if (luma_abs_diff(fm->prv, fm->src) > fm->scthresh) {
@@ -745,7 +756,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         }
 
         if (!sc) {
-            fm->lastn = outlink->frame_count;
+            fm->lastn = outlink->frame_count_in;
             fm->lastscdiff = luma_abs_diff(fm->src, fm->nxt);
             sc = fm->lastscdiff > fm->scthresh;
         }
@@ -794,17 +805,17 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
             gen_frames[match] = NULL;
         }
     }
-    if (!dst)
-        return AVERROR(ENOMEM);
-    for (i = 0; i < FF_ARRAY_ELEMS(gen_frames); i++)
-        av_frame_free(&gen_frames[i]);
+    if (!dst) {
+        ret = AVERROR(ENOMEM);
+        goto fail;
+    }
 
     /* mark the frame we are unable to match properly as interlaced so a proper
      * de-interlacer can take the relay */
     dst->interlaced_frame = combs[match] >= fm->combpel;
     if (dst->interlaced_frame) {
         av_log(ctx, AV_LOG_WARNING, "Frame #%"PRId64" at %s is still interlaced\n",
-               outlink->frame_count, av_ts2timestr(in->pts, &inlink->time_base));
+               outlink->frame_count_in, av_ts2timestr(in->pts, &inlink->time_base));
         dst->top_field_first = field;
     }
 
@@ -812,53 +823,110 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
            " match=%d combed=%s\n", sc, combs[0], combs[1], combs[2], combs[3], combs[4],
            fm->combpel, match, dst->interlaced_frame ? "YES" : "NO");
 
-    return ff_filter_frame(outlink, dst);
-}
+fail:
+    for (i = 0; i < FF_ARRAY_ELEMS(gen_frames); i++)
+        av_frame_free(&gen_frames[i]);
 
-static int request_inlink(AVFilterContext *ctx, int lid)
-{
-    int ret = 0;
-    FieldMatchContext *fm = ctx->priv;
-
-    if (!fm->got_frame[lid]) {
-        AVFilterLink *inlink = ctx->inputs[lid];
-        ret = ff_request_frame(inlink);
-        if (ret == AVERROR_EOF) { // flushing
-            fm->eof |= 1 << lid;
-            ret = filter_frame(inlink, NULL);
-        }
-    }
+    if (ret >= 0)
+        return ff_filter_frame(outlink, dst);
     return ret;
 }
 
-static int request_frame(AVFilterLink *outlink)
+static int activate(AVFilterContext *ctx)
 {
-    int ret;
-    AVFilterContext *ctx = outlink->src;
     FieldMatchContext *fm = ctx->priv;
-    const uint32_t eof_mask = 1<<INPUT_MAIN | fm->ppsrc<<INPUT_CLEANSRC;
+    AVFrame *frame = NULL;
+    int ret = 0, status;
+    int64_t pts;
 
-    if ((fm->eof & eof_mask) == eof_mask) // flush done?
-        return AVERROR_EOF;
-    if ((ret = request_inlink(ctx, INPUT_MAIN)) < 0)
+    FF_FILTER_FORWARD_STATUS_BACK_ALL(ctx->outputs[0], ctx);
+
+    if ((fm->got_frame[INPUT_MAIN] == 0) &&
+        (ret = ff_inlink_consume_frame(ctx->inputs[INPUT_MAIN], &frame)) > 0) {
+        ret = filter_frame(ctx->inputs[INPUT_MAIN], frame);
+        if (ret < 0)
+            return ret;
+    }
+    if (ret < 0)
         return ret;
-    if (fm->ppsrc && (ret = request_inlink(ctx, INPUT_CLEANSRC)) < 0)
+    if (fm->ppsrc &&
+        (fm->got_frame[INPUT_CLEANSRC] == 0) &&
+        (ret = ff_inlink_consume_frame(ctx->inputs[INPUT_CLEANSRC], &frame)) > 0) {
+        ret = filter_frame(ctx->inputs[INPUT_CLEANSRC], frame);
+        if (ret < 0)
+            return ret;
+    }
+    if (ret < 0) {
         return ret;
-    return 0;
+    } else if (ff_inlink_acknowledge_status(ctx->inputs[INPUT_MAIN], &status, &pts)) {
+        if (status == AVERROR_EOF) { // flushing
+            fm->eof |= 1 << INPUT_MAIN;
+            ret = filter_frame(ctx->inputs[INPUT_MAIN], NULL);
+        }
+        ff_outlink_set_status(ctx->outputs[0], status, pts);
+        return ret;
+    } else if (fm->ppsrc && ff_inlink_acknowledge_status(ctx->inputs[INPUT_CLEANSRC], &status, &pts)) {
+        if (status == AVERROR_EOF) { // flushing
+            fm->eof |= 1 << INPUT_CLEANSRC;
+            ret = filter_frame(ctx->inputs[INPUT_CLEANSRC], NULL);
+        }
+        ff_outlink_set_status(ctx->outputs[0], status, pts);
+        return ret;
+    } else {
+        if (ff_outlink_frame_wanted(ctx->outputs[0])) {
+            if (fm->got_frame[INPUT_MAIN] == 0)
+                ff_inlink_request_frame(ctx->inputs[INPUT_MAIN]);
+            if (fm->ppsrc && (fm->got_frame[INPUT_CLEANSRC] == 0))
+                ff_inlink_request_frame(ctx->inputs[INPUT_CLEANSRC]);
+        }
+        return 0;
+    }
 }
 
 static int query_formats(AVFilterContext *ctx)
 {
-    // TODO: second input source can support >8bit depth
+    FieldMatchContext *fm = ctx->priv;
+
     static const enum AVPixelFormat pix_fmts[] = {
         AV_PIX_FMT_YUV444P,  AV_PIX_FMT_YUV422P,  AV_PIX_FMT_YUV420P,
         AV_PIX_FMT_YUV411P,  AV_PIX_FMT_YUV410P,
         AV_PIX_FMT_NONE
     };
+    static const enum AVPixelFormat unproc_pix_fmts[] = {
+        AV_PIX_FMT_YUV410P, AV_PIX_FMT_YUV411P,
+        AV_PIX_FMT_YUV420P, AV_PIX_FMT_YUV422P,
+        AV_PIX_FMT_YUV440P, AV_PIX_FMT_YUV444P,
+        AV_PIX_FMT_YUVJ420P, AV_PIX_FMT_YUVJ422P,
+        AV_PIX_FMT_YUVJ440P, AV_PIX_FMT_YUVJ444P,
+        AV_PIX_FMT_YUVJ411P,
+        AV_PIX_FMT_YUV420P9, AV_PIX_FMT_YUV422P9, AV_PIX_FMT_YUV444P9,
+        AV_PIX_FMT_YUV420P10, AV_PIX_FMT_YUV422P10, AV_PIX_FMT_YUV444P10,
+        AV_PIX_FMT_YUV440P10,
+        AV_PIX_FMT_YUV444P12, AV_PIX_FMT_YUV422P12, AV_PIX_FMT_YUV420P12,
+        AV_PIX_FMT_YUV440P12,
+        AV_PIX_FMT_YUV444P14, AV_PIX_FMT_YUV422P14, AV_PIX_FMT_YUV420P14,
+        AV_PIX_FMT_YUV420P16, AV_PIX_FMT_YUV422P16, AV_PIX_FMT_YUV444P16,
+        AV_PIX_FMT_NONE
+    };
+    int ret;
+
     AVFilterFormats *fmts_list = ff_make_format_list(pix_fmts);
     if (!fmts_list)
         return AVERROR(ENOMEM);
-    return ff_set_common_formats(ctx, fmts_list);
+    if (!fm->ppsrc) {
+        return ff_set_common_formats(ctx, fmts_list);
+    }
+
+    if ((ret = ff_formats_ref(fmts_list, &ctx->inputs[INPUT_MAIN]->outcfg.formats)) < 0)
+        return ret;
+    fmts_list = ff_make_format_list(unproc_pix_fmts);
+    if (!fmts_list)
+        return AVERROR(ENOMEM);
+    if ((ret = ff_formats_ref(fmts_list, &ctx->outputs[0]->incfg.formats)) < 0)
+        return ret;
+    if ((ret = ff_formats_ref(fmts_list, &ctx->inputs[INPUT_CLEANSRC]->outcfg.formats)) < 0)
+        return ret;
+    return 0;
 }
 
 static int config_input(AVFilterLink *inlink)
@@ -882,9 +950,9 @@ static int config_input(AVFilterLink *inlink)
     fm->tpitchy  = FFALIGN(w,      16);
     fm->tpitchuv = FFALIGN(w >> 1, 16);
 
-    fm->tbuffer = av_malloc(h/2 * fm->tpitchy);
-    fm->c_array = av_malloc((((w + fm->blockx/2)/fm->blockx)+1) *
-                            (((h + fm->blocky/2)/fm->blocky)+1) *
+    fm->tbuffer = av_calloc((h/2 + 4) * fm->tpitchy, sizeof(*fm->tbuffer));
+    fm->c_array = av_malloc_array((((w + fm->blockx/2)/fm->blockx)+1) *
+                            (((h + fm->blocky/2)/fm->blocky)+1),
                             4 * sizeof(*fm->c_array));
     if (!fm->tbuffer || !fm->c_array)
         return AVERROR(ENOMEM);
@@ -896,22 +964,20 @@ static av_cold int fieldmatch_init(AVFilterContext *ctx)
 {
     const FieldMatchContext *fm = ctx->priv;
     AVFilterPad pad = {
-        .name         = av_strdup("main"),
+        .name         = "main",
         .type         = AVMEDIA_TYPE_VIDEO,
-        .filter_frame = filter_frame,
         .config_props = config_input,
     };
+    int ret;
 
-    if (!pad.name)
-        return AVERROR(ENOMEM);
-    ff_insert_inpad(ctx, INPUT_MAIN, &pad);
+    if ((ret = ff_insert_inpad(ctx, INPUT_MAIN, &pad)) < 0)
+        return ret;
 
     if (fm->ppsrc) {
-        pad.name = av_strdup("clean_src");
+        pad.name = "clean_src";
         pad.config_props = NULL;
-        if (!pad.name)
-            return AVERROR(ENOMEM);
-        ff_insert_inpad(ctx, INPUT_CLEANSRC, &pad);
+        if ((ret = ff_insert_inpad(ctx, INPUT_CLEANSRC, &pad)) < 0)
+            return ret;
     }
 
     if ((fm->blockx & (fm->blockx - 1)) ||
@@ -930,30 +996,33 @@ static av_cold int fieldmatch_init(AVFilterContext *ctx)
 
 static av_cold void fieldmatch_uninit(AVFilterContext *ctx)
 {
-    int i;
     FieldMatchContext *fm = ctx->priv;
 
     if (fm->prv != fm->src)
         av_frame_free(&fm->prv);
     if (fm->nxt != fm->src)
         av_frame_free(&fm->nxt);
+    if (fm->prv2 != fm->src2)
+        av_frame_free(&fm->prv2);
+    if (fm->nxt2 != fm->src2)
+        av_frame_free(&fm->nxt2);
     av_frame_free(&fm->src);
+    av_frame_free(&fm->src2);
     av_freep(&fm->map_data[0]);
     av_freep(&fm->cmask_data[0]);
     av_freep(&fm->tbuffer);
     av_freep(&fm->c_array);
-    for (i = 0; i < ctx->nb_inputs; i++)
-        av_freep(&ctx->input_pads[i].name);
 }
 
 static int config_output(AVFilterLink *outlink)
 {
     AVFilterContext *ctx  = outlink->src;
-    const FieldMatchContext *fm = ctx->priv;
+    FieldMatchContext *fm = ctx->priv;
     const AVFilterLink *inlink =
         ctx->inputs[fm->ppsrc ? INPUT_CLEANSRC : INPUT_MAIN];
+    const AVPixFmtDescriptor *desc = av_pix_fmt_desc_get(inlink->format);
 
-    outlink->flags |= FF_LINK_FLAG_REQUEST_LOOP;
+    fm->bpc = (desc->comp[0].depth + 7) / 8;
     outlink->time_base = inlink->time_base;
     outlink->sample_aspect_ratio = inlink->sample_aspect_ratio;
     outlink->frame_rate = inlink->frame_rate;
@@ -966,7 +1035,6 @@ static const AVFilterPad fieldmatch_outputs[] = {
     {
         .name          = "default",
         .type          = AVMEDIA_TYPE_VIDEO,
-        .request_frame = request_frame,
         .config_props  = config_output,
     },
     { NULL }
@@ -978,6 +1046,7 @@ AVFilter ff_vf_fieldmatch = {
     .query_formats  = query_formats,
     .priv_size      = sizeof(FieldMatchContext),
     .init           = fieldmatch_init,
+    .activate       = activate,
     .uninit         = fieldmatch_uninit,
     .inputs         = NULL,
     .outputs        = fieldmatch_outputs,

@@ -26,15 +26,16 @@
  *
  * Apply a boxblur debanding algorithm (based on the gradfun2db
  * AviSynth filter by prunedtree).
- * Foreach pixel, if it's within threshold of the blurred value, make it closer.
- * So now we have a smoothed and higher bitdepth version of all the shallow
- * gradients, while leaving detailed areas untouched.
+ * For each pixel, if it is within the threshold of the blurred value, make it
+ * closer. So now we have a smoothed and higher bitdepth version of all the
+ * shallow gradients, while leaving detailed areas untouched.
  * Dither it back to 8bit.
  */
 
 #include "libavutil/imgutils.h"
 #include "libavutil/common.h"
 #include "libavutil/cpu.h"
+#include "libavutil/mem_internal.h"
 #include "libavutil/opt.h"
 #include "libavutil/pixdesc.h"
 #include "avfilter.h"
@@ -173,8 +174,8 @@ static int config_input(AVFilterLink *inlink)
     if (!s->buf)
         return AVERROR(ENOMEM);
 
-    s->chroma_w = FF_CEIL_RSHIFT(inlink->w, hsub);
-    s->chroma_h = FF_CEIL_RSHIFT(inlink->h, vsub);
+    s->chroma_w = AV_CEIL_RSHIFT(inlink->w, hsub);
+    s->chroma_h = AV_CEIL_RSHIFT(inlink->h, vsub);
     s->chroma_r = av_clip(((((s->radius >> hsub) + (s->radius >> vsub)) / 2 ) + 1) & ~1, 4, 32);
 
     return 0;

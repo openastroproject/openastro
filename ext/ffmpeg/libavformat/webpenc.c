@@ -42,7 +42,7 @@ static int webp_write_header(AVFormatContext *s)
         return AVERROR(EINVAL);
     }
     st = s->streams[0];
-    if (st->codec->codec_id != AV_CODEC_ID_WEBP) {
+    if (st->codecpar->codec_id != AV_CODEC_ID_WEBP) {
         av_log(s, AV_LOG_ERROR, "Only WebP is supported\n");
         return AVERROR(EINVAL);
     }
@@ -53,24 +53,22 @@ static int webp_write_header(AVFormatContext *s)
 
 static int is_animated_webp_packet(AVPacket *pkt)
 {
-    if (pkt->size) {
         int skip = 0;
         unsigned flags = 0;
 
         if (pkt->size < 4)
-            return 0;
+        return AVERROR_INVALIDDATA;
         if (AV_RL32(pkt->data) == AV_RL32("RIFF"))
             skip = 12;
-
+    // Safe to do this as a valid WebP bitstream is >=30 bytes.
         if (pkt->size < skip + 4)
-            return 0;
+        return AVERROR_INVALIDDATA;
         if (AV_RL32(pkt->data + skip) == AV_RL32("VP8X")) {
             flags |= pkt->data[skip + 4 + 4];
         }
 
         if (flags & 2)  // ANIMATION_FLAG is on
             return 1;
-    }
     return 0;
 }
 
@@ -84,13 +82,9 @@ static int flush(AVFormatContext *s, int trailer, int64_t pts)
         unsigned flags = 0;
         int vp8x = 0;
 
-        if (w->last_pkt.size < 4)
-            return 0;
         if (AV_RL32(w->last_pkt.data) == AV_RL32("RIFF"))
             skip = 12;
 
-        if (w->last_pkt.size < skip + 4)
-            return 0;  // Safe to do this as a valid WebP bitstream is >=30 bytes.
         if (AV_RL32(w->last_pkt.data + skip) == AV_RL32("VP8X")) {
             flags |= w->last_pkt.data[skip + 4 + 4];
             vp8x = 1;
@@ -115,8 +109,8 @@ static int flush(AVFormatContext *s, int trailer, int64_t pts)
                 avio_wl32(s->pb, 10);
                 avio_w8(s->pb, flags);
                 avio_wl24(s->pb, 0);
-                avio_wl24(s->pb, st->codec->width - 1);
-                avio_wl24(s->pb, st->codec->height - 1);
+                avio_wl24(s->pb, st->codecpar->width - 1);
+                avio_wl24(s->pb, st->codecpar->height - 1);
             }
             if (!trailer) {
                 avio_write(s->pb, "ANIM", 4);
@@ -131,8 +125,8 @@ static int flush(AVFormatContext *s, int trailer, int64_t pts)
             avio_wl32(s->pb, 16 + w->last_pkt.size - skip);
             avio_wl24(s->pb, 0);
             avio_wl24(s->pb, 0);
-            avio_wl24(s->pb, st->codec->width - 1);
-            avio_wl24(s->pb, st->codec->height - 1);
+            avio_wl24(s->pb, st->codecpar->width - 1);
+            avio_wl24(s->pb, st->codecpar->height - 1);
             if (w->last_pkt.pts != AV_NOPTS_VALUE && pts != AV_NOPTS_VALUE) {
                 avio_wl24(s->pb, pts - w->last_pkt.pts);
             } else
@@ -140,7 +134,7 @@ static int flush(AVFormatContext *s, int trailer, int64_t pts)
             avio_w8(s->pb, 0);
         }
         avio_write(s->pb, w->last_pkt.data + skip, w->last_pkt.size - skip);
-        av_free_packet(&w->last_pkt);
+        av_packet_unref(&w->last_pkt);
     }
 
     return 0;
@@ -149,7 +143,14 @@ static int flush(AVFormatContext *s, int trailer, int64_t pts)
 static int webp_write_packet(AVFormatContext *s, AVPacket *pkt)
 {
     WebpContext *w = s->priv_data;
-    w->using_webp_anim_encoder |= is_animated_webp_packet(pkt);
+    int ret;
+
+    if (!pkt->size)
+        return 0;
+    ret = is_animated_webp_packet(pkt);
+    if (ret < 0)
+        return ret;
+    w->using_webp_anim_encoder |= ret;
 
     if (w->using_webp_anim_encoder) {
         avio_write(s->pb, pkt->data, pkt->size);
@@ -158,7 +159,7 @@ static int webp_write_packet(AVFormatContext *s, AVPacket *pkt)
         int ret;
         if ((ret = flush(s, 0, pkt->pts)) < 0)
             return ret;
-        av_copy_packet(&w->last_pkt, pkt);
+        av_packet_ref(&w->last_pkt, pkt);
     }
     ++w->frame_count;
 
@@ -190,6 +191,13 @@ static int webp_write_trailer(AVFormatContext *s)
     return 0;
 }
 
+static void webp_deinit(AVFormatContext *s)
+{
+    WebpContext *w = s->priv_data;
+
+    av_packet_unref(&w->last_pkt);
+}
+
 #define OFFSET(x) offsetof(WebpContext, x)
 #define ENC AV_OPT_FLAG_ENCODING_PARAM
 static const AVOption options[] = {
@@ -213,6 +221,7 @@ AVOutputFormat ff_webp_muxer = {
     .write_header   = webp_write_header,
     .write_packet   = webp_write_packet,
     .write_trailer  = webp_write_trailer,
+    .deinit         = webp_deinit,
     .priv_class     = &webp_muxer_class,
     .flags          = AVFMT_VARIABLE_FPS,
 };

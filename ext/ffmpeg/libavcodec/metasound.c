@@ -25,12 +25,13 @@
 #include <math.h>
 #include <stdint.h>
 
-#define BITSTREAM_READER_LE
 #include "libavutil/channel_layout.h"
 #include "libavutil/float_dsp.h"
+
+#define BITSTREAM_READER_LE
 #include "avcodec.h"
-#include "get_bits.h"
 #include "fft.h"
+#include "get_bits.h"
 #include "internal.h"
 #include "lsp.h"
 #include "sinewin.h"
@@ -169,9 +170,10 @@ static int metasound_read_bitstream(AVCodecContext *avctx, TwinVQContext *tctx,
     int channels              = tctx->avctx->channels;
     int sub;
     GetBitContext gb;
-    int i, j, k;
+    int i, j, k, ret;
 
-    init_get_bits(&gb, buf, buf_size * 8);
+    if ((ret = init_get_bits8(&gb, buf, buf_size)) < 0)
+        return ret;
 
     for (tctx->cur_frame = 0; tctx->cur_frame < tctx->frames_per_packet;
          tctx->cur_frame++) {
@@ -339,22 +341,16 @@ static av_cold int metasound_decode_init(AVCodecContext *avctx)
         tctx->mtab = &ff_metasound_mode2224s;
         break;
     case (1 << 16) + (44 << 8) + 32:
+    case (2 << 16) + (44 << 8) + 32:
         tctx->mtab = &ff_metasound_mode4432;
         break;
-    case (2 << 16) + (44 << 8) + 32:
-        tctx->mtab = &ff_metasound_mode4432s;
-        break;
     case (1 << 16) + (44 << 8) + 40:
+    case (2 << 16) + (44 << 8) + 40:
         tctx->mtab = &ff_metasound_mode4440;
         break;
-    case (2 << 16) + (44 << 8) + 40:
-        tctx->mtab = &ff_metasound_mode4440s;
-        break;
     case (1 << 16) + (44 << 8) + 48:
-        tctx->mtab = &ff_metasound_mode4448;
-        break;
     case (2 << 16) + (44 << 8) + 48:
-        tctx->mtab = &ff_metasound_mode4448s;
+        tctx->mtab = &ff_metasound_mode4448;
         break;
     default:
         av_log(avctx, AV_LOG_ERROR,
@@ -383,7 +379,7 @@ AVCodec ff_metasound_decoder = {
     .init           = metasound_decode_init,
     .close          = ff_twinvq_decode_close,
     .decode         = ff_twinvq_decode_frame,
-    .capabilities   = AV_CODEC_CAP_DR1,
+    .capabilities   = AV_CODEC_CAP_DR1 | AV_CODEC_CAP_CHANNEL_CONF,
     .sample_fmts    = (const enum AVSampleFormat[]) { AV_SAMPLE_FMT_FLTP,
                                                       AV_SAMPLE_FMT_NONE },
 };

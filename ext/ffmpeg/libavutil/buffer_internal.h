@@ -19,28 +19,26 @@
 #ifndef AVUTIL_BUFFER_INTERNAL_H
 #define AVUTIL_BUFFER_INTERNAL_H
 
+#include <stdatomic.h>
 #include <stdint.h>
 
+#include "internal.h"
 #include "buffer.h"
 #include "thread.h"
 
 /**
- * The buffer is always treated as read-only.
- */
-#define BUFFER_FLAG_READONLY      (1 << 0)
-/**
  * The buffer was av_realloc()ed, so it is reallocatable.
  */
-#define BUFFER_FLAG_REALLOCATABLE (1 << 1)
+#define BUFFER_FLAG_REALLOCATABLE (1 << 0)
 
 struct AVBuffer {
     uint8_t *data; /**< data described by this buffer */
-    int      size; /**< size of data in bytes */
+    buffer_size_t size; /**< size of data in bytes */
 
     /**
      *  number of existing AVBufferRef instances referring to this buffer
      */
-    volatile int refcount;
+    atomic_uint refcount;
 
     /**
      * a callback for freeing the data
@@ -53,9 +51,14 @@ struct AVBuffer {
     void *opaque;
 
     /**
-     * A combination of BUFFER_FLAG_*
+     * A combination of AV_BUFFER_FLAG_*
      */
     int flags;
+
+    /**
+     * A combination of BUFFER_FLAG_*
+     */
+    int flags_internal;
 };
 
 typedef struct BufferPoolEntry {
@@ -85,12 +88,13 @@ struct AVBufferPool {
      * buffers have been released, then it's safe to free the pool and all
      * the buffers in it.
      */
-    volatile int refcount;
+    atomic_uint refcount;
 
-    volatile int nb_allocated;
-
-    int size;
-    AVBufferRef* (*alloc)(int size);
+    buffer_size_t size;
+    void *opaque;
+    AVBufferRef* (*alloc)(buffer_size_t size);
+    AVBufferRef* (*alloc2)(void *opaque, buffer_size_t size);
+    void         (*pool_free)(void *opaque);
 };
 
 #endif /* AVUTIL_BUFFER_INTERNAL_H */

@@ -27,19 +27,46 @@
  * @author Maxim Gavrilov ( maxim.gavrilov gmail com )
  */
 
+#include "config.h"
 #include "libavutil/mem.h"
+#include "libavutil/mem_internal.h"
+#include "libavutil/thread.h"
 #include "aac.h"
-#include "aac_tablegen.h"
+#include "aactab.h"
 
 #include <stdint.h>
 
+float ff_aac_pow2sf_tab[428];
+float ff_aac_pow34sf_tab[428];
+
+#if CONFIG_AAC_ENCODER || CONFIG_AAC_DECODER
+#include "kbdwin.h"
+#include "sinewin.h"
+
 DECLARE_ALIGNED(32, float,  ff_aac_kbd_long_1024)[1024];
 DECLARE_ALIGNED(32, float,  ff_aac_kbd_short_128)[128];
-DECLARE_ALIGNED(32, int,    ff_aac_kbd_long_1024_fixed)[1024];
-DECLARE_ALIGNED(32, int,    ff_aac_kbd_short_128_fixed)[128];
+
+static av_cold void aac_float_common_init(void)
+{
+    ff_kbd_window_init(ff_aac_kbd_long_1024, 4.0, 1024);
+    ff_kbd_window_init(ff_aac_kbd_short_128, 6.0, 128);
+    ff_init_ff_sine_windows(10);
+    ff_init_ff_sine_windows(7);
+}
+
+av_cold void ff_aac_float_common_init(void)
+{
+    static AVOnce init_static_once = AV_ONCE_INIT;
+    ff_thread_once(&init_static_once, aac_float_common_init);
+}
+#endif
 
 const uint8_t ff_aac_num_swb_1024[] = {
     41, 41, 47, 49, 49, 51, 47, 47, 43, 43, 43, 40, 40
+};
+
+const uint8_t ff_aac_num_swb_960[] = {
+    40, 40, 46, 49, 49, 49, 46, 46, 42, 42, 42, 40, 40
 };
 
 const uint8_t ff_aac_num_swb_512[] = {
@@ -51,6 +78,10 @@ const uint8_t ff_aac_num_swb_480[] = {
 };
 
 const uint8_t ff_aac_num_swb_128[] = {
+    12, 12, 12, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15
+};
+
+const uint8_t ff_aac_num_swb_120[] = {
     12, 12, 12, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15
 };
 
@@ -1227,12 +1258,114 @@ static const uint16_t swb_offset_128_8[] = {
     36,  44,  52,  60,  72,  88, 108, 128
 };
 
+static const uint16_t swb_offset_960_96[] =
+{
+    0,   4,   8,   12,  16,  20,  24,  28,  32,  36,
+    40,  44,  48,  52,  56,  64,  72,  80,  88,  96,
+    108, 120, 132, 144, 156, 172, 188, 212, 240, 276,
+    320, 384, 448, 512, 576, 640, 704, 768, 832, 896,
+    960
+};
+
+static const uint16_t swb_offset_960_64[] =
+{
+    0,   4,   8,   12,  16,  20,  24,  28,  32,  36,
+    40,  44,  48,  52,  56,  64,  72,  80,  88,  100,
+    112, 124, 140, 156, 172, 192, 216, 240, 268, 304,
+    344, 384, 424, 464, 504, 544, 584, 624, 664, 704,
+    744, 784, 824, 864, 904, 944, 960
+};
+
+static const uint16_t swb_offset_960_48[] =
+{
+    0,   4,   8,   12,  16,  20,  24,  28,  32,  36,
+    40,  48,  56,  64,  72,  80,  88,  96,  108, 120,
+    132, 144, 160, 176, 196, 216, 240, 264, 292, 320,
+    352, 384, 416, 448, 480, 512, 544, 576, 608, 640,
+    672, 704, 736, 768, 800, 832, 864, 896, 928, 960
+};
+
+static const uint16_t swb_offset_960_32[] =
+{
+    0,   4,   8,   12,  16,  20,  24,  28,  32,  36,
+    40,  48,  56,  64,  72,  80,  88,  96,  108, 120,
+    132, 144, 160, 176, 196, 216, 240, 264, 292, 320,
+    352, 384, 416, 448, 480, 512, 544, 576, 608, 640,
+    672, 704, 736, 768, 800, 832, 864, 896, 928, 960
+};
+
+static const uint16_t swb_offset_960_24[] =
+{
+    0,   4,   8,   12,  16,  20,  24,  28,  32,  36,
+    40,  44,  52,  60,  68,  76,  84,  92,  100, 108,
+    116, 124, 136, 148, 160, 172, 188, 204, 220, 240,
+    260, 284, 308, 336, 364, 396, 432, 468, 508, 552,
+    600, 652, 704, 768, 832, 896, 960
+};
+
+static const uint16_t swb_offset_960_16[] =
+{
+    0,   8,   16,  24,  32,  40,  48,  56,  64,  72,
+    80,  88,  100, 112, 124, 136, 148, 160, 172, 184,
+    196, 212, 228, 244, 260, 280, 300, 320, 344, 368,
+    396, 424, 456, 492, 532, 572, 616, 664, 716, 772,
+    832, 896, 960
+};
+
+static const uint16_t swb_offset_960_8[] =
+{
+    0,   12,  24,  36,  48,  60,  72,  84,  96,  108,
+    120, 132, 144, 156, 172, 188, 204, 220, 236, 252,
+    268, 288, 308, 328, 348, 372, 396, 420, 448, 476,
+    508, 544, 580, 620, 664, 712, 764, 820, 880, 944,
+    960
+};
+
+
+static const uint16_t swb_offset_120_96[] =
+{
+    0, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 92, 120
+};
+
+static const uint16_t swb_offset_120_64[] =
+{
+    0, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 92, 120
+};
+
+static const uint16_t swb_offset_120_48[] =
+{
+    0,  4, 8, 12, 16, 20, 28, 36, 44, 56, 68, 80, 96, 112, 120
+};
+
+static const uint16_t swb_offset_120_24[] =
+{
+    0, 4, 8, 12, 16, 20, 24, 28, 36, 44, 52, 64, 76, 92, 108, 120
+};
+
+static const uint16_t swb_offset_120_16[] =
+{
+    0, 4, 8, 12, 16, 20, 24, 28, 32, 40, 48, 60, 72, 88, 108, 120
+};
+
+static const uint16_t swb_offset_120_8[] =
+{
+    0, 4, 8, 12, 16,  20, 24, 28, 36, 44, 52, 60, 72, 88, 108, 120
+};
+
 const uint16_t * const ff_swb_offset_1024[] = {
     swb_offset_1024_96, swb_offset_1024_96, swb_offset_1024_64,
     swb_offset_1024_48, swb_offset_1024_48, swb_offset_1024_32,
     swb_offset_1024_24, swb_offset_1024_24, swb_offset_1024_16,
     swb_offset_1024_16, swb_offset_1024_16, swb_offset_1024_8,
     swb_offset_1024_8
+};
+
+const uint16_t * const ff_swb_offset_960[] = {
+    swb_offset_960_96, swb_offset_960_96, swb_offset_960_64,
+    swb_offset_960_48, swb_offset_960_48, swb_offset_960_32,
+    swb_offset_960_24, swb_offset_960_24, swb_offset_960_16,
+    swb_offset_960_16, swb_offset_960_16, swb_offset_960_8,
+    swb_offset_960_8
 };
 
 const uint16_t * const ff_swb_offset_512[] = {
@@ -1259,6 +1392,14 @@ const uint16_t * const ff_swb_offset_128[] = {
     swb_offset_128_24, swb_offset_128_24, swb_offset_128_16,
     swb_offset_128_16, swb_offset_128_16, swb_offset_128_8,
     swb_offset_128_8
+};
+
+const uint16_t * const ff_swb_offset_120[] = {
+    swb_offset_120_96, swb_offset_120_96, swb_offset_120_96,
+    swb_offset_120_48, swb_offset_120_48, swb_offset_120_48,
+    swb_offset_120_24, swb_offset_120_24, swb_offset_120_16,
+    swb_offset_120_16, swb_offset_120_16, swb_offset_120_8,
+    swb_offset_120_8
 };
 
 // @}
@@ -3158,3 +3299,53 @@ const DECLARE_ALIGNED(32, int, ff_aac_eld_window_480_fixed)[1800] = {
     0xffecff1c, 0xffed391e, 0xffed740c, 0xffedafb1,
     0xffedebe1, 0xffee287d, 0xffee654e, 0xffeea23f,
 };
+
+static void aac_tableinit(void)
+{
+    /* 2^(i/16) for 0 <= i <= 15 */
+    static const float exp2_lut[] = {
+        1.00000000000000000000,
+        1.04427378242741384032,
+        1.09050773266525765921,
+        1.13878863475669165370,
+        1.18920711500272106672,
+        1.24185781207348404859,
+        1.29683955465100966593,
+        1.35425554693689272830,
+        1.41421356237309504880,
+        1.47682614593949931139,
+        1.54221082540794082361,
+        1.61049033194925430818,
+        1.68179283050742908606,
+        1.75625216037329948311,
+        1.83400808640934246349,
+        1.91520656139714729387,
+    };
+    float t1 = 8.8817841970012523233890533447265625e-16; // 2^(-50)
+    float t2 = 3.63797880709171295166015625e-12; // 2^(-38)
+    int t1_inc_cur, t2_inc_cur;
+    int t1_inc_prev = 0;
+    int t2_inc_prev = 8;
+
+    for (int i = 0; i < 428; i++) {
+        t1_inc_cur = 4 * (i % 4);
+        t2_inc_cur = (8 + 3*i) % 16;
+        if (t1_inc_cur < t1_inc_prev)
+            t1 *= 2;
+        if (t2_inc_cur < t2_inc_prev)
+            t2 *= 2;
+        // A much more efficient and accurate way of doing:
+        // ff_aac_pow2sf_tab[i]  = pow(2, (i - POW_SF2_ZERO) / 4.0);
+        // ff_aac_pow34sf_tab[i] = pow(ff_aac_pow2sf_tab[i], 3.0/4.0);
+        ff_aac_pow2sf_tab[i]  = t1 * exp2_lut[t1_inc_cur];
+        ff_aac_pow34sf_tab[i] = t2 * exp2_lut[t2_inc_cur];
+        t1_inc_prev = t1_inc_cur;
+        t2_inc_prev = t2_inc_cur;
+    }
+}
+
+void ff_aac_tableinit(void)
+{
+    static AVOnce init_static_once = AV_ONCE_INIT;
+    ff_thread_once(&init_static_once, aac_tableinit);
+}

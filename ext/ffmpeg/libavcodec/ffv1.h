@@ -33,7 +33,6 @@
 #include "libavutil/opt.h"
 #include "libavutil/imgutils.h"
 #include "libavutil/pixdesc.h"
-#include "libavutil/timer.h"
 #include "avcodec.h"
 #include "get_bits.h"
 #include "internal.h"
@@ -53,6 +52,11 @@
 #define MAX_QUANT_TABLES 8
 #define MAX_CONTEXT_INPUTS 5
 
+#define AC_GOLOMB_RICE          0
+#define AC_RANGE_DEFAULT_TAB    1
+#define AC_RANGE_CUSTOM_TAB     2
+#define AC_RANGE_DEFAULT_TAB_FORCE -2
+
 typedef struct VlcState {
     int16_t drift;
     uint16_t error_sum;
@@ -69,7 +73,7 @@ typedef struct PlaneContext {
     uint8_t interlace_bit_state[2];
 } PlaneContext;
 
-#define MAX_SLICES 256
+#define MAX_SLICES 1024
 
 typedef struct FFV1Context {
     AVClass *class;
@@ -104,11 +108,15 @@ typedef struct FFV1Context {
     int run_index;
     int colorspace;
     int16_t *sample_buffer;
+    int32_t *sample_buffer32;
+
+    int use32bit;
 
     int ec;
     int intra;
     int slice_damaged;
     int key_frame_ok;
+    int context_model;
 
     int bits_per_raw_sample;
     int packed_at_lsb;
@@ -144,43 +152,10 @@ static av_always_inline int fold(int diff, int bits)
     if (bits == 8)
         diff = (int8_t)diff;
     else {
-        diff +=  1 << (bits  - 1);
-        diff  = av_mod_uintp2(diff, bits);
-        diff -=  1 << (bits  - 1);
+        diff = sign_extend(diff, bits);
     }
 
     return diff;
-}
-
-static inline int predict(int16_t *src, int16_t *last)
-{
-    const int LT = last[-1];
-    const int T  = last[0];
-    const int L  = src[-1];
-
-    return mid_pred(L, L + T - LT, T);
-}
-
-static inline int get_context(PlaneContext *p, int16_t *src,
-                              int16_t *last, int16_t *last2)
-{
-    const int LT = last[-1];
-    const int T  = last[0];
-    const int RT = last[1];
-    const int L  = src[-1];
-
-    if (p->quant_table[3][127]) {
-        const int TT = last2[0];
-        const int LL = src[-2];
-        return p->quant_table[0][(L - LT) & 0xFF] +
-               p->quant_table[1][(LT - T) & 0xFF] +
-               p->quant_table[2][(T - RT) & 0xFF] +
-               p->quant_table[3][(LL - L) & 0xFF] +
-               p->quant_table[4][(TT - T) & 0xFF];
-    } else
-        return p->quant_table[0][(L - LT) & 0xFF] +
-               p->quant_table[1][(LT - T) & 0xFF] +
-               p->quant_table[2][(T - RT) & 0xFF];
 }
 
 static inline void update_vlc_state(VlcState *const state, const int v)
@@ -198,23 +173,29 @@ static inline void update_vlc_state(VlcState *const state, const int v)
     count++;
 
     if (drift <= -count) {
-        if (state->bias > -128)
-            state->bias--;
+        state->bias = FFMAX(state->bias - 1, -128);
 
-        drift += count;
-        if (drift <= -count)
-            drift = -count + 1;
+        drift = FFMAX(drift + count, -count + 1);
     } else if (drift > 0) {
-        if (state->bias < 127)
-            state->bias++;
+        state->bias = FFMIN(state->bias + 1, 127);
 
-        drift -= count;
-        if (drift > 0)
-            drift = 0;
+        drift = FFMIN(drift - count, 0);
     }
 
     state->drift = drift;
     state->count = count;
 }
+
+#define TYPE int16_t
+#define RENAME(name) name
+#include "ffv1_template.c"
+#undef TYPE
+#undef RENAME
+
+#define TYPE int32_t
+#define RENAME(name) name ## 32
+#include "ffv1_template.c"
+#undef TYPE
+#undef RENAME
 
 #endif /* AVCODEC_FFV1_H */

@@ -107,30 +107,17 @@ static void scale_coefs (
       }
     } else {
       shift = -shift;
+      mul <<= shift;
       for (i=0; i<len; i+=8) {
 
-          temp = src[i] * mul;
-          temp1 = src[i+1] * mul;
-          temp2 = src[i+2] * mul;
-
-          dst[i] = temp << shift;
-          temp3 = src[i+3] * mul;
-
-          dst[i+1] = temp1 << shift;
-          temp4 = src[i + 4] * mul;
-          dst[i+2] = temp2 << shift;
-
-          temp5 = src[i+5] * mul;
-          dst[i+3] = temp3 << shift;
-          temp6 = src[i+6] * mul;
-
-          dst[i+4] = temp4 << shift;
-          temp7 = src[i+7] * mul;
-
-          dst[i+5] = temp5 << shift;
-          dst[i+6] = temp6 << shift;
-          dst[i+7] = temp7 << shift;
-
+          dst[i]   = src[i  ] * mul;
+          dst[i+1] = src[i+1] * mul;
+          dst[i+2] = src[i+2] * mul;
+          dst[i+3] = src[i+3] * mul;
+          dst[i+4] = src[i+4] * mul;
+          dst[i+5] = src[i+5] * mul;
+          dst[i+6] = src[i+6] * mul;
+          dst[i+7] = src[i+7] * mul;
       }
     }
 }
@@ -139,7 +126,7 @@ static void scale_coefs (
  * Downmix samples from original signal to stereo or mono (this is for 16-bit samples
  * and fixed point decoder - original (for 32-bit samples) is in ac3dsp.c).
  */
-static void ac3_downmix_c_fixed16(int16_t **samples, int16_t (*matrix)[2],
+static void ac3_downmix_c_fixed16(int16_t **samples, int16_t **matrix,
                                   int out_ch, int in_ch, int len)
 {
     int i, j;
@@ -148,8 +135,8 @@ static void ac3_downmix_c_fixed16(int16_t **samples, int16_t (*matrix)[2],
         for (i = 0; i < len; i++) {
             v0 = v1 = 0;
             for (j = 0; j < in_ch; j++) {
-                v0 += samples[j][i] * matrix[j][0];
-                v1 += samples[j][i] * matrix[j][1];
+                v0 += samples[j][i] * matrix[0][j];
+                v1 += samples[j][i] * matrix[1][j];
             }
             samples[0][i] = (v0+2048)>>12;
             samples[1][i] = (v1+2048)>>12;
@@ -158,7 +145,7 @@ static void ac3_downmix_c_fixed16(int16_t **samples, int16_t (*matrix)[2],
         for (i = 0; i < len; i++) {
             v0 = 0;
             for (j = 0; j < in_ch; j++)
-                v0 += samples[j][i] * matrix[j][0];
+                v0 += samples[j][i] * matrix[0][j];
             samples[0][i] = (v0+2048)>>12;
         }
     }
@@ -168,8 +155,9 @@ static void ac3_downmix_c_fixed16(int16_t **samples, int16_t (*matrix)[2],
 #include "ac3dec.c"
 
 static const AVOption options[] = {
+    { "cons_noisegen", "enable consistent noise generation", OFFSET(consistent_noise_generation), AV_OPT_TYPE_BOOL, {.i64 = 0 }, 0, 1, PAR },
     { "drc_scale", "percentage of dynamic range compression to apply", OFFSET(drc_scale), AV_OPT_TYPE_FLOAT, {.dbl = 1.0}, 0.0, 6.0, PAR },
-    { "heavy_compr", "heavy dynamic range compression enabled", OFFSET(heavy_compression), AV_OPT_TYPE_INT, {.i64 = 0 }, 0, 1, PAR },
+    { "heavy_compr", "enable heavy dynamic range compression", OFFSET(heavy_compression), AV_OPT_TYPE_BOOL, {.i64 = 0 }, 0, 1, PAR },
     { NULL},
 };
 
@@ -188,9 +176,11 @@ AVCodec ff_ac3_fixed_decoder = {
     .init           = ac3_decode_init,
     .close          = ac3_decode_end,
     .decode         = ac3_decode_frame,
-    .capabilities   = AV_CODEC_CAP_DR1,
+    .capabilities   = AV_CODEC_CAP_CHANNEL_CONF |
+                      AV_CODEC_CAP_DR1,
     .long_name      = NULL_IF_CONFIG_SMALL("ATSC A/52A (AC-3)"),
     .sample_fmts    = (const enum AVSampleFormat[]) { AV_SAMPLE_FMT_S16P,
                                                       AV_SAMPLE_FMT_NONE },
     .priv_class     = &ac3_decoder_class,
+    .caps_internal  = FF_CODEC_CAP_INIT_THREADSAFE | FF_CODEC_CAP_INIT_CLEANUP,
 };

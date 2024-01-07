@@ -28,7 +28,7 @@
 
 #include <stdint.h>
 
-#include "libavutil/mem.h"
+#include "libavutil/mem_internal.h"
 
 #include "avcodec.h"
 #include "blockdsp.h"
@@ -54,7 +54,7 @@ typedef struct ASV1Context {
     int mb_height;
     int mb_width2;
     int mb_height2;
-    DECLARE_ALIGNED(16, int16_t, block)[6][64];
+    DECLARE_ALIGNED(32, int16_t, block)[6][64];
     uint16_t intra_matrix[64];
     int q_intra_matrix[64];
     uint8_t *bitstream_buffer;
@@ -66,7 +66,7 @@ extern const uint8_t ff_asv_ccp_tab[17][2];
 extern const uint8_t ff_asv_level_tab[7][2];
 extern const uint8_t ff_asv_dc_ccp_tab[8][2];
 extern const uint8_t ff_asv_ac_ccp_tab[16][2];
-extern const uint8_t ff_asv2_level_tab[63][2];
+extern const uint16_t ff_asv2_level_tab[63][2];
 
 void ff_asv_common_init(AVCodecContext *avctx);
 

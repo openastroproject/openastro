@@ -201,7 +201,7 @@ static int s302m_decode_frame(AVCodecContext *avctx, void *data,
     return avpkt->size;
 }
 
-#define FLAGS AV_OPT_FLAG_VIDEO_PARAM|AV_OPT_FLAG_DECODING_PARAM
+#define FLAGS AV_OPT_FLAG_AUDIO_PARAM|AV_OPT_FLAG_DECODING_PARAM
 static const AVOption s302m_options[] = {
     {"non_pcm_mode", "Chooses what to do with NON-PCM", offsetof(S302Context, non_pcm_mode), AV_OPT_TYPE_INT, {.i64 = 3}, 0, 3, FLAGS, "non_pcm_mode"},
     {"copy"        , "Pass NON-PCM through unchanged"     , 0, AV_OPT_TYPE_CONST, {.i64 = 0}, 0, 3, FLAGS, "non_pcm_mode"},
@@ -212,10 +212,10 @@ static const AVOption s302m_options[] = {
 };
 
 static const AVClass s302m_class = {
-    "SMPTE 302M Decoder",
-    av_default_item_name,
-    s302m_options,
-    LIBAVUTIL_VERSION_INT,
+    .class_name = "SMPTE 302M Decoder",
+    .item_name  = av_default_item_name,
+    .option     = s302m_options,
+    .version    = LIBAVUTIL_VERSION_INT,
 };
 
 AVCodec ff_s302m_decoder = {
@@ -225,6 +225,7 @@ AVCodec ff_s302m_decoder = {
     .id             = AV_CODEC_ID_S302M,
     .priv_data_size = sizeof(S302Context),
     .decode         = s302m_decode_frame,
-    .capabilities   = AV_CODEC_CAP_DR1,
+    .capabilities   = AV_CODEC_CAP_CHANNEL_CONF |
+                      AV_CODEC_CAP_DR1,
     .priv_class     = &s302m_class,
 };

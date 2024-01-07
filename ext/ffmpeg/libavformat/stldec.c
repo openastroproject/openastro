@@ -34,7 +34,7 @@ typedef struct {
     FFDemuxSubtitlesQueue q;
 } STLContext;
 
-static int stl_probe(AVProbeData *p)
+static int stl_probe(const AVProbeData *p)
 {
     char c;
     const unsigned char *ptr = p->buf;
@@ -77,8 +77,8 @@ static int stl_read_header(AVFormatContext *s)
     if (!st)
         return AVERROR(ENOMEM);
     avpriv_set_pts_info(st, 64, 1, 100);
-    st->codec->codec_type = AVMEDIA_TYPE_SUBTITLE;
-    st->codec->codec_id   = AV_CODEC_ID_STL;
+    st->codecpar->codec_type = AVMEDIA_TYPE_SUBTITLE;
+    st->codecpar->codec_id   = AV_CODEC_ID_STL;
 
     while (!avio_feof(s->pb)) {
         char line[4096];
@@ -97,14 +97,16 @@ static int stl_read_header(AVFormatContext *s)
         if (pts_start != AV_NOPTS_VALUE) {
             AVPacket *sub;
             sub = ff_subtitles_queue_insert(&stl->q, p, strlen(p), 0);
-            if (!sub)
+            if (!sub) {
+                ff_subtitles_queue_clean(&stl->q);
                 return AVERROR(ENOMEM);
+            }
             sub->pos = pos;
             sub->pts = pts_start;
             sub->duration = duration;
         }
     }
-    ff_subtitles_queue_finalize(&stl->q);
+    ff_subtitles_queue_finalize(s, &stl->q);
     return 0;
 }
 static int stl_read_packet(AVFormatContext *s, AVPacket *pkt)

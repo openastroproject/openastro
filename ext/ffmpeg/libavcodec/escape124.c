@@ -19,11 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "avcodec.h"
-#include "internal.h"
-
 #define BITSTREAM_READER_LE
+#include "avcodec.h"
 #include "get_bits.h"
+#include "internal.h"
 
 typedef union MacroBlock {
     uint16_t pixels[4];
@@ -89,11 +88,6 @@ static CodeBook unpack_codebook(GetBitContext* gb, unsigned depth,
     unsigned i, j;
     CodeBook cb = { 0 };
 
-    if (size >= INT_MAX / 34 || get_bits_left(gb) < size * 34)
-        return cb;
-
-    if (size >= INT_MAX / sizeof(MacroBlock))
-        return cb;
     cb.blocks = av_malloc(size ? size * sizeof(MacroBlock) : 1);
     if (!cb.blocks)
         return cb;
@@ -145,7 +139,7 @@ static MacroBlock decode_macroblock(Escape124Context* s, GetBitContext* gb,
     unsigned block_index, depth;
     int value = get_bits1(gb);
     if (value) {
-        static const char transitions[3][2] = { {2, 1}, {0, 2}, {1, 0} };
+        static const int8_t transitions[3][2] = { {2, 1}, {0, 2}, {1, 0} };
         value = get_bits1(gb);
         *codebook_index = transitions[*codebook_index][value];
     }
@@ -155,7 +149,7 @@ static MacroBlock decode_macroblock(Escape124Context* s, GetBitContext* gb,
     // depth = 0 means that this shouldn't read any bits;
     // in theory, this is the same as get_bits(gb, 0), but
     // that doesn't actually work.
-    block_index = depth ? get_bits(gb, depth) : 0;
+    block_index = get_bitsz(gb, depth);
 
     if (*codebook_index == 1) {
         block_index += superblock_index << s->codebooks[1].depth;
@@ -227,7 +221,7 @@ static int escape124_decode_frame(AVCodecContext *avctx,
     // represent a lower bound of the space needed for skipped superblocks. Non
     // skipped SBs need more space.
     if (get_bits_left(&gb) < 64 + s->num_superblocks * 23LL / 4320)
-        return -1;
+        return AVERROR_INVALIDDATA;
 
     frame_flags = get_bits_long(&gb, 32);
     frame_size  = get_bits_long(&gb, 32);
@@ -253,7 +247,7 @@ static int escape124_decode_frame(AVCodecContext *avctx,
             if (i == 2) {
                 // This codebook can be cut off at places other than
                 // powers of 2, leaving some of the entries undefined.
-                cb_size = get_bits_long(&gb, 20);
+                cb_size = get_bits(&gb, 20);
                 if (!cb_size) {
                     av_log(avctx, AV_LOG_ERROR, "Invalid codebook size 0.\n");
                     return AVERROR_INVALIDDATA;
@@ -272,10 +266,20 @@ static int escape124_decode_frame(AVCodecContext *avctx,
                     cb_size = s->num_superblocks << cb_depth;
                 }
             }
+            if (s->num_superblocks >= INT_MAX >> cb_depth) {
+                av_log(avctx, AV_LOG_ERROR, "Depth or num_superblocks are too large\n");
+                return AVERROR_INVALIDDATA;
+            }
+
             av_freep(&s->codebooks[i].blocks);
+            if (cb_size >= INT_MAX / 34 || get_bits_left(&gb) < (int)cb_size * 34)
+                return AVERROR_INVALIDDATA;
+
+            if (cb_size >= INT_MAX / sizeof(MacroBlock))
+                return AVERROR_INVALIDDATA;
             s->codebooks[i] = unpack_codebook(&gb, cb_depth, cb_size);
             if (!s->codebooks[i].blocks)
-                return -1;
+                return AVERROR(ENOMEM);
         }
     }
 

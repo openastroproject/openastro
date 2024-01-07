@@ -1,5 +1,5 @@
 /*
- * H261 decoder
+ * H.261 codec
  * Copyright (c) 2002-2004 Michael Niedermayer <michaelni@gmx.at>
  * Copyright (c) 2004 Maarten Daniels
  *
@@ -22,7 +22,7 @@
 
 /**
  * @file
- * h261codec.
+ * H.261 codec.
  */
 
 #ifndef AVCODEC_H261_H
@@ -48,8 +48,6 @@ typedef struct H261Context {
 
 #define MB_TYPE_H261_FIL 0x800000
 
-extern uint8_t ff_h261_rl_table_store[2][2 * MAX_RUN + MAX_LEVEL + 3];
-
 extern const uint8_t ff_h261_mba_code[35];
 extern const uint8_t ff_h261_mba_bits[35];
 extern const uint8_t ff_h261_mtype_code[10];
@@ -60,7 +58,6 @@ extern const uint8_t ff_h261_cbp_tab[63][2];
 extern RLTable ff_h261_rl_tcoeff;
 
 void ff_h261_loop_filter(MpegEncContext *s);
-void ff_h261_common_init(void);
 
 int ff_h261_get_picture_format(int width, int height);
 void ff_h261_reorder_mb_index(MpegEncContext *s);

@@ -25,6 +25,7 @@
 
 #include "avcodec.h"
 #include "canopus.h"
+#include "get_bits.h"
 #include "internal.h"
 
 #include "hq_hqa.h"
@@ -154,7 +155,7 @@ static int hq_decode_frame(HQContext *ctx, AVFrame *pic,
             slice_off[slice] >= slice_off[slice + 1] ||
             slice_off[slice + 1] > data_size) {
             av_log(ctx->avctx, AV_LOG_ERROR,
-                   "Invalid slice size %zu.\n", data_size);
+                   "Invalid slice size %"SIZE_SPECIFIER".\n", data_size);
             break;
         }
         init_get_bits(&gb, src + slice_off[slice],
@@ -179,6 +180,9 @@ static int hqa_decode_mb(HQContext *c, AVFrame *pic, int qgroup,
 {
     int flag = 0;
     int i, ret, cbp;
+
+    if (get_bits_left(gb) < 1)
+        return AVERROR_INVALIDDATA;
 
     cbp = get_vlc2(gb, c->hqa_cbp_vlc.table, 5, 1);
 
@@ -244,13 +248,18 @@ static int hqa_decode_frame(HQContext *ctx, AVFrame *pic, size_t data_size)
     int width, height, quant;
     const uint8_t *src = ctx->gbc.buffer;
 
+    if (bytestream2_get_bytes_left(&ctx->gbc) < 8 + 4*(num_slices + 1))
+        return AVERROR_INVALIDDATA;
+
     width  = bytestream2_get_be16(&ctx->gbc);
     height = bytestream2_get_be16(&ctx->gbc);
 
+    ret = ff_set_dimensions(ctx->avctx, width, height);
+    if (ret < 0)
+        return ret;
+
     ctx->avctx->coded_width         = FFALIGN(width,  16);
     ctx->avctx->coded_height        = FFALIGN(height, 16);
-    ctx->avctx->width               = width;
-    ctx->avctx->height              = height;
     ctx->avctx->bits_per_raw_sample = 8;
     ctx->avctx->pix_fmt             = AV_PIX_FMT_YUVA422P;
 
@@ -277,7 +286,7 @@ static int hqa_decode_frame(HQContext *ctx, AVFrame *pic, size_t data_size)
             slice_off[slice] >= slice_off[slice + 1] ||
             slice_off[slice + 1] > data_size) {
             av_log(ctx->avctx, AV_LOG_ERROR,
-                   "Invalid slice size %zu.\n", data_size);
+                   "Invalid slice size %"SIZE_SPECIFIER".\n", data_size);
             break;
         }
         init_get_bits(&gb, src + slice_off[slice],
@@ -312,7 +321,7 @@ static int hq_hqa_decode_frame(AVCodecContext *avctx, void *data,
         int info_size;
         bytestream2_skip(&ctx->gbc, 4);
         info_size = bytestream2_get_le32(&ctx->gbc);
-        if (bytestream2_get_bytes_left(&ctx->gbc) < info_size) {
+        if (info_size < 0 || bytestream2_get_bytes_left(&ctx->gbc) < info_size) {
             av_log(avctx, AV_LOG_ERROR, "Invalid INFO size (%d).\n", info_size);
             return AVERROR_INVALIDDATA;
         }

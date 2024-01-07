@@ -73,14 +73,14 @@ static int mmf_write_header(AVFormatContext *s)
                           "VN:Lavf," :
                           "VN:"LIBAVFORMAT_IDENT",";
 
-    rate = mmf_rate_code(s->streams[0]->codec->sample_rate);
+    rate = mmf_rate_code(s->streams[0]->codecpar->sample_rate);
     if (rate < 0) {
         av_log(s, AV_LOG_ERROR, "Unsupported sample rate %d, supported are 4000, 8000, 11025, 22050 and 44100\n",
-               s->streams[0]->codec->sample_rate);
+               s->streams[0]->codecpar->sample_rate);
         return AVERROR(EINVAL);
     }
 
-    mmf->stereo = s->streams[0]->codec->channels > 1;
+    mmf->stereo = s->streams[0]->codecpar->channels > 1;
     if (mmf->stereo &&
         s->strict_std_compliance > FF_COMPLIANCE_EXPERIMENTAL) {
         av_log(s, AV_LOG_ERROR, "Yamaha SMAF stereo is experimental, "
@@ -121,9 +121,7 @@ static int mmf_write_header(AVFormatContext *s)
 
     mmf->awapos = ff_start_tag(pb, "Awa\x01");
 
-    avpriv_set_pts_info(s->streams[0], 64, 1, s->streams[0]->codec->sample_rate);
-
-    avio_flush(pb);
+    avpriv_set_pts_info(s->streams[0], 64, 1, s->streams[0]->codecpar->sample_rate);
 
     return 0;
 }
@@ -147,7 +145,7 @@ static int mmf_write_trailer(AVFormatContext *s)
     int64_t pos, size;
     int gatetime;
 
-    if (s->pb->seekable) {
+    if (s->pb->seekable & AVIO_SEEKABLE_NORMAL) {
         /* Fill in length fields */
         end_tag_be(pb, mmf->awapos);
         end_tag_be(pb, mmf->atrpos);
@@ -162,7 +160,7 @@ static int mmf_write_trailer(AVFormatContext *s)
         /* "play wav" */
         avio_w8(pb, 0); /* start time */
         avio_w8(pb, (mmf->stereo << 6) | 1); /* (channel << 6) | wavenum */
-        gatetime = size * 500 / s->streams[0]->codec->sample_rate;
+        gatetime = size * 500 / s->streams[0]->codecpar->sample_rate;
         put_varlength(pb, gatetime); /* duration */
 
         /* "nop" */
@@ -173,14 +171,12 @@ static int mmf_write_trailer(AVFormatContext *s)
         avio_write(pb, "\x00\x00\x00\x00", 4);
 
         avio_seek(pb, pos, SEEK_SET);
-
-        avio_flush(pb);
     }
     return 0;
 }
 #endif /* CONFIG_MMF_MUXER */
 
-static int mmf_probe(AVProbeData *p)
+static int mmf_probe(const AVProbeData *p)
 {
     /* check file header */
     if (p->buf[0] == 'M' && p->buf[1] == 'M' &&
@@ -262,16 +258,16 @@ static int mmf_read_header(AVFormatContext *s)
     if (!st)
         return AVERROR(ENOMEM);
 
-    st->codec->codec_type            = AVMEDIA_TYPE_AUDIO;
-    st->codec->codec_id              = AV_CODEC_ID_ADPCM_YAMAHA;
-    st->codec->sample_rate           = rate;
-    st->codec->channels              = (params >> 7) + 1;
-    st->codec->channel_layout        = params >> 7 ? AV_CH_LAYOUT_STEREO : AV_CH_LAYOUT_MONO;
-    st->codec->bits_per_coded_sample = 4;
-    st->codec->bit_rate              = st->codec->sample_rate *
-                                       st->codec->bits_per_coded_sample;
+    st->codecpar->codec_type            = AVMEDIA_TYPE_AUDIO;
+    st->codecpar->codec_id              = AV_CODEC_ID_ADPCM_YAMAHA;
+    st->codecpar->sample_rate           = rate;
+    st->codecpar->channels              = (params >> 7) + 1;
+    st->codecpar->channel_layout        = params >> 7 ? AV_CH_LAYOUT_STEREO : AV_CH_LAYOUT_MONO;
+    st->codecpar->bits_per_coded_sample = 4;
+    st->codecpar->bit_rate              = st->codecpar->sample_rate *
+                                          st->codecpar->bits_per_coded_sample;
 
-    avpriv_set_pts_info(st, 64, 1, st->codec->sample_rate);
+    avpriv_set_pts_info(st, 64, 1, st->codecpar->sample_rate);
 
     return 0;
 }
