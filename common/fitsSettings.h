@@ -2,7 +2,7 @@
  *
  * fitsSettings.h -- class declaration
  *
- * Copyright 2015,2016,2017,2018
+ * Copyright 2015,2016,2017,2018,2023
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -29,7 +29,8 @@
 
 #include <oa_common.h>
 
-#ifdef HAVE_QT5
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
 #include <QtWidgets>
 #endif
 #include <QtCore>

@@ -2,7 +2,8 @@
  *
  * trampoline.h -- functions redirecting to class function calls
  *
- * Copyright 2019,2021 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2021,2023
+ *		James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -28,7 +29,8 @@
 
 #include <oa_common.h>
 
-#ifdef HAVE_QT5
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
 #include <QtWidgets>
 #else
 #include <QtGui>
