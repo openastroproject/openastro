@@ -1082,12 +1082,24 @@ if `$PKG_CONFIG --exists aravis-0.6`; then
   if test "$useisystemInclude" == "yes"; then
     flags=`echo "$flags" | sed 's/^-I/-isystem/'`
   fi
-  LIBARAVIS_CFLAGS="$flags $CPPFLAGS"
+  LIBARAVIS_CFLAGS="$flags $CPPFLAGS -DARAVIS_V06"
   LDFLAGS="`$PKG_CONFIG --libs-only-L aravis-0.6` $LDFLAGS"
   LIBS="`$PKG_CONFIG --libs-only-l aravis-0.6` $LIBS"
   AC_DEFINE([HAVE_LIBARAVIS],[1],[Have libaravis])
 	have_libaravis=yes
   AC_MSG_NOTICE([Using system libaravis-0.6 library])
+fi
+if `$PKG_CONFIG --exists aravis-0.8`; then
+  flags=`$PKG_CONFIG --cflags-only-I aravis-0.8`
+  if test "$useisystemInclude" == "yes"; then
+    flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+  fi
+  LIBARAVIS_CFLAGS="$flags $CPPFLAGS -DARAVIS_V08"
+  LDFLAGS="`$PKG_CONFIG --libs-only-L aravis-0.8` $LDFLAGS"
+  LIBS="`$PKG_CONFIG --libs-only-l aravis-0.8` $LIBS"
+  AC_DEFINE([HAVE_LIBARAVIS],[1],[Have libaravis])
+	have_libaravis=yes
+  AC_MSG_NOTICE([Using system libaravis-0.8 library])
 fi
 AC_SUBST(LIBARAVIS_CFLAGS)
 

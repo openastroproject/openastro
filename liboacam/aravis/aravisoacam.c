@@ -2,7 +2,7 @@
  *
  * aravisoacam.c -- main entrypoint for Aravis interface
  *
- * Copyright 2021
+ * Copyright 2021,2023
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -32,7 +32,14 @@
 #include <dlfcn.h>
 #endif
 #endif
+#ifdef ARAVIS_V06
 #include <aravis-0.6/arv.h>
+#define ARAVIS_NAME "libaravis-0.6.so.0"
+#endif
+#ifdef ARAVIS_V08
+#include <aravis-0.8/arv.h>
+#define ARAVIS_NAME "libaravis-0.8.so.0"
+#endif
 
 #include <openastro/camera.h>
 #include <openastro/util.h>
@@ -59,7 +66,7 @@ oaAravisGetCameras ( CAMERA_LIST* deviceList, unsigned long featureFlags,
   static void*		libHandle = 0;
 
   if ( !libHandle ) {
-    if (!( libHandle = dlopen( "libaravis-0.6.so.0", RTLD_LAZY ))) {
+    if (!( libHandle = dlopen( ARAVIS_NAME, RTLD_LAZY ))) {
       return 0;
     }
   }
