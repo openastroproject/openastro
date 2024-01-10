@@ -2,7 +2,8 @@
  *
  * stackMedian.c -- median stacking method
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2023
+ *		James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -27,9 +28,6 @@
 #include <oa_common.h>
 #include <openastro/imgproc.h>
 
-#if HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
 #if HAVE_MALLOC_H
 #include <malloc.h>
 #endif

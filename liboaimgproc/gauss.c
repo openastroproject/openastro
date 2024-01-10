@@ -2,7 +2,8 @@
  *
  * gauss.c -- gauss convolution routines
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2023
+ *		James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -26,7 +27,9 @@
 
 #include <oa_common.h>
 
+#if HAVE_MATH_H
 #include <math.h>
+#endif
 
 #include "gauss.h"
 

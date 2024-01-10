@@ -2,7 +2,8 @@
  *
  * stackKappaSigma.c -- kappa sigma stacking method
  *
- * Copyright 2019,2020,2021 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2020,2021,2023
+ *		James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -29,8 +30,9 @@
 #include <openastro/imgproc.h>
 #include <openastro/util.h>
 
-#include <stdlib.h>
+#if HAVE_MATH_H
 #include <math.h>
+#endif
 
 
 int

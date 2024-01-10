@@ -2,7 +2,7 @@
  *
  * stackMedianKappaSigma.c -- median kappa sigma stacking method
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2023 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -27,9 +27,6 @@
 #include <oa_common.h>
 #include <openastro/imgproc.h>
 
-#if HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
 #if HAVE_MATH_H
 #include <math.h>
 #endif

@@ -2,7 +2,7 @@
  *
  * gamma.c -- Apply a gamma transformation to an image
  *
- * Copyright 2019,2021
+ * Copyright 2019,2021,2023
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -27,7 +27,9 @@
 
 #include <oa_common.h>
 
+#if	HAVE_MATH_H
 #include <math.h>
+#endif
 
 #include <openastro/imgproc.h>
 #include <openastro/demosaic.h>
