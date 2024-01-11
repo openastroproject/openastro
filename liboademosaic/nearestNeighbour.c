@@ -2,7 +2,7 @@
  *
  * nearestNeighbour.c -- nearest neighbour demosaic method
  *
- * Copyright 2013,2014,2018,2021
+ * Copyright 2013,2014,2018,2021,2023
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -27,7 +27,6 @@
 
 #include <oa_common.h>
 
-#include <stdint.h>
 #include <openastro/demosaic.h>
 #include <openastro/util.h>
 

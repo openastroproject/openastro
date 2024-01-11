@@ -2,7 +2,8 @@
  *
  * demosaic.c -- main demosaic library entrypoint
  *
- * Copyright 2013,2014,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2013,2014,2018,2023
+ *		James Fidell (james@openastroproject.org)
  *
  * License:
  *
