@@ -113,6 +113,9 @@
 #if HAVE_LIBBRESSERCAM
 #include "bresser/oacam.h"
 #endif
+#if HAVE_LIBOGMACAM
+#include "ogmacam/oacam.h"
+#endif
 
 
 oaInterface	oaCameraInterfaces[] = {
@@ -401,6 +404,18 @@ oaInterface	oaCameraInterfaces[] = {
     "Bresser",
     "BRESSER",
     oaBressercamGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if HAVE_LIBOGMACAM
+  {
+    OA_CAM_IF_OGMACAM,
+    "Ogma Vision",
+    "Ogma",
+    oaOgmacamGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },
