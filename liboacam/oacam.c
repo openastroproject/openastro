@@ -116,6 +116,9 @@
 #if HAVE_LIBOGMACAM
 #include "ogmacam/oacam.h"
 #endif
+#if HAVE_LIBTSCAM
+#include "tscam/oacam.h"
+#endif
 
 
 oaInterface	oaCameraInterfaces[] = {
@@ -416,6 +419,18 @@ oaInterface	oaCameraInterfaces[] = {
     "Ogma Vision",
     "Ogma",
     oaOgmacamGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if HAVE_LIBTSCAM
+  {
+    OA_CAM_IF_TSCAM,
+    "Teleskop Service",
+    "TS",
+    oaTScamGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },

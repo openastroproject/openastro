@@ -63,7 +63,8 @@ enum oaCameraInterfaceType {
   OA_CAM_IF_DUMMY			= 26,
   OA_CAM_IF_BRESSERCAM			= 27,
   OA_CAM_IF_OGMACAM			= 28,
-  OA_CAM_IF_COUNT			= 29
+  OA_CAM_IF_TSCAM				= 29,
+  OA_CAM_IF_COUNT			= 30
 };
 
 extern oaInterface	oaCameraInterfaces[ OA_CAM_IF_COUNT + 1 ];
