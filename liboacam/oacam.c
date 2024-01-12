@@ -119,6 +119,9 @@
 #if HAVE_LIBTSCAM
 #include "tscam/oacam.h"
 #endif
+#if HAVE_PLAYERONE
+#include "playerone/POAoacam.h"
+#endif
 
 
 oaInterface	oaCameraInterfaces[] = {
@@ -431,6 +434,18 @@ oaInterface	oaCameraInterfaces[] = {
     "Teleskop Service",
     "TS",
     oaTScamGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if HAVE_LIBPLAYERONE
+  {
+    OA_CAM_IF_PLAYERONE
+    "Player One",
+    "POA",
+    oaPOAcamGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },
