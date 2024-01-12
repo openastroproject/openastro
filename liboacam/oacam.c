@@ -2,7 +2,7 @@
  *
  * oacam.c -- main camera library entrypoint
  *
- * Copyright 2013,2014,2015,2016,2018,2019,2020,2021
+ * Copyright 2013,2014,2015,2016,2018,2019,2020,2021,2024
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -109,6 +109,9 @@
 #endif
 #if HAVE_LIBSVBCAMERASDK
 #include "svbony/SVBoacam.h"
+#endif
+#if HAVE_LIBBRESSERCAM
+#include "bresser/oacam.h"
 #endif
 
 
@@ -386,6 +389,18 @@ oaInterface	oaCameraInterfaces[] = {
     "SVBony",
     "SVB",
     oaSVBGetCameras,
+    0,
+    OA_UDC_FLAG_NONE
+  },
+#else
+  { 0, "", "", 0, 0, OA_UDC_FLAG_NONE },
+#endif
+#if HAVE_LIBBRESSERCAM
+  {
+    OA_CAM_IF_BRESSERCAM,
+    "Bresser",
+    "BRESSER",
+    oaBressercamGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },
