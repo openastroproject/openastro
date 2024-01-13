@@ -10,11 +10,11 @@
 #define	IMAGEQUEUE_ORIG_MODE		1
 
 
-#define version_year                23
-#define version_month               10
-#define version_day                 11
-#define version_subday              13
-#define SDK_SVN_REVISION            13305
+#define version_year                24
+#define version_month               1
+#define version_day                 9
+#define version_subday              12
+#define SDK_SVN_REVISION            13509
 
 #if defined (_WIN32)
 #define CCM6000_SUPPORT             0

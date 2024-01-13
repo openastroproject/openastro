@@ -247,13 +247,14 @@ typedef enum CONTROL_ID
 /*76*/  CAM_BIN8X8MODE,         //!< check if camera has bin8x8 mode
 /*77*/  CAM_GlobalSensorGPSLED,         ///Show GPS LED tab on sharpCap
 /*78*/  CONTROL_ImgProc,   /// Process image
-/*79*/  CONTROL_RemoveRBI,   /// Remove single RBI
+/*79*/  CONTROL_RemoveRBI,   /// RBI, Remove single residual image
 /*80*/  CONTROL_GlobalReset,		//!<image stabilization
 /*81*/  CONTROL_FrameDetect,
 /*82*/  CAM_GainDBConversion, //!<Supports the conversion between db and gain
 /*83*/  CAM_CurveSystemGain,  //!
 /*84*/	CAM_CurveFullWell,
 /*85*/	CAM_CurveReadoutNoise,
+/*86*/	CAM_UseAverageBinning,
 
 /* Do not Put Item after  CONTROL_MAX_ID !! This should be the max index of the list */
 /*Last One */  CONTROL_MAX_ID,
