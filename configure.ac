@@ -1148,7 +1148,7 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 AC_LANG_POP(C++)
 
 # Checks for header files.
-AC_CHECK_HEADERS([errno.h fcntl.h float.h limits.h malloc.h math.h stdint.h stdlib.h string.h strings.h sys/ioctl.h sys/time.h unistd.h fitsio.h cfitsio/fitsio.h ftdi.h libftdi/ftdi.h libftdi1/ftdi.h sys/sendfile.h sys/time.h syslog.h stdbool.h hidapi/hidapi.h])
+AC_CHECK_HEADERS([errno.h fcntl.h float.h limits.h malloc.h math.h stdint.h stdlib.h string.h strings.h sys/ioctl.h sys/time.h unistd.h fitsio.h cfitsio/fitsio.h ftdi.h libftdi/ftdi.h libftdi1/ftdi.h sys/sendfile.h sys/time.h syslog.h stdbool.h hidapi/hidapi.h time.h])
 # C++ versions
 AC_LANG_PUSH([C++])
 AC_CHECK_HEADERS([cerrno cfloat climits cmath cstdint cstdlib cstring cstrings])
