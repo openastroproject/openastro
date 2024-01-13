@@ -913,7 +913,7 @@ then
     AC_DEFINE([HAVE_LIBOMEGONPROCAM],[1],[Have libomegonprocam])
   else
     AC_CHECK_LIB([omegonprocam],[Omegonprocam_Open],[
-      LIBS="-lnncam $LIBS"
+      LIBS="-lomegonprocam $LIBS"
       AC_DEFINE([HAVE_LIBOMEGONPROCAM],[1],[Have libomegonprocam])
     ],[
       AC_MSG_WARN([libomegonprocam not found.  Dynamic support for Omegon cameras.])
@@ -944,7 +944,7 @@ then
     AC_DEFINE([HAVE_LIBMEADECAM],[1],[Have libmeadecam])
   else
     AC_CHECK_LIB([meadecam],[Toupcam_Open],[
-      LIBS="-lnncam $LIBS"
+      LIBS="-lmeadecam $LIBS"
       AC_DEFINE([HAVE_LIBMEADECAM],[1],[Have libmeadecam])
     ],[
       AC_MSG_WARN([libmeadecam not found.  Dynamic support for Meade cameras.])
