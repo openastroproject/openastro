@@ -126,11 +126,16 @@ MEADECAMDIR = meadecam
 MEADECAMLIB = $(MEADECAMDIR)/libmeadecam.la
 endif
 
+if LIBBRESSERCAM_COND
+BRESSERDIR= bresser
+BRESSERLIB= $(BRESSERDIR)/libbressercam.la
+endif
+
 SUBDIRS	= euvc iidc pwc qhy sx uvc dummy $(ALTAIRDIR) $(ATIKDIR) \
 	$(MALLINCAMDIR) $(FC2DIR) $(SPINDIR) $(TOUPCAMDIR) $(V4L2DIR) $(ZWODIR) \
 	$(ALTAIRLEGACYDIR) $(QHYCCDDIR) $(GPHOTO2DIR) $(STARSHOOTGDIR) \
 	$(RISINGCAMDIR) $(OMEGONPROCAMDIR) $(PYLONDIR) $(SVBONYDIR) $(ARAVISDIR) \
-	$(MEADECAMDIR) . demo
+	$(MEADECAMDIR) $(BRESSERDIR) . demo
 
 liboacam_la_SOURCES = \
   control.c oacam.c unimplemented.c utils.c timer.c
@@ -140,7 +145,7 @@ liboacam_la_LIBADD = euvc/libeuvc.la iidc/libiidc.la pwc/libpwc.la \
 	$(ATIKLIB) $(MALLINCAMLIB) $(FC2LIB) $(SPINLIB) $(TOUPCAMLIB) $(V4L2LIB) \
 	$(ZWOLIB) $(ALTAIRLEGACYLIB) $(QHYCCDLIB) $(GPHOTO2LIB) $(STARSHOOTGLIB) \
 	$(RISINGCAMLIB) $(OMEGONPROCAMLIB) $(PYLONLIB) $(SVBONYLIB) $(ARAVISLIB) \
-	$(MEADECAMLIB)
+	$(MEADECAMLIB) $(BRESSERLIB)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
