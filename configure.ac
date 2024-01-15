@@ -61,6 +61,7 @@ have_dl=no
 have_toupcam=$armelavailable
 have_mallincam=$armelavailable
 have_bressercam=$armelavailable
+have_ogmacam=$armelavailable
 have_altaircam=$armelavailable
 have_altaircamlegacy=$armelavailable
 have_starshootg=$armelavailable
@@ -92,6 +93,7 @@ checkSystemLibstarshootg=no
 checkSystemLibnncam=no
 checkSystemLibmallincam=no
 checkSystemLibbressercam=no
+checkSystemLibogmacam=no
 checkSystemLibomegonprocam=no
 checkSystemLibmeadecam=no
 checkSystemLibqhyccd=no
@@ -112,6 +114,7 @@ case $host in
 		checkSystemLibaltaircamlegacy=$armelavailable
 		checkSystemLibmallincam=$armelavailable
 		checkSystemLibbressercam=$armelavailable
+		checkSystemLibogmacam=$armelavailable
     checkSystemLibstarshootg=$armelavailable
     checkSystemLibnncam=$armelavailable
     checkSystemLibomegonprocam=$armelavailable
@@ -1042,6 +1045,37 @@ then
 fi
 
 
+use_system_libogmacam=no
+if test "$checkSystemLibogmacam" == "yes"
+then
+  if `$PKG_CONFIG --exists libogmacam`; then
+    AC_MSG_NOTICE([Using system libogmacam library])
+    flags=`$PKG_CONFIG --cflags-only-I libogmacam`
+		if test "$useisystemInclude" == "yes"; then
+      flags=`echo "$flags" | sed 's/^-I/-isystem/'`
+    fi
+    LIBOGMACAM_CFLAGS="$flags"
+    # can't use shared libogmacam if we're not using the system libusb
+    # because it will try to pull it in anyhow
+    if test "x$use_system_libusb" == "xyes"; then
+      LIBOGMACAM_LDFLAGS="`$PKG_CONFIG --libs-only-L libogmacam`"
+      LIBOGMACAM_LIBS="`$PKG_CONFIG --libs-only-l libogmacam`"
+    else
+      AC_MSG_WARN([libogmacam not compatible with internal libusb.  No support for Ogma Vision cameras.])
+    fi
+    use_system_libogmacam=yes
+    AC_DEFINE([HAVE_LIBOGMACAM],[1],[Have libogmacam])
+  else
+    AC_CHECK_LIB([ogmacam],[Ogmacam_Open],[
+      LIBS="-logmacam $LIBS"
+      AC_DEFINE([HAVE_LIBOGMACAM],[1],[Have libogmacam])
+    ],[
+      AC_MSG_WARN([libogmacam not found.  Dynamic support for Ogma Vision cameras.])
+    ])
+  fi
+fi
+
+
 if test -n "$PYLON_CONFIG"
 then
  	AC_MSG_NOTICE([Using Basler pylon library])
@@ -1732,6 +1766,16 @@ then
 	fi
 fi
 
+if test "x$use_system_libogmacam" == "xno"
+then
+	if test "x$have_ogmacam" != "xno"
+	then
+		LIBOGMACAM_CFLAGS="-I \$(top_srcdir)/ext/libogmacam/include"
+		LIBOGMACAM_LIBS=""
+		AC_DEFINE([HAVE_LIBOGMACAM],[1],[Have Ogmacam library support])
+	fi
+fi
+
 AC_DEFINE([HAVE_LIBMALLINCAM],[1],[Have Mallincam library support])
 
 AC_SUBST(OSX_FRAMEWORKS)
@@ -1762,6 +1806,8 @@ AC_SUBST(LIBQHYCCD_CFLAGS)
 AC_SUBST(LIBQHYCCD_LIBS)
 AC_SUBST(LIBBRESSERCAM_CFLAGS)
 AC_SUBST(LIBBRESSERCAM_LIBS)
+AC_SUBST(LIBOGMACAM_CFLAGS)
+AC_SUBST(LIBOGMACAM_LIBS)
 AC_SUBST(PYLON_CFLAGS)
 AC_SUBST(PYLON_LDFLAGS)
 AC_SUBST(PYLON_LIBS)
@@ -1800,6 +1846,7 @@ AM_CONDITIONAL([LIBMEADECAM_COND], [test "x$have_meadecam" == "xyes"])
 AM_CONDITIONAL([LIBQHYCCD_COND], [test "x$have_qhyccd" == "xyes"])
 AM_CONDITIONAL([LIBGPHOTO2_COND], [test "x$have_libgphoto2" == "xyes"])
 AM_CONDITIONAL([LIBBRESSERCAM_COND], [test "x$have_bressercam" == "xyes"])
+AM_CONDITIONAL([LIBOGMACAM_COND], [test "x$have_ogmacam" == "xyes"])
 AM_CONDITIONAL([LIBARAVIS_COND], [test "x$have_libaravis" == "xyes"])
 AM_CONDITIONAL([PYLON_COND], [test -n "$PYLON_CONFIG"])
 AM_CONDITIONAL([LIBSVBCAMERASDK_COND], [test "x$have_svbcamerasdk" == "xyes"])
@@ -1809,5 +1856,5 @@ AM_CONDITIONAL([BUILD_LIBUSB_COND], [test "x$build_libusb" == "xyes"])
 AM_CONDITIONAL([LIBHIDAPI_COND], [test "x$use_system_libhidapi" == "xno"])
 AM_CONDITIONAL([INT_LIBUVC_COND], [test "x$internal_uvc" == "xyes"])
 
-AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/altair-legacy/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/pylon/Makefile liboacam/qhy/Makefile liboacam/qhyccd/Makefile liboacam/starshootg/Makefile liboacam/risingcam/Makefile liboacam/omegonpro/Makefile liboacam/svbony/Makefile liboacam/bresser/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboacam/dummy/Makefile liboacam/gphoto2/Makefile liboacam/aravis/Makefile liboacam/meadecam/Makefile liboacam/demo/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
+AC_CONFIG_FILES([Makefile common/Makefile liboautil/Makefile liboacam/Makefile liboacam/altair/Makefile liboacam/altair-legacy/Makefile liboacam/atik/Makefile liboacam/euvc/Makefile liboacam/iidc/Makefile liboacam/mallincam/Makefile liboacam/flycap2/Makefile liboacam/spinnaker/Makefile liboacam/pwc/Makefile liboacam/pylon/Makefile liboacam/qhy/Makefile liboacam/qhyccd/Makefile liboacam/starshootg/Makefile liboacam/risingcam/Makefile liboacam/omegonpro/Makefile liboacam/svbony/Makefile liboacam/bresser/Makefile liboacam/ogmacam/Makefile liboacam/sx/Makefile liboacam/toupcam/Makefile liboacam/uvc/Makefile liboacam/v4l2/Makefile liboacam/zwo/Makefile liboacam/dummy/Makefile liboacam/gphoto2/Makefile liboacam/aravis/Makefile liboacam/meadecam/Makefile liboacam/demo/Makefile liboademosaic/Makefile liboaSER/Makefile liboavideo/Makefile liboafilterwheel/Makefile liboafilterwheel/sx/Makefile liboafilterwheel/xagyl/Makefile liboafilterwheel/zwo/Makefile liboafilterwheel/brightstar/Makefile liboaimgproc/Makefile liboaPTR/Makefile liboaephem/Makefile oacapture/Makefile oacapture/icons/Makefile oacapture/desktop/Makefile oacapture/translations/Makefile ext/Makefile ext/libuvc/Makefile ext/libuvc/src/Makefile ext/libwindib/Makefile oalive/Makefile oalive/icons/Makefile oalive/desktop/Makefile udev/Makefile lib/Makefile lib/firmware/Makefile lib/firmware/qhy/Makefile bin/Makefile packagers/Makefile packagers/deb/Makefile packagers/deb/debfiles/Makefile packagers/rpm/Makefile osx/Makefile osx/oaCapture.iconset/Makefile osx/oalive.iconset/Makefile])
 AC_OUTPUT

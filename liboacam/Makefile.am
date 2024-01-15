@@ -1,7 +1,7 @@
 #
 # Makefile.am -- liboacam Makefile template
 #
-# Copyright 2013,2014,2015,2016,2017,2018,2019,2020,2021
+# Copyright 2013,2014,2015,2016,2017,2018,2019,2020,2021,2024
 #     James Fidell (james@openastroproject.org)
 #
 # License:
@@ -131,11 +131,16 @@ BRESSERDIR= bresser
 BRESSERLIB= $(BRESSERDIR)/libbressercam.la
 endif
 
+if LIBOGMACAM_COND
+OGMADIR= ogmacam
+OGMALIB= $(OGMADIR)/libogmacam.la
+endif
+
 SUBDIRS	= euvc iidc pwc qhy sx uvc dummy $(ALTAIRDIR) $(ATIKDIR) \
 	$(MALLINCAMDIR) $(FC2DIR) $(SPINDIR) $(TOUPCAMDIR) $(V4L2DIR) $(ZWODIR) \
 	$(ALTAIRLEGACYDIR) $(QHYCCDDIR) $(GPHOTO2DIR) $(STARSHOOTGDIR) \
 	$(RISINGCAMDIR) $(OMEGONPROCAMDIR) $(PYLONDIR) $(SVBONYDIR) $(ARAVISDIR) \
-	$(MEADECAMDIR) $(BRESSERDIR) . demo
+	$(MEADECAMDIR) $(BRESSERDIR) $(OGMADIR) . demo
 
 liboacam_la_SOURCES = \
   control.c oacam.c unimplemented.c utils.c timer.c
@@ -145,7 +150,7 @@ liboacam_la_LIBADD = euvc/libeuvc.la iidc/libiidc.la pwc/libpwc.la \
 	$(ATIKLIB) $(MALLINCAMLIB) $(FC2LIB) $(SPINLIB) $(TOUPCAMLIB) $(V4L2LIB) \
 	$(ZWOLIB) $(ALTAIRLEGACYLIB) $(QHYCCDLIB) $(GPHOTO2LIB) $(STARSHOOTGLIB) \
 	$(RISINGCAMLIB) $(OMEGONPROCAMLIB) $(PYLONLIB) $(SVBONYLIB) $(ARAVISLIB) \
-	$(MEADECAMLIB) $(BRESSERLIB)
+	$(MEADECAMLIB) $(BRESSERLIB) $(OGMALIB)
 
 WARNINGS = -g -O -Wall -Werror -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wno-pointer-sign $(OSX_WARNINGS)
 
