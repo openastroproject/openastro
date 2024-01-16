@@ -433,7 +433,7 @@ oaInterface	oaCameraInterfaces[] = {
     OA_CAM_IF_TSCAM,
     "Teleskop Service",
     "TS",
-    oaTScamGetCameras,
+    oaTscamGetCameras,
     0,
     OA_UDC_FLAG_NONE
   },
