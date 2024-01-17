@@ -2,7 +2,7 @@
  *
  * logging.c -- Handle logging
  *
- * Copyright 2021 James Fidell (james@openastroproject.org)
+ * Copyright 2021,2023 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -23,10 +23,6 @@
  * <http://www.gnu.org/licenses/>.
  *
  *****************************************************************************/
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 #include <oa_common.h>
 #include <openastro/util.h>

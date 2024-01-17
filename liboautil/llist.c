@@ -2,7 +2,7 @@
  *
  * llist.c -- double linked list
  *
- * Copyright 2015 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2023 James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -24,7 +24,6 @@
  *
  *****************************************************************************/
 
-#include <stdlib.h>
 #include <pthread.h>
 
 #include <oa_common.h>
