@@ -2,7 +2,7 @@
  *
  * oaser.c -- main SER library entrypoint
  *
- * Copyright 2013,2014,2016,2019,2023
+ * Copyright 2013,2014,2016,2019,2023,2024
  *		James Fidell (james@openastroproject.org)
  *
  * License:
@@ -28,7 +28,9 @@
 #include <oa_common.h>
 #include <openastro/SER.h>
 
+#if HAVE_TIME_H
 #include <time.h>
+#endif
 #if HAVE_FCNTL_H
 # include <fcntl.h>
 #endif
