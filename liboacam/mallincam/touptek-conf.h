@@ -2,7 +2,8 @@
  *
  * touptek-conf.h -- Touptek build configuration for Mallincam cameras
  *
- * Copyright 2019 James Fidell (james@openastroproject.org)
+ * Copyright 2019,2023
+ *		James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -45,7 +46,7 @@
 #define TT_FUNC( prefix, suffix)	prefix ## Mallincam ## suffix
 
 // library handle type
-#define	TT_HANDLE									HToupCam
+#define	TT_HANDLE									HMallincam
 
 // config flag prefix
 #define	TT_FLAG( flag )						MALLINCAM_FLAG_ ## flag
@@ -54,19 +55,19 @@
 #define	TT_OPTION( option )				MALLINCAM_OPTION_ ## option
 
 // library function name prefix
-#define	TT_LIB_PREFIX							"Toupcam"
+#define	TT_LIB_PREFIX							"Mallincam"
 
 // pointer to library function
 #define	TT_LIB_PTR( func )				p_ ## Mallincam_ ## func
 
 // driver name
-#define	TT_DRIVER									"Toupcam"
+#define	TT_DRIVER									"Mallincam"
 
 // define prefix
 #define	TT_DEFINE( var )					MALLINCAM_ ## var
 
 // variable type prefix
-#define TT_VAR_TYPE( type )				Toupcam ## type
+#define TT_VAR_TYPE( type )				Mallincam ## type
 
 // function type
 #define TT_FUNC_TYPE( prefix, suffix )	prefix ## MALLINCAM_ ## suffix
