@@ -2,7 +2,7 @@
  *
  * EUVCusb.c -- USB interface for EUVC cameras
  *
- * Copyright 2015,2021
+ * Copyright 2015,2021,2024
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -124,19 +124,13 @@ euvcStatusCallback ( struct libusb_transfer* transfer )
       break;
 
     case LIBUSB_TRANSFER_CANCELLED:
-      // FIX ME -- I can't get this to work without causing a crash, but
-      // things seem to work ok for the moment without it.  Needs more
-      // investigation
-/*
       pthread_mutex_lock ( &cameraInfo->callbackQueueMutex );
       if ( cameraInfo->statusTransfer ) {
-        free ( cameraInfo->statusBuffer );
         libusb_free_transfer ( transfer );
         cameraInfo->statusTransfer = 0;
       }
       pthread_mutex_unlock ( &cameraInfo->callbackQueueMutex );
       resubmit = 0;
-*/
       break;
 
     case LIBUSB_TRANSFER_COMPLETED:
