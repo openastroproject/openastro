@@ -2,7 +2,7 @@
  *
  * oafw.c -- main filter wheel library entrypoint
  *
- * Copyright 2014,2015,2018,2020,2021
+ * Copyright 2014,2015,2018,2020,2021,2023
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -38,10 +38,10 @@
 #include "oafwversion.h"
 #include "oafwprivate.h"
 
-#include "xagylfw.h"
-#include "sxfw.h"
-#include "zwofw.h"
-#include "brightstarfw.h"
+#include "xagyl/xagylfw.h"
+#include "sx/sxfw.h"
+#include "zwo/zwofw.h"
+#include "brightstar/brightstarfw.h"
 
 oaInterface	oaFilterWheelInterfaces[] = {
   { 0, "", "", 0, OA_UDC_FLAG_NONE },
