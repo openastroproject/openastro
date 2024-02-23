@@ -2,7 +2,7 @@
  *
  * brightstarConnect.c -- Initialise Brightstar filter wheel
  *
- * Copyright 2018,2019,2021
+ * Copyright 2018,2019,2021,2023
  *   James Fidell (james@openastroproject.org)
  *
  * License:
@@ -31,7 +31,11 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <termios.h>
+#if HAVE_HIDAPI_HIDAPI_H
+#include <hidapi/hidapi.h>
+#else
 #include <hidapi.h>
+#endif
 #include <pthread.h>
 
 #include <openastro/util.h>

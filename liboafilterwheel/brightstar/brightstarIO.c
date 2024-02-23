@@ -31,7 +31,11 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <termios.h>
+#if HAVE_HIDAPI_HIDAPI_H
+#include <hidapi/hidapi.h>
+#else
 #include <hidapi.h>
+#endif
 #include <pthread.h>
 
 #include <openastro/util.h>
