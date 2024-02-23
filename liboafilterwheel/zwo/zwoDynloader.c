@@ -26,8 +26,6 @@
 
 #include <oa_common.h>
 
-#if HAVE_LIBZWOFW
-
 #if HAVE_LIBDL
 #if HAVE_DLFCN_H
 #include <dlfcn.h>
@@ -144,4 +142,3 @@ _getDLSym ( void* libHandle, const char* symbol )
   return addr;
 }
 #endif
-#endif	/* HAVE_LIBZWOFW */
