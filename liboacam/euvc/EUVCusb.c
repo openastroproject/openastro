@@ -112,7 +112,7 @@ void
 euvcStatusCallback ( struct libusb_transfer* transfer )
 {
   int		resubmit = 1;
-//EUVC_STATE*	cameraInfo = ( EUVC_STATE* ) transfer->user_data;
+	EUVC_STATE*	cameraInfo = ( EUVC_STATE* ) transfer->user_data;
 
   switch ( transfer->status ) {
     case LIBUSB_TRANSFER_ERROR:
