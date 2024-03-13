@@ -2,8 +2,9 @@
  *
  * occultationWidget.h -- class for occultation tools
  *
- * Copyright 2021
- *   Dave Tucker (dave@dtucker.co.uk), James Fidell (james@openastroproject.org)
+ * Copyright 2021,2023
+ *		Dave Tucker (dave@dtucker.co.uk),
+ *		James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -29,7 +30,8 @@
 
 #include <oa_common.h>
 
-#if HAVE_QT5
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
 #include <QtWidgets>
 #endif
 #include <QtCore>
