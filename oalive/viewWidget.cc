@@ -360,12 +360,12 @@ ViewWidget::mouseReleaseEvent ( QMouseEvent* event )
 void
 ViewWidget::wheelEvent ( QWheelEvent* event )
 {
-  int change = event->delta();
+  int change = event->angleDelta().x();
   int direction = ( change > 0 ) - ( change < 0 );
   if ( !direction ) {
     event->ignore();
   } else {
-    int x = event->x();
+    qreal x = event->position().x();
     qreal scale = static_cast<qreal>( abs ( x - reticleCentreX )) / 50;
     rotationAngle += direction * scale;
     if ( 0 == rotationAngle ) {
