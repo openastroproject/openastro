@@ -2,7 +2,8 @@
  *
  * oalive.cc -- main application entrypoint
  *
- * Copyright 2015,2017,2018 James Fidell (james@openastroproject.org)
+ * Copyright 2015,2017,2018,2024
+ *		James Fidell (james@openastroproject.org)
  *
  * License:
  *
@@ -54,7 +55,7 @@ main ( int argc, char* argv[] )
 	unsigned int	logType = OA_LOG_NONE;
 	int						ret;
 
-#if HAVE_QT5
+#if QT_VERSION >= 0x050000
 	QStringList debugTypeValues = { "none", "app", "camera", "fw", "timer" };
 	QStringList debugLevelValues = { "none", "error", "warning", "info",
 			"debug" };
@@ -91,7 +92,7 @@ main ( int argc, char* argv[] )
     app.installTranslator ( &appTranslator );
   }
 
-#if HAVE_QT5
+#if QT_VERSION >= 0x050000
 	QCommandLineParser parser;
 
 	parser.addHelpOption();
